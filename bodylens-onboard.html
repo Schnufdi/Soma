@@ -7,407 +7,1210 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+/* ── ONBOARD SHELL ── */
+.ob2-shell {
+  min-height: 100vh;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+.ob2-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--bd);
+  position: sticky;
+  top: 0;
+  background: rgba(12,16,16,0.97);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+}
+.ob2-brand {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--dk-1);
+  letter-spacing: -0.01em;
+}
+.ob2-brand em { font-style: normal; color: var(--jade); }
+.ob2-step-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+}
+.ob2-progress-bar {
+  height: 2px;
+  background: var(--ink-3);
+}
+.ob2-progress-fill {
+  height: 100%;
+  background: var(--jade);
+  transition: width 0.4s ease;
+}
+
+/* ── PHASE CONTAINER ── */
+.ob2-phase {
+  display: none;
+  flex: 1;
+}
+.ob2-phase.active { display: flex; flex-direction: column; }
+
+/* ── FORM PHASE ── */
+.ob2-form-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0 120px;
+}
+.ob2-section {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 24px 0;
+}
+.ob2-section:last-of-type { padding-bottom: 40px; }
+
+.ob2-sec-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ob2-sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--bd);
+}
+.ob2-sec-title {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--dk-1);
+  margin-bottom: 28px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+/* ── QUESTION BLOCK ── */
+.ob2-q {
+  margin-bottom: 28px;
+}
+.ob2-q-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dk-1);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.ob2-q-sub {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+/* ── NUMBER INPUT ── */
+.ob2-num-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ob2-num-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 100px;
+}
+.ob2-num-sub {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--dk-3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ob2-input {
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--dk-1);
+  font-family: var(--mono);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+  -moz-appearance: textfield;
+}
+.ob2-input:focus { border-color: var(--jade-br); }
+.ob2-input::placeholder { color: var(--dk-3); font-size: 14px; }
+.ob2-input::-webkit-inner-spin-button,
+.ob2-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ── TEXT INPUT ── */
+.ob2-text-input {
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-1);
+  font-family: var(--sans);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.ob2-text-input:focus { border-color: var(--jade-br); }
+.ob2-text-input::placeholder { color: var(--dk-3); }
+
+/* ── CHIP GRID ── */
+.ob2-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ob2-chip {
+  padding: 9px 16px;
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--dk-2);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: var(--sans);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ob2-chip:hover { border-color: var(--jade-br); color: var(--jade); }
+.ob2-chip.selected {
+  background: var(--jade-dim);
+  border-color: var(--jade-br);
+  color: var(--jade);
+  font-weight: 500;
+}
+.ob2-chip.single.selected {
+  background: var(--jade);
+  border-color: var(--jade);
+  color: var(--ink);
+}
+
+/* ── GOAL CARDS ── */
+.ob2-goal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.ob2-goal-card {
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 8px;
+  padding: 16px 14px;
+  cursor: pointer;
+  transition: all 0.12s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ob2-goal-card:hover { border-color: var(--jade-br); }
+.ob2-goal-card.selected {
+  border-color: var(--jade);
+  background: var(--jade-dim);
+}
+.ob2-goal-icon {
+  font-size: 22px;
+  margin-bottom: 8px;
+  display: block;
+}
+.ob2-goal-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dk-1);
+  margin-bottom: 3px;
+}
+.ob2-goal-card.selected .ob2-goal-title { color: var(--jade); }
+.ob2-goal-desc {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  line-height: 1.4;
+}
+
+/* ── INJURY SECTION ── */
+.ob2-injury-areas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.ob2-injury-area {
+  padding: 10px 8px;
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dk-2);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.12s;
+  user-select: none;
+}
+.ob2-injury-area:hover { border-color: var(--gold-br); color: var(--gold); }
+.ob2-injury-area.selected {
+  background: var(--gold-dim);
+  border-color: var(--gold-br);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── BOTTOM BAR ── */
+.ob2-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(12,16,16,0.97);
+  border-top: 1px solid var(--bd);
+  padding: 14px 24px 18px;
+  backdrop-filter: blur(8px);
+  z-index: 200;
+}
+.ob2-bottom-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ob2-next-btn {
+  padding: 13px 28px;
+  background: var(--jade);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.ob2-next-btn:hover { background: var(--jade-hi); }
+.ob2-next-btn:disabled { background: var(--ink-3); color: var(--dk-3); cursor: not-allowed; }
+.ob2-skip {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dk-3);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  background: none;
+  border: none;
+  font-family: var(--sans);
+}
+.ob2-skip:hover { color: var(--dk-2); }
+.ob2-progress-text {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  flex: 1;
+}
+
+/* ── CHAT PHASE ── */
+.ob2-chat-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 24px 160px;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ob2-msg {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  animation: fadeUp 0.3s ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ob2-msg.user { flex-direction: row-reverse; }
+.ob2-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.ob2-msg.ai .ob2-avatar {
+  background: var(--jade-dim);
+  color: var(--jade);
+  border: 1px solid var(--jade-br);
+}
+.ob2-msg.user .ob2-avatar {
+  background: var(--ink-2);
+  color: var(--dk-2);
+  border: 1px solid var(--bd-2);
+}
+.ob2-bubble {
+  max-width: 480px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.75;
+  border-radius: 12px;
+}
+.ob2-msg.ai .ob2-bubble {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  color: var(--dk-1);
+  border-radius: 4px 12px 12px 12px;
+}
+.ob2-msg.user .ob2-bubble {
+  background: var(--jade-dim);
+  border: 1px solid var(--jade-br);
+  color: var(--dk-1);
+  border-radius: 12px 4px 12px 12px;
+}
+.ob2-bubble strong { color: var(--jade); font-weight: 600; }
+
+/* Typing dots */
+.ob2-dots { display: flex; gap: 4px; align-items: center; }
+.ob2-dots span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--dk-3);
+  animation: dot 1.2s infinite;
+}
+.ob2-dots span:nth-child(2) { animation-delay: 0.2s; }
+.ob2-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot {
+  0%,80%,100% { transform: scale(0.8); opacity: 0.4; }
+  40% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Chat input bar */
+.ob2-chat-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(12,16,16,0.97);
+  border-top: 1px solid var(--bd);
+  padding: 12px 24px 16px;
+  backdrop-filter: blur(8px);
+  z-index: 200;
+}
+.ob2-chat-bar-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  gap: 8px;
+}
+.ob2-chat-input {
+  flex: 1;
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 22px;
+  padding: 11px 18px;
+  font-size: 14px;
+  color: var(--dk-1);
+  font-family: var(--sans);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.ob2-chat-input:focus { border-color: var(--jade-br); }
+.ob2-chat-input::placeholder { color: var(--dk-3); font-size: 13px; }
+.ob2-chat-send {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--jade);
+  border: none;
+  color: var(--ink);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.ob2-chat-send:hover { background: var(--jade-hi); }
+.ob2-chat-send:disabled { background: var(--ink-3); cursor: not-allowed; }
+
+/* ── GENERATING PHASE ── */
+.ob2-generating {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 48px;
+}
+.ob2-gen-spinner {
+  width: 44px; height: 44px;
+  border: 2px solid var(--bd-2);
+  border-top-color: var(--jade);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.ob2-gen-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 280px;
+  width: 100%;
+}
+.ob2-gen-step {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: color 0.3s;
+}
+.ob2-gen-step.done { color: var(--jade); }
+.ob2-gen-step-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--bd-2);
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.ob2-gen-step.done .ob2-gen-step-dot { background: var(--jade); }
+.ob2-gen-step.active .ob2-gen-step-dot {
+  background: var(--jade);
+  animation: pulse 1s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px) {
+  .ob2-header { padding: 16px; }
+  .ob2-section { padding: 36px 16px 0; }
+  .ob2-sec-title { font-size: 24px; }
+  .ob2-goal-grid { grid-template-columns: 1fr; }
+  .ob2-injury-areas { grid-template-columns: repeat(3,1fr); }
+  .ob2-bottom-inner { flex-wrap: wrap; }
+  .ob2-next-btn { width: 100%; text-align: center; }
+  .ob2-chat-scroll { padding: 20px 16px 140px; }
+  .ob2-chat-bar { padding: 10px 16px 14px; }
+  .ob2-num-wrap { min-width: 80px; }
+}
+</style>
 </head>
 <body>
 
-<div class="ob-shell" id="ob-shell">
+<div class="ob2-shell">
 
-  <div class="ob-header">
-    <div class="ob-brand">Body<em>Lens</em></div>
-    <div class="ob-step" id="ob-step"></div>
+  <!-- HEADER -->
+  <div class="ob2-header">
+    <div class="ob2-brand">Body<em>Lens</em></div>
+    <div class="ob2-step-label" id="step-label">Your profile</div>
+  </div>
+  <div class="ob2-progress-bar">
+    <div class="ob2-progress-fill" id="progress-fill" style="width:0%"></div>
   </div>
 
-  <div class="ob-progress">
-    <div class="ob-progress-fill" id="ob-progress" style="width:0%"></div>
-  </div>
+  <!-- PHASE 1: FORM -->
+  <div class="ob2-phase active" id="phase-form">
+    <div class="ob2-form-scroll" id="form-scroll">
 
-  <div class="ob-messages" id="ob-messages"></div>
-  <div class="ob-chips" id="ob-chips"></div>
+      <!-- S1: About you -->
+      <div class="ob2-section">
+        <div class="ob2-sec-label">1 of 4</div>
+        <div class="ob2-sec-title">About your body</div>
 
-  <div class="ob-input-bar" id="ob-input-bar">
-    <div class="ob-input-inner">
-      <input class="ob-input" id="ob-input" type="text"
-        placeholder="Type your answer…"
-        autocomplete="off" autocorrect="off" autocapitalize="sentences">
-      <button class="ob-send" id="ob-send">&#x2191;</button>
+        <div class="ob2-q">
+          <div class="ob2-q-label">Age, height, weight</div>
+          <div class="ob2-num-row">
+            <div class="ob2-num-wrap">
+              <div class="ob2-num-sub">Age</div>
+              <input class="ob2-input" type="number" id="f-age" placeholder="43" min="16" max="90">
+            </div>
+            <div class="ob2-num-wrap">
+              <div class="ob2-num-sub">Height (cm)</div>
+              <input class="ob2-input" type="number" id="f-height" placeholder="181" min="140" max="220">
+            </div>
+            <div class="ob2-num-wrap">
+              <div class="ob2-num-sub">Weight (kg)</div>
+              <input class="ob2-input" type="number" id="f-weight" placeholder="85" min="40" max="200">
+            </div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Sex</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="sex" data-val="Male" onclick="selectSingle(this)">Male</div>
+            <div class="ob2-chip single" data-group="sex" data-val="Female" onclick="selectSingle(this)">Female</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Estimated body fat</div>
+          <div class="ob2-q-sub">Rough estimate is fine</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="bf" data-val="Under 10%" onclick="selectSingle(this)">Under 10%</div>
+            <div class="ob2-chip single" data-group="bf" data-val="10-13%" onclick="selectSingle(this)">10–13%</div>
+            <div class="ob2-chip single" data-group="bf" data-val="14-17%" onclick="selectSingle(this)">14–17%</div>
+            <div class="ob2-chip single" data-group="bf" data-val="18-22%" onclick="selectSingle(this)">18–22%</div>
+            <div class="ob2-chip single" data-group="bf" data-val="22%+" onclick="selectSingle(this)">22%+</div>
+            <div class="ob2-chip single" data-group="bf" data-val="Not sure" onclick="selectSingle(this)">Not sure</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Where do you store fat?</div>
+          <div class="ob2-q-sub">Select all that apply</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip" data-group="fat" data-val="Love handles" onclick="selectMulti(this)">Love handles</div>
+            <div class="ob2-chip" data-group="fat" data-val="Lower back" onclick="selectMulti(this)">Lower back</div>
+            <div class="ob2-chip" data-group="fat" data-val="Belly" onclick="selectMulti(this)">Belly</div>
+            <div class="ob2-chip" data-group="fat" data-val="Chest" onclick="selectMulti(this)">Chest</div>
+            <div class="ob2-chip" data-group="fat" data-val="Thighs / hips" onclick="selectMulti(this)">Thighs / hips</div>
+            <div class="ob2-chip" data-group="fat" data-val="All over" onclick="selectMulti(this)">All over</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2: Goal -->
+      <div class="ob2-section">
+        <div class="ob2-sec-label">2 of 4</div>
+        <div class="ob2-sec-title">What are you building?</div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Primary goal</div>
+          <div class="ob2-goal-grid">
+            <div class="ob2-goal-card" data-group="goal" data-val="Lose body fat" onclick="selectGoal(this)">
+              <span class="ob2-goal-icon">🔥</span>
+              <div class="ob2-goal-title">Lose body fat</div>
+              <div class="ob2-goal-desc">Get lean, reduce body fat, visible definition</div>
+            </div>
+            <div class="ob2-goal-card" data-group="goal" data-val="Build muscle" onclick="selectGoal(this)">
+              <span class="ob2-goal-icon">💪</span>
+              <div class="ob2-goal-title">Build muscle</div>
+              <div class="ob2-goal-desc">Add lean mass, get stronger, more size</div>
+            </div>
+            <div class="ob2-goal-card" data-group="goal" data-val="Body recomposition" onclick="selectGoal(this)">
+              <span class="ob2-goal-icon">⚡</span>
+              <div class="ob2-goal-title">Recomposition</div>
+              <div class="ob2-goal-desc">Lose fat and build muscle simultaneously</div>
+            </div>
+            <div class="ob2-goal-card" data-group="goal" data-val="Athletic performance" onclick="selectGoal(this)">
+              <span class="ob2-goal-icon">🏃</span>
+              <div class="ob2-goal-title">Performance</div>
+              <div class="ob2-goal-desc">Speed, strength, endurance, sport return</div>
+            </div>
+            <div class="ob2-goal-card" data-group="goal" data-val="Health and longevity" onclick="selectGoal(this)">
+              <span class="ob2-goal-icon">🧬</span>
+              <div class="ob2-goal-title">Health & longevity</div>
+              <div class="ob2-goal-desc">Long term health, energy, quality of life</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Describe the physique you want</div>
+          <div class="ob2-q-sub">Be specific — this shapes everything</div>
+          <input class="ob2-text-input" type="text" id="f-target" placeholder="e.g. Lean with visible abs, tight glutes, athletic but not bulky">
+        </div>
+      </div>
+
+      <!-- S3: Training -->
+      <div class="ob2-section">
+        <div class="ob2-sec-label">3 of 4</div>
+        <div class="ob2-sec-title">Training</div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Training experience</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="exp" data-val="Just starting" onclick="selectSingle(this)">Just starting</div>
+            <div class="ob2-chip single" data-group="exp" data-val="1-2 years" onclick="selectSingle(this)">1–2 years</div>
+            <div class="ob2-chip single" data-group="exp" data-val="2-3 years" onclick="selectSingle(this)">2–3 years</div>
+            <div class="ob2-chip single" data-group="exp" data-val="3-5 years" onclick="selectSingle(this)">3–5 years</div>
+            <div class="ob2-chip single" data-group="exp" data-val="5+ years advanced" onclick="selectSingle(this)">5+ years</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Days per week you can train</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="days" data-val="3" onclick="selectSingle(this)">3</div>
+            <div class="ob2-chip single" data-group="days" data-val="4" onclick="selectSingle(this)">4</div>
+            <div class="ob2-chip single" data-group="days" data-val="5" onclick="selectSingle(this)">5</div>
+            <div class="ob2-chip single" data-group="days" data-val="6" onclick="selectSingle(this)">6</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Wake time</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="wake" data-val="05:30" onclick="selectSingle(this)">05:30</div>
+            <div class="ob2-chip single" data-group="wake" data-val="06:00" onclick="selectSingle(this)">06:00</div>
+            <div class="ob2-chip single" data-group="wake" data-val="06:30" onclick="selectSingle(this)">06:30</div>
+            <div class="ob2-chip single" data-group="wake" data-val="07:00" onclick="selectSingle(this)">07:00</div>
+            <div class="ob2-chip single" data-group="wake" data-val="07:30" onclick="selectSingle(this)">07:30</div>
+            <div class="ob2-chip single" data-group="wake" data-val="08:00" onclick="selectSingle(this)">08:00+</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Gym setup</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="gym" data-val="Full commercial gym" onclick="selectSingle(this)">Full commercial gym</div>
+            <div class="ob2-chip single" data-group="gym" data-val="Home gym — full" onclick="selectSingle(this)">Home gym — full</div>
+            <div class="ob2-chip single" data-group="gym" data-val="Home gym — basic" onclick="selectSingle(this)">Home gym — basic</div>
+            <div class="ob2-chip single" data-group="gym" data-val="Bodyweight only" onclick="selectSingle(this)">Bodyweight only</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Recovery tools available</div>
+          <div class="ob2-q-sub">Select all you have access to</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip" data-group="recovery" data-val="Sauna" onclick="selectMulti(this)">Sauna</div>
+            <div class="ob2-chip" data-group="recovery" data-val="Swimming pool" onclick="selectMulti(this)">Swimming pool</div>
+            <div class="ob2-chip" data-group="recovery" data-val="Cold plunge" onclick="selectMulti(this)">Cold plunge</div>
+            <div class="ob2-chip" data-group="recovery" data-val="Steam room" onclick="selectMulti(this)">Steam room</div>
+            <div class="ob2-chip" data-group="recovery" data-val="Hydro pool" onclick="selectMulti(this)">Hydro pool</div>
+            <div class="ob2-chip" data-group="recovery" data-val="None" onclick="selectMulti(this)">None</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4: Nutrition & Lifestyle -->
+      <div class="ob2-section">
+        <div class="ob2-sec-label">4 of 4</div>
+        <div class="ob2-sec-title">Nutrition & lifestyle</div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Energy through the day</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="energy" data-val="I crash mid-morning" onclick="selectSingle(this)">I crash mid-morning</div>
+            <div class="ob2-chip single" data-group="energy" data-val="I crash after lunch" onclick="selectSingle(this)">I crash after lunch</div>
+            <div class="ob2-chip single" data-group="energy" data-val="Both — I crash a lot" onclick="selectSingle(this)">Both — I crash a lot</div>
+            <div class="ob2-chip single" data-group="energy" data-val="Pretty stable" onclick="selectSingle(this)">Pretty stable</div>
+            <div class="ob2-chip single" data-group="energy" data-val="I can skip meals easily" onclick="selectSingle(this)">I can skip meals easily</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">First meal of the day</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="firstmeal" data-val="Breakfast — I eat early" onclick="selectSingle(this)">Breakfast early</div>
+            <div class="ob2-chip single" data-group="firstmeal" data-val="Mid-morning around 9-10am" onclick="selectSingle(this)">Mid-morning</div>
+            <div class="ob2-chip single" data-group="firstmeal" data-val="Lunch or later — I fast until noon" onclick="selectSingle(this)">Lunch or later</div>
+            <div class="ob2-chip single" data-group="firstmeal" data-val="Varies day to day" onclick="selectSingle(this)">Varies</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Diet</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="diet" data-val="No restrictions" onclick="selectSingle(this)">No restrictions</div>
+            <div class="ob2-chip single" data-group="diet" data-val="No red meat" onclick="selectSingle(this)">No red meat</div>
+            <div class="ob2-chip single" data-group="diet" data-val="No dairy" onclick="selectSingle(this)">No dairy</div>
+            <div class="ob2-chip single" data-group="diet" data-val="Vegetarian" onclick="selectSingle(this)">Vegetarian</div>
+            <div class="ob2-chip single" data-group="diet" data-val="Vegan" onclick="selectSingle(this)">Vegan</div>
+            <div class="ob2-chip single" data-group="diet" data-val="Halal" onclick="selectSingle(this)">Halal</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Foods you tend to overeat</div>
+          <div class="ob2-q-sub">Select all that apply — no judgement</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip" data-group="triggers" data-val="Bread" onclick="selectMulti(this)">Bread</div>
+            <div class="ob2-chip" data-group="triggers" data-val="Crisps / snacks" onclick="selectMulti(this)">Crisps / snacks</div>
+            <div class="ob2-chip" data-group="triggers" data-val="Chocolate / sweets" onclick="selectMulti(this)">Chocolate / sweets</div>
+            <div class="ob2-chip" data-group="triggers" data-val="Takeaways" onclick="selectMulti(this)">Takeaways</div>
+            <div class="ob2-chip" data-group="triggers" data-val="Alcohol" onclick="selectMulti(this)">Alcohol</div>
+            <div class="ob2-chip" data-group="triggers" data-val="Pasta / rice" onclick="selectMulti(this)">Pasta / rice</div>
+            <div class="ob2-chip" data-group="triggers" data-val="Nothing — good discipline" onclick="selectMulti(this)">None</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Injuries or physical constraints</div>
+          <div class="ob2-q-sub">Tap any area that's relevant — current or historical</div>
+          <div class="ob2-injury-areas">
+            <div class="ob2-injury-area" data-val="Knee" onclick="toggleInjury(this)">Knee</div>
+            <div class="ob2-injury-area" data-val="Lower back" onclick="toggleInjury(this)">Lower back</div>
+            <div class="ob2-injury-area" data-val="Shoulder" onclick="toggleInjury(this)">Shoulder</div>
+            <div class="ob2-injury-area" data-val="Hip" onclick="toggleInjury(this)">Hip</div>
+            <div class="ob2-injury-area" data-val="Neck" onclick="toggleInjury(this)">Neck</div>
+            <div class="ob2-injury-area" data-val="Elbow / wrist" onclick="toggleInjury(this)">Elbow / wrist</div>
+            <div class="ob2-injury-area" data-val="Ankle / foot" onclick="toggleInjury(this)">Ankle / foot</div>
+            <div class="ob2-injury-area" data-val="None" onclick="toggleInjury(this)">None</div>
+          </div>
+          <textarea class="ob2-text-input" id="f-injury-detail" rows="2"
+            placeholder="Optional: any detail helps — e.g. lower back tightens after deadlifts, knee assessed by physio..."
+            style="margin-top:8px;resize:none;"></textarea>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Sleep & alcohol</div>
+          <div class="ob2-q-sub" style="margin-bottom:14px;">Hours of sleep per night</div>
+          <div class="ob2-chips" style="margin-bottom:20px;">
+            <div class="ob2-chip single" data-group="sleep" data-val="Under 6 hours" onclick="selectSingle(this)">Under 6h</div>
+            <div class="ob2-chip single" data-group="sleep" data-val="6-7 hours" onclick="selectSingle(this)">6–7h</div>
+            <div class="ob2-chip single" data-group="sleep" data-val="7-8 hours" onclick="selectSingle(this)">7–8h</div>
+            <div class="ob2-chip single" data-group="sleep" data-val="8+ hours" onclick="selectSingle(this)">8h+</div>
+          </div>
+          <div class="ob2-q-sub">Alcohol</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="alcohol" data-val="I don't drink" onclick="selectSingle(this)">I don't drink</div>
+            <div class="ob2-chip single" data-group="alcohol" data-val="Rarely — special occasions" onclick="selectSingle(this)">Rarely</div>
+            <div class="ob2-chip single" data-group="alcohol" data-val="1-2 drinks a week" onclick="selectSingle(this)">1–2/week</div>
+            <div class="ob2-chip single" data-group="alcohol" data-val="Social — mainly weekends" onclick="selectSingle(this)">Weekends</div>
+            <div class="ob2-chip single" data-group="alcohol" data-val="Several nights a week" onclick="selectSingle(this)">Several nights</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Non-negotiables</div>
+          <div class="ob2-q-sub">Things the programme works around, not tries to remove</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip" data-group="nonneg" data-val="Morning coffee" onclick="selectMulti(this)">Morning coffee</div>
+            <div class="ob2-chip" data-group="nonneg" data-val="Social drinks" onclick="selectMulti(this)">Social drinks</div>
+            <div class="ob2-chip" data-group="nonneg" data-val="Family evenings" onclick="selectMulti(this)">Family evenings</div>
+            <div class="ob2-chip" data-group="nonneg" data-val="Work travel" onclick="selectMulti(this)">Work travel</div>
+            <div class="ob2-chip" data-group="nonneg" data-val="Late starts sometimes" onclick="selectMulti(this)">Late starts</div>
+            <div class="ob2-chip" data-group="nonneg" data-val="Nothing — fully flexible" onclick="selectMulti(this)">Fully flexible</div>
+          </div>
+        </div>
+
+        <!-- spacer -->
+        <div style="height:20px;"></div>
+      </div>
+
+    </div><!-- /form-scroll -->
+
+    <!-- Bottom bar -->
+    <div class="ob2-bottom">
+      <div class="ob2-bottom-inner">
+        <div class="ob2-progress-text" id="form-progress-text">Fill in your details above</div>
+        <button class="ob2-next-btn" id="form-next-btn" onclick="submitForm()">Continue →</button>
+      </div>
+    </div>
+  </div><!-- /phase-form -->
+
+  <!-- PHASE 2: AI CHAT FOLLOW-UP -->
+  <div class="ob2-phase" id="phase-chat">
+    <div class="ob2-chat-scroll" id="chat-scroll"></div>
+    <div class="ob2-chat-bar">
+      <div class="ob2-chat-bar-inner">
+        <input class="ob2-chat-input" id="chat-input" type="text"
+          placeholder="Type your answer…" autocomplete="off">
+        <button class="ob2-chat-send" id="chat-send" onclick="sendChat()">↑</button>
+      </div>
     </div>
   </div>
 
-</div>
+  <!-- PHASE 3: GENERATING -->
+  <div class="ob2-phase" id="phase-gen">
+    <div class="ob2-generating">
+      <div class="ob2-gen-spinner"></div>
+      <div class="ob2-gen-steps">
+        <div class="ob2-gen-step active" id="gstep-1"><div class="ob2-gen-step-dot"></div>Calculating your macros</div>
+        <div class="ob2-gen-step" id="gstep-2"><div class="ob2-gen-step-dot"></div>Designing your training split</div>
+        <div class="ob2-gen-step" id="gstep-3"><div class="ob2-gen-step-dot"></div>Building injury modifications</div>
+        <div class="ob2-gen-step" id="gstep-4"><div class="ob2-gen-step-dot"></div>Programming supplements</div>
+        <div class="ob2-gen-step" id="gstep-5"><div class="ob2-gen-step-dot"></div>Writing your instructions</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /ob2-shell -->
 
 <script>
-// ══════════════════════════════════════════════════════
-//  BodyLens Onboarding
-//  The AI speaks first and drives the conversation.
-//  No wizard steps. Pure conversation.
-//  Profile is extracted from the dialogue by Claude.
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  BodyLens Onboarding v3
+//  Phase 1: 13-question visual form
+//  Phase 2: 3-5 message AI follow-up for nuance
+//  Phase 3: Full programme generation
+// ══════════════════════════════════════════════════
 
 const API = '/api/chat';
 const MODEL = 'claude-sonnet-4-20250514';
 
-// ── REDIRECT IF PROFILE EXISTS ─────────────────────────
+// Redirect if profile exists
 try {
   const p = localStorage.getItem('bl_profile');
-  if (p && JSON.parse(p).name) {
-    location.replace('bodylens-day.html');
-  }
+  if (p && JSON.parse(p).name) location.replace('bodylens-day.html');
 } catch(e) {}
 
-// ── CONVERSATION STATE ─────────────────────────────────
-let history = [];       // full conversation for context
-let profileData = {};   // extracted so far
-let turnCount = 0;
+// ── FORM DATA ────────────────────────────────────
+const formData = {};
+const selectedInjuries = new Set();
+let chatHistory = [];
+let chatTurns = 0;
 let generating = false;
 
-// ── SYSTEM PROMPT ──────────────────────────────────────
-// The AI's role during onboarding.
-// It asks coach questions, extracts data, and when ready
-// returns a special JSON block to trigger programme generation.
-const ONBOARD_SYSTEM = `You are the BodyLens intake coach. Your job is to have a natural conversation to understand someone's body, goals, lifestyle, and constraints — well enough to build them a complete personalised programme.
-
-You are warm, direct, and expert. You ask one question at a time. You listen carefully. You pick up on what people say and probe deeper when something important comes up — especially around injuries, emotional eating, or lifestyle constraints.
-
-WHAT YOU NEED TO COLLECT (through conversation, not a form):
-1. Name
-2. Age, height, current weight, estimated body fat if they know it
-3. Sex (for hormonal calibration)
-4. What they want to look like — specific, not just "lose weight"
-5. Where they store fat
-6. Energy patterns through the day (do they crash? can they skip meals?)
-7. Eating window — do they eat breakfast or fast until later?
-8. Trigger foods — anything they can't keep in the house
-9. Emotional eating patterns — what happens when stressed?
-10. Diet type and food exclusions
-11. Cooking habits and flavour preferences
-12. Training experience and current level
-13. How many days per week they can genuinely train
-14. Wake time
-15. Gym access and equipment
-16. Recovery tools available (sauna, pool, cold plunge, steam room)
-17. Alcohol habits
-18. INJURIES — this is critical. Current and historical. What hurts, what movements make it worse, any sharp pain history. Probe this thoroughly.
-19. Non-negotiables — things the programme works around, not eliminates
-20. Anything else they want you to know
-
-TONE:
-- Warm but not fluffy
-- Ask follow-up questions when something matters
-- If they mention an injury, always probe deeper — location, duration, what makes it worse
-- If they mention a trigger food, acknowledge it without judgement
-- Never ask more than one question at a time
-- Keep responses concise — this is a conversation, not a lecture
-
-PROGRESS:
-After each response, internally track what you still need. When you have collected all 20 items (or enough to build a solid programme), instead of asking another question, output EXACTLY this:
-
-[PROFILE_COMPLETE]
-Then on the next line, a valid JSON object with everything you've collected:
-{
-  "name": "",
-  "age": 0,
-  "sex": "",
-  "height": 0,
-  "weight": 0,
-  "bodyFat": null,
-  "fatStorage": "",
-  "goal": "",
-  "target": "",
-  "energyPattern": "",
-  "eatingWindow": "",
-  "triggerFoods": "",
-  "emotionalEating": "",
-  "dietType": "",
-  "foodExclusions": [],
-  "cookingHabits": "",
-  "experience": "",
-  "trainingDays": 0,
-  "wakeTime": "",
-  "gymAccess": "",
-  "recoveryTools": [],
-  "alcoholHabit": "",
-  "injuries": [{"location":"","detail":"","movementsThatHurt":[],"sharp":false}],
-  "nonNegotiables": [],
-  "notes": ""
+// ── CHIP SELECTORS ───────────────────────────────
+function selectSingle(el) {
+  const group = el.dataset.group;
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  formData[group] = el.dataset.val;
+  updateProgress();
 }
 
-Start the conversation now. Introduce yourself briefly and ask the first question. Be natural. Don't mention steps or numbers.`;
-
-// ── RENDER HELPERS ─────────────────────────────────────
-function addBubble(role, html) {
-  const msgs = document.getElementById('ob-messages');
-  const wrap = document.createElement('div');
-  wrap.className = `ob-msg ${role}`;
-
-  const avatar = document.createElement('div');
-  avatar.className = 'ob-avatar';
-  avatar.textContent = role === 'ai' ? 'BL' : (profileData.name ? profileData.name[0].toUpperCase() : 'U');
-
-  const bubble = document.createElement('div');
-  bubble.className = 'ob-bubble';
-  bubble.innerHTML = html;
-
-  wrap.appendChild(avatar);
-  wrap.appendChild(bubble);
-  msgs.appendChild(wrap);
-  msgs.scrollTop = msgs.scrollHeight;
-  return wrap;
+function selectGoal(el) {
+  document.querySelectorAll('.ob2-goal-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  formData.goal = el.dataset.val;
+  updateProgress();
 }
 
-function addTyping() {
-  const msgs = document.getElementById('ob-messages');
-  const wrap = document.createElement('div');
-  wrap.className = 'ob-msg ai ob-typing';
-  wrap.id = 'typing';
-  wrap.innerHTML = `
-    <div class="ob-avatar">BL</div>
-    <div class="ob-bubble">
-      <div class="ob-dots"><span></span><span></span><span></span></div>
-    </div>`;
-  msgs.appendChild(wrap);
-  msgs.scrollTop = msgs.scrollHeight;
+function selectMulti(el) {
+  el.classList.toggle('selected');
+  const group = el.dataset.group;
+  if (!formData[group]) formData[group] = [];
+  const val = el.dataset.val;
+  if (el.classList.contains('selected')) {
+    if (!formData[group].includes(val)) formData[group].push(val);
+  } else {
+    formData[group] = formData[group].filter(v => v !== val);
+  }
+  updateProgress();
 }
 
-function removeTyping() {
-  const t = document.getElementById('typing');
-  if (t) t.remove();
+function toggleInjury(el) {
+  const val = el.dataset.val;
+  if (val === 'None') {
+    // Clear others
+    document.querySelectorAll('.ob2-injury-area').forEach(a => a.classList.remove('selected'));
+    selectedInjuries.clear();
+    el.classList.add('selected');
+    selectedInjuries.add('None');
+  } else {
+    document.querySelector('[data-val="None"].ob2-injury-area')?.classList.remove('selected');
+    selectedInjuries.delete('None');
+    el.classList.toggle('selected');
+    if (el.classList.contains('selected')) selectedInjuries.add(val);
+    else selectedInjuries.delete(val);
+  }
+  formData.injuries = [...selectedInjuries].filter(v => v !== 'None');
+  updateProgress();
 }
 
-function setProgress(pct) {
-  document.getElementById('ob-progress').style.width = Math.min(pct, 95) + '%';
+// ── PROGRESS ─────────────────────────────────────
+const REQUIRED = ['sex', 'goal', 'exp', 'days', 'wake', 'gym', 'energy', 'diet', 'sleep', 'alcohol'];
+function updateProgress() {
+  const filled = REQUIRED.filter(k => formData[k]).length;
+  const pct = Math.round((filled / REQUIRED.length) * 70); // form = 70%
+  document.getElementById('progress-fill').style.width = pct + '%';
+  const age = document.getElementById('f-age').value;
+  const weight = document.getElementById('f-weight').value;
+  const allFilled = filled === REQUIRED.length && age && weight;
+  document.getElementById('form-progress-text').textContent =
+    allFilled ? 'Ready — tap continue' : `${filled} of ${REQUIRED.length} completed`;
 }
 
-function setChips(chips) {
-  const c = document.getElementById('ob-chips');
-  c.innerHTML = '';
-  (chips || []).forEach(chip => {
-    const btn = document.createElement('button');
-    btn.className = 'ob-chip';
-    btn.textContent = chip;
-    btn.onclick = () => {
-      document.getElementById('ob-input').value = chip;
-      send();
-    };
-    c.appendChild(btn);
-  });
-}
+// Listen on number inputs too
+['f-age','f-height','f-weight'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateProgress);
+});
 
-// ── CHIP SUGGESTIONS ───────────────────────────────────
-// Based on turn count, show contextual chips
-function getChips(turn) {
-  const sets = [
-    [],
-    ['Male', 'Female'],
-    [],
-    ['Around 10%', 'Around 12-13%', 'Around 15-18%', 'Around 20%+', 'Not sure'],
-    ['Love handles / lower back', 'Belly', 'Chest', 'All over'],
-    ['I crash mid-morning', 'I crash after lunch', 'Pretty stable', 'I can skip meals easily'],
-    ['I eat breakfast early', 'I skip breakfast — first meal at lunch', 'Intermittent fasting', 'Varies'],
-    ['Bread', 'Crisps / snacks', 'Chocolate', 'Takeaways', 'Nothing — good discipline'],
-    ['Carbs / comfort food', 'I drink more', 'I eat more generally', 'Nothing changes'],
-    ['No restrictions', 'No red meat', 'No dairy', 'Vegetarian', 'Vegan'],
-    [],
-    ['Just starting', '1-2 years', '2-3 years', '3-5 years', '5+ years — advanced'],
-    ['3 days', '4 days', '5 days', '6 days'],
-    ['05:30', '06:00', '06:30', '07:00', '07:30', '08:00+'],
-    ['Full commercial gym', 'Home gym', 'Bodyweight only'],
-    ['Sauna', 'Swimming pool', 'Cold plunge', 'Steam room', 'Hydro pool', 'None'],
-    ['I rarely drink', '1-2 per week', 'Social — weekends', 'Several nights a week'],
-    ['No injuries', 'Knee', 'Lower back', 'Shoulder', 'Hip', 'Multiple'],
-    [],
-    ['Morning coffee', 'Social drinks', 'Family evenings', 'Fully flexible'],
-  ];
-  return sets[turn] || [];
-}
+// ── SUBMIT FORM ───────────────────────────────────
+function submitForm() {
+  // Collect number inputs
+  formData.age    = parseInt(document.getElementById('f-age').value) || null;
+  formData.height = parseInt(document.getElementById('f-height').value) || null;
+  formData.weight = parseFloat(document.getElementById('f-weight').value) || null;
+  formData.target = document.getElementById('f-target').value.trim();
+  formData.injuryDetail = document.getElementById('f-injury-detail').value.trim();
+  formData.fat    = formData.fat || [];
+  formData.nonneg = formData.nonneg || [];
+  formData.recovery = formData.recovery || [];
+  formData.triggers = formData.triggers || [];
 
-// ── API CALL ───────────────────────────────────────────
-async function callClaude(userMessage) {
-  if (userMessage) {
-    history.push({ role: 'user', content: userMessage });
+  // Validate minimum
+  if (!formData.weight || !formData.goal) {
+    alert('Please fill in your weight and select a goal before continuing.');
+    return;
   }
 
-  const res = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 600,
-      system: ONBOARD_SYSTEM,
-      messages: history,
-    }),
-  });
-
-  const data = await res.json();
-  const text = data.content?.map(b => b.text || '').join('') || '';
-  history.push({ role: 'assistant', content: text });
-  return text;
+  // Switch to chat phase
+  showPhase('chat');
+  document.getElementById('progress-fill').style.width = '75%';
+  startFollowUp();
 }
 
-// ── SEND ───────────────────────────────────────────────
-async function send() {
-  const inp = document.getElementById('ob-input');
+// ── PHASE SWITCHER ────────────────────────────────
+function showPhase(name) {
+  document.querySelectorAll('.ob2-phase').forEach(p => p.classList.remove('active'));
+  document.getElementById('phase-' + name).classList.add('active');
+}
+
+// ── AI FOLLOW-UP CHAT ─────────────────────────────
+const FOLLOWUP_SYSTEM = `You are a BodyLens intake coach doing a brief follow-up after a user completed a profile form. You have their form data and need to clarify 2-4 things that require human nuance before building their programme.
+
+Your job:
+1. Start with a warm, brief introduction — tell them their name isn't set yet so ask it first
+2. Ask about injuries in detail IF they selected any injury areas
+3. Ask one question about anything that needs clarification — energy crashes, aggressive goals, specific constraints
+4. When you have enough (after 3-5 exchanges MAX), say exactly: [READY_TO_BUILD] on its own line, then stop.
+
+Rules:
+- One question at a time
+- Keep messages short — this is a conversation not a lecture  
+- Be warm and direct
+- Do NOT ask about things already clear from the form
+- Do NOT ask more than 5 questions total
+- After the name and injuries (if any), 1-2 more targeted questions maximum, then [READY_TO_BUILD]`;
+
+async function startFollowUp() {
+  const formSummary = buildFormSummary();
+
+  // First message to AI — give it the form data
+  const systemMsg = FOLLOWUP_SYSTEM + '\n\nFORM DATA COLLECTED:\n' + formSummary;
+
+  addChatBubble('ai', '', true); // typing
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 300,
+        system: systemMsg,
+        messages: [{ role: 'user', content: 'The user has just completed the profile form. Please start the follow-up conversation.' }],
+      }),
+    });
+    const data = await res.json();
+    const reply = data.content?.map(b => b.text || '').join('') || '';
+
+    removeTyping();
+    chatHistory.push({ role: 'assistant', content: reply });
+
+    if (reply.includes('[READY_TO_BUILD]')) {
+      await triggerGeneration();
+      return;
+    }
+
+    addChatBubble('ai', reply.replace(/\n/g, '<br>'));
+    chatTurns++;
+    document.getElementById('chat-input').focus();
+  } catch(e) {
+    removeTyping();
+    addChatBubble('ai', "Quick question before we build — what's your name?");
+    chatTurns++;
+  }
+}
+
+async function sendChat() {
+  const inp = document.getElementById('chat-input');
   const val = inp.value.trim();
   if (!val || generating) return;
 
   inp.value = '';
-  document.getElementById('ob-chips').innerHTML = '';
-  document.getElementById('ob-send').disabled = true;
+  document.getElementById('chat-send').disabled = true;
+  addChatBubble('user', val);
+  chatHistory.push({ role: 'user', content: val });
 
-  addBubble('user', val);
-  addTyping();
-  generating = true;
+  // Extract name if not set
+  if (!formData.name && chatTurns <= 2) {
+    const words = val.trim().split(/\s+/);
+    if (words.length <= 3 && words[0].length > 1) {
+      formData.name = words[0];
+      // Update avatar
+      document.querySelectorAll('.ob2-msg.user .ob2-avatar').forEach(a => {
+        a.textContent = formData.name[0].toUpperCase();
+      });
+    }
+  }
+
+  addChatBubble('ai', '', true);
 
   try {
-    const reply = await callClaude(val);
-    removeTyping();
+    const formSummary = buildFormSummary();
+    const systemMsg = FOLLOWUP_SYSTEM + '\n\nFORM DATA:\n' + formSummary + '\n\nName collected so far: ' + (formData.name || 'not yet');
 
-    // Check if profile is complete
-    if (reply.includes('[PROFILE_COMPLETE]')) {
-      await handleProfileComplete(reply);
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 300,
+        system: systemMsg,
+        messages: chatHistory,
+      }),
+    });
+    const data = await res.json();
+    const reply = data.content?.map(b => b.text || '').join('') || '';
+
+    removeTyping();
+    chatHistory.push({ role: 'assistant', content: reply });
+    chatTurns++;
+
+    if (reply.includes('[READY_TO_BUILD]') || chatTurns >= 6) {
+      const clean = reply.replace('[READY_TO_BUILD]', '').trim();
+      if (clean) addChatBubble('ai', clean.replace(/\n/g, '<br>'));
+      await delay(800);
+      await triggerGeneration();
       return;
     }
 
-    // Normal conversation turn
-    turnCount++;
-    const clean = reply.replace(/\[PROFILE_COMPLETE\]/g, '').trim();
-    addBubble('ai', clean.replace(/\n/g, '<br>'));
-    setProgress(Math.min(95, turnCount * 5));
-    setChips(getChips(turnCount));
-
-    // Update name chip avatar if we got a name
-    const nameMatch = clean.match(/(?:nice to meet you|great to meet you|hello|hi),?\s+([A-Z][a-z]+)/i);
-    if (nameMatch && !profileData.name) {
-      profileData.name = nameMatch[1];
-    }
-
-  } catch(err) {
-    removeTyping();
-    addBubble('ai', 'Connection issue — please check your network and try again.');
-    console.error(err);
-  }
-
-  generating = false;
-  document.getElementById('ob-send').disabled = false;
-  document.getElementById('ob-input').focus();
-}
-
-// ── PROFILE COMPLETE ───────────────────────────────────
-async function handleProfileComplete(reply) {
-  generating = false;
-
-  // Extract JSON from reply
-  let extracted = {};
-  try {
-    const jsonMatch = reply.match(/\[PROFILE_COMPLETE\][\s\S]*?(\{[\s\S]*\})/);
-    if (jsonMatch) {
-      extracted = JSON.parse(jsonMatch[1]);
-    }
+    addChatBubble('ai', reply.replace(/\n/g, '<br>'));
   } catch(e) {
-    console.error('Profile JSON parse error:', e);
+    removeTyping();
+    addChatBubble('ai', 'Connection issue — try again.');
   }
 
-  // Merge extracted into profileData
-  Object.assign(profileData, extracted);
-
-  // Show transition message
-  addBubble('ai', `That\'s everything I need, ${profileData.name || 'there'}.<br><br>I\'m going to build your programme now — macros, training split, supplements, daily structure. All derived from what you\'ve told me, the way a coach would reason through it.<br><br>Give me about 20 seconds.`);
-
-  setProgress(100);
-  document.getElementById('ob-input-bar').style.display = 'none';
-  document.getElementById('ob-chips').innerHTML = '';
-
-  await delay(1500);
-  await buildProgramme();
+  document.getElementById('chat-send').disabled = false;
+  document.getElementById('chat-input').focus();
 }
 
-// ── PROGRAMME GENERATION ───────────────────────────────
-async function buildProgramme() {
-  // Show progress
-  const genDiv = document.createElement('div');
-  genDiv.className = 'ob-msg ai';
-  genDiv.innerHTML = `
-    <div class="ob-avatar">BL</div>
-    <div class="ob-bubble">
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--dk-3);min-width:220px;">
-        <div id="gs1">⏳ Calculating your macro targets…</div>
-        <div id="gs2" style="opacity:0.3">⏳ Designing your training split…</div>
-        <div id="gs3" style="opacity:0.3">⏳ Building injury modifications…</div>
-        <div id="gs4" style="opacity:0.3">⏳ Programming your supplement stack…</div>
-        <div id="gs5" style="opacity:0.3">⏳ Writing your instructions…</div>
-      </div>
-    </div>`;
-  document.getElementById('ob-messages').appendChild(genDiv);
-  document.getElementById('ob-messages').scrollTop = 99999;
+// ── GENERATION ────────────────────────────────────
+async function triggerGeneration() {
+  generating = true;
+  showPhase('gen');
+  document.getElementById('progress-fill').style.width = '90%';
+  document.getElementById('step-label').textContent = 'Building your programme…';
 
-  const tick = (id, label, ms) => setTimeout(() => {
-    const el = document.getElementById(id);
-    if (el) { el.textContent = '✓ ' + label; el.style.color = 'var(--jade)'; el.style.opacity = '1'; }
-  }, ms);
-
-  tick('gs1', 'Macro targets calculated', 800);
-  tick('gs2', 'Training split designed', 3500);
-  tick('gs3', 'Injury modifications built', 6500);
-  tick('gs4', 'Supplement stack programmed', 9500);
-  tick('gs5', 'Instructions compiled', 13000);
+  // Animate steps
+  const steps = ['gstep-1','gstep-2','gstep-3','gstep-4','gstep-5'];
+  steps.forEach((id, i) => {
+    setTimeout(() => {
+      if (i > 0) document.getElementById(steps[i-1]).classList.remove('active');
+      document.getElementById(steps[i-1]).classList.add('done');
+      if (i < steps.length) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('active');
+      }
+    }, i * 2500);
+  });
 
   try {
-    const programme = await generateFullProgramme();
-    await delay(14500);
+    const programme = await generateProgramme();
 
-    // Save everything
+    // Build final profile
     const finalProfile = {
-      ...profileData,
+      name:          formData.name || 'User',
+      age:           formData.age,
+      sex:           formData.sex,
+      height:        formData.height,
+      weight:        formData.weight,
+      bodyFat:       formData.bf ? parseInt(formData.bf) : null,
+      fatStorage:    (formData.fat || []).join(', '),
+      goal:          formData.goal,
+      target:        formData.target,
+      experience:    formData.exp,
+      trainingDays:  parseInt(formData.days) || 4,
+      wakeTime:      formData.wake || '07:00',
+      gymAccess:     formData.gym,
+      recoveryTools: formData.recovery || [],
+      dietType:      formData.diet,
+      eatingWindow:  formData.firstmeal,
+      energyPattern: formData.energy,
+      triggerFoods:  (formData.triggers || []).join(', '),
+      alcoholHabit:  formData.alcohol,
+      sleep:         formData.sleep,
+      nonNegotiables: formData.nonneg || [],
+      injuries:       formData.injuries || [],
+      injuryDetail:   formData.injuryDetail || '',
+      // From AI generation
       ...programme.profile,
-      weekPlan:    programme.weekPlan,
-      supplements: programme.supplements,
-      injuryAssessments: programme.injuries || [],
-      coachSummary: programme.coachSummary || '',
-      instructions: programme.instructions || '',
-      generated: true,
-      generatedAt: new Date().toISOString(),
+      weekPlan:           programme.weekPlan,
+      supplements:        programme.supplements,
+      injuryAssessments:  programme.injuries || [],
+      coachSummary:       programme.coachSummary || '',
+      instructions:       programme.instructions || '',
+      generated:    true,
+      generatedAt:  new Date().toISOString(),
     };
 
-    localStorage.setItem('bl_profile', JSON.stringify(finalProfile));
+    await delay(13000); // let animation finish
 
-    // Go to day page
-    location.replace('bodylens-day.html');
+    localStorage.setItem('bl_profile', JSON.stringify(finalProfile));
+    document.getElementById('progress-fill').style.width = '100%';
+    location.replace('bodylens-instructions.html');
 
   } catch(err) {
-    console.error('Generation error:', err);
-    // Save what we have with fallback macros
+    console.error(err);
+    // Save with fallback
     const fallback = buildFallback();
     const finalProfile = {
-      ...profileData,
+      name: formData.name || 'User',
+      age: formData.age, sex: formData.sex,
+      height: formData.height, weight: formData.weight,
+      goal: formData.goal, target: formData.target,
+      trainingDays: parseInt(formData.days) || 4,
+      wakeTime: formData.wake || '07:00',
+      gymAccess: formData.gym,
+      recoveryTools: formData.recovery || [],
+      dietType: formData.diet,
+      eatingWindow: formData.firstmeal,
+      energyPattern: formData.energy,
+      triggerFoods: (formData.triggers || []).join(', '),
+      alcoholHabit: formData.alcohol,
+      sleep: formData.sleep,
+      nonNegotiables: formData.nonneg || [],
+      injuries: formData.injuries || [],
+      injuryDetail: formData.injuryDetail || '',
       ...fallback,
       generated: true,
       generatedAt: new Date().toISOString(),
     };
     localStorage.setItem('bl_profile', JSON.stringify(finalProfile));
-    location.replace('bodylens-day.html');
+    await delay(5000);
+    location.replace('bodylens-instructions.html');
   }
 }
 
-// ── FULL PROGRAMME GENERATOR ───────────────────────────
-async function generateFullProgramme() {
-  const p = profileData;
+// ── PROGRAMME GENERATOR ───────────────────────────
+async function generateProgramme() {
+  const summary = buildFormSummary();
+  const chatContext = chatHistory.map(m => `${m.role}: ${m.content}`).join('\n');
 
-  const prompt = `Based on this coaching conversation, build a complete personalised programme. Reason like a senior coach — derive everything from their actual situation, don't use generic templates.
+  const prompt = `You are a senior performance coach. Build a complete personalised programme from this profile data. Reason through each decision like a coach.
 
-PROFILE DATA COLLECTED:
-${JSON.stringify(p, null, 2)}
+FORM DATA:
+${summary}
 
-Return ONLY a valid JSON object with this exact structure:
+FOLLOW-UP CONVERSATION:
+${chatContext}
+
+Return ONLY a valid JSON object:
 {
   "profile": {
-    "goal": "derived primary goal in plain English",
+    "goal": "derived primary goal",
     "calories": 0,
     "protein": 0,
     "carbs": 0,
     "fat": 0,
     "tdee": 0,
-    "calorieReasoning": "2-3 sentences explaining how you arrived at this target and why",
+    "calorieReasoning": "2-3 sentences explaining the target and why",
     "proteinReasoning": "1-2 sentences",
-    "fastingWindow": "e.g. 12:00-20:00 or Flexible",
+    "fastingWindow": "e.g. 12:00-20:00",
     "mealCount": 3,
     "keyFoodPrinciples": ["principle 1", "principle 2", "principle 3"],
     "foodsToAvoid": ["item"],
@@ -421,121 +1224,137 @@ Return ONLY a valid JSON object with this exact structure:
       "kcal": 0,
       "priority": "training",
       "keyExercises": ["Bench press 4x8-10", "OHP 3x10", "Lateral raise 3x15"],
-      "modifications": ["any injury-specific modification"],
-      "coachNote": "one sentence on what matters most today"
+      "modifications": [],
+      "coachNote": "one sentence"
     }
   ],
   "injuries": [
     {
       "location": "area",
-      "assessment": "coach's assessment of what this is and what it means for training",
-      "avoidMovements": ["specific movement to avoid"],
-      "safeAlternatives": ["safer alternative with same stimulus"],
-      "rehabilitationNotes": "what to do over time to address it"
+      "assessment": "coach assessment",
+      "avoidMovements": ["movement"],
+      "safeAlternatives": ["alternative"],
+      "rehabilitationNotes": "long term protocol"
     }
   ],
   "supplements": [
     {
-      "name": "supplement name",
-      "dose": "exact dose",
-      "timing": "exact timing relative to wake time and training",
-      "reason": "one sentence mechanistic reason specific to this person"
+      "name": "name",
+      "dose": "dose",
+      "timing": "exact timing",
+      "reason": "one sentence specific to this person"
     }
   ],
-  "coachSummary": "3-4 sentences: your overall read on this person, their biggest lever, and the one thing that will make or break their progress",
-  "instructions": "Write a complete Instructions document for this person in the same style as a detailed personal training brief. Include: Workout Objective, Goals (as bullet points), Approach (as bullet points covering training, cardio, recovery, nutrition strategy), Current Baseline (age, height, weight, body fat, fat storage, strengths, weaknesses derived from conversation), Injuries section (detailed, with movement restrictions and modifications), Non-Negotiables (their fixed points), Food Philosophy (proteins, carbs, fats, cooking method, exclusions, flavour preferences), Meal Rhythm (eating window, meal count, macro targets), and an Efficiency Rule. Write it as a proper coaching document — clear, specific, actionable. This will be stored as their Instructions tab."
+  "coachSummary": "3-4 sentences: overall read, biggest lever, the one thing that will make or break their progress",
+  "instructions": "Write a complete coaching brief document. Include sections: Workout Objective, Goals (bullet points), Approach (bullet points — training split, cardio, recovery, nutrition strategy, key protocols), Current Baseline (all stats, strengths derived from their answers, weaknesses), Injuries (detailed — each injury with what to avoid, what to do instead, long-term protocol), Non-Negotiables, Food Philosophy (proteins/carbs/fats/cooking/exclusions/trigger strategy), Meal Rhythm (eating window, meals per day, macro targets, timing), Supplement Stack (each with dose, timing, reason), Efficiency Rule. Write it as a proper coaching document — specific, actionable, personalised."
 }
 
-weekPlan must have exactly 7 entries (Monday to Sunday).
-Make the injuries section thorough — if they mentioned any pain or injury, give a proper coach assessment.
-The instructions field should be comprehensive — this is their programme bible.`;
+weekPlan must have exactly 7 entries Mon-Sun. Return ONLY the JSON.`;
 
   const res = await fetch(API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 3000,
-      system: 'You are a senior performance coach. Return only valid JSON. No preamble, no explanation, no markdown fences.',
+      max_tokens: 3500,
+      system: 'You are a senior performance coach. Return only valid JSON. No markdown, no preamble.',
       messages: [{ role: 'user', content: prompt }],
     }),
   });
 
   const data = await res.json();
   const text = data.content?.map(b => b.text || '').join('') || '';
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('No JSON in response');
-  return JSON.parse(jsonMatch[0]);
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('No JSON');
+  return JSON.parse(match[0]);
 }
 
-// ── FALLBACK ───────────────────────────────────────────
-function buildFallback() {
-  const p = profileData;
-  const w = p.weight || 80, age = p.age || 35;
-  const sex = p.sex || 'Male';
-  const bmr = sex === 'Male'
-    ? 10*w + 6.25*(p.height||175) - 5*age + 5
-    : 10*w + 6.25*(p.height||165) - 5*age - 161;
-  const tdee = Math.round(bmr * 1.65);
-  const goal = (p.goal || p.target || '').toLowerCase();
-  const calories = goal.includes('los') || goal.includes('cut') ? tdee - 350 : tdee + 150;
-  const protein = Math.round(w * 2.0);
-  const fat = Math.round(w * 1.0);
-  const carbs = Math.max(80, Math.round((calories - protein*4 - fat*9) / 4));
-  const k = calories, r = Math.round(k * 0.9);
+// ── CHAT BUBBLE HELPERS ───────────────────────────
+function addChatBubble(role, html, isTyping) {
+  const scroll = document.getElementById('chat-scroll');
+  const wrap = document.createElement('div');
+  wrap.className = 'ob2-msg ' + role;
+  if (isTyping) wrap.id = 'typing-bubble';
 
+  const avatar = document.createElement('div');
+  avatar.className = 'ob2-avatar';
+  avatar.textContent = role === 'ai' ? 'BL' : (formData.name ? formData.name[0].toUpperCase() : 'U');
+
+  const bubble = document.createElement('div');
+  bubble.className = 'ob2-bubble';
+  if (isTyping) {
+    bubble.innerHTML = '<div class="ob2-dots"><span></span><span></span><span></span></div>';
+  } else {
+    bubble.innerHTML = html;
+  }
+
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  scroll.appendChild(wrap);
+  scroll.scrollTop = scroll.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-bubble');
+  if (t) t.remove();
+}
+
+// ── FORM SUMMARY FOR AI ───────────────────────────
+function buildFormSummary() {
+  return `Age: ${formData.age||'?'} | Sex: ${formData.sex||'?'} | Height: ${formData.height||'?'}cm | Weight: ${formData.weight||'?'}kg
+Body fat estimate: ${formData.bf||'not given'} | Fat storage: ${(formData.fat||[]).join(', ')||'not given'}
+Goal: ${formData.goal||'?'} | Target physique: ${formData.target||'not given'}
+Training experience: ${formData.exp||'?'} | Training days/week: ${formData.days||'?'}
+Wake time: ${formData.wake||'?'} | Gym: ${formData.gym||'?'}
+Recovery tools: ${(formData.recovery||[]).join(', ')||'none'}
+Energy pattern: ${formData.energy||'?'} | First meal: ${formData.firstmeal||'?'}
+Diet: ${formData.diet||'?'} | Trigger foods: ${(formData.triggers||[]).join(', ')||'none'}
+Injuries selected: ${formData.injuries&&formData.injuries.length?(formData.injuries.join(', ')):'none'} | Detail: ${formData.injuryDetail||'none'}
+Sleep: ${formData.sleep||'?'} | Alcohol: ${formData.alcohol||'?'}
+Non-negotiables: ${(formData.nonneg||[]).join(', ')||'none'}`;
+}
+
+// ── FALLBACK MACROS ───────────────────────────────
+function buildFallback() {
+  const w = formData.weight||80, age = formData.age||35, sex = formData.sex||'Male';
+  const bmr = sex==='Male' ? 10*w+6.25*(formData.height||175)-5*age+5 : 10*w+6.25*(formData.height||165)-5*age-161;
+  const tdee = Math.round(bmr*1.65);
+  const goal = (formData.goal||'').toLowerCase();
+  const cal = goal.includes('los')||goal.includes('fat') ? tdee-350 : tdee+150;
+  const prot = Math.round(w*2.0), fat = Math.round(w*1.0);
+  const carbs = Math.max(80, Math.round((cal-prot*4-fat*9)/4));
+  const k=cal, r=Math.round(k*0.9);
   return {
-    calories, protein, carbs, fat, tdee,
-    weekPlan: [
-      {day:'Monday',   type:'Push',           focus:'Chest, shoulders, triceps', kcal:k, priority:'training', keyExercises:['Bench press 4x8','OHP 3x10','Lateral raise 3x15'], modifications:[], coachNote:'CNS freshest. Heaviest pressing session.'},
-      {day:'Tuesday',  type:'Rest',            focus:'Recovery and nutrition',    kcal:r, priority:'rest',     keyExercises:[], modifications:[], coachNote:'MPS from Monday peaks today. Hit protein.'},
-      {day:'Wednesday',type:'Pull',            focus:'Back, biceps, rear delts',  kcal:k, priority:'training', keyExercises:['Pull-ups 4x6','Row 3x10','Face pull 3x15'], modifications:[], coachNote:'Pull-ups first while CNS is fresh.'},
-      {day:'Thursday', type:'Rest',            focus:'Recovery and prep',          kcal:r, priority:'rest',     keyExercises:[], modifications:[], coachNote:'Thursday evening protected.'},
-      {day:'Friday',   type:'Posterior Chain', focus:'Glutes, hamstrings',        kcal:Math.round(k*1.03), priority:'training', keyExercises:['Hip thrust 4x10','RDL 3x8','Step-up 3x12'], modifications:[], coachNote:'Most important session. Collagen 45min before.'},
-      {day:'Saturday', type:'Upper',           focus:'Full upper strength',        kcal:k, priority:'training', keyExercises:['Shoulder press 4x8','Row 3x10','Arms superset'], modifications:[], coachNote:'Second stimulus for upper body.'},
-      {day:'Sunday',   type:'Rest',            focus:'Full rest',                  kcal:r, priority:'rest',     keyExercises:[], modifications:[], coachNote:'Complete the week.'},
+    calories:cal, protein:prot, carbs, fat, tdee,
+    weekPlan:[
+      {day:'Monday',   type:'Push',           focus:'Chest, shoulders, triceps',  kcal:k,                    priority:'training', keyExercises:['Bench press 4x8','OHP 3x10','Lateral raise 3x15'],     modifications:[], coachNote:'Heaviest pressing session.'},
+      {day:'Tuesday',  type:'Rest',            focus:'Recovery and nutrition',      kcal:r,                    priority:'rest',     keyExercises:[],                                                      modifications:[], coachNote:'MPS from Monday peaks today.'},
+      {day:'Wednesday',type:'Pull',            focus:'Back, biceps, rear delts',   kcal:k,                    priority:'training', keyExercises:['Pull-ups 4x6','Row 3x10','Face pull 3x15'],             modifications:[], coachNote:'Pull-ups first.'},
+      {day:'Thursday', type:'Rest',            focus:'Recovery and prep',           kcal:r,                    priority:'rest',     keyExercises:[],                                                      modifications:[], coachNote:'Thursday evening protected.'},
+      {day:'Friday',   type:'Posterior Chain', focus:'Glutes, hamstrings',         kcal:Math.round(k*1.03),   priority:'training', keyExercises:['Hip thrust 4x10','RDL 3x8','Step-up 3x12'],            modifications:[], coachNote:'Most important session.'},
+      {day:'Saturday', type:'Upper',           focus:'Full upper strength',         kcal:k,                    priority:'training', keyExercises:['Shoulder press 4x8','Row 3x10','Arms superset'],       modifications:[], coachNote:'Second stimulus for upper body.'},
+      {day:'Sunday',   type:'Rest',            focus:'Full rest',                   kcal:r,                    priority:'rest',     keyExercises:[],                                                      modifications:[], coachNote:'Complete the week.'},
     ],
-    supplements: [
-      {name:'Creatine monohydrate', dose:'5g', timing:'Daily, any time', reason:'Phosphocreatine resynthesis. 5-15% strength improvement.'},
-      {name:'Omega-3 EPA/DHA',      dose:'2-3g', timing:'With largest meal', reason:'COX pathway suppression. Reduces inflammation. Amplifies MPS.'},
-      {name:'Vitamin D3 + K2',      dose:'3000IU + 100mcg', timing:'With fat meal', reason:'UK latitude produces near-universal deficiency Oct-Apr.'},
-      {name:'Magnesium glycinate',  dose:'400mg', timing:'30min before sleep', reason:'GABA receptor cofactor. Enables deep slow-wave sleep for GH pulse.'},
-      {name:'L-Theanine',           dose:'200mg', timing:'With every coffee', reason:'Removes caffeine anxiety while preserving focus.'},
+    supplements:[
+      {name:'Creatine monohydrate', dose:'5g',           timing:'Daily, any time',         reason:'Phosphocreatine resynthesis. 5-15% strength improvement.'},
+      {name:'Omega-3 EPA/DHA',      dose:'2-3g',         timing:'With largest meal',        reason:'Reduces inflammation. Amplifies MPS response to protein.'},
+      {name:'Vitamin D3 + K2',      dose:'3000IU+100mcg',timing:'With fat meal',            reason:'Near-universal deficiency in the UK Oct-Apr.'},
+      {name:'Magnesium glycinate',  dose:'400mg',         timing:'30min before sleep',      reason:'GABA cofactor. Enables deep slow-wave sleep for GH pulse.'},
+      {name:'L-Theanine',           dose:'200mg',         timing:'With every coffee',        reason:'Removes caffeine anxiety while preserving focus.'},
     ],
-    injuryAssessments: [],
-    coachSummary: '',
-    instructions: `Workout Objective:\n${p.target || 'Optimise body composition and performance.'}\n\nCurrent Baseline:\n- Age: ${p.age || '—'}\n- Height: ${p.height || '—'}cm\n- Weight: ${p.weight || '—'}kg\n- Body fat: ${p.bodyFat ? p.bodyFat + '%' : 'Not assessed'}\n- Fat storage: ${p.fatStorage || '—'}\n\nNon-Negotiables:\n${(p.nonNegotiables || []).map(n => '- ' + n).join('\n') || '- None specified'}\n\nMacro targets:\n- Calories: ${calories} kcal/day\n- Protein: ${protein}g\n- Carbs: ${carbs}g\n- Fat: ${fat}g`,
+    injuryAssessments:[], coachSummary:'', instructions:'',
   };
 }
 
-// ── UTILITIES ──────────────────────────────────────────
+// ── UTILITY ───────────────────────────────────────
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ── INIT ───────────────────────────────────────────────
-// Wire up input
-document.getElementById('ob-send').onclick = send;
-document.getElementById('ob-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendChat();
 });
 
-// The AI speaks first
-async function init() {
-  addTyping();
-  try {
-    const opening = await callClaude(null);
-    removeTyping();
-    addBubble('ai', opening.replace(/\n/g, '<br>'));
-    turnCount = 1;
-    setProgress(5);
-    setTimeout(() => document.getElementById('ob-input').focus(), 100);
-  } catch(e) {
-    removeTyping();
-    addBubble('ai', "Hi — I'm your BodyLens coach. I'm going to ask you a few questions to build your personal programme. Let's start simple. What's your name?");
-    turnCount = 1;
-  }
-}
-
-init();
+// Init progress
+updateProgress();
 </script>
 </body>
 </html>
