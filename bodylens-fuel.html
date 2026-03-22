@@ -404,15 +404,9 @@
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
+    <a class="nav-link nav-food active" href="bodylens-fuel.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
-  </div>
-
-  <div class="nav-breadcrumb">
-    <a href="bodylens-food.html" class="nav-bc-parent">Food</a>
-    <span class="nav-bc-sep">›</span>
-    <span class="nav-bc-current">Food Science</span>
   </div>
   <div class="nav-right-group">
     <a class="nav-link nav-right" href="bodylens-howitworks.html">How it works</a>
@@ -421,56 +415,138 @@
 </nav>
 
 <!-- ═══ HERO ═══ -->
-<div class="fuel-hero">
+<div class="fuel-hero" id="fuel-hero">
   <div class="fuel-hero-glow"></div>
   <div class="fuel-hero-inner">
     <div class="fh-left">
-      <div class="fh-eyebrow">Food intelligence · Balanced precision</div>
-      <div class="fh-display">Eat to<br><em>kill it.</em></div>
-      <div class="fh-voice">
-        This is not a calorie tracker. It is a performance fuel system — built around your specific goals, your knee, and your training week. Every item on the shopping list has a job. Every combination has a mechanism. Every timing decision has a reason.
+      <div class="fh-eyebrow" id="fh-eyebrow">Food intelligence</div>
+      <div class="fh-display">Eat to<br><em>perform.</em></div>
+      <div class="fh-voice" id="fh-voice">
+        A performance fuel system built around your goals, your body, and your taste. Every item on the shopping list has a job. Every combination has a mechanism. Every timing decision has a reason.
       </div>
     </div>
-    <div class="fh-right">
+    <div class="fh-right" id="fh-stats">
+      <!-- Populated by JS from profile -->
       <div class="fh-stat">
-        <div class="fh-stat-label">Training day calories</div>
-        <div class="fh-stat-val hi">2,950<sup>kcal</sup></div>
-        <div class="fh-stat-sub">Peak session target</div>
-      </div>
-      <div class="fh-stat">
-        <div class="fh-stat-label">Rest day calories</div>
-        <div class="fh-stat-val">2,700<sup>kcal</sup></div>
-        <div class="fh-stat-sub">–60g carbs vs training</div>
-      </div>
-      <div class="fh-stat">
-        <div class="fh-stat-label">Daily protein</div>
-        <div class="fh-stat-val hi">185<sup>g</sup></div>
-        <div class="fh-stat-sub">190g Fridays · 4 meals</div>
-      </div>
-      <div class="fh-stat">
-        <div class="fh-stat-label">Lean surplus</div>
-        <div class="fh-stat-val">+200<sup>kcal</sup></div>
-        <div class="fh-stat-sub">Calibrated to physiology</div>
+        <div class="fh-stat-label">Loading…</div>
+        <div class="fh-stat-val">—</div>
       </div>
     </div>
   </div>
 </div>
 
+<script>
+// Inject profile data into hero immediately
+(function(){
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (!p || !p.name) return;
+
+    // Update nav meta
+    const nm = document.getElementById('nav-meta');
+    if (nm) nm.innerHTML = '<span class="nav-tag nt-jade">'+p.name+'</span>';
+
+    // Calculate baseline
+    const isFemale = (p.sex||'').toLowerCase() === 'female';
+    const bmr = isFemale
+      ? 10*(p.weight||70) + 6.25*(p.height||165) - 5*(p.age||30) - 161
+      : 10*(p.weight||80) + 6.25*(p.height||175) - 5*(p.age||35) + 5;
+    const actBonus = (p.activityLevel||'').includes('physical') ? 0.1
+      : (p.activityLevel||'').includes('feet') ? 0.05 : 0;
+    const days = p.trainingDays || 4;
+    const tdee = Math.round(bmr * ((days <= 3 ? 1.55 : days <= 5 ? 1.65 : 1.725) + actBonus));
+    const trainKcal = p.calories || Math.round(tdee + 150);
+    const restKcal  = Math.round(trainKcal * 0.91);
+    const diff      = trainKcal - restKcal;
+    const weekPlan  = p.weekPlan || [];
+    const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
+
+    // Eyebrow
+    const eyebrow = document.getElementById('fh-eyebrow');
+    if (eyebrow) eyebrow.textContent = 'Food intelligence · ' + (p.goal||'Performance');
+
+    // Voice
+    const voice = document.getElementById('fh-voice');
+    if (voice) {
+      const cuisineNote = (p.cuisinePrefs||[]).length
+        ? (p.cuisinePrefs||[]).join(' · ') + ' flavours. '
+        : '';
+      const complexityNote = (p.recipeComplexity||'').includes('5 ingredient')
+        ? 'Simple, clean, no fuss. '
+        : (p.recipeComplexity||'').includes('enjoy cooking')
+        ? 'Complex recipes welcome. '
+        : 'Standard home cooking. ';
+      voice.textContent = cuisineNote + complexityNote
+        + 'Every item on the shopping list has a job. Every combination has a mechanism.';
+    }
+
+    // Stats
+    const stats = document.getElementById('fh-stats');
+    if (stats) stats.innerHTML = `
+      <div class="fh-stat">
+        <div class="fh-stat-label">Training day</div>
+        <div class="fh-stat-val hi">${trainKcal}<sup>kcal</sup></div>
+        <div class="fh-stat-sub">${trainingDays||'Training days'}</div>
+      </div>
+      <div class="fh-stat">
+        <div class="fh-stat-label">Rest day</div>
+        <div class="fh-stat-val">${restKcal}<sup>kcal</sup></div>
+        <div class="fh-stat-sub">−${diff} kcal vs training</div>
+      </div>
+      <div class="fh-stat">
+        <div class="fh-stat-label">Daily protein</div>
+        <div class="fh-stat-val hi">${p.protein||'—'}<sup>g</sup></div>
+        <div class="fh-stat-sub">${p.mealCount||4} meals · ${Math.round((p.protein||140)/( p.mealCount||4))}g each</div>
+      </div>
+      <div class="fh-stat">
+        <div class="fh-stat-label">TDEE baseline</div>
+        <div class="fh-stat-val">${tdee}<sup>kcal</sup></div>
+        <div class="fh-stat-sub">Training adds +${trainKcal-tdee} kcal</div>
+      </div>`;
+
+    // Also update pyramid selector to match goal
+    const goal = (p.goal||'').toLowerCase();
+    const pyrId = goal.includes('fat')||goal.includes('los')||goal.includes('cut') ? 'cut'
+      : goal.includes('recomp') ? 'recomp'
+      : goal.includes('muscle')||goal.includes('build') ? 'bulk'
+      : goal.includes('maintain') ? 'maintain'
+      : 'balanced';
+    setTimeout(() => {
+      const targetBtn = document.querySelector('[data-pyr="'+pyrId+'"]');
+      if (targetBtn) {
+        document.querySelectorAll('.pyr-btn').forEach(b => {
+          const badge = b.querySelector('span');
+          if (badge) badge.textContent = '';
+        });
+        const badge = targetBtn.querySelector('span');
+        if (badge) badge.textContent = '· Your plan';
+        renderPyramid(pyrId);
+        document.querySelectorAll('.pyr-btn').forEach(b => b.classList.remove('active'));
+        targetBtn.classList.add('active');
+      }
+    }, 100);
+
+  } catch(e) { console.error(e); }
+})();
+</script>
+
 <!-- ═══ TAB NAV ═══ -->
 <div class="fuel-tabs">
-  <button class="ftab active" onclick="showPane('pane-shop',this);loadFuelPane('pane-shop','shop')">Shopping list</button>
-  <button class="ftab" onclick="showPane('pane-syn',this);loadFuelPane('pane-syn','syn')">Food synergies</button>
-  <button class="ftab" onclick="showPane('pane-timing',this);loadFuelPane('pane-timing','timing')">Timing map</button>
-  <button class="ftab" onclick="showPane('pane-hacks',this);loadFuelPane('pane-hacks','hacks')">Satiety &amp; energy</button>
-  <button class="ftab" onclick="showPane('pane-avoid',this);loadFuelPane('pane-avoid','avoid')">Avoid this week</button>
-  <button class="ftab" onclick="showPane('pane-pyramids',this)">Food pyramids</button>
-  <button class="ftab" onclick="showPane('pane-meals',this);loadMealIdeas()">Meal ideas</button>
+  <button class="ftab active" onclick="showPane('pane-meals',this);loadMealIdeas()">Meal ideas</button>
+  <button class="ftab" onclick="showPane('pane-shop',this);loadFuelPane('pane-shop','shop')">Shopping list</button>
+  <button class="ftab" onclick="showPane('pane-timing',this);loadFuelPane('pane-timing','timing')">Timing</button>
+  <button class="ftab" onclick="showPane('pane-syn',this);loadFuelPane('pane-syn','syn')">Synergies</button>
+  <button class="ftab" onclick="showPane('pane-hacks',this);loadFuelPane('pane-hacks','hacks')">Hunger &amp; energy</button>
+  <button class="ftab" onclick="showPane('pane-avoid',this);loadFuelPane('pane-avoid','avoid')">What to avoid</button>
+  <button class="ftab" onclick="showPane('pane-pyramids',this)">Macro frameworks</button>
 </div>
 
 <!-- ═══════════════════════════════════════════
      PANE 1 — SHOPPING LIST
 ═══════════════════════════════════════════ -->
-<div class="fuel-pane active" id="pane-shop" data-generated="false">
+<div class="fuel-pane" id="pane-shop" data-generated="false">
 <div class="wrap" style="padding:40px 0 80px;">
   <div id="pane-shop-content">
     <div style="text-align:center;padding:80px 0;">
@@ -587,8 +663,6 @@
   <div class="body-sm" style="color:var(--dk-2);margin-bottom:40px;max-width:620px;">Four distinct nutritional architectures for four distinct goals. Not government plate diagrams — performance pyramids showing proportional macro relationships, timing hierarchy, and what changes between goals. Your current journey (Balanced Precision) is highlighted.</div>
 
   <!-- Pyramid selector -->
-  <div id="user-macro-strip" style="display:none;"></div>
-
   <div style="display:flex;gap:8px;margin-bottom:40px;flex-wrap:wrap;" id="pyr-selector">
     <button class="pyr-btn active" data-pyr="balanced" onclick="selectPyramid('balanced',this)">Balanced Precision <span style="font-size:9px;opacity:0.7;"></span></button>
     <button class="pyr-btn" data-pyr="recomp" onclick="selectPyramid('recomp',this)">Body Recomposition <span style="font-size:9px;color:var(--amber);opacity:0.8;">· Muscle ↑ Fat ↓</span></button>
@@ -1020,7 +1094,7 @@ function renderPyramid(id) {
 <!-- ═══════════════════════════════════════════
      PANE 7 — MEAL IDEAS (profile-driven)
 ═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-meals">
+<div class="fuel-pane active" id="pane-meals">
 <div class="wrap" style="padding:40px 0 80px;">
 
   <div class="sec-rule" style="margin-bottom:32px;">

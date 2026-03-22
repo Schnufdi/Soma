@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="attia">
+<title>BodyLens — Protocols</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.page { max-width:860px; margin:0 auto; padding:0 32px 100px; }
+
+/* Disclaimer */
+.disclaimer {
+  background:rgba(196,124,24,0.07); border:1px solid var(--amber-br);
+  border-left:4px solid var(--amber); border-radius:0 6px 6px 0;
+  padding:14px 20px; margin:32px 0 40px;
+  font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.8;
+}
+.disclaimer strong { color:var(--amber); font-weight:600; }
+
+/* Hero */
+.proto-hero { padding:48px 0 36px; border-bottom:1px solid var(--bd); margin-bottom:40px; }
+.proto-kicker {
+  font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--jade); margin-bottom:12px; display:flex; align-items:center; gap:10px;
+}
+.proto-kicker::before { content:''; width:18px; height:1px; background:var(--jade); }
+.proto-title {
+  font-family:var(--serif); font-size:52px; font-weight:300;
+  line-height:0.93; letter-spacing:-0.025em; color:var(--dk-1); margin-bottom:14px;
+}
+.proto-title em { font-style:italic; color:var(--dk-3); }
+.proto-sub { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:560px; }
+
+/* Person header */
+.person-header {
+  display:grid; grid-template-columns:56px 1fr auto;
+  align-items:center; gap:16px; padding:20px 0 16px;
+  border-bottom:1px solid var(--bd); margin-bottom:28px;
+}
+.person-avatar {
+  width:52px; height:52px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; background:var(--ink-2); border:1px solid var(--bd);
+}
+.person-name { font-family:var(--serif); font-size:26px; font-weight:300; color:var(--dk-1); }
+.person-cred { font-size:11px; font-weight:300; color:var(--dk-3); margin-top:2px; }
+.person-badge {
+  font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  padding:4px 12px; border-radius:10px; border:1px solid;
+}
+.person-badge.green { color:var(--jade); border-color:var(--jade-br); background:var(--jade-dim); }
+.person-badge.amber { color:var(--amber); border-color:var(--amber-br); background:rgba(196,124,24,0.06); }
+
+/* Section label */
+.proto-sec {
+  font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--jade); margin:0 0 14px; display:flex; align-items:center; gap:10px;
+}
+.proto-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
+.proto-sec.amber { color:var(--amber); }
+.proto-sec.gold  { color:var(--gold); }
+
+/* Protocol cards */
+.proto-card {
+  background:var(--ink-2); border:1px solid var(--bd);
+  border-radius:6px; margin-bottom:10px; overflow:hidden;
+}
+.proto-card.jade  { border-left:4px solid var(--jade); }
+.proto-card.amber { border-left:4px solid var(--amber); }
+.proto-card.gold  { border-left:4px solid var(--gold); }
+.proto-card.red   { border-left:4px solid var(--red); }
+
+.proto-card-head {
+  padding:14px 20px; background:var(--ink-1);
+  border-bottom:1px solid var(--bd);
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+}
+.proto-card-title { font-size:14px; font-weight:600; color:var(--dk-1); }
+.proto-card.jade  .proto-card-title { color:var(--jade); }
+.proto-card.amber .proto-card-title { color:var(--amber); }
+.proto-card.gold  .proto-card-title { color:var(--gold); }
+.proto-card.red   .proto-card-title { color:var(--red); }
+
+.evidence-badge {
+  font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+  padding:3px 10px; border-radius:10px; border:1px solid; flex-shrink:0;
+}
+.ev-strong { color:var(--jade); border-color:var(--jade-br); background:var(--jade-dim); }
+.ev-moderate { color:var(--amber); border-color:var(--amber-br); background:rgba(196,124,24,0.06); }
+.ev-emerging { color:var(--dk-3); border-color:var(--bd); background:var(--ink-3); }
+
+.proto-card-body { padding:16px 20px; }
+.proto-card-science {
+  font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; margin-bottom:12px;
+}
+.proto-card-action {
+  font-size:12px; font-weight:400; color:var(--dk-1); line-height:1.7;
+  padding:10px 14px; background:var(--ink-3); border-radius:4px; margin-bottom:10px;
+}
+.proto-card-action strong { color:var(--jade); }
+
+/* Profile connection */
+.proto-profile-link {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:10px 14px; background:rgba(0,200,160,0.05);
+  border:1px solid var(--jade-br); border-radius:4px; margin-top:10px;
+  font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65;
+}
+.proto-profile-link::before {
+  content:'→'; color:var(--jade); font-weight:600; flex-shrink:0; margin-top:1px;
+}
+.proto-profile-link.hidden { display:none; }
+
+/* Source */
+.proto-source {
+  font-size:10px; font-weight:300; color:var(--dk-3); margin-top:10px;
+  font-style:italic;
+}
+.proto-source a { color:var(--dk-3); text-decoration:underline; }
+.proto-source a:hover { color:var(--jade); }
+
+/* Separator */
+.person-sep { border:none; border-top:2px solid var(--bd); margin:48px 0 40px; }
+
+/* Biomarker table */
+.biomarker-grid {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:1px; background:var(--bd); border-radius:6px;
+  overflow:hidden; margin-bottom:24px;
+}
+.bm-cell { background:var(--ink-2); padding:14px 16px; }
+.bm-cell.head { background:var(--ink-1); }
+.bm-name { font-size:11px; font-weight:600; color:var(--dk-2); margin-bottom:3px; }
+.bm-val { font-family:var(--mono); font-size:13px; font-weight:500; color:var(--jade); }
+.bm-val.amber { color:var(--amber); }
+.bm-note { font-size:10px; font-weight:300; color:var(--dk-3); margin-top:2px; }
+.bm-header { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+
+@media(max-width:600px){
+  .page { padding:0 16px 80px; }
+  .proto-title { font-size:38px; }
+  .person-header { grid-template-columns:42px 1fr; }
+  .person-badge { display:none; }
+  .biomarker-grid { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-food" href="bodylens-fuel.html">Food</a>
+    <a class="nav-link" href="bodylens-programme.html">Programme</a>
+    <a class="nav-link active" href="bodylens-science.html">Science</a>
+  </div>
+  <div class="nav-breadcrumb">
+    <a href="bodylens-science.html" class="nav-bc-parent">Science</a>
+    <span class="nav-bc-sep">›</span>
+    <span class="nav-bc-current">Protocols</span>
+  </div>
+  <div class="nav-right-group">
+    <a class="nav-link nav-right" href="bodylens-howitworks.html">How it works</a>
+    <div class="nav-meta" id="nav-meta"></div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="proto-hero">
+    <div class="proto-kicker">Evidence-based protocols</div>
+    <div class="proto-title">Take ownership<br><em>of your health.</em></div>
+    <div class="proto-sub">
+      The most actionable longevity and performance science — from two of the most rigorous practitioners translating it for a general audience. Filtered for what applies to you.
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Not medical advice.</strong> This page presents validated science and evidence-based protocols from published researchers and clinicians. It is educational content only. Nothing here constitutes medical advice, diagnosis, or treatment. Discuss any health interventions — particularly biomarker testing, supplementation, and training protocols — with your GP or a qualified clinician who knows your full medical history.
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- ATTIA                                    -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <div class="person-header">
+    <div class="person-avatar">🩺</div>
+    <div>
+      <div class="person-name">Dr Peter Attia</div>
+      <div class="person-cred">MD · Stanford, Johns Hopkins, NIH · Author of <em>Outlive</em> · The Drive podcast</div>
+    </div>
+    <div class="person-badge green">Physician-researcher</div>
+  </div>
+
+  <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.85;margin-bottom:32px;max-width:640px;">
+    Attia trained as a surgeon and spent years at the NIH studying cancer metabolism before pivoting to longevity medicine. His framework centres on what he calls the "Four Horsemen" — cardiovascular disease, cancer, neurodegenerative disease, and metabolic dysfunction — and the interventions that most powerfully delay each. His protocols are heavily weighted toward peer-reviewed evidence and his own clinical experience with patients.
+  </div>
+
+  <!-- Zone 2 -->
+  <div class="proto-sec">Cardiorespiratory fitness</div>
+
+  <div class="proto-card jade">
+    <div class="proto-card-head">
+      <div class="proto-card-title">Zone 2 training — the longevity lever</div>
+      <span class="evidence-badge ev-strong">Strong evidence</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-science">
+        VO₂max is the single strongest predictor of all-cause mortality that exists — stronger than smoking status, stronger than any biomarker. Each 1 MET increase in cardiorespiratory fitness reduces all-cause mortality risk by approximately 13%. Moving from the bottom quartile to above-average VO₂max reduces mortality risk by 45%.
+        <br><br>
+        Zone 2 — the highest intensity at which you can still hold a conversation and stay in fat oxidation — is the zone that builds mitochondrial density and metabolic flexibility. Attia recommends 3-4 hours per week for people serious about longevity.
+      </div>
+      <div class="proto-card-action">
+        <strong>The protocol:</strong> 45-60 min continuous aerobic work at 60-70% max heart rate — the pace where you can speak in full sentences but would rather not. Rowing, cycling, swimming, brisk walking uphill. 3-4 sessions per week for longevity; at least 150 min for baseline health.
+      </div>
+      <div class="proto-profile-link hidden" id="z2-profile"></div>
+      <div class="proto-source">
+        Source: Kokkinos et al., JACC 2022 · Attia, <em>Outlive</em> (2023), Ch.11 ·
+        <a href="https://peterattiamd.com/zone2/" target="_blank">peterattiamd.com/zone2</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- VO2max -->
+  <div class="proto-card jade">
+    <div class="proto-card-head">
+      <div class="proto-card-title">VO₂max — your most important fitness number</div>
+      <span class="evidence-badge ev-strong">Strong evidence</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-science">
+        VO₂max declines ~10% per decade from age 30 in sedentary people, and ~5% per decade in trained individuals. Because the decline is exponential and threshold-dependent — falling below certain levels triggers massive mortality risk step-changes — maintaining VO₂max across decades is one of the highest-leverage interventions available.
+      </div>
+      <div class="proto-card-action">
+        <strong>The protocol:</strong> Once weekly VO₂max-targeted interval session — 4×4 min at 90-95% max HR with 4 min active recovery. This is the most efficient way to raise the ceiling. Zone 2 work maintains and builds the base; intervals push the ceiling up.
+      </div>
+      <div class="proto-profile-link hidden" id="vo2-profile"></div>
+      <div class="proto-source">
+        Source: Helgerud et al., Medicine & Science in Sports & Exercise 2007 ·
+        <a href="https://peterattiamd.com/vo2max/" target="_blank">peterattiamd.com/vo2max</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strength -->
+  <div class="proto-sec" style="margin-top:32px;">Strength & muscle</div>
+
+  <div class="proto-card amber">
+    <div class="proto-card-head">
+      <div class="proto-card-title">Muscle mass as longevity currency</div>
+      <span class="evidence-badge ev-strong">Strong evidence</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-science">
+        Muscle mass and grip strength are independently predictive of all-cause mortality, independent of body fat percentage. Sarcopenia — age-related muscle loss — accelerates after 40 at roughly 3-5% per decade without intervention. Each decade of inaction compounds the loss. The earlier you build a "muscle reserve," the more buffer you have against the inevitable decline.
+      </div>
+      <div class="proto-card-action">
+        <strong>The protocol:</strong> Progressive resistance training 3-4x per week. Prioritise compound movements. Track loads and add weight progressively — the progressive overload principle is non-negotiable. Attia specifically emphasises eccentric strength, single-leg stability, and grip strength as the metrics that best predict functional independence at 80.
+      </div>
+      <div class="proto-profile-link hidden" id="strength-profile"></div>
+      <div class="proto-source">
+        Source: Ruiz et al., BMJ 2008 · Newman et al., Journals of Gerontology 2006 ·
+        <a href="https://peterattiamd.com/category/exercise/" target="_blank">peterattiamd.com/exercise</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Biomarkers -->
+  <div class="proto-sec" style="margin-top:32px;">Biomarkers — know your numbers</div>
+
+  <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:16px;">
+    Attia's central argument: most people discover cardiovascular disease when they have a heart attack. By then, the atherosclerotic process has been running for decades. Getting ahead of it requires measuring markers that predict risk 20-30 years out — not markers that confirm disease that's already there.
+  </div>
+
+  <div class="biomarker-grid">
+    <div class="bm-cell head"><div class="bm-header">Marker</div></div>
+    <div class="bm-cell head"><div class="bm-header">Attia's target</div></div>
+    <div class="bm-cell head"><div class="bm-header">Why it matters</div></div>
+
+    <div class="bm-cell"><div class="bm-name">ApoB</div></div>
+    <div class="bm-cell"><div class="bm-val">&lt;60 mg/dL</div></div>
+    <div class="bm-cell"><div class="bm-note">Better predictor of cardiovascular risk than LDL-C. Each ApoB-containing particle can deposit in arterial walls.</div></div>
+
+    <div class="bm-cell"><div class="bm-name">Lp(a)</div></div>
+    <div class="bm-cell"><div class="bm-val">&lt;50 nmol/L</div></div>
+    <div class="bm-cell"><div class="bm-note">Genetically determined. Elevated in ~20% of people. Massively underdiagnosed risk factor. Test once.</div></div>
+
+    <div class="bm-cell"><div class="bm-name">Fasting glucose</div></div>
+    <div class="bm-cell"><div class="bm-val">&lt;90 mg/dL</div></div>
+    <div class="bm-cell"><div class="bm-note">Standard "normal" is &lt;100. Attia targets &lt;90 — the metabolic risk begins rising well before 100.</div></div>
+
+    <div class="bm-cell"><div class="bm-name">HbA1c</div></div>
+    <div class="bm-cell"><div class="bm-val">&lt;5.4%</div></div>
+    <div class="bm-cell"><div class="bm-note">3-month glucose average. Standard normal is &lt;5.7%. Attia targets the lower end of normal.</div></div>
+
+    <div class="bm-cell"><div class="bm-name">ALT (liver)</div></div>
+    <div class="bm-cell"><div class="bm-val">&lt;25 U/L (M) · &lt;20 (F)</div></div>
+    <div class="bm-cell"><div class="bm-note">Liver health marker. NAFLD is epidemic and underdiagnosed. Standard labs use ranges that include metabolic disease.</div></div>
+
+    <div class="bm-cell"><div class="bm-name">DEXA scan</div></div>
+    <div class="bm-cell"><div class="bm-val">Annual</div></div>
+    <div class="bm-cell"><div class="bm-note">Body composition beyond what scales show: lean mass, visceral fat, bone density. The most information-dense health scan available.</div></div>
+  </div>
+
+  <div class="proto-card gold">
+    <div class="proto-card-head">
+      <div class="proto-card-title">Talk to your GP — what to ask for</div>
+      <span class="evidence-badge ev-strong">Actionable</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-science">
+        Most standard NHS or GP blood panels do not include ApoB or Lp(a) — they use LDL-C which is a less accurate risk predictor. You can request expanded lipid panels, and private testing is affordable (Medichecks, Thriva, Check4Cancer all offer relevant panels in the UK).
+      </div>
+      <div class="proto-card-action">
+        <strong>Ask your GP for:</strong> Full lipid panel including ApoB · Lp(a) (once in your life) · HbA1c · Fasting glucose + insulin · Liver function (including ALT specifically) · Ferritin · Vitamin D · Thyroid (TSH, free T3, free T4)
+      </div>
+      <div class="proto-source">
+        UK private testing: <a href="https://www.medichecks.com" target="_blank">medichecks.com</a> ·
+        <a href="https://thriva.co" target="_blank">thriva.co</a>
+      </div>
+    </div>
+  </div>
+
+  <hr class="person-sep">
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- HUBERMAN                                -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <div class="person-header">
+    <div class="person-avatar">🧠</div>
+    <div>
+      <div class="person-name">Dr Andrew Huberman</div>
+      <div class="person-cred">PhD Neuroscience · Stanford School of Medicine · Huberman Lab podcast</div>
+    </div>
+    <div class="person-badge amber">Neuroscientist</div>
+  </div>
+
+  <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.85;margin-bottom:20px;max-width:640px;">
+    Huberman is a research neuroscientist at Stanford whose lab studies the visual system and brain-body connections. He translates neuroscience and adjacent research for a general audience. His protocols vary in evidence quality — some are strongly supported (morning light exposure, NSDR), others are extrapolated from animal models or early-phase research. We note the evidence level for each.
+  </div>
+
+  <div style="padding:10px 16px;background:rgba(196,124,24,0.06);border-left:3px solid var(--amber-br);border-radius:0 4px 4px 0;font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.7;margin-bottom:28px;">
+    Note on evidence quality: Huberman draws from a wide range of research. Where protocols rest primarily on animal studies, small sample sizes, or single trials, we flag this. The science is real — the translation to human application varies in certainty.
+  </div>
+
+  <!-- Morning protocol -->
+  <div class="proto-sec amber">Morning & circadian biology</div>
+
+  <div class="proto-card jade">
+    <div class="proto-card-head">
+      <div class="proto-card-title">Morning sunlight — the master circadian signal</div>
+      <span class="evidence-badge ev-strong">Strong evidence</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-science">
+        Light exposure in the first hour after waking is the primary zeitgeber — the signal that sets your circadian clock. Intrinsically photosensitive retinal ganglion cells (ipRGCs) signal the suprachiasmatic nucleus directly. This sets the timing of cortisol peak, melatonin onset 14-16 hours later, and core body temperature rhythm. The effects cascade through metabolism, sleep architecture, mood regulation, and hormonal timing.
+      </div>
+      <div class="proto-card-action">
+        <strong>The protocol:</strong> 5-10 minutes of outdoor light within 30-60 minutes of waking. On cloudy days, 15-20 minutes. No sunglasses (the signal needs to reach ipRGCs). Do not look directly at the sun. Inside windows block the short-wavelength light that drives the signal most effectively.
+      </div>
+      <div class="proto-profile-link hidden" id="light-profile"></div>
+      <div class="proto-source">
+        Source: Czeisler & Gooley, Science 2007 · Brainard et al., J Neuroscience 2001 ·
+        <a href="https://www.hubermanlab.com/newsletter/using-light-for-health" target="_blank">hubermanlab.com</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="proto-card jade">
+    <div class="proto-card-head">
+      <div class="proto-card-title">Delay caffeine 90-120 minutes post-wake</div>
+      <span class="evidence-badge ev-moderate">Moderate evidence</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-science">
+        Cortisol peaks 30-45 minutes after waking and naturally clears adenosine (the sleep pressure molecule that caffeine blocks). Consuming caffeine during this window adds nothing — cortisol is already performing the alerting function. Consuming caffeine after the cortisol peak uses adenosine blockade when you actually need it, extending alertness and reducing the afternoon energy crash.
+      </div>
+      <div class="proto-card-action">
+        <strong>The protocol:</strong> Water and morning light first. Coffee or tea 90-120 minutes after waking. This is built into your BodyLens daily schedule already.
+      </div>
+      <div class="proto-source">
+        Source: Lovallo et al., Pharmacology Biochemistry and Behavior 2005 ·
+        Based on cortisol awakening response research — the specific 90-min delay is Huberman's extrapolation from the underlying physiology.
+      </div>
+    </div>
+  </div>
+
+  <!-- Sleep -->
+  <div class="proto-sec amber" style="margin-top:32px;">Sleep architecture</div>
+
+  <div class="proto-card amber">
+    <div class="proto-card-head">
+      <div class="proto-card-title">NSDR — Non-Sleep Deep Rest</div>
+      <span class="evidence-badge ev-moderate">Moderate evidence</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-science">
+        NSDR (also: Yoga Nidra) is a deliberate practice of inducing a state between waking and sleeping — low-alpha, high-delta brainwaves — through guided body scanning and breath control. Huberman's research and adjacent yoga nidra studies show measurable increases in dopamine release in the striatum (up to 65% in one small study), restoration of cognitive performance, and a learning-consolidation effect. The evidence for learning enhancement is particularly interesting: NSDR performed after a learning session appears to accelerate consolidation.
+      </div>
+      <div class="proto-card-action">
+        <strong>The protocol:</strong> 10-20 minutes of guided NSDR or Yoga Nidra — Huberman's free version on YouTube, or any Yoga Nidra recording. Ideally after training or a cognitively demanding period. Not a substitute for sleep — a complement to it.
+      </div>
+      <div class="proto-source">
+        Source: Kjaer et al., Cognitive Brain Research 2002 (yoga nidra + dopamine) ·
+        <a href="https://www.youtube.com/watch?v=AKGrmY8OSHM" target="_blank">Huberman NSDR (YouTube)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cold exposure -->
+  <div class="proto-sec amber" style="margin-top:32px;">Cold & heat protocols</div>
+
+  <div class="proto-card gold">
+    <div class="proto-card-head">
+      <div class="proto-card-title">Cold exposure — dopamine, noradrenaline, and recovery</div>
+      <span class="evidence-badge ev-moderate">Moderate evidence</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-science">
+        Cold water immersion (10-15°C for 2-3 minutes) produces a significant catecholamine surge — noradrenaline and dopamine — with a lasting effect that extends well beyond the cold exposure itself. Huberman cites studies showing 200-300% increases in noradrenaline and longer-duration dopamine elevation compared to other stimuli. The mood and focus effects are well-documented. The recovery effect (inflammation reduction) is real but may be counterproductive immediately post-training — it can blunt the training adaptation signal.
+      </div>
+      <div class="proto-card-action">
+        <strong>The protocol:</strong> Cold shower or cold plunge 10-15°C for 2-3 minutes. Not immediately post-training if your goal is hypertrophy — the inflammatory response is part of the adaptation. Best timed 4+ hours after resistance training or on rest days. Morning timing aligns with the catecholamine effect most usefully.
+      </div>
+      <div class="proto-profile-link hidden" id="cold-profile"></div>
+      <div class="proto-source">
+        Source: Søberg et al., Cell Reports Medicine 2021 · Tipton et al., J Physiology 2017 (re: post-training cold blunting adaptation)
+      </div>
+    </div>
+  </div>
+
+  <div class="proto-card gold">
+    <div class="proto-card-head">
+      <div class="proto-card-title">Sauna — cardiovascular and longevity effects</div>
+      <span class="evidence-badge ev-strong">Strong evidence</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-science">
+        The Finnish sauna studies (Laukkanen et al.) are among the most compelling data in longevity research. In a 20-year cohort study of 2,315 men, those using sauna 4-7 times per week had 40% lower all-cause mortality and 50% lower cardiovascular mortality compared to once-per-week users. The mechanisms include: heat shock protein induction, plasma volume expansion (mimicking cardiac training effect), and growth hormone release.
+      </div>
+      <div class="proto-card-action">
+        <strong>The protocol:</strong> 80-100°C for 20 minutes, 3-4 times per week minimum to see the cardiovascular benefit. Huberman and Attia both recommend this. Hydrate well before and after — 500ml minimum.
+      </div>
+      <div class="proto-profile-link hidden" id="sauna-profile"></div>
+      <div class="proto-source">
+        Source: Laukkanen et al., JAMA Internal Medicine 2015 · JAMA Internal Medicine 2018 ·
+        <a href="https://peterattiamd.com/sauna-and-longevity/" target="_blank">peterattiamd.com/sauna</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supplements -->
+  <div class="proto-sec amber" style="margin-top:32px;">Supplements — what both agree on</div>
+
+  <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:16px;">
+    Both Attia and Huberman are cautious about supplements relative to foundational behaviours. Attia's view: most supplements are noise; the signal comes from sleep, exercise, and diet. Huberman is more open to specific neurological protocols. Where both agree, the evidence is worth taking seriously.
+  </div>
+
+  <div class="proto-card jade">
+    <div class="proto-card-head">
+      <div class="proto-card-title">What both recommend</div>
+      <span class="evidence-badge ev-strong">Strong evidence</span>
+    </div>
+    <div class="proto-card-body">
+      <div class="proto-card-action" style="margin-bottom:8px;"><strong>Creatine monohydrate 3-5g/day</strong> — the most well-evidenced performance supplement. Increases PCr availability, improves strength output, and has emerging cognitive benefits. Both consider it a baseline for anyone who trains.</div>
+      <div class="proto-card-action" style="margin-bottom:8px;"><strong>Vitamin D3 with K2</strong> — most people in Northern Europe are deficient. Attia considers it among the highest-ROI supplements. Aim for serum 25(OH)D of 40-60 ng/mL. Test first.</div>
+      <div class="proto-card-action" style="margin-bottom:8px;"><strong>Magnesium glycinate or threonate 300-400mg</strong> — ubiquitous deficiency in Western diets, especially in athletes. Improved sleep quality is well-documented. Attia uses magnesium threonate for cognitive effects; Huberman recommends glycinate for sleep.</div>
+      <div class="proto-card-action"><strong>Omega-3 (EPA/DHA) 2-3g/day</strong> — anti-inflammatory, cardiovascular protective, potentially mood-supportive. Both prioritise EPA for mood. Attia specifically targets an omega-3 index of &gt;8%.</div>
+      <div class="proto-profile-link hidden" id="supps-profile"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="nav.js"></script>
+<script>
+(function(){
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (!p || !p.name) return;
+
+    document.getElementById('nav-meta').innerHTML =
+      `<span class="nav-tag nt-jade">${p.name}</span>`;
+
+    const isFemale = (p.sex||'').toLowerCase() === 'female';
+    const age      = p.age || 35;
+    const recovery = (p.recoveryTools||[]).map(r=>r.toLowerCase());
+    const hasSauna = recovery.some(r=>r.includes('sauna'));
+    const hasCold  = recovery.some(r=>r.includes('cold') || r.includes('plunge'));
+    const supps    = (p.supplements||[]).map(s=>s.name);
+    const hasCreatine = supps.some(s=>s.toLowerCase().includes('creatine'));
+    const injuries = p.injuryAssessments||p.injuries||[];
+
+    // Zone 2 profile connection
+    const z2 = document.getElementById('z2-profile');
+    if (z2) {
+      const note = age >= 40
+        ? `${p.name}, at ${age} the Zone 2 → VO₂max relationship is especially important. Your VO₂max decline has already begun — each session you do is compounding against that decline. Your programme includes ${p.trainingDays} training days; adding one 45-60 min Zone 2 session on a rest day would be high-leverage.`
+        : `${p.name} — at ${age} you're in the window to build a high VO₂max ceiling that will protect you for decades. Zone 2 sessions added to your ${p.trainingDays}-day programme would compound significantly over time.`;
+      z2.textContent = note;
+      z2.classList.remove('hidden');
+    }
+
+    // Strength profile connection
+    const str = document.getElementById('strength-profile');
+    if (str) {
+      const injNote = injuries.length
+        ? ` Your ${injuries.map(i=>i.location||i).join(', ')} ${injuries.length>1?'injuries require':'injury requires'} exercise modifications — your programme already accounts for this, but the muscle-building imperative is unchanged.`
+        : '';
+      str.textContent = `${p.name} — your programme is built around ${p.trainingDays} resistance sessions per week. ${isFemale ? 'For women, building muscle mass is especially important post-35 as oestrogen protection declines — resistance training partially compensates.' : 'At '+age+', maintaining and building muscle mass is the highest-leverage physical intervention available.'} ${injNote}`;
+      str.classList.remove('hidden');
+    }
+
+    // Cold profile connection
+    const cold = document.getElementById('cold-profile');
+    if (cold && hasCold) {
+      cold.textContent = `You have cold plunge in your recovery tools. Time it 4+ hours after resistance training — immediately post-session cold immersion blunts the hypertrophy signal you've just created.`;
+      cold.classList.remove('hidden');
+    }
+
+    // Sauna profile connection
+    const sauna = document.getElementById('sauna-profile');
+    if (sauna && hasSauna) {
+      sauna.textContent = `You have sauna in your recovery tools — good. Aim for 3-4 sessions per week at 80-100°C for 20 minutes to access the cardiovascular longevity benefits the Laukkanen data shows.`;
+      sauna.classList.remove('hidden');
+    }
+
+    // Morning light profile
+    const light = document.getElementById('light-profile');
+    if (light) {
+      light.textContent = `Your wake time is ${p.wakeTime||'07:00'}. Morning light should happen within 30-60 min of this — the circadian signal is strongest in the first hour. Your coffee time is built into your daily schedule at 90 minutes post-wake.`;
+      light.classList.remove('hidden');
+    }
+
+    // Supps profile connection
+    const supp = document.getElementById('supps-profile');
+    if (supp) {
+      const missing = [];
+      if (!hasCreatine) missing.push('Creatine monohydrate');
+      if (!supps.some(s=>s.toLowerCase().includes('magnesium'))) missing.push('Magnesium glycinate');
+      if (!supps.some(s=>s.toLowerCase().includes('omega')||s.toLowerCase().includes('fish'))) missing.push('Omega-3 EPA/DHA');
+      if (missing.length) {
+        supp.textContent = `${p.name}'s current supplement stack is missing: ${missing.join(', ')}. These have the strongest combined evidence base and are worth discussing with your GP or adding to your programme.`;
+        supp.classList.remove('hidden');
+      }
+    }
+
+  } catch(e) { console.error(e); }
+})();
+</script>
+</body>
+</html>
