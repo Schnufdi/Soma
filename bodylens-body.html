@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Body Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background: var(--ink); color: var(--dk-1); }
+
+/* ── HERO ── */
+.body-hero {
+  background: var(--ink);
+  padding: 64px 48px 0;
+  border-bottom: 1px solid var(--bd);
+  position: relative;
+  overflow: hidden;
+}
+.bh-glow {
+  position: absolute; top: -120px; right: -100px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle,rgba(0,200,160,0.05) 0%,transparent 65%);
+  pointer-events: none;
+}
+.bh-inner {
+  max-width: 1080px; margin: 0 auto;
+  padding-bottom: 56px;
+}
+.bh-eyebrow { font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--jade);margin-bottom:16px;display:flex;align-items:center;gap:12px; }
+.bh-eyebrow::before { content:'';width:28px;height:1px;background:var(--jade); }
+.bh-title { font-family:var(--serif);font-size:60px;font-weight:300;line-height:0.92;letter-spacing:-0.03em;color:var(--dk-1);margin-bottom:20px; }
+.bh-sub { font-size:15px;font-weight:300;line-height:1.78;color:var(--dk-2);max-width:540px; }
+
+/* ── BODY MAP LAYOUT ── */
+.explorer-shell {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 60px);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* ── MUSCLE SIDEBAR ── */
+.muscle-nav {
+  border-right: 1px solid var(--bd);
+  background: var(--ink-1);
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  padding: 0;
+}
+.mn-group {
+  border-bottom: 1px solid var(--bd);
+}
+.mn-group-label {
+  font-size: 9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--dk-3);padding:12px 20px 8px;
+}
+.mn-btn {
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:10px 20px;border:none;background:transparent;
+  color:var(--dk-2);font-family:var(--sans);font-size:13px;font-weight:400;
+  cursor:pointer;text-align:left;transition:all 0.12s;
+  border-left:2px solid transparent;
+}
+.mn-btn:hover { background:rgba(255,255,255,0.03);color:var(--dk-1); }
+.mn-btn.active { background:var(--jade-dim);color:var(--jade);border-left-color:var(--jade); }
+.mn-btn.priority { }
+.mn-priority-dot {
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+}
+.mn-btn.has-flag .mn-priority-dot { background: var(--gold); }
+.mn-btn.top-priority .mn-priority-dot { background: var(--jade); }
+.mn-btn .mn-label { flex:1; }
+.mn-btn .mn-tag {
+  font-size:9px;font-weight:600;letter-spacing:0.06em;padding:2px 6px;border-radius:10px;
+}
+.mn-tag-priority { color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br); }
+.mn-tag-medical  { color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br); }
+
+/* ── DETAIL PANEL ── */
+.detail-panel {
+  background: var(--ink);
+  overflow-y: auto;
+}
+.dp-inner { max-width: 820px; padding: 48px 52px; }
+
+/* Muscle header */
+.dp-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--bd);
+  align-items: start;
+}
+.dp-title { font-family:var(--serif);font-size:52px;font-weight:300;line-height:0.95;color:var(--dk-1);letter-spacing:-0.02em; }
+.dp-subtitle { font-size:13px;font-weight:300;color:var(--dk-2);margin-top:8px;line-height:1.65; }
+.dp-tags { display:flex;flex-direction:column;gap:6px;align-items:flex-end; }
+
+/* Section tabs within detail */
+.dp-tabs { display:flex;gap:0;border-bottom:2px solid var(--bd-2);margin-bottom:32px; }
+.dp-tab {
+  font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;
+  padding:10px 18px;border:none;background:transparent;
+  color:var(--dk-3);cursor:pointer;font-family:var(--sans);
+  border-bottom:2px solid transparent;margin-bottom:-2px;transition:color 0.15s;
+}
+.dp-tab:hover { color:var(--dk-2); }
+.dp-tab.active { color:var(--jade);border-bottom-color:var(--jade); }
+.dp-tab.active.gold { color:var(--gold);border-bottom-color:var(--gold); }
+.dp-pane { display:none; }
+.dp-pane.active { display:block; }
+
+/* Exercise cards in body explorer */
+.ex-block {
+  background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;
+  overflow:hidden;margin-bottom:10px;
+}
+.ex-block.gold { border-left:3px solid var(--gold); }
+.ex-block.jade { border-left:3px solid var(--jade); }
+.exb-head {
+  display:grid;grid-template-columns:1fr auto;
+  padding:14px 18px;gap:12px;border-bottom:1px solid var(--bd);
+}
+.exb-name { font-family:var(--serif);font-size:19px;font-weight:500;color:var(--dk-1);margin-bottom:3px; }
+.exb-meta { font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.5; }
+.exb-rank {
+  font-family:var(--serif);font-size:32px;font-weight:300;color:var(--dk-3);
+  line-height:1;flex-shrink:0;align-self:center;
+}
+.exb-rank.top { color:var(--jade); }
+.exb-body { padding:12px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.exb-col-label { font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:4px; }
+.exb-col-text { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65; }
+.exb-col-text strong { color:var(--dk-1);font-weight:500; }
+.exb-footer { padding:10px 18px;background:rgba(255,255,255,0.015);border-top:1px solid var(--bd); }
+.exb-hack { font-size:12px;font-weight:300;color:var(--jade);line-height:1.6; }
+.exb-hack::before { content:'→ ';font-weight:600; }
+
+/* Cardio block */
+.cardio-block {
+  background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;
+  padding:18px 20px;margin-bottom:10px;
+  display:grid;grid-template-columns:auto 1fr auto;
+  gap:16px;align-items:start;transition:border-color 0.15s;
+}
+.cardio-block:hover { border-color:var(--bd-2); }
+.cardio-block.featured { border-left:3px solid var(--jade);background:rgba(0,200,160,0.03); }
+.cb-icon { font-size:22px;flex-shrink:0;margin-top:2px; }
+.cb-name { font-family:var(--serif);font-size:18px;font-weight:500;color:var(--dk-1);margin-bottom:4px; }
+.cb-detail { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65; }
+.cb-detail strong { color:var(--dk-1);font-weight:500; }
+.cb-badge-col { display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex-shrink:0; }
+
+/* Medical / wellness block */
+.med-block {
+  background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;
+  padding:18px 20px;margin-bottom:8px;
+  border-left:3px solid var(--gold);background:var(--gold-dim);border-color:var(--gold-br);
+}
+.mb-title { font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:5px; }
+.mb-body { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.72; }
+.mb-body strong { color:var(--dk-1);font-weight:500; }
+.mb-tier {
+  display:inline-block;margin-top:8px;
+  font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;
+  padding:3px 9px;border-radius:20px;
+}
+.tier-1st { color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br); }
+.tier-2nd { color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br); }
+.tier-last { color:var(--dk-3);background:rgba(255,255,255,0.04);border:1px solid var(--bd-2); }
+
+/* Hack pill */
+.hack-pill {
+  display:flex;align-items:flex-start;gap:10px;
+  background:rgba(0,200,160,0.04);border:1px solid var(--jade-br);
+  border-radius:5px;padding:12px 16px;margin-bottom:8px;
+}
+.hp-icon { font-size:14px;flex-shrink:0;margin-top:1px; }
+.hp-title { font-size:13px;font-weight:500;color:var(--dk-1);margin-bottom:3px; }
+.hp-body { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65; }
+.hp-body strong { color:var(--dk-1);font-weight:500; }
+
+/* Intro placeholder */
+.intro-card {
+  background:var(--ink-1);border:1px solid var(--bd);border-radius:8px;
+  padding:52px;text-align:center;
+}
+.ic-glyph { font-size:48px;margin-bottom:20px;opacity:0.4; }
+.ic-title { font-family:var(--serif);font-size:32px;font-weight:300;color:var(--dk-2);margin-bottom:10px; }
+.ic-body { font-size:14px;font-weight:300;color:var(--dk-3);line-height:1.75;max-width:400px;margin:0 auto; }
+
+/* Subsection rule within detail panel */
+.dp-rule {
+  font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--dk-3);margin:28px 0 16px;display:flex;align-items:center;gap:12px;
+}
+.dp-rule::after { content:'';flex:1;height:1px;background:var(--bd); }
+
+@media(max-width:900px){
+  .explorer-shell { grid-template-columns:1fr; }
+  .muscle-nav { position:static;height:auto; }
+  .dp-inner { padding:28px 20px; }
+  .body-hero { padding:36px 20px 0; }
+  .exb-body { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
+    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-profile.html">Profile</a>
+    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
+    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
+    <a class="nav-link active" href="bodylens-body.html">Muscle Guide</a>
+    <a class="nav-link" href="bodylens-training.html">Training</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-story.html">The Story</a>
+    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
+    <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
+    <a class="nav-link" href="bodylens-longevity.html">Longevity</a>
+    <a class="nav-link" href="bodylens-hunger.html">Hunger</a>
+    <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
+    <a class="nav-link" href="bodylens-science.html">Science</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+  </div>
+  <div class="nav-meta" id="nav-meta"></div>
+</nav>
+
+<!-- HERO -->
+<div class="body-hero">
+  <div class="bh-glow"></div>
+  <div class="bh-inner">
+    <div class="bh-eyebrow">Body explorer · All muscle groups</div>
+    <div class="bh-title">Every muscle.<br>Every tool.</div>
+    <div class="bh-sub">Select a muscle group for the most effective exercises, optimal cardio, wellness interventions, non-surgical medical options, and performance hacks. Personalised to your profile — priority muscles and knee constraints flagged throughout.</div>
+  </div>
+</div>
+
+<!-- EXPLORER SHELL -->
+<div class="explorer-shell">
+
+  <!-- MUSCLE SIDEBAR -->
+  <nav class="muscle-nav">
+
+    <div class="mn-group">
+      <div class="mn-group-label">Upper body — push</div>
+      <button class="mn-btn" onclick="showMuscle('chest')"><div class="mn-priority-dot"></div><span class="mn-label">Chest</span></button>
+      <button class="mn-btn" onclick="showMuscle('front-delt')"><div class="mn-priority-dot"></div><span class="mn-label">Front delts</span></button>
+      <button class="mn-btn" onclick="showMuscle('side-delt')"><div class="mn-priority-dot"></div><span class="mn-label">Side delts</span></button>
+      <button class="mn-btn" onclick="showMuscle('rear-delt')"><div class="mn-priority-dot"></div><span class="mn-label">Rear delts</span></button>
+      <button class="mn-btn" onclick="showMuscle('triceps')"><div class="mn-priority-dot"></div><span class="mn-label">Triceps</span></button>
+    </div>
+
+    <div class="mn-group">
+      <div class="mn-group-label">Upper body — pull</div>
+      <button class="mn-btn" onclick="showMuscle('lats')"><div class="mn-priority-dot"></div><span class="mn-label">Lats</span></button>
+      <button class="mn-btn" onclick="showMuscle('mid-back')"><div class="mn-priority-dot"></div><span class="mn-label">Mid back / rhomboids</span></button>
+      <button class="mn-btn" onclick="showMuscle('biceps')"><div class="mn-priority-dot"></div><span class="mn-label">Biceps</span></button>
+      <button class="mn-btn" onclick="showMuscle('forearms')"><div class="mn-priority-dot"></div><span class="mn-label">Forearms</span></button>
+    </div>
+
+    <div class="mn-group">
+      <div class="mn-group-label">Core</div>
+      <button class="mn-btn" onclick="showMuscle('abs')"><div class="mn-priority-dot"></div><span class="mn-label">Abs</span></button>
+      <button class="mn-btn" onclick="showMuscle('obliques')"><div class="mn-priority-dot"></div><span class="mn-label">Obliques</span></button>
+      <button class="mn-btn" onclick="showMuscle('lower-back')"><div class="mn-priority-dot"></div><span class="mn-label">Lower back / erectors</span></button>
+    </div>
+
+    <div class="mn-group">
+      <div class="mn-group-label">Lower body — priority muscles</div>
+      <button class="mn-btn top-priority has-flag" onclick="showMuscle('glutes')">
+        <div class="mn-priority-dot"></div>
+        <span class="mn-label">Glutes</span>
+        <span class="mn-tag mn-tag-priority">Priority</span>
+      </button>
+      <button class="mn-btn has-flag" onclick="showMuscle('hamstrings')">
+        <div class="mn-priority-dot"></div>
+        <span class="mn-label">Hamstrings</span>
+        <span class="mn-tag mn-tag-priority">Key</span>
+      </button>
+      <button class="mn-btn has-flag" onclick="showMuscle('quads')">
+        <div class="mn-priority-dot" style="background:var(--amber)"></div>
+        <span class="mn-label">Quads</span>
+        <span class="mn-tag mn-tag-medical">Knee</span>
+      </button>
+      <button class="mn-btn" onclick="showMuscle('calves')"><div class="mn-priority-dot"></div><span class="mn-label">Calves</span></button>
+      <button class="mn-btn" onclick="showMuscle('hip-flexors')"><div class="mn-priority-dot"></div><span class="mn-label">Hip flexors</span></button>
+      <button class="mn-btn" onclick="showMuscle('adductors')"><div class="mn-priority-dot"></div><span class="mn-label">Adductors</span></button>
+    </div>
+
+    <div class="mn-group">
+      <div class="mn-group-label">Cardio &amp; conditioning</div>
+      <button class="mn-btn" onclick="showMuscle('cardio-general')"><div class="mn-priority-dot"></div><span class="mn-label">Cardio overview</span></button>
+      <button class="mn-btn top-priority has-flag" onclick="showMuscle('step-machine')">
+        <div class="mn-priority-dot"></div>
+        <span class="mn-label">Step machine</span>
+        <span class="mn-tag mn-tag-priority">Your tool</span>
+      </button>
+      <button class="mn-btn" onclick="showMuscle('zone2')"><div class="mn-priority-dot"></div><span class="mn-label">Zone 2 cardio</span></button>
+    </div>
+
+    <div class="mn-group">
+      <div class="mn-group-label">Wellness &amp; recovery</div>
+      <button class="mn-btn" onclick="showMuscle('sleep')"><div class="mn-priority-dot"></div><span class="mn-label">Sleep optimisation</span></button>
+      <button class="mn-btn" onclick="showMuscle('mobility')"><div class="mn-priority-dot"></div><span class="mn-label">Mobility &amp; flexibility</span></button>
+      <button class="mn-btn has-flag" onclick="showMuscle('knee-wellness')">
+        <div class="mn-priority-dot" style="background:var(--gold)"></div>
+        <span class="mn-label">Knee — non-surgical</span>
+        <span class="mn-tag mn-tag-medical">Medical</span>
+      </button>
+    </div>
+
+  </nav>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-panel" id="detail-panel">
+    <div class="dp-inner">
+      <div class="intro-card">
+        <div class="ic-glyph">◈</div>
+        <div class="ic-title">Select a muscle group</div>
+        <div class="ic-body">Choose any muscle, region, or system from the sidebar. You'll get the most effective exercises, ranked by evidence and your specific profile, plus cardio options, wellness tools, and medical interventions where relevant.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="nav.js"></script>
+<script>
+
+// ─── MUSCLE DATA ─────────────────────────────────────────────────────────
+const MUSCLES = {
+
+'glutes': {
+  title: 'Glutes',
+  subtitle: 'Your single most important muscle group — for performance, aesthetics, and knee protection. Glute maximus controls femoral alignment and reduces medial compartment load by 30–40%. Underdeveloped glutes are the root cause of most knee issues in trained athletes.',
+  tags: ['Priority muscle','Knee medicine','Friday focus'],
+  tagClasses: ['pill-jade','pill-gold','pill-amber'],
+  exercises: [
+    { rank:1, name:'Barbell Hip Thrust', meta:'4–5 sets · 8–12 reps · RPE 8', jade:true,
+      why:'The highest glute EMG activation of any exercise — consistently 20–30% higher than squats, deadlifts, or lunges. The horizontal force vector at peak contraction (knee at 90°) is biomechanically ideal for maximum glute max recruitment.',
+      how:'Back on bench, barbell over hip crease, drive through heels. Squeeze glutes at the top — hold 1 second. Knees track over toes. At 90° hip angle, glutes are fully shortened = maximum stimulus.',
+      hack:'Banded hip thrust (band above knees) increases glute med activation by ~40%. Add a band every third session.'},
+    { rank:2, name:'Romanian Deadlift', meta:'4 sets · 6–8 reps · RPE 8', jade:true,
+      why:'Peak glute stimulus occurs during the eccentric (lowering) phase as the muscle is lengthened under load — the most potent hypertrophy signal. The glute-hamstring co-activation pattern also mirrors the biomechanics of tennis groundstrokes.',
+      how:'Hip hinge, soft knee (never deep flexion). Push hips back, feel hamstring stretch at the bottom — do not round lower back. Drive hips forward through the top. 2–3s eccentric.',
+      hack:'Pause 1s at maximum stretch position before reversing. This paused RDL variant increases time under tension at the highest stimulus point by ~35%.'},
+    { rank:3, name:'Cable Pull-Through', meta:'3 sets · 12–15 reps · RPE 7',
+      why:'Hip hinge pattern with constant cable tension — unlike a barbell, the load does not decrease at the top. Ideal as a complement to hip thrust because it loads the stretched position where hip thrust is weakest.',
+      how:'Face away from cable stack, rope between legs. Hinge forward, rope goes back between legs. Drive hips forward, squeeze glutes. The stretch position is the stimulus — do not rush through it.',
+      hack:'Use as a warm-up activation move before hip thrusts. Two sets primes the glute-brain connection.'},
+    { rank:4, name:'Single-Leg Romanian Deadlift', meta:'3 sets · 8–10/leg · RPE 7',
+      why:'Unilateral hip hinge challenges glute med and hip stability simultaneously. Addresses left-right imbalances that accumulate in bilateral movements. Important for tennis return — lateral stability requires glute med strength.',
+      how:'One leg behind, hinge forward on standing leg. Do not rotate hips — keep them square. Touch weight to floor or shin height. Return via hip drive, not back extension.',
+      hack:'Start every set with the weaker leg. 3–5% strength difference between legs is acceptable; greater than that is a flag.'},
+    { rank:5, name:'Box Step-Up (25–30cm, progressive)', meta:'3 sets · 10–12/leg · RPE 7', gold:true,
+      why:'Modified exercise for your profile: replaces lunges while maintaining unilateral quad-glute co-activation. The 25–30cm height keeps knee flexion within the safe zone as the programme progresses past week 4.',
+      how:'Drive through the heel of the stepping leg — not the toes. Glute fires as primary mover if heel-dominant. Progress box height to 30cm at week 5 if knee is clean.',
+      hack:'Add a brief pause at the top (standing position) on each rep. The single-leg hold engages glute med for hip stability — building the tennis-specific balance your return requires.'},
+  ],
+  cardio: [
+    { icon:'⬆️', name:'Step machine (StairMaster)', detail:'<strong>Your primary glute cardio tool.</strong> Posterior-loaded stepping pattern activates glute max and glute med simultaneously. At moderate resistance (level 8–12), glute EMG is significantly higher than cycling or running. 20–25 min on Tuesday and Thursday as Zone 2 glute conditioning.', featured:true, badge:'Your tool', badgeClass:'pill-jade'},
+    { icon:'🚴', name:'Incline cycling', detail:'High saddle + elevated resistance increases glute activation vs flat cycling. Less effective than step machine for glutes but knee-friendly and appropriate for active recovery days.', badge:'Good', badgeClass:'pill-amber'},
+    { icon:'🏃', name:'Walking lunges (phase 2+)', detail:'Week 5+ only. Knee extension beyond 70° under bodyweight at walking pace. The most glute-dense walking pattern. Begin on flat surfaces only.', badge:'Phase 2', badgeClass:'pill-gold'},
+  ],
+  medical: [
+    { tier:'tier-1st', title:'Strengthening is the primary non-surgical intervention', body:'Strong glutes reduce medial compartment load by 30–40%, directly protecting the meniscal tear. No injection or conservative treatment produces this outcome. The programme IS the medical intervention.' },
+    { tier:'tier-1st', title:'PRP injection (Platelet-Rich Plasma)', body:'<strong>Most evidence-supported injectable for degenerative meniscal tears.</strong> Autologous growth factors injected at the tear site stimulate localised repair response. 2–3 injections 4–6 weeks apart. Strongest evidence in tears with some vascularity. Not appropriate during active inflammation.' },
+    { tier:'tier-2nd', title:'Hyaluronic acid injection (viscosupplementation)', body:'Synthetic joint fluid reduces friction and inflammatory signalling. Evidence is mixed but shows benefit for mild-moderate osteoarthritis and chondromalacia specifically. Usually 3–5 weekly injections. Consider if chondromalacia symptoms worsen in weeks 5–8.' },
+    { tier:'tier-last', title:'Surgical options (for reference only)', body:'Partial meniscectomy removes torn tissue — fast recovery, high satisfaction at 6 months, but associated with accelerated cartilage loss at 5–10 years. Meniscal repair (suture) attempts to heal the tear — longer recovery (6 months), higher long-term preservation, requires vascular tear location. Consult if conservative approach shows no progress at 12 weeks.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Mind-muscle connection is worth 12–15% more activation', body:'Research consistently shows that consciously focusing attention on the target muscle during a set increases EMG activation by 12–15% — without changing the weight. <strong>Every hip thrust and RDL: mentally drive the movement from your glutes, not your lower back.</strong> Say "push through my heel and drive my hips" internally.' },
+    { icon:'🔴', title:'Resistance band warm-up protocol — non-negotiable before Friday', body:'3 × 15 clamshells + 2 × 20 banded lateral walks + 1 × 15 banded hip thrust at bodyweight. This activates glute med and establishes the neuromuscular connection before loaded work. <strong>Cold glutes on hip thrusts recruit hamstrings and lower back instead.</strong> The 6-minute warm-up changes the entire session.' },
+    { icon:'🎯', title:'Progressive overload on the hip thrust — most important lift in the programme', body:'Add 5kg when you complete all prescribed reps at RPE 7 or below. Glutes respond to load progression more consistently than almost any other muscle group. <strong>Track your hip thrust weight weekly — this number going up is the single most reliable indicator that the knee protocol is working.</strong>' },
+  ]
+},
+
+'hamstrings': {
+  title: 'Hamstrings',
+  subtitle: 'Three muscles (biceps femoris, semimembranosus, semitendinosus) functioning as hip extensors and knee flexors. Critical for knee stability — hamstrings resist anterior tibial translation, directly protecting the knee from the loading pattern that worsens meniscal tears.',
+  tags: ['Knee protective','Friday primary','Eccentric focus'],
+  tagClasses: ['pill-gold','pill-jade','pill-amber'],
+  exercises: [
+    { rank:1, name:'Romanian Deadlift', meta:'4 sets · 6–8 reps · RPE 8', jade:true,
+      why:'The gold standard hamstring lengthening exercise. Loads the muscle at full stretch — where mechanical tension is greatest and hypertrophy stimulus highest. Also trains hip extension which mirrors the glute activation pattern.',
+      how:'Hip hinge, push hips back to horizontal. Feel the stretch along the back of the thigh — this is the stimulus. 2–3s controlled descent. Drive hips forward through the concentric.',
+      hack:'Feet slightly wider than hip-width increases bicep femoris (outer hamstring) activation. Closer stance shifts emphasis toward semitendinosus (inner).'},
+    { rank:2, name:'Seated Leg Curl (machine)', meta:'3 sets · 12–15 reps · RPE 7–8',
+      why:'Loads hamstrings at full hip extension — the seated position lengthens the proximal hamstring attachment. Different stimulus to RDL which loads at hip flexion. Both needed for complete hamstring development.',
+      how:'Full range of motion. Controlled 2s eccentric on the return. Toes slightly pointed creates slightly more inner hamstring activation.',
+      hack:'Nordic curl variation (if machine available): load the eccentric only. The negative-only hamstring curl produces the most powerful hypertrophic stimulus available for hamstrings — one of the highest injury-prevention protocols in the world.'},
+    { rank:3, name:'Good Morning', meta:'3 sets · 8–10 reps · RPE 7',
+      why:'Barbell on back, hip hinge pattern. Loads the hamstrings and erectors simultaneously with a lower absolute load than deadlift. The closer-to-vertical back angle makes it more approachable when fatigue is high in later sets.',
+      how:'Soft knee, bar on traps. Hinge forward until torso is near parallel. Keep spine neutral throughout. Drive hips forward to return.',
+      hack:'Use as a warm-up activation set before RDL — two sets at 40% of RDL weight fires the posterior chain without fatiguing it.'},
+  ],
+  cardio: [
+    { icon:'⬆️', name:'Step machine', detail:'Hamstring co-activation in the hip extension phase. Not a primary hamstring tool but consistent low-level loading builds the pattern.', badge:'Secondary', badgeClass:'pill-amber'},
+    { icon:'🏃', name:'Uphill walking / treadmill incline', detail:'Incline walking at 8–12% grade with deliberate heel-strike gait pattern increases hamstring recruitment through the swing phase. 20 minutes at moderate pace is effective active recovery.', badge:'Recovery', badgeClass:'pill-amber'},
+  ],
+  medical: [
+    { tier:'tier-1st', title:'Eccentric loading is the primary treatment for hamstring tendinopathy', body:'Nordic hamstring curls and Romanian deadlifts performed with a 3–5s eccentric phase are the first-line clinical intervention for proximal hamstring tendinopathy. <strong>The research for eccentric loading exceeds any injection or manual therapy for hamstring issues.</strong>' },
+    { tier:'tier-2nd', title:'Dry needling / intramuscular stimulation', body:'Targeting hamstring trigger points with fine needles can release chronic muscle tension that inhibits full activation. Particularly relevant if you notice cramping or tightness in the posterior thigh during or after sessions.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Hamstring activation asymmetry is common and worth testing', body:'Single-leg RDL often reveals a 10–20% difference between legs in people who have not trained unilaterally. <strong>If your left leg is weaker, start every set on the left and never do more reps with the right.</strong>' },
+    { icon:'🔴', title:'Stretching before heavy RDL reduces injury risk — counterintuitively', body:'Light hamstring stretching 5 minutes before loading (NOT static stretching, but dynamic leg swings and light hip hinges) increases fascial compliance and reduces the risk of proximal hamstring strains on the first heavy set.' },
+  ]
+},
+
+'quads': {
+  title: 'Quadriceps',
+  subtitle: 'Four-headed muscle group — the primary knee extensor. Under the knee protocol, quad training is the most restricted group: deep knee flexion under load is prohibited. Working within the constraint still delivers strong stimulus via partial range movements.',
+  tags: ['Knee constraint','Modified movements','0–70° only'],
+  tagClasses: ['pill-gold','pill-amber','pill-red'],
+  exercises: [
+    { rank:1, name:'Leg Press — Partial Range (0–70°)', meta:'3 sets · 12–15 reps · RPE 7', gold:true,
+      why:'With high foot placement and partial range, the quad is loaded through its available range without stressing the medial compartment. <strong>+20–30% additional load compensates for shortened ROM.</strong> This is not a compromise — it is a specifically calibrated intervention.',
+      how:'Foot plate high (mid-to-upper). Press from the nearly-locked position to 70° flexion only. Never below parallel. Slow controlled descent — 2s down.',
+      hack:'Feet slightly closer together = more vastus lateralis (outer quad) activation. Wider = more inner. Vary monthly.'},
+    { rank:2, name:'Leg Extension (machine)', meta:'3 sets · 15–20 reps · RPE 7',
+      why:'Seated machine isolates the quadriceps without joint compression. Safe for meniscal pathology when loaded conservatively. Terminal knee extension (60–0°) specifically strengthens VMO — the teardrop muscle that stabilises the patella.',
+      how:'Control the descent — the eccentric phase of leg extension (letting the weight down slowly) is where most of the stimulus occurs. Do not slam back to the bottom.',
+      hack:'Single-leg leg extension identifies VMO asymmetry. If one quad fatigues significantly faster, address with unilateral sets for 4–6 weeks.'},
+    { rank:3, name:'Step-Up (heel-drive variation)', meta:'3 sets · 10–12/leg · RPE 7', gold:true,
+      why:'Modified replacement for lunges. Heel-drive on the step-up actually engages glutes more than quads — which is appropriate for your programme priorities.',
+      how:'Box 20–25cm height. Step up driving through heel, not toes. Controlled step down.',
+      hack:'Add 1–2kg dumbbell per week to progressively overload within the safe range.'},
+  ],
+  cardio: [
+    { icon:'🚴', name:'Stationary bike', detail:'Low-impact quad loading. Seat height matters enormously — <strong>too low creates >90° knee flexion, seat height should ensure 15–20° flexion at the bottom of the pedal stroke</strong>. Adjust before every session.', featured:true, badge:'Knee-safe', badgeClass:'pill-jade'},
+    { icon:'⬆️', name:'Step machine (low resistance)', detail:'Low resistance, full pedal depression isolates glutes and limits quad loading. <strong>Do not use high resistance on step machine until week 9+ — knee flexion increases with resistance.</strong>', badge:'Limited', badgeClass:'pill-gold'},
+  ],
+  medical: [
+    { tier:'tier-1st', title:'VMO training is the most evidence-based conservative intervention for anterior knee pain', body:'Vastus medialis oblique (the inner quad teardrop) controls patellar tracking. Weak VMO is associated with patellofemoral syndrome and is worsened by chondromalacia. Terminal knee extension exercises (0–30° range only) specifically target VMO.' },
+    { tier:'tier-2nd', title:'Patella taping (McConnell technique)', body:'Medial patellar taping during quad-dominant exercise reduces pain and allows training at higher load. Particularly useful in the leg press if anterior knee discomfort occurs. Can be applied by a physio initially, then self-applied.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'The VMO is the key to avoiding knee surgery long-term', body:'<strong>VMO weakness allows the patella to track laterally, increasing cartilage wear on the lateral facet.</strong> This directly worsens the chondromalacia noted in your MRI. Terminal leg extensions (focusing on the last 30° of the leg press) twice weekly is the most impactful preventive measure available. Non-negotiable.' },
+  ]
+},
+
+'abs': {
+  title: 'Abs / Core',
+  subtitle: 'The core is not just a six-pack — it is a 360° pressure cylinder (rectus abdominis, obliques, transverse abdominis, erectors) that stabilises the spine under every compound lift. Visible abs are revealed by body fat, not just trained by crunches. Building the core means building the brace.',
+  tags: ['Spinal protection','Aesthetic goal','Every session'],
+  tagClasses: ['pill-jade','pill-amber','pill-slate'],
+  exercises: [
+    { rank:1, name:'Ab Wheel Rollout', meta:'3 sets · 8–12 reps · RPE 8', jade:true,
+      why:'The highest rectus abdominis and transverse abdominis activation of any core exercise — consistently outperforms crunches, planks, and hanging leg raises in EMG studies. The anti-extension loading pattern directly transfers to bracing under a barbell.',
+      how:'Start kneeling. Roll forward until torso is parallel to floor, brace hard, pull back using abs — not hip flexors. The return phase is where most people fail; keep the core tight throughout.',
+      hack:'Add 1 rep per week. When you reach 15 clean reps from knees, progress to feet. This is one of the hardest core movements available — treat it with the same progressive logic as a compound lift.'},
+    { rank:2, name:'Cable Crunch (kneeling)', meta:'3 sets · 12–15 reps · RPE 7–8',
+      why:'The only weighted crunch variant that loads the abs through full range. The cable provides consistent tension at both the contracted and stretched positions — unlike bodyweight crunches which lose tension at the top.',
+      how:'Rope overhead, kneel in front of stack. Crunch by pulling elbows to knees — do not pull from the neck. Stretch up fully between each rep for full ROM.',
+      hack:'Slow the eccentric — 3s return phase. The stretch under tension is the stimulus. This single adjustment converts cable crunches from mediocre to highly effective.'},
+    { rank:3, name:'Hanging Knee Raise / Leg Raise', meta:'3 sets · 12–15 reps · RPE 7',
+      why:'Loads the lower rectus abdominis and hip flexors while requiring grip and shoulder stability. The suspended position prevents cheating that occurs on ground-based movements.',
+      how:'Hang from pull-up bar. Pull knees to chest (phase 1) or straight legs to 90° (phase 2 when strong). Avoid swinging — controlled movement only.',
+      hack:'Pause at the top for 1s. The isometric hold at full hip flexion eliminates the stretch reflex and forces the abs to hold the position under load.'},
+    { rank:4, name:'Dead Bug', meta:'3 sets · 8–10/side · RPE 6',
+      why:'Anti-rotation core stability exercise. Trains the ability to maintain a braced neutral spine while limbs move — the exact pattern required under barbell squats, RDLs, and hip thrusts. Often neglected by gym-focused athletes.',
+      how:'Lie on back. Arms vertical, knees at 90°. Extend opposite arm and leg simultaneously while pressing lower back into the floor. Do not let the back arch.',
+      hack:'<strong>This exercise directly addresses the spinal stability deficit that most lower back pain comes from.</strong> Two sets before every posterior chain session reduces injury risk significantly.'},
+    { rank:5, name:'Plank Variations (RKC Plank)', meta:'3 × 20–30s · RPE 7',
+      why:'The RKC (Russian Kettlebell Challenge) plank produces 30% higher rectus abdominis activation than a standard plank. The deliberate posterior pelvic tilt under tension makes it significantly harder at the same duration.',
+      how:'Standard plank position. Then: squeeze glutes hard, tuck pelvis posteriorly, push elbows toward feet (they do not move). The whole body should be in rigid tension. 20s of this is worth 60s of a standard plank.',
+      hack:'Add this as a finisher after the last compound of each session — 3 × 20s. Zero equipment, significant stimulus.'},
+  ],
+  cardio: [
+    { icon:'🚴', name:'Rowing machine', detail:'Every rowing stroke requires complete core bracing — <strong>20 minutes of rowing is 20 minutes of functional core work alongside cardiovascular training.</strong> The anti-extension position during the drive phase is particularly effective for deep stabilisers.', badge:'Cardio + core', badgeClass:'pill-jade'},
+    { icon:'⬆️', name:'Step machine (upright posture)', detail:'Maintaining upright posture without holding the rails during step machine forces the core to stabilise. <strong>Do not hold the handles — this negates the core demand entirely.</strong> Hands lightly resting on rails for balance only.', badge:'Incidental', badgeClass:'pill-amber'},
+  ],
+  medical: [
+    { tier:'tier-1st', title:'Core strength is the primary non-surgical treatment for chronic lower back pain', body:'The research is unambiguous: specific core stability training (dead bug, bird dog, McGill Big Three) outperforms any passive intervention for lower back pain. Relevant at 44 with significant weekly training load.' },
+    { tier:'tier-2nd', title:'Abdominal bracing vs hollowing — the research has settled this', body:'<strong>Bracing (360° pressurisation, like preparing for a punch) provides significantly more spinal stability than hollowing (sucking in)</strong>. Train the brace. Every heavy compound should begin with a full inhale, then brace, then move. This is why Valsalva breathing matters under load.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Visible abs are 80% body composition, 20% training', body:'At 85kg with a lean surplus goal, visible abs will emerge as a consequence of the body composition goal — not from additional ab training. <strong>Training abs is important for performance and spinal stability. It will not reveal them any faster than the nutrition protocol already will.</strong> Invest more in the compound lifts; invest less in daily crunches.' },
+    { icon:'🎯', title:'Train abs hard twice per week — not seven times', body:'The rectus abdominis recovers in 48–72 hours like any other muscle. Two dedicated core sessions per week (ideally Wednesday and Saturday) plus the incidental bracing in compound lifts is significantly more effective than daily low-quality crunches.' },
+  ]
+},
+
+'step-machine': {
+  title: 'Step machine',
+  subtitle: 'Your primary cardio and glute conditioning tool. The StairMaster/VersaClimber-style stepper is the single best cardio option for your profile — it loads the glutes and hamstrings in a posterior-dominant pattern, is joint-safe at appropriate resistance, and builds the cardiovascular base for tennis return simultaneously.',
+  tags: ['Your tool','Tue + Thu','Glute-dominant'],
+  tagClasses: ['pill-jade','pill-amber','pill-jade'],
+  exercises: [
+    { rank:1, name:'Zone 2 steady-state stepping (Tue / Thu)', meta:'20–25 min · Level 8–10 · Heart rate 130–145bpm', jade:true,
+      why:'Zone 2 intensity (conversational pace, 65–75% max HR) triggers mitochondrial biogenesis in muscle cells — building aerobic capacity without generating significant cortisol or competing with recovery. <strong>Two 20-minute Zone 2 sessions per week is the minimum effective dose for VO₂max progression without impeding strength adaptation.</strong>',
+      how:'Level 8–10 on most step machines. Should be able to speak a full sentence without gasping. Posture: upright, do not lean on rails. Full step depression — push through the heel for maximal glute activation.',
+      hack:'No hands on the rails — this removes the core stability demand and reduces glute activation by ~20%. If you need rails for balance, drop the resistance one level.'},
+    { rank:2, name:'Post-session glute activation stepping (Friday)', meta:'10–12 min · Level 12–14 · Post-training only', jade:true,
+      why:'A short higher-resistance bout immediately post-posterior-chain training exploits the elevated blood flow and cellular signalling to drive additional glute stimulus without adding meaningful fatigue. The pump from hip thrusts and RDLs amplifies the effect.',
+      how:'After completing all sets of the Friday programme. 10–12 minutes, resistance elevated 2–3 levels from usual. This is not cardio — it is a glute finisher.',
+      hack:'The "Dorito step" technique: stand sideways at 45° to the machine, stepping diagonally. This position increases glute medius activation significantly — relevant for the hip abductor strength needed for tennis lateral movement.'},
+    { rank:3, name:'HIIT stepping (Saturday post-session, optional)', meta:'10 min · 30s hard / 90s easy × 5 rounds',
+      why:'High-intensity intervals on the step machine produce superior cardiovascular adaptation per minute compared to steady state. Saturday post-session is the appropriate slot — far enough from Friday to allow recovery, with Sunday as full rest.',
+      how:'30 seconds at maximum effort level (typically 16–18). 90 seconds at easy pace (6–8). Five rounds. Total 10 minutes.',
+      hack:'Only add HIIT stepping after 3 consecutive weeks of steady-state stepping without knee issues. Do not rush to intensity — the base aerobic work comes first.'},
+  ],
+  cardio: [
+    { icon:'📅', name:'Weekly placement recommendation', detail:'<strong>Tuesday:</strong> 20–25 min Zone 2 post-rest from Monday. <strong>Thursday:</strong> 20–25 min Zone 2 — doubles as glycogen depletion for the Friday carb-load effect. <strong>Friday post-session:</strong> 10–12 min elevated resistance glute finisher. <strong>Saturday post-session (weeks 3+):</strong> optional HIIT.', featured:true, badge:'Your protocol', badgeClass:'pill-jade'},
+    { icon:'⚠️', name:'What to avoid on the step machine', detail:'<strong>No hands on rails.</strong> Do not lean forward. Do not over-flex the knee at the bottom of the step (stay within 70–80° flexion). Start session with 2 minutes easy warm-up before reaching target resistance.', badge:'Form notes', badgeClass:'pill-gold'},
+  ],
+  medical: [
+    { tier:'tier-1st', title:'Step machine is specifically recommended for meniscal tear rehabilitation', body:'The step machine activates the posterior chain in a closed-chain (foot on surface) pattern — which produces less joint shear than open-chain movements. The knee never reaches deep flexion at appropriate resistance levels. Preferred over treadmill running for Phase 1.' },
+    { tier:'tier-2nd', title:'Monitor for crepitus (clicking/grinding) during stepping', body:'Occasional crepitus is normal. Persistent crepitus with discomfort, or a new catching sensation during stepping, warrants 48h rest and reassessment. Step machine should never produce pain — tightness and mild ache are acceptable, pain is not.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Step machine is your fastest route back to tennis fitness', body:'Tennis requires: cardiovascular endurance, lateral hip stability, posterior chain power, and single-leg balance. <strong>The step machine addresses all four simultaneously.</strong> No other cardio tool in the gym is as perfectly matched to your return target.' },
+    { icon:'🎯', title:'Posterior-loaded stepping doubles as glute activation training', body:'At moderate resistance with correct form (upright, no rails, full step depression), the step machine produces glute activation levels comparable to some strength exercises. <strong>Two 20-minute sessions per week is ~40 minutes of additional glute stimulus</strong> on top of the Friday session — without adding training stress to the central nervous system.' },
+  ]
+},
+
+'knee-wellness': {
+  title: 'Knee — non-surgical options',
+  subtitle: 'Complete menu of conservative, non-surgical interventions for your specific MRI findings: horizontal medial meniscus tear (body + posterior horn), parameniscal cyst, mild chondromalacia, MCL irritation. Ordered by evidence quality and relevance to your profile.',
+  tags: ['Medical reference','Non-surgical','Your MRI findings'],
+  tagClasses: ['pill-gold','pill-gold','pill-amber'],
+  exercises: [
+    { rank:1, name:'Progressive posterior chain loading', meta:'The programme itself — your primary intervention', jade:true,
+      why:'Strong glutes reduce medial compartment load by 30–40%. This is the most powerful conservative intervention available for degenerative medial meniscal tears. No injection or therapy produces this result. The programme is the medicine.',
+      how:'Follow the posterior chain protocol. Monitor swelling as the primary gate. Hip thrust strength improving week-over-week = the intervention is working.',
+      hack:'Track hip thrust weight weekly. If it stalls, something in the recovery stack is failing — sleep, protein, or overreach. The number going up is the health marker.'},
+  ],
+  cardio: [],
+  medical: [
+    { tier:'tier-1st', title:'Posterior chain progressive loading (strength training)', body:'Already covered above. First-line treatment in orthopaedic guidelines for degenerative meniscal tears. The programme you are on is the evidence-based recommendation.' },
+    { tier:'tier-1st', title:'PRP — Platelet-Rich Plasma injection', body:'<strong>Strongest injectable evidence for degenerative meniscal tears.</strong> Blood drawn, spun to concentrate growth factors (PDGF, TGF-β, IGF-1), injected at the tear site. 2–3 injections 4–6 weeks apart. Average response: 40–60% pain reduction, improved function at 6 months. Best responders: tears with some tissue vascularity. Cost: £400–800/injection in the UK. Seek a sports medicine specialist, not a GP referral.' },
+    { tier:'tier-2nd', title:'Hyaluronic acid injection (Ostenil, Synvisc)', body:'Synthetic synovial fluid injection reduces joint friction and has direct anti-inflammatory signalling. 3–5 weekly injections. Better evidence for chondromalacia and early OA than for meniscal tears specifically, but the chondromalacia noted in your MRI is a valid target. Consider if knee discomfort increases at weeks 5–8 when load intensifies.' },
+    { tier:'tier-2nd', title:'Prolotherapy (dextrose injection)', body:'Hypertonic dextrose injected at tendon and ligament insertions stimulates local inflammatory response → healing cascade. Relevant for your MCL irritation specifically. Evidence is moderate but cost is low (£150–250/session) and risk is negligible.' },
+    { tier:'tier-2nd', title:'Acupuncture / dry needling', body:'Moderate evidence for reducing chronic joint pain. The mechanism for meniscal pathology is not structural — it is pain modulation via gate control and endorphin release. Useful as an adjunct if stiffness or chronic ache is limiting training quality. Not a primary intervention.' },
+    { tier:'tier-2nd', title:'TENS / electrical stimulation', body:'Transcutaneous electrical nerve stimulation reduces pain perception and may reduce swelling via lymphatic drainage stimulation. Relevant for post-training management. Purchase a consumer TENS unit (£30–60) for home use after Friday sessions if swelling is a recurring issue.' },
+    { tier:'tier-last', title:'NSAIDs (ibuprofen, naproxen) — use cautiously', body:'<strong>Chronic NSAID use suppresses prostaglandin synthesis broadly — including the prostaglandins required for connective tissue healing.</strong> Short-term use for acute flare-ups is acceptable. Regular use around training sessions is counterproductive — it blunts the inflammatory signal that drives adaptation. Omega-3 supplementation is a superior daily anti-inflammatory with no healing suppression.' },
+    { tier:'tier-last', title:'Cortisone injection — last conservative resort', body:'Corticosteroid injection provides 4–12 weeks of significant pain reduction. However, <strong>evidence shows cortisone injections are associated with accelerated cartilage degradation at 2-year follow-up</strong>. Use only for an acute flare that prevents training — not as a regular management tool. If you need more than one cortisone injection per year, surgical consultation is appropriate.' },
+    { tier:'tier-last', title:'Partial meniscectomy (surgical reference)', body:'Removes the torn portion of the meniscus. Fast recovery (6–8 weeks), high short-term satisfaction. However, removing meniscal tissue accelerates the development of osteoarthritis in the medial compartment — the very compartment your programme is protecting. <strong>Reserve for failure of all conservative options at 6–12 months, not as first-line.</strong>' },
+  ],
+  hacks: [
+    { icon:'🧊', title:'Ice is for acute swelling, not routine maintenance', body:'Ice constricts blood vessels and reduces the inflammatory cascade — appropriate after acute swelling. <strong>Routine icing after every session may blunt the adaptation signals you need.</strong> Use ice only when there is actual swelling. Use heat (hot shower, heat pack) for chronic stiffness and tight tissue before training.' },
+    { icon:'🩺', title:'The two tests to do at 6 weeks and 12 weeks', body:'6-week test: can you do 3 single-leg squats to 70° without pain or instability? 12-week test: can you jog 400m at a comfortable pace without swelling in the 24 hours following? These are the functional milestones for Phase 2 and tennis return respectively. If either fails, do not progress depth or intensity — return to the previous level for two weeks.' },
+    { icon:'⚡', title:'Sleep is the most powerful knee medicine that does not cost money', body:'GH pulses during slow-wave sleep drive connective tissue remodelling. <strong>Magnesium glycinate before bed, no screens for 30 minutes prior, blackout curtains — these produce measurably better connective tissue repair outcomes than any OTC supplement.</strong> Sleep quality directly determines how fast the meniscal environment heals.' },
+  ]
+},
+
+'cardio-general': {
+  title: 'Cardio',
+  subtitle: 'How cardiovascular training integrates with your strength programme — the principles, the placement, and the hierarchy of options for your specific profile. The goal is not to be a cardio athlete. The goal is sufficient aerobic base for tennis return and longevity without compromising muscle gain.',
+  tags: ['VO₂max target: 54ml/kg','Tennis return foundation','3× weekly'],
+  tagClasses: ['pill-jade','pill-amber','pill-amber'],
+  exercises: [
+    { rank:1, name:'Step machine — Zone 2 steady state', meta:'Tue + Thu · 20–25 min · Level 8–10', jade:true,
+      why:'<strong>Best cardio option for your profile.</strong> Posterior-loaded, glute-dominant, joint-safe, direct carryover to tennis. See Step Machine panel for full protocol.',
+      how:'Upright posture, no rails, heel drive, full step depression.',
+      hack:'Track heart rate — stay 130–145bpm. This is Zone 2. Above 150bpm you are in Zone 3 (harder recovery, lower adaptation signal).'},
+    { rank:2, name:'Incline treadmill walking (active recovery)', meta:'Tue or Thu · 15–20 min · 6–8% grade · 5–6 km/h',
+      why:'Near-zero joint impact. The hamstring and glute activation at incline walking pace promotes blood flow and nutrient delivery to repair tissue without generating training stress.',
+      how:'Incline 6–8%, speed comfortable for conversation. No holding the handles.',
+      hack:'Alternate with step machine week by week to prevent adaptation plateau.'},
+    { rank:3, name:'Cycling (stationary bike)', meta:'Rest days · 20–30 min · moderate resistance',
+      why:'Zero axial joint load. Pure cardiovascular stimulus. Use on days when knees are the most sensitive.',
+      how:'Seat height high — 15–20° knee flexion at bottom of pedal stroke.',
+      hack:'Resistance should challenge — cycling too easy produces near-zero cardiovascular adaptation above baseline.'},
+    { rank:4, name:'Straight-line running (Phase 2, weeks 5–8)', meta:'Begin conservatively · 5 min walk/run intervals initially', gold:true,
+      why:'Required for tennis return. Begin at walk/run intervals on flat surface. Progressing to continuous 20–30 min running is the week 9–12 gate before court play.',
+      how:'Flat surface only. No direction changes in Phase 2. Start at 50% normal effort — the first session should feel embarrassingly easy.',
+      hack:'Track knee status in the 24 hours post-run. No swelling = permission to progress. Any swelling = two more weeks at the same level.'},
+  ],
+  cardio: [],
+  medical: [
+    { tier:'tier-1st', title:'Zone 2 cardio is the most evidence-based longevity intervention available', body:'Dr. Peter Attia\'s synthesis of the longevity research: VO₂max is the single strongest predictor of all-cause mortality — stronger than smoking, blood pressure, or metabolic syndrome markers. <strong>Moving from "below average" to "above average" VO₂max for your age group reduces all-cause mortality risk by approximately 50%.</strong>' },
+    { tier:'tier-2nd', title:'Cardio and strength are not in conflict if volume is controlled', body:'Research on concurrent training: strength adaptation is not meaningfully impaired by 2–3 cardio sessions per week of moderate duration. The interference effect becomes significant above 4 sessions or 45+ minutes each. Your protocol (2 × 20–25 min + 1 × 10–12 min post-session) is well within the safe zone.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'VO₂max target at 44: 54ml/kg puts you in the top 20% for your age bracket', body:'Average healthy active 44-year-old male: ~44–46ml/kg. <strong>The 12-week programme\'s cardiovascular component should move you from roughly 42–44ml/kg to 48–52ml/kg.</strong> Tennis return by week 12 confirms you are within reaching distance of the 54ml/kg target by month 6.' },
+    { icon:'🎯', title:'Cardio does not compete with muscle gain at your volume', body:'Two 20-minute Zone 2 sessions per week is below the threshold where concurrent training interference occurs. <strong>You will add lean mass and improve cardiovascular fitness simultaneously.</strong> This is only possible at a caloric surplus — one reason the +200 kcal surplus is structural, not optional.' },
+  ]
+},
+
+'sleep': {
+  title: 'Sleep',
+  subtitle: 'Sleep is training. The stimulus lands in the gym. The adaptation happens in bed. At 44, one week of sub-6h sleep reduces testosterone by 10–15%, suppresses GH release, and blocks the connective tissue remodelling your knee requires. Eight hours is not a preference — it is the minimum operating condition.',
+  tags: ['GH release window','Testosterone','Knee recovery'],
+  tagClasses: ['pill-jade','pill-amber','pill-gold'],
+  exercises: [],
+  cardio: [],
+  medical: [
+    { tier:'tier-1st', title:'Sleep 8 hours — the research is unusually unambiguous', body:'Walker (2017): below 6h, testosterone suppression 10–15%. Below 5h for one week = testosterone equivalent to someone 10–15 years older. GH is released in the first slow-wave cycle (60–90 min after sleep onset) — insufficient total sleep cuts this cycle short.' },
+    { tier:'tier-1st', title:'Magnesium glycinate 400mg before bed', body:'<strong>Already in your stack.</strong> Modulates NMDA receptors, deepens slow-wave sleep, extends the GH release window. The single highest-leverage supplement for sleep quality with no tolerance or habituation.' },
+    { tier:'tier-1st', title:'Temperature: cool room (17–19°C) is the most underused sleep tool', body:'Core body temperature must drop ~1°C to initiate sleep onset. A cool bedroom accelerates this. <strong>This produces faster sleep onset, deeper Stage 3 sleep, and better GH release</strong>. Free intervention. Most people sleep in rooms that are too warm.' },
+    { tier:'tier-2nd', title:'No screens 30 min before bed', body:'Blue light suppresses melatonin onset by up to 3 hours at high exposure. f.lux or phone night mode helps but is not equivalent to no screen. The 30-minute window before bed is when the wind-down protocol matters most.' },
+    { tier:'tier-2nd', title:'Consistent wake time — the most important sleep variable', body:'Circadian rhythm is anchored to wake time, not bed time. <strong>Waking at the same time every day (including weekends) is more important than any sleep supplement.</strong> Variation of more than 60 minutes causes social jet lag — blunted morning cortisol, disrupted GH timing, reduced athletic performance for 24–48 hours.' },
+    { tier:'tier-last', title:'ZMA (zinc + magnesium aspartate) — conditional', body:'Already in your conditional stack. Zinc replenished post-training. The magnesium component is less bioavailable than glycinate. Use on hard training days when sweat loss is highest.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Thursday night sleep is worth more than any Friday pre-workout supplement', body:'Friday\'s posterior chain session quality depends more on Thursday night\'s sleep quality than on pre-training nutrition, caffeine, or warm-up. <strong>Earlier to bed Thursday by 30 minutes is the single highest-leverage pre-session preparation available.</strong>' },
+    { icon:'🎯', title:'The pre-sleep casein protocol — cottage cheese or Greek yoghurt', body:'Res et al. (2012): 40g casein protein before sleep increases overnight MPS by 22% vs placebo. <strong>250g cottage cheese or full-fat Greek yoghurt 30–60 minutes before bed delivers the casein without significant insulin spike</strong> that would disrupt GH release.' },
+  ]
+},
+
+'chest': {
+  title: 'Chest',
+  subtitle: 'Pectoralis major (clavicular and sternal heads) plus pectoralis minor. The chest is the primary target of Monday\'s push session. Compound-first approach — bench press before any isolation.',
+  tags: ['Monday primary','Saturday secondary','Twice weekly'],
+  tagClasses: ['pill-jade','pill-amber','pill-amber'],
+  exercises: [
+    { rank:1, name:'Barbell Bench Press', meta:'4 sets · 6–8 reps · RPE 8', jade:true,
+      why:'Highest load potential of any chest exercise. The powerlifting arch is not required — use a slight natural arch, feet flat, and full range of motion for hypertrophy.',
+      how:'Grip slightly wider than shoulder-width. Lower to lower chest (not clavicle). Controlled 2–3s descent. Drive bar upward and very slightly toward head.',
+      hack:'Video your technique from the side. Most people lose tension at the top — focus on keeping pecs contracted at full extension.'},
+    { rank:2, name:'Incline Dumbbell Press', meta:'3 sets · 10–12 reps · RPE 7–8',
+      why:'The incline shifts emphasis to the clavicular (upper) pec head — underrepresented in flat pressing. Upper chest fullness is what creates the appearance of a developed chest from the front.',
+      how:'30–45° bench angle. Dumbbells start at shoulder height, press to a slight convergence at the top.',
+      hack:'At 30° vs 45°: lower incline targets more of the full pec; higher incline becomes more anterior delt. 30–35° is the optimal for upper pec emphasis.'},
+    { rank:3, name:'Cable Fly (low-to-high)', meta:'3 sets · 12–15 reps · RPE 7',
+      why:'The cable maintains tension at both the stretched and contracted positions — dumbbell flys lose tension at the top. Low-to-high cable fly specifically targets the upper sternal fibres.',
+      how:'Cables at floor level. Sweep up and across, converging above head. Maintain soft elbow bend throughout.',
+      hack:'Superset cable flys with push-ups to failure for a metabolic finisher — this is the most effective chest pump possible and takes under 3 minutes.'},
+  ],
+  cardio: [],
+  medical: [
+    { tier:'tier-2nd', title:'Shoulder internal rotation imbalance — the hidden chest training risk', body:'Heavy chest pressing without equivalent rear delt and external rotation work produces progressive internal rotation imbalance. <strong>Your face pulls on Wednesday are specifically preventing this.</strong> If shoulder anterior pain develops, this is the likely mechanism — not chest overtraining.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Full range of motion produces 30% more hypertrophy than partial reps', body:'Consistent research finding: full ROM (sternum to full extension) produces significantly more chest hypertrophy than the same weight through partial range. Do not cut the bottom of the movement short to use more weight.' },
+  ]
+},
+
+'lats': {
+  title: 'Lats',
+  subtitle: 'Latissimus dorsi — the broadest muscle in the body. Creates the V-taper silhouette. Primary function: shoulder adduction and extension. Trained primarily Wednesday on pull day.',
+  tags: ['Wednesday primary','V-taper','Saturday secondary'],
+  tagClasses: ['pill-jade','pill-amber','pill-amber'],
+  exercises: [
+    { rank:1, name:'Weighted Pull-Up', meta:'4 sets · 5–8 reps · RPE 8', jade:true,
+      why:'Highest lat activation available. Body weight as resistance allows neuromuscular recruitment patterns that machine alternatives cannot replicate. Adding load via a belt is the most efficient lat progressive overload method.',
+      how:'Dead hang start. Pull elbows down and back — not arms pulling. Think "elbows to back pockets." Full extension at the bottom for maximum stretch.',
+      hack:'At the top, hold for 1 second and actively think about squeezing your lats — not biceps. The mind-muscle connection increases lat EMG at peak contraction by ~15%.'},
+    { rank:2, name:'Lat Pulldown (wide grip, slight lean back)', meta:'3 sets · 10–12 reps · RPE 7',
+      why:'Higher volume complement to pull-ups. The slight lean-back position (15–20°) increases lat stretch at the top of the movement.',
+      how:'Grip wider than shoulder-width. Lean back slightly. Pull bar to upper chest — not chin level. Full extension at the top.',
+      hack:'Single-arm lat pulldown variation identifies left-right activation differences. If one lat is significantly harder to feel, do a set of unilateral work to isolate it.'},
+    { rank:3, name:'Straight-Arm Pulldown (cable)', meta:'3 sets · 12–15 reps · RPE 7',
+      why:'Isolates the lat without bicep involvement. Pure shoulder extension. Excellent as either a warm-up activation or a burnout set.',
+      how:'Straight arms, hinge slightly at hips, pull rope from head height down to hips.',
+      hack:'This exercise teaches the lat-dominant pulling pattern that should carry over to pull-ups and rows.'},
+  ],
+  cardio: [
+    { icon:'🚣', name:'Rowing machine', detail:'The drive phase of every rowing stroke requires powerful lat engagement. <strong>20 minutes of rowing is as much a lat training session as it is cardiovascular.</strong> Particularly effective for building the lat endurance needed for tennis serves and overhead strokes.', badge:'Lat cardio', badgeClass:'pill-jade'},
+  ],
+  medical: [],
+  hacks: [
+    { icon:'⚡', title:'Lat flexibility is as important as lat strength for tennis', body:'Tight lats pull the shoulder into internal rotation and limit overhead range — directly limiting serve mechanics. <strong>Child\'s pose with arms extended (30s × 3 sets after each pull day) is the most effective lat flexibility drill.</strong>' },
+  ]
+},
+
+'triceps': {
+  title: 'Triceps',
+  subtitle: 'Three-headed muscle (long, lateral, medial) comprising roughly two-thirds of upper arm mass. Primary elbow extensor. Trained on Monday push and Saturday upper. The long head also crosses the shoulder — worked in overhead pressing.',
+  tags: ['Monday primary','Saturday secondary','Elbow extension'],
+  tagClasses: ['pill-jade','pill-amber','pill-amber'],
+  exercises: [
+    { rank:1, name:'Close-Grip Bench Press', meta:'4 sets · 6–8 reps · RPE 8', jade:true,
+      why:'Highest absolute load for triceps. All three heads activated. The close grip shifts emphasis from pectorals to triceps while maintaining compound movement benefits.',
+      how:'Grip shoulder-width or slightly narrower. Bar path slightly lower than standard bench — toward sternum. Elbows tucked 45°, not flared wide.',
+      hack:'Superset with pull-ups (antagonist pairing) — no performance loss, saves 12–15 minutes per session.'},
+    { rank:2, name:'Overhead Tricep Extension (cable or dumbbell)', meta:'3 sets · 10–12 reps · RPE 7–8',
+      why:'The only exercise that loads the long head in its fully stretched position — where it has the most growth potential. Most pressing movements never fully stretch the long head.',
+      how:'Arms overhead, elbows pointing forward. Lower behind head slowly — full stretch. Press to full extension.',
+      hack:'The stretch at the bottom is the stimulus. Do not rush through it — 2–3s eccentric on every rep.'},
+    { rank:3, name:'Cable Tricep Pushdown (rope)', meta:'3 sets · 12–15 reps · RPE 7',
+      why:'Constant cable tension throughout full range. Rope attachment allows hands to pronate at the bottom — increasing lateral head peak contraction.',
+      how:'Elbows pinned to sides throughout. Press to full extension, spread rope slightly at bottom. Control the return.',
+      hack:'Keep elbows still. If elbows drift forward, the weight is too heavy — reduce it.'},
+  ],
+  cardio: [], medical: [],
+  hacks: [
+    { icon:'⚡', title:'Triceps are 2/3 of upper arm size — train them harder than biceps', body:'Most people focus disproportionate effort on biceps for arm aesthetics. The triceps occupy the larger proportion of upper arm mass. If arm size is the goal, <strong>prioritising close-grip pressing and overhead extensions over curls produces faster results.</strong>' },
+  ]
+},
+
+'biceps': {
+  title: 'Biceps',
+  subtitle: 'Biceps brachii (long and short heads) plus brachialis underneath. Primary elbow flexor and supinator. Trained on Wednesday pull day and Saturday upper. The brachialis contributes significantly to arm thickness — often undertrained.',
+  tags: ['Wednesday primary','Saturday secondary','Elbow flexion'],
+  tagClasses: ['pill-jade','pill-amber','pill-amber'],
+  exercises: [
+    { rank:1, name:'Barbell or EZ-Bar Curl', meta:'3 sets · 8–10 reps · RPE 8', jade:true,
+      why:'Highest load capacity for biceps — progressive overload is most achievable here. Both heads fully activated.',
+      how:'Supinated grip, elbows pinned to sides. Full extension at the bottom — do not shorten the range. Controlled 2s eccentric.',
+      hack:'Lean very slightly forward at the bottom of each rep — this increases the stretch on the long head, maximising the stimulus.'},
+    { rank:2, name:'Incline Dumbbell Curl', meta:'3 sets · 10–12 reps · RPE 7–8',
+      why:'The incline position puts the long head in maximum stretch — producing higher tension at the lengthened position where growth stimulus is greatest. Research consistently shows incline curls produce superior long head hypertrophy.',
+      how:'Bench at 45–60°. Arms hang straight down, palms forward. Curl without allowing shoulders to come forward.',
+      hack:'Do not rush the stretch. Pause 1s at the bottom with the arm fully extended — this is where the growth stimulus is.'},
+    { rank:3, name:'Hammer Curl', meta:'3 sets · 10–12 reps · RPE 7',
+      why:'Neutral grip targets the brachialis and brachioradialis — muscles underneath and beside the bicep that add overall arm thickness. The brachialis cannot be isolated any other way.',
+      how:'Neutral grip (palms facing in) throughout the full range. Curl straight up.',
+      hack:'Alternate arms rather than curling both simultaneously — allows slightly more focused attention on each rep.'},
+  ],
+  cardio: [], medical: [],
+  hacks: [
+    { icon:'⚡', title:'Supinate at the top for peak bicep contraction', body:'The bicep is also a supinator (it rotates the forearm). <strong>Actively rotating the wrist outward at the top of each dumbbell curl recruits more motor units and increases peak contraction.</strong> Most people stop at flex and miss this.' },
+  ]
+},
+
+'front-delt': {
+  title: 'Front Delts',
+  subtitle: 'Anterior deltoid — the front head of the shoulder. Responsible for shoulder flexion and horizontal adduction. Heavily recruited in all pressing movements — typically the most-developed delt head in lifters who press frequently.',
+  tags: ['Monday heavy load','Often overtrained','Pressing movement'],
+  tagClasses: ['pill-jade','pill-amber','pill-amber'],
+  exercises: [
+    { rank:1, name:'Overhead Barbell Press', meta:'4 sets · 6–8 reps · RPE 8', jade:true,
+      why:'Highest load for the anterior delt. Full shoulder flexion under heavy load. Also recruits triceps and upper traps as synergists.',
+      how:'Bar at upper chest, grip slightly outside shoulders. Press straight up, slightly back at lockout (not forward). Keep core braced.',
+      hack:'The front delt is already heavily loaded by bench pressing. If you press frequently, front delt isolation work is often unnecessary — prioritise rear and side delts instead for balanced development.'},
+    { rank:2, name:'Dumbbell Front Raise', meta:'3 sets · 12–15 reps · RPE 7',
+      why:'Isolation exercise when specific front delt development is the goal. Useful for lifters with lagging anterior development, less useful for those who press heavily.',
+      how:'Slight internal rotation (thumbs slightly down) increases anterior delt recruitment. Raise to eye level, not above.',
+      hack:'Cable front raise produces more constant tension than dumbbells — consider this variation for better stimulus.'},
+  ],
+  cardio: [], medical: [],
+  hacks: [
+    { icon:'⚡', title:'Front delts are likely your strongest delt head already', body:'If you bench press and overhead press regularly, your front delts are receiving significant volume every session. <strong>Adding more front delt isolation work may be overdevelopment — check whether your rear delts are proportionally strong first.</strong>' },
+  ]
+},
+
+'side-delt': {
+  title: 'Side Delts',
+  subtitle: 'Medial (lateral) deltoid — the middle head. Creates shoulder width and the capped delt appearance. The most undertrained delt head relative to its aesthetic impact. Requires direct lateral loading — not meaningfully recruited by pressing movements.',
+  tags: ['High aesthetic value','Needs direct work','Monday + Saturday'],
+  tagClasses: ['pill-jade','pill-jade','pill-amber'],
+  exercises: [
+    { rank:1, name:'Cable Lateral Raise', meta:'4 sets · 15–20 reps · RPE 8', jade:true,
+      why:'Cable provides constant tension through the full range — unlike dumbbells which have zero tension at the bottom. Research consistently shows cable laterals produce superior medial delt hypertrophy to dumbbell laterals at the same effort.',
+      how:'Cable at floor level, arm crosses in front of body. Raise laterally to parallel. Slight bend in elbow throughout. Pause 1s at the top.',
+      hack:'The 1-second pause at parallel eliminates momentum and forces the medial delt to hold the position under load. This single change dramatically increases stimulus quality.'},
+    { rank:2, name:'Dumbbell Lateral Raise', meta:'3 sets · 15–20 reps · RPE 7–8',
+      why:'Accessible, loadable, and familiar. The dumbbell version is less efficient than cable but still highly effective when performed correctly.',
+      how:'Slight forward lean (15°) better aligns the medial delt with the plane of loading. Raise laterally, not forward. Lead with the elbow, not the wrist.',
+      hack:'Myo-reps work exceptionally well for lateral raises — a 20-rep activation set followed by 3–5 cluster sets of 5 reps produces significant volume in a fraction of the time.'},
+    { rank:3, name:'Machine Lateral Raise', meta:'3 sets · 15–20 reps · RPE 7',
+      why:'Fixed path removes stabiliser demands and allows true isolation of the medial head. Excellent for high-rep burnout sets at session end.',
+      how:'Adjust pad height so elbow pad contacts mid-forearm. Full range of motion. Controlled eccentric.',
+      hack:'Drop sets work extremely well on the machine — 3 drops in quick succession at session end for a metabolic finisher.'},
+  ],
+  cardio: [], medical: [],
+  hacks: [
+    { icon:'⚡', title:'Side delts need 20+ reps per set — they respond differently to low reps', body:'The medial delt has a high proportion of slow-twitch fibres and responds better to higher rep ranges (15–25) than most muscles. <strong>Heavy 6-rep lateral raises are suboptimal — this is one muscle group where higher reps produce measurably better hypertrophy.</strong>' },
+  ]
+},
+
+'rear-delt': {
+  title: 'Rear Delts',
+  subtitle: 'Posterior deltoid — the back head. Critical for shoulder health, posture, and athletic performance. Almost universally undertrained relative to pressing volume. Weak rear delts lead to shoulder impingement, internal rotation imbalance, and the hunched posture that pressing-heavy programmes create.',
+  tags: ['Wednesday focus','Shoulder health','Often neglected'],
+  tagClasses: ['pill-jade','pill-gold','pill-red'],
+  exercises: [
+    { rank:1, name:'Face Pull (cable, rope attachment)', meta:'4 sets · 15–20 reps · RPE 7', jade:true,
+      why:'The non-negotiable rear delt exercise for anyone who presses. Directly counteracts the internal rotation pattern that bench pressing and overhead pressing create. Also trains external rotation strength — the most important movement pattern for shoulder longevity.',
+      how:'Cable at face height. Rope attachment, neutral grip. Pull toward face, hands separating at the ears. Elbows high throughout.',
+      hack:'This exercise should be in every session. 3 sets of face pulls on both push days and pull days is the single most effective shoulder health protocol available for a pressing-heavy programme.'},
+    { rank:2, name:'Reverse Pec Deck (machine)', meta:'3 sets · 15–20 reps · RPE 7–8',
+      why:'Isolates the rear delt with minimal trap or rhomboid involvement. The fixed path makes it very difficult to cheat.',
+      how:'Arms slightly below parallel. Reverse the fly motion — lead with elbows, not hands. Full range to full stretch.',
+      hack:'Reduce load before ego allows. Most people cheat rear delt work with traps — use a weight where you can feel the posterior deltoid working, not the upper back.'},
+    { rank:3, name:'Dumbbell Rear Delt Fly (prone or bent-over)', meta:'3 sets · 15–20 reps · RPE 7',
+      why:'Accessible and effective. Prone position (lying face down on incline bench) eliminates lower back stress and prevents swinging.',
+      how:'Internal rotation (thumbs down) throughout the movement. Raise to parallel — not higher. Controlled descent.',
+      hack:'Prone fly on an incline bench removes all momentum — much more effective than standing bent-over variation.'},
+  ],
+  cardio: [], medical: [],
+  hacks: [
+    { icon:'⚡', title:'Match rear delt volume to pressing volume for long-term shoulder health', body:'For every set of horizontal pressing, include one set of horizontal pulling or rear delt work. <strong>Your Wednesday pull session and the face pulls already do this — maintain this balance as volume increases.</strong>' },
+  ]
+},
+
+'mid-back': {
+  title: 'Mid Back / Rhomboids',
+  subtitle: 'Rhomboids, middle trapezius, and lower trapezius — the muscles between and below the shoulder blades. Responsible for scapular retraction and depression. Critical for posture, shoulder stability, and the "thick back" appearance from the rear.',
+  tags: ['Wednesday primary','Posture muscles','Scapular control'],
+  tagClasses: ['pill-jade','pill-amber','pill-amber'],
+  exercises: [
+    { rank:1, name:'Chest-Supported DB Row', meta:'4 sets · 8–12 reps · RPE 8', jade:true,
+      why:'Your modified row — removes lower back from the equation entirely. All focus goes to the rhomboids and mid-traps. The supported position also prevents momentum, making every rep genuinely effective.',
+      how:'Chest on incline bench. Arms hang straight down. Pull elbows back and up — squeeze the shoulder blades together at the top. Hold 1s.',
+      hack:'The 1-second squeeze at the top is non-negotiable for rhomboid activation. Without it, you are predominantly using lats and biceps.'},
+    { rank:2, name:'Seated Cable Row (close grip)', meta:'3 sets · 10–12 reps · RPE 7–8',
+      why:'Constant cable tension with the ability to feel and control the full range. The close grip emphasises rhomboids over lats.',
+      how:'Sit tall — do not round the lower back. Pull handle to lower sternum. Squeeze shoulder blades together at the end range. Full stretch at the front.',
+      hack:'Exaggerate the stretch at the front — let the scapulae protract fully before each rep. This full range produces significantly more rhomboid stimulus.'},
+    { rank:3, name:'Barbell Row (Pendlay row variation)', meta:'3 sets · 6–8 reps · RPE 8',
+      why:'The highest-load mid-back exercise available. Starting from the floor each rep eliminates momentum.',
+      how:'Bar from floor each rep. Torso parallel to ground. Pull to lower stomach. Full dead-stop on the floor between reps.',
+      hack:'Your meniscus protocol: this exercise is fine — no knee flexion loading in the standard position. Monitor lower back — if rounding, reduce weight.'},
+  ],
+  cardio: [], medical: [],
+  hacks: [
+    { icon:'⚡', title:'Scapular retraction is the cue that makes rowing exercises actually work', body:'Most people perform rows using biceps and traps, not rhomboids. <strong>Consciously initiating each row by retracting the shoulder blade before bending the arm completely changes which muscles are working.</strong> Practice the retraction movement with no load first.' },
+  ]
+},
+
+'forearms': {
+  title: 'Forearms',
+  subtitle: 'Flexor and extensor groups controlling wrist and finger movement. Heavily involved in all pulling exercises. Grip strength is also a direct indicator of overall lean mass and longevity — one of the strongest functional health predictors for the 40s and beyond.',
+  tags: ['Grip strength = health','Indirect via pulls','Low direct volume needed'],
+  tagClasses: ['pill-jade','pill-amber','pill-amber'],
+  exercises: [
+    { rank:1, name:'Dead hangs / Farmer carries', meta:'3 sets · max duration / 30–40m', jade:true,
+      why:'Grip strength is developed through sustained grip under load — not through curling movements. Dead hangs (hanging from a pull-up bar) and farmer carries (walking with heavy dumbbells) are the most functional grip strength developers available.',
+      how:'Dead hang: simply hold the pull-up bar at full arm extension for as long as possible. Farmer carry: pick up the heaviest dumbbells you can hold and walk 30–40m.',
+      hack:'Grip strength directly predicts all-cause mortality in the 50+ population. At 44, training grip is training longevity as much as aesthetics.'},
+    { rank:2, name:'Wrist Curls and Reverse Curls', meta:'2–3 sets · 15–20 reps · RPE 7',
+      why:'Direct forearm flexor and extensor work. Reverse curls specifically target the brachioradialis and wrist extensors — typically the weaker side.',
+      how:'Wrist curls: forearm supported on bench, wrist hanging off edge, curl up. Reverse curls: overhand grip on a barbell, curl up.',
+      hack:'Forearms respond well to high reps and short rest. 15–20 reps with 45–60s rest produces a strong metabolic response.'},
+  ],
+  cardio: [], medical: [],
+  hacks: [
+    { icon:'⚡', title:'Your pulling exercises already train your forearms heavily', body:'Weighted pull-ups, deadlifts, rows, and RDLs all require significant grip contribution. <strong>If grip is the limiting factor on these exercises, add direct grip work. If it is not, direct forearm isolation is lower priority.</strong>' },
+  ]
+},
+
+'obliques': {
+  title: 'Obliques',
+  subtitle: 'Internal and external obliques — the rotational and lateral flexion muscles of the core. Create the side waist definition, protect the lumbar spine during rotation, and are essential for any sport involving twisting movements. Critical for tennis groundstrokes.',
+  tags: ['Rotation power','Tennis carryover','Core stability'],
+  tagClasses: ['pill-jade','pill-jade','pill-amber'],
+  exercises: [
+    { rank:1, name:'Cable Wood Chop (high-to-low)', meta:'3 sets · 12–15/side · RPE 7', jade:true,
+      why:'The most sport-specific oblique exercise available. The high-to-low diagonal pattern mirrors the exact movement pattern of a tennis forehand. Functional strength with direct athletic carryover.',
+      how:'Cable high and to one side. Rotate and pull diagonally down across the body. Keep hips facing forward — rotation comes from the trunk, not the hips.',
+      hack:'This exercise is tennis training as much as gym training. The neuromuscular pattern you are building translates directly to groundstroke power.'},
+    { rank:2, name:'Side Plank with Hip Dip', meta:'3 sets · 12–15 reps/side · RPE 7',
+      why:'Anti-lateral-flexion strength — the oblique resists the body dropping, rather than creating movement. This stabilisation function is the oblique\'s primary role in athletic movement.',
+      how:'Side plank position. Drop hip toward floor and drive back up using the oblique. Keep body in a straight line throughout.',
+      hack:'The pause at the top (hip at full height) activates the oblique maximally. 1-second hold each rep.'},
+    { rank:3, name:'Pallof Press (cable)', meta:'3 sets · 12–15/side · RPE 6–7',
+      why:'Anti-rotation exercise — the core resists the cable pulling the torso to rotate. Directly builds the rotational stability needed for athletic power transfer.',
+      how:'Cable at chest height from the side. Press hands straight out from chest and hold. The obliques are working to prevent rotation, not produce it.',
+      hack:'The exercise should feel like nothing is moving but everything is working. If the torso rotates, reduce the weight.'},
+  ],
+  cardio: [], medical: [],
+  hacks: [
+    { icon:'⚡', title:'Heavy side oblique work can widen the waist — train carefully', body:'Very heavy oblique exercises (loaded side bends with heavy dumbbells) can hypertrophy the obliques and widen the waist — the opposite of the aesthetic most people want. <strong>Cable rotational work and anti-rotation exercises build athletic oblique strength without the waist-widening effect.</strong>' },
+  ]
+},
+
+'lower-back': {
+  title: 'Lower Back / Erectors',
+  subtitle: 'Erector spinae group — the column of muscles running along the spine. The primary spinal stabilisers for all compound movements. Rarely need direct training if compound lifts are performed with correct technique — but deserve specific attention for longevity.',
+  tags: ['Spinal stability','Compound carry-over','Longevity muscle'],
+  tagClasses: ['pill-jade','pill-amber','pill-jade'],
+  exercises: [
+    { rank:1, name:'Romanian Deadlift (erector component)', meta:'Already in your programme', jade:true,
+      why:'The RDL trains the erectors isometrically throughout the movement — they maintain spinal extension under the load. This is the most functional lower back stimulus available and is already built into your Friday posterior chain session.',
+      how:'The lower back should not flex or extend during the RDL — it is held neutral throughout. The erectors are working as stabilisers, not prime movers.',
+      hack:'If lower back is the limiting factor on RDLs (it aches before the hamstrings fatigue), the erectors need more direct work — add good mornings or back extensions.'},
+    { rank:2, name:'Back Extension / Hyperextension', meta:'3 sets · 12–15 reps · RPE 6–7',
+      why:'Direct erector strengthening through spinal extension. The only exercise that directly trains the lower back as a prime mover.',
+      how:'Machine or 45° bench. Hinge at the hips, lower torso toward floor, drive back up using lower back. Add a plate for progressive overload when bodyweight is easy.',
+      hack:'Can be done as an accessory after RDLs on Friday. The erectors are pre-fatigued from the RDL, making even bodyweight back extensions a meaningful stimulus.'},
+    { rank:3, name:'Bird Dog', meta:'3 sets · 10/side · RPE 5',
+      why:'Anti-extension core stability — the lower back maintains neutral while the limbs move. This is the McGill Big Three rehabilitation staple and one of the strongest evidence-based exercises for lower back pain prevention.',
+      how:'On hands and knees. Extend opposite arm and leg simultaneously while keeping the lower back completely still. No rotation of the hips.',
+      hack:'The lower back should not move at all. Place a water bottle on the lower back — if it falls, the lumbar is moving. This diagnostic makes the exercise immediately more effective.'},
+  ],
+  cardio: [], medical: [
+    { tier:'tier-1st', title:'McGill Big Three — the evidence-based lower back rehabilitation protocol', body:'Dr. Stuart McGill\'s Bird Dog, Modified Curl-Up, and Side Bridge are the most evidence-backed non-surgical interventions for lower back pain. All three are in your core protocol or can be added. <strong>These exercises are specifically designed to stabilise without loading the spine in flexion</strong> — the movement pattern most associated with disc injury.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Lower back pain is almost always a stabilisation problem, not a strength problem', body:'The erectors are strong in most people who train. <strong>The weakness is in the small rotational and stabilisation muscles that hold the spine neutral under load.</strong> Bird dog, dead bug, and planks address this more effectively than direct erector work in most cases.' },
+  ]
+},
+
+'calves': {
+  title: 'Calves',
+  subtitle: 'Gastrocnemius (knee-crossing, visible calf) and soleus (deeper, works only with bent knee). The most difficult muscle group to develop due to their high slow-twitch fibre content and the constant low-level loading they receive from daily walking.',
+  tags: ['High slow-twitch','Needs high reps','Often stubborn'],
+  tagClasses: ['pill-amber','pill-amber','pill-amber'],
+  exercises: [
+    { rank:1, name:'Standing Calf Raise', meta:'4 sets · 15–20 reps · RPE 8', jade:true,
+      why:'Loads the gastrocnemius with knee straight. The highest load possible for the calf complex. Full range of motion — complete stretch at the bottom, full contraction at the top — is more important than load.',
+      how:'Full stretch at the bottom (heel below the platform). Pause 1s at the top. Slow 3s descent. Any bouncing at the bottom eliminates the stimulus.',
+      hack:'Calves respond to variety in rep ranges. Weeks of 15 reps, weeks of 25 reps, weeks of rest-pause. The muscle adapts quickly to a fixed protocol.'},
+    { rank:2, name:'Seated Calf Raise', meta:'3 sets · 20–25 reps · RPE 7–8',
+      why:'Knee bent position removes the gastrocnemius and isolates the soleus — an often completely neglected muscle that contributes significantly to ankle stability and lower leg thickness.',
+      how:'Knees bent at 90°. Full range of motion. The soleus does not need heavy load — moderate weight with full range is more effective than heavy partial reps.',
+      hack:'If you have never specifically trained the seated calf raise, your soleus is likely significantly underdeveloped relative to your gastrocnemius. 4–6 weeks of prioritising it will produce noticeable lower leg growth.'},
+  ],
+  cardio: [
+    { icon:'⬆️', name:'Step machine', detail:'Every step activates the calf complex through plantar flexion. 20 minutes of step machine is substantial calf conditioning volume. At your current Tuesday/Thursday protocol, your calves are receiving significant aerobic stimulus alongside the strength work.', badge:'Incidental', badgeClass:'pill-amber'},
+  ],
+  medical: [], hacks: [
+    { icon:'⚡', title:'Full range of motion matters more for calves than almost any other muscle', body:'Partial calf raises (not reaching full stretch at the bottom) produce minimal hypertrophy. <strong>The Achilles tendon stores elastic energy and takes over when range is limited — the calf muscle does very little work.</strong> Full stretch, pause, full contraction. Every rep.' },
+  ]
+},
+
+'hip-flexors': {
+  title: 'Hip Flexors',
+  subtitle: 'Iliopsoas (iliacus + psoas major) and rectus femoris. Responsible for hip flexion — lifting the thigh. Chronically shortened by prolonged sitting. Tight hip flexors pull the pelvis into anterior tilt, increasing lower back stress and reducing glute activation. Critical to address at 44.',
+  tags: ['Often tight not weak','Mobility first','Posture impact'],
+  tagClasses: ['pill-amber','pill-jade','pill-amber'],
+  exercises: [
+    { rank:1, name:'Hip Flexor Stretch (kneeling lunge position)', meta:'Daily · 60–90s each side', jade:true,
+      why:'The most important hip flexor intervention for most desk-working adults. The kneeling lunge position directly addresses the shortened iliopsoas caused by prolonged sitting.',
+      how:'Kneel on one knee, other foot forward. Push hips forward until a stretch is felt at the front of the rear hip. Posterior pelvic tilt (tuck the tail under) to maximise the stretch.',
+      hack:'Hold for 90 seconds minimum. Under 60 seconds produces temporary lengthening; 90+ seconds begins to produce neurological change. Do this every morning and before posterior chain training.'},
+    { rank:2, name:'Psoas March (dead bug variation)', meta:'3 sets · 10/side · RPE 5',
+      why:'Strengthens the iliopsoas in its functional range — hip flexion with a neutral spine. Teaches the pelvis to remain stable during hip flexion, which is the pattern most lacking in people with anterior pelvic tilt.',
+      how:'Lie on back. Knees at 90°, feet off the floor. Extend one leg out straight while the other holds. Lower back pressed to floor throughout.',
+      hack:'This is therapeutic as much as exercise. The glute activation it teaches — holding the pelvis neutral while one leg extends — directly improves posterior chain recruitment patterns.'},
+    { rank:3, name:'Leg Raise (controlled)', meta:'3 sets · 12–15 reps · RPE 6',
+      why:'Strengthens the hip flexors through a full range of motion. Important because tight hip flexors are often weak in the shortened position — stretching alone is insufficient.',
+      how:'Lie flat. Legs together, raise to 90°, lower slowly (3s). Lower back pressed to floor throughout.',
+      hack:'Tight hip flexors are a primary limiter of glute activation. Stretching them daily for 2 weeks will produce a noticeable improvement in hip thrust depth and glute feel.'},
+  ],
+  cardio: [
+    { icon:'⬆️', name:'Step machine — hip flexor awareness', detail:'The step machine requires hip flexion with every step. Ensure full hip extension at the bottom of each step — this stretches the hip flexor during the movement and prevents shortening from the exercise itself.', badge:'Therapeutic', badgeClass:'pill-gold'},
+  ],
+  medical: [
+    { tier:'tier-1st', title:'Hip flexor tightness is the most common postural issue in trained adults who sit at desks', body:'Anterior pelvic tilt from shortened hip flexors reduces glute activation, increases lumbar stress, and contributes to the knee alignment issues that worsen meniscal pathology. <strong>Daily hip flexor stretching is a medical intervention for your knee as much as a flexibility practice.</strong>' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Stretching hip flexors before training dramatically improves glute activation', body:'Tight hip flexors actively inhibit glute function through reciprocal inhibition. <strong>A 60-second hip flexor stretch per side before the Friday session immediately improves the neuromuscular environment for hip thrusts and RDLs.</strong>' },
+  ]
+},
+
+'adductors': {
+  title: 'Adductors',
+  subtitle: 'Inner thigh muscles (adductor magnus, longus, brevis, gracilis). Primarily responsible for hip adduction (closing the legs) but also contribute significantly to hip extension — particularly the adductor magnus, which functions almost as a hamstring.',
+  tags: ['Inner thigh','Hip extension role','Knee protection'],
+  tagClasses: ['pill-amber','pill-amber','pill-gold'],
+  exercises: [
+    { rank:1, name:'Copenhagen Hip Adduction (lateral plank)', meta:'3 sets · 8–12/side · RPE 7', jade:true,
+      why:'The highest-evidence exercise for adductor strength — directly reduces groin injury risk and is used as a rehabilitation protocol in professional football. In a side plank position with the top leg on a bench, the adductor is loaded eccentrically through a long range.',
+      how:'Side plank with top foot on a bench. Lift the bottom leg up to meet the bench, then lower. The top leg is the working leg. Keep hips square.',
+      hack:'Begin with a lower bench height (20–25cm). The range of motion is demanding — do not progress load before mastering control.'},
+    { rank:2, name:'Adductor Machine', meta:'3 sets · 15–20 reps · RPE 7',
+      why:'Accessible isolation of the adductor complex. Not as functional as the Copenhagen but more practical for building baseline strength.',
+      how:'Full range of motion. Slow eccentric (3s). The eccentric phase of adduction is where the injury-prevention benefit lies.',
+      hack:'Eccentric-only sets (resisting the machine opening) are more effective for injury prevention than concentric work.'},
+    { rank:3, name:'Bulgarian Split Squat — adductor stretch component', meta:'Phase 2 only · Weeks 5+',
+      why:'The rear leg in the Bulgarian split squat places the adductors of the back leg under significant stretch. This is a secondary benefit of an exercise primarily targeting the front leg quad/glute — but it contributes to adductor flexibility and stability under load.',
+      how:'Standard BSS setup. The stretch you feel in the rear leg groin area is adductor lengthening under load.',
+      hack:'Only appropriate in Phase 2 (weeks 5+) given the knee loading pattern of the front leg. Ensure the front knee tracks over the toe and does not cave medially.'},
+  ],
+  cardio: [], medical: [
+    { tier:'tier-1st', title:'Copenhagen protocol — the strongest groin injury prevention evidence available', body:'Research in professional football shows the Copenhagen adduction exercise reduces groin injury risk by 41% when performed twice weekly during the pre-season. The mechanism: eccentric adductor strength under load at a lengthened position.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'The adductor magnus is a hip extensor — often the missing link in posterior chain work', body:'The adductor magnus has attachments to the ischial tuberosity (same as the hamstrings) and contributes significantly to hip extension. <strong>Strengthening the adductors improves hip thrust performance and addresses a common weakness in posterior chain dominance.</strong>' },
+  ]
+},
+
+'mobility': {
+  title: 'Mobility & Flexibility',
+  subtitle: 'The full-body mobility system — joint ranges of motion, soft tissue extensibility, and the nervous system\'s willingness to allow movement. At 44, maintaining mobility is as important as building strength. Stiffness is not inevitable — it is a consequence of insufficient movement variety.',
+  tags: ['Daily practice','Joint health','Performance foundation'],
+  tagClasses: ['pill-jade','pill-gold','pill-jade'],
+  exercises: [
+    { rank:1, name:'Morning mobility sequence (10 minutes)', meta:'Daily · On waking', jade:true,
+      why:'Synovial fluid does not flow through cartilage until joints are moved through their range. Morning stiffness is a literal lack of joint lubrication. A brief daily mobility sequence initiates synovial circulation, reduces stiffness, and prepares the body for the demands of a training day.',
+      how:'World\'s greatest stretch (1 min each side), hip 90/90 (1 min each side), thoracic rotation (1 min each side), ankle circles (30s each). Total: 7–8 minutes. Do before coffee, immediately on getting up.',
+      hack:'This is the single most underused recovery tool in most training programmes. It takes less time than making coffee and produces measurable joint health benefits.'},
+    { rank:2, name:'Hip 90/90 stretch', meta:'2 × 90s each position daily',
+      why:'Addresses hip internal and external rotation — the two ranges most limited by sitting and most required for athletic movement. Both the meniscal environment and glute function improve when hip rotation is full.',
+      how:'Sit on the floor, one leg bent in front at 90°, one leg bent to the side at 90°. Hold for 90s, switch sides. Sit as upright as possible.',
+      hack:'For the knee: the 90/90 position is below the maximum knee flexion the protocol permits. If knee discomfort occurs, reduce the bend angle.'},
+    { rank:3, name:'Thoracic extension (foam roller or chair)', meta:'3 × 60s daily',
+      why:'Thoracic kyphosis (rounded upper back) is universal in desk workers. It limits overhead pressing range, strains the cervical spine, and reduces breathing capacity. Extending over a foam roller for 60 seconds restores thoracic extension.',
+      how:'Foam roller perpendicular to the spine at mid-back. Arms crossed over chest. Extend over the roller gently. Move up 2–3cm at a time.',
+      hack:'Do this before overhead pressing — thoracic mobility directly determines how much range you can achieve in the shoulder press without compensating through the lower back.'},
+  ],
+  cardio: [
+    { icon:'🧘', name:'Yoga / movement practice', detail:'A 30-minute yoga flow or movement practice once weekly provides full-body mobility work that the gym does not — rotational movements, full hip range, shoulder circumduction. Yin yoga specifically targets connective tissue (fascia) through long holds.', badge:'Weekly add', badgeClass:'pill-amber'},
+  ],
+  medical: [
+    { tier:'tier-1st', title:'Mobility and the meniscus — synovial fluid depends on movement', body:'Articular cartilage receives nutrients through compression and decompression during movement — it has no blood supply. <strong>Daily movement through the knee\'s available range (staying within the 0–70° constraint) is the primary mechanism for maintaining cartilage health in the affected compartment.</strong> Rest and immobility starve cartilage of its nutrient supply.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Flexibility is neurological, not just structural', body:'The limits of your flexibility are set more by your nervous system\'s threat response than by tissue length. <strong>PNF stretching (contract the muscle being stretched for 5s, then stretch further) overcomes this by signalling safety to the nervous system</strong> — producing immediate range of motion improvements that static stretching alone cannot match.' },
+  ]
+},
+
+'zone2': {
+  title: 'Zone 2 Cardio',
+  subtitle: 'Low-to-moderate intensity aerobic work at 65–75% of maximum heart rate — the conversational pace where you could speak a full sentence without gasping. The most evidence-based cardiovascular training zone for longevity, metabolic health, and aerobic capacity development.',
+  tags: ['Tue + Thu · 20–25 min','Mitochondrial growth','Longevity foundation'],
+  tagClasses: ['pill-jade','pill-jade','pill-jade'],
+  exercises: [
+    { rank:1, name:'Step machine Zone 2 (primary)', meta:'20–25 min · Level 8–10 · 130–145bpm', jade:true,
+      why:'Your primary tool. Posterior-dominant loading pattern means Zone 2 cardio and glute conditioning happen simultaneously. No other Zone 2 modality at your gym offers this combination.',
+      how:'Level 8–10. Heart rate 130–145bpm. No hands on rails. Upright posture. Full step depression — push through the heel.',
+      hack:'Track heart rate, not effort perception. Zone 2 should feel embarrassingly easy. If you cannot hold a conversation, you are in Zone 3 — reduce resistance.'},
+    { rank:2, name:'Stationary cycling', meta:'20–30 min · moderate resistance',
+      why:'Zero axial joint load. Seat height critical — 15–20° knee flexion at the bottom of the pedal stroke. Appropriate on days when the knee is most sensitive or as a Zone 2 alternative.',
+      how:'High seat position. Cadence 80–90 rpm. Moderate resistance producing 130–145bpm.',
+      hack:'The resistance must challenge — cycling too lightly produces near-zero cardiovascular adaptation above baseline.'},
+    { rank:3, name:'Incline treadmill walking', meta:'20 min · 6–8% grade · 5.5–6 km/h',
+      why:'Near-zero joint impact. Hamstring and glute activation at incline grade increases. Blood flow promotion to repair tissue without generating training stress.',
+      how:'Hands off the rails. Incline 6–8%. Speed that keeps heart rate 120–135bpm.',
+      hack:'Alternate with step machine week by week to prevent cardiovascular adaptation plateau.'},
+  ],
+  cardio: [],
+  medical: [
+    { tier:'tier-1st', title:'Zone 2 is the strongest longevity intervention available in a gym', body:'VO₂max is the single strongest predictor of all-cause mortality — stronger than blood pressure, smoking status, or metabolic syndrome markers. Moving from below-average to above-average VO₂max for your age group reduces all-cause mortality by approximately 50%. Zone 2 cardio is the primary driver of VO₂max improvement.' },
+    { tier:'tier-1st', title:'Zone 2 is safe for your knee in Phase 1', body:'The step machine and cycling both produce knee joint stress well below the threshold of harm at the appropriate settings. The closed-chain loading pattern of stepping is specifically preferred over running for Phase 1 meniscal rehabilitation.' },
+  ],
+  hacks: [
+    { icon:'⚡', title:'Heart rate monitor or chest strap makes Zone 2 training dramatically more effective', body:'Perceived effort is unreliable for Zone 2 — most people train in Zone 3 thinking they are in Zone 2. A heart rate monitor that gives real-time feedback ensures you stay at 130–145bpm throughout. <strong>The physiological adaptations from Zone 2 only occur in the correct heart rate range — precision matters here.</strong>' },
+  ]
+},
+
+};
+
+// ─── RENDER ──────────────────────────────────────────────────────────────
+function showMuscle(id) {
+  const m = MUSCLES[id];
+  if (!m) return;
+
+  // Update active button
+  document.querySelectorAll('.mn-btn').forEach(b => b.classList.remove('active'));
+  const btn = [...document.querySelectorAll('.mn-btn')].find(b => b.getAttribute('onclick') === `showMuscle('${id}')`);
+  if (btn) btn.classList.add('active');
+
+  const panel = document.getElementById('detail-panel');
+  const tagHtml = (m.tags || []).map((t,i) => `<span class="pill ${m.tagClasses[i] || 'pill-ghost-dk'}" style="font-size:9px;">${t}</span>`).join('');
+  const hasMedical = m.medical && m.medical.length > 0;
+  const hasCardio  = m.cardio  && m.cardio.length > 0;
+  const hasHacks   = m.hacks   && m.hacks.length > 0;
+  const hasExs     = m.exercises && m.exercises.length > 0;
+
+  panel.innerHTML = `<div class="dp-inner">
+    <div class="dp-header">
+      <div>
+        <div class="dp-title">${m.title}</div>
+        <div class="dp-subtitle">${m.subtitle}</div>
+      </div>
+      <div class="dp-tags">${tagHtml}</div>
+    </div>
+
+    <div class="dp-tabs">
+      ${hasExs ? `<button class="dp-tab active" onclick="switchDpTab('dp-exercises',this)">Exercises</button>` : ''}
+      ${hasCardio ? `<button class="dp-tab${!hasExs?' active':''}" onclick="switchDpTab('dp-cardio',this)">Cardio</button>` : ''}
+      ${hasMedical ? `<button class="dp-tab gold${!hasExs&&!hasCardio?' active':''}" onclick="switchDpTab('dp-medical',this)">Medical / wellness</button>` : ''}
+      ${hasHacks ? `<button class="dp-tab" onclick="switchDpTab('dp-hacks',this)">Hacks</button>` : ''}
+    </div>
+
+    ${hasExs ? `<div class="dp-pane active" id="dp-exercises">
+      ${m.exercises.map(e => `
+      <div class="ex-block ${e.jade?'jade':e.gold?'gold':''}">
+        <div class="exb-head">
+          <div>
+            <div class="exb-name">${e.name}</div>
+            <div class="exb-meta">${e.meta}</div>
+          </div>
+          <div class="exb-rank ${e.rank===1?'top':''}">${e.rank}</div>
+        </div>
+        <div class="exb-body">
+          <div><div class="exb-col-label">Why this exercise</div><div class="exb-col-text">${e.why}</div></div>
+          <div><div class="exb-col-label">How to execute</div><div class="exb-col-text">${e.how}</div></div>
+        </div>
+        ${e.hack ? `<div class="exb-footer"><div class="exb-hack">${e.hack}</div></div>` : ''}
+      </div>`).join('')}
+    </div>` : ''}
+
+    ${hasCardio ? `<div class="dp-pane${!hasExs?' active':''}" id="dp-cardio">
+      ${m.cardio.map(c => `
+      <div class="cardio-block ${c.featured?'featured':''}">
+        <div class="cb-icon">${c.icon}</div>
+        <div>
+          <div class="cb-name">${c.name}</div>
+          <div class="cb-detail">${c.detail}</div>
+        </div>
+        <div class="cb-badge-col"><span class="pill ${c.badgeClass}" style="font-size:9px;">${c.badge}</span></div>
+      </div>`).join('')}
+    </div>` : ''}
+
+    ${hasMedical ? `<div class="dp-pane${!hasExs&&!hasCardio?' active':''}" id="dp-medical">
+      ${m.medical.map(med => `
+      <div class="med-block">
+        <div class="mb-title">${med.title}</div>
+        <div class="mb-body">${med.body}</div>
+        <span class="mb-tier ${med.tier}">${med.tier==='tier-1st'?'First line':med.tier==='tier-2nd'?'Second line':'For reference'}</span>
+      </div>`).join('')}
+    </div>` : ''}
+
+    ${hasHacks ? `<div class="dp-pane" id="dp-hacks">
+      ${m.hacks.map(h => `
+      <div class="hack-pill">
+        <div class="hp-icon">${h.icon}</div>
+        <div>
+          <div class="hp-title">${h.title}</div>
+          <div class="hp-body">${h.body}</div>
+        </div>
+      </div>`).join('')}
+    </div>` : ''}
+  </div>`;
+}
+
+function switchDpTab(paneId, btn) {
+  btn.closest('.dp-inner').querySelectorAll('.dp-tab').forEach(b => b.classList.remove('active'));
+  btn.closest('.dp-inner').querySelectorAll('.dp-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+
+// Auto-open glutes (your priority muscle)
+showMuscle('glutes');
+</script>
+<script>
+(function(){
+  try {
+    const p = localStorage.getItem('bl_profile');
+    if (p) {
+      const profile = JSON.parse(p);
+      const el = document.getElementById('nav-meta');
+      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
+    }
+  } catch(e){}
+})();
+</script>
+</body>
+</html>

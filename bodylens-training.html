@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Training Strategies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background: var(--ink); color: var(--dk-1); }
+
+/* ── HERO ── */
+.hero {
+  background: var(--ink);
+  padding: 64px 48px 60px;
+  border-bottom: 1px solid var(--bd);
+  position: relative; overflow: hidden;
+}
+.hero-glow {
+  position:absolute;top:-140px;right:-100px;width:560px;height:560px;
+  border-radius:50%;background:radial-gradient(circle,rgba(0,200,160,0.05) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-grid {
+  max-width:1080px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:end;
+}
+.h-eyebrow {
+  font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--jade);margin-bottom:18px;display:flex;align-items:center;gap:12px;
+}
+.h-eyebrow::before{content:'';width:28px;height:1px;background:var(--jade);}
+.h-display {
+  font-family:var(--serif);font-size:70px;font-weight:300;
+  line-height:0.92;letter-spacing:-0.03em;color:var(--dk-1);margin-bottom:28px;
+}
+.h-display em{font-style:italic;color:var(--dk-3);}
+.h-sub {
+  font-family:var(--serif);font-size:18px;font-weight:300;font-style:italic;
+  line-height:1.78;color:var(--dk-2);border-left:2px solid var(--jade-br);padding-left:20px;
+}
+.h-verdict {
+  background:var(--ink-1);border:1px solid var(--bd);border-radius:6px;padding:24px;
+}
+.hv-label{font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--jade);margin-bottom:14px;}
+.hv-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--bd);}
+.hv-row:last-child{border-bottom:none;}
+.hv-q{font-size:12px;font-weight:300;color:var(--dk-2);}
+.hv-a{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--dk-1);}
+.hv-a.jade{color:var(--jade);}
+
+/* ── STICKY SECTION NAV ── */
+.section-nav {
+  background:var(--ink-1);border-bottom:1px solid var(--bd);
+  position:sticky;top:60px;z-index:100;
+  padding:0 48px;display:flex;gap:0;overflow-x:auto;
+}
+.sn-btn {
+  font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;
+  padding:13px 18px;border:none;background:transparent;color:var(--dk-3);
+  cursor:pointer;font-family:var(--sans);white-space:nowrap;
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s;
+}
+.sn-btn:hover{color:var(--dk-2);}
+.sn-btn.active{color:var(--jade);border-bottom-color:var(--jade);}
+
+/* ── CONTENT SECTIONS ── */
+.content-section { display:none; }
+.content-section.active { display:block; }
+
+/* Dark sections */
+.dark-sec { background:var(--ink); padding:64px 0; }
+.dark-sec-2 { background:var(--ink-1); padding:64px 0; border-top:1px solid var(--bd); }
+.light-sec { background:var(--paper); padding:64px 0; }
+.wrap { max-width:1080px;margin:0 auto;padding:0 48px; }
+
+/* Section rule variants */
+.s-rule {
+  display:flex;align-items:center;gap:14px;
+  margin:0 0 32px;
+  font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--dk-3);
+}
+.s-rule em{font-style:normal;color:var(--jade);}
+.s-rule::after{content:'';flex:1;height:1px;background:var(--bd);}
+.s-rule-lt {
+  display:flex;align-items:center;gap:14px;
+  margin:0 0 32px;
+  font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--lt-3);
+}
+.s-rule-lt::after{content:'';flex:1;height:1px;background:var(--bl-2);}
+
+/* Split card */
+.split-card {
+  background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;
+  overflow:hidden;margin-bottom:10px;transition:border-color 0.15s;
+}
+.split-card:hover{border-color:var(--bd-2);}
+.split-card.yours{border-left:3px solid var(--jade);}
+.split-card.avoid-card{border-left:3px solid var(--red);}
+.sc-head{
+  display:grid;grid-template-columns:1fr auto;gap:20px;
+  padding:16px 20px;border-bottom:1px solid var(--bd);align-items:start;
+  cursor:pointer;
+}
+.sc-name{font-family:var(--serif);font-size:22px;font-weight:500;color:var(--dk-1);margin-bottom:3px;}
+.sc-subtitle{font-size:12px;font-weight:300;color:var(--dk-2);}
+.sc-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;align-items:flex-start;}
+.sc-body{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.scb-label{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
+.scb-text{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.68;}
+.scb-text strong{color:var(--dk-1);font-weight:500;}
+.sc-example{
+  padding:12px 20px;border-top:1px solid var(--bd);
+  background:rgba(255,255,255,0.015);
+  font-size:12px;font-weight:300;color:var(--dk-2);
+}
+.sc-example strong{color:var(--jade);font-weight:600;}
+
+/* Verdict bar - shows score visually */
+.verdict-bar{display:flex;gap:4px;margin-top:6px;}
+.vb-seg{width:14px;height:5px;border-radius:2px;background:var(--ink-3);}
+.vb-seg.filled-jade{background:var(--jade);}
+.vb-seg.filled-amber{background:var(--amber);}
+.vb-seg.filled-red{background:var(--red);}
+
+/* Principle block */
+.principle-block{
+  display:grid;grid-template-columns:56px 1fr;gap:0;
+  border-top:1px solid var(--bd);transition:background 0.15s;
+}
+.principle-block:hover{background:rgba(255,255,255,0.018);}
+.pb-num{
+  padding:28px 0 28px 0;
+  display:flex;align-items:flex-start;justify-content:center;
+  border-right:1px solid var(--bd);
+  font-family:var(--serif);font-size:40px;font-weight:300;color:var(--dk-3);line-height:1;
+  transition:color 0.2s;
+}
+.principle-block:hover .pb-num{color:var(--jade);}
+.pb-content{padding:28px 32px;}
+.pb-title{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--dk-1);margin-bottom:10px;line-height:1.1;letter-spacing:-0.01em;}
+.pb-body{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.88;max-width:580px;}
+.pb-body strong{color:var(--dk-1);font-weight:500;}
+.pb-verdict{
+  display:inline-flex;align-items:center;gap:6px;margin-top:12px;
+  font-size:11px;font-weight:600;color:var(--jade);letter-spacing:0.04em;
+  padding:5px 12px;border-radius:20px;background:var(--jade-dim);border:1px solid var(--jade-br);
+}
+.pb-verdict.amber{color:var(--amber);background:var(--amber-dim);border-color:var(--amber-br);}
+.pb-verdict.gold{color:var(--gold);background:var(--gold-dim);border-color:var(--gold-br);}
+
+/* Comparison table */
+.comp-table{width:100%;border-collapse:collapse;margin-bottom:32px;}
+.comp-table th{
+  font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--dk-3);text-align:left;padding:10px 16px;
+  background:var(--ink-2);border-bottom:1px solid var(--bd);
+}
+.comp-table th.center{text-align:center;}
+.comp-table td{
+  font-size:12px;font-weight:300;color:var(--dk-2);
+  padding:12px 16px;border-bottom:1px solid var(--bd);vertical-align:top;
+}
+.comp-table td:first-child{color:var(--dk-1);font-weight:500;}
+.comp-table td.center{text-align:center;}
+.comp-table tr:hover td{background:rgba(255,255,255,0.015);}
+.comp-table tr.highlight td{background:rgba(0,200,160,0.05) !important;}
+.comp-table tr.highlight td:first-child{color:var(--jade);}
+.tick{color:var(--jade);font-size:13px;}
+.cross{color:var(--red);font-size:11px;}
+.partial{color:var(--amber);font-size:11px;}
+
+/* Cardio debate blocks */
+.debate-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:28px;}
+.debate-side{padding:24px 26px;}
+.debate-side.for{background:rgba(0,200,160,0.04);}
+.debate-side.against{background:rgba(217,78,53,0.04);}
+.ds-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;}
+.ds-label.for{color:var(--jade);}
+.ds-label.against{color:var(--red);}
+.ds-point{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;}
+.ds-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.ds-text{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;}
+.ds-text strong{color:var(--dk-1);font-weight:500;}
+
+/* Volume visualiser */
+.vol-chart{margin-bottom:28px;}
+.vc-row{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+.vc-label{font-size:11px;font-weight:500;color:var(--dk-2);width:140px;flex-shrink:0;text-align:right;}
+.vc-track{flex:1;height:20px;background:var(--ink-3);border-radius:3px;overflow:hidden;position:relative;}
+.vc-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:8px;}
+.vc-fill-text{font-size:10px;font-weight:600;color:rgba(255,255,255,0.8);}
+.vc-note{font-size:10px;font-weight:300;color:var(--dk-3);width:80px;flex-shrink:0;}
+
+/* Age matrix */
+.age-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
+.age-tile{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:18px 20px;}
+.age-tile.same{border-top:2px solid var(--jade);}
+.age-tile.diff{border-top:2px solid var(--amber);}
+.at-type{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+.at-type.same{color:var(--jade);}
+.at-type.diff{color:var(--amber);}
+.at-title{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--dk-1);margin-bottom:6px;line-height:1.1;}
+.at-body{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.68;}
+.at-body strong{color:var(--dk-1);font-weight:500;}
+
+/* Technique cards */
+.tech-card{
+  background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;
+  padding:18px 20px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;
+}
+.tc-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.tc-name{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--dk-1);margin-bottom:4px;}
+.tc-when{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;}
+.tc-body{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.68;}
+.tc-body strong{color:var(--dk-1);font-weight:500;}
+
+/* Your programme callout */
+.your-prog{
+  background:var(--ink-2);border:1px solid var(--jade-br);
+  border-radius:6px;padding:28px 32px;margin-bottom:28px;
+  position:relative;overflow:hidden;
+}
+.your-prog::before{
+  content:'Your programme';
+  position:absolute;top:14px;right:16px;
+  font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);
+  padding:3px 10px;border-radius:20px;
+}
+.yp-title{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--jade);margin-bottom:10px;line-height:1.1;}
+.yp-body{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.82;}
+.yp-body strong{color:var(--dk-1);font-weight:500;}
+
+@media(max-width:900px){
+  .hero{padding:40px 18px 48px;}
+  .hero-grid{grid-template-columns:1fr;}
+  .wrap{padding:0 18px;}
+  .section-nav{padding:0 18px;}
+  .sc-body{grid-template-columns:1fr;}
+  .debate-grid{grid-template-columns:1fr;}
+  .age-grid{grid-template-columns:1fr;}
+  .dark-sec,.dark-sec-2,.light-sec{padding:48px 0;}
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
+    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-profile.html">Profile</a>
+    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
+    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
+    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
+    <a class="nav-link active" href="bodylens-training.html">Training</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-story.html">The Story</a>
+    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
+    <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
+    <a class="nav-link" href="bodylens-longevity.html">Longevity</a>
+    <a class="nav-link" href="bodylens-hunger.html">Hunger</a>
+    <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
+    <a class="nav-link" href="bodylens-science.html">Science</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+  </div>
+  <div class="nav-meta" id="nav-meta"></div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid">
+    <div>
+      <div class="h-eyebrow">Training strategy · The evidence base</div>
+      <div class="h-display">Train smarter.<br><em>Not just harder.</em></div>
+      <div class="h-sub">Every major training philosophy mapped, compared, and honestly assessed. Where the research settles debates, and where it doesn't. Your current programme sits within this landscape — and every decision has a reason.</div>
+    </div>
+    <div class="h-verdict">
+      <div class="hv-label">Quick answers — the most argued questions</div>
+      <div class="hv-row"><div class="hv-q">How often per muscle group?</div><div class="hv-a jade">Twice weekly</div></div>
+      <div class="hv-row"><div class="hv-q">Sets per muscle per week?</div><div class="hv-a">10–20 sets</div></div>
+      <div class="hv-row"><div class="hv-q">How close to failure?</div><div class="hv-a">RPE 7–9 · 1–3 reps left</div></div>
+      <div class="hv-row"><div class="hv-q">Does cardio kill gains?</div><div class="hv-a jade">No — if volume is controlled</div></div>
+      <div class="hv-row"><div class="hv-q">Best split for hypertrophy?</div><div class="hv-a">Upper/lower or Push/Pull/Legs</div></div>
+      <div class="hv-row"><div class="hv-q">Daily training — good idea?</div><div class="hv-a">No for this goal</div></div>
+      <div class="hv-row"><div class="hv-q">Bro split (1 muscle/session)?</div><div class="hv-a">Suboptimal for hypertrophy</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION NAV ═══ -->
+<div class="section-nav">
+  <button class="sn-btn active" onclick="showSection('sec-freq',this)">Frequency</button>
+  <button class="sn-btn" onclick="showSection('sec-splits',this)">Training splits</button>
+  <button class="sn-btn" onclick="showSection('sec-volume',this)">Volume &amp; intensity</button>
+  <button class="sn-btn" onclick="showSection('sec-reps',this)">Rep ranges &amp; effort</button>
+  <button class="sn-btn" onclick="showSection('sec-cardio',this)">Cardio debate</button>
+  <button class="sn-btn" onclick="showSection('sec-period',this)">Periodisation</button>
+  <button class="sn-btn" onclick="showSection('sec-techniques',this)">Advanced techniques</button>
+  <button class="sn-btn" onclick="showSection('sec-age',this)">Training at 44</button>
+  <button class="sn-btn" onclick="showSection('sec-yours',this)">Your programme</button>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 1 — FREQUENCY
+══════════════════════════════════════════ -->
+<div class="content-section active" id="sec-freq">
+
+<div class="dark-sec">
+<div class="wrap">
+  <div class="s-rule" style="margin-top:0;">Frequency <em>— how often per muscle group</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:40px;max-width:640px;">The most argued variable in training. The answer from the research is clearer than most people realise — but it comes with important nuance about volume, recovery, and what "frequency" actually means.</div>
+
+  <div>
+    <div class="principle-block">
+      <div class="pb-num">1</div>
+      <div class="pb-content">
+        <div class="pb-title">Muscle protein synthesis elevates for 48–72 hours after a session — then returns to baseline</div>
+        <div class="pb-body">This single physiological fact defines why frequency matters. After a training session, MPS is elevated for roughly 48 hours in trained individuals (slightly longer in beginners). After 72 hours, MPS returns to baseline — and if you have not trained that muscle again, the anabolic window has closed with no additional stimulus. <strong>Once-weekly training per muscle means approximately 4 out of every 7 days the muscle is not being stimulated to grow.</strong> Twice-weekly training keeps the stimulus more continuous. Daily training on the same muscle (without adequate recovery) is counterproductive — the muscle needs time to complete the repair cycle before new damage is productive.</div>
+        <div class="pb-verdict">↑ 48–72h MPS window · after that you need to re-stimulate</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">2</div>
+      <div class="pb-content">
+        <div class="pb-title">Schoenfeld et al. (2016): twice weekly produces ~70% more hypertrophy than once weekly at matched volume</div>
+        <div class="pb-body">This is the landmark meta-analysis that settled the frequency debate for hypertrophy. Comparing once, twice, and three times per week at identical total volume, twice weekly produced significantly more hypertrophy. Three times weekly showed marginal additional benefit over twice. The key phrase is "at matched volume" — you cannot compare a 20-set weekly bro split against a 10-set per muscle twice-weekly programme. <strong>When volume is equalised, frequency wins. The mechanism: two MPS elevation windows per week versus one, with no additional fatigue cost when volume is distributed correctly.</strong></div>
+        <div class="pb-verdict">Twice weekly = ~70% more hypertrophy than once weekly (at matched volume)</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">3</div>
+      <div class="pb-content">
+        <div class="pb-title">Daily training of the same muscle is counterproductive — not because of soreness but because of incomplete repair</div>
+        <div class="pb-body">The widespread belief that muscle soreness (DOMS) indicates productive training and that you must be recovered before training again is both partly right and partly wrong. DOMS is not the limiting factor — <strong>the limiting factor is myofibrillar repair</strong>. After an intense session, the structural proteins in muscle fibres are in the process of being remodelled. Loading them again before this process completes produces diminishing returns and eventually impairs adaptation. For compound heavy movements (squats, deadlifts, bench press), 48 hours minimum between sessions for the same muscle group is supported by the research. Lighter accessory work can be done more frequently.</div>
+        <div class="pb-verdict amber">Daily heavy compound training = counterproductive past beginner level</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">4</div>
+      <div class="pb-content">
+        <div class="pb-title">The exception: high-frequency low-volume approaches (Bulgarian method, Greyskull) — for strength, not hypertrophy</div>
+        <div class="pb-body">Competitive powerlifters and Olympic weightlifters sometimes train the same movement pattern daily. This works because <strong>the goal is neural efficiency, not muscle hypertrophy</strong> — the mechanisms are different. Daily practice of a motor pattern improves it via CNS adaptation without requiring maximal muscle damage each session. At low enough volume per session, recovery can occur within 24 hours. This is a strength training protocol for elite athletes, not a hypertrophy protocol and not appropriate for your current goals or injury history.</div>
+        <div class="pb-verdict gold">Daily training valid for strength skill — not for muscle building</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">5</div>
+      <div class="pb-content">
+        <div class="pb-title">At 44, recovery time is slightly extended — respect this rather than fighting it</div>
+        <div class="pb-body">Recovery capacity does decline with age, primarily due to reduced testosterone, GH, and IGF-1 output. The practical impact for training frequency: <strong>for heavy compound movements, 72 hours recovery between sessions for the same muscle group produces better outcomes than 48 hours</strong> as you move through your 40s. Your current split (Monday push, Wednesday pull, Friday posterior, Saturday upper) is deliberately architected to provide 72+ hours between similar patterns. Monday's chest has until Saturday to recover. Wednesday's back has until the following Wednesday.</div>
+        <div class="pb-verdict gold">At 44: 72h between heavy sessions for same muscle group is optimal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Frequency comparison table -->
+  <div class="s-rule" style="margin-top:52px;">Frequency options compared</div>
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th>Frequency per muscle</th>
+        <th class="center">Hypertrophy</th>
+        <th class="center">Strength</th>
+        <th class="center">Fatigue</th>
+        <th>Best for</th>
+        <th>The problem</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1× / week (bro split)</td><td class="center"><span class="partial">◑</span></td><td class="center"><span class="partial">◑</span></td><td class="center">Low</td><td>Beginners, deload periods</td><td>MPS window wasted 5 of 7 days</td></tr>
+      <tr class="highlight"><td>2× / week ← You</td><td class="center"><span class="tick">✓✓</span></td><td class="center"><span class="tick">✓✓</span></td><td class="center">Moderate</td><td>Intermediate/advanced hypertrophy</td><td>Requires intelligent split design</td></tr>
+      <tr><td>3× / week</td><td class="center"><span class="tick">✓✓</span></td><td class="center"><span class="tick">✓✓✓</span></td><td class="center">High</td><td>Strength focus, full body</td><td>Hard to maintain at high volume</td></tr>
+      <tr><td>4–5× / week (same muscle)</td><td class="center"><span class="partial">◑</span></td><td class="center"><span class="tick">✓✓✓</span></td><td class="center">Very high</td><td>Elite powerlifting / Olympic lifting</td><td>Impairs recovery, injury risk rises</td></tr>
+      <tr><td>Daily (same muscle)</td><td class="center"><span class="cross">✕</span></td><td class="center"><span class="tick">✓</span></td><td class="center">Extreme</td><td>Motor pattern skill acquisition only</td><td>No hypertrophy benefit, high injury risk</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+</div><!-- sec-freq -->
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 2 — TRAINING SPLITS
+══════════════════════════════════════════ -->
+<div class="content-section" id="sec-splits">
+
+<div class="dark-sec">
+<div class="wrap">
+  <div class="s-rule" style="margin-top:0;">Training splits <em>— every major approach explained</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">A training split determines which muscles you train on which days. Each has a different frequency, recovery profile, and practical trade-off. The "best" split is the one that allows twice-weekly frequency for each muscle group while respecting recovery.</div>
+
+  <!-- Full body -->
+  <div class="split-card">
+    <div class="sc-head" onclick="toggleSplit(this)">
+      <div>
+        <div class="sc-name">Full body (3× per week)</div>
+        <div class="sc-subtitle">Every muscle every session · Monday / Wednesday / Friday</div>
+      </div>
+      <div class="sc-badges">
+        <span class="pill pill-jade" style="font-size:9px;">High frequency</span>
+        <span class="pill pill-amber" style="font-size:9px;">Low volume/session</span>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div><div class="scb-label">How it works</div><div class="scb-text">Every session trains every major muscle group with 1–2 exercises each. Total weekly volume is distributed across three sessions. Best known example: Starting Strength (squat, bench, deadlift, 3×5 three times per week).</div></div>
+      <div><div class="scb-label">The case for it</div><div class="scb-text"><strong>Maximum frequency for every muscle group.</strong> Every muscle is stimulated three times per week — the highest MPS elevation frequency achievable. Strong evidence for beginners and those returning from a break. Each session is short (45–60 min).</div></div>
+      <div><div class="scb-label">The case against it</div><div class="scb-text"><strong>Low volume per muscle per session limits hypertrophy for advanced lifters.</strong> At 3+ years of training, you need more than 2 sets of bench press per session to drive meaningful chest growth. Also mentally fatiguing to perform the same movements repeatedly.</div></div>
+    </div>
+    <div class="sc-example"><strong>Example week:</strong> Mon — squat, bench, row, shoulder press, deadlift. Wed — same. Fri — same (or slight variation). Each movement: 3 sets.</div>
+  </div>
+
+  <!-- Upper / Lower -->
+  <div class="split-card yours">
+    <div class="sc-head" onclick="toggleSplit(this)">
+      <div>
+        <div class="sc-name">Upper / Lower (4× per week)</div>
+        <div class="sc-subtitle">Upper body twice · Lower body twice · Best evidence base for hypertrophy</div>
+      </div>
+      <div class="sc-badges">
+        <span class="pill pill-jade" style="font-size:9px;">Evidence favourite</span>
+        <span class="pill pill-jade" style="font-size:9px;">Your base structure</span>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div><div class="scb-label">How it works</div><div class="scb-text">Upper body sessions alternate with lower body sessions. Each muscle group is trained twice weekly. Classic structure: Mon upper, Tue lower, Thu upper, Fri lower. Four sessions total with built-in recovery.</div></div>
+      <div><div class="scb-label">The case for it</div><div class="scb-text"><strong>Twice-weekly frequency for every muscle with sufficient volume per session.</strong> Upper sessions can include 15–20 sets of chest/back/shoulder work. Lower sessions can go deep on quad/hamstring/glute volume. Best balance of frequency and volume in the research.</div></div>
+      <div><div class="scb-label">The case against it</div><div class="scb-text">Lower body sessions are extremely demanding — squats, deadlifts, and leg press in the same session is a high-CNS demand. Recovery between lower sessions needs 72+ hours. For your profile, the posterior chain bias requires adapting the standard upper/lower template.</div></div>
+    </div>
+    <div class="sc-example"><strong>Why your programme uses this:</strong> Your split is a modified upper/lower — push (upper), pull (upper), posterior chain (lower), upper full. This achieves twice-weekly frequency for every muscle while giving posterior chain its own dedicated session for therapeutic priority.</div>
+  </div>
+
+  <!-- Push Pull Legs -->
+  <div class="split-card">
+    <div class="sc-head" onclick="toggleSplit(this)">
+      <div>
+        <div class="sc-name">Push / Pull / Legs (6× per week)</div>
+        <div class="sc-subtitle">The bodybuilding standard · Each muscle once per cycle</div>
+      </div>
+      <div class="sc-badges">
+        <span class="pill pill-amber" style="font-size:9px;">Popular</span>
+        <span class="pill pill-amber" style="font-size:9px;">6 sessions/wk</span>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div><div class="scb-label">How it works</div><div class="scb-text">Push day: chest, shoulders, triceps. Pull day: back, biceps. Legs day: quads, hamstrings, glutes, calves. Repeated twice in 6 days for twice-weekly frequency. Or once in 3 days for once-weekly.</div></div>
+      <div><div class="scb-label">The case for it</div><div class="scb-text"><strong>When run twice (6×/week), it achieves twice-weekly frequency with very high volume per session.</strong> Each muscle gets a dedicated movement pattern. High training density. Favoured by advanced bodybuilders who can recover from 6 sessions weekly.</div></div>
+      <div><div class="scb-label">The case against it</div><div class="scb-text"><strong>6 sessions per week is excessive for most people</strong> — and unnecessary for the goals you have. When run once (3×/week), it achieves only once-weekly frequency per muscle — the worst outcome. Recovery demands are extremely high if doing both legs sessions intensely.</div></div>
+    </div>
+    <div class="sc-example"><strong>When it makes sense:</strong> Advanced bodybuilders training 6 days/week with excellent recovery infrastructure (sleep, nutrition, low stress). Not optimal for 4 sessions/week or when recovery is the limiting factor.</div>
+  </div>
+
+  <!-- Bro Split -->
+  <div class="split-card avoid-card">
+    <div class="sc-head" onclick="toggleSplit(this)">
+      <div>
+        <div class="sc-name">Bro split (1 muscle per day)</div>
+        <div class="sc-subtitle">Chest Mon · Back Tue · Shoulders Wed · Arms Thu · Legs Fri</div>
+      </div>
+      <div class="sc-badges">
+        <span class="pill pill-red" style="font-size:9px;">Suboptimal for hypertrophy</span>
+        <span class="pill pill-amber" style="font-size:9px;">Still widely used</span>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div><div class="scb-label">How it works</div><div class="scb-text">One muscle group per day, trained with high volume (15–20+ sets in a single session). The classic bodybuilding magazine approach. Arnold Schwarzenegger's Golden Era Bodybuilding template was largely this structure.</div></div>
+      <div><div class="scb-label">The case for it</div><div class="scb-text">Very high volume per muscle per session allows extreme muscle pump and metabolic fatigue. <strong>It works — particularly for beginners and intermediate lifters.</strong> The high within-session volume does produce growth. Mentally satisfying to focus on one body part completely.</div></div>
+      <div><div class="scb-label">The case against it</div><div class="scb-text"><strong>MPS decays before the next session.</strong> You train chest on Monday — MPS peaks Tuesday, returns to baseline by Thursday. You do not train chest again until the following Monday. Five days of the anabolic window are wasted. At matched total volume, twice-weekly produces ~70% more hypertrophy.</div></div>
+    </div>
+    <div class="sc-example"><strong>The honest verdict:</strong> Works for beginners (everything works for beginners). Suboptimal for advanced lifters where the frequency gap matters more. Still widely used because the gym culture around it is strong and it does produce results — just not the most results per unit of effort.</div>
+  </div>
+
+  <!-- Arnold / High volume -->
+  <div class="split-card">
+    <div class="sc-head" onclick="toggleSplit(this)">
+      <div>
+        <div class="sc-name">Arnold split (twice daily / 6× week)</div>
+        <div class="sc-subtitle">Chest + back together · Volume maximised · Advanced only</div>
+      </div>
+      <div class="sc-badges">
+        <span class="pill pill-red" style="font-size:9px;">Advanced only</span>
+        <span class="pill pill-red" style="font-size:9px;">Not for this goal</span>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div><div class="scb-label">How it works</div><div class="scb-text">Chest + back on the same day (they are antagonists so one rests while the other works). Shoulders + arms together. Legs alone. Repeated three times per week — six sessions total.</div></div>
+      <div><div class="scb-label">The case for it</div><div class="scb-text">Genuinely achieves high frequency AND high volume. Chest gets twice-weekly stimulus. The antagonist pairing (chest/back) allows one to recover while the other works — reducing total session time despite high volume. Strong CNS stimulus from heavy compound supersets.</div></div>
+      <div><div class="scb-label">The case against it</div><div class="scb-text"><strong>6 sessions per week requires exceptional recovery capacity, low life stress, and optimal nutrition/sleep.</strong> At 44 with a professional career, this is an unrealistic commitment that would produce worse outcomes than 4 quality sessions due to accumulated fatigue. Arnold was also using pharmaceutical assistance that meaningfully changes the recovery equation.</div></div>
+    </div>
+    <div class="sc-example"><strong>Historical note:</strong> The Arnold split produced extraordinary results — for a 20-year-old professional bodybuilder training twice daily with pharmaceutical support. The framework is sound; the volume is not replicable for most people.</div>
+  </div>
+
+</div>
+</div>
+</div><!-- sec-splits -->
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 3 — VOLUME & INTENSITY
+══════════════════════════════════════════ -->
+<div class="content-section" id="sec-volume">
+
+<div class="dark-sec">
+<div class="wrap">
+  <div class="s-rule" style="margin-top:0;">Volume &amp; intensity <em>— how much, how hard</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:40px;max-width:640px;">Volume (total sets × reps × load) and intensity (proximity to failure) are the two most critical training variables after frequency. Get these wrong and frequency doesn't matter.</div>
+
+  <div class="s-rule">Weekly volume — sets per muscle group</div>
+
+  <!-- Volume visualiser -->
+  <div class="vol-chart">
+    <div class="vc-row">
+      <div class="vc-label">Minimum effective</div>
+      <div class="vc-track"><div class="vc-fill" style="width:25%;background:var(--dk-3);"><span class="vc-fill-text">5–10 sets/wk</span></div></div>
+      <div class="vc-note">Maintenance</div>
+    </div>
+    <div class="vc-row">
+      <div class="vc-label">Recommended</div>
+      <div class="vc-track"><div class="vc-fill" style="width:55%;background:var(--jade);"><span class="vc-fill-text">10–20 sets/wk — hypertrophy range</span></div></div>
+      <div class="vc-note">Growth</div>
+    </div>
+    <div class="vc-row">
+      <div class="vc-label">Your programme</div>
+      <div class="vc-track"><div class="vc-fill" style="width:48%;background:var(--jade);opacity:0.7;"><span class="vc-fill-text">14–16 sets/wk (building to this)</span></div></div>
+      <div class="vc-note">✓ Correct</div>
+    </div>
+    <div class="vc-row">
+      <div class="vc-label">Junk volume territory</div>
+      <div class="vc-track"><div class="vc-fill" style="width:80%;background:var(--amber);"><span class="vc-fill-text">20–30 sets/wk — diminishing returns</span></div></div>
+      <div class="vc-note">Fatigue</div>
+    </div>
+    <div class="vc-row">
+      <div class="vc-label">Overreaching</div>
+      <div class="vc-track"><div class="vc-fill" style="width:100%;background:var(--red);"><span class="vc-fill-text">30+ sets/wk — most people cannot recover from this</span></div></div>
+      <div class="vc-note">Injury risk</div>
+    </div>
+  </div>
+
+  <div class="your-prog">
+    <div class="yp-title">Your volume target: 14–16 sets per muscle per week by week 2</div>
+    <div class="yp-body">The programme starts at ~10–12 sets per muscle in week 1 and builds to 14–16 by week 2 via progressive set addition. This is within the optimal hypertrophy range (10–20 sets/week) without approaching the junk volume territory where additional sets produce fatigue without additional growth. <strong>The deload at week 4 drops volume to 40% while maintaining load — this is when the adaptation from weeks 1–3 is expressed as measurable strength and mass increase.</strong></div>
+  </div>
+
+  <div class="s-rule">Intensity — how close to failure</div>
+
+  <div>
+    <div class="principle-block">
+      <div class="pb-num">1</div>
+      <div class="pb-content">
+        <div class="pb-title">RPE 7–9 is the evidence-backed intensity range for hypertrophy</div>
+        <div class="pb-body">Rate of Perceived Exertion on a 1–10 scale: RPE 7 = 3 reps left in the tank. RPE 9 = 1 rep left. The research shows that <strong>working within 1–4 reps of failure produces the majority of hypertrophy stimulus</strong>. Training to complete failure (RPE 10) on every set is not necessary and produces disproportionate fatigue. Training at RPE 5–6 consistently is not sufficient to drive adaptation in experienced lifters. The optimal zone is RPE 7–9 — challenging enough to recruit high-threshold motor units but not so taxing that recovery is compromised.</div>
+        <div class="pb-verdict">RPE 7–9 · 1–3 reps left in tank · every working set</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">2</div>
+      <div class="pb-content">
+        <div class="pb-title">Progressive overload is the only driver of long-term growth — and it compounds</div>
+        <div class="pb-body">Muscle does not grow in response to absolute load — it grows in response to <em>increased</em> load relative to what it was previously adapted to. <strong>Adding one set or 2.5–5kg to a compound movement every 1–2 weeks creates a measurable stimulus that demands adaptation.</strong> Without progressive overload, training produces maintenance, not growth. At advanced training age (3+ years), the rate of progress slows — but the principle does not change. Even a 2.5kg increase per month on the bench press is ~30kg per year — a compound effect that transforms the physique. Track numbers. The number must move.</div>
+        <div class="pb-verdict">Progressive overload is the mechanism · not a technique choice</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">3</div>
+      <div class="pb-content">
+        <div class="pb-title">Rep range matters less than proximity to failure — but range affects what you develop</div>
+        <div class="pb-body">A widely misunderstood finding from the research: <strong>5 reps and 30 reps produce similar hypertrophy when matched for proximity to failure</strong>. What differs is what else develops. Low reps (5–8) develop strength and myofibrillar density. High reps (15–30) develop sarcoplasmic volume and muscular endurance. Both are real muscle growth but different tissue types. For a performance physique at 44, both have value — which is why your programme uses compound movements at 6–12 rep range (myofibrillar strength and density) and isolation work at 12–20 (sarcoplasmic volume and metabolic conditioning).</div>
+        <div class="pb-verdict gold">5–30 reps all work · low reps = strength density · high reps = volume/conditioning</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">4</div>
+      <div class="pb-content">
+        <div class="pb-title">Junk volume is real — more is not always better</div>
+        <div class="pb-body">There is a volume threshold above which additional sets produce more fatigue than growth. Research suggests this ceiling is around 20–25 sets per muscle per week for most people, and lower for larger compound movements. The telltale signs of junk volume: later sets in a session feel significantly weaker than earlier sets; weekly performance stalls or declines; persistent soreness that does not clear between sessions; sleep quality degrades. <strong>Adding a 7th set of chest work when the first 6 were productive is far less valuable than doing 6 sets with better execution, greater proximity to failure, and adequate recovery.</strong></div>
+        <div class="pb-verdict amber">Quality over volume past 16–20 sets/muscle/week</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div><!-- sec-volume -->
+
+
+<!-- ══════════════════════════════════════════
+     SECTION — REP RANGES & EFFORT
+══════════════════════════════════════════ -->
+<div class="content-section" id="sec-reps" style="display:none;">
+
+<div class="dark-sec">
+<div class="wrap">
+  <div class="s-rule" style="margin-top:0;">Rep ranges &amp; effort levels <em>— the science of 6 reps vs 15</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:40px;max-width:640px;">The rep range question is one of the most misunderstood areas in training science. The old model — heavy weight for strength, light weight for tone — is wrong. The evidence is more interesting, more nuanced, and more actionable than that.</div>
+
+  <!-- The core finding -->
+  <div style="background:var(--ink-2);border:1px solid var(--jade-br);border-radius:6px;padding:28px 32px;margin-bottom:36px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:14px;right:16px;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);padding:3px 10px;border-radius:20px;">The key finding</div>
+    <div style="font-family:var(--serif);font-size:26px;font-weight:400;color:var(--dk-1);margin-bottom:12px;line-height:1.15;">5 reps and 30 reps produce the same amount of muscle growth — when both are taken close to failure.</div>
+    <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.88;max-width:640px;">This is the Schoenfeld et al. finding that restructured how evidence-based coaches programme. The hypertrophy stimulus is not determined by the load or the rep number — it is determined by <strong>the metabolic and mechanical stress produced when muscle fibres are recruited and fatigued near their capacity.</strong> Whether you get there in 5 reps or 30 reps, the stimulus to the muscle fibre is broadly equivalent. What differs is everything else: what energy systems are developed, what fibre types are targeted, what connective tissue load is applied, and how much fatigue is produced. This is why mixing rep ranges is not just permissible — it is superior to staying in any single range.</div>
+  </div>
+
+  <!-- What actually differs between rep ranges -->
+  <div class="s-rule">What actually changes between rep ranges</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:36px;">
+    <!-- Headers -->
+    <div style="background:var(--ink-3);padding:12px 16px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);">Low reps · 3–6</div>
+    <div style="background:var(--ink-3);padding:12px 16px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--jade);border-left:1px solid var(--bd);">Moderate reps · 8–12</div>
+    <div style="background:var(--ink-3);padding:12px 16px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);border-left:1px solid var(--bd);">High reps · 15–30</div>
+
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Primary stimulus</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">Neural efficiency and myofibrillar hypertrophy. The heavy load recruits the highest-threshold motor units from rep 1. The stimulus is predominantly mechanical tension — physically deforming the muscle fibre under high load.</div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Primary stimulus</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">Balanced mechanical and metabolic stimulus. The load is sufficient to drive structural adaptation; the rep volume is sufficient to produce meaningful metabolic stress. The sweet spot for most hypertrophy goals.</div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Primary stimulus</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">Metabolic stress and sarcoplasmic hypertrophy. High reps accumulate metabolic byproducts (lactate, hydrogen ions) that trigger anabolic signalling pathways independently of mechanical load.</div>
+    </div>
+
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Fibre type targeted</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">Type IIx fast-twitch fibres (high threshold). These fibres have the most growth potential but are only recruited under heavy load. Most gym programmes never fully access them.</div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Fibre type targeted</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">Type IIa fast-twitch fibres primarily, with IIx recruited as fatigue sets in. The broadest fibre recruitment of any rep range when taken close to failure.</div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Fibre type targeted</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">Type I slow-twitch fibres early, Type IIa recruited as fatigue builds. Near failure, even Type IIx fibres are activated — but only in the final reps.</div>
+    </div>
+
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Connective tissue load</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;"><strong>High.</strong> Heavy loads stress tendons, ligaments, and joint surfaces. This is the primary concern for the knee — low rep heavy work should remain within the 0–70° range constraint non-negotiably.</div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Connective tissue load</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;"><strong>Moderate.</strong> Sufficient to stimulate collagen synthesis in tendons and ligaments — the therapeutic benefit of loaded exercise for joint repair at the correct dose.</div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Connective tissue load</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;"><strong>Low.</strong> Minimal joint stress. High-rep work is the most joint-friendly loading pattern available — relevant to the knee protocol in Phase 1 particularly.</div>
+    </div>
+
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Fatigue cost</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;"><strong>High.</strong> Heavy neural fatigue and connective tissue stress. Requires longer recovery — one of the reasons heavy low-rep work has a lower sustainable frequency ceiling.</div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Fatigue cost</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;"><strong>Moderate.</strong> Manageable recovery at 2× weekly frequency. The reason most evidence-based programmes use this range as the backbone.</div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Fatigue cost</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;"><strong>Localised muscle burn, low systemic fatigue.</strong> Can be trained more frequently. Isolation work at high reps can be added without meaningfully impairing recovery from compound sessions.</div>
+    </div>
+
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Best for</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">Maximal strength gains, accessing high-threshold motor units, neural efficiency, powerlifting carry-over. <em>Secondary role in your programme.</em></div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Best for</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">The primary hypertrophy range. Maximises both mechanical and metabolic stimulus. Compound movements at this range build the structural density that defines the physique. <em>Primary range in your programme.</em></div>
+    </div>
+    <div style="background:var(--ink-2);padding:16px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);">
+      <div style="font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Best for</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">Isolation work (lateral raises, curls, tricep pushdowns), metabolic conditioning, joint-friendly loading in Phase 1, sarcoplasmic volume. <em>Burnout sets and isolation work in your programme.</em></div>
+    </div>
+  </div>
+
+  <!-- The mechanisms -->
+  <div class="s-rule">The two mechanisms — why both pathways matter</div>
+
+  <div>
+    <div class="principle-block">
+      <div class="pb-num">1</div>
+      <div class="pb-content">
+        <div class="pb-title">Mechanical tension — the primary hypertrophy signal</div>
+        <div class="pb-body">When a muscle is loaded under tension — particularly in a lengthened position — mechanoreceptors in the muscle fibre (specifically integrins) detect the physical deformation and trigger an intracellular signalling cascade that activates mTOR, which initiates muscle protein synthesis. <strong>This is why the stretched position of an exercise is disproportionately valuable</strong> — the lengthened range generates the highest mechanical tension. RDLs that load the hamstrings in a stretched position produce stronger mechanical tension signals than leg curls that shorten the range. Hip thrusts with a full hip extension pause produce more glute tension than partial-range thrusts. <br><br>Low rep, heavy load work maximises mechanical tension per rep. But research shows that mechanical tension sufficient to drive hypertrophy can also be generated at lighter loads when reps are accumulated close to failure — because fatigue progressively reduces the force capacity of each fibre, causing the remaining reps to be performed at a higher relative intensity.</div>
+        <div class="pb-verdict">Mechanical tension = the primary signal · lengthened position = strongest version of this signal</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">2</div>
+      <div class="pb-content">
+        <div class="pb-title">Metabolic stress — the secondary signal, strongest at high reps</div>
+        <div class="pb-body">High rep sets (15–30) accumulate metabolic byproducts — lactate, hydrogen ions, phosphate — that trigger a second, independent anabolic pathway. The muscle cell swells with fluid (the pump), and this cellular swelling is itself a hypertrophy signal via osmotic mechanosensing. Growth hormone release is also higher during high-rep, high-metabolic-stress training. <strong>The classic "pump" is not cosmetic — it is a proxy for the metabolic stimulus that drives sarcoplasmic growth.</strong><br><br>Sarcoplasmic hypertrophy (fluid and glycogen volume within the muscle cell) is the kind of growth that makes muscles look full and round at rest. Myofibrillar hypertrophy (actual contractile protein density) is the kind that makes muscles look dense and hard and produces functional strength. Both are real growth. Both require different rep ranges to maximise. Mixing them is not confusion — it is completeness.</div>
+        <div class="pb-verdict amber">The pump is a signal, not a side effect · high reps build the fullness, low reps build the density</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">3</div>
+      <div class="pb-content">
+        <div class="pb-title">Effort level — the variable that matters most regardless of rep range</div>
+        <div class="pb-body">The single finding that overrides almost everything else in rep range research: <strong>proximity to failure is more important than rep range for producing hypertrophy.</strong> A set of 12 reps taken to RPE 6 (4 reps left in the tank) produces significantly less hypertrophy than a set of 12 taken to RPE 9 (1 rep left). A set of 20 reps taken to near-failure produces more hypertrophy than a set of 8 reps stopped comfortably early.<br><br>The practical implication: you cannot "save effort" by using a lighter weight with more reps. The stimulus requires genuine proximity to muscular failure regardless of the rep range chosen. Comfortable sets — regardless of rep number — are maintenance at best. <strong>The last 3–5 reps of any working set are where the majority of hypertrophy stimulus is generated.</strong> The first reps exist to fatigue the muscle so the final reps can do the real work.</div>
+        <div class="pb-verdict">The last 3–5 reps are the session · the first reps are the warm-up to those reps</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">4</div>
+      <div class="pb-content">
+        <div class="pb-title">Why mixing rep ranges is superior to any single range</div>
+        <div class="pb-body">Each rep range stimulates a slightly different adaptive response. Low reps (3–6) improve neural drive and myofibrillar density. Moderate reps (8–12) produce the broadest fibre recruitment and a balanced mechanical/metabolic signal. High reps (15–25) maximise metabolic stress, sarcoplasmic volume, and muscular endurance. <strong>A physique developed using all three ranges has more fibre types developed, more tissue types stimulated, and a more complete adaptive response than one trained exclusively in any single range.</strong><br><br>This is the scientific basis of Daily Undulating Periodisation (DUP) — varying rep ranges within the same week (even within the same session) to ensure all three adaptive pathways are consistently stimulated. Your programme already uses this structure implicitly: compound movements at 6–8 reps build the structural base, accessory work at 10–12 adds volume, isolation finishers at 15–20 accumulate metabolic stress. This is not random — it is the deliberate activation of all three growth pathways simultaneously.</div>
+        <div class="pb-verdict gold">3 rep ranges = 3 adaptive pathways = complete development · any single range leaves two pathways understimulated</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rep ranges applied to your programme -->
+  <div class="s-rule">Applied to your programme</div>
+
+  <div style="border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:28px;">
+    <div style="display:grid;grid-template-columns:140px 1fr 1fr;background:var(--ink-3);border-bottom:1px solid var(--bd);">
+      <div style="padding:10px 14px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Movement type</div>
+      <div style="padding:10px 14px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);border-left:1px solid var(--bd);">Rep range</div>
+      <div style="padding:10px 14px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);border-left:1px solid var(--bd);">Why this range for this movement</div>
+    </div>
+    <div style="display:grid;grid-template-columns:140px 1fr 1fr;border-bottom:1px solid var(--bd);">
+      <div style="padding:13px 14px;font-size:12px;font-weight:600;color:var(--dk-1);">Hip thrust</div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--jade);border-left:1px solid var(--bd);font-weight:600;">8–12 primary<br><span style="color:var(--amber);font-weight:400;">15–20 finisher</span></div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--dk-2);border-left:1px solid var(--bd);line-height:1.6;">8–12 maximises mechanical tension at the top of the movement (peak glute contraction under load). The finisher set at 15–20 reps creates the metabolic stress and cellular swelling that rounds out the glute stimulus. Two growth pathways hit in one exercise.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:140px 1fr 1fr;border-bottom:1px solid var(--bd);">
+      <div style="padding:13px 14px;font-size:12px;font-weight:600;color:var(--dk-1);">RDL</div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--jade);border-left:1px solid var(--bd);font-weight:600;">8–10</div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--dk-2);border-left:1px solid var(--bd);line-height:1.6;">The primary stimulus is the stretch at the bottom — mechanical tension in the lengthened position is highest here. Lower reps allow maximum focus on the eccentric (2–3s lowering) without accumulated fatigue shortening the range. Going higher than 12 tends to compromise the depth of the stretch as fatigue builds.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:140px 1fr 1fr;border-bottom:1px solid var(--bd);">
+      <div style="padding:13px 14px;font-size:12px;font-weight:600;color:var(--dk-1);">Bench press / OHP</div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--jade);border-left:1px solid var(--bd);font-weight:600;">6–8 heavy<br><span style="color:var(--amber);font-weight:400;">10–12 volume</span></div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--dk-2);border-left:1px solid var(--bd);line-height:1.6;">6–8 on primary sets accesses the high-threshold motor units that produce the structural density visible in the chest and shoulders. A second exercise or later sets at 10–12 adds volume via the moderate range without the connective tissue stress of another heavy set. This combination outperforms either range alone.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:140px 1fr 1fr;border-bottom:1px solid var(--bd);">
+      <div style="padding:13px 14px;font-size:12px;font-weight:600;color:var(--dk-1);">Rows / pull-ups</div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--jade);border-left:1px solid var(--bd);font-weight:600;">6–8 primary<br><span style="color:var(--amber);font-weight:400;">10–12 secondary</span></div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--dk-2);border-left:1px solid var(--bd);line-height:1.6;">Heavy pulling movements at 6–8 develop lat and rhomboid structural density. The 1-second hold at the top (peak contraction) makes a 6-rep set genuinely demanding at RPE 8. Volume rows at 10–12 add the total set count needed for weekly back development without requiring another heavy session.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:140px 1fr 1fr;border-bottom:1px solid var(--bd);">
+      <div style="padding:13px 14px;font-size:12px;font-weight:600;color:var(--dk-1);">Lateral raises</div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--amber);border-left:1px solid var(--bd);font-weight:600;">15–20</div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--dk-2);border-left:1px solid var(--bd);line-height:1.6;">The medial delt has a high slow-twitch fibre proportion. Heavy low-rep lateral raises are neurologically inefficient — the lighter load at high reps produces more total metabolic stress per set and better medial delt activation. This is one of the few muscle groups where high reps are genuinely superior to low reps for hypertrophy.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:140px 1fr 1fr;">
+      <div style="padding:13px 14px;font-size:12px;font-weight:600;color:var(--dk-1);">Curls / tricep work</div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--amber);border-left:1px solid var(--bd);font-weight:600;">10–15</div>
+      <div style="padding:13px 14px;font-size:12px;font-weight:300;color:var(--dk-2);border-left:1px solid var(--bd);line-height:1.6;">Isolation work does not benefit from the same low-rep, high-load prescription as compound work — the lack of multi-joint contribution means the connective tissue stress is concentrated in one area. Moderate-to-high reps maximise the metabolic stimulus that drives isolation-specific arm development without the elbow stress of very heavy curls.</div>
+    </div>
+  </div>
+
+  <div class="your-prog">
+    <div class="yp-title">The bottom line: your programme already applies this correctly</div>
+    <div class="yp-body">Compound primary sets at 6–8 reps access myofibrillar density and high-threshold motor units. Accessory work at 10–12 adds volume with manageable fatigue. Isolation work at 15–20 accumulates metabolic stress and trains the high slow-twitch fibre muscles (side delts, calves, lateral raises) in their optimal range. <strong>The session feels different across these ranges deliberately — the heavy sets feel like strength work, the moderate sets feel like bodybuilding, the burnout sets feel like conditioning.</strong> All three are building different tissue simultaneously. The mix is the method.</div>
+  </div>
+
+</div>
+</div>
+</div><!-- sec-reps -->
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 4 — CARDIO DEBATE
+══════════════════════════════════════════ -->
+<div class="content-section" id="sec-cardio">
+
+<div class="dark-sec">
+<div class="wrap">
+  <div class="s-rule" style="margin-top:0;">The cardio debate <em>— interference effect, the honest answer</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">The most argued question in fitness communities. Does cardio kill gains? The scientific answer is more nuanced than either extreme — and practically, it depends almost entirely on volume and timing.</div>
+
+  <div class="debate-grid">
+    <div class="debate-side for">
+      <div class="ds-label for">The case for cardio alongside strength training</div>
+      <div class="ds-point"><div class="ds-dot" style="background:var(--jade)"></div><div class="ds-text"><strong>VO₂max is the strongest predictor of longevity</strong> — stronger than smoking, blood pressure, or metabolic syndrome markers. Moving from below-average to above-average VO₂max reduces all-cause mortality by ~50%.</div></div>
+      <div class="ds-point"><div class="ds-dot" style="background:var(--jade)"></div><div class="ds-text"><strong>The interference effect is real but modest at low-to-moderate cardio volumes.</strong> 2–3 sessions of 20–30 min per week do not meaningfully impair strength or hypertrophy in the research.</div></div>
+      <div class="ds-point"><div class="ds-dot" style="background:var(--jade)"></div><div class="ds-text">Zone 2 cardio increases mitochondrial density in muscle cells — which directly <strong>improves recovery between sets and between sessions</strong>. A more aerobically efficient athlete recovers faster.</div></div>
+      <div class="ds-point"><div class="ds-dot" style="background:var(--jade)"></div><div class="ds-text">Cardiovascular training improves insulin sensitivity, which <strong>enhances nutrient partitioning</strong> — more of the caloric surplus goes to muscle, less to fat.</div></div>
+      <div class="ds-point"><div class="ds-dot" style="background:var(--jade)"></div><div class="ds-text">For returning to tennis: no cardiovascular base = no tennis return. The cardio investment is not optional for your goals.</div></div>
+    </div>
+    <div class="debate-side against">
+      <div class="ds-label against">The interference effect — when cardio does impair gains</div>
+      <div class="ds-point"><div class="ds-dot" style="background:var(--red)"></div><div class="ds-text"><strong>AMPK activation from aerobic exercise directly suppresses mTOR</strong> — the molecular switch for muscle building. They are competing signals. This is the interference effect's mechanism.</div></div>
+      <div class="ds-point"><div class="ds-dot" style="background:var(--red)"></div><div class="ds-text"><strong>High-volume cardio (4+ sessions, 45+ min each) does meaningfully impair hypertrophy</strong> in the research. At this volume, the AMPK/mTOR balance tips against muscle building.</div></div>
+      <div class="ds-point"><div class="ds-dot" style="background:var(--red)"></div><div class="ds-text">Cardio immediately before strength training reduces strength output by 10–20% — reducing the quality of the training stimulus that drives hypertrophy.</div></div>
+      <div class="ds-point"><div class="ds-dot" style="background:var(--red)"></div><div class="ds-text"><strong>Additional caloric expenditure from cardio increases daily calorie requirements</strong> — if not compensated, this erodes the surplus required for muscle gain.</div></div>
+    </div>
+  </div>
+
+  <div class="your-prog">
+    <div class="yp-title">The verdict: cardio is complementary at your volume — not competing</div>
+    <div class="yp-body">Your protocol (2 × 20–25 min Zone 2 + 1 × 10–12 min post-session finisher per week) is well below the interference threshold. The AMPK/mTOR competition is real — but at this volume, AMPK elevation from cardio returns to baseline within 3–4 hours, long before the mTOR signal from strength training needs to be unimpeded. <strong>Key rules that prevent interference: always do strength before cardio (never reverse), separate cardio from strength sessions by at least 6 hours where possible, and compensate the caloric expenditure.</strong> Your cardio is placed on rest days precisely to maximise this separation.</div>
+  </div>
+
+  <div class="s-rule">Cardio types compared</div>
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Intensity</th>
+        <th class="center">Interference risk</th>
+        <th class="center">VO₂max gain</th>
+        <th class="center">Knee-safe</th>
+        <th>Your verdict</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="highlight"><td>Step machine Zone 2</td><td>Moderate · 130–145bpm</td><td class="center"><span class="tick">✓ Low</span></td><td class="center"><span class="tick">✓ Good</span></td><td class="center"><span class="tick">✓</span></td><td>Primary tool · glute-dominant · tennis-specific</td></tr>
+      <tr><td>Cycling (stationary)</td><td>Moderate</td><td class="center"><span class="tick">✓ Low</span></td><td class="center"><span class="tick">✓ Good</span></td><td class="center"><span class="tick">✓</span></td><td>Backup · quad-dominant · adjust seat height</td></tr>
+      <tr><td>Rowing machine</td><td>Moderate–high</td><td class="center"><span class="partial">◑ Medium</span></td><td class="center"><span class="tick">✓✓ Excellent</span></td><td class="center"><span class="tick">✓</span></td><td>Excellent option · core activation bonus</td></tr>
+      <tr><td>Running (flat)</td><td>Variable</td><td class="center"><span class="partial">◑ Medium</span></td><td class="center"><span class="tick">✓✓ Excellent</span></td><td class="center"><span class="partial">◑ Phase 2+</span></td><td>Phase 2 (weeks 5–8) · straight-line only</td></tr>
+      <tr><td>HIIT (any modality)</td><td>High</td><td class="center"><span class="cross">✕ High</span></td><td class="center"><span class="tick">✓✓✓ Best</span></td><td class="center"><span class="cross">✕ Not yet</span></td><td>Add sparingly from week 3 · Saturday only</td></tr>
+      <tr><td>Cardio before strength</td><td>Any</td><td class="center"><span class="cross">✕✕ Very high</span></td><td class="center">—</td><td class="center">—</td><td>Never do this. Strength first, always.</td></tr>
+    </tbody>
+  </table>
+
+</div>
+</div>
+</div><!-- sec-cardio -->
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 5 — PERIODISATION
+══════════════════════════════════════════ -->
+<div class="content-section" id="sec-period">
+
+<div class="dark-sec">
+<div class="wrap">
+  <div class="s-rule" style="margin-top:0;">Periodisation <em>— how training evolves over time</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:40px;max-width:640px;">Periodisation is the systematic variation of training variables over time to prevent stagnation, manage fatigue, and maximise adaptation. Without it, progress stalls. The type of periodisation determines how and when variables change.</div>
+
+  <div>
+    <div class="principle-block">
+      <div class="pb-num">1</div>
+      <div class="pb-content">
+        <div class="pb-title">Linear periodisation — the starting point everyone understands</div>
+        <div class="pb-body">Add a little weight each session or week. Simple, effective for beginners, predictable. <strong>Linear progression works until it doesn't</strong> — typically within 3–6 months for upper body and 6–12 months for lower body. At that point, the nervous system and recovery systems cannot keep up with weekly load increases. The reason most people's bench press stalls after 6–12 months is they are still trying to run linear periodisation on a body that has outgrown it.</div>
+        <div class="pb-verdict gold">Works for beginners · exhausted within months for advanced lifters</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">2</div>
+      <div class="pb-content">
+        <div class="pb-title">Block periodisation — what your programme uses</div>
+        <div class="pb-body">Training is divided into blocks of 3–6 weeks, each with a specific emphasis. Your mesocycle: <strong>Accumulation (weeks 1–2): volume builds, moderate intensity</strong>. <strong>Intensification (week 3): volume holds, load increases, rep range drops</strong>. <strong>Deload (week 4): volume reduces 40%, load maintains</strong>. The deload week is not rest — it is the week where fatigue clears and the fitness gained from the accumulation and intensification phases is finally expressed. The supercompensation principle: the body adapts above its previous baseline after a stress-recovery cycle. <strong>Skip the deload and you never collect the dividend from the previous three weeks of work.</strong></div>
+        <div class="pb-verdict">Your mesocycle structure · accumulation → intensification → deload</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">3</div>
+      <div class="pb-content">
+        <div class="pb-title">Daily undulating periodisation (DUP) — the most research-supported advanced approach</div>
+        <div class="pb-body">Rather than varying training emphasis by block (weeks), DUP varies it by session (days). Monday: 3–5 rep range (strength). Wednesday: 8–12 rep range (hypertrophy). Friday: 15–20 rep range (metabolic/endurance). Same movements, different stimuli within the same week. <strong>Multiple meta-analyses have shown DUP produces superior strength and hypertrophy outcomes compared to linear periodisation over 12+ week periods.</strong> The mechanism: each rep range recruits motor units differently and produces slightly different adaptation signals — hitting all three within a week maximises total stimulus. This is an appropriate next-cycle consideration after your current mesocycle completes.</div>
+        <div class="pb-verdict">Most research-supported advanced approach · appropriate for cycle 2</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">4</div>
+      <div class="pb-content">
+        <div class="pb-title">The deload — the most skipped, most important training week</div>
+        <div class="pb-body">Accumulated fatigue is the most poorly understood concept in training. After 3 weeks of progressive loading, your fitness has actually increased — but <strong>it is masked by fatigue</strong>. The neural fatigue, inflammatory load, and glycogen debt from hard training suppresses expression of the gains that have been made. When a deload reduces volume (not load), fatigue clears faster than fitness decays. The result: week 4 feels surprisingly strong and energetic — that is the fitness from weeks 1–3 being expressed without the fatigue masking it. Athletes who skip deloads are not tougher — they are just never collecting the interest from their training investment.</div>
+        <div class="pb-verdict">Deload = when fitness from previous 3 weeks actually expresses</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div><!-- sec-period -->
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 6 — ADVANCED TECHNIQUES
+══════════════════════════════════════════ -->
+<div class="content-section" id="sec-techniques">
+
+<div class="dark-sec">
+<div class="wrap">
+  <div class="s-rule" style="margin-top:0;">Advanced techniques <em>— what works, what doesn't, when to use them</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">Techniques beyond straight sets. All of these have evidence behind them. None are necessary for beginners. For advanced lifters, they are tools for specific purposes — not novelty for its own sake.</div>
+
+  <div class="tech-card">
+    <div class="tc-icon">⟳</div>
+    <div>
+      <div class="tc-name">Supersets (antagonist pairing)</div>
+      <div class="tc-when" style="color:var(--jade);">Use now · On every session where applicable</div>
+      <div class="tc-body">Pairing opposing muscle groups back-to-back with minimal rest — bench press + row, bicep curl + tricep extension. <strong>Research shows no meaningful interference between antagonist muscles</strong>: the bench press does not fatigue the muscles used in the row. Result: you accomplish the same volume in 70% of the time. The rest period for one muscle IS the working set for the other. Practical example: every Saturday upper session, bench press supersetted with chest-supported row. 45 minutes of work done in 30. No downside.</div>
+    </div>
+  </div>
+
+  <div class="tech-card">
+    <div class="tc-icon">↓</div>
+    <div>
+      <div class="tc-name">Drop sets</div>
+      <div class="tc-when" style="color:var(--amber);">Use selectively · Isolation exercises only · Final set of a movement</div>
+      <div class="tc-body">Immediately reduce load 20–30% at failure and continue for additional reps. Produces high metabolic stress and significant muscle pump. <strong>Evidence: drop sets on the final set of an exercise produce equivalent hypertrophy to 3 additional straight sets in significantly less time.</strong> Best use: final set of cable laterals, cable curls, or leg extensions — isolation exercises where you can safely reach failure. Not appropriate for compound movements where form breaks at failure (dangerous) or for knee-load exercises.</div>
+    </div>
+  </div>
+
+  <div class="tech-card">
+    <div class="tc-icon">◈</div>
+    <div>
+      <div class="tc-name">Rest-pause sets</div>
+      <div class="tc-when" style="color:var(--amber);">Use selectively · Advanced stages only · Weeks 5–8+</div>
+      <div class="tc-body">Perform a set to near-failure, rest 10–15 seconds, continue for additional reps with the same load, rest again, continue. Effectively extends a single set to produce the volume of 2–3 sets. <strong>Research shows rest-pause training produces similar or superior hypertrophy to straight sets with 30–40% less total time under load.</strong> High neural demand — do not apply to every exercise. Best for: a single compound movement per session as a time-efficient intensification tool.</div>
+    </div>
+  </div>
+
+  <div class="tech-card">
+    <div class="tc-icon">⬇</div>
+    <div>
+      <div class="tc-name">Mechanical drop sets (exercise progression)</div>
+      <div class="tc-when" style="color:var(--jade);">Use now · Excellent for your profile</div>
+      <div class="tc-body">Move from a harder to an easier variation of the same movement when you reach failure. Example: incline press → flat press → decline press, all without rest. <strong>Particularly valuable for your profile because you can move from a knee-loaded exercise to a knee-neutral one at fatigue.</strong> Example: leg press at 70° (limited range) → hip thrust (no knee load at all) — continuing the lower body stimulus as the primary movement fatigues, without adding knee stress.</div>
+    </div>
+  </div>
+
+  <div class="tech-card">
+    <div class="tc-icon">⏸</div>
+    <div>
+      <div class="tc-name">Pause reps (isometric holds)</div>
+      <div class="tc-when" style="color:var(--jade);">Use now · High value for your specific goals</div>
+      <div class="tc-body">Hold the stretched or contracted position for 1–3 seconds during a rep. Eliminates the stretch reflex (the elastic energy stored in the muscle at the bottom of a movement) and forces the muscle to generate force from a static position. <strong>For hypertrophy, this dramatically increases time under tension at the highest stimulus point.</strong> Particularly valuable for: hip thrusts (1s hold at top, full glute contraction), RDL (1s hold at maximum stretch), cable laterals (1s hold at peak arm extension). These three pauses alone significantly increase the quality of your three most important exercises.</div>
+    </div>
+  </div>
+
+  <div class="tech-card">
+    <div class="tc-icon">↔</div>
+    <div>
+      <div class="tc-name">Myo-reps (post-activation cluster sets)</div>
+      <div class="tc-when" style="color:var(--amber);">Use selectively · Accessory exercises · Weeks 5+</div>
+      <div class="tc-body">Perform an activation set of 12–20 reps to near-failure. Rest 3–5 breaths (not full minutes). Perform cluster sets of 3–5 reps with the same load, resting 3–5 breaths between each. Stop when you cannot complete 3 reps in a cluster. <strong>Myo-reps produce equivalent volume to traditional sets in 40–50% of the time</strong>, making them highly time-efficient. Best for: isolation exercises on muscles that recover quickly (lateral raises, curls, leg extensions, cable flys). Not for compound movements where form breakdown at fatigue is a risk.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div><!-- sec-techniques -->
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 7 — TRAINING AT 44
+══════════════════════════════════════════ -->
+<div class="content-section" id="sec-age">
+
+<div class="dark-sec">
+<div class="wrap">
+  <div class="s-rule" style="margin-top:0;">Training at 44 <em>— what actually changes and what doesn't</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">The fitness industry gets this wrong in both directions — either claiming age makes no difference (wrong) or claiming everything after 40 is dramatically harder (also wrong). Here is what the research actually shows.</div>
+
+  <div class="age-grid">
+    <div class="age-tile same">
+      <div class="at-type same">No meaningful difference after 40</div>
+      <div class="at-title">Hypertrophy response to training stimulus</div>
+      <div class="at-body">Muscle tissue responds to mechanical tension, metabolic stress, and muscle damage the same way at 44 as at 24. <strong>Multiple studies directly comparing 20–35 year olds with 40–60 year olds show no significant difference in hypertrophy outcomes at matched training volume.</strong> The adaptations are identical. What changes is the recovery time — not the growth response.</div>
+    </div>
+    <div class="age-tile same">
+      <div class="at-type same">No meaningful difference after 40</div>
+      <div class="at-title">Progressive overload mechanism</div>
+      <div class="at-body">The fundamental mechanism for getting stronger and more muscular — progressive overload — works identically across age groups. <strong>Adding load and volume over time produces the same adaptation curve.</strong> The rate of absolute strength increase may be slightly slower, but the mechanism and its response to training stimulus are unchanged.</div>
+    </div>
+    <div class="age-tile same">
+      <div class="at-type same">No meaningful difference after 40</div>
+      <div class="at-title">Response to protein and nutrition</div>
+      <div class="at-body">While "anabolic resistance" (reduced MPS sensitivity) does increase slightly with age, it is largely overcome by <strong>higher protein intake — which your programme already accounts for with 185–190g daily</strong>. The leucine threshold mechanism works the same. The supplement stack (omega-3, creatine, Ashwagandha) specifically addresses the age-related attenuation.</div>
+    </div>
+    <div class="age-tile diff">
+      <div class="at-type diff">Genuinely different after 40</div>
+      <div class="at-title">Recovery time — meaningfully longer</div>
+      <div class="at-body">This is the primary real difference. Testosterone, GH, and IGF-1 all decline from their 20s peak — reducing the hormonal environment that drives recovery. <strong>72 hours between heavy sessions for the same muscle group vs 48 hours at 25.</strong> This is not a weakness — it is information. Your split is designed around this reality. More rest days are not laziness — they are the mechanism.</div>
+    </div>
+    <div class="age-tile diff">
+      <div class="at-type diff">Genuinely different after 40</div>
+      <div class="at-title">Connective tissue resilience</div>
+      <div class="at-body">Tendons, ligaments, and joint cartilage become less resilient with age. Collagen synthesis slows. <strong>This is why the collagen + Vitamin C protocol is more important at 44 than at 24 — it is partially compensating for the age-related reduction in connective tissue anabolism.</strong> Progressive loading of connective tissue remains important — but the rate of progression must be more conservative than for muscle tissue, which adapts faster than tendons.</div>
+    </div>
+    <div class="age-tile diff">
+      <div class="at-type diff">Genuinely different after 40</div>
+      <div class="at-title">Hormonal baseline — lower, but manageable</div>
+      <div class="at-body">Free testosterone at 44 is roughly 20–30% lower than at 25. This is real. <strong>However, the supplement stack (Ashwagandha: +10–15% testosterone, ZMA: prevents training-induced deficiency, D3: critical for testosterone synthesis, Omega-3: reduces SHBG, freeing more testosterone) closes much of this gap.</strong> Sleep quality is the most powerful hormone management tool — and is non-negotiable.</div>
+    </div>
+    <div class="age-tile same">
+      <div class="at-type same">Actually better after 40</div>
+      <div class="at-title">Training intelligence and discipline</div>
+      <div class="at-body">Most 44-year-olds who have trained for years have significantly better technique, exercise selection, and programme adherence than 24-year-olds. <strong>The combination of training intelligence + 3+ years of training age + the knowledge in this programme is genuinely more powerful than hormonal peak at 24 with poor programming.</strong> The physiological clock is a factor. It is not the dominant one.</div>
+    </div>
+    <div class="age-tile same">
+      <div class="at-type same">Actually better after 40</div>
+      <div class="at-title">Motivation quality — long-term vs short-term</div>
+      <div class="at-body">The motivational drivers at 44 tend to be more durable than at 24. <strong>Longevity, functional health, and athletic identity are more stable motivations than aesthetics or social comparison.</strong> The literature on long-term athletic adherence shows significantly better outcomes for intrinsic motivators — which tend to emerge with age. The 12-week programme is a foundation, not a peak. That framing matters.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div><!-- sec-age -->
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 8 — YOUR PROGRAMME
+══════════════════════════════════════════ -->
+<div class="content-section" id="sec-yours">
+
+<div class="dark-sec">
+<div class="wrap">
+  <div class="s-rule" style="margin-top:0;">Your programme <em>— every decision explained</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">Where your current programme sits within the landscape — and the reasoning behind every structural choice.</div>
+
+  <div>
+    <div class="principle-block">
+      <div class="pb-num">1</div>
+      <div class="pb-content">
+        <div class="pb-title">Push Mon / Pull Wed / Posterior Fri / Upper Sat — why this specific sequence</div>
+        <div class="pb-body">This is a modified upper/lower split with a posterior chain priority. <strong>Every major muscle group is trained twice weekly</strong>: chest and triceps (Monday push, Saturday upper), back and biceps (Wednesday pull, Saturday upper), posterior chain (Friday primary, Monday/Wednesday indirect via rows and compounds). The specific sequence creates: 72+ hours between Monday chest and Saturday chest; 72+ hours between Wednesday back and Saturday back; a complete rest before Friday's most demanding session. Tuesday and Thursday are rest days specifically to bracket the two hardest sessions — Wednesday pull and Friday posterior chain.</div>
+        <div class="pb-verdict">Twice-weekly frequency · 72h recovery between same-muscle sessions</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">2</div>
+      <div class="pb-content">
+        <div class="pb-title">Why Friday is posterior chain and not lower body generally</div>
+        <div class="pb-body">Most programmes assign a generic "leg day." Your programme assigns a posterior-chain day — glutes, hamstrings, and hip extensors — with quad work secondary and constrained. This is not a compromise around the knee injury. <strong>It is the therapeutically optimal design independent of the knee.</strong> The posterior chain generates the largest hormonal response of any training day, has the highest carryover to athletic performance (tennis, running), and is the group most chronically undertrained in recreational lifters who bench and curl but skip heavy hip hinges. The knee protocol makes it the therapeutically correct design as well.</div>
+        <div class="pb-verdict gold">Posterior chain day = both optimal programming and knee medicine</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">3</div>
+      <div class="pb-content">
+        <div class="pb-title">The 4-week mesocycle: why not 6 weeks, why not 8 weeks</div>
+        <div class="pb-body">Research on adaptation timelines: meaningful physiological adaptation (increased myofibrillar density, neural efficiency, mitochondrial biogenesis) takes 3–4 weeks to establish. Fatigue accumulates roughly proportionally to volume and intensity over the same period. <strong>A 3-week accumulation + 1-week deload cycle is the minimum effective mesocycle — long enough to drive adaptation, short enough to clear fatigue before it masks the gains.</strong> Longer mesocycles (6–8 weeks without deload) produce greater fatigue accumulation without proportionally greater adaptation — the diminishing returns curve is real. The 12-week programme contains three complete mesocycles, each building on the previous.</div>
+        <div class="pb-verdict">3+1 week cycle = optimal adaptation-to-fatigue ratio</div>
+      </div>
+    </div>
+
+    <div class="principle-block">
+      <div class="pb-num">4</div>
+      <div class="pb-content">
+        <div class="pb-title">Where this programme leads — what cycle 2 looks like</div>
+        <div class="pb-body">After the 12-week mesocycle, the foundation is established: twice-weekly frequency is habituated, the posterior chain is significantly stronger, the knee has progressed through the constraint protocol, and the training intelligence to execute a more sophisticated programme exists. <strong>Cycle 2 appropriate direction: Daily Undulating Periodisation (DUP) within the same split structure.</strong> Monday becomes strength emphasis (5–8 rep range on compounds), Wednesday becomes hypertrophy emphasis (8–12 rep range), Saturday becomes metabolic emphasis (15–20 rep range). Same sessions, different stimuli — the most research-supported advanced progression available. Friday posterior chain continues as the therapeutic and performance priority throughout.</div>
+        <div class="pb-verdict">Cycle 2: DUP within same split · more stimulus variation · same recovery architecture</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final summary table -->
+  <div class="s-rule" style="margin-top:52px;">All major training variables — your current settings</div>
+  <table class="comp-table" style="margin-bottom:60px;">
+    <thead>
+      <tr>
+        <th>Variable</th>
+        <th>Your setting</th>
+        <th>Evidence range</th>
+        <th>Why this setting</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="highlight"><td>Frequency per muscle</td><td>2× / week</td><td>1–3× / week</td><td>Peak hypertrophy outcome at managed fatigue</td></tr>
+      <tr class="highlight"><td>Weekly volume</td><td>14–16 sets / muscle</td><td>10–20 sets</td><td>Upper range of optimal — building progressively</td></tr>
+      <tr class="highlight"><td>Intensity</td><td>RPE 7–9</td><td>RPE 6–10</td><td>Sufficient for high-threshold motor unit recruitment without excessive fatigue</td></tr>
+      <tr class="highlight"><td>Rep range</td><td>6–8 compounds / 12–20 isolation</td><td>5–30 reps</td><td>Myofibrillar density on compounds, sarcoplasmic on isolation</td></tr>
+      <tr class="highlight"><td>Periodisation</td><td>Block (3+1 week mesocycle)</td><td>Linear, block, DUP</td><td>Manages fatigue accumulation, delivers deload dividend</td></tr>
+      <tr class="highlight"><td>Cardio</td><td>2×20–25 min Zone 2 + 1 finisher</td><td>0–4 sessions</td><td>Below interference threshold · VO₂max investment · tennis return</td></tr>
+      <tr class="highlight"><td>Recovery between sessions</td><td>72h same muscle</td><td>48–96h</td><td>Age-appropriate · allows full repair cycle completion</td></tr>
+      <tr class="highlight"><td>Techniques</td><td>Pause reps · supersets · progressive set addition</td><td>Many options</td><td>High value/fatigue ratio · appropriate for current phase</td></tr>
+    </tbody>
+  </table>
+
+</div>
+</div>
+</div><!-- sec-yours -->
+
+
+<div class="page-end"></div>
+
+<script src="nav.js"></script>
+<script>
+function showSection(id, btn) {
+  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sn-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  // Scroll to top of content
+  document.querySelector('.section-nav').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function toggleSplit(headEl) {
+  const card = headEl.closest('.split-card');
+  const body = card.querySelector('.sc-body');
+  const example = card.querySelector('.sc-example');
+  const isOpen = body.style.display !== 'none' && body.style.display !== '';
+  if (isOpen) {
+    body.style.display = 'none';
+    if (example) example.style.display = 'none';
+  } else {
+    body.style.display = 'grid';
+    if (example) example.style.display = 'block';
+  }
+}
+
+// All split cards open by default
+document.querySelectorAll('.sc-body').forEach(b => b.style.display = 'grid');
+document.querySelectorAll('.sc-example').forEach(e => e.style.display = 'block');
+</script>
+<script>
+(function(){
+  try {
+    const p = localStorage.getItem('bl_profile');
+    if (p) {
+      const profile = JSON.parse(p);
+      const el = document.getElementById('nav-meta');
+      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
+    }
+  } catch(e){}
+})();
+</script>
+</body>
+</html>

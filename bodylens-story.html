@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — The Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background: var(--ink); color: var(--dk-1); }
+
+/* ── HERO ── */
+.hero {
+  padding: 80px 0 72px;
+  border-bottom: 1px solid var(--bd);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 700px 500px at 70% 40%, rgba(0,200,160,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 400px at 20% 80%, rgba(200,148,30,0.025) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 48px;
+  position: relative; z-index: 1;
+}
+.h-kicker {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--jade);
+  margin-bottom: 22px;
+  display: flex; align-items: center; gap: 12px;
+}
+.h-kicker::before { content: ''; width: 28px; height: 1px; background: var(--jade); }
+.h-title {
+  font-family: var(--serif);
+  font-size: 64px; font-weight: 300;
+  line-height: 0.95; letter-spacing: -0.03em;
+  color: var(--dk-1); margin-bottom: 32px;
+}
+.h-title em { font-style: italic; color: var(--dk-3); }
+.h-deck {
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 300; font-style: italic;
+  line-height: 1.78; color: var(--dk-2);
+  border-left: 2px solid var(--jade-br);
+  padding-left: 22px;
+  margin-bottom: 32px;
+}
+.h-meta {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--dk-3);
+}
+.h-meta span { display: flex; align-items: center; gap: 6px; }
+.h-meta span::before { content: '·'; }
+.h-meta span:first-child::before { display: none; }
+
+/* ── READING COLUMN ── */
+.story {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* ── CHAPTER MARKER ── */
+.chapter {
+  padding: 64px 0 0;
+}
+.chapter-kicker {
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--dk-3);
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 10px;
+}
+.chapter-kicker::after {
+  content: ''; flex: 1; height: 1px; background: var(--bd);
+}
+.chapter-time {
+  font-family: var(--mono);
+  font-size: 11px; font-weight: 500;
+  color: var(--jade); letter-spacing: 0.08em;
+}
+.chapter-title {
+  font-family: var(--serif);
+  font-size: 34px; font-weight: 400;
+  line-height: 1.1; letter-spacing: -0.01em;
+  color: var(--dk-1);
+  margin: 10px 0 28px;
+}
+
+/* ── PROSE ── */
+.prose {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.9;
+  color: var(--dk-2);
+  margin-bottom: 24px;
+}
+.prose strong {
+  color: var(--dk-1);
+  font-weight: 500;
+}
+.prose em {
+  font-style: italic;
+  color: var(--dk-2);
+}
+
+/* ── INLINE LINKS → pages ── */
+.prose a,
+.callout a {
+  color: var(--jade);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid var(--jade-br);
+  transition: border-color 0.15s, color 0.15s;
+}
+.prose a:hover,
+.callout a:hover {
+  color: var(--jade-hi);
+  border-bottom-color: var(--jade);
+}
+
+/* ── CALLOUT — inset fact box ── */
+.callout {
+  background: var(--ink-2);
+  border-left: 3px solid var(--jade);
+  border-radius: 0 6px 6px 0;
+  padding: 20px 24px;
+  margin: 28px 0;
+}
+.callout.amber { border-left-color: var(--amber); }
+.callout.red   { border-left-color: var(--red); }
+.callout.gold  { border-left-color: var(--gold); }
+.co-label {
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--jade); margin-bottom: 7px;
+}
+.callout.amber .co-label { color: var(--amber); }
+.callout.red   .co-label { color: var(--red); }
+.callout.gold  .co-label { color: var(--gold); }
+.co-text {
+  font-family: var(--serif);
+  font-size: 16px; font-weight: 300; font-style: italic;
+  line-height: 1.72; color: var(--dk-2);
+}
+.co-text strong { color: var(--dk-1); font-weight: 500; font-style: normal; }
+
+/* ── MECHANISM PULL QUOTE ── */
+.mechanism {
+  font-family: var(--serif);
+  font-size: 22px; font-weight: 300; font-style: italic;
+  line-height: 1.55; letter-spacing: -0.01em;
+  color: var(--dk-1);
+  border-top: 1px solid var(--bd);
+  border-bottom: 1px solid var(--bd);
+  padding: 24px 0;
+  margin: 32px 0;
+}
+.mechanism em { color: var(--jade); font-style: normal; }
+
+/* ── CHAIN — shows a cascade ── */
+.chain {
+  display: flex; flex-direction: column; gap: 0;
+  margin: 28px 0; border: 1px solid var(--bd);
+  border-radius: 6px; overflow: hidden;
+}
+.chain-step {
+  display: grid; grid-template-columns: 48px 1fr;
+  border-bottom: 1px solid var(--bd);
+}
+.chain-step:last-child { border-bottom: none; }
+.chain-n {
+  background: var(--ink-2);
+  display: flex; align-items: center; justify-content: center;
+  border-right: 1px solid var(--bd);
+  font-family: var(--serif); font-size: 20px; font-weight: 300;
+  color: var(--dk-3); line-height: 1;
+}
+.chain-step.good .chain-n { color: var(--jade); background: rgba(0,200,160,0.05); }
+.chain-step.bad  .chain-n { color: var(--red);  background: rgba(217,78,53,0.05); }
+.chain-b { padding: 14px 18px; background: var(--ink-1); }
+.chain-t { font-size: 13px; font-weight: 600; color: var(--dk-1); margin-bottom: 3px; }
+.chain-d { font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.6; }
+.chain-d strong { color: var(--dk-1); font-weight: 500; }
+
+/* ── CHAPTER DIVIDER ── */
+.ch-divider {
+  margin: 56px 0 0;
+  border: none;
+  border-top: 1px solid var(--bd);
+}
+
+/* ── PAGE END ── */
+.story-end {
+  padding: 64px 0 80px;
+  text-align: center;
+}
+.story-end-text {
+  font-family: var(--serif);
+  font-size: 22px; font-weight: 300; font-style: italic;
+  color: var(--dk-3); line-height: 1.65; margin-bottom: 24px;
+}
+.story-end-links {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center;
+}
+.story-link {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 16px; border-radius: 20px;
+  border: 1px solid var(--bd-2);
+  color: var(--dk-3); text-decoration: none;
+  transition: all 0.15s;
+}
+.story-link:hover {
+  color: var(--jade); border-color: var(--jade-br);
+  background: var(--jade-dim);
+}
+
+@media(max-width:600px){
+  .hero { padding: 40px 0 40px; }
+  .hero-inner, .story { padding: 0 16px; }
+  .h-title { font-size: 38px; }
+  .h-deck { font-size: 17px; }
+  .chapter-title { font-size: 26px; }
+  .prose { font-size: 16px; line-height: 1.82; }
+  .mechanism { font-size: 18px; }
+  .chain-step { grid-template-columns: 36px 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
+    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-profile.html">Profile</a>
+    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
+    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
+    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
+    <a class="nav-link" href="bodylens-training.html">Training</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link active" href="bodylens-story.html">The Story</a>
+    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
+    <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
+    <a class="nav-link" href="bodylens-longevity.html">Longevity</a>
+    <a class="nav-link" href="bodylens-hunger.html">Hunger</a>
+    <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
+    <a class="nav-link" href="bodylens-science.html">Science</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+  </div>
+  <div class="nav-meta" id="nav-meta"></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="h-kicker">The body · A connected narrative · How it all works</div>
+    <div class="h-title">One day.<br><em>Every system.</em><br>The full story.</div>
+    <div class="h-deck">
+      The body does not run in separate departments. Every decision you make — when you sleep, what you eat, whether you train, how you manage stress — triggers a cascade that touches everything else. This is that cascade. Told from the moment the alarm goes off to the moment sleep finally takes over. Your biology, your programme, your body — as a single connected story.
+    </div>
+    <div class="h-meta">
+      <span>Training day version</span>
+      <span>20 min read</span>
+      <span>Links to every page</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- THE STORY -->
+<div class="story">
+
+
+<!-- ════════════════════ CHAPTER 1 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">05:58</span>
+    Chapter one
+  </div>
+  <h2 class="chapter-title">Before you open your eyes, the body has already made decisions without you</h2>
+
+  <p class="prose">
+    Two minutes before the alarm, something wakes you. Not the phone — your own cortisol. The cortisol awakening response is one of the body's most elegant pieces of engineering: in the hour before natural waking, the adrenal glands begin releasing cortisol in a rising wave, warming the core body temperature, accelerating heart rate, priming the liver to release glucose into the bloodstream. By the time consciousness arrives, the body is already preparing for the day.
+  </p>
+
+  <p class="prose">
+    Whether last night gave you eight hours or five changes everything about this moment. With eight hours, the cortisol wakes a system that has been through three to four complete 90-minute sleep cycles. <strong>Growth hormone pulsed in the first cycle, driving muscle repair and fat oxidation while you were unconscious.</strong> Testosterone was synthesised. The glymphatic system — the brain's waste clearance network, 60% more active during sleep than waking — flushed beta-amyloid and tau proteins from the neural tissue. You are waking into a body that has been actively working all night.
+  </p>
+
+  <div class="callout">
+    <div class="co-label">What sleep actually is → <a href="bodylens-optimal.html">Optimal — Hormones</a></div>
+    <div class="co-text">Sleep is not rest. It is the most productive biological period of the 24-hour cycle. The training session sends the signal to adapt. <strong>Sleep is where the adaptation actually happens.</strong> Cut the sleep and you cut the adaptation — regardless of how hard you trained.</div>
+  </div>
+
+  <p class="prose">
+    With five hours, something different greets the morning. The cortisol that should have completed its overnight decline has not — it remained elevated through the night, suppressing the deep slow-wave sleep where GH pulses. The result is a cortisol level at waking that starts too high and stays too high. And cortisol, chronically elevated, does something that almost nobody connects to their sleep habits: <strong>it suppresses testosterone production at the source, in the Leydig cells of the testes, by inhibiting the HPT axis that signals them to work.</strong>
+  </p>
+
+  <p class="prose">
+    One night of poor sleep and testosterone is 15–20% lower than it would have been. Repeat this across a week and you are living in a fundamentally different hormonal environment — not because anything is broken, but because the nightly reset never completed. This is the first domino. Almost everything else in the programme depends on whether this one thing went right.
+  </p>
+</div>
+
+
+<hr class="ch-divider">
+<!-- ════════════════════ CHAPTER 2 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">06:00</span>
+    Chapter two
+  </div>
+  <h2 class="chapter-title">The first three minutes set the neurochemical tone for the next four hours</h2>
+
+  <p class="prose">
+    The phone is on the other side of the room. This is not a productivity hack. It is neuroscience. The first input the brain receives after waking determines the neurochemical baseline for the subsequent hours. A notification — email, message, social media — delivers a small dopamine hit before the cortisol awakening response has completed. The brain, before it has properly woken, has already begun fragmenting its dopamine architecture.
+  </p>
+
+  <p class="prose">
+    Instead: water. 500ml, immediately. The gut has been fasting for eight hours. Water initiates gut motility — the muscular contractions that move food through the digestive tract — and begins reversing the mild dehydration that sleep always produces. Ghrelin, the hunger hormone, is suppressed slightly by gastric expansion. The gut microbiome, which produces 95% of the body's serotonin, begins its morning activity.
+  </p>
+
+  <div class="callout gold">
+    <div class="co-label">The gut-brain connection → <a href="bodylens-optimal.html">Optimal — Gut</a></div>
+    <div class="co-text">The gut is not a digestion tube. It contains 500 million neurons and communicates with the brain via the vagus nerve — predominantly upward, gut to brain. <strong>The health of the microbiome in the gut directly determines the serotonin baseline in the brain.</strong> The morning water and the Greek yoghurt at breakfast are not coincidentally good habits. They are direct interventions for mood and anxiety via the gut-brain axis.</div>
+  </div>
+
+  <p class="prose">
+    Then: outside. Ten minutes, facing the sky, no sunglasses. The retinal ganglion cells — photoreceptors that exist specifically to detect morning light — signal the suprachiasmatic nucleus in the hypothalamus. This is the master circadian clock. The signal it receives now determines the cortisol peak timing, the melatonin onset this evening, the serotonin synthesis rate throughout the day. <strong>This ten-minute act improves sleep onset tonight by one to two hours. It sets the entire biological rhythm of the day.</strong> It is free. It takes less time than making coffee.
+  </p>
+
+  <p class="prose">
+    On the way back in: the shower. Warm to start, cold to finish — 30 to 60 seconds at the end. The cold water triggers a noradrenaline surge of 200 to 300%. Dopamine rises and stays elevated for two to four hours. The HPA axis — the stress response system — receives a deliberate, acute challenge and learns to manage it. Over weeks of consistent cold exposure, the same stressor produces a smaller, shorter cortisol response. <strong>This is anxiety inoculation at the physiological level.</strong> The cold shower is not about toughness. It is recalibrating the stress response system before the rest of the day gets a chance to test it.
+  </p>
+</div>
+
+
+<hr class="ch-divider">
+<!-- ════════════════════ CHAPTER 3 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">06:30</span>
+    Chapter three
+  </div>
+  <h2 class="chapter-title">The collagen is already in the bloodstream. The training session hasn't started yet.</h2>
+
+  <p class="prose">
+    Forty-five minutes before training begins, something specific is happening in the gut. The collagen peptides consumed with Vitamin C — 15 grams of hydrolysed collagen, 50mg of ascorbic acid — are being absorbed and entering the bloodstream as hydroxyproline-rich peptides. These are the precursors to new collagen synthesis in connective tissue.
+  </p>
+
+  <p class="prose">
+    The Vitamin C is not incidental. It is the rate-limiting cofactor for prolyl hydroxylase — the enzyme that converts proline to hydroxyproline, the amino acid that gives collagen its triple-helix structure. Without sufficient Vitamin C, the enzyme stalls. The collagen precursors circulate but cannot be assembled. This is why the combination matters and the timing matters: <strong>plasma hydroxyproline peaks approximately 60 minutes after ingestion, which places the maximum collagen synthesis capacity exactly at the moment mechanical loading begins.</strong>
+  </p>
+
+  <div class="callout">
+    <div class="co-label">Why this is critical for the knee → <a href="bodylens-profile.html">Profile — Knee protocol</a></div>
+    <div class="co-text">The horizontal meniscal tear in the medial compartment has no blood supply to drive healing the way a muscle injury does. Connective tissue repairs through mechanical loading that stimulates fibroblasts — but only if the building materials are present. <strong>The collagen protocol ensures that every training session is a repair session for the meniscal environment, not just a stimulus for the muscles around it.</strong> Shaw et al. (2017) measured 5.5× the collagen synthesis rate during exercise when this protocol was followed versus placebo.</div>
+  </div>
+
+  <p class="prose">
+    The coffee arrives at 07:30, not at 06:00. This timing is deliberate in a way that most people never consider. Cortisol peaks in the first 60 to 90 minutes after waking. During this peak, the brain is already in its most alert state — cortisol itself is the alerting hormone. Caffeine taken during this window does not add to the alertness; it competes with it, builds tolerance to the caffeine effect faster, and then when both cortisol and caffeine drop simultaneously, the crash is larger. <strong>Waiting until 07:30 means the caffeine arrives after the cortisol peak has passed, amplifying a declining signal rather than duplicating a rising one.</strong> The same two flat whites produce a measurably different — and better — cognitive and energy outcome.
+  </p>
+
+  <p class="prose">
+    With the coffee: 200mg of L-Theanine. This amino acid, naturally occurring in green tea, crosses the blood-brain barrier and modulates glutamate and GABA pathways, increasing alpha brain wave activity — the pattern associated with calm, focused alertness. The combination of caffeine and L-Theanine produces something that neither achieves alone: stimulated without anxious, alert without wired. For someone managing anxiety, this combination is the difference between a coffee that helps and one that quietly makes everything worse.
+  </p>
+</div>
+
+
+<hr class="ch-divider">
+<!-- ════════════════════ CHAPTER 4 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">07:45 — Training</span>
+    Chapter four
+  </div>
+  <h2 class="chapter-title">What actually happens when you lift heavy. The molecular story.</h2>
+
+  <p class="prose">
+    The first working set begins. A heavy hip thrust — 140kg, eight reps, controlled descent, two-second pause at the top. What is happening in the muscle is more complex and more interesting than most people who train ever learn.
+  </p>
+
+  <p class="prose">
+    The load deforms the muscle fibre physically. Integrins — transmembrane proteins that sit at the junction between the cell's interior and its scaffolding — detect this mechanical deformation and trigger an intracellular signalling cascade. The signal converges on mTOR: mechanistic target of rapamycin. mTOR is the molecular on-switch for muscle protein synthesis. When it is phosphorylated — activated — it initiates the transcription of new contractile protein. <strong>This is the mechanism. Not "lifting breaks down muscle so it rebuilds stronger." The mechanical tension activates a specific molecular switch that instructs the cell to build.</strong>
+  </p>
+
+  <div class="mechanism">
+    Leucine from the protein you ate this morning<br>also activates mTOR — through a completely<br><em>separate pathway</em>. Two keys, one lock.<br>Both required. Neither sufficient alone.
+  </div>
+
+  <p class="prose">
+    This is why protein timing matters. If leucine is not in the bloodstream when mTOR wants to fire, the signal activates but the building material is absent. The instruction was sent; nothing arrived to execute it. Four meals spread through the day, each clearing the leucine threshold of approximately 2.5 grams, means mTOR has substrate available throughout the window when the training signal is active. <a href="bodylens-fuel.html">The food system was built around this</a>.
+  </p>
+
+  <p class="prose">
+    Friday's posterior chain session generates the largest acute hormonal response of any training configuration available. Hip thrusts and Romanian deadlifts — large muscles, heavy loads, high mechanical tension across the glute complex — trigger a testosterone and growth hormone spike that peaks 30 to 45 minutes post-session. <strong>This is not incidental. It is the reason Friday's session is the most important of the week</strong>, and why Thursday evening has a specific protocol: no alcohol, adequate sleep, carbohydrate loading at lunch. Everything builds toward this window.
+  </p>
+
+  <div class="callout amber">
+    <div class="co-label">Rep ranges and what they build → <a href="bodylens-training.html">Training — Rep ranges</a></div>
+    <div class="co-text">The programme uses heavy sets at 6–8 reps and accessory work at 12–20 reps deliberately. Schoenfeld's research showed that 5 reps and 30 reps produce similar hypertrophy when both are taken close to failure — but they build <strong>different tissue types</strong>. Low reps build myofibrillar density (structural, hard, strength-producing). High reps build sarcoplasmic volume (full, round, metabolically active). Both are happening simultaneously. The session feels like strength work and bodybuilding because it is both.</div>
+  </div>
+
+  <p class="prose">
+    The knee moves only through the range the protocol permits: 0 to 70 degrees of flexion under load, no twisting, no explosive lateral movement. This is not limitation — it is the reason the meniscal environment is healing rather than deteriorating with every session. The RDL loads the hamstrings and glutes through a longer effective range than a squat, produces a superior posterior chain stimulus, and keeps the knee in the safe zone throughout. <strong>The modification is not a version of the programme. It is the programme.</strong>
+  </p>
+</div>
+
+
+<hr class="ch-divider">
+<!-- ════════════════════ CHAPTER 5 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">09:15 — Post-session</span>
+    Chapter five
+  </div>
+  <h2 class="chapter-title">The session ended. Now the adaptation either happens or it doesn't.</h2>
+
+  <p class="prose">
+    The training ended eleven minutes ago. The mTOR signal is active. Cortisol is elevated — appropriate acute inflammation has begun, initiating the tissue remodelling that produces strength adaptation. Growth hormone is pulsing. The body is in its most anabolic state of the 24-hour cycle. <strong>What happens in the next two hours determines whether this state produces adaptation or simply dissipates.</strong>
+  </p>
+
+  <p class="prose">
+    Protein first: 40 grams, fast-absorbing. The leucine threshold cleared while mTOR activation is at its peak. This is the only post-workout protocol that is mechanistically justified — not because of a "window" that closes arbitrarily, but because mTOR is phosphorylated and looking for substrate. Give it the substrate while the switch is on.
+  </p>
+
+  <p class="prose">
+    Then: the sauna. Enter 10 to 15 minutes after finishing, spend 15 to 20 minutes at 80 to 90 degrees Celsius. The hypothalamus detects the heat stress and releases GHRH — growth hormone releasing hormone — triggering a second, independent GH pulse. Studies have measured GH increases of up to 16 times baseline from a single 15-minute sauna session at 80 degrees. <strong>The training produced the first GH pulse. The sauna produces the second. Two distinct peaks from one training day.</strong>
+  </p>
+
+  <div class="callout">
+    <div class="co-label">The full gym recovery protocol → <a href="bodylens-optimal.html">Optimal — The Machine</a></div>
+    <div class="co-text">Simultaneously, heat shock proteins HSP70 and HSP90 are activated. These molecular chaperones repair damaged proteins within the muscle cell — the mechanism behind the accelerated recovery sauna users consistently report. The soreness is lighter not because you imagine it but because <strong>the cellular repair machinery is running while you sit in the heat.</strong></div>
+  </div>
+
+  <p class="prose">
+    From the sauna: the hydro pool. Chest-deep immersion reduces effective bodyweight by 70%. The knee — which bears three to eight times bodyweight during training — drops to near-zero load. In this environment, gentle active movement through the knee's available range does something passive rest cannot: it feeds the articular cartilage. Cartilage has no blood supply. It receives nutrients exclusively through the compression and decompression of movement pumping synovial fluid across its surface. <strong>The hydro pool is the only place where you can move the joint through its full range without loading the meniscal tear.</strong> Ten minutes of gentle knee circles in warm water is active cartilage nutrition. It cannot be replicated by lying on a sofa.
+  </p>
+
+  <p class="prose">
+    The contrast protocol — sauna to cold shower to hydro pool — creates a vascular pumping effect through peripheral vasculature. Heat dilates blood vessels; cold constricts them; the repetition forces circulatory cycling that accelerates metabolite clearance and reduces delayed onset muscle soreness through mechanisms that neither ice bath nor massage alone can match. Elite athletes pay substantial amounts to access facilities that do exactly this. The gym has all three.
+  </p>
+</div>
+
+
+<hr class="ch-divider">
+<!-- ════════════════════ CHAPTER 6 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">11:00 — The feed</span>
+    Chapter six
+  </div>
+  <h2 class="chapter-title">Food is molecular information. The body reads every meal and responds.</h2>
+
+  <p class="prose">
+    The main post-training meal arrives two hours after the session. By now, the acute cortisol from training has declined. Insulin sensitivity is elevated — muscle has been depleted and is actively pulling glucose from the bloodstream to replenish glycogen stores. <strong>This is the best time in the 24-hour cycle to consume carbohydrates, because insulin sensitivity is highest and the fuel goes directly to muscle rather than fat storage.</strong>
+  </p>
+
+  <p class="prose">
+    Chicken, sweet potato, spinach, olive oil. Each element is doing something specific. The chicken provides leucine — a second mTOR activation signal from the amino acid pathway, extending the anabolic window into the afternoon. The sweet potato provides glucose at a glycaemic index low enough to avoid a sharp insulin spike while replenishing glycogen completely over the following three to four hours. The spinach provides magnesium, folate, and Vitamin K — and in large quantities, because the caloric cost of leafy greens is negligible while their micronutrient density is exceptional. <strong>Eat the whole bag. It costs nothing and delivers everything.</strong>
+  </p>
+
+  <div class="callout gold">
+    <div class="co-label">Why olive oil is medicine → <a href="bodylens-fuel.html">Food System — Synergies</a></div>
+    <div class="co-text">Oleocanthal, the polyphenol that gives fresh olive oil its characteristic throat sting, inhibits COX-1 and COX-2 — the same enzymes that ibuprofen targets. A generous pour of extra-virgin olive oil on a meal is not a flavour choice. <strong>It is a COX inhibitor working on the same synovial inflammation pathways that the omega-3 supplement is addressing from a different angle.</strong> Two separate mechanisms, same target, compounding effect.</div>
+  </div>
+
+  <p class="prose">
+    The protein rotation matters beyond taste. Chicken provides leucine. Salmon adds EPA and DHA — omega-3 fatty acids that, when incorporated into muscle cell membranes, increase their fluidity and sensitivity to insulin and to leucine itself. Research in adults over 40 shows that omega-3 supplementation increases the MPS response to a given protein dose by 20 to 35%. <strong>The supplement is amplifying the food. The food is amplifying the supplement. They are not separate interventions.</strong>
+  </p>
+
+  <p class="prose">
+    Twice a week, the protein is sirloin or lean beef. This is not a concession to preference — it is micronutrient strategy. Beef contains zinc in the most bioavailable form available from food. Zinc is a required cofactor for testosterone synthesis; without sufficient zinc in the Leydig cells, the enzymatic pathway from cholesterol to testosterone stalls regardless of what else is happening hormonally. Heavy training depletes zinc through sweat. <a href="bodylens-fuel.html">Red meat twice a week</a> is the simplest way to replenish it. White fish — cod, sea bass, haddock — appears on the rest days, when the caloric target drops and the goal is maximum protein with minimum caloric cost. Cod is 23 grams of protein per 100 grams at under 90 calories. There is no more efficient protein source in nature.
+  </p>
+</div>
+
+
+<hr class="ch-divider">
+<!-- ════════════════════ CHAPTER 7 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">14:00 — The dip</span>
+    Chapter seven
+  </div>
+  <h2 class="chapter-title">The 2pm energy crash is not tiredness. It is biology. And it is hackable.</h2>
+
+  <p class="prose">
+    Every human experiences a drop in alertness and cognitive performance between approximately 13:00 and 15:00. This is not post-lunch drowsiness — it is a circadian phenomenon that occurs regardless of whether lunch was eaten, and regardless of how well you slept. The body has a built-in afternoon trough in the alertness signal from the suprachiasmatic nucleus.
+  </p>
+
+  <p class="prose">
+    If breakfast was high-glycaemic — white bread, sugary cereal, juice — a glucose crash is compounding this. The insulin response to a high-GI meal overshoots, pulling glucose below optimal levels 90 to 120 minutes later. What feels like tiredness is often mild hypoglycaemia — the brain running on insufficient glucose, producing the fog, the inability to concentrate, the reaching for another coffee or something sweet. <strong>The flat glucose curve produced by the oats-and-protein breakfast specifically prevents this cascade from beginning.</strong>
+  </p>
+
+  <div class="callout amber">
+    <div class="co-label">The hunger system → <a href="bodylens-hunger.html">Hunger — Ghrelin control</a></div>
+    <div class="co-text">The 2pm period is also when ghrelin — the hunger hormone — peaks if the morning protein was insufficient. Ghrelin rises when the stomach is empty and when blood glucose is falling. <strong>The combination of the two is the mechanism behind the 3pm snacking impulse that derails more diets than any other single moment.</strong> Protein at breakfast suppresses ghrelin for longer. The flat glucose curve removes the second trigger. Managed together, the 3pm impulse largely disappears.</div>
+  </div>
+
+  <p class="prose">
+    The intervention is not another coffee. It is ten minutes of walking. Movement — even low-intensity movement — resets the ghrelin signal, re-activates the dopamine baseline, clears the cortisol accumulation from the morning's decision fatigue, and produces a small BDNF pulse that sharpens cognitive performance for the subsequent 60 to 90 minutes. <strong>A ten-minute walk at 14:00 is more effective than caffeine at this point in the day for the specific kind of afternoon performance that matters — clear thinking under deadline.</strong>
+  </p>
+</div>
+
+
+<hr class="ch-divider">
+<!-- ════════════════════ CHAPTER 8 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">19:00 — The choice</span>
+    Chapter eight
+  </div>
+  <h2 class="chapter-title">Alcohol. What it actually does. Why it matters more than you think.</h2>
+
+  <p class="prose">
+    The evening presents a choice that millions of people make without understanding its mechanism. A glass of wine. Two pints. Drinks with friends. The social world operates on alcohol and the programme has to account for that reality — not prohibit it, but understand it precisely enough to make intelligent decisions about when and how.
+  </p>
+
+  <p class="prose">
+    Ethanol — the molecule in every alcoholic drink — is classified by the body as a toxic compound. From the moment it enters the bloodstream, the liver treats its clearance as an emergency, suspending normal metabolic processes to process it first. While alcohol is being metabolised, <strong>fat oxidation is essentially halted.</strong> The fat from dinner is not being burned for fuel — it is circulating and being stored. This is not because of the calories in the drink. It is because the liver is busy and cannot run two programs simultaneously.
+  </p>
+
+  <div class="chain">
+    <div class="chain-step bad">
+      <div class="chain-n">1</div>
+      <div class="chain-b"><div class="chain-t">Ethanol enters bloodstream</div><div class="chain-d">Liver declares it a priority emergency. Everything else waits.</div></div>
+    </div>
+    <div class="chain-step bad">
+      <div class="chain-n">2</div>
+      <div class="chain-b"><div class="chain-t">Ethanol → Acetaldehyde (toxic)</div><div class="chain-d">The intermediate metabolite causes most of the cellular damage — DNA adducts, mitochondrial disruption, reactive oxygen species.</div></div>
+    </div>
+    <div class="chain-step bad">
+      <div class="chain-n">3</div>
+      <div class="chain-b"><div class="chain-t">mTOR phosphorylation blocked</div><div class="chain-d"><strong>Directly.</strong> Not as a side effect. Ethanol specifically interferes with the molecular switch that today's training activated. The session happened. The adaptation was cancelled.</div></div>
+    </div>
+    <div class="chain-step bad">
+      <div class="chain-n">4</div>
+      <div class="chain-b"><div class="chain-t">GH pulse suppressed</div><div class="chain-d">Acetaldehyde acts on the hypothalamus, inhibiting GHRH. The overnight repair session — the most productive biological event of the day — does not happen.</div></div>
+    </div>
+    <div class="chain-step bad">
+      <div class="chain-n">5</div>
+      <div class="chain-b"><div class="chain-t">Testosterone falls 15–25%</div><div class="chain-d">Within 12 hours. Leydig cell function suppressed. Cortisol elevated. Aromatase activated — converting testosterone to oestrogen. Remains suppressed for up to 24 hours after clearance.</div></div>
+    </div>
+  </div>
+
+  <p class="prose">
+    This is a training-day cascade. On a rest day, the mTOR issue is smaller — there is no activated training signal to cancel. On a Sunday, finishing by 8pm, the clearance is complete before sleep, limiting the GH and testosterone damage. <strong>The same volume of alcohol produces radically different physiological consequences depending on timing.</strong> The programme does not ask you to stop drinking. It asks you to understand which nights are expensive and which are manageable. <a href="bodylens-alcohol.html">The full mechanism, the dose-response, and the practical framework are here.</a>
+  </p>
+</div>
+
+
+<hr class="ch-divider">
+<!-- ════════════════════ CHAPTER 9 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">21:00 — Wind down</span>
+    Chapter nine
+  </div>
+  <h2 class="chapter-title">The evening is the sleep's preparation. Everything done now echoes tomorrow.</h2>
+
+  <p class="prose">
+    The body begins preparing for sleep approximately two hours before it happens. Melatonin, synthesised from serotonin in the pineal gland, starts rising as light levels drop. Core body temperature begins declining. The adenosine pressure — the sleep drive that has been building since waking, with every hour of consciousness adding to the load — is now at its peak.
+  </p>
+
+  <p class="prose">
+    The screens in the room are working against this process. The blue-spectrum light from phones and laptops directly suppresses melatonin synthesis through the same retinal pathway that morning sunlight set the circadian rhythm with. The pineal gland cannot distinguish artificial light from daylight at the spectral level — it responds to the same signal either way. <strong>A screen at 21:30 tells the pineal gland it is still midday.</strong> Melatonin is suppressed. Sleep onset is delayed by one to two hours. The GH pulse that depends on the first slow-wave cycle is pushed later into the night, and if a 06:00 alarm truncates the final hours, it may not complete at all.
+  </p>
+
+  <div class="callout">
+    <div class="co-label">The pre-sleep protocol → <a href="bodylens-optimal.html">Optimal — Daily dashboard</a></div>
+    <div class="co-text">Magnesium glycinate: 400mg, 30 to 60 minutes before sleep. Magnesium is required for GABA receptor function — GABA is the primary inhibitory neurotransmitter that quiets the nervous system and permits sleep onset. <strong>Low magnesium means inadequate GABAergic inhibition of the cortex — the brain stays switched on when it should be switching off.</strong> The glycinate form adds glycine, independently inhibitory and independently sleep-promoting. This combination is the most evidence-backed non-pharmaceutical sleep intervention available.</div>
+  </div>
+
+  <p class="prose">
+    The room: dark, cool (17 to 19 degrees Celsius), quiet. The temperature requirement is physiological — core body temperature must drop approximately one to two degrees Celsius for sleep to initiate and remain stable. A warm room fights this drop; the body cannot cool effectively in ambient heat and cycles into lighter sleep stages more frequently.
+  </p>
+
+  <p class="prose">
+    A casein protein source before sleep — Greek yoghurt, cottage cheese — digests over five to seven hours, releasing amino acids slowly through the night. mTOR can remain active throughout the overnight window if leucine is continuously available. The body is building while you sleep, and the building material can be present or absent depending on what the last meal was.
+  </p>
+</div>
+
+
+<hr class="ch-divider">
+<!-- ════════════════════ CHAPTER 10 ════════════════════ -->
+<div class="chapter">
+  <div class="chapter-kicker">
+    <span class="chapter-time">22:30 — Sleep</span>
+    Chapter ten
+  </div>
+  <h2 class="chapter-title">The body's most productive hours. And what they are quietly building toward.</h2>
+
+  <p class="prose">
+    Sleep arrives. The first 90-minute cycle begins. Within minutes of entering slow-wave sleep, the anterior pituitary releases a pulse of growth hormone into the bloodstream. This pulse — the largest of the 24-hour cycle — activates GH receptors in muscle tissue, liver, bone, and connective tissue simultaneously. In muscle: protein synthesis. In the liver: IGF-1 production, which amplifies the anabolic signal. In connective tissue: collagen synthesis, continuing the work that the pre-training collagen protocol initiated. In fat cells: lipolysis — the mobilisation of stored fat for fuel during the fasted, low-insulin overnight period.
+  </p>
+
+  <p class="prose">
+    While this is happening, the glymphatic system activates. The brain's interstitial spaces widen during sleep — recent research suggests by up to 60% — allowing cerebrospinal fluid to flush through neural tissue. <strong>Beta-amyloid proteins, metabolic waste products, the detritus of a day's cognitive work — all of it is cleared during this window.</strong> Wake too early, or fragment sleep with alcohol or stress, and the clearance is incomplete. The accumulation over years of poor sleep is not metaphorical brain fog. It is a measurable increase in beta-amyloid burden — the same protein that accumulates in Alzheimer's pathology decades before symptoms appear.
+  </p>
+
+  <p class="prose">
+    The meniscal environment is also active overnight. The synovial fluid that surrounds the knee joint is exchanged during the low-load period of sleep — nutrients diffusing into the avascular cartilage, waste products diffusing out. The collagen fibres damaged during training are being remodelled by fibroblasts following the synthesis template that the collagen protocol and the GH pulse have activated. <strong>The knee you wake with tomorrow morning is structurally different from the one that trained today.</strong> Stronger in the places the load stressed. More intact at the tear margins than it was 24 hours ago. The protocol is working, slowly, every night.
+  </p>
+
+  <div class="callout amber">
+    <div class="co-label">The 40s decision window → <a href="bodylens-longevity.html">Longevity — Your decade</a></div>
+    <div class="co-text">Peter Attia's framework identifies the 40s as the most leveraged decade in the entire lifespan for long-term health outcomes. The cellular systems that will determine function at 65 to 75 are still highly responsive to training and lifestyle inputs in the 40s. By 55, some adaptations become harder to produce. By 65, certain windows begin to close. <strong>The decisions being made in this programme — the Zone 2 sessions building VO₂max, the resistance training maintaining lean mass, the anti-inflammatory protocol managing systemic inflammation — are compounding toward a biology at 65 that is measurably different from the one that would have resulted from the absence of this work.</strong></div>
+  </div>
+
+  <p class="prose">
+    Tomorrow the alarm fires at 05:58. Cortisol begins its ascent. The body wakes into whatever was built overnight — and if the protocol held, what was built is compounding. The hip thrust is a fraction heavier. The inflammation in the knee is a fraction lower. The microbiome is a fraction more diverse from yesterday's vegetables. The mitochondrial density from Tuesday's Zone 2 session is a fraction greater. None of these changes are visible from one day to the next. All of them are measurable across twelve weeks. <strong>This is what the optimised machine produces — not dramatic overnight transformation, but relentless compounding in the right direction, one biological cycle at a time.</strong>
+  </p>
+</div>
+
+
+<!-- END OF STORY -->
+<div class="story-end">
+  <p class="story-end-text">
+    Every chapter above links to a page that goes deeper.<br>
+    These are all the doors.
+  </p>
+  <div class="story-end-links">
+    <a class="story-link" href="bodylens-optimal.html">The Machine</a>
+    <a class="story-link" href="bodylens-training.html">Training</a>
+    <a class="story-link" href="bodylens-fuel.html">Food System</a>
+    <a class="story-link" href="bodylens-alcohol.html">Alcohol</a>
+    <a class="story-link" href="bodylens-hunger.html">Hunger</a>
+    <a class="story-link" href="bodylens-synthesis.html">How It Runs</a>
+    <a class="story-link" href="bodylens-longevity.html">Longevity</a>
+    <a class="story-link" href="bodylens-weightloss.html">Weight Loss</a>
+    <a class="story-link" href="bodylens-profile.html">Your Profile</a>
+    <a class="story-link" href="bodylens-body.html">Muscle Guide</a>
+    <a class="story-link" href="bodylens-science.html">Science</a>
+    <a class="story-link" href="bodylens-today.html">Today's plan</a>
+  </div>
+</div>
+
+</div><!-- /story -->
+
+<script src="nav.js"></script>
+<script>
+(function(){
+  try {
+    const p = localStorage.getItem('bl_profile');
+    if (p) {
+      const profile = JSON.parse(p);
+      const el = document.getElementById('nav-meta');
+      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
+    }
+  } catch(e){}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Hunger & Balance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background: var(--ink); color: var(--dk-1); }
+
+/* ── HERO ── */
+.hero {
+  padding: 72px 48px 68px;
+  border-bottom: 1px solid var(--bd);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 700px 500px at 70% 40%, rgba(0,200,160,0.04) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-inner { max-width: 1080px; margin: 0 auto; position: relative; z-index: 1; }
+.h-eye {
+  font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--jade);margin-bottom:18px;display:flex;align-items:center;gap:12px;
+}
+.h-eye::before { content:'';width:28px;height:1px;background:var(--jade); }
+.h-title {
+  font-family:var(--serif);font-size:76px;font-weight:300;
+  line-height:0.9;letter-spacing:-0.03em;color:var(--dk-1);margin-bottom:28px;
+}
+.h-title em { font-style:italic;color:var(--dk-3); }
+.h-two { display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:36px;align-items:start; }
+.h-voice {
+  font-family:var(--serif);font-size:18px;font-weight:300;font-style:italic;
+  line-height:1.82;color:var(--dk-2);border-left:2px solid var(--jade-br);padding-left:22px;
+}
+.h-states { display:flex;flex-direction:column;gap:0; }
+.hs-row {
+  display:grid;grid-template-columns:1fr 1fr;
+  border-bottom:1px solid var(--bd);padding:12px 0;
+}
+.hs-row:first-child { border-top:1px solid var(--bd); }
+.hs-bad  { font-size:12px;font-weight:300;color:var(--red);padding-right:20px; }
+.hs-good { font-size:12px;font-weight:500;color:var(--jade); }
+
+/* ── STICKY NAV ── */
+.sec-nav {
+  background:var(--ink-1);border-bottom:1px solid var(--bd);
+  position:sticky;top:60px;z-index:100;
+  padding:0 48px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
+}
+.sec-nav::-webkit-scrollbar { display:none; }
+.sn {
+  font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;
+  padding:13px 16px;border:none;background:transparent;color:var(--dk-3);
+  cursor:pointer;font-family:var(--sans);white-space:nowrap;
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s;
+}
+.sn:hover { color:var(--dk-2); }
+.sn.active { color:var(--jade);border-bottom-color:var(--jade); }
+
+/* ── PANES ── */
+.pane { display:none; }
+.pane.active { display:block; }
+.dark  { background:var(--ink);   padding:64px 0; }
+.ink1  { background:var(--ink-1); padding:64px 0; border-top:1px solid var(--bd); }
+.paper { background:var(--paper); padding:64px 0; }
+.papr1 { background:var(--paper-1);padding:64px 0; }
+.w { max-width:1080px;margin:0 auto;padding:0 48px; }
+
+/* ── RULES ── */
+.dr {
+  display:flex;align-items:center;gap:14px;margin:0 0 32px;
+  font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--dk-3);
+}
+.dr em { font-style:normal;color:var(--jade); }
+.dr::after { content:'';flex:1;height:1px;background:var(--bd); }
+.lr {
+  display:flex;align-items:center;gap:14px;margin:0 0 32px;
+  font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--lt-3);
+}
+.lr::after { content:'';flex:1;height:1px;background:var(--bl-2); }
+
+/* ── STATEMENT BLOCK ── */
+.stm {
+  display:grid;grid-template-columns:56px 1fr;
+  border-top:1px solid var(--bd);transition:background 0.15s;
+}
+.stm:hover { background:rgba(255,255,255,0.018); }
+.stm:hover .stm-n { color:var(--jade); }
+.stm-n {
+  padding:32px 0;display:flex;align-items:flex-start;justify-content:center;
+  border-right:1px solid var(--bd);
+  font-family:var(--serif);font-size:44px;font-weight:300;color:var(--dk-3);line-height:1;
+  transition:color 0.2s;
+}
+.stm-b { padding:32px 36px; }
+.stm-t {
+  font-family:var(--serif);font-size:28px;font-weight:400;
+  color:var(--dk-1);margin-bottom:12px;line-height:1.1;letter-spacing:-0.01em;
+}
+.stm-p {
+  font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.9;max-width:600px;
+}
+.stm-p strong { color:var(--dk-1);font-weight:500; }
+.tag {
+  display:inline-flex;align-items:center;gap:6px;margin-top:14px;
+  font-size:11px;font-weight:600;letter-spacing:0.04em;padding:6px 14px;border-radius:20px;
+}
+.t-jade  { color:var(--jade); background:var(--jade-dim); border:1px solid var(--jade-br); }
+.t-amber { color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br); }
+.t-red   { color:var(--red);  background:var(--red-dim);  border:1px solid var(--red-br); }
+.t-gold  { color:var(--gold); background:var(--gold-dim); border:1px solid var(--gold-br); }
+
+/* ── STRATEGY CARD (dark) ── */
+.sc {
+  background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;
+  padding:22px 24px;margin-bottom:10px;transition:border-color 0.15s;
+}
+.sc:hover { border-color:var(--bd-2); }
+.sc.jade  { border-left:3px solid var(--jade); }
+.sc.amber { border-left:3px solid var(--amber); }
+.sc.red   { border-left:3px solid var(--red); }
+.sc.gold  { border-left:3px solid var(--gold); background:var(--gold-dim); border-color:var(--gold-br); }
+.sc-eye  { font-size:9px;font-weight:600;letter-spacing:0.13em;text-transform:uppercase;margin-bottom:8px; }
+.sc-t    { font-family:var(--serif);font-size:21px;font-weight:500;color:var(--dk-1);margin-bottom:7px;line-height:1.15; }
+.sc-body { font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.78; }
+.sc-body strong { color:var(--dk-1);font-weight:500; }
+.sc-action {
+  margin-top:12px;padding:10px 14px;border-radius:4px;
+  background:rgba(0,200,160,0.06);border:1px solid var(--jade-br);
+  font-size:12px;font-weight:300;color:var(--jade);line-height:1.65;
+}
+.sc-action::before { content:'→ ';font-weight:600; }
+.sc-action.amber-a {
+  background:var(--amber-dim);border-color:var(--amber-br);color:var(--amber);
+}
+
+/* ── LIGHT CARD ── */
+.lc {
+  background:var(--paper-1);border:1px solid var(--bl);border-radius:6px;
+  padding:22px 24px;margin-bottom:10px;transition:all 0.15s;
+}
+.lc:hover { border-color:var(--bl-2);box-shadow:0 2px 14px rgba(0,0,0,0.07); }
+.lc.jade  { border-left:3px solid var(--jade); }
+.lc.amber { border-left:3px solid var(--amber); }
+.lc.red   { border-left:3px solid var(--red); }
+.lc-eye  { font-size:9px;font-weight:600;letter-spacing:0.13em;text-transform:uppercase;margin-bottom:8px; }
+.lc-t    { font-family:var(--serif);font-size:21px;font-weight:500;color:var(--lt-1);margin-bottom:7px;line-height:1.15; }
+.lc-body { font-size:13px;font-weight:300;color:var(--lt-2);line-height:1.78; }
+.lc-body strong { color:var(--lt-1);font-weight:500; }
+.lc-action {
+  margin-top:12px;padding:10px 14px;border-radius:4px;
+  background:var(--jade-dim);border:1px solid var(--jade-br);
+  font-size:12px;font-weight:300;color:var(--jade);line-height:1.65;
+}
+.lc-action::before { content:'→ ';font-weight:600; }
+
+/* ── HORMONE DIAL (visual) ── */
+.dial-grid {
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--bd);border:1px solid var(--bd);border-radius:6px;overflow:hidden;
+  margin-bottom:28px;
+}
+.dial-cell { background:var(--ink-2);padding:24px 26px; }
+.dial-name {
+  font-family:var(--serif);font-size:28px;font-weight:300;
+  margin-bottom:4px;line-height:1;
+}
+.dial-role { font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px; }
+.dial-ideal {
+  display:flex;align-items:center;gap:8px;margin-bottom:8px;
+  font-size:11px;font-weight:300;color:var(--dk-2);
+}
+.dial-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.dial-triggers { margin-top:12px; }
+.dt-label { font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px; }
+.dt-item {
+  display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;
+  font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.5;
+}
+.dt-item::before { content:'·';color:var(--dk-3);flex-shrink:0;margin-top:1px; }
+.dt-item strong { color:var(--dk-1);font-weight:500; }
+
+/* ── GHRELIN RHYTHM CHART ── */
+.rhythm-chart { margin-bottom:28px; }
+.rc-row { display:flex;align-items:center;gap:12px;margin-bottom:6px; }
+.rc-time { font-family:var(--mono);font-size:11px;font-weight:500;color:var(--dk-3);width:60px;flex-shrink:0;text-align:right; }
+.rc-track { flex:1;height:18px;background:var(--ink-3);border-radius:3px;overflow:hidden;position:relative; }
+.rc-fill { height:100%;border-radius:3px;display:flex;align-items:center;padding:0 8px;transition:width 0.4s ease; }
+.rc-fill-text { font-size:10px;font-weight:600;color:rgba(255,255,255,0.8);white-space:nowrap; }
+.rc-note { font-size:11px;font-weight:300;color:var(--dk-3);width:180px;flex-shrink:0; }
+
+/* ── PROTOCOL GRID ── */
+.protocol-grid {
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--bd);border:1px solid var(--bd);border-radius:6px;overflow:hidden;
+  margin-bottom:28px;
+}
+.pg-cell { background:var(--ink-2);padding:20px 18px; }
+.pg-cell.highlight { background:rgba(0,200,160,0.06);border:1px solid var(--jade-br); }
+.pg-label { font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px; }
+.pg-cell.highlight .pg-label { color:var(--jade); }
+.pg-title { font-family:var(--serif);font-size:18px;font-weight:500;color:var(--dk-1);margin-bottom:8px;line-height:1.1; }
+.pg-body { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65; }
+.pg-body strong { color:var(--dk-1);font-weight:500; }
+
+/* ── EMOTIONAL EATING MAP ── */
+.trigger-row {
+  display:grid;grid-template-columns:160px 1fr 1fr;gap:0;
+  border-top:1px solid var(--bd);transition:background 0.15s;
+}
+.trigger-row:hover { background:rgba(255,255,255,0.015); }
+.trigger-row.header { background:var(--ink-2);border-top:none;border-bottom:1px solid var(--bd); }
+.tr-cell { padding:14px 18px;border-right:1px solid var(--bd); }
+.tr-cell:last-child { border-right:none; }
+.trigger-row.header .tr-cell { font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3); }
+.tr-trigger { font-size:13px;font-weight:500;color:var(--dk-1); }
+.tr-bio { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.6; }
+.tr-bio strong { color:var(--dk-1);font-weight:500; }
+.tr-interrupt { font-size:12px;font-weight:300;color:var(--jade);line-height:1.6; }
+
+/* ── DAILY OPERATING SYSTEM ── */
+.dos-row {
+  display:grid;grid-template-columns:80px 1fr;
+  border-top:1px solid var(--bd);
+}
+.dos-time {
+  padding:20px 0;display:flex;align-items:flex-start;justify-content:center;
+  border-right:1px solid var(--bd);
+  font-family:var(--mono);font-size:12px;font-weight:500;color:var(--dk-3);
+  padding-top:22px;
+}
+.dos-body { padding:18px 24px; }
+.dos-title { font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:4px; }
+.dos-text { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65; }
+.dos-text strong { color:var(--dk-1);font-weight:500; }
+.dos-text.jade { color:var(--jade); }
+.dos-tags { display:flex;gap:5px;margin-top:8px;flex-wrap:wrap; }
+.dos-tag {
+  font-size:9px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;
+  padding:3px 9px;border-radius:20px;
+}
+
+/* ── YOUR PROFILE CALLOUT ── */
+.your {
+  background:var(--ink-2);border:1px solid var(--jade-br);border-radius:6px;
+  padding:28px 32px;position:relative;overflow:hidden;
+}
+.your::before {
+  content:'Your profile';position:absolute;top:14px;right:16px;
+  font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);
+  padding:3px 10px;border-radius:20px;
+}
+.your-t { font-family:var(--serif);font-size:26px;font-weight:400;color:var(--jade);margin-bottom:10px;line-height:1.1; }
+.your-b { font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.85; }
+.your-b strong { color:var(--dk-1);font-weight:500; }
+
+/* ── CHECK ROWS ── */
+.check-row { display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--bd); }
+.check-row:last-child { border-bottom:none; }
+.check-icon { font-size:14px;flex-shrink:0;margin-top:2px; }
+.check-body {}
+.check-t { font-size:13px;font-weight:500;color:var(--dk-1);margin-bottom:3px; }
+.check-b { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65; }
+.check-b strong { color:var(--dk-1);font-weight:500; }
+
+@media(max-width:900px){
+  .hero { padding:40px 18px 48px; }
+  .h-two { grid-template-columns:1fr; }
+  .w { padding:0 18px; }
+  .sec-nav { padding:0 18px; }
+  .dial-grid,.protocol-grid { grid-template-columns:1fr; }
+  .trigger-row { grid-template-columns:1fr; }
+  .trigger-row .tr-cell { border-right:none;border-bottom:1px solid var(--bd); }
+  .dark,.ink1,.paper,.papr1 { padding:48px 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
+    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-profile.html">Profile</a>
+    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
+    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
+    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
+    <a class="nav-link" href="bodylens-training.html">Training</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-story.html">The Story</a>
+    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
+    <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
+    <a class="nav-link" href="bodylens-longevity.html">Longevity</a>
+    <a class="nav-link active" href="bodylens-hunger.html">Hunger</a>
+    <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
+    <a class="nav-link" href="bodylens-science.html">Science</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+  </div>
+  <div class="nav-meta" id="nav-meta"></div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="h-eye">Hunger &amp; balance · The operating system</div>
+    <div class="h-title">Quiet the noise.<br><em>Run your biology.</em></div>
+    <div class="h-two">
+      <div class="h-voice">
+        The science of weight loss explains why ghrelin rises and leptin crashes. This page is different. This is the operational layer — the specific daily strategies that keep both hormones in check, so you never reach the point where a hunger attack feels inevitable, food dominates your thinking between meals, or an emotional response to stress sends you to the kitchen. Balance is not a mindset. It is a biological state you maintain through specific, measurable actions.
+      </div>
+      <div class="h-states">
+        <div class="hs-row"><div class="hs-bad">Hunger attacks every few hours</div><div class="hs-good">Stable energy · hunger arrives gently at meals</div></div>
+        <div class="hs-row"><div class="hs-bad">Thinking about food between meals</div><div class="hs-good">Food noise quiet · cognitive bandwidth free</div></div>
+        <div class="hs-row"><div class="hs-bad">Emotional eating under stress</div><div class="hs-good">Cortisol managed · loop interrupted before it starts</div></div>
+        <div class="hs-row"><div class="hs-bad">Ravenous by evening · overeating at dinner</div><div class="hs-good">Appetite flat by evening · dinner is satisfying not desperate</div></div>
+        <div class="hs-row"><div class="hs-bad">Willpower running out by Wednesday</div><div class="hs-good">Adherence is structural · not a daily decision</div></div>
+        <div class="hs-row"><div class="hs-bad">Restriction → guilt → binge cycle</div><div class="hs-good">Flexibility built in · no cycle to break</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SECTION NAV ═══ -->
+<div class="sec-nav">
+  <button class="sn active" onclick="show('p-ghrelin',this)">Ghrelin control</button>
+  <button class="sn" onclick="show('p-leptin',this)">Leptin stability</button>
+  <button class="sn" onclick="show('p-noise',this)">Food noise</button>
+  <button class="sn" onclick="show('p-emotional',this)">Emotional eating</button>
+  <button class="sn" onclick="show('p-protocol',this)">Daily protocol</button>
+  <button class="sn" onclick="show('p-yours',this)">Your profile</button>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     GHRELIN CONTROL
+══════════════════════════════════════════ -->
+<div class="pane active" id="p-ghrelin">
+<div class="dark"><div class="w">
+  <div class="dr" style="margin-top:0;">Ghrelin control <em>— flatten the peaks before they become cravings</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">
+    Ghrelin is the hunger hormone. It rises before meals, peaks at expected eating times, and — critically — can be trained. The goal is not to suppress ghrelin permanently (that is impossible and harmful) but to flatten its peaks so hunger arrives as a mild signal, not a demand.
+  </div>
+
+  <div class="dial-grid" style="margin-bottom:36px;">
+    <div class="dial-cell">
+      <div class="dial-name" style="color:var(--amber);">Ghrelin</div>
+      <div class="dial-role" style="color:var(--amber);">The hunger amplifier</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--jade)"></div> Ideal: low baseline, gentle pre-meal rises, rapid post-meal suppression</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--red)"></div> Problem state: high baseline, sharp unpredictable spikes, slow post-meal suppression</div>
+      <div class="dial-triggers">
+        <div class="dt-label">What drives it up</div>
+        <div class="dt-item"><strong>Caloric restriction</strong> — ghrelin rises and stays elevated during a deficit</div>
+        <div class="dt-item"><strong>Irregular meal timing</strong> — ghrelin is entrained to expected meal times; skipping meals creates a peak without the meal that suppresses it</div>
+        <div class="dt-item"><strong>Poor sleep</strong> — one bad night raises ghrelin measurably; one week of sub-6h raises it significantly</div>
+        <div class="dt-item"><strong>Stress / cortisol</strong> — cortisol and ghrelin are co-activated under psychological stress</div>
+        <div class="dt-item"><strong>Low protein meals</strong> — ghrelin is suppressed more slowly and less completely after low-protein eating</div>
+      </div>
+    </div>
+    <div class="dial-cell">
+      <div class="dial-name" style="color:var(--jade);">What suppresses it</div>
+      <div class="dial-role" style="color:var(--jade);">The control levers</div>
+      <div class="dial-triggers" style="margin-top:0;">
+        <div class="dt-label">Proven suppressors</div>
+        <div class="dt-item"><strong>Protein</strong> — the most powerful food-based ghrelin suppressor. Suppresses ghrelin for 3–5h vs 1.5–2h for equivalent carbs. This is the primary mechanism behind why high-protein eaters are less hungry.</div>
+        <div class="dt-item"><strong>Consistent meal timing</strong> — ghrelin is circadian. Regular meals train the system to produce smaller, more predictable peaks at known times.</div>
+        <div class="dt-item"><strong>Dietary fat with protein</strong> — fat slows gastric emptying, extending the suppression window.</div>
+        <div class="dt-item"><strong>Sleep 7–9h</strong> — the single most powerful overnight ghrelin reset available.</div>
+        <div class="dt-item"><strong>Physical activity</strong> — acute exercise acutely suppresses ghrelin for 1–2h post-session.</div>
+        <div class="dt-item"><strong>Fibre + volume</strong> — gastric stretch receptors send satiety signals independently of hormonal pathways.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ghrelin rhythm chart -->
+  <div class="dr">Ghrelin rhythm — trained vs untrained</div>
+  <div class="rhythm-chart">
+    <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;">Trained (consistent meals + high protein)</div>
+    <div class="rc-row"><div class="rc-time">07:00</div><div class="rc-track"><div class="rc-fill" style="width:40%;background:var(--jade);opacity:0.7;"><span class="rc-fill-text">mild pre-breakfast rise</span></div></div><div class="rc-note">Gentle, predictable</div></div>
+    <div class="rc-row"><div class="rc-time">08:00</div><div class="rc-track"><div class="rc-fill" style="width:12%;background:var(--jade);opacity:0.5;"><span class="rc-fill-text">suppressed</span></div></div><div class="rc-note">Post-meal protein drop</div></div>
+    <div class="rc-row"><div class="rc-time">12:30</div><div class="rc-track"><div class="rc-fill" style="width:38%;background:var(--jade);opacity:0.7;"><span class="rc-fill-text">mild pre-lunch rise</span></div></div><div class="rc-note">Expected, not urgent</div></div>
+    <div class="rc-row"><div class="rc-time">13:30</div><div class="rc-track"><div class="rc-fill" style="width:10%;background:var(--jade);opacity:0.5;"><span class="rc-fill-text">suppressed</span></div></div><div class="rc-note">Flat for 3–4h</div></div>
+    <div class="rc-row"><div class="rc-time">18:30</div><div class="rc-track"><div class="rc-fill" style="width:35%;background:var(--jade);opacity:0.7;"><span class="rc-fill-text">pre-dinner rise</span></div></div><div class="rc-note">Appetite, not hunger</div></div>
+  </div>
+  <div class="rhythm-chart">
+    <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-bottom:10px;">Untrained (irregular meals + low protein)</div>
+    <div class="rc-row"><div class="rc-time">09:00</div><div class="rc-track"><div class="rc-fill" style="width:72%;background:var(--red);opacity:0.6;"><span class="rc-fill-text">skipped breakfast → sharp spike</span></div></div><div class="rc-note">Willpower test</div></div>
+    <div class="rc-row"><div class="rc-time">11:00</div><div class="rc-track"><div class="rc-fill" style="width:55%;background:var(--amber);opacity:0.6;"><span class="rc-fill-text">still elevated — low-protein snack</span></div></div><div class="rc-note">Partial suppression</div></div>
+    <div class="rc-row"><div class="rc-time">14:00</div><div class="rc-track"><div class="rc-fill" style="width:80%;background:var(--red);opacity:0.7;"><span class="rc-fill-text">large spike — ravenous</span></div></div><div class="rc-note">Craving, not hunger</div></div>
+    <div class="rc-row"><div class="rc-time">16:00</div><div class="rc-track"><div class="rc-fill" style="width:65%;background:var(--amber);opacity:0.6;"><span class="rc-fill-text">still elevated after carb snack</span></div></div><div class="rc-note">Low-protein didn't work</div></div>
+    <div class="rc-row"><div class="rc-time">19:30</div><div class="rc-track"><div class="rc-fill" style="width:90%;background:var(--red);opacity:0.75;"><span class="rc-fill-text">evening spike → overeating</span></div></div><div class="rc-note">Inevitable at this point</div></div>
+  </div>
+
+  <div>
+    <div class="stm">
+      <div class="stm-n">1</div>
+      <div class="stm-b">
+        <div class="stm-t">Breakfast within 45–60 minutes of waking — this is a ghrelin management decision, not just nutrition</div>
+        <div class="stm-p">Ghrelin peaks sharply in the morning hour. Eating within the first hour suppresses it before it escalates. <strong>Skipping breakfast doesn't eliminate the ghrelin peak — it lets it rise and stay elevated</strong>, creating the sharp hunger spike at 10–11am that is often interpreted as weakness. The morning protein meal (your oats + whey protocol) is doing two things simultaneously: activating MPS and resetting ghrelin for the day. Neither works if the meal is skipped.</div>
+        <div class="tag t-jade">Eat breakfast · the spike is coming whether you eat or not</div>
+      </div>
+    </div>
+    <div class="stm">
+      <div class="stm-n">2</div>
+      <div class="stm-b">
+        <div class="stm-t">Protein first at every meal — it changes the hormonal response of everything else you eat</div>
+        <div class="stm-p">When you eat protein first, it stimulates GLP-1 and PYY (satiety hormones) and begins suppressing ghrelin before the rest of the meal is consumed. <strong>Starting a meal with carbohydrates produces a faster ghrelin suppression followed by a faster return to baseline — making you hungry again sooner.</strong> The simple habit of eating protein before carbohydrates within each meal measurably extends satiety. Eggs before toast. Chicken before rice. Whey shake before banana. The sequence matters.</div>
+        <div class="tag t-jade">Protein → carbs → fat at every meal. Sequence is the mechanism.</div>
+      </div>
+    </div>
+    <div class="stm">
+      <div class="stm-n">3</div>
+      <div class="stm-b">
+        <div class="stm-t">The 4-hour meal spacing rule — ghrelin is circadian and can be trained</div>
+        <div class="stm-p">Ghrelin has a learned rhythm. If you eat at 8am, 12pm, and 7pm reliably, ghrelin peaks will shift to anticipate those times. If you eat irregularly, ghrelin peaks randomly — producing unpredictable hunger spikes throughout the day. <strong>Consistent 4-hour meal spacing is not about metabolism — it is about training your ghrelin rhythm to produce gentle, predictable hunger at known times rather than random sharp spikes.</strong> After 10–14 days of consistency, the spikes moderate significantly. This is one of the most powerful and least-known hunger management tools available.</div>
+        <div class="tag t-amber">Consistent timing trains ghrelin · irregular timing creates chaos</div>
+      </div>
+    </div>
+    <div class="stm">
+      <div class="stm-n">4</div>
+      <div class="stm-b">
+        <div class="stm-t">Sleep is the overnight ghrelin reset — the most underused hunger management tool</div>
+        <div class="stm-p">During adequate sleep, ghrelin resets toward baseline. A single poor night (under 6h) raises fasting ghrelin measurably the next day — you wake up genuinely hungrier than you would have been with 8h sleep, and the deficit persists all day. <strong>One week of sub-6h sleep doubles the appetite increase from a caloric deficit.</strong> This is the mechanism behind the experience of "I ate more this week but I was dieting harder" — the sleep deprivation was sabotaging the hormonal environment. Magnesium glycinate before bed and the consistent wake time are both ghrelin management strategies as much as they are sleep optimisation.</div>
+        <div class="tag t-jade">8h sleep = better ghrelin baseline tomorrow than any appetite suppressant</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     LEPTIN STABILITY
+══════════════════════════════════════════ -->
+<div class="pane" id="p-leptin">
+<div class="ink1"><div class="w">
+  <div class="dr" style="margin-top:0;">Leptin stability <em>— keep the governor on</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">
+    Leptin is the metabolic governor. High leptin = permission to burn fat, appetite suppressed, NEAT elevated, energy available. Low leptin = the body believes it is starving — appetite surges, NEAT drops, metabolism slows. Keeping leptin stable is the difference between a diet that feels manageable and one that feels like fighting your own body.
+  </div>
+
+  <div class="dial-grid">
+    <div class="dial-cell">
+      <div class="dial-name" style="color:var(--jade);">Leptin — high</div>
+      <div class="dial-role" style="color:var(--jade);">The good state</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--jade)"></div> Appetite naturally moderate</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--jade)"></div> Energy and motivation elevated</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--jade)"></div> NEAT unconsciously high — you move more without deciding to</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--jade)"></div> Thyroid output normal — cellular metabolism at full rate</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--jade)"></div> Fat oxidation permitted by the hypothalamus</div>
+    </div>
+    <div class="dial-cell">
+      <div class="dial-name" style="color:var(--red);">Leptin — low</div>
+      <div class="dial-role" style="color:var(--red);">The starvation signal</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--red)"></div> Intense, preoccupying hunger — not just appetite</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--red)"></div> Fatigue, low motivation, brain fog</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--red)"></div> NEAT drops — you sit more, fidget less, unconsciously conserve</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--red)"></div> Thyroid output reduced — metabolic rate falls below predicted</div>
+      <div class="dial-ideal"><div class="dial-dot" style="background:var(--red)"></div> Food preoccupation becomes near-constant</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="stm">
+      <div class="stm-n">1</div>
+      <div class="stm-b">
+        <div class="stm-t">Leptin drops faster than fat loss would predict — this is why plateaux feel sudden</div>
+        <div class="stm-p">After just 2 weeks of caloric restriction, leptin can fall 30–50% even when only 1–2% of body fat has been lost. The hypothalamus is responding to the rate of change, not the absolute level. <strong>This is why the second week of a diet is often harder than the first, even though you have more caloric knowledge and habit.</strong> The leptin drop has already begun producing its effects — increased hunger, reduced NEAT, mild fatigue — before any significant fat has been lost. Understanding this removes the self-blame. The biology moved; you did not fail.</div>
+        <div class="tag t-amber">Leptin drops fast · fat loss is slow · the gap is the misery window</div>
+      </div>
+    </div>
+    <div class="stm">
+      <div class="stm-n">2</div>
+      <div class="stm-b">
+        <div class="stm-t">The re-feed is not cheating — it is a leptin reset and should be scheduled</div>
+        <div class="stm-p">A single day at maintenance calories (with full carbohydrate intake) raises leptin significantly within 24–36 hours. The effect is temporary but real: ghrelin drops, appetite moderates, NEAT recovers, motivation returns. <strong>Scheduled re-feeds every 10–14 days during a caloric deficit are not a concession to weakness — they are a hormonal management protocol.</strong> The key word is scheduled. A planned re-feed is fundamentally different from an unplanned loss of control — the psychological relationship with food is different, the guilt is absent, and the biological effect is identical. Plan it. Put it in the calendar. Name it correctly.</div>
+        <div class="tag t-jade">Re-feed day every 10–14 days · schedule it · name it correctly · no guilt</div>
+      </div>
+    </div>
+    <div class="stm">
+      <div class="stm-n">3</div>
+      <div class="stm-b">
+        <div class="stm-t">Omega-3 directly improves leptin sensitivity — the receptor problem, not just the level</div>
+        <div class="stm-p">Leptin resistance — where leptin levels are adequate but the hypothalamic receptor response is blunted — is as problematic as low leptin itself. EPA and DHA (your omega-3 supplement) are incorporated into neuronal cell membranes and improve receptor sensitivity across multiple signalling pathways including leptin. <strong>Your 3g+ EPA/DHA daily is not just joint medicine — it is a direct intervention for leptin receptor sensitivity.</strong> Studies in overweight individuals show omega-3 supplementation improves leptin signalling independent of dietary changes. This is why the anti-inflammatory stack and the hunger management system are the same stack.</div>
+        <div class="tag t-jade">Omega-3 improves leptin receptor sensitivity · already in your stack</div>
+      </div>
+    </div>
+    <div class="stm">
+      <div class="stm-n">4</div>
+      <div class="stm-b">
+        <div class="stm-t">Moderate deficit, not aggressive — the most important parameter for leptin maintenance</div>
+        <div class="stm-p">A 300–400 kcal daily deficit produces a leptin decline of roughly 15–20% over 4 weeks. A 700–800 kcal deficit produces a 35–45% decline over the same period. <strong>The aggressive deficit produces twice the leptin suppression for roughly 1.5× the fat loss.</strong> The trade-off is clear: faster fat loss in exchange for significantly greater hunger, lower NEAT, and higher probability of abandoning the deficit entirely. At advanced training age with lean muscle gain as the primary goal, the moderate approach is not timid — it is the approach that preserves performance, muscle mass, and adherence simultaneously.</div>
+        <div class="tag t-amber">300–400 kcal deficit · leptin drops 15–20% not 40% · the sustainable path</div>
+      </div>
+    </div>
+    <div class="stm">
+      <div class="stm-n">5</div>
+      <div class="stm-b">
+        <div class="stm-t">Resistance training maintains leptin sensitivity better than cardio alone</div>
+        <div class="stm-p">Multiple studies comparing resistance training and aerobic training during a caloric deficit show that resistance training better preserves leptin sensitivity and muscle mass simultaneously. The mechanism involves IGF-1 and testosterone, both of which improve hypothalamic leptin signalling. <strong>Your twice-weekly strength training is, among many other things, actively maintaining the hormonal environment that keeps hunger manageable during any caloric restriction.</strong> The programme serves the hunger management goal directly.</div>
+        <div class="tag t-jade">Resistance training preserves leptin sensitivity · another reason the programme is non-negotiable</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     FOOD NOISE
+══════════════════════════════════════════ -->
+<div class="pane" id="p-noise">
+<div class="paper"><div class="w">
+  <div class="lr" style="margin-top:0;">Food noise <em>— the persistent background hum</em></div>
+  <div class="body-sm" style="color:var(--lt-2);margin-bottom:36px;max-width:640px;">
+    Food noise is the term used to describe the persistent low-level preoccupation with food that some people experience — thinking about the next meal while eating the current one, mental cataloguing of what is available, frequent intrusive thoughts about eating. It is not hunger. It is a distinct phenomenon with specific biological drivers.
+  </div>
+
+  <div class="lc jade" style="margin-bottom:10px;">
+    <div class="lc-eye" style="color:var(--jade);">What food noise actually is</div>
+    <div class="lc-t">Food noise is a dopamine loop, not a hunger signal</div>
+    <div class="lc-body">The brain's reward system — the dopaminergic mesolimbic pathway — treats anticipating food as a reward event independent of physical hunger. <strong>Highly palatable foods (high sugar, high fat, high salt) generate anticipatory dopamine spikes from the mere thought of them.</strong> Once this loop is established, the anticipation itself becomes rewarding, independent of actual hunger state. Food noise is often loudest when stress is high (dopamine seeking as stress relief) or when the diet is too restrictive (the anticipation of restricted foods amplifies their dopamine signal). This is why cutting out all sugar makes you think about sugar constantly — the restriction increases the dopamine anticipation response.</div>
+    <div class="lc-action">Not a character failing · a neurological reward loop. The fix is neurological, not moral.</div>
+  </div>
+
+  <div class="lc amber" style="margin-bottom:10px;">
+    <div class="lc-eye" style="color:var(--amber);">The insulin-glucose connection to food noise</div>
+    <div class="lc-t">Glycaemic instability is the most common driver of mid-morning food obsession</div>
+    <div class="lc-body">When blood glucose rises rapidly (from a high-GI breakfast or a morning pastry) and then falls sharply 90–120 minutes later, the rapid decline triggers a strong cortisol and adrenaline release — the "glucose crash." This produces anxiety, irritability, and a powerful urge to eat that is physiologically identical to stress-driven food seeking. <strong>Most people who report strong mid-morning food cravings are experiencing a glucose crash from their breakfast, not actual hunger.</strong> The fix is not willpower — it is glycaemic stability: the oats + whey + peanut butter breakfast protocol in your programme specifically produces a slow, flat glucose curve precisely because it addresses this mechanism.</div>
+    <div class="lc-action">Slow-carb breakfast + protein + fat → flat glucose curve → food noise quiets by 10am</div>
+  </div>
+
+  <div class="lc amber" style="margin-bottom:10px;">
+    <div class="lc-eye" style="color:var(--amber);">Cognitive bandwidth and food noise</div>
+    <div class="lc-t">Decision fatigue is a real amplifier — tired minds fixate on food</div>
+    <div class="lc-body">Research by Shai Danziger on Israeli parole boards, and multiple subsequent studies, confirms that cognitive resources are depleted across a day of decisions. As the prefrontal cortex fatigues, the reward system becomes more dominant. <strong>Food noise typically peaks mid-afternoon and in the evening precisely because this is when cognitive resources are lowest and the dopamine reward system most easily captures attention.</strong> The practical implication: reduce food-related decisions through structure (fixed meal times, fixed meal architecture) so that cognitive bandwidth is not spent on food thinking. The shopping kit, the meal structure, the recipe system — all reduce decision load and indirectly reduce food noise.</div>
+    <div class="lc-action">Fixed meal times + fixed meal structure = fewer food decisions = quieter food noise</div>
+  </div>
+
+  <div class="lc jade" style="margin-bottom:28px;">
+    <div class="lc-eye" style="color:var(--jade);">The protein satiation signal and food noise</div>
+    <div class="lc-t">High protein meals produce the longest quiet periods between meals</div>
+    <div class="lc-body">Protein stimulates PYY and GLP-1 — two gut peptides that signal the hypothalamus directly to suppress appetite and reduce food salience (the degree to which food-related stimuli capture attention). <strong>After a high-protein meal, the brain's response to food cues is measurably blunted — you see food and are less captured by it.</strong> After a high-carbohydrate low-protein meal, food salience returns faster. This is a direct neurological mechanism: protein quiets the food noise at the level of brain response, not just stomach fullness. The leucine-rich protein meals in your programme (chicken, eggs, Greek yoghurt) are doing this at every sitting.</div>
+    <div class="lc-action">185g protein across 4 meals = longest possible quiet periods · protein is a neurological tool, not just a muscle tool</div>
+  </div>
+
+  <!-- Noise-busting tools -->
+  <div class="lr">The five tools that quiet food noise</div>
+
+  <div class="lc jade"><div class="lc-eye" style="color:var(--jade);">Tool 1</div><div class="lc-t">The 20-minute rule — most food noise resolves without food</div><div class="lc-body">A food thought or mild craving that is not meal-adjacent will typically resolve within 20 minutes without intervention if you do not act on it. <strong>Acting on it immediately reinforces the neural loop; delaying breaks it.</strong> The practical rule: if you notice food noise outside of a meal window, note it and set a 20-minute timer. In the majority of cases, the urge is gone before the timer. When it persists at 20 minutes, it is likely genuine hunger — and eating is the appropriate response.</div></div>
+
+  <div class="lc amber"><div class="lc-eye" style="color:var(--amber);">Tool 2</div><div class="lc-t">Protein snack over sugar snack — neurologically different outcomes</div><div class="lc-body">When genuine between-meal hunger does occur, the snack choice determines what happens next. A high-sugar snack (biscuit, fruit juice, cereal bar) produces a rapid dopamine spike and a rapid return of appetite — reinforcing the snack-seeking loop. <strong>A high-protein snack (Greek yoghurt, cottage cheese, a boiled egg) suppresses ghrelin for 2–3 hours and produces no dopamine spike</strong> — breaking the reward loop rather than feeding it. The Greek yoghurt + walnuts + blueberries combination is not just nutritionally optimal; it is neurologically designed to close the food noise loop rather than feed it.</div></div>
+
+  <div class="lc jade"><div class="lc-eye" style="color:var(--jade);">Tool 3</div><div class="lc-t">Planned flexibility — the one-rule Sunday removes the dopamine of restriction</div><div class="lc-body">Highly restricted diets paradoxically increase food noise because the dopamine anticipation of forbidden foods amplifies when access is denied. <strong>The Sunday one-rule protocol (protein target maintained, everything else flexible) specifically prevents the food restriction that fuels the anticipatory dopamine loop.</strong> When you know you can eat whatever you want on Sunday within one parameter, the forbidden-food dopamine response disappears. There is no forbidden food — only Sunday food. This is not a psychological trick. It is a genuine neurochemical intervention.</div></div>
+
+  <div class="lc amber"><div class="lc-eye" style="color:var(--amber);">Tool 4</div><div class="lc-t">Hydration and food noise — frequently conflated signals</div><div class="lc-body">Mild dehydration produces sensations that are processed in adjacent hypothalamic regions to hunger — and are frequently misinterpreted as food desire. <strong>Drinking 400–500ml of water when food noise appears, before acting on it, resolves the signal in a significant proportion of cases.</strong> This is not the mystical "drink water instead of eating" advice — it is a specific neurological reality: thirst and hunger signals overlap and dehydration amplifies food salience. The morning 500ml water protocol in your programme serves this function, among others.</div></div>
+
+  <div class="lc jade"><div class="lc-eye" style="color:var(--jade);">Tool 5</div><div class="lc-t">Physical activity acutely suppresses food noise — use training as a reset</div><div class="lc-body">Exercise — even a 10-minute walk — acutely suppresses ghrelin, reduces cortisol, and produces endorphins that compete with the reward-seeking that drives food noise. <strong>The mid-afternoon food noise peak (2–4pm) is the ideal target for a brief walk, a set of press-ups, or any physical movement that shifts neurochemistry.</strong> This is mechanistically distinct from "exercise to earn food" — it is using the post-exercise neurochemical state to reset the reward-seeking drive that is feeding the food noise loop.</div></div>
+
+</div></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     EMOTIONAL EATING
+══════════════════════════════════════════ -->
+<div class="pane" id="p-emotional">
+<div class="dark"><div class="w">
+  <div class="dr" style="margin-top:0;">Emotional eating <em>— the biology behind it, and how to interrupt it</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">
+    Emotional eating is not a character flaw or a failure of discipline. It is a conditioned neurological response where a specific emotional state has been paired with food consumption through repeated experience. Understanding the mechanism converts it from a moral failing to a habit loop with specific interruption points.
+  </div>
+
+  <div class="stm">
+    <div class="stm-n">1</div>
+    <div class="stm-b">
+      <div class="stm-t">The emotional eating loop — three components, each an interruption point</div>
+      <div class="stm-p">The research on habitual eating (Woods, Dallman, Berridge) identifies a consistent three-part loop: <strong>Trigger (emotional state) → Cue (food-related stimuli) → Response (eating) → Relief (temporary cortisol reduction) → Reinforcement.</strong> The relief is real. Eating high-calorie food under stress genuinely reduces cortisol temporarily through opioid receptor activation. This is not imagined — the biology is doing what it evolved to do. But each cycle strengthens the loop. The interruption can happen at any of the three components: managing the trigger (stress reduction), disrupting the cue (environment redesign), or replacing the response (competing behaviour).</div>
+      <div class="tag t-amber">The loop: trigger → cue → response → relief → reinforcement. Any link can be broken.</div>
+    </div>
+  </div>
+
+  <div class="dr" style="margin-top:40px;">Trigger map — the biology behind each emotional eating state</div>
+  <div style="border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:32px;">
+    <div class="trigger-row header">
+      <div class="tr-cell">Emotional trigger</div>
+      <div class="tr-cell">Biological mechanism</div>
+      <div class="tr-cell">Interruption strategy</div>
+    </div>
+    <div class="trigger-row">
+      <div class="tr-cell"><div class="tr-trigger">Acute stress</div></div>
+      <div class="tr-cell"><div class="tr-bio">Cortisol activates CRH (corticotropin-releasing hormone) in the hypothalamus, which drives reward-seeking behaviour. <strong>High-calorie food genuinely reduces cortisol</strong> via opioid receptor activation — the relief is real, which is why the loop is hard to break.</div></div>
+      <div class="tr-cell"><div class="tr-interrupt">Physical movement (10-min walk, 5 press-ups) produces endorphins that compete with food for the cortisol relief mechanism. Apply before the eating response, not after. The 20-minute delay rule works well here.</div></div>
+    </div>
+    <div class="trigger-row">
+      <div class="tr-cell"><div class="tr-trigger">Boredom</div></div>
+      <div class="tr-cell"><div class="tr-bio">Low dopamine state. The brain seeks stimulation. Food — particularly high-sugar/high-fat — produces a fast dopamine spike that temporarily resolves the low arousal. <strong>Boredom eating is the brain self-medicating with the most accessible fast dopamine source it has identified.</strong></div></div>
+      <div class="tr-cell"><div class="tr-interrupt">Identify the actual boredom source and address it directly. Alternatively: protein-only snack (no dopamine spike, hunger resolved) + deliberate engagement with a non-food activity. Removing easy food access during low-stimulation periods eliminates the cue.</div></div>
+    </div>
+    <div class="trigger-row">
+      <div class="tr-cell"><div class="tr-trigger">Fatigue</div></div>
+      <div class="tr-cell"><div class="tr-bio">Sleep deprivation and fatigue increase ghrelin, reduce PYY (satiety), and specifically increase cravings for high-calorie foods — the research shows a preference for sweet and salty foods under fatigue. <strong>The tired brain is actively seeking calorie-dense foods as an energy compensation mechanism.</strong></div></div>
+      <div class="tr-cell"><div class="tr-interrupt">The correct intervention is sleep or a brief rest, not food. A 20-minute nap produces more net energy than any food-based energy response. If eating must occur: protein-rich, high-volume, low-GI food manages hunger without the blood glucose crash that worsens fatigue.</div></div>
+    </div>
+    <div class="trigger-row">
+      <div class="tr-cell"><div class="tr-trigger">Reward / celebration</div></div>
+      <div class="tr-cell"><div class="tr-bio">The brain pairs positive emotional states with food as reliably as negative ones. The "I deserve this" response to achievement is a dopamine-food pairing established through cultural conditioning and direct neurological reward. <strong>Celebrating with food is neurologically identical to stress-eating — both pair an emotional state with food to reinforce the loop.</strong></div></div>
+      <div class="tr-cell"><div class="tr-interrupt">Non-food reward practices (specific to you) break this pairing over time. The Sunday protocol already partially addresses this — the flexibility is built in as a legitimate structure rather than a response to emotional state.</div></div>
+    </div>
+    <div class="trigger-row">
+      <div class="tr-cell"><div class="tr-trigger">Social pressure</div></div>
+      <div class="tr-cell"><div class="tr-bio">The drive to conform to group eating behaviour is hardwired. <strong>Research shows people eat 35% more in social groups than alone</strong>, driven by social mirroring, reduced attention to internal satiety cues, and extended meal duration. This is not weakness — it is a deeply conserved social bonding mechanism.</div></div>
+      <div class="tr-cell"><div class="tr-interrupt">The 80% rule at restaurants. Eating protein first — the social meal is still enjoyable but the appetite management starts before the social influence amplifies intake. Being the last person to start eating slows pace and reduces total consumption.</div></div>
+    </div>
+  </div>
+
+  <div class="stm">
+    <div class="stm-n">2</div>
+    <div class="stm-b">
+      <div class="stm-t">The pause — the single most effective intervention point for emotional eating</div>
+      <div class="stm-p">The emotional eating response typically moves from trigger to food within 2–5 minutes. Introducing a mandatory pause of any length interrupts the automaticity of the loop. The pause does not need to be long. <strong>A single slow breath, a 5-second delay before opening the fridge, a brief walk to another room — any action that introduces conscious awareness between the trigger and the response gives the prefrontal cortex a chance to re-engage.</strong> The research on habit interruption (Wood & Neal) is consistent: automatic behaviours are disrupted by any change in the habitual context, no matter how small. The pause is not about willpower — it is about inserting a context change that breaks the automatic execution of the loop.</div>
+      <div class="tag t-jade">5 seconds between trigger and response. That gap is where the decision lives.</div>
+    </div>
+  </div>
+
+  <div class="stm">
+    <div class="stm-n">3</div>
+    <div class="stm-b">
+      <div class="stm-t">Ashwagandha and cortisol — your stack is already managing the primary emotional eating driver</div>
+      <div class="stm-p">The most common driver of emotional eating is cortisol-driven reward seeking. Ashwagandha (KSM-66, 600mg) reduces cortisol by 25–30% in multiple RCTs — directly reducing the primary neurochemical driver of stress-related food seeking. <strong>You are already medicating the root cause of your most likely emotional eating trigger every day.</strong> This is not incidental. The combination of Ashwagandha reducing cortisol, magnesium glycinate improving sleep quality (which reduces ghrelin and cortisol together), and consistent meal timing stabilising ghrelin creates a biological environment that is substantially more resistant to emotional eating than a person without these interventions.</div>
+      <div class="tag t-jade">Ashwagandha → –25% cortisol → reduced primary emotional eating trigger. Already in place.</div>
+    </div>
+  </div>
+
+</div></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     DAILY PROTOCOL
+══════════════════════════════════════════ -->
+<div class="pane" id="p-protocol">
+<div class="ink1"><div class="w">
+  <div class="dr" style="margin-top:0;">The daily operating system <em>— keeping everything in balance</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">
+    Balance is not a feeling. It is a hormonal state maintained through specific daily actions. This is the operating system — what to do each day, in sequence, to keep ghrelin flat, leptin stable, food noise quiet, and the emotional eating loop dormant.
+  </div>
+
+  <!-- DOS timeline -->
+  <div style="border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:36px;">
+    <div class="dos-row" style="background:var(--ink-2);">
+      <div class="dos-time" style="color:var(--jade);">Wake</div>
+      <div class="dos-body">
+        <div class="dos-title">500ml water immediately · Delay coffee 60–90 min</div>
+        <div class="dos-text">Hydration before cortisol awakening response peaks. Delaying coffee until the natural cortisol peak has passed maximises caffeine's suppression of ghrelin rather than doubling it with an already-high cortisol state. <strong>These two acts in the first 5 minutes of the day set the hormonal tone for the next 4 hours.</strong></div>
+        <div class="dos-tags"><span class="dos-tag pill-jade" style="font-size:9px;">Ghrelin↓</span><span class="dos-tag pill-amber" style="font-size:9px;">Cortisol rhythm</span></div>
+      </div>
+    </div>
+    <div class="dos-row">
+      <div class="dos-time">+30–45 min</div>
+      <div class="dos-body">
+        <div class="dos-title">Protein-first breakfast · Slow carbs · Fat</div>
+        <div class="dos-text">Eat within 45–60 minutes of waking to catch the rising ghrelin peak before it escalates. Protein first (whey, eggs). Slow carbs (oats) not fast. Fat (peanut butter) for gastric slowing. <strong>This meal determines ghrelin's behaviour for the next 4 hours and glycaemic stability for 3.</strong></div>
+        <div class="dos-tags"><span class="dos-tag pill-jade" style="font-size:9px;">Ghrelin↓</span><span class="dos-tag pill-jade" style="font-size:9px;">Glucose stable</span><span class="dos-tag pill-jade" style="font-size:9px;">MPS activated</span></div>
+      </div>
+    </div>
+    <div class="dos-row" style="background:var(--ink-2);">
+      <div class="dos-time">Mid-morning</div>
+      <div class="dos-body">
+        <div class="dos-title">If food noise appears — 20-minute rule first</div>
+        <div class="dos-text">If a food thought or mild craving arises before the next meal window, apply the 20-minute rule: delay and redirect. The slow-carb breakfast should have prevented this. <strong>If food noise is consistently loud mid-morning, the breakfast needs more protein or more fat — not a different snack strategy.</strong></div>
+        <div class="dos-tags"><span class="dos-tag pill-amber" style="font-size:9px;">Food noise</span></div>
+      </div>
+    </div>
+    <div class="dos-row">
+      <div class="dos-time">Training (if training day)</div>
+      <div class="dos-body">
+        <div class="dos-title">Pre-training meal · collagen · supplements</div>
+        <div class="dos-text">Pre-training meal suppresses ghrelin going into the session. <strong>Post-training is the most anabolic window for food — the 30-minute whey rule is both a muscle and a hunger management decision.</strong> Missing the post-training protein window creates a ghrelin rebound that produces disproportionate hunger later in the day.</div>
+        <div class="dos-tags"><span class="dos-tag pill-jade" style="font-size:9px;">Ghrelin managed</span><span class="dos-tag pill-jade" style="font-size:9px;">MPS peak</span></div>
+      </div>
+    </div>
+    <div class="dos-row" style="background:var(--ink-2);">
+      <div class="dos-time">14:00–15:00</div>
+      <div class="dos-body">
+        <div class="dos-title">Identify the afternoon dip — food vs fatigue vs boredom</div>
+        <div class="dos-text">The circadian energy dip and decision fatigue peak coincide here. Food noise is typically loudest. <strong>Before eating: diagnose the signal.</strong> Is this: (a) genuine 4-hour post-meal hunger — eat protein snack; (b) glucose crash from lunch — fix tomorrow's lunch, eat protein; (c) fatigue — 20-minute rest if possible; (d) boredom or stress — 10-minute walk, then reassess. The diagnosis changes the response.</div>
+        <div class="dos-tags"><span class="dos-tag pill-amber" style="font-size:9px;">Diagnose first</span><span class="dos-tag pill-amber" style="font-size:9px;">Food noise peak</span></div>
+      </div>
+    </div>
+    <div class="dos-row">
+      <div class="dos-time">Evening meal</div>
+      <div class="dos-body">
+        <div class="dos-title">Main protein hit · carbs appropriate to day type · eat slowly</div>
+        <div class="dos-text">If the day has been managed correctly, dinner should arrive as appetite, not desperation. Ravenous evening appetite is a diagnostic signal: either a meal was missed, protein was insufficient at lunch, the afternoon snack was wrong, or sleep was inadequate last night. <strong>Eating slowly (protein first, then the rest) means satiety hormones begin signalling before the meal is complete — allowing natural stopping before overeating.</strong></div>
+        <div class="dos-tags"><span class="dos-tag pill-jade" style="font-size:9px;">Satiety</span><span class="dos-tag pill-amber" style="font-size:9px;">Slow eating</span></div>
+      </div>
+    </div>
+    <div class="dos-row" style="background:var(--ink-2);">
+      <div class="dos-time">Pre-sleep</div>
+      <div class="dos-body">
+        <div class="dos-title">Casein snack optional · Magnesium glycinate · No screens 30 min</div>
+        <div class="dos-text">Cottage cheese or Greek yoghurt if genuinely hungry (casein suppresses overnight ghrelin rise). Magnesium glycinate deepens slow-wave sleep — the overnight ghrelin reset window. <strong>No screens 30 min before bed is not sleep hygiene advice — it is a ghrelin management intervention.</strong> Blue light suppresses melatonin, disrupts sleep architecture, and directly elevates next-morning ghrelin.</div>
+        <div class="dos-tags"><span class="dos-tag pill-jade" style="font-size:9px;">Overnight ghrelin reset</span><span class="dos-tag pill-jade" style="font-size:9px;">Leptin recovery</span></div>
+      </div>
+    </div>
+    <div class="dos-row">
+      <div class="dos-time">Sleep 8h</div>
+      <div class="dos-body">
+        <div class="dos-title">The most important hunger management tool of the day — the reset</div>
+        <div class="dos-text"><strong>8 hours of sleep resets ghrelin, stabilises leptin, reduces cortisol, and restores the prefrontal cortex function that manages food impulses.</strong> Everything else on this list is secondary to this. A day with excellent nutrition but 5 hours of sleep will produce more food noise, more emotional eating vulnerability, and more hunger than a day with mediocre nutrition and 8 hours of sleep. Sleep is not recovery from the day's decisions. It is the mechanism that makes tomorrow's decisions possible.</div>
+        <div class="dos-tags"><span class="dos-tag pill-jade" style="font-size:9px;">Ghrelin reset</span><span class="dos-tag pill-jade" style="font-size:9px;">Leptin recovery</span><span class="dos-tag pill-jade" style="font-size:9px;">Cortisol normalised</span><span class="dos-tag pill-jade" style="font-size:9px;">PFC restored</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The non-negotiable 5 -->
+  <div class="dr">The non-negotiable five <em>— if only five things, these</em></div>
+  <div class="protocol-grid">
+    <div class="pg-cell highlight">
+      <div class="pg-label">01 · Most important</div>
+      <div class="pg-title">185g protein daily</div>
+      <div class="pg-body"><strong>Suppresses ghrelin longest, quiets food noise neurologically, preserves muscle, and requires the most cognitive energy to abandon.</strong> If only one thing survives a chaotic week, make it protein.</div>
+    </div>
+    <div class="pg-cell">
+      <div class="pg-label">02</div>
+      <div class="pg-title">8h sleep</div>
+      <div class="pg-body">The overnight reset for every hunger hormone simultaneously. One bad night doubles the difficulty of every other strategy on this list.</div>
+    </div>
+    <div class="pg-cell">
+      <div class="pg-label">03</div>
+      <div class="pg-title">Fixed meal timing</div>
+      <div class="pg-body">Trains ghrelin rhythm. Removes daily food decisions. Eliminates the decision fatigue that creates afternoon food noise. 3–4 meals at consistent times.</div>
+    </div>
+    <div class="pg-cell">
+      <div class="pg-label">04</div>
+      <div class="pg-title">Sunday flexibility</div>
+      <div class="pg-body">Removes the restriction-induced dopamine amplification of forbidden foods. One rule (protein), everything else yours. Planned, not reactive. No guilt by design.</div>
+    </div>
+    <div class="pg-cell" style="grid-column:1/-1;background:rgba(0,200,160,0.04);border-top:1px solid var(--jade-br);">
+      <div class="pg-label" style="color:var(--jade);">05 · The catch-all</div>
+      <div class="pg-title">Diagnose before responding</div>
+      <div class="pg-body">Before eating anything outside of a scheduled meal: <strong>Is this hunger (genuine ghrelin signal, 4h+ since eating), appetite (food salience, cue-driven), or emotion (stress, boredom, fatigue, reward)?</strong> The answer changes what you do. Hunger gets food — specifically protein. Appetite gets the 20-minute rule. Emotion gets movement, rest, or water first. This single diagnostic habit, applied consistently, disrupts more food noise and emotional eating than any specific dietary rule.</div>
+    </div>
+  </div>
+
+</div></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     YOUR PROFILE
+══════════════════════════════════════════ -->
+<div class="pane" id="p-yours">
+<div class="dark"><div class="w">
+  <div class="dr" style="margin-top:0;">Your profile <em>— how the balance system applies to you specifically</em></div>
+  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:640px;">You are in a lean surplus, not a deficit. But the hunger and balance system matters now for two reasons: it determines the quality of your current programme execution, and it is the architecture you will use when a future cut arrives.</div>
+
+  <div class="your" style="margin-bottom:14px;">
+    <div class="your-t">You are running a near-optimal hunger management system right now</div>
+    <div class="your-b">The programme is already, deliberately, a hunger management system as much as a training programme. <strong>185g protein daily</strong> — the strongest ghrelin suppressor available. <strong>Four structured meals</strong> — trains ghrelin rhythm, removes daily decisions. <strong>Magnesium glycinate before bed</strong> — overnight ghrelin reset. <strong>Ashwagandha 600mg</strong> — reduces cortisol by 25–30%, the primary emotional eating driver. <strong>Omega-3 3g+ EPA/DHA</strong> — improves leptin receptor sensitivity. <strong>8h sleep target</strong> — the single most important lever for every hormone simultaneously. <strong>Sunday flexibility protocol</strong> — removes the restriction-dopamine loop. The supplement stack and the programme structure are the same system as the hunger management system. They were designed together.</div>
+  </div>
+
+  <div class="sc jade" style="margin-bottom:10px;">
+    <div class="sc-eye" style="color:var(--jade);">Most likely hunger vulnerability for your profile</div>
+    <div class="sc-t">The post-Wednesday afternoon window</div>
+    <div class="sc-body">Wednesday is a hard training day (pull session) followed by Thursday rest and the build to Friday's posterior chain session. <strong>Wednesday afternoon and evening are the highest cortisol and most depleted cognitive state of the week.</strong> This is when food noise is most likely and when emotional eating vulnerability is highest. The Thursday protocol specifically addresses this — the carb load at Thursday lunch is both glycogen preparation for Friday and a deliberate leptin management tool that resets the hormonal state going into the week's most important session.</div>
+    <div class="sc-action">Wednesday evening: protein-first dinner, deliberate early bed, Ashwagandha. Thursday lunch: carb load. This sequence is the hunger defence for the most vulnerable window of your week.</div>
+  </div>
+
+  <div class="sc amber" style="margin-bottom:10px;">
+    <div class="sc-eye" style="color:var(--amber);">The oat milk flat whites — balanced assessment</div>
+    <div class="sc-t">Fine — with one timing consideration</div>
+    <div class="sc-body">Two oat milk flat whites within the morning protocol: approximately 200mg caffeine, 120–140 kcal, 14g carbs per cup. <strong>The caffeine acutely suppresses ghrelin for 1–2 hours — a genuine hunger management benefit.</strong> The oat milk carbohydrates sit comfortably in the morning macro targets. The one consideration: if consumed immediately on waking (before the cortisol awakening response has peaked and begun falling), the caffeine lands during the natural cortisol high — producing faster tolerance and potentially amplifying the mid-morning cortisol drop that drives food noise. Moving both coffees 60–90 minutes post-wake times the caffeine peak to the training preparation window instead.</div>
+    <div class="sc-action amber-a">Both coffees fine · timing matters more than existence · move them 60–90 min post-wake if food noise is consistent mid-morning</div>
+  </div>
+
+  <div class="sc jade" style="margin-bottom:10px;">
+    <div class="sc-eye" style="color:var(--jade);">The future cut — what the balance system looks like then</div>
+    <div class="sc-t">The programme already contains everything you need</div>
+    <div class="sc-body">When the eventual cut arrives (post-week 12, after a maintenance reset period), the hunger management system intensifies but the tools are identical. The only additions: <strong>scheduled re-feed every 10–14 days</strong> (leptin reset), <strong>protein increases to 200–210g</strong> (higher ghrelin suppression during deficit), <strong>volume eating maximised</strong> (unlimited vegetables for gastric stretch), and <strong>the diagnostic habit before every non-meal eating event</strong>. The Sunday flexibility protocol stays. Meal timing stays consistent. Sleep becomes even more non-negotiable. The difference between a successful cut and a failed one is almost entirely determined by these systems being in place before the deficit begins — not improvised during it.</div>
+    <div class="sc-action">Post-12 weeks: maintenance reset (4–6 weeks), then 300–400 kcal deficit with this system active. The cut is a gear change, not a different vehicle.</div>
+  </div>
+
+  <!-- Quick reference checks -->
+  <div class="dr" style="margin-top:40px;">Quick reference — diagnose what is happening</div>
+  <div style="border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:40px;">
+    <div class="check-row" style="padding:14px 20px;border-bottom:1px solid var(--bd);background:var(--ink-2);">
+      <div class="check-icon" style="font-size:16px;">🔴</div>
+      <div class="check-body"><div class="check-t" style="color:var(--red);">Ravenous between meals (under 3h after eating)</div><div class="check-b">Protein was insufficient at the last meal. <strong>The meal did not clear the leucine threshold or produce adequate PYY/GLP-1 suppression.</strong> Fix: add protein to the preceding meal, not a snack.</div></div>
+    </div>
+    <div class="check-row" style="padding:14px 20px;border-bottom:1px solid var(--bd);">
+      <div class="check-icon">🔴</div>
+      <div class="check-body"><div class="check-t" style="color:var(--red);">Strong mid-morning cravings</div><div class="check-b">Glucose crash from breakfast. <strong>Breakfast was too high-GI or too low-protein.</strong> Fix: more protein and slow carbs at breakfast (oats + whey + fat), not more snacks.</div></div>
+    </div>
+    <div class="check-row" style="padding:14px 20px;border-bottom:1px solid var(--bd);background:var(--ink-2);">
+      <div class="check-icon">🟡</div>
+      <div class="check-body"><div class="check-t" style="color:var(--amber);">Food noise loud in the afternoon</div><div class="check-b">Decision fatigue and circadian dip coinciding. <strong>Apply 20-minute rule. If still present: protein snack only, then move.</strong> Often resolves with a 10-minute walk.</div></div>
+    </div>
+    <div class="check-row" style="padding:14px 20px;border-bottom:1px solid var(--bd);">
+      <div class="check-icon">🟡</div>
+      <div class="check-body"><div class="check-t" style="color:var(--amber);">Eating more but still hungry</div><div class="check-b">Almost always: sleep is inadequate (ghrelin high), protein is insufficient (ghrelin not suppressed), or caloric deficit too aggressive (adaptive thermogenesis + ghrelin elevation). <strong>Check sleep first. Check protein second. Check deficit third.</strong></div></div>
+    </div>
+    <div class="check-row" style="padding:14px 20px;border-bottom:1px solid var(--bd);background:var(--ink-2);">
+      <div class="check-icon">🟡</div>
+      <div class="check-body"><div class="check-t" style="color:var(--amber);">Eating under stress without wanting to</div><div class="check-b">Cortisol-ghrelin co-activation. The loop is running. <strong>Insert a pause. Physical movement first.</strong> If Ashwagandha is missed today, that is part of the mechanism. Address the stress source where possible — stress management is hunger management.</div></div>
+    </div>
+    <div class="check-row" style="padding:14px 20px;border-bottom:1px solid var(--bd);">
+      <div class="check-icon">🔴</div>
+      <div class="check-body"><div class="check-t" style="color:var(--red);">Ravenous at dinner every evening</div><div class="check-b">Consistently indicates: protein targets not being hit during the day, and/or sleep quality is poor (elevated ghrelin throughout the day). <strong>Track protein for 3 days.</strong> The evening ravenousness is the consequence of the day's hormonal management, not a standalone event.</div></div>
+    </div>
+    <div class="check-row" style="padding:14px 20px;background:var(--ink-2);">
+      <div class="check-icon">🟢</div>
+      <div class="check-body"><div class="check-t" style="color:var(--jade);">What the balanced state feels like</div><div class="check-b"><strong>Hunger arrives gently 3–4h after meals. Appetite is appetite — a mild signal, not a demand.</strong> Food noise is quiet between meals. Evenings are satisfied, not desperate. You can make food decisions without them feeling weighted. Sunday gives you whatever you want within one parameter — and you don't need more than that. This is the operational goal. It is achievable and it is maintained by this system.</div></div>
+    </div>
+  </div>
+
+</div></div>
+</div>
+
+<div class="page-end"></div>
+
+<script src="nav.js"></script>
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  document.querySelector('.sec-nav').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+<script>
+(function(){
+  try {
+    const p = localStorage.getItem('bl_profile');
+    if (p) {
+      const profile = JSON.parse(p);
+      const el = document.getElementById('nav-meta');
+      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
+    }
+  } catch(e){}
+})();
+</script>
+</body>
+</html>
