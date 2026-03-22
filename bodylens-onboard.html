@@ -845,38 +845,97 @@
             style="margin-top:8px;resize:none;"></textarea>
         </div>
 
-        <div class="ob2-q">
-          <div class="ob2-q-label">Sleep & alcohol</div>
-          <div class="ob2-q-sub" style="margin-bottom:14px;">Hours of sleep per night</div>
-          <div class="ob2-chips" style="margin-bottom:20px;">
+                <div class="ob2-q">
+          <div class="ob2-q-label">How much do you sleep?</div>
+          <div class="ob2-q-sub">Typical night — not best case</div>
+          <div class="ob2-chips">
             <div class="ob2-chip single" data-group="sleep" data-val="Under 6 hours" onclick="selectSingle(this)">Under 6h</div>
             <div class="ob2-chip single" data-group="sleep" data-val="6-7 hours" onclick="selectSingle(this)">6–7h</div>
             <div class="ob2-chip single" data-group="sleep" data-val="7-8 hours" onclick="selectSingle(this)">7–8h</div>
             <div class="ob2-chip single" data-group="sleep" data-val="8+ hours" onclick="selectSingle(this)">8h+</div>
           </div>
-          <div class="ob2-q-sub">Alcohol</div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">What time do you go to bed?</div>
+          <div class="ob2-q-sub">Usual time lights out — shapes your supplement timing and circadian rhythm</div>
           <div class="ob2-chips">
-            <div class="ob2-chip single" data-group="alcohol" data-val="I don't drink" onclick="selectSingle(this)">I don't drink</div>
-            <div class="ob2-chip single" data-group="alcohol" data-val="Rarely — special occasions" onclick="selectSingle(this)">Rarely</div>
-            <div class="ob2-chip single" data-group="alcohol" data-val="1-2 drinks a week" onclick="selectSingle(this)">1–2/week</div>
-            <div class="ob2-chip single" data-group="alcohol" data-val="Social — mainly weekends" onclick="selectSingle(this)">Weekends</div>
+            <div class="ob2-chip single" data-group="bedtime" data-val="Before 10pm" onclick="selectSingle(this)">Before 10pm</div>
+            <div class="ob2-chip single" data-group="bedtime" data-val="10–11pm" onclick="selectSingle(this)">10–11pm</div>
+            <div class="ob2-chip single" data-group="bedtime" data-val="11pm–midnight" onclick="selectSingle(this)">11pm–midnight</div>
+            <div class="ob2-chip single" data-group="bedtime" data-val="After midnight" onclick="selectSingle(this)">After midnight</div>
+            <div class="ob2-chip single" data-group="bedtime" data-val="Varies a lot" onclick="selectSingle(this)">Varies — no set time</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Sleep quality</div>
+          <div class="ob2-q-sub">How do you actually feel when you wake?</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="sleepquality" data-val="I sleep well — rarely wake, feel rested" onclick="selectSingle(this)">Sleep well, feel rested</div>
+            <div class="ob2-chip single" data-group="sleepquality" data-val="I wake in the night but generally okay" onclick="selectSingle(this)">Sometimes wake at night</div>
+            <div class="ob2-chip single" data-group="sleepquality" data-val="Light sleeper — easily disturbed, rarely feel fully rested" onclick="selectSingle(this)">Light sleeper, rarely rested</div>
+            <div class="ob2-chip single" data-group="sleepquality" data-val="Significant sleep issues — insomnia or very poor quality" onclick="selectSingle(this)">Real sleep problems</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Eating window</div>
+          <div class="ob2-q-sub">If you fast — what's your actual window? e.g. 12:00–20:00</div>
+          <input class="ob2-input" id="f-eatwin" type="text" placeholder="e.g. 12:00–20:00 or leave blank if not fasting">
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Alcohol</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="alcohol" data-val="I don't drink" onclick="selectSingle(this)">Don't drink</div>
+            <div class="ob2-chip single" data-group="alcohol" data-val="Rarely — a few times a year" onclick="selectSingle(this)">Rarely</div>
+            <div class="ob2-chip single" data-group="alcohol" data-val="Social weekends — 1 to 4 units" onclick="selectSingle(this)">Social weekends</div>
+            <div class="ob2-chip single" data-group="alcohol" data-val="A few nights a week — moderate" onclick="selectSingle(this)">Few nights a week</div>
             <div class="ob2-chip single" data-group="alcohol" data-val="Several nights a week" onclick="selectSingle(this)">Several nights</div>
           </div>
         </div>
 
-        <div class="ob2-q" id="cycle-question" style="display:none;">
-          <div class="ob2-q-label">Your menstrual cycle</div>
-          <div class="ob2-q-sub">Helps us apply hormonal periodisation — heavier training when oestrogen peaks, more recovery when progesterone dominates</div>
+        <div class="ob2-q">
+          <div class="ob2-q-label">Stress level</div>
+          <div class="ob2-q-sub">Shapes cortisol, recovery, and how aggressive your programme should be</div>
           <div class="ob2-chips">
-            <div class="ob2-chip single" data-group="cycle" data-val="Regular cycle — happy to track" onclick="selectSingle(this)">Regular cycle — happy to track it</div>
-            <div class="ob2-chip single" data-group="cycle" data-val="Regular cycle — prefer not to track" onclick="selectSingle(this)">Regular — but I'd rather not track</div>
-            <div class="ob2-chip single" data-group="cycle" data-val="Irregular cycle" onclick="selectSingle(this)">Irregular cycle</div>
-            <div class="ob2-chip single" data-group="cycle" data-val="On hormonal contraception" onclick="selectSingle(this)">On hormonal contraception</div>
-            <div class="ob2-chip single" data-group="cycle" data-val="Post-menopausal" onclick="selectSingle(this)">Post-menopausal</div>
+            <div class="ob2-chip single" data-group="stress" data-val="Low — life feels manageable" onclick="selectSingle(this)">Low — manageable</div>
+            <div class="ob2-chip single" data-group="stress" data-val="Moderate — some pressure but coping well" onclick="selectSingle(this)">Moderate</div>
+            <div class="ob2-chip single" data-group="stress" data-val="High — consistently under pressure" onclick="selectSingle(this)">High — consistently under pressure</div>
+            <div class="ob2-chip single" data-group="stress" data-val="Very high — struggling" onclick="selectSingle(this)">Very high — struggling</div>
           </div>
         </div>
 
-        <div class="ob2-q" id="activity-level-q">
+        <div class="ob2-q">
+          <div class="ob2-q-label">Caffeine habits</div>
+          <div class="ob2-q-sub">How you use coffee and caffeine — affects supplement timing and sleep quality</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="caffeine" data-val="1-2 coffees before noon" onclick="selectSingle(this)">1–2 coffees, before noon</div>
+            <div class="ob2-chip single" data-group="caffeine" data-val="3-4 coffees, sometimes after 2pm" onclick="selectSingle(this)">3–4 coffees, sometimes late</div>
+            <div class="ob2-chip single" data-group="caffeine" data-val="Heavy caffeine user — 4+ daily or after 4pm regularly" onclick="selectSingle(this)">Heavy — 4+ or late in day</div>
+            <div class="ob2-chip single" data-group="caffeine" data-val="Minimal — tea or no caffeine" onclick="selectSingle(this)">Minimal or no caffeine</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Any health conditions we should know about?</div>
+          <div class="ob2-q-sub">Optional — helps us calibrate the programme. Anything relevant: thyroid, PCOS, high blood pressure, diabetes, gut issues etc.</div>
+          <input class="ob2-input" id="f-healthconds" type="text" placeholder="e.g. hypothyroidism, PCOS, IBS — or leave blank">
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Your relationship with dieting</div>
+          <div class="ob2-q-sub">Honest answer — shapes how conservative or aggressive we calibrate the nutrition</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="diethistory" data-val="I've never really tracked or dieted — starting fresh" onclick="selectSingle(this)">Never tracked — starting fresh</div>
+            <div class="ob2-chip single" data-group="diethistory" data-val="I've tried diets before with some success" onclick="selectSingle(this)">Tried diets, had some success</div>
+            <div class="ob2-chip single" data-group="diethistory" data-val="I've yo-yo dieted — cycles of restriction and overeating" onclick="selectSingle(this)">Yo-yo dieter</div>
+            <div class="ob2-chip single" data-group="diethistory" data-val="I track consistently and understand nutrition well" onclick="selectSingle(this)">Track consistently, know nutrition well</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
           <div class="ob2-q-label">Activity outside training</div>
           <div class="ob2-q-sub">Affects your total calorie needs significantly</div>
           <div class="ob2-chips">
@@ -886,6 +945,7 @@
             <div class="ob2-chip single" data-group="activity" data-val="Very active — physical job or lots of movement" onclick="selectSingle(this)">Physical job or very active day</div>
           </div>
         </div>
+
 
         <div class="ob2-q">
           <div class="ob2-q-label">Non-negotiables</div>
@@ -1264,6 +1324,13 @@ async function triggerGeneration() {
   cuisinePrefs:     formData.cuisines || [],
   recipeComplexity: formData.complexity || '',
       menstrualCycle:   formData.cycle || '',
+      bedtime:          formData.bedtime || '',
+      sleepQuality:     formData.sleepquality || '',
+      actualEatingWindow: (document.getElementById('f-eatwin')?.value?.trim()) || '',
+      stressLevel:      formData.stress || '',
+      caffeineHabits:   formData.caffeine || '',
+      healthConditions: (document.getElementById('f-healthconds')?.value?.trim()) || '',
+      dietHistory:      formData.diethistory || '',
       nonNegotiables:   formData.nonneg || [],
       injuries:         formData.injuries || [],
       injuryDetail:     formData.injuryDetail || '',
@@ -1338,6 +1405,26 @@ If "Not interested" — standard meal timing, no window restriction.
 
 Activity level outside training: ${formData.activity||'not specified'}
 Factor this into the activity multiplier for TDEE calculation.
+
+SLEEP PROFILE:
+Hours: ${formData.sleep||'not specified'}
+Bedtime: ${formData.bedtime||'not specified'}
+Quality: ${formData.sleepquality||'not specified'}
+Supplement timing for sleep window: time magnesium, ashwagandha, and evening protocols to land 30-45 min before their usual bedtime.
+
+EATING WINDOW (actual):
+${(()=>{const win=document.getElementById('f-eatwin')?.value?.trim();return win?'Specific window: '+win:'Using fasting preference: '+(formData.fastingpref||'flexible');})()}
+
+STRESS & LIFESTYLE:
+Stress level: ${formData.stress||'not specified'}
+Caffeine habits: ${formData.caffeine||'not specified'}
+Diet history: ${formData.diethistory||'not specified'}
+Health conditions: ${(()=>{const hc=document.getElementById('f-healthconds')?.value?.trim();return hc||'none reported';})()}
+
+If stress is High or Very High: reduce training volume slightly, increase rest days, flag ashwagandha as high priority, note cortisol management in instructions.
+If caffeine is heavy/late: adjust supplement timing, flag sleep impact, recommend caffeine cutoff time.
+If yo-yo dieter: use conservative deficit, emphasise diet breaks, flag leptin sensitivity in instructions.
+If health conditions reported: acknowledge them in instructions and note GP consultation where relevant.
 
 ${formData.sex==='Female' && formData.cycle ? `FEMALE CYCLE CONTEXT: ${formData.cycle}
 ${formData.cycle.includes('happy to track') ? 'Apply hormonal periodisation in the week plan. Label follicular phase sessions as higher intensity, luteal phase as lower intensity with more recovery.' :
