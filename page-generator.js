@@ -565,8 +565,87 @@ Be specific — not "avoid processed foods" but the exact food, the exact mechan
 Return ONLY the JSON.`;
     },
 
+    coachreport: (p) => {
+      const isFemale = (p.sex||'').toLowerCase() === 'female';
+      const injuries = p.injuryAssessments || p.injuries || [];
+      const supps = p.supplements || [];
+      const weekPlan = p.weekPlan || [];
+      const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
+      const restDays = weekPlan.filter(d=>d.priority!=='training').map(d=>d.day).join(', ');
 
+      return `You are a senior performance coach writing up after a first intake session. Write a proper coaching report — the kind of document a good coach would hand to a client at the end of their first session. Personal, specific, direct.
 
+CLIENT:
+${profileSummary(p)}
+WEEK PLAN: ${weekPlan.map(d=>d.day+': '+d.type).join(' | ')}
+SUPPLEMENTS: ${supps.map(s=>s.name+' '+s.dose).join(', ')||'none'}
+${injuries.length ? 'INJURIES: '+injuries.map(i=>i.location+' — '+(i.assessment||i.detail||'')).join('; ') : 'INJURIES: none'}
+
+Return a JSON object with this structure — each section is a report chapter:
+{
+  "clientName": "${p.name}",
+  "reportDate": "${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}",
+  "headline": "a one-sentence coach's summary of this person and what they need",
+  "sections": [
+    {
+      "title": "What I heard",
+      "prose": "2-3 paragraphs written directly to the person as 'you'. What you understood from their answers — not the raw data, but what it means. What kind of person are they? What does their life actually look like? What do they want, beyond the stated goal? Read between the lines.",
+      "bullets": null
+    },
+    {
+      "title": "What your body is telling us",
+      "prose": "2 paragraphs interpreting their physical data as a coach. What does their body fat distribution mean for their goal? What does their energy pattern tell you? What is their body primed to respond to?",
+      "bullets": [
+        "Key physical fact and its implication",
+        "Second physical fact and its implication"
+      ]
+    },
+    {
+      "title": "The programme I've built for you",
+      "prose": "2 paragraphs explaining the training approach and WHY — not listing the exercises but explaining the logic. Why this split? Why these priorities? What are we building towards?",
+      "bullets": [
+        "${trainingDays} — your ${weekPlan.filter(d=>d.priority==='training').length} training sessions",
+        "Rest days on ${restDays} — not wasted, this is when adaptation happens",
+        "Include 1-2 more key programme principles"
+      ]
+    },
+    {
+      "title": "How we're going to feed this",
+      "prose": "2 paragraphs on the nutrition approach — the philosophy, not just the numbers. Why this calorie target? Why this protein? What is the eating strategy built around?",
+      "bullets": [
+        "${p.calories} kcal daily — explain why this number",
+        "${p.protein}g protein — explain why this is non-negotiable",
+        "Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'} — explain the reasoning",
+        "Include any trigger food or diet-specific strategy"
+      ]
+    },
+    ${injuries.length ? `{
+      "title": "Working around your ${injuries.map(i=>i.location).join(' and ')}",
+      "prose": "2 paragraphs on the injury situation — what it means, how we work with it not around it, what the long-term picture looks like. Be direct about what to avoid and why.",
+      "bullets": ${JSON.stringify(injuries.map(i => 'Avoid: '+(i.avoidMovements||[]).slice(0,2).join(', ')+' → Instead: '+(i.safeAlternatives||[]).slice(0,2).join(', ')))}
+    },` : ''}
+    {
+      "title": "${isFemale ? 'A note on your hormonal context' : 'A note on your hormonal baseline'}",
+      "prose": "${isFemale
+        ? '2 paragraphs on how her sex and age create specific opportunities and constraints. Oestrogen, recovery, the cycle, body composition. What this means for how she trains and eats.'
+        : '2 paragraphs on how his age and sex create specific opportunities. Testosterone, recovery windows, what 40s means for training strategy.'}",
+      "bullets": null
+    },
+    {
+      "title": "What will make or break this",
+      "prose": "2 paragraphs — direct, honest, personal. The single biggest lever for this specific person. The most likely failure mode. What they need to hear, not what they want to hear.",
+      "bullets": [
+        "The one non-negotiable habit",
+        "The most likely obstacle and how to handle it",
+        "The metric that tells you it's working"
+      ]
+    }
+  ],
+  "coachClose": "3-4 sentences — a direct personal close. Not motivational fluff. A coach speaking honestly to this specific person about what's ahead and why they're going to be okay."
+}
+
+CRITICAL: Write every word as if you know this person. Use their name. Reference their specific data. This should not read like a template. Return ONLY valid JSON.`;
+    }
 
   };
 
@@ -1029,28 +1108,90 @@ Return ONLY the JSON.`;
         </div>`).join('')}`,
 
 
-    longevity: (data, p) => data, // handled by the longevity page's own init
 
-  };
+    coachreport: (data, p) => {
+      // data is JSON with sections array
+      let parsed;
+      try {
+        parsed = typeof data === 'string' ? JSON.parse(data) : data;
+      } catch(e) {
+        // Fallback: treat as plain text
+        return GENERATED_STYLES + '<div class="gen-section"><div class="gen-body">' + String(data).replace(/\n/g,'<br>') + '</div></div>';
+      }
 
-  // ── WEEK PLAN HTML BUILDER ────────────────────────────
-  function buildWeekPlanHTML(p) {
-    const weekPlan = p.weekPlan || [];
-    if (!weekPlan.length) return '';
-    return `
-      <div class="gen-section">
-        <div class="gen-label jade">Your week</div>
-        ${weekPlan.map(day => `
-          <div style="border-bottom:1px solid var(--bd);padding:14px 0;display:grid;grid-template-columns:90px 1fr;gap:12px;">
-            <div style="font-size:12px;font-weight:600;color:${day.priority==='training'?'var(--jade)':'var(--dk-3)'};">${day.day}</div>
-            <div>
-              <div style="font-size:13px;font-weight:500;color:var(--dk-1);margin-bottom:2px;">${day.type} — ${day.focus||''}</div>
-              ${day.keyExercises && day.keyExercises.length ? `<div style="font-size:11px;font-weight:300;color:var(--dk-3);">${day.keyExercises.join(' · ')}</div>` : ''}
-              ${day.coachNote ? `<div style="font-size:11px;font-style:italic;color:var(--dk-3);margin-top:3px;">${day.coachNote}</div>` : ''}
+      const sections = parsed.sections || [];
+
+      const sectionsHTML = sections.map(sec => {
+        // Convert prose: newlines to paragraphs, bold **text** to <strong>
+        const prose = (sec.prose || '')
+          .split(/\n\n+/)
+          .filter(p => p.trim())
+          .map(p => `<p style="margin:0 0 14px 0;">${p.trim().replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</p>`)
+          .join('');
+
+        // Bullets
+        const bulletsHTML = sec.bullets && sec.bullets.length
+          ? `<ul style="margin:12px 0 0 0;padding:0 0 0 20px;list-style:none;">
+              ${sec.bullets.map(b => `
+                <li style="position:relative;padding:6px 0 6px 20px;border-bottom:1px solid var(--bd);font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.6;">
+                  <span style="position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--jade);opacity:0.6;"></span>
+                  ${b.replace(/\*\*([^*]+)\*\*/g,'<strong style="color:var(--dk-1);">$1</strong>')}
+                </li>`).join('')}
+            </ul>`
+          : '';
+
+        return `
+          <div style="margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid var(--bd);">
+            <div style="font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;
+              color:var(--jade);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+              <span style="width:16px;height:1px;background:var(--jade);display:inline-block;"></span>
+              ${sec.title || ''}
             </div>
-          </div>`).join('')}
-      </div>`;
-  }
+            <div style="font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.9;">
+              ${prose}
+            </div>
+            ${bulletsHTML}
+          </div>`;
+      }).join('');
+
+      return GENERATED_STYLES + `
+        <div style="max-width:680px;">
+
+          <!-- Report header -->
+          <div style="padding:32px 0 28px;border-bottom:1px solid var(--bd);margin-bottom:36px;">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;
+              color:var(--jade);margin-bottom:10px;">Coaching report · ${parsed.reportDate||''}</div>
+            <div style="font-family:var(--serif);font-size:44px;font-weight:300;line-height:0.95;
+              letter-spacing:-0.025em;color:var(--dk-1);margin-bottom:14px;">
+              ${parsed.clientName || p.name}<br>
+              <em style="font-style:italic;color:var(--dk-3);">baseline report.</em>
+            </div>
+            ${parsed.headline ? `
+            <div style="font-size:15px;font-weight:300;color:var(--dk-2);line-height:1.7;
+              max-width:520px;padding-top:12px;border-top:1px solid var(--bd);margin-top:16px;
+              font-style:italic;">
+              ${parsed.headline}
+            </div>` : ''}
+          </div>
+
+          <!-- Sections -->
+          ${sectionsHTML}
+
+          <!-- Coach close -->
+          ${parsed.coachClose ? `
+          <div style="padding:28px 0;border-top:2px solid var(--jade-br);margin-top:8px;">
+            <div style="font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;
+              color:var(--jade);margin-bottom:14px;">A final word</div>
+            <div style="font-family:var(--serif);font-size:17px;font-weight:300;font-style:italic;
+              color:var(--dk-2);line-height:1.9;">
+              ${parsed.coachClose}
+            </div>
+          </div>` : ''}
+
+        </div>`;
+    }
+
+  }; // end RENDERERS
 
   // ── MAIN GENERATE FUNCTION ────────────────────────────
   async function generate(pageType, profile, onLoading, onComplete, onError) {
@@ -1098,27 +1239,23 @@ Return ONLY the JSON.`;
       const text = apiData.content?.map(b => b.text||'').join('') || '';
       if (!text) throw new Error('Empty response from API. Status: ' + res.status);
       
-      const match = text.match(/\{[\s\S]*\}/);
-      if (!match) {
-        console.error('Response text (no JSON found):', text.slice(0, 500));
-        throw new Error('No JSON in response — model may have refused or truncated');
-      }
-      
+      // Some page types return plain text, not JSON
+      const plainTextTypes = ['coachreport'];
       let data;
-      try {
-        data = JSON.parse(match[0]);
-      } catch(parseErr) {
-        // Try to clean common JSON issues
-        let cleaned = match[0]
-          .replace(/[\x00-\x1F\x7F]/g, ' ') // control chars
-          .replace(/,\s*}/g, '}')              // trailing commas
-          .replace(/,\s*]/g, ']');             // trailing commas in arrays
+
+      if (plainTextTypes.includes(pageType)) {
+        data = text.trim();
+      } else {
+        const match = text.match(/\{[\s\S]*\}/);
+        if (!match) {
+          console.error('Response text (no JSON):', text.slice(0,500));
+          throw new Error('No JSON in response');
+        }
         try {
-          data = JSON.parse(cleaned);
-        } catch(e2) {
-          console.error('JSON parse failed:', parseErr.message);
-          console.error('Text sample:', match[0].slice(0, 300));
-          throw new Error('JSON parse error: ' + parseErr.message);
+        } catch(parseErr) {
+          let cleaned = match[0].replace(/[\x00-\x1F\x7F]/g,' ').replace(/,\s*}/g,'}').replace(/,\s*]/g,']');
+          try { data = JSON.parse(cleaned); }
+          catch(e2) { throw new Error('JSON parse error: ' + parseErr.message); }
         }
       }
 

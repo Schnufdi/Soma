@@ -7,342 +7,170 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="page-generator.js"></script>
 <style>
-body { background: var(--ink); color: var(--dk-1); }
+body { background:var(--ink); color:var(--dk-1); }
+.page { max-width:860px; margin:0 auto; padding:0 32px 100px; }
 
-/* ── HERO ── */
+/* Hero */
 .ins-hero {
-  padding: 52px 32px 44px;
-  border-bottom: 1px solid var(--bd);
-  max-width: 860px;
-  margin: 0 auto;
+  padding:48px 0 36px;
+  border-bottom:1px solid var(--bd);
+  margin-bottom:0;
+  display:flex; justify-content:space-between; align-items:flex-end; gap:24px;
 }
-.ins-kicker {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--jade);
-  margin-bottom: 14px;
-  display: flex; align-items: center; gap: 10px;
-}
-.ins-kicker::before { content:''; width:20px; height:1px; background:var(--jade); }
-.ins-title {
-  font-family: var(--serif);
-  font-size: 52px; font-weight: 300;
-  line-height: 0.95; letter-spacing: -0.025em;
-  color: var(--dk-1); margin-bottom: 14px;
-}
-.ins-title em { font-style: italic; color: var(--dk-3); }
-.ins-sub {
-  font-size: 14px; font-weight: 300; color: var(--dk-2);
-  line-height: 1.7; max-width: 520px; margin-bottom: 20px;
-}
-.ins-meta {
-  display: flex; gap: 16px; flex-wrap: wrap;
-  font-size: 11px; font-weight: 500; color: var(--dk-3);
-  letter-spacing: 0.04em;
-}
-.ins-meta span {
-  display: flex; align-items: center; gap: 6px;
-}
-.ins-meta span::before {
-  content: '·'; color: var(--jade);
-}
-.ins-meta span:first-child::before { display: none; }
+.ins-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+.ins-kicker::before { content:''; width:18px; height:1px; background:var(--jade); }
+.ins-title { font-family:var(--serif); font-size:52px; font-weight:300; line-height:0.93; letter-spacing:-0.025em; color:var(--dk-1); margin-bottom:10px; }
+.ins-title em { font-style:italic; color:var(--dk-3); }
+.ins-meta { font-size:12px; font-weight:300; color:var(--dk-3); }
 
-/* ── LAYOUT ── */
-.ins-shell {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 40px 32px 80px;
-  display: grid;
-  grid-template-columns: 1fr 260px;
-  gap: 32px;
-  align-items: start;
-}
-
-/* ── DOCUMENT VIEW ── */
-.ins-doc {
-  background: var(--ink-2);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.ins-doc-head {
-  background: var(--ink-1);
-  padding: 16px 22px;
-  border-bottom: 1px solid var(--bd);
-  display: flex; justify-content: space-between; align-items: center;
-}
-
-.ins-doc-label {
-  font-size: 9px; font-weight: 600; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--dk-3);
-}
-
-.ins-doc-label.jade { color: var(--jade); }
-
+/* Tabs */
 .ins-tabs {
-  display: flex; gap: 2px;
+  display:flex; gap:0; border-bottom:1px solid var(--bd);
+  margin-bottom:36px; overflow-x:auto;
+  position:sticky; top:60px; background:rgba(12,16,16,0.97);
+  backdrop-filter:blur(8px); z-index:50; padding-top:4px;
 }
-
 .ins-tab {
-  font-size: 9px; font-weight: 600; letter-spacing: 0.08em;
-  text-transform: uppercase; padding: 5px 12px;
-  border-radius: 4px; border: none; cursor: pointer;
-  font-family: var(--sans); background: transparent;
-  color: var(--dk-3); transition: all 0.12s;
+  font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+  padding:13px 20px; border:none; background:transparent;
+  color:var(--dk-3); cursor:pointer; font-family:var(--sans);
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  white-space:nowrap; transition:all 0.12s; flex-shrink:0;
 }
-.ins-tab:hover { color: var(--dk-2); }
-.ins-tab.active { background: var(--jade); color: var(--ink); }
+.ins-tab:hover { color:var(--dk-2); }
+.ins-tab.active { color:var(--jade); border-bottom-color:var(--jade); }
 
-/* Document text view */
-.ins-text {
-  padding: 24px 28px;
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 300;
-  line-height: 1.9;
-  color: var(--dk-2);
-  white-space: pre-wrap;
-  word-break: break-word;
-  min-height: 500px;
-  max-height: 70vh;
-  overflow-y: auto;
-  display: none;
-}
-.ins-text.active { display: block; }
+.ins-pane { display:none; padding-top:8px; }
+.ins-pane.active { display:block; }
 
-/* Structured view */
-.ins-structured {
-  display: none;
-}
-.ins-structured.active { display: block; }
+/* Report styles */
+.report-shell { max-width:680px; }
 
-/* Section card */
-.ins-section {
-  border-bottom: 1px solid var(--bd);
+.report-section {
+  margin-bottom:44px;
+  padding-bottom:44px;
+  border-bottom:1px solid var(--bd);
 }
-.ins-section:last-child { border-bottom: none; }
+.report-section:last-child { border-bottom:none; }
 
-.ins-sec-head {
-  padding: 16px 22px;
-  cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
-  transition: background 0.12s;
-  background: var(--ink-2);
+.report-sec-label {
+  font-size:9px; font-weight:600; letter-spacing:0.18em;
+  text-transform:uppercase; color:var(--jade);
+  margin-bottom:14px;
+  display:flex; align-items:center; gap:10px;
 }
-.ins-sec-head:hover { background: rgba(255,255,255,0.02); }
+.report-sec-label::after { content:''; flex:1; height:1px; background:var(--bd); }
+.report-sec-label.amber { color:var(--amber); }
+.report-sec-label.gold  { color:var(--gold); }
+.report-sec-label.red   { color:var(--red); }
+.report-sec-label.slate { color:var(--dk-2); }
 
-.ins-sec-title {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase;
+.report-body {
+  font-size:15px; font-weight:300; color:var(--dk-2);
+  line-height:1.9; margin-bottom:14px;
 }
-.ins-sec-title.jade  { color: var(--jade); }
-.ins-sec-title.amber { color: var(--amber); }
-.ins-sec-title.gold  { color: var(--gold); }
-.ins-sec-title.red   { color: var(--red); }
-.ins-sec-title.slate { color: var(--dk-2); }
+.report-body strong { color:var(--dk-1); font-weight:500; }
+.report-body em { color:var(--jade); font-style:italic; }
 
-.ins-sec-toggle {
-  font-size: 11px; color: var(--dk-3); transition: transform 0.2s;
-}
-.ins-section.open .ins-sec-toggle { transform: rotate(90deg); }
+.report-body p { margin-bottom:14px; }
+.report-body p:last-child { margin-bottom:0; }
 
-.ins-sec-body {
-  display: none;
-  padding: 0 22px 20px;
-  background: var(--ink-1);
+/* Quick stats sidebar card */
+.ins-sidebar {
+  float:right; width:240px; margin:0 0 24px 28px;
+  background:var(--ink-2); border:1px solid var(--jade-br);
+  border-radius:6px; overflow:hidden;
 }
-.ins-section.open .ins-sec-body { display: block; }
+.ins-sidebar-head {
+  padding:12px 16px; background:var(--ink-1);
+  border-bottom:1px solid var(--bd);
+  font-size:9px; font-weight:600; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--jade);
+}
+.ins-sidebar-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:8px 16px; border-bottom:1px solid var(--bd);
+  font-size:11px; gap:8px;
+}
+.ins-sidebar-row:last-child { border-bottom:none; }
+.ins-sidebar-label { font-weight:400; color:var(--dk-3); }
+.ins-sidebar-val   { font-weight:500; color:var(--dk-1); }
+.ins-sidebar-val.jade { color:var(--jade); }
 
-/* Row inside section */
-.ins-row {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  border-bottom: 1px solid var(--bd);
-  padding: 10px 0;
-  gap: 12px;
-  align-items: baseline;
+/* Data tab */
+.data-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;
 }
-.ins-row:last-child { border-bottom: none; }
-
-.ins-row-label {
-  font-size: 11px; font-weight: 600; color: var(--dk-3);
-  letter-spacing: 0.03em;
+.data-card {
+  background:var(--ink-2); border:1px solid var(--bd); border-radius:6px;
+  overflow:hidden;
 }
-
-.ins-row-val {
-  font-size: 12px; font-weight: 300; color: var(--dk-1);
-  line-height: 1.65;
+.data-card.full { grid-column:1/-1; }
+.data-card.jade  { border-top:2px solid var(--jade); }
+.data-card.amber { border-top:2px solid var(--amber); }
+.data-card.gold  { border-top:2px solid var(--gold); }
+.data-card-head {
+  padding:11px 16px; background:var(--ink-1);
+  border-bottom:1px solid var(--bd);
+  font-size:10px; font-weight:600; letter-spacing:0.08em;
+  text-transform:uppercase;
 }
-.ins-row-val.jade  { color: var(--jade); font-weight: 500; }
-.ins-row-val.amber { color: var(--amber); }
-.ins-row-val.red   { color: var(--red); }
+.data-card.jade  .data-card-head { color:var(--jade); }
+.data-card.amber .data-card-head { color:var(--amber); }
+.data-card.gold  .data-card-head { color:var(--gold); }
+.data-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:9px 16px; border-bottom:1px solid var(--bd);
+  font-size:12px; gap:12px;
+}
+.data-row:last-child { border-bottom:none; }
+.data-label { font-weight:400; color:var(--dk-3); flex-shrink:0; }
+.data-val   { font-weight:500; color:var(--dk-1); text-align:right; line-height:1.4; }
+.data-val.jade { color:var(--jade); }
+.data-val.amber { color:var(--amber); }
+.data-val.red   { color:var(--red); }
 
 /* Macro strip */
-.ins-macros {
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 1px; background: var(--bd);
-  margin: 12px 0;
+.macro-strip {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1px; background:var(--bd); border-radius:6px;
+  overflow:hidden; margin-bottom:12px;
 }
-.ins-macro {
-  background: var(--ink-2);
-  padding: 14px 10px; text-align: center;
-}
-.ins-macro-val {
-  font-family: var(--mono);
-  font-size: 22px; font-weight: 500;
-  color: var(--jade); line-height: 1; margin-bottom: 3px;
-}
-.ins-macro-val.amber { color: var(--amber); }
-.ins-macro-val.slate { color: var(--dk-2); }
-.ins-macro-label {
-  font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--dk-3);
-}
+.macro-cell { background:var(--ink-2); padding:14px 10px; text-align:center; }
+.macro-val  { font-family:var(--mono); font-size:22px; font-weight:500; color:var(--jade); line-height:1; margin-bottom:3px; }
+.macro-val.amber { color:var(--amber); }
+.macro-val.slate { color:var(--dk-2); }
+.macro-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
 
-/* Injury card */
-.ins-injury {
-  background: var(--ink-2);
-  border: 1px solid var(--gold-br);
-  border-left: 3px solid var(--gold);
-  border-radius: 4px;
-  padding: 14px 16px;
-  margin: 8px 0;
+/* Actions */
+.ins-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:28px; padding-top:20px; border-top:1px solid var(--bd); }
+.ins-btn {
+  padding:9px 18px; background:transparent;
+  border:1px solid var(--bd-2); border-radius:4px;
+  font-family:var(--sans); font-size:10px; font-weight:600;
+  letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--dk-3); cursor:pointer; transition:all 0.15s;
 }
-.ins-injury-loc {
-  font-size: 12px; font-weight: 600; color: var(--gold);
-  margin-bottom: 5px;
-}
-.ins-injury-text {
-  font-size: 12px; font-weight: 300; color: var(--dk-2);
-  line-height: 1.65;
-}
-.ins-injury-mods {
-  margin-top: 8px;
-  font-size: 11px; font-weight: 300; color: var(--dk-3);
-  line-height: 1.7;
-}
+.ins-btn:hover { color:var(--jade); border-color:var(--jade-br); }
+.ins-btn.jade  { background:var(--jade); border-color:var(--jade); color:var(--ink); }
+.ins-btn.red   { color:var(--red); border-color:var(--red-br); }
 
-/* Week plan */
-.ins-week-day {
-  border-bottom: 1px solid var(--bd);
-  padding: 12px 0;
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 12px;
-}
-.ins-week-day:last-child { border-bottom: none; }
-.ins-week-name {
-  font-size: 12px; font-weight: 600;
-  color: var(--dk-3);
-}
-.ins-week-name.training { color: var(--jade); }
-.ins-week-body {}
-.ins-week-type {
-  font-size: 12px; font-weight: 500; color: var(--dk-1);
-  margin-bottom: 2px;
-}
-.ins-week-exercises {
-  font-size: 11px; font-weight: 300; color: var(--dk-3);
-  line-height: 1.5;
-}
+/* No profile */
+.no-profile { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center; padding:48px; gap:14px; }
+.no-profile h2 { font-family:var(--serif); font-size:30px; font-weight:300; }
+.no-profile p  { font-size:14px; font-weight:300; color:var(--dk-2); max-width:360px; line-height:1.7; }
+.no-profile a  { display:inline-block; padding:12px 28px; background:var(--jade); border-radius:6px; font-size:13px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink); text-decoration:none; }
 
-/* Supplement row */
-.ins-supp {
-  border-bottom: 1px solid var(--bd);
-  padding: 10px 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.ins-supp:last-child { border-bottom: none; }
-.ins-supp-name {
-  font-size: 12px; font-weight: 600; color: var(--dk-1);
-}
-.ins-supp-timing {
-  font-size: 11px; font-weight: 300; color: var(--dk-3);
-}
-.ins-supp-reason {
-  font-size: 11px; font-weight: 300; color: var(--dk-2);
-  line-height: 1.5;
-}
-
-/* ── SIDEBAR ── */
-.ins-sidebar { position: sticky; top: 80px; }
-
-.ins-card {
-  background: var(--ink-2);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  padding: 18px 20px;
-  margin-bottom: 10px;
-}
-
-.ins-card-label {
-  font-size: 9px; font-weight: 600; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--dk-3);
-  margin-bottom: 10px;
-}
-.ins-card-label.jade  { color: var(--jade); }
-.ins-card-label.amber { color: var(--amber); }
-.ins-card-label.red   { color: var(--red); }
-
-.ins-card-stat {
-  display: flex; justify-content: space-between; align-items: baseline;
-  border-bottom: 1px solid var(--bd);
-  padding: 7px 0; font-size: 12px;
-}
-.ins-card-stat:last-child { border-bottom: none; }
-.ins-card-stat-label { font-weight: 300; color: var(--dk-3); }
-.ins-card-stat-val   { font-weight: 600; color: var(--dk-1); }
-.ins-card-stat-val.jade { color: var(--jade); }
-.ins-card-stat-val.red  { color: var(--red); }
-
-.ins-card-note {
-  font-size: 12px; font-weight: 300; color: var(--dk-2);
-  line-height: 1.6; margin-top: 8px;
-}
-
-.ins-rebuild-btn {
-  width: 100%;
-  padding: 10px;
-  background: transparent;
-  border: 1px solid var(--bd-2);
-  border-radius: 4px;
-  font-family: var(--sans);
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--dk-3); cursor: pointer;
-  transition: all 0.15s; margin-top: 8px;
-}
-.ins-rebuild-btn:hover { color: var(--jade); border-color: var(--jade-br); }
-
-.ins-reset-btn {
-  width: 100%;
-  padding: 10px;
-  background: transparent;
-  border: 1px solid var(--red-br);
-  border-radius: 4px;
-  font-family: var(--sans);
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--red); cursor: pointer;
-  transition: all 0.15s; margin-top: 6px;
-}
-.ins-reset-btn:hover { background: var(--red-dim); }
-
-@media(max-width:860px){
-  .ins-shell { grid-template-columns: 1fr; }
-  .ins-sidebar { position: static; }
-  .ins-hero, .ins-shell { padding-left: 16px; padding-right: 16px; }
-}
-@media(max-width:600px){
-  .ins-title { font-size: 36px; }
-  .ins-macros { grid-template-columns: repeat(2,1fr); }
-  .ins-row { grid-template-columns: 1fr; gap: 3px; }
-  .ins-supp { grid-template-columns: 1fr; }
+@media(max-width:700px){
+  .ins-hero { flex-direction:column; gap:12px; }
+  .ins-sidebar { float:none; width:100%; margin:0 0 20px 0; }
+  .data-grid { grid-template-columns:1fr; }
+  .data-card.full { grid-column:1; }
+  .page { padding:0 16px 80px; }
+  .ins-title { font-size:38px; }
+  .macro-strip { grid-template-columns:repeat(2,1fr); }
 }
 </style>
 </head>
@@ -352,378 +180,313 @@ body { background: var(--ink); color: var(--dk-1); }
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link active" href="bodylens-programme.html">Programme</a>
+    <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
-  </div>
-  <div class="nav-breadcrumb">
-    <a href="bodylens-programme.html" class="nav-bc-parent">Programme</a>
-    <span class="nav-bc-sep">›</span>
-    <span class="nav-bc-current">Instructions</span>
   </div>
   <div class="nav-meta" id="nav-meta"></div>
 </nav>
 
-<div id="main-content">
-  <!-- Rendered by JS -->
+<div class="page" id="main">
+  <div style="text-align:center;padding:80px 0;">
+    <div style="font-size:13px;color:var(--dk-3);">Loading…</div>
+  </div>
 </div>
 
 <script src="nav.js"></script>
 <script>
 const profile = getProfile();
 
-// ── NO PROFILE ─────────────────────────────────────────
 if (!profile) {
-  document.getElementById('main-content').innerHTML = `
+  document.getElementById('main').innerHTML = `
     <div class="no-profile">
-      <div class="no-profile-icon">📋</div>
-      <h2>No instructions yet</h2>
-      <p>Complete the onboarding conversation and your full programme instructions will appear here — macros, training split, injury protocol, supplements, everything.</p>
-      <a href="bodylens-onboard.html">Start onboarding →</a>
+      <div style="font-size:44px;">📋</div>
+      <h2>No programme yet</h2>
+      <p>Complete the onboarding and your full coaching report will appear here.</p>
+      <a href="bodylens-onboard.html">Get started →</a>
     </div>`;
 } else {
-  renderInstructions(profile);
-}
-
-// ── NAV META ───────────────────────────────────────────
-if (profile && profile.name) {
   document.getElementById('nav-meta').innerHTML =
     `<span class="nav-tag nt-jade">${profile.name}</span>`;
+  renderPage(profile);
 }
 
-// ── RENDER ─────────────────────────────────────────────
-function renderInstructions(p) {
-  const injuries = p.injuryAssessments || p.injuries || [];
-  const supps    = p.supplements || [];
-  const weekPlan = p.weekPlan || [];
-  const cal = p.calories || '—';
-  const prot = p.protein || '—';
-  const carbs = p.carbs || '—';
-  const fat = p.fat || '—';
+function renderPage(p) {
   const genDate = p.generatedAt
-    ? new Date(p.generatedAt).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
-    : 'Unknown';
+    ? new Date(p.generatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+    : '—';
 
-  document.getElementById('main-content').innerHTML = `
-
-    <!-- HERO -->
+  document.getElementById('main').innerHTML = `
     <div class="ins-hero">
-      <div class="ins-kicker">Programme instructions · Generated by coach AI</div>
-      <div class="ins-title">${p.name || 'Your'}<br><em>instructions.</em></div>
-      <div class="ins-sub">
-        This is your complete programme brief — derived from your onboarding conversation by the coaching AI. Everything here is specific to you.
+      <div>
+        <div class="ins-kicker">Coaching report</div>
+        <div class="ins-title">${p.name}<br><em>instructions.</em></div>
+        <div class="ins-meta">Generated ${genDate} · ${p.goal||'—'}</div>
       </div>
-      <div class="ins-meta">
-        <span>Generated ${genDate}</span>
-        <span>${p.goal || 'Goal set'}</span>
-        ${p.trainingDays ? `<span>${p.trainingDays} training days/week</span>` : ''}
-        ${injuries.length ? `<span>${injuries.length} injury note${injuries.length > 1 ? 's' : ''}</span>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-self:flex-end;">
+        <a href="bodylens-day.html" class="ins-btn jade">Today's plan →</a>
       </div>
     </div>
 
-    <!-- MAIN LAYOUT -->
-    <div class="ins-shell">
+    <div class="ins-tabs">
+      <button class="ins-tab active" onclick="switchTab('report',this)">Coach's report</button>
+      <button class="ins-tab" onclick="switchTab('data',this)">Programme data</button>
+      <button class="ins-tab" onclick="switchTab('raw',this)">Full brief</button>
+    </div>
 
-      <!-- DOCUMENT / STRUCTURED TOGGLE -->
-      <div>
-        <div class="ins-doc">
-          <div class="ins-doc-head">
-            <div class="ins-doc-label jade">Programme brief</div>
-            <div class="ins-tabs">
-              <button class="ins-tab active" onclick="switchView('structured',this)">Overview</button>
-              <button class="ins-tab" onclick="switchView('text',this)">Full document</button>
-            </div>
+    <!-- REPORT TAB -->
+    <div class="ins-pane active" id="pane-report">
+      <div id="report-content">
+        <div style="text-align:center;padding:60px 0;">
+          <div style="font-size:36px;margin-bottom:12px;">📋</div>
+          <div style="font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:20px;">
+            Your coaching report — written from your session.
           </div>
-
-          <!-- STRUCTURED VIEW -->
-          <div class="ins-structured active" id="view-structured">
-
-            ${p.coachSummary ? `
-            <!-- Coach read -->
-            <div class="ins-section open">
-              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
-                <div class="ins-sec-title jade">Coach's read</div>
-                <div class="ins-sec-toggle">›</div>
-              </div>
-              <div class="ins-sec-body">
-                <div style="padding-top:14px;font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.85;font-style:italic;border-left:2px solid var(--jade-br);padding-left:16px;">
-                  ${p.coachSummary}
-                </div>
-              </div>
-            </div>` : ''}
-
-            <!-- Baseline -->
-            <div class="ins-section open">
-              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
-                <div class="ins-sec-title">Baseline</div>
-                <div class="ins-sec-toggle">›</div>
-              </div>
-              <div class="ins-sec-body">
-                <div class="ins-row"><div class="ins-row-label">Name</div><div class="ins-row-val jade">${p.name || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Age / Sex</div><div class="ins-row-val">${p.age || '—'} · ${p.sex || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Height / Weight</div><div class="ins-row-val">${p.height ? p.height+'cm' : '—'} · ${p.weight ? p.weight+'kg' : '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Body fat</div><div class="ins-row-val">${p.bodyFat ? p.bodyFat+'%' : 'Not assessed'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Fat storage</div><div class="ins-row-val">${p.fatStorage || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Goal</div><div class="ins-row-val">${p.goal || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Target</div><div class="ins-row-val">${p.target || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Wake time</div><div class="ins-row-val">${p.wakeTime || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Experience</div><div class="ins-row-val">${p.experience || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Gym</div><div class="ins-row-val">${p.gymAccess || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Recovery tools</div><div class="ins-row-val">${p.recoveryTools && p.recoveryTools.length ? p.recoveryTools.join(', ') : 'None'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Non-negotiables</div><div class="ins-row-val">${p.nonNegotiables && p.nonNegotiables.length ? p.nonNegotiables.join(', ') : 'None specified'}</div></div>
-              </div>
-            </div>
-
-            <!-- Nutrition -->
-            <div class="ins-section open">
-              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
-                <div class="ins-sec-title amber">Nutrition</div>
-                <div class="ins-sec-toggle">›</div>
-              </div>
-              <div class="ins-sec-body">
-                <div class="ins-macros">
-                  <div class="ins-macro"><div class="ins-macro-val">${cal}</div><div class="ins-macro-label">Calories</div></div>
-                  <div class="ins-macro"><div class="ins-macro-val jade">${prot}g</div><div class="ins-macro-label">Protein</div></div>
-                  <div class="ins-macro"><div class="ins-macro-val amber">${carbs}g</div><div class="ins-macro-label">Carbs</div></div>
-                  <div class="ins-macro"><div class="ins-macro-val slate">${fat}g</div><div class="ins-macro-label">Fat</div></div>
-                </div>
-                ${p.calorieReasoning ? `<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;font-style:italic;padding:10px 0;border-bottom:1px solid var(--bd);margin-bottom:8px;">${p.calorieReasoning}</div>` : ''}
-                <div class="ins-row"><div class="ins-row-label">TDEE</div><div class="ins-row-val">${p.tdee || '—'} kcal</div></div>
-                <div class="ins-row"><div class="ins-row-label">Eating window</div><div class="ins-row-val">${p.fastingWindow || p.eatingWindow || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Meals/day</div><div class="ins-row-val">${p.mealCount || '3–4'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Diet type</div><div class="ins-row-val">${p.dietType || '—'}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Exclusions</div><div class="ins-row-val ${(p.foodExclusions||[]).length ? 'red' : ''}">${(p.foodExclusions||[]).join(', ') || 'None'}</div></div>
-                ${p.triggerFoods ? `<div class="ins-row"><div class="ins-row-label">Trigger foods</div><div class="ins-row-val red">${p.triggerFoods}</div></div>` : ''}
-                ${p.triggerStrategy ? `<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;padding:10px 0;">${p.triggerStrategy}</div>` : ''}
-                ${p.keyFoodPrinciples && p.keyFoodPrinciples.length ? `
-                <div style="padding:10px 0;">
-                  ${p.keyFoodPrinciples.map(pr => `<div style="font-size:11px;padding:5px 10px;background:var(--amber-dim);border-left:2px solid var(--amber-br);border-radius:2px;color:var(--dk-1);margin-bottom:4px;">${pr}</div>`).join('')}
-                </div>` : ''}
-              </div>
-            </div>
-
-            <!-- Training -->
-            <div class="ins-section">
-              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
-                <div class="ins-sec-title jade">Training split</div>
-                <div class="ins-sec-toggle">›</div>
-              </div>
-              <div class="ins-sec-body">
-                ${weekPlan.map(day => `
-                <div class="ins-week-day">
-                  <div class="ins-week-name ${day.priority==='training'?'training':''}">${day.day}</div>
-                  <div class="ins-week-body">
-                    <div class="ins-week-type">${day.type} — ${day.focus || ''}</div>
-                    ${day.keyExercises && day.keyExercises.length ? `<div class="ins-week-exercises">${day.keyExercises.join(' · ')}</div>` : ''}
-                    ${day.modifications && day.modifications.length ? `<div style="font-size:10px;color:var(--gold);margin-top:3px;">Mod: ${day.modifications.join(', ')}</div>` : ''}
-                    ${day.coachNote ? `<div style="font-size:11px;font-style:italic;color:var(--dk-3);margin-top:3px;">${day.coachNote}</div>` : ''}
-                  </div>
-                </div>`).join('')}
-              </div>
-            </div>
-
-            <!-- Injuries -->
-            ${injuries.length ? `
-            <div class="ins-section">
-              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
-                <div class="ins-sec-title gold">Injuries &amp; modifications</div>
-                <div class="ins-sec-toggle">›</div>
-              </div>
-              <div class="ins-sec-body" style="padding-top:12px;">
-                ${injuries.map(inj => `
-                <div class="ins-injury">
-                  <div class="ins-injury-loc">${inj.location}</div>
-                  <div class="ins-injury-text">${inj.assessment || inj.detail || ''}</div>
-                  ${inj.avoidMovements && inj.avoidMovements.length ? `
-                  <div class="ins-injury-mods">
-                    <strong style="color:var(--red);">Avoid:</strong> ${inj.avoidMovements.join(', ')}<br>
-                    <strong style="color:var(--jade);">Instead:</strong> ${(inj.safeAlternatives||[]).join(', ')}<br>
-                    ${inj.rehabilitationNotes ? `<strong style="color:var(--gold);">Long term:</strong> ${inj.rehabilitationNotes}` : ''}
-                  </div>` : ''}
-                </div>`).join('')}
-              </div>
-            </div>` : ''}
-
-            <!-- Supplements -->
-            ${supps.length ? `
-            <div class="ins-section">
-              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
-                <div class="ins-sec-title gold">Supplement stack</div>
-                <div class="ins-sec-toggle">›</div>
-              </div>
-              <div class="ins-sec-body">
-                ${supps.map(s => `
-                <div class="ins-supp">
-                  <div>
-                    <div class="ins-supp-name">${s.name}</div>
-                    <div class="ins-supp-timing">${s.dose} · ${s.timing}</div>
-                  </div>
-                  <div class="ins-supp-reason">${s.reason || ''}</div>
-                </div>`).join('')}
-              </div>
-            </div>` : ''}
-
-            <!-- Alcohol -->
-            ${p.alcoholHabit && !p.alcoholHabit.toLowerCase().includes('rarely') ? `
-            <div class="ins-section">
-              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
-                <div class="ins-sec-title red">Alcohol protocol</div>
-                <div class="ins-sec-toggle">›</div>
-              </div>
-              <div class="ins-sec-body">
-                <div class="ins-row"><div class="ins-row-label">Your habit</div><div class="ins-row-val">${p.alcoholHabit}</div></div>
-                <div class="ins-row"><div class="ins-row-label">Rule</div><div class="ins-row-val red">No alcohol on training days</div></div>
-                <div class="ins-row"><div class="ins-row-label">Rest days</div><div class="ins-row-val">Max 2 units · Finish by 20:00</div></div>
-                <div style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.65;padding:10px 0;font-style:italic;">Alcohol blocks mTOR directly — a training session followed by significant alcohol is work without adaptation. Thursday evening is protected for Friday's session.</div>
-              </div>
-            </div>` : ''}
-
-          </div><!-- /structured -->
-
-          <!-- TEXT VIEW -->
-          <div class="ins-text" id="view-text">${(p.instructions || 'No instructions document generated.').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
-
-        </div><!-- /ins-doc -->
-      </div>
-
-      <!-- SIDEBAR -->
-      <div class="ins-sidebar">
-
-        <div class="ins-card" style="border-color:var(--jade-br);">
-          <div class="ins-card-label jade">At a glance</div>
-          <div class="ins-card-stat"><span class="ins-card-stat-label">Calories</span><span class="ins-card-stat-val">${cal} kcal</span></div>
-          <div class="ins-card-stat"><span class="ins-card-stat-label">Protein</span><span class="ins-card-stat-val jade">${prot}g</span></div>
-          <div class="ins-card-stat"><span class="ins-card-stat-label">Training days</span><span class="ins-card-stat-val">${p.trainingDays || weekPlan.filter(d=>d.priority==='training').length}</span></div>
-          <div class="ins-card-stat"><span class="ins-card-stat-label">Wake time</span><span class="ins-card-stat-val">${p.wakeTime || '—'}</span></div>
-          <div class="ins-card-stat"><span class="ins-card-stat-label">Eating window</span><span class="ins-card-stat-val">${p.fastingWindow || p.eatingWindow || '—'}</span></div>
+          <button onclick="generateReport()"
+            style="padding:12px 28px;background:var(--jade);border:none;border-radius:4px;
+            font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
+            text-transform:uppercase;color:var(--ink);cursor:pointer;">
+            Generate my report →
+          </button>
         </div>
-
-        ${injuries.length ? `
-        <div class="ins-card" style="border-color:var(--gold-br);">
-          <div class="ins-card-label" style="color:var(--gold);">Active injury notes</div>
-          ${injuries.map(inj => `
-          <div class="ins-card-stat">
-            <span class="ins-card-stat-label" style="color:var(--gold);">${inj.location}</span>
-            <span class="ins-card-stat-val" style="font-size:10px;color:var(--dk-3);">${(inj.avoidMovements||[]).slice(0,1).join('')||'See detail'}</span>
-          </div>`).join('')}
-          <div class="ins-card-note">Tap Injuries section for full modifications and alternatives.</div>
-        </div>` : ''}
-
-        <div class="ins-card">
-          <div class="ins-card-label">Generated</div>
-          <div class="ins-card-note">${genDate}</div>
-          <button class="ins-rebuild-btn" id="regen-btn" onclick="regenInstructions()">↺ Regenerate instructions</button>
-          <button class="ins-rebuild-btn" onclick="location.href='bodylens-onboard.html'">Redo onboarding</button>
-          <button class="ins-reset-btn" onclick="location.href='bodylens-reset.html'">Reset all data</button>
-        </div>
-
       </div>
+      <div class="ins-actions">
+        <button id="regen-report-btn" class="ins-btn" onclick="generateReport(true)">↺ Regenerate report</button>
+        <button class="ins-btn" onclick="switchTab('data', document.querySelector('[onclick*=data]'))">View programme data</button>
+      </div>
+    </div>
 
-    </div><!-- /ins-shell -->
+    <!-- DATA TAB -->
+    <div class="ins-pane" id="pane-data">
+      ${buildDataTab(p)}
+    </div>
+
+    <!-- RAW BRIEF TAB -->
+    <div class="ins-pane" id="pane-raw">
+      <div style="background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:24px 28px;">
+        <div style="font-family:var(--mono);font-size:12px;font-weight:300;color:var(--dk-2);
+          line-height:1.9;white-space:pre-wrap;word-break:break-word;max-height:70vh;overflow-y:auto;">
+          ${(p.instructions||'No brief generated.').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+        </div>
+      </div>
+      <div class="ins-actions">
+        <button id="regen-brief-btn" class="ins-btn" onclick="regenBrief()">↺ Regenerate brief</button>
+      </div>
+    </div>
   `;
+
+  // Auto-generate report if not cached
+  setTimeout(() => generateReport(false), 100);
 }
 
-// ── TOGGLE SECTION ─────────────────────────────────────
-function toggleSection(section) {
-  section.classList.toggle('open');
+function buildDataTab(p) {
+  const injuries  = p.injuryAssessments || [];
+  const supps     = p.supplements || [];
+  const weekPlan  = p.weekPlan || [];
+  const isFemale  = (p.sex||'').toLowerCase() === 'female';
+  const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
+
+  return `
+    <div class="data-grid">
+
+      <div class="data-card jade">
+        <div class="data-card-head">Baseline</div>
+        <div class="data-row"><span class="data-label">Name</span><span class="data-val jade">${p.name}</span></div>
+        <div class="data-row"><span class="data-label">Age / Sex</span><span class="data-val">${p.age||'—'} · ${p.sex||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Height / Weight</span><span class="data-val">${p.height||'—'}cm · ${p.weight||'—'}kg</span></div>
+        <div class="data-row"><span class="data-label">Body fat</span><span class="data-val">${p.bodyFat||'—'}%</span></div>
+        <div class="data-row"><span class="data-label">Fat storage</span><span class="data-val">${p.fatStorage||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Goal</span><span class="data-val">${p.goal||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Target</span><span class="data-val">${p.target||'—'}</span></div>
+        ${isFemale && p.menstrualCycle ? `<div class="data-row"><span class="data-label">Cycle</span><span class="data-val">${p.menstrualCycle}</span></div>` : ''}
+      </div>
+
+      <div class="data-card amber">
+        <div class="data-card-head">Training</div>
+        <div class="data-row"><span class="data-label">Days/week</span><span class="data-val jade">${p.trainingDays||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Training days</span><span class="data-val">${trainingDays||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Wake time</span><span class="data-val">${p.wakeTime||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Train time</span><span class="data-val">${p.trainingTime||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Equipment</span><span class="data-val" style="font-size:11px;">${(p.equipmentUsed||[]).join(', ')||p.gymAccess||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Free weights</span><span class="data-val" style="font-size:11px;">${p.freeWeightComfort||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Recovery</span><span class="data-val" style="font-size:11px;">${(p.recoveryTools||[]).join(', ')||'None'}</span></div>
+        <div class="data-row"><span class="data-label">Experience</span><span class="data-val">${p.experience||'—'}</span></div>
+      </div>
+
+      <div class="data-card amber full">
+        <div class="data-card-head">Nutrition targets</div>
+        <div class="macro-strip">
+          <div class="macro-cell"><div class="macro-val">${p.calories||'—'}</div><div class="macro-label">Calories</div></div>
+          <div class="macro-cell"><div class="macro-val jade">${p.protein||'—'}g</div><div class="macro-label">Protein</div></div>
+          <div class="macro-cell"><div class="macro-val amber">${p.carbs||'—'}g</div><div class="macro-label">Carbs</div></div>
+          <div class="macro-cell"><div class="macro-val slate">${p.fat||'—'}g</div><div class="macro-label">Fat</div></div>
+        </div>
+        ${p.calorieReasoning ? `<div style="padding:12px 16px 4px;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;font-style:italic;">${p.calorieReasoning}</div>` : ''}
+        <div class="data-row"><span class="data-label">Eating window</span><span class="data-val">${p.fastingWindow||p.eatingWindow||'Flexible'}</span></div>
+        <div class="data-row"><span class="data-label">Fasting pref.</span><span class="data-val">${p.fastingPreference||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Diet</span><span class="data-val">${p.dietType||'—'}</span></div>
+        ${(p.foodExclusions||[]).length ? `<div class="data-row"><span class="data-label">Exclusions</span><span class="data-val red">${p.foodExclusions.join(', ')}</span></div>` : ''}
+        ${p.triggerFoods && !p.triggerFoods.includes('None') ? `<div class="data-row"><span class="data-label">Triggers</span><span class="data-val red">${p.triggerFoods}</span></div>` : ''}
+        <div class="data-row"><span class="data-label">Activity level</span><span class="data-val">${p.activityLevel||'—'}</span></div>
+        <div class="data-row"><span class="data-label">Energy pattern</span><span class="data-val">${p.energyPattern||'—'}</span></div>
+      </div>
+
+      ${injuries.length ? `
+      <div class="data-card gold full">
+        <div class="data-card-head">Injuries</div>
+        ${injuries.map(inj => `
+          <div style="padding:14px 16px;border-bottom:1px solid var(--bd);border-left:3px solid var(--gold);">
+            <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:4px;">${inj.location}</div>
+            <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">${inj.assessment||''}</div>
+            ${inj.avoidMovements&&inj.avoidMovements.length ? `
+              <div style="font-size:11px;margin-top:6px;">
+                <span style="color:var(--red);">Avoid: ${inj.avoidMovements.join(', ')}</span><br>
+                <span style="color:var(--jade);">Instead: ${(inj.safeAlternatives||[]).join(', ')}</span>
+              </div>` : ''}
+          </div>`).join('')}
+      </div>` : ''}
+
+      ${supps.length ? `
+      <div class="data-card gold full">
+        <div class="data-card-head">Supplement stack</div>
+        ${supps.map(s => `
+          <div style="display:grid;grid-template-columns:1fr 80px 140px;padding:10px 16px;border-bottom:1px solid var(--bd);font-size:12px;gap:10px;align-items:baseline;">
+            <div style="font-weight:500;color:var(--dk-1);">${s.name}</div>
+            <div style="font-family:var(--mono);font-weight:300;color:var(--amber);">${s.dose}</div>
+            <div style="font-weight:300;color:var(--dk-3);">${s.timing}</div>
+          </div>`).join('')}
+      </div>` : ''}
+
+    </div>
+
+    <div class="ins-actions">
+      <a href="bodylens-day.html" class="ins-btn jade">Today's plan →</a>
+      <button onclick="location.href='bodylens-reset.html'" class="ins-btn red">Reset all data</button>
+    </div>`;
 }
 
-// ── SWITCH VIEW ────────────────────────────────────────
-function switchView(id, btn) {
-  document.querySelectorAll('.ins-tabs .ins-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('view-structured').classList.toggle('active', id === 'structured');
-  document.getElementById('view-text').classList.toggle('active', id === 'text');
+function switchTab(id, btn) {
+  document.querySelectorAll('.ins-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.ins-pane').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('pane-' + id).classList.add('active');
 }
-</script>
-<script>
-(function(){
-  try {
-    const p = localStorage.getItem('bl_profile');
-    if (p) {
-      const profile = JSON.parse(p);
-      const el = document.getElementById('nav-meta');
-      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
+
+async function generateReport(force) {
+  const container = document.getElementById('report-content');
+  if (!container) return;
+
+  // Check cache
+  const cacheKey = 'bl_gen_v4_coachreport_' + profile.name + '_' + (profile.generatedAt||'').slice(0,10);
+  if (!force) {
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        renderReport(cached);
+        return;
+      }
+    } catch(e) {}
+  }
+
+  // Show loading
+  container.innerHTML = `
+    <div style="padding:40px 0;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div style="width:32px;height:32px;border:2px solid var(--bd-2);border-top-color:var(--jade);
+        border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-3);">Writing your coaching report…</div>
+      <div style="font-size:11px;font-weight:300;color:var(--dk-3);opacity:0.7;">This takes about 20 seconds.</div>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+
+  const btn = document.getElementById('regen-report-btn');
+  if (btn) { btn.textContent = 'Generating…'; btn.disabled = true; }
+
+  BL_GENERATOR.generate(
+    'coachreport',
+    profile,
+    null, // no separate loading state needed
+    (html) => {
+      // Cache it
+      try { localStorage.setItem(cacheKey, html); } catch(e) {}
+      renderReport(html);
+      if (btn) { btn.textContent = '↺ Regenerate report'; btn.disabled = false; }
+    },
+    (err) => {
+      console.error('Report error:', err);
+      container.innerHTML = `
+        <div style="padding:40px 0;text-align:center;color:var(--dk-3);font-size:13px;">
+          Could not generate report: ${err||'unknown error'}<br><br>
+          <button onclick="generateReport(true)" style="color:var(--jade);background:none;border:none;cursor:pointer;text-decoration:underline;font-size:13px;">Try again</button>
+        </div>`;
+      if (btn) { btn.textContent = '↺ Regenerate report'; btn.disabled = false; }
     }
-  } catch(e){}
-})();
-</script>
+  );
+}
 
-<script>
-async function regenInstructions() {
-  const btn = document.getElementById('regen-btn');
-  const profile = getProfile();
-  if (!profile) return;
+function renderReport(html) {
+  const container = document.getElementById('report-content');
+  if (!container) return;
 
-  btn.textContent = 'Generating…';
-  btn.disabled = true;
+  // The coachreport renderer returns formatted HTML
+  // But we also need to handle raw text from the model
+  // Wrap it nicely
+  container.innerHTML = `
+    <div class="report-shell">
+      ${html}
+    </div>`;
+}
+
+async function regenBrief() {
+  const btn = document.getElementById('regen-brief-btn');
+  if (btn) { btn.textContent = 'Generating…'; btn.disabled = true; }
+
+  const isFemale = (profile.sex||'').toLowerCase() === 'female';
+  const injuries = profile.injuryAssessments || [];
+  const supps    = profile.supplements || [];
+  const weekPlan = profile.weekPlan || [];
+  const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
 
   try {
-    const isFemale = (profile.sex||'').toLowerCase() === 'female';
-    const injuries = profile.injuryAssessments || [];
-    const supps    = profile.supplements || [];
-    const weekPlan = profile.weekPlan || [];
-    const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
-
-    const prompt = `Write a complete coaching brief document for ${profile.name}.
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2500,
+        system:'You are a senior performance coach writing a personalised coaching brief. Be direct, specific, and personal.',
+        messages:[{ role:'user', content:`Write a complete coaching brief document for ${profile.name}.
 
 PROFILE:
 ${profile.name}, ${profile.age}yo ${profile.sex}, ${profile.height}cm, ${profile.weight}kg
 Goal: ${profile.goal} | Target: ${profile.target||'—'}
 Calories: ${profile.calories} kcal | Protein: ${profile.protein}g | Carbs: ${profile.carbs}g | Fat: ${profile.fat}g
-Training: ${profile.trainingDays} days/week (${trainingDays})
-Wake: ${profile.wakeTime} | Eating window: ${profile.fastingWindow||profile.eatingWindow||'flexible'}
+Training: ${profile.trainingDays} days/week (${trainingDays}) | Wake: ${profile.wakeTime}
+Eating window: ${profile.fastingWindow||profile.eatingWindow||'flexible'}
 Diet: ${profile.dietType} | Exclusions: ${(profile.foodExclusions||[]).join(', ')||'none'}
 Trigger foods: ${profile.triggerFoods||'none'}
+Equipment: ${(profile.equipmentUsed||[]).join(', ')||profile.gymAccess||'—'}
+Free weight comfort: ${profile.freeWeightComfort||'—'}
+Training time: ${profile.trainingTime||'—'}
+Activity level: ${profile.activityLevel||'—'}
 Injuries: ${injuries.length ? injuries.map(i=>i.location+': '+i.assessment).join('; ') : 'none'}
 Non-negotiables: ${(profile.nonNegotiables||[]).join(', ')||'none'}
-Recovery: ${(profile.recoveryTools||[]).join(', ')||'none'}
-${isFemale ? 'SEX: Female — all content must reflect female physiology, hormonal context, and female-specific training and nutrition science.' : 'SEX: Male — reflect male physiology and hormonal context.'}
+${isFemale && profile.menstrualCycle ? 'Cycle: '+profile.menstrualCycle : ''}
+${isFemale ? 'FEMALE — all content must reflect female physiology.' : 'MALE — reflect male physiology.'}
 
-Write a comprehensive coaching brief with these sections:
-1. Workout Objective — one clear statement
-2. Goals — 4-6 specific bullet points, measurable where possible
-3. Approach — training split, cardio protocol, recovery protocol, nutrition strategy. Specific to their sex and profile.
-4. Current Baseline — all stats, strengths and weaknesses derived from their answers
-5. Injuries — each injury with: diagnosis/assessment, movements to avoid, safe alternatives, long-term protocol
-6. Food Philosophy — proteins, carbs, fats philosophy; cooking approach; exclusions; trigger food strategy
-7. Meal Rhythm — eating window, meals per day, macro targets per meal, timing around training
-8. Supplement Stack — each supplement with dose, timing, and the specific mechanism for this person
-9. Efficiency Rule — the single most important habit that determines whether this programme works
-
-Write it as a proper coaching document — direct, specific, actionable, personalised.
-Return only the document text, no JSON.`;
-
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2500,
-        system: 'You are a senior performance coach writing a personalised coaching brief. Be direct, specific, and personal. No generic advice.',
-        messages: [{ role: 'user', content: prompt }],
-      }),
+Write sections: Workout Objective, Goals, Approach, Current Baseline, Injuries, Food Philosophy, Meal Rhythm, Supplement Stack, Efficiency Rule. Direct, specific, personalised prose.` }],
+      })
     });
-
     const data = await res.json();
-    const text = data.content?.map(b => b.text||'').join('') || '';
+    const text = data.content?.map(b=>b.text||'').join('')||'';
     if (!text) throw new Error('Empty response');
-
-    // Save back to profile
     profile.instructions = text;
     localStorage.setItem('bl_profile', JSON.stringify(profile));
-
-    // Re-render
-    btn.textContent = '✓ Done — reload to see';
-    btn.disabled = false;
-    setTimeout(() => location.reload(), 800);
-
+    if (btn) { btn.textContent = '✓ Done'; btn.disabled = false; }
+    setTimeout(() => location.reload(), 600);
   } catch(e) {
     console.error(e);
-    btn.textContent = 'Error — try again';
-    btn.disabled = false;
+    if (btn) { btn.textContent = 'Error — try again'; btn.disabled = false; }
   }
 }
 </script>
-
 </body>
 </html>
