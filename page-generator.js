@@ -73,9 +73,9 @@ DIET: ${p.dietType||'no restrictions'} | EXCLUSIONS: ${(p.foodExclusions||[]).jo
 TRIGGER FOODS: ${p.triggerFoods||'none'} | EMOTIONAL EATING: ${p.emotionalEating||'—'}
 ENERGY PATTERN: ${p.energyPattern||'—'} | SLEEP: ${p.sleep||'—'} | ALCOHOL: ${p.alcoholHabit||'—'}
 RECOVERY TOOLS: ${(p.recoveryTools||[]).join(', ')||'none'}
-INJURIES: ${injuries.length ? injuries.map(i=>`${i.location||i}: ${i.assessment||i.detail||''}`).join('; ') : 'none'}
+INJURIES: ${injuries.length ? injuries.map(i=>(i.location||i)+': '+(i.assessment||i.detail||'')).join('; ') : 'none'}
 NON-NEGOTIABLES: ${(p.nonNegotiables||[]).join(', ')||'none'}
-SUPPLEMENTS: ${supps.map(s=>`${s.name} ${s.dose} @ ${s.timing}`).join(', ')||'none'}
+SUPPLEMENTS: ${supps.map(s=>s.name+' '+s.dose+' @ '+s.timing).join(', ')||'none'}
 COACH SUMMARY: ${p.coachSummary||'—'}
 ${isFemale ? `
 FEMALE PHYSIOLOGY FLAG: This is a ${p.age}-year-old woman.
@@ -259,7 +259,7 @@ Sections to include (adapted for their profile):
 3. Sleep as mental health — their sleep data, the hormonal connections
 4. ${(p.sex||'').toLowerCase()==='female' ? 'The hormonal cycle and mood — how oestrogen and progesterone affect motivation and training drive across the month' : 'Testosterone and mental state — how training, sleep, and nutrition maintain the hormonal foundation of mood and drive'}
 5. The psychology of ${p.goal||'body recomposition'} — the identity shift, the motivation architecture, the likely failure modes for this person
-6. ${p.triggerFoods && !p.triggerFoods.includes('None') ? `Managing ${p.triggerFoods} — the neuroscience of their specific trigger and practical protocols` : 'Building sustainable habits — the neuroscience of habit formation for this person'}
+6. Managing trigger foods and building sustainable habits — the neuroscience specific to this person's patterns
 
 Return ONLY valid JSON.`,
 
@@ -825,17 +825,45 @@ Return ONLY valid JSON.`
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: MODEL,
-          max_tokens: 3000,
+          max_tokens: 4000,
           system: 'You are a senior performance coach writing personalised programme content. Return only valid JSON. No markdown fences. No preamble.',
           messages: [{ role: 'user', content: promptFn(profile) }],
         }),
       });
 
       const apiData = await res.json();
-      const text    = apiData.content?.map(b => b.text||'').join('') || '';
-      const match   = text.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error('No JSON in response');
-      const data    = JSON.parse(match[0]);
+      
+      // Check for API errors
+      if (apiData.error) {
+        throw new Error('API error: ' + (apiData.error.message || JSON.stringify(apiData.error)));
+      }
+      
+      const text = apiData.content?.map(b => b.text||'').join('') || '';
+      if (!text) throw new Error('Empty response from API. Status: ' + res.status);
+      
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) {
+        console.error('Response text (no JSON found):', text.slice(0, 500));
+        throw new Error('No JSON in response — model may have refused or truncated');
+      }
+      
+      let data;
+      try {
+        data = JSON.parse(match[0]);
+      } catch(parseErr) {
+        // Try to clean common JSON issues
+        let cleaned = match[0]
+          .replace(/[\x00-\x1F\x7F]/g, ' ') // control chars
+          .replace(/,\s*}/g, '}')              // trailing commas
+          .replace(/,\s*]/g, ']');             // trailing commas in arrays
+        try {
+          data = JSON.parse(cleaned);
+        } catch(e2) {
+          console.error('JSON parse failed:', parseErr.message);
+          console.error('Text sample:', match[0].slice(0, 300));
+          throw new Error('JSON parse error: ' + parseErr.message);
+        }
+      }
 
       // Render
       const renderer = RENDERERS[pageType];
@@ -851,8 +879,8 @@ Return ONLY valid JSON.`
       onComplete && onComplete(html);
 
     } catch(e) {
-      console.error('Generator error:', e);
-      onError && onError(e.message);
+      console.error('Generator error for', pageType, ':', e);
+      onError && onError(e.message || String(e));
     }
   }
 
