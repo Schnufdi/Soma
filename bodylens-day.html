@@ -8,358 +8,126 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-body { background: var(--ink); color: var(--dk-1); }
+body { background:var(--ink); color:var(--dk-1); }
+.day-page { max-width:680px; margin:0 auto; padding:0 24px 140px; }
 
-/* ── PAGE ── */
-.day-page {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 0 24px 120px;
-}
+/* Hero */
+.day-hero { padding:36px 0 24px; border-bottom:1px solid var(--bd); margin-bottom:24px; }
+.day-kicker { font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--jade); margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.day-kicker::before { content:''; width:18px; height:1px; background:var(--jade); }
+.day-title { font-family:var(--serif); font-size:48px; font-weight:300; line-height:0.95; letter-spacing:-0.025em; color:var(--dk-1); margin-bottom:10px; }
+.day-brief { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.65; max-width:480px; margin-bottom:12px; }
+.day-priority { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--jade-dim); border:1px solid var(--jade-br); border-radius:4px; font-size:12px; font-weight:500; color:var(--jade); }
 
-/* ── DAY HEADER ── */
-.day-hero {
-  padding: 36px 0 28px;
-  border-bottom: 1px solid var(--bd);
-  margin-bottom: 28px;
-}
-.day-date-line {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--jade);
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.day-date-line::before { content:''; width:18px; height:1px; background:var(--jade); }
-.day-title {
-  font-family: var(--serif);
-  font-size: 52px;
-  font-weight: 300;
-  line-height: 0.95;
-  letter-spacing: -0.025em;
-  color: var(--dk-1);
-  margin-bottom: 12px;
-}
-.day-brief {
-  font-size: 14px;
-  font-weight: 300;
-  color: var(--dk-2);
-  line-height: 1.65;
-  max-width: 480px;
-  margin-bottom: 14px;
-}
-.day-priority {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: var(--jade-dim);
-  border: 1px solid var(--jade-br);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--jade);
-}
-.day-priority::before { content: '↑'; font-size: 14px; }
+/* Macro strip */
+.day-macros { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--bd); border:1px solid var(--bd); border-radius:6px; overflow:hidden; margin-bottom:24px; }
+.day-macro { background:var(--ink-2); padding:13px 10px; text-align:center; }
+.day-macro-val { font-family:var(--mono); font-size:19px; font-weight:500; color:var(--dk-1); line-height:1; margin-bottom:3px; }
+.day-macro-val.jade { color:var(--jade); }
+.day-macro-val.amber { color:var(--amber); }
+.day-macro-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
 
-/* ── MACRO STRIP ── */
-.day-macros {
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 1px;
-  background: var(--bd);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 28px;
-}
-.day-macro {
-  background: var(--ink-2);
-  padding: 14px 12px;
-  text-align: center;
-}
-.day-macro-val {
-  font-family: var(--mono);
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--dk-1);
-  line-height: 1;
-  margin-bottom: 4px;
-}
-.day-macro-val.jade  { color: var(--jade); }
-.day-macro-val.amber { color: var(--amber); }
-.day-macro-label {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--dk-3);
-}
-
-/* ── SECTION LABEL ── */
-.day-sec {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--dk-3);
-  margin: 24px 0 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+/* Section label */
+.day-sec { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin:20px 0 10px; display:flex; align-items:center; gap:10px; }
 .day-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
 
-/* ── TIMELINE BLOCK ── */
-.tl-block {
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 8px;
-  transition: border-color 0.15s;
-  cursor: pointer;
-}
-.tl-block:hover { border-color: var(--bd-2); }
-.tl-block.type-training { border-left: 3px solid var(--jade); }
-.tl-block.type-meal     { border-left: 3px solid var(--amber); }
-.tl-block.type-supp     { border-left: 3px solid var(--gold); }
-.tl-block.type-recovery { border-left: 3px solid var(--slate); }
-.tl-block.type-sleep    { border-left: 3px solid rgba(74,98,117,0.5); }
-.tl-block.type-note     { border-left: 3px solid var(--dk-3); }
+/* Timeline block */
+.tl-block { border:1px solid var(--bd); border-radius:6px; overflow:hidden; margin-bottom:6px; cursor:pointer; transition:border-color 0.12s; }
+.tl-block:hover { border-color:var(--bd-2); }
+.tl-block.type-wake     { border-left:3px solid var(--jade); }
+.tl-block.type-training { border-left:3px solid var(--jade); }
+.tl-block.type-meal     { border-left:3px solid var(--amber); }
+.tl-block.type-supp     { border-left:3px solid var(--gold); }
+.tl-block.type-hydration{ border-left:3px solid #4a8fa8; }
+.tl-block.type-recovery { border-left:3px solid #3e5e6a; }
+.tl-block.type-sleep    { border-left:3px solid #2a3f4a; }
+.tl-block.type-hack     { border-left:3px solid var(--dk-3); }
+.tl-block.type-cardio   { border-left:3px solid #5a9e7a; }
 
-.tl-head {
-  display: grid;
-  grid-template-columns: 58px 1fr auto;
-  align-items: center;
-  padding: 13px 16px;
-  background: var(--ink-1);
-  gap: 12px;
-}
-.tl-block.open .tl-head { background: var(--ink-2); }
+.tl-head { display:grid; grid-template-columns:58px 1fr auto; align-items:center; padding:12px 14px; background:var(--ink-1); gap:12px; }
+.tl-block.open .tl-head { background:var(--ink-2); }
 
-.tl-time {
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--jade);
-}
-.tl-block.type-meal     .tl-time { color: var(--amber); }
-.tl-block.type-supp     .tl-time { color: var(--gold); }
-.tl-block.type-recovery .tl-time { color: var(--dk-2); }
-.tl-block.type-sleep    .tl-time { color: var(--slate); }
+.tl-time { font-family:var(--mono); font-size:11px; font-weight:500; }
+.tl-block.type-wake .tl-time,
+.tl-block.type-training .tl-time { color:var(--jade); }
+.tl-block.type-meal .tl-time     { color:var(--amber); }
+.tl-block.type-supp .tl-time     { color:var(--gold); }
+.tl-block.type-hydration .tl-time{ color:#4a8fa8; }
+.tl-block.type-recovery .tl-time { color:#3e5e6a; }
+.tl-block.type-sleep .tl-time    { color:#4a6070; }
+.tl-block.type-hack .tl-time     { color:var(--dk-3); }
+.tl-block.type-cardio .tl-time   { color:#5a9e7a; }
 
-.tl-title {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--dk-1);
-  line-height: 1.3;
-}
-.tl-chevron {
-  font-size: 12px;
-  color: var(--dk-3);
-  transition: transform 0.2s;
-  flex-shrink: 0;
-}
-.tl-block.open .tl-chevron { transform: rotate(90deg); }
+.tl-main { min-width:0; }
+.tl-title { font-size:13px; font-weight:500; color:var(--dk-1); line-height:1.3; }
+.tl-subtitle { font-size:11px; font-weight:300; color:var(--dk-3); margin-top:1px; }
 
-.tl-body {
-  display: none;
-  padding: 14px 16px 16px;
-  background: var(--ink-1);
-  border-top: 1px solid var(--bd);
-}
-.tl-block.open .tl-body { display: block; }
+.tl-tag { font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:2px 8px; border-radius:10px; flex-shrink:0; }
+.tl-tag.jade   { color:var(--jade);  background:var(--jade-dim);  border:1px solid var(--jade-br); }
+.tl-tag.amber  { color:var(--amber); background:var(--amber-dim); border:1px solid var(--amber-br); }
+.tl-tag.gold   { color:var(--gold);  background:var(--gold-dim);  border:1px solid var(--gold-br); }
+.tl-tag.blue   { color:#4a8fa8;      background:rgba(74,143,168,0.1); border:1px solid rgba(74,143,168,0.25); }
+.tl-tag.slate  { color:var(--dk-2);  background:var(--ink-3);     border:1px solid var(--bd-2); }
 
-.tl-detail {
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--dk-2);
-  line-height: 1.82;
-  margin-bottom: 10px;
-}
-.tl-detail strong { color: var(--dk-1); font-weight: 500; }
+.tl-chevron { font-size:12px; color:var(--dk-3); transition:transform 0.2s; margin-left:6px; }
+.tl-block.open .tl-chevron { transform:rotate(90deg); }
 
-.tl-items {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-.tl-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--bd);
-  font-size: 12px;
-  gap: 12px;
-}
-.tl-item:last-child { border-bottom: none; padding-bottom: 0; }
-.tl-item-name { font-weight: 400; color: var(--dk-1); flex: 1; }
-.tl-item-meta { font-weight: 300; color: var(--dk-3); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+.tl-body { display:none; padding:14px 14px 16px; background:var(--ink-1); border-top:1px solid var(--bd); }
+.tl-block.open .tl-body { display:block; }
 
-/* ── LOADING STATE ── */
-.day-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  gap: 16px;
-}
-.day-spinner {
-  width: 36px; height: 36px;
-  border: 2px solid var(--bd-2);
-  border-top-color: var(--jade);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.day-loading-label {
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--dk-3);
-}
+.tl-detail { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.82; margin-bottom:10px; }
+.tl-detail strong { color:var(--dk-1); font-weight:500; }
+.tl-detail em { color:var(--jade); font-style:italic; }
 
-/* ── ASK BAR ── */
-.ask-wrap {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(12,16,16,0.97);
-  border-top: 1px solid var(--bd);
-  backdrop-filter: blur(8px);
-  z-index: 200;
-  padding: 10px 24px 14px;
-}
-.ask-inner {
-  max-width: 680px;
-  margin: 0 auto;
-}
-.ask-resp {
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--dk-2);
-  line-height: 1.7;
-  padding: 10px 14px;
-  background: var(--ink-2);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  margin-bottom: 8px;
-  display: none;
-  animation: fadeUp 0.2s ease;
-}
-.ask-resp.visible { display: block; }
-.ask-resp.loading { color: var(--jade); }
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(4px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.ask-chips-row {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-}
-.ask-chip {
-  font-size: 11px;
-  padding: 5px 12px;
-  background: var(--ink-2);
-  border: 1px solid var(--bd-2);
-  border-radius: 14px;
-  color: var(--dk-3);
-  cursor: pointer;
-  transition: all 0.12s;
-  font-family: var(--sans);
-  white-space: nowrap;
-}
-.ask-chip:hover { color: var(--jade); border-color: var(--jade-br); background: var(--jade-dim); }
-.ask-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.ask-input {
-  flex: 1;
-  background: var(--ink-2);
-  border: 1px solid var(--bd-2);
-  border-radius: 22px;
-  padding: 10px 18px;
-  font-size: 13px;
-  color: var(--dk-1);
-  font-family: var(--sans);
-  outline: none;
-  transition: border-color 0.15s;
-}
-.ask-input:focus { border-color: var(--jade-br); }
-.ask-input::placeholder { color: var(--dk-3); font-size: 12px; }
-.ask-btn {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: var(--jade);
-  border: none;
-  color: var(--ink);
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.15s;
-}
-.ask-btn:hover { background: var(--jade-hi); }
-.ask-btn:disabled { background: var(--ink-3); cursor: not-allowed; }
+.tl-items { }
+.tl-item { display:flex; justify-content:space-between; align-items:baseline; padding:6px 0; border-bottom:1px solid var(--bd); font-size:12px; gap:12px; }
+.tl-item:last-child { border-bottom:none; padding-bottom:0; }
+.tl-item-name { font-weight:400; color:var(--dk-1); flex:1; }
+.tl-item-meta { font-weight:300; color:var(--dk-3); font-family:var(--mono); font-size:11px; white-space:nowrap; }
 
-/* ── NO PROFILE ── */
-.no-profile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 70vh;
-  text-align: center;
-  padding: 48px 24px;
-  gap: 14px;
-}
-.no-profile-icon { font-size: 44px; }
-.no-profile h2 {
-  font-family: var(--serif);
-  font-size: 30px;
-  font-weight: 300;
-  color: var(--dk-1);
-}
-.no-profile p {
-  font-size: 14px;
-  font-weight: 300;
-  color: var(--dk-2);
-  max-width: 360px;
-  line-height: 1.7;
-}
-.no-profile a {
-  display: inline-block;
-  padding: 12px 28px;
-  background: var(--jade);
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink);
-  text-decoration: none;
-  transition: background 0.15s;
-}
-.no-profile a:hover { background: var(--jade-hi); }
+/* Science note */
+.tl-science { margin-top:10px; padding:10px 12px; background:rgba(0,200,160,0.04); border-left:2px solid var(--jade-br); border-radius:0 4px 4px 0; font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.65; font-style:italic; }
+
+/* Loading */
+.day-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; gap:16px; }
+.day-spinner { width:36px; height:36px; border:2px solid var(--bd-2); border-top-color:var(--jade); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.day-loading-label { font-size:13px; font-weight:300; color:var(--dk-3); }
+.day-loading-steps { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+.day-loading-step { font-size:11px; font-weight:300; color:var(--dk-3); display:flex; align-items:center; gap:8px; transition:color 0.3s; }
+.day-loading-step.done { color:var(--jade); }
+
+/* Ask bar */
+.ask-wrap { position:fixed; bottom:0; left:0; right:0; background:rgba(12,16,16,0.97); border-top:1px solid var(--bd); backdrop-filter:blur(8px); z-index:200; padding:10px 24px 14px; }
+.ask-inner { max-width:680px; margin:0 auto; }
+.ask-resp { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.7; padding:10px 14px; background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; margin-bottom:8px; display:none; }
+.ask-resp.visible { display:block; animation:fadeUp 0.2s ease; }
+.ask-resp.loading { color:var(--jade); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.ask-chips-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+.ask-chip { font-size:11px; padding:5px 12px; background:var(--ink-2); border:1px solid var(--bd-2); border-radius:14px; color:var(--dk-3); cursor:pointer; transition:all 0.12s; font-family:var(--sans); white-space:nowrap; }
+.ask-chip:hover { color:var(--jade); border-color:var(--jade-br); background:var(--jade-dim); }
+.ask-row { display:flex; gap:8px; align-items:center; }
+.ask-input { flex:1; background:var(--ink-2); border:1px solid var(--bd-2); border-radius:22px; padding:10px 18px; font-size:13px; color:var(--dk-1); font-family:var(--sans); outline:none; transition:border-color 0.15s; }
+.ask-input:focus { border-color:var(--jade-br); }
+.ask-input::placeholder { color:var(--dk-3); font-size:12px; }
+.ask-btn { width:40px; height:40px; border-radius:50%; background:var(--jade); border:none; color:var(--ink); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background 0.15s; }
+.ask-btn:hover { background:var(--jade-hi); }
+.ask-btn:disabled { background:var(--ink-3); cursor:not-allowed; }
+
+/* No profile */
+.no-profile { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:70vh; text-align:center; padding:48px 24px; gap:14px; }
+.no-profile h2 { font-family:var(--serif); font-size:30px; font-weight:300; color:var(--dk-1); }
+.no-profile p  { font-size:14px; font-weight:300; color:var(--dk-2); max-width:360px; line-height:1.7; }
+.no-profile a  { display:inline-block; padding:12px 28px; background:var(--jade); border-radius:6px; font-size:13px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink); text-decoration:none; }
 
 @media(max-width:600px){
-  .day-page { padding: 0 16px 120px; }
-  .day-title { font-size: 38px; }
-  .day-macros { grid-template-columns: repeat(2,1fr); }
-  .ask-wrap { padding: 8px 16px 12px; }
-  .ask-chips-row { display: none; }
-  .tl-head { grid-template-columns: 50px 1fr auto; padding: 11px 12px; }
-  .tl-body { padding: 12px 12px 14px; }
+  .day-page { padding:0 16px 120px; }
+  .day-title { font-size:36px; }
+  .day-macros { grid-template-columns:repeat(2,1fr); }
+  .ask-wrap { padding:8px 16px 12px; }
+  .ask-chips-row { display:none; }
+  .tl-head { grid-template-columns:48px 1fr auto; padding:10px 12px; }
 }
 </style>
 </head>
@@ -379,18 +147,22 @@ body { background: var(--ink); color: var(--dk-1); }
   <div class="day-loading" id="loading">
     <div class="day-spinner"></div>
     <div class="day-loading-label" id="loading-label">Building your day…</div>
+    <div class="day-loading-steps" id="loading-steps">
+      <div class="day-loading-step" id="ls-1">Checking your training schedule</div>
+      <div class="day-loading-step" id="ls-2">Planning your meals and nutrition</div>
+      <div class="day-loading-step" id="ls-3">Scheduling supplements and hydration</div>
+      <div class="day-loading-step" id="ls-4">Adding recovery and sleep protocol</div>
+    </div>
   </div>
 </div>
 
-<!-- ASK ANYTHING -->
 <div class="ask-wrap" id="ask-wrap" style="display:none;">
   <div class="ask-inner">
     <div class="ask-resp" id="ask-resp"></div>
     <div class="ask-chips-row" id="ask-chips"></div>
     <div class="ask-row">
-      <input class="ask-input" id="ask-input"
-        type="text"
-        placeholder="Ask anything — I'm hungry, knee feels tight, can I drink tonight…"
+      <input class="ask-input" id="ask-input" type="text"
+        placeholder="Ask anything — food, training, supplements, energy…"
         autocomplete="off">
       <button class="ask-btn" id="ask-btn">↑</button>
     </div>
@@ -399,171 +171,218 @@ body { background: var(--ink); color: var(--dk-1); }
 
 <script src="nav.js"></script>
 <script>
-// ══════════════════════════════════════════════════
-//  BodyLens — Day Page
-//  Generates a structured daily plan from the profile.
-//  Caches it so it doesn't regenerate on every open.
-//  Ask-anything bar answers in full context.
-// ══════════════════════════════════════════════════
-
 const API   = '/api/chat';
 const MODEL = 'claude-sonnet-4-20250514';
 
-// ── PROFILE ────────────────────────────────────────
 const profile = getProfile();
 
 if (!profile) {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('day-page').innerHTML = `
     <div class="no-profile">
-      <div class="no-profile-icon">💪</div>
+      <div style="font-size:44px;">💪</div>
       <h2>Let's build your programme</h2>
       <p>Answer a few questions and your personalised daily plan will be ready in minutes.</p>
       <a href="bodylens-onboard.html">Get started →</a>
     </div>`;
 } else {
+  document.getElementById('nav-meta').innerHTML =
+    `<span class="nav-tag nt-jade">${profile.name}</span>`;
   init();
 }
 
-// ── NAV ────────────────────────────────────────────
-if (profile && profile.name) {
-  document.getElementById('nav-meta').innerHTML =
-    `<span class="nav-tag nt-jade">${profile.name}</span>`;
-}
-
-// ── DAY CONTEXT ────────────────────────────────────
+// ── DAY CONTEXT ────────────────────────────────────────
 const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const DAY_MAP   = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
 const todayIdx  = DAY_MAP[new Date().getDay()];
 const todayName = DAY_NAMES[todayIdx];
 const weekPlan  = (profile && profile.weekPlan) || [];
-const todayPlan = weekPlan[todayIdx] || {type:'Rest',focus:'Recovery',kcal:profile&&profile.calories||2200,priority:'rest'};
+const todayPlan = weekPlan[todayIdx] || {type:'Rest',focus:'Recovery',priority:'rest'};
 const isTraining = todayPlan.priority === 'training';
 const CACHE_KEY  = 'dayplan_' + new Date().toISOString().slice(0,10);
 
-// ── INIT ───────────────────────────────────────────
+// ── INIT ───────────────────────────────────────────────
 async function init() {
-  const cached = BL_STORE.get(CACHE_KEY);
-  if (cached && cached.blocks && cached.blocks.length > 0) {
+  // Animate loading steps
+  const steps = ['ls-1','ls-2','ls-3','ls-4'];
+  steps.forEach((id,i) => setTimeout(() => {
+    document.getElementById(id)?.classList.add('done');
+  }, (i+1) * 1500));
+
+  const cached = (() => {
+    try { const v = localStorage.getItem(CACHE_KEY); return v ? JSON.parse(v) : null; }
+    catch(e) { return null; }
+  })();
+
+  if (cached && cached.blocks && cached.blocks.length > 2) {
     renderDay(cached);
     return;
   }
-  document.getElementById('loading-label').textContent = 'Building your day…';
+
   try {
     const plan = await generateDayPlan();
-    BL_STORE.set(CACHE_KEY, plan);
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(plan)); } catch(e) {}
     renderDay(plan);
   } catch(e) {
-    console.error(e);
+    console.error('Day generation error:', e);
     renderDay(buildFallbackPlan());
   }
 }
 
-// ── GENERATE ───────────────────────────────────────
+// ── GENERATE ───────────────────────────────────────────
 async function generateDayPlan() {
-  const p = profile;
-  const wake = p.wakeTime || '07:00';
-  const [wH] = wake.split(':').map(Number);
+  const p        = profile;
+  const wake     = p.wakeTime || '07:00';
+  const [wH,wM]  = wake.split(':').map(Number);
+  const addMins  = (h,m,mins) => {
+    const tot = h*60+m+mins;
+    return String(Math.floor(tot/60)%24).padStart(2,'0') + ':' + String(tot%60).padStart(2,'0');
+  };
+  const isFemale = (p.sex||'').toLowerCase() === 'female';
+  const injuries = p.injuryAssessments || p.injuries || [];
+  const supps    = p.supplements || [];
+  const trainingTime = p.trainingTime || 'Morning';
+  const trainHour = trainingTime.includes('Early') ? wH+1 :
+                    trainingTime.includes('Morning') ? wH+2 :
+                    trainingTime.includes('Lunch') ? 12 :
+                    trainingTime.includes('After') ? 15 :
+                    trainingTime.includes('Even') ? 18 : wH+2;
 
-  const prompt = `Build a complete structured daily plan for ${p.name} for ${todayName}.
+  const prompt = `Build a complete personalised daily plan. Return ONLY valid JSON.
 
-PERSON:
-${p.name}, ${p.age||'?'}yo ${p.sex||'male'}, ${p.weight||'?'}kg
-Goal: ${p.goal || 'body recomposition'}
-Experience: ${p.experience || 'intermediate'}
-Wake time: ${wake}
-Diet: ${p.dietType || 'no restrictions'}
-Food exclusions: ${(p.foodExclusions||[]).join(', ')||'none'}
-Trigger foods: ${p.triggerFoods||'none'}
-Recovery tools: ${(p.recoveryTools||[]).join(', ')||'none'}
-Non-negotiables: ${(p.nonNegotiables||[]).join(', ')||'none'}
-Injuries: ${p.injuries&&p.injuries.length?p.injuries.join(', '):'none'}
-Injury detail: ${p.injuryDetail||'none'}
-Alcohol habit: ${p.alcoholHabit||'social'}
-
-TODAY: ${todayName} — ${todayPlan.type} (${todayPlan.focus})
-Training day: ${isTraining?'YES':'NO'}
-${isTraining?`Key exercises: ${(todayPlan.keyExercises||[]).join(', ')}
-Modifications: ${(todayPlan.modifications||[]).join(', ')||'none'}`:'Rest day — focus on nutrition and recovery'}
-Calories today: ${todayPlan.kcal || p.calories || 2400}
-Protein: ${p.protein||185}g | Carbs: ${p.carbs||200}g | Fat: ${p.fat||80}g
+PERSON: ${p.name}, ${p.age}yo ${p.sex}, ${p.weight}kg, ${p.height||'?'}cm
+Goal: ${p.goal} | Experience: ${p.experience||'intermediate'}
+Wake: ${wake} | Trains: ${trainingTime}
+Calories: ${todayPlan.kcal||p.calories||2000} kcal | Protein: ${p.protein||140}g | Carbs: ${p.carbs||160}g | Fat: ${p.fat||60}g
 Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
+Diet: ${p.dietType||'no restrictions'} | Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}
+Trigger foods to avoid: ${p.triggerFoods||'none'}
+Today: ${todayName} — ${todayPlan.type} (${isTraining?'TRAINING DAY':'REST DAY'})
+${isTraining ? 'Exercises: '+(todayPlan.keyExercises||[]).join(', ') : 'Rest day — focus on nutrition, recovery, adaptation'}
+${injuries.length ? 'Injuries: '+injuries.map(i=>(i.location||i)+': '+(i.assessment||'')).join('; ') : ''}
+Recovery tools: ${(p.recoveryTools||[]).join(', ')||'none'}
+Supplements: ${supps.map(s=>s.name+' '+s.dose+' @ '+s.timing).join(' | ')||'standard stack'}
+Non-negotiables: ${(p.nonNegotiables||[]).join(', ')||'none'}
+${isFemale ? 'FEMALE: Account for female hormonal context, higher iron needs, oestrogen effects' : ''}
 
-Return ONLY valid JSON:
+Return JSON with this exact structure:
 {
   "dayTitle": "${todayName} — ${todayPlan.type}",
-  "dayBrief": "2 sentences: what today is about and the key thing to get right",
-  "priority": "One sentence — the single most important thing today",
+  "dayBrief": "2 sentences: what today is about and the single most important thing",
+  "priority": "One sentence — the #1 thing that determines whether today succeeds",
+  "macroTargets": { "calories": 0, "protein": 0, "carbs": 0, "fat": 0, "water": "Xml" },
   "blocks": [
     {
       "time": "HH:MM",
-      "type": "training|meal|supp|recovery|sleep|note",
-      "title": "Brief title",
-      "tag": "optional short label",
-      "tagColor": "jade|amber|gold|slate",
-      "detail": "Full instructions. Specific. What exactly to do or eat. Why it matters.",
+      "type": "wake|training|cardio|meal|supp|hydration|recovery|sleep|hack",
+      "title": "Block title",
+      "subtitle": "One line summary",
+      "tag": "label e.g. Train / Eat / Hydrate / Supplement",
+      "tagColor": "jade|amber|gold|blue|slate",
+      "detail": "Full instructions. Specific. What exactly to do, eat, or take. Why it matters for this person today.",
+      "science": "One sentence — the mechanism. Why this produces the result it does.",
       "items": [
-        { "name": "item name", "meta": "dose or quantity" }
+        { "name": "specific item", "meta": "quantity or dose or duration" }
       ]
     }
-  ],
-  "macroTargets": {
-    "calories": ${todayPlan.kcal||p.calories||2400},
-    "protein": ${p.protein||185},
-    "carbs": ${p.carbs||200},
-    "fat": ${p.fat||80}
-  }
+  ]
 }
 
-REQUIRED BLOCKS — include all of these:
-1. Wake routine (${wake}) — water, sunlight, cold shower, no phone rule
-2. Supplements — collagen + VitC if training day (45min before session), coffee timing, L-Theanine
-${isTraining?`3. Training session — list exercises with sets and reps, any injury modifications
-4. Post-training — protein within 30min, sauna if available, hydro pool if available`:'3. Active recovery — what to do on a rest day (walk, Zone 2, mobility)'}
-5. All meals — specific foods, approximate quantities, why that meal at that time
-   - Respect eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
-   - Respect food exclusions: ${(p.foodExclusions||[]).join(', ')||'none'}
-   - Trigger foods to avoid: ${p.triggerFoods||'none'}
-6. Evening supplements (magnesium, omega-3 if not taken earlier)
-7. Wind-down and sleep — screens off, room temp, time
+REQUIRED BLOCKS — include ALL of these in time order:
 
-Be specific. A good coach tells you what to eat — not just "protein and carbs" but "200g chicken breast, 150g sweet potato, unlimited spinach."
-Return ONLY the JSON.`;
+1. WAKE (${wake}) — morning ignition: water 500ml immediately, no phone 5 min, morning sunlight 10 min outside, cold shower finish 30-60 sec. Science note on cortisol and circadian rhythm.
+
+2. HYDRATION TARGETS — set the daily target. Calculate: bodyweight x 35ml + 500ml for training${isTraining?'':'(rest day standard)'}. List timing checkpoints through the day (wake, mid-morning, pre-training, post-training, evening). Note electrolyte needs.
+
+3. SUPPLEMENTS — morning timing cascade based on wake time ${wake}:
+${supps.length ? supps.map(s=>'   - '+s.name+' '+s.dose+' at '+s.timing).join('\n') : '   - Standard evidence-based stack'}
+   ${isTraining ? '- IMPORTANT: Collagen+VitC 45 min before training (Shaw 2017 — 5.5x connective tissue synthesis)' : ''}
+   - Coffee at ${addMins(wH,wM,90)} (90min after wake — after cortisol peak clears)
+   ${supps.some(s=>s.name.toLowerCase().includes('theanine')) ? '- L-Theanine with each coffee' : ''}
+
+${isTraining
+  ? '4. PRE-TRAINING MEAL — specific foods for this person, ' + (p.dietType||'no restrictions') + ', excludes ' + ((p.foodExclusions||[]).join(', ')||'nothing') + '. Timed 90-120min before training. High protein, moderate fast carbs, low fat.\n\n'
+    + '5. TRAINING SESSION (approx ' + String(trainHour).padStart(2,'0') + ':00) — ' + todayPlan.type + ': ' + todayPlan.focus + '\n'
+    + '   Exercises with sets, reps, rest periods: ' + (todayPlan.keyExercises||[]).join(', ') + '\n'
+    + (injuries.length ? '   With modifications for: '+injuries.map(i=>i.location||i).join(', ')+'\n' : '')
+    + '   Include warm-up protocol, working sets, and cool-down.\n\n'
+    + '6. POST-TRAINING (within 30 min) — protein and fast carbs. Specific foods. Why this window matters.'
+  : '4. ACTIVE RECOVERY / MOVEMENT — rest day active recovery. ' + ((p.recoveryTools||[]).includes('Swimming')?'Swimming protocol':'Light walking or mobility work') + '. Target 7-10k steps. Zone 1 only — this is recovery not training.'
+}
+
+${isTraining && (p.recoveryTools||[]).length
+  ? '7. RECOVERY PROTOCOL — specific sequence using ' + (p.recoveryTools||[]).join(', ') + ':\n'
+    + ((p.recoveryTools||[]).includes('Sauna') ? '   - Sauna: 15-20 min at 80-90C — GH pulse, heat shock proteins\n' : '')
+    + ((p.recoveryTools||[]).includes('Cold plunge') ? '   - Cold plunge: 3-5 min — vasoconstriction, inflammation clearance\n' : '')
+    + ((p.recoveryTools||[]).includes('Swimming pool') ? '   - Pool: 10-15 min easy — unloads joints, promotes blood flow\n' : '')
+    + '   Give exact sequence, duration, and science for each.'
+  : ''}
+
+${isTraining ? '8' : '5'}. ALL MEALS — ${p.fastingWindow||p.eatingWindow||'flexible'} eating window. ${p.mealCount||3}-${(p.mealCount||3)+1} meals.
+   Each meal: specific foods with exact quantities in grams, hitting leucine threshold (>2.5g leucine = >25g complete protein per meal).
+   Total hits: protein ${p.protein||140}g, carbs ${p.carbs||160}g, fat ${p.fat||60}g.
+   ${isFemale ? 'Include iron-rich sources. Note oestrogen-supportive foods.' : ''}
+   Respect exclusions: ${(p.foodExclusions||[]).join(', ')||'none'}.
+   Avoid trigger foods: ${p.triggerFoods||'none'}.
+
+${isTraining ? '9' : '6'}. PERFORMANCE HACKS — 2-3 specific, evidence-based things this person can do today beyond the basics:
+   ${p.alcoholHabit&&!p.alcoholHabit.includes('rarely')&&!p.alcoholHabit.includes("don't") ? '- Alcohol tonight: '+((p.weekPlan||[]).filter(d=>d.priority==="training").length > 0 ? 'training day — no alcohol (mTOR suppression for 24h)' : 'rest day — max 2 units by 20:00') : ''}
+   - Light exposure hack: sunlight within 30 min of wake + avoid bright light 2h before sleep
+   - ${isFemale ? 'Cycle-phase nutrition: note which phase this is and what it means for today' : 'Testosterone optimisation: sleep, zinc, heavy compound lift today'}
+   - One stress or cortisol management technique specific to their profile
+
+${isTraining ? '10' : '7'}. EVENING WIND-DOWN — screens off at specific time, magnesium timing, room temperature, last meal cutoff.
+
+${isTraining ? '11' : '8'}. SLEEP — target time, duration, why tonight's sleep is especially important given today's training load. GH pulse timing.
+
+Be specific throughout. "Eat protein" is useless. "180g chicken breast + 120g sweet potato" is useful.
+Return ONLY the JSON. No markdown.`;
 
   const res = await fetch(API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 2500,
-      system: 'You are a performance coach building a daily plan. Return only valid JSON. No preamble.',
-      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 4000,
+      system: 'You are a senior performance coach. Return only valid JSON. No preamble. No markdown.',
+      messages: [{ role:'user', content: prompt }],
     }),
   });
 
+  if (!res.ok) throw new Error('API ' + res.status);
   const data = await res.json();
-  const text = data.content?.map(b => b.text||'').join('') || '';
+  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+  const text = (data.content||[]).map(b=>b.text||'').join('');
+  if (!text) throw new Error('Empty response');
+
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('No JSON');
-  return JSON.parse(match[0]);
+  if (!match) throw new Error('No JSON in response');
+
+  let parsed;
+  try { parsed = JSON.parse(match[0]); }
+  catch(e) {
+    const cleaned = match[0].replace(/[\x00-\x1F\x7F]/g,' ').replace(/,\s*}/g,'}').replace(/,\s*]/g,']');
+    parsed = JSON.parse(cleaned);
+  }
+  return parsed;
 }
 
-// ── RENDER ─────────────────────────────────────────
+// ── RENDER ─────────────────────────────────────────────
 function renderDay(plan) {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('ask-wrap').style.display = 'block';
 
   const m = plan.macroTargets || {
-    calories: todayPlan.kcal||profile.calories||2400,
-    protein:  profile.protein||185,
-    carbs:    profile.carbs||200,
-    fat:      profile.fat||80
+    calories: todayPlan.kcal || profile.calories || 2000,
+    protein:  profile.protein || 140,
+    carbs:    profile.carbs   || 160,
+    fat:      profile.fat     || 60,
   };
 
   const page = document.getElementById('day-page');
   page.innerHTML = `
     <div class="day-hero">
-      <div class="day-date-line">${formatDate()}</div>
+      <div class="day-kicker">${formatDate()}</div>
       <div class="day-title">${plan.dayTitle || todayName}</div>
       <div class="day-brief">${plan.dayBrief || ''}</div>
       ${plan.priority ? `<div class="day-priority">${plan.priority}</div>` : ''}
@@ -571,22 +390,26 @@ function renderDay(plan) {
 
     <div class="day-macros">
       <div class="day-macro">
-        <div class="day-macro-val">${m.calories}</div>
+        <div class="day-macro-val">${m.calories||'—'}</div>
         <div class="day-macro-label">Calories</div>
       </div>
       <div class="day-macro">
-        <div class="day-macro-val jade">${m.protein}g</div>
+        <div class="day-macro-val jade">${m.protein||'—'}g</div>
         <div class="day-macro-label">Protein</div>
       </div>
       <div class="day-macro">
-        <div class="day-macro-val amber">${m.carbs}g</div>
+        <div class="day-macro-val amber">${m.carbs||'—'}g</div>
         <div class="day-macro-label">Carbs</div>
       </div>
       <div class="day-macro">
-        <div class="day-macro-val">${m.fat}g</div>
+        <div class="day-macro-val" style="color:var(--dk-2)">${m.fat||'—'}g</div>
         <div class="day-macro-label">Fat</div>
       </div>
     </div>
+
+    ${m.water ? `<div style="font-size:12px;font-weight:300;color:#4a8fa8;margin-bottom:20px;padding:8px 12px;background:rgba(74,143,168,0.08);border-radius:4px;border-left:2px solid rgba(74,143,168,0.3);">
+      💧 Water target: ${m.water} — spread across the day
+    </div>` : ''}
 
     <div class="day-sec">Your day</div>
 
@@ -597,7 +420,7 @@ function renderDay(plan) {
     <div style="margin-top:20px;text-align:center;">
       <button onclick="regenerate()"
         style="background:transparent;border:1px solid var(--bd-2);color:var(--dk-3);
-        padding:8px 18px;border-radius:20px;font-size:11px;cursor:pointer;
+        padding:7px 16px;border-radius:20px;font-size:10px;cursor:pointer;
         font-family:var(--sans);letter-spacing:0.04em;">
         ↺ Regenerate today
       </button>
@@ -614,59 +437,45 @@ function renderBlock(b, open) {
       <span class="tl-item-meta">${item.meta||''}</span>
     </div>`).join('');
 
-  const tag = b.tag
-    ? `<span style="font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
-        padding:3px 10px;border-radius:12px;flex-shrink:0;
-        color:var(--${b.tagColor||'slate'});
-        background:var(--${b.tagColor||'slate'}-dim);
-        border:1px solid var(--${b.tagColor||'slate'}-br);">${b.tag}</span>`
+  const tagHtml = b.tag
+    ? `<span class="tl-tag ${b.tagColor||'slate'}">${b.tag}</span>`
     : '';
 
   return `
-    <div class="tl-block type-${b.type||'note'}${open?' open':''}"
+    <div class="tl-block type-${b.type||'hack'}${open?' open':''}"
       onclick="this.classList.toggle('open')">
       <div class="tl-head">
         <div class="tl-time">${b.time||''}</div>
-        <div class="tl-title">${b.title||''}</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          ${tag}
+        <div class="tl-main">
+          <div class="tl-title">${b.title||''}</div>
+          ${b.subtitle ? `<div class="tl-subtitle">${b.subtitle}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          ${tagHtml}
           <div class="tl-chevron">›</div>
         </div>
       </div>
       <div class="tl-body">
         <div class="tl-detail">${(b.detail||'').replace(/\n/g,'<br>')}</div>
         ${items ? `<div class="tl-items">${items}</div>` : ''}
+        ${b.science ? `<div class="tl-science">${b.science}</div>` : ''}
       </div>
     </div>`;
 }
 
-// ── ASK ANYTHING ───────────────────────────────────
+// ── ASK ANYTHING ───────────────────────────────────────
 function setupAskChips() {
   const injuries = (profile.injuryAssessments || profile.injuries || []);
   const injuryChip = injuries.length
-    ? injuries[0].location + ' feels tight'
-    : null;
-  const triggerChip = profile.triggerFoods && !profile.triggerFoods.toLowerCase().includes('none')
-    ? 'I want ' + profile.triggerFoods.split(/[,/]/)[0].trim().toLowerCase()
+    ? injuries[0].location + ' feels off'
     : null;
 
-  const trainingChips = [
-    "I'm hungry — what can I eat?",
-    "How heavy should I go today?",
-    "Can I drink tonight?",
-    injuryChip || "Low energy — what helps?",
-  ].filter(Boolean);
-
-  const restChips = [
-    "I'm hungry — what can I eat?",
-    "What's best for recovery today?",
-    "Can I drink tonight?",
-    triggerChip || "Low energy — what helps?",
-  ].filter(Boolean);
-
-  const chips = isTraining ? trainingChips : restChips;
+  const chips = isTraining
+    ? ["What should I eat now?", "How heavy should I go?", "Can I drink tonight?", injuryChip || "Low energy — help"]
+    : ["I'm hungry — what can I eat?", "Best recovery today?", "Can I drink tonight?", "Low energy — what helps?"];
 
   document.getElementById('ask-chips').innerHTML = chips
+    .filter(Boolean)
     .map(q => `<button class="ask-chip" onclick="setAsk('${q.replace(/'/g,"\\'")}')">${q}</button>`)
     .join('');
 }
@@ -693,18 +502,19 @@ async function handleAsk() {
   resp.className = 'ask-resp visible loading';
   resp.textContent = 'Thinking…';
 
-  // Build today context
-  const logged  = getTodayMacros();
-  const context = `TODAY: ${todayName} — ${todayPlan.type}
-Training: ${isTraining ? 'YES — ' + (todayPlan.keyExercises||[]).slice(0,3).join(', ') : 'Rest day'}
-Calories remaining: ~${(todayPlan.kcal||profile.calories||2400) - logged.calories} kcal
-Protein remaining: ~${(profile.protein||185) - logged.protein}g
-Food logged today: ${getFoodLog().map(e=>e.name).join(', ')||'nothing yet'}`;
+  const context = `TODAY: ${todayName} — ${todayPlan.type} (${isTraining?'training':'rest'} day)
+Person: ${profile.name}, ${profile.age}yo ${profile.sex}, goal: ${profile.goal}
+Calories today: ${todayPlan.kcal||profile.calories||2000} | Protein: ${profile.protein||140}g
+Diet: ${profile.dietType||'no restrictions'} | Excludes: ${(profile.foodExclusions||[]).join(', ')||'none'}
+Trigger foods: ${profile.triggerFoods||'none'}
+Supplements: ${(profile.supplements||[]).map(s=>s.name).join(', ')||'standard'}
+Injuries: ${(profile.injuryAssessments||profile.injuries||[]).map(i=>i.location||i).join(', ')||'none'}
+${isTraining ? 'Training: '+(todayPlan.keyExercises||[]).slice(0,3).join(', ') : 'Rest day — recovery focus'}`;
 
   try {
-    const answer = await quickCoach(q, context, 350);
+    const answer = await quickCoach(q, context, 400);
     resp.className = 'ask-resp visible';
-    resp.textContent = answer;
+    resp.innerHTML = answer.replace(/\n/g,'<br>');
   } catch(e) {
     resp.className = 'ask-resp visible';
     resp.textContent = 'Connection issue — try again.';
@@ -712,111 +522,190 @@ Food logged today: ${getFoodLog().map(e=>e.name).join(', ')||'nothing yet'}`;
   btn.disabled = false;
 }
 
-// ── REGENERATE ─────────────────────────────────────
+// ── REGENERATE ─────────────────────────────────────────
 async function regenerate() {
-  BL_STORE.del(CACHE_KEY);
+  try { localStorage.removeItem(CACHE_KEY); } catch(e) {}
   document.getElementById('day-page').innerHTML = `
     <div class="day-loading">
       <div class="day-spinner"></div>
-      <div class="day-loading-label">Regenerating your day…</div>
+      <div class="day-loading-label">Rebuilding your day…</div>
     </div>`;
   document.getElementById('ask-wrap').style.display = 'none';
   await init();
 }
 
-// ── FALLBACK ───────────────────────────────────────
+// ── FALLBACK ───────────────────────────────────────────
 function buildFallbackPlan() {
   const wake = profile.wakeTime || '07:00';
-  const [wH, wM] = wake.split(':').map(Number);
-  const t = (h, m=0) => `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-  const kcal = todayPlan.kcal || profile.calories || 2400;
-  const prot = profile.protein || 185;
+  const [wH,wM] = wake.split(':').map(Number);
+  const t = (h,m=0) => String(Math.floor((h*60+m)/60)%24).padStart(2,'0')+':'+String((h*60+m)%60).padStart(2,'0');
+  const addM = (mins) => t(wH, wM+mins);
+  const kcal  = todayPlan.kcal || profile.calories || 2000;
+  const prot  = profile.protein || 140;
+  const carbs = profile.carbs   || 160;
+  const fat   = profile.fat     || 60;
+  const isFemale = (profile.sex||'').toLowerCase() === 'female';
+  const water = Math.round((profile.weight||70) * 35 + (isTraining ? 500 : 0));
 
   const blocks = [
     {
-      time: wake, type:'note', title:'Wake + morning ignition',
-      detail:`No phone for the first 5 minutes. 500ml water immediately.\n\nOutside for 10 minutes — morning sunlight sets your circadian clock for the day and determines tonight's sleep quality.\n\nCold shower to finish — 30-60 seconds cold. Noradrenaline surge, dopamine elevated for hours, HPA axis recalibrated.`,
-      items:[{name:'Water',meta:'500ml immediately'},{name:'Sunlight',meta:'10 minutes outside'},{name:'Cold shower',meta:'30-60 sec cold finish'}]
+      time:wake, type:'wake', title:'Morning ignition', subtitle:'Cortisol peak · Circadian set',
+      tag:'Wake', tagColor:'jade',
+      detail:`No phone for 5 minutes. 500ml water immediately — you've been fasting 7-8 hours.\n\nOutside for 10 minutes: morning sunlight hits the suprachiasmatic nucleus and sets your circadian clock, determining tonight's sleep quality and melatonin timing.\n\nCold shower to finish: 30-60 seconds cold water. Noradrenaline spikes 200-300%, dopamine elevated for hours.`,
+      science:`Cortisol peaks 30-45 minutes after wake — it's the cortisol awakening response and it sets your energy architecture for the day. Work with it, not against it.`,
+      items:[{name:'Water',meta:'500ml immediately'},{name:'Sunlight',meta:'10 min outside'},{name:'Cold shower',meta:'30-60 sec cold finish'}]
     },
     {
-      time: t(wH+1, 30), type:'supp', title:'Coffee + L-Theanine', tag:'Non-negotiable', tagColor:'jade',
-      detail:`Coffee arrives 90 minutes after waking — after the cortisol peak clears. Taking it during the cortisol peak builds tolerance faster and produces a larger crash.\n\n200mg L-Theanine with each coffee: removes the anxiety amplification, leaves the focus and alertness.`,
-      items:[{name:'Flat white',meta:'1-2 cups'},{name:'L-Theanine',meta:'200mg with each'}]
+      time:addM(20), type:'hydration', title:'Hydration targets for today', subtitle:`Goal: ${water}ml`,
+      tag:'Hydrate', tagColor:'blue',
+      detail:`Daily water target: ${water}ml.\n\nCheckpoints:\n• Wake: 500ml\n• Mid-morning: 400ml\n• Pre-training: 400ml${isTraining?' (sip during session)':''}\n• Afternoon: 400ml\n• Evening: 300ml\n\nAdd a pinch of sea salt or electrolytes to 1-2 glasses — especially on training days when sodium is lost through sweat.`,
+      science:`Dehydration of just 2% body weight reduces cognitive performance by 10% and physical performance by up to 20%. Hydration affects mood, focus, and muscle contractility directly.`,
+      items:[{name:'Total target',meta:water+'ml'},{name:'Electrolytes',meta:'Pinch of sea salt x 2 glasses'},{name:'Caffeine rule',meta:'Match every coffee with 200ml water'}]
+    },
+    {
+      time:addM(30), type:'supp', title:'Morning supplements', subtitle:'Timed to wake, before cortisol drops',
+      tag:'Supplements', tagColor:'gold',
+      detail:`Take with a small amount of food or water. ${isTraining?'Collagen + Vitamin C must be taken 45 minutes before training for the Shaw protocol to work — set a reminder now.':''}`,
+      science:`Supplement timing relative to cortisol and insulin curves determines bioavailability. Taking D3 with fat, magnesium at night, and collagen before loading — all mechanistically specific timing.`,
+      items:[
+        ...(profile.supplements||[]).slice(0,5).map(s=>({name:s.name,meta:s.dose+' · '+s.timing})),
+        {name:'Water',meta:'Take all with 200ml water'},
+      ]
     },
   ];
 
   if (isTraining) {
+    // Add collagen pre-training
+    const trainHour = (profile.trainingTime||'').includes('Even') ? 18 :
+                      (profile.trainingTime||'').includes('After') ? 15 : wH+2;
+    const collagenTime = t(trainHour-1, 15); // 45 min before
     blocks.push({
-      time: t(wH+1), type:'supp', title:'Pre-training: Collagen + Vitamin C', tag:'45 min before', tagColor:'gold',
-      detail:`Take 45-60 minutes before training. Peak plasma hydroxyproline during the loading window = 5.5x connective tissue synthesis. The most targeted joint and tendon intervention in the stack.`,
+      time:collagenTime, type:'supp', title:'Pre-training: Collagen + Vitamin C', subtitle:'45 min before session',
+      tag:'Critical', tagColor:'gold',
+      detail:`Take exactly 45 minutes before your session begins. Shaw et al. 2017 showed this timing produces 5.5x more connective tissue synthesis during the loading window than training without it. The collagen provides the substrate; Vitamin C enables hydroxylation — the cross-linking that makes it structurally functional.`,
+      science:`Peak plasma hydroxyproline during mechanical loading = maximum tendon and ligament synthesis. The 45-minute window is precise — too early or too late reduces the effect.`,
       items:[{name:'Collagen peptides',meta:'15g'},{name:'Vitamin C',meta:'50mg'}]
     });
+
     blocks.push({
-      time: t(wH+2), type:'training', title:`${todayPlan.type} session`, tag:'Train', tagColor:'jade',
-      detail:`Focus: ${todayPlan.focus}\n\n${(todayPlan.keyExercises||[]).join('\n')}${todayPlan.modifications&&todayPlan.modifications.length?'\n\nModifications: '+todayPlan.modifications.join(', '):''}`,
+      time:t(trainHour), type:'training', title:`${todayPlan.type} — ${todayPlan.focus}`,
+      subtitle:(todayPlan.keyExercises||[]).slice(0,2).join(' · '),
+      tag:'Train', tagColor:'jade',
+      detail:`Today: ${todayPlan.focus}.\n\n${(todayPlan.keyExercises||[]).map(ex=>'• '+ex).join('\n')}\n\n${(todayPlan.modifications||[]).length?'Modifications: '+(todayPlan.modifications||[]).join(', '):''}`,
+      science:`Progressive overload drives mTOR activation — the adaptation signal. Each session should present a marginally greater stimulus than the last.`,
       items:(todayPlan.keyExercises||[]).map(ex=>({name:ex,meta:''}))
     });
+
     blocks.push({
-      time: t(wH+4), type:'recovery', title:'Post-training recovery',
-      detail:`Protein within 30 minutes of finishing — mTOR is activated and looking for substrate now.\n\n${(profile.recoveryTools||[]).includes('Sauna')?'Sauna: 15-20 min at 80-90°C. Second GH pulse, heat shock protein activation.\n\n':''}${(profile.recoveryTools||[]).includes('Hydro pool')?'Hydro pool: 10-15 min. Knee unloaded to 30% bodyweight. Cartilage nutrition via compression-decompression.':''}`,
-      items:[{name:'Whey protein or chicken',meta:`${Math.round(prot*0.25)}g protein`},{name:'Rehydrate',meta:'500ml water'}]
+      time:addM(trainHour*60-wH*60+90), type:'meal', title:'Post-training: Protein window',
+      subtitle:'Within 30 min of finishing',
+      tag:'Eat now', tagColor:'jade',
+      detail:`The post-training window is real — insulin sensitivity is elevated, mTOR is activated, and muscle cells are primed to absorb amino acids. Hit ${Math.round(prot*0.25)}g protein within 30 minutes.`,
+      science:`Muscle protein synthesis remains elevated 24-48 hours post-session. The acute post-training window amplifies the effect — don't miss it.`,
+      items:[{name:'Protein source',meta:`${Math.round(prot*0.25)}g protein`},{name:'Fast carbs optional',meta:'30-40g if depleted'},{name:'Water',meta:'500ml rehydrate'}]
     });
   }
 
-  // Meals
-  const mealWindow = profile.fastingWindow || profile.eatingWindow || 'flexible';
-  const firstMealH = mealWindow.includes('12') ? 12 : mealWindow.includes('09') ? 9 : 8;
+  // Meals based on eating window
+  const window = profile.fastingWindow || profile.eatingWindow || '';
+  const firstMealH = window.includes('12') ? 12 : window.includes('10') ? 10 : 8;
+  const mealSpacing = 3;
 
-  blocks.push({time:t(firstMealH), type:'meal', title:'First meal', tag:'Eat', tagColor:'amber',
-    detail:`High protein start. Sets the leucine threshold for the first MPS window of the day.`,
-    items:[{name:'Eggs (3 whole)',meta:'18g protein'},{name:'Greek yoghurt',meta:'170g, 17g protein'},{name:'Oats or sourdough',meta:'60-80g'}]});
-  blocks.push({time:t(firstMealH+4), type:'meal', title:'Lunch', tag:'Eat', tagColor:'amber',
-    detail:`Lean protein + complex carbs. The largest meal of the day on a training day.`,
-    items:[{name:'Chicken breast or salmon',meta:'200g'},{name:'Sweet potato or rice',meta:'150g cooked'},{name:'Vegetables',meta:'Unlimited'}]});
-  blocks.push({time:t(firstMealH+8), type:'meal', title:'Dinner', tag:'Eat', tagColor:'amber',
-    detail:`Complete the protein target. Moderate fat. Lower carbs on a rest day.`,
-    items:[{name:'Protein source',meta:'200-250g'},{name:'Vegetables',meta:'Generous portion'},{name:'Olive oil',meta:'1 tbsp'}]});
+  for (let i = 0; i < (profile.mealCount||3); i++) {
+    const mealH = firstMealH + i * mealSpacing;
+    const mealNames = ['First meal','Lunch','Dinner','Pre-sleep meal'];
+    blocks.push({
+      time:t(mealH), type:'meal',
+      title:mealNames[i]||`Meal ${i+1}`,
+      subtitle:`~${Math.round(kcal/(profile.mealCount||3))} kcal · ${Math.round(prot/(profile.mealCount||3))}g protein`,
+      tag:'Eat', tagColor:'amber',
+      detail:`Hit the leucine threshold: ${Math.round(prot/(profile.mealCount||3))}g complete protein clears the 2.5g leucine required to trigger mTOR. Combine with complex carbs and vegetables.${(profile.foodExclusions||[]).length?' Excludes: '+(profile.foodExclusions||[]).join(', ')+'.' :''}`,
+      science:`Each meal below the leucine threshold produces sub-maximal MPS regardless of daily protein total. Distribution matters as much as the number.`,
+      items:[
+        {name:'Protein source',meta:`${Math.round(prot/(profile.mealCount||3))}g`},
+        {name:'Complex carbs',meta:`${Math.round(carbs/(profile.mealCount||3))}g`},
+        {name:'Vegetables',meta:'Generous portion'},
+      ]
+    });
+  }
 
+  if ((profile.recoveryTools||[]).length && isTraining) {
+    blocks.push({
+      time:t(wH+5), type:'recovery', title:'Recovery protocol',
+      subtitle:(profile.recoveryTools||[]).join(' · '),
+      tag:'Recovery', tagColor:'slate',
+      detail:(profile.recoveryTools||[]).map(tool => {
+        const protocols = {
+          'Sauna':'Sauna: 15-20 minutes at 80-90°C. Second GH pulse of the day. Heat shock proteins activated.',
+          'Cold plunge':'Cold plunge: 3-5 minutes. Vasoconstriction clears metabolic waste, reduces inflammation markers.',
+          'Swimming pool':'Pool: 10-15 minutes easy laps or aqua walking. Joint unloading — knee bears 30% of normal bodyweight in water.',
+          'Steam room':'Steam room: 10 minutes. Vasodilation, respiratory clearance, cortisol reduction.',
+          'Hydro pool':'Hydro pool: 10-15 minutes. Pressure massage + warm water = best passive recovery tool in the facility.',
+        };
+        return protocols[tool] || tool + ': follow standard protocol.';
+      }).join('\n\n'),
+      science:`Contrast protocols (heat → cold) produce the largest acute GH response outside of sleep. Combined with post-training protein, this is the highest-leverage recovery window of the week.`,
+      items:(profile.recoveryTools||[]).map(tool => ({
+        name:tool,
+        meta:tool==='Sauna'?'15-20 min':tool.includes('Cold')?'3-5 min':'10-15 min'
+      }))
+    });
+  }
+
+  // Evening supplements
   blocks.push({
-    time:'21:30', type:'supp', title:'Evening supplements', tag:'Before bed', tagColor:'gold',
-    detail:`Magnesium glycinate enables the GABAergic inhibition that allows the brain to switch off properly. Most underrated supplement in the stack.`,
-    items:[{name:'Magnesium glycinate',meta:'400mg'},{name:'Omega-3',meta:'2-3g (if not taken at dinner)'}]
+    time:'21:00', type:'supp', title:'Evening supplements',
+    subtitle:'Before sleep window opens',
+    tag:'Supplements', tagColor:'gold',
+    detail:`Magnesium glycinate 30 minutes before your target sleep time. Omega-3 with dinner if not taken earlier. Do not take stimulating supplements (caffeine, tyrosine, ashwagandha) after 18:00.`,
+    science:`Magnesium is a GABA cofactor — it enables the inhibitory neurotransmission that allows the brain to switch from alert to sleep mode. Most people are deficient.`,
+    items:[
+      {name:'Magnesium glycinate',meta:'400mg · 30 min before sleep'},
+      {name:'Omega-3',meta:'2-3g with dinner (if not taken earlier)'},
+    ]
   });
 
-  const sleepH = wH <= 6 ? 22 : 23;
   blocks.push({
-    time: t(sleepH), type:'sleep', title:'Sleep', tag:'8 hours', tagColor:'slate',
-    detail:`Screens off from ${t(sleepH-1)}. Cool room 17-19°C. Dark. The GH pulse happens in the first slow-wave cycle — everything that fragments or delays sleep reduces it.\n\n8 hours is the operating condition, not a preference.`,
-    items:[{name:'Screens off',meta:t(sleepH-1)},{name:'Room temp',meta:'17-19°C'},{name:'Target wake',meta:wake}]
+    time:'21:30', type:'hack', title:'Performance hacks for today',
+    subtitle:'Evidence-based optimisations',
+    tag:'Hacks', tagColor:'slate',
+    detail:`LIGHT PROTOCOL: Avoid bright overhead light from 21:00. Blue-light glasses or amber bulbs if working late. Bright light after 21:00 delays melatonin by 1.5-3 hours and cuts deep sleep by up to 90 minutes.\n\n${isFemale?'HORMONAL AWARENESS: Note your cycle phase — follicular phase (days 1-14) supports heavier training and faster recovery. Luteal phase (days 15-28) increases calorie needs by 100-300 kcal and raises core temperature.\n\n':''}ALCOHOL TONIGHT: ${profile.alcoholHabit&&!profile.alcoholHabit.includes('rarely')&&!profile.alcoholHabit.includes("don't") ? (isTraining?'Training day — no alcohol. Alcohol blocks mTOR for 24 hours post-consumption. Tonight\'s decision directly affects tomorrow\'s adaptation.':'Rest day. Maximum 2 units, finished by 20:00.') : 'You rarely drink — maintain this. Sleep quality improvement alone is worth it.'}`,
+    science:`Light is the primary circadian signal after wake time. Controlling evening light exposure is the highest-leverage sleep intervention available — no supplements required.`,
+    items:[
+      {name:'Screens off or blue-light filter',meta:'From 21:00'},
+      {name:'Room temperature',meta:'17-19°C for sleep'},
+      isTraining ? {name:'No alcohol tonight',meta:'mTOR suppression risk'} : {name:'Alcohol if any',meta:'Max 2 units by 20:00'},
+    ]
+  });
+
+  blocks.push({
+    time:'22:30', type:'sleep', title:'Sleep',
+    subtitle:'8 hours target · GH pulse at first slow-wave',
+    tag:'Sleep', tagColor:'slate',
+    detail:`Target 8 hours. ${isTraining?'Tonight\'s sleep is especially critical — the primary GH pulse occurs in the first slow-wave cycle, typically 90 minutes after sleep onset. This is when the adaptation to today\'s training is programmed.':''}\n\nRoom: 17-19°C, completely dark, no phone in room. The GH pulse requires uninterrupted slow-wave sleep. Fragmentation reduces it.`,
+    science:`Growth hormone released during slow-wave sleep drives 60-70% of total daily GH secretion. One week of sub-6h sleep reduces this by 30-40%, directly impairing adaptation regardless of training quality.`,
+    items:[
+      {name:'Target wake',meta:wake},
+      {name:'Room temp',meta:'17-19°C'},
+      {name:'No phone',meta:'Charge outside room'},
+    ]
   });
 
   return {
-    dayTitle: `${todayName} — ${todayPlan.type}`,
-    dayBrief: `${todayPlan.focus}. ${kcal} kcal today. Protein target: ${prot}g.`,
+    dayTitle:`${todayName} — ${todayPlan.type}`,
+    dayBrief:`${todayPlan.focus}. ${kcal} kcal today. Protein target: ${prot}g across ${profile.mealCount||3} meals.`,
     priority: isTraining
-      ? `Training day. Hit ${prot}g protein. Take collagen 45 min before the session.`
-      : `Rest day. Nutrition is the lever — hit ${prot}g protein. Let the adaptation complete.`,
+      ? `Training day. Hit ${prot}g protein. ${(profile.supplements||[]).some(s=>s.name.toLowerCase().includes('collagen'))?'Collagen 45 min before the session.':'Protein within 30 min post-session.'}`
+      : `Rest day. MPS from your last session peaks today. Hit ${prot}g protein. Recovery is the work.`,
+    macroTargets: { calories:kcal, protein:prot, carbs, fat, water:water+'ml' },
     blocks: blocks.sort((a,b) => a.time.localeCompare(b.time)),
-    macroTargets: { calories:kcal, protein:prot, carbs:profile.carbs||200, fat:profile.fat||80 }
   };
 }
 
-// ── UTILS ──────────────────────────────────────────
+// ── UTILS ──────────────────────────────────────────────
 function formatDate() {
-  return new Date().toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
-</script>
-<script>
-(function(){
-  try {
-    const p = localStorage.getItem('bl_profile');
-    if (p) {
-      const profile = JSON.parse(p);
-      const el = document.getElementById('nav-meta');
-      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
-    }
-  } catch(e){}
-})();
 </script>
 </body>
 </html>
