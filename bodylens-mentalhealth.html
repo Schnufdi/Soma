@@ -8,90 +8,243 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script src="page-generator.js"></script>
+<style>
+body{background:var(--ink);color:var(--dk-1);}
+.hero{padding:64px 0 56px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 700px 500px at 65% 40%,rgba(200,148,30,0.04) 0%,transparent 65%);}
+.hi{max-width:1080px;margin:0 auto;padding:0 48px;position:relative;z-index:1;}
+.h-eye{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.h-eye::before{content:'';width:24px;height:1px;background:var(--gold);}
+.h-title{font-family:var(--serif);font-size:72px;font-weight:300;line-height:0.9;letter-spacing:-0.03em;color:var(--dk-1);margin-bottom:20px;}
+.h-two{font-size:15px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:540px;margin-bottom:32px;}
+.snav{display:flex;gap:0;border-bottom:1px solid var(--bd);max-width:1080px;margin:0 auto;padding:0 48px;overflow-x:auto;}
+.sn{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:13px 16px;border:none;background:transparent;color:var(--dk-3);cursor:pointer;font-family:var(--sans);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.12s;}
+.sn:hover{color:var(--dk-2);}.sn.active{color:var(--gold);border-bottom-color:var(--gold);}
+.pane{display:none;}.pane.active{display:block;}
+.dark{background:var(--ink);padding:56px 0;}.ink1{background:var(--ink-1);padding:56px 0;border-top:1px solid var(--bd);}
+.w{max-width:1080px;margin:0 auto;padding:0 48px;}
+.dr{display:flex;align-items:center;gap:14px;margin:0 0 28px;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--dk-3);}
+.dr::after{content:'';flex:1;height:1px;background:var(--bd);}
+.dr.gold{color:var(--gold);}.dr.jade{color:var(--jade);}.dr.amber{color:var(--amber);}
+.body-lg{font-size:15px;font-weight:300;color:var(--dk-2);line-height:1.85;margin-bottom:20px;max-width:720px;}
+.body-sm{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:16px;max-width:680px;}
+.body-sm strong{color:var(--dk-1);font-weight:500;}
+.stm{display:grid;grid-template-columns:56px 1fr;border-top:1px solid var(--bd);}
+.stm-n{font-family:var(--serif);font-size:42px;font-weight:300;color:var(--gold);opacity:0.35;padding:20px 0;line-height:1;}
+.stm-b{padding:20px 0;}
+.stm-t{font-size:14px;font-weight:600;color:var(--dk-1);margin-bottom:8px;line-height:1.3;}
+.stm-p{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;}
+.stm-p strong{color:var(--dk-1);font-weight:500;}
+.profile-callout{background:rgba(200,148,30,0.05);border:1px solid var(--gold-br,rgba(200,148,30,0.2));border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:14px 18px;margin-top:28px;display:none;}
+.profile-callout.visible{display:block;}
+.pc-label{font-size:9px;font-weight:600;letter-spacing:0.13em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.pc-text{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;}
+.pc-text strong{color:var(--dk-1);font-weight:500;}
+.mh-note{padding:16px 20px;background:rgba(200,148,30,0.04);border:1px solid rgba(200,148,30,0.12);border-radius:6px;font-size:13px;font-weight:300;color:var(--dk-3);line-height:1.75;margin-bottom:28px;}
+.mh-note strong{color:var(--gold);font-weight:500;}
+@media(max-width:700px){.hi,.snav,.w{padding-left:20px;padding-right:20px;}.h-title{font-size:48px;}}
+</style>
 </head>
 <body>
-
 <nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
+    <a class="nav-link nav-food" href="bodylens-fuel.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
-    <a class="nav-link" href="bodylens-science.html">Science</a>
+    <a class="nav-link active" href="bodylens-science.html">Science</a>
   </div>
-
-  <div class="nav-breadcrumb">
-    <a href="bodylens-science.html" class="nav-bc-parent">Science</a>
-    <span class="nav-bc-sep">›</span>
-    <span class="nav-bc-current">Mental Health</span>
-  </div>
-  <div class="nav-right-group">
-    <a class="nav-link nav-right" href="bodylens-howitworks.html">How it works</a>
-    <div class="nav-meta" id="nav-meta"></div>
-  </div>
+  <div class="nav-breadcrumb"><a href="bodylens-science.html" class="nav-bc-parent">Science</a><span class="nav-bc-sep">›</span><span class="nav-bc-current">Mental Health</span></div>
+  <div class="nav-right-group"><a class="nav-right" href="bodylens-howitworks.html">How it works</a><div class="nav-meta" id="nav-meta"></div></div>
 </nav>
 
-<div id="page-hero" style="max-width:900px;margin:0 auto;padding:48px 32px 32px;border-bottom:1px solid rgba(255,255,255,0.07);">
-  <div style="font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#00c8a0;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-    <span style="width:18px;height:1px;background:#00c8a0;display:inline-block;"></span>
-    Mind &amp; body
-  </div>
-  <div style="font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;line-height:0.93;letter-spacing:-0.025em;color:#e8e3da;margin-bottom:14px;">
-    The mind<br><em style="font-style:italic;color:#3e504a;">behind the machine.</em>
-  </div>
-  <div id="hero-sub" style="font-size:14px;font-weight:300;color:#8a9490;line-height:1.7;max-width:520px;">
-    How your mental state connects to your physical results. The neuroscience of your specific patterns.
-  </div>
+<div class="hero"><div class="hi">
+  <div class="h-eye">Mental health &amp; state of mind · The neuroscience of your specific patterns</div>
+  <div class="h-title">The mind<br><em>runs the body.</em></div>
+  <div class="h-two">Mental health is not separate from physical performance. Cortisol impairs recovery. Anxiety disrupts sleep. Low mood reduces training adherence. Depression is a metabolic and inflammatory condition as much as a psychological one. The interventions are physical as much as they are psychological.</div>
+</div></div>
+
+<div class="snav">
+  <button class="sn active" onclick="showPane('p-cortisol',this)">Cortisol &amp; stress</button>
+  <button class="sn" onclick="showPane('p-gut',this)">Gut-brain axis</button>
+  <button class="sn" onclick="showPane('p-sleep',this)">Sleep &amp; mood</button>
+  <button class="sn" onclick="showPane('p-training',this)">Training as medicine</button>
+  <button class="sn" onclick="showPane('p-goal',this)">Psychology of the goal</button>
+  <button class="sn" onclick="showPane('p-yours',this)">Your profile</button>
 </div>
 
-<div style="max-width:900px;margin:0 auto;padding:40px 32px 120px;" id="generated-content"></div>
+<!-- CORTISOL -->
+<div class="pane active" id="p-cortisol">
+<div class="dark"><div class="w">
+  <div class="mh-note"><strong>This is science, not therapy.</strong> This page presents evidence-based neuroscience and physiology relevant to mental health and performance. It is not a substitute for professional mental health support. If you are struggling, please speak with your GP or a qualified therapist.</div>
+  <div class="dr gold">Cortisol &amp; stress — the HPA axis under load</div>
+  <div class="body-lg">Cortisol is the body's primary stress hormone. In short bursts, it is essential — it mobilises energy, sharpens attention, and prepares the body for action. Chronically elevated, it is one of the most destructive forces in the body.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">Chronic stress changes the brain — hippocampal atrophy is measurable</div>
+    <div class="stm-p">The hippocampus — the brain region central to memory, learning, and emotional regulation — has the highest concentration of cortisol receptors in the brain. Chronic cortisol exposure produces measurable hippocampal atrophy in imaging studies. This is not metaphorical: the structure of the brain changes with sustained stress. <strong>The good news:</strong> this atrophy is reversible. Exercise (the primary BDNF stimulus), sleep, and cortisol reduction all drive hippocampal neurogenesis — the growth of new neurons in this region.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">Cortisol and body composition — visceral fat is the visible marker</div>
+    <div class="stm-p">Cortisol drives visceral fat accumulation specifically — cortisol receptors are particularly dense in abdominal adipose tissue. This is not coincidence; it is evolutionary preparation for famine. Chronically elevated cortisol also directly suppresses testosterone (through HPT axis inhibition and aromatase activation) and impairs insulin sensitivity — creating a metabolic environment where fat is stored preferentially and muscle is broken down for glucose. <strong>Stress management is fat loss strategy, not just wellness advice.</strong></div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">The fastest cortisol interventions — with mechanisms</div>
+    <div class="stm-p"><strong>Physiological sigh:</strong> double inhale through the nose, long exhale through the mouth. Reinflates collapsed alveoli, shifts thoracic pressure, activates the parasympathetic branch of the autonomic nervous system within 30-60 seconds. The most evidence-based acute anxiety intervention available — no equipment, no time cost.<br><br><strong>Cold exposure:</strong> 30-60 seconds cold water at the end of a shower triggers a catecholamine surge that, counterintuitively, reduces anxiety baseline over time through conditioning of the stress response system.<br><br><strong>Ashwagandha (KSM-66/Sensoril):</strong> the most evidence-supported adaptogen for cortisol reduction. Multiple RCTs show 15-30% reduction in serum cortisol with 300-600mg daily.</div>
+  </div></div>
+  <div class="profile-callout" id="pc-cortisol"><div class="pc-label">→ Your cortisol context</div><div class="pc-text" id="pc-cortisol-text"></div></div>
+</div></div>
+</div>
+
+<!-- GUT-BRAIN -->
+<div class="pane" id="p-gut">
+<div class="dark"><div class="w">
+  <div class="dr gold">The gut-brain axis — your second brain is not a metaphor</div>
+  <div class="body-lg">The gut-brain connection is one of the most significant discoveries in neuroscience of the last two decades. The implications for mental health are profound and increasingly actionable.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">95% of serotonin is produced in the gut — not the brain</div>
+    <div class="stm-p">Enterochromaffin cells lining the gut produce approximately 95% of the body's serotonin. This serotonin does not cross the blood-brain barrier directly — but it signals the vagus nerve, which carries the signal to the brain. Microbiome composition directly affects how much serotonin is produced. Dysbiosis (imbalanced microbiome) mechanistically reduces serotonin production. <strong>Gut health is mood biology, not metaphor.</strong> Probiotic interventions show measurable antidepressant effects in multiple RCTs, with effect sizes comparable to mild antidepressants for subclinical depression.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">Inflammation is the bridge between gut dysbiosis and depression</div>
+    <div class="stm-p">The inflammatory model of depression: gut dysbiosis → intestinal permeability → LPS enters bloodstream → systemic inflammation → neuroinflammation → microglial activation in the brain → cytokine production → impaired neurotransmitter synthesis and receptor sensitivity. This pathway explains why anti-inflammatory interventions (omega-3, exercise, diet quality) have antidepressant effects — they are addressing the root mechanism, not just symptoms. <strong>Depression in the inflammatory model is a metabolic and immune condition as much as a neurological one.</strong></div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">Practical gut-brain interventions — ranked by evidence</div>
+    <div class="stm-p"><strong>1. Dietary fibre diversity</strong> — the most powerful microbiome intervention. Aim for 30+ different plant species per week. Variety, not just volume.<br><strong>2. Fermented foods</strong> — kefir, yoghurt, kimchi, sauerkraut. Direct microbiome supplementation with living cultures.<br><strong>3. Omega-3 (EPA specifically)</strong> — reduces neuroinflammation and has direct antidepressant mechanisms independent of the gut.<br><strong>4. Polyphenols</strong> — berries, olive oil, green tea. Prebiotic and anti-inflammatory effects.<br><strong>5. Sleep</strong> — the microbiome is disrupted by sleep deprivation within 48 hours. Protecting sleep protects gut health.</div>
+  </div></div>
+  <div class="profile-callout" id="pc-gut"><div class="pc-label">→ Your gut-brain context</div><div class="pc-text" id="pc-gut-text"></div></div>
+</div></div>
+</div>
+
+<!-- SLEEP & MOOD -->
+<div class="pane" id="p-sleep">
+<div class="dark"><div class="w">
+  <div class="dr gold">Sleep &amp; mood — the most underrated mental health intervention</div>
+  <div class="body-lg">Sleep deprivation and mental health have a bidirectional, amplifying relationship. Poor sleep worsens anxiety and depression. Anxiety and depression worsen sleep. Understanding this cycle is the prerequisite for breaking it.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">One night of poor sleep produces measurable changes in emotional reactivity</div>
+    <div class="stm-p">Amygdala reactivity — the brain's threat detection system — increases 60% after one night of sleep deprivation in imaging studies. Simultaneously, the prefrontal cortex (the region that regulates the amygdala's output and enables rational decision-making) shows reduced activity and reduced connectivity with the amygdala. The net effect: stronger emotional reactions, less ability to moderate them. <strong>Sleep deprivation does not simply make you tired — it fundamentally alters emotional processing, making every stressor feel larger and every interaction more charged.</strong></div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">REM sleep and emotional memory processing</div>
+    <div class="stm-p">REM sleep performs a specific function: emotional memory processing. During REM, the brain replays emotional experiences but with reduced noradrenaline (the stress neurochemical) — allowing emotional content to be processed and filed without the acute stress response. This is why "sleeping on it" works — REM provides an opportunity to process emotional experiences without the physiological arousal that makes in-the-moment processing so difficult. Chronic REM deprivation (which alcohol produces even in moderate amounts) means emotional experiences accumulate unprocessed.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">Breaking the anxiety-insomnia cycle</div>
+    <div class="stm-p">Anxiety produces hyperarousal (elevated cortisol, elevated core body temperature, racing thoughts) that prevents sleep onset. Sleep deprivation increases anxiety the following day, which increases hyperarousal the following night. <strong>The cycle breaks at the physiology, not the psychology:</strong> body temperature reduction (cool room, hot bath before bed — the subsequent temperature drop accelerates sleep onset), magnesium glycinate (GABA agonist, reduces neural hyperarousal), and consistent wake time (which anchors the circadian rhythm and creates predictable sleep pressure). CBT-I (cognitive behavioural therapy for insomnia) remains the most evidence-based treatment for chronic insomnia — more effective than medication long-term.</div>
+  </div></div>
+  <div class="profile-callout" id="pc-sleep"><div class="pc-label">→ Your sleep-mood context</div><div class="pc-text" id="pc-sleep-text"></div></div>
+</div></div>
+</div>
+
+<!-- TRAINING AS MEDICINE -->
+<div class="pane" id="p-training">
+<div class="dark"><div class="w">
+  <div class="dr gold">Training as medicine — the neuroscience of exercise and mental health</div>
+  <div class="body-lg">Exercise is the most evidence-based mental health intervention available. The effect sizes are comparable to antidepressants for mild-to-moderate depression, with effects that persist and compound — unlike medication, which produces effects only while taken.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">BDNF — the molecule that makes exercise an antidepressant</div>
+    <div class="stm-p">Brain-Derived Neurotrophic Factor (BDNF) is produced during aerobic exercise in proportion to intensity and duration. BDNF drives neuroplasticity — the growth and strengthening of neural connections — and neurogenesis (the growth of new neurons, primarily in the hippocampus). <strong>BDNF reverses the hippocampal atrophy that chronic stress produces.</strong> Antidepressants increase BDNF as part of their mechanism. Exercise produces this same effect directly, dose-dependently, and without side effects. A single session of moderate aerobic exercise produces a BDNF spike detectable in blood for several hours.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">Endocannabinoids — the "runner's high" is real and specific</div>
+    <div class="stm-p">The subjective euphoria associated with moderate-to-high intensity exercise is driven primarily by endocannabinoids (anandamide and 2-AG), not endorphins as commonly believed. Endorphins are too large to cross the blood-brain barrier in meaningful quantities during exercise. Endocannabinoids are lipid-soluble and cross freely — producing the anxiolytic and mood-elevating effects that motivate continued exercise. <strong>This mechanism is dose-dependent and threshold-based</strong> — it requires moderate intensity (60-75% max HR) sustained for approximately 20 minutes before the endocannabinoid response peaks.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">Lancet Psychiatry (2023) — exercise outperforms SSRIs for depression</div>
+    <div class="stm-p">A 2023 meta-analysis in Lancet Psychiatry (1,039 trials, 128,000 participants) found exercise more effective than SSRIs for depression in direct comparisons. Strength training and high-intensity exercise showed the largest effect sizes. The mechanism is not fully understood but involves BDNF, endocannabinoids, cortisol regulation, improved sleep architecture, increased self-efficacy, and social interaction. <strong>The effect begins with the first session and compounds over time.</strong> Unlike medication, it is self-reinforcing — improved mood increases motivation to exercise, which further improves mood.</div>
+  </div></div>
+  <div class="profile-callout" id="pc-training"><div class="pc-label">→ Your training-mood connection</div><div class="pc-text" id="pc-training-text"></div></div>
+</div></div>
+</div>
+
+<!-- GOAL PSYCHOLOGY -->
+<div class="pane" id="p-goal">
+<div class="dark"><div class="w">
+  <div class="dr gold">Psychology of the goal — motivation, identity, and the restriction mindset</div>
+  <div class="body-lg">How you frame your goal determines whether the programme is sustainable. The psychology of body change is more complex than most training advice acknowledges — and getting it wrong is the primary reason people abandon programmes that were working.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">Identity-based goals outperform outcome-based goals</div>
+    <div class="stm-p">"I want to lose 10kg" is an outcome goal — it creates a binary outcome (achieved/not achieved) and terminates when reached, without a plan for maintenance. "I am someone who trains consistently, eats with intention, and manages recovery" is an identity goal — it creates a continuous standard of behaviour that produces the outcome as a byproduct. <strong>The research on habit formation consistently shows that identity-based framing produces better long-term adherence than outcome-based framing</strong> — because each action either confirms or contradicts the identity, creating internal motivation rather than external pressure.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">The restriction mindset and why it fails — the ironic rebound effect</div>
+    <div class="stm-p">Telling yourself not to think of something produces more thoughts about it — this is the ironic process theory (Wegner 1994). Applied to food: "I cannot have X" produces more cognitive resources allocated to X, more food noise about X, and more dopamine anticipation when X is encountered. <strong>The evidence-based alternative is not willpower — it is flexibility and substitution.</strong> Allowing foods in controlled contexts (planned occasions, limited portions) rather than categorically prohibiting them reduces the restriction-obsession loop and produces better long-term dietary adherence.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">The dopamine-motivation system — how to stay driven</div>
+    <div class="stm-p">Dopamine drives motivation through anticipation of reward — not through the reward itself. This is why achieving a goal can feel anticlimactic: the dopamine system was driving toward the goal, not the arrival at it. <strong>To maintain motivation:</strong> keep intermediate goals proximate and visible (weekly training targets, monthly body composition check-ins), celebrate progress explicitly (the dopamine system needs to receive the reward signal to learn the behaviour is worth repeating), and vary the stimuli (the dopamine system habituates to predictable rewards, reducing their motivating power).</div>
+  </div></div>
+  <div class="profile-callout" id="pc-goal"><div class="pc-label">→ Your goal psychology</div><div class="pc-text" id="pc-goal-text"></div></div>
+</div></div>
+</div>
+
+<!-- YOUR PROFILE -->
+<div class="pane" id="p-yours">
+<div class="dark"><div class="w">
+  <div class="dr gold">Your profile — mental health applied to you specifically</div>
+  <div id="mh-render"><div style="color:var(--dk-3);font-size:13px;padding:40px 0;">Complete onboarding to see your personalised mental health profile. <a href="bodylens-onboard.html" style="color:var(--jade);margin-left:8px;">Get started →</a></div></div>
+</div></div>
+</div>
 
 <script src="nav.js"></script>
+<script src="coach.js"></script>
 <script>
+function showPane(id,btn){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.sn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');if(btn)btn.classList.add('active');}
+function inject(id,text){const el=document.getElementById(id);const tx=document.getElementById(id+'-text');if(el&&tx){tx.innerHTML=text;el.classList.add('visible');}}
+
 (function(){
-  const profile = getProfile();
+  try{
+    const raw=localStorage.getItem('bl_profile');
+    if(!raw)return;
+    const p=JSON.parse(raw);
+    if(!p||!p.name)return;
+    document.getElementById('nav-meta').innerHTML=`<span class="nav-tag nt-jade">${p.name}</span>`;
 
-  if (!profile) {
-    document.getElementById('generated-content').innerHTML = `
-      <div style="text-align:center;padding:80px 24px;">
-        <div style="font-size:44px;margin-bottom:16px;">🧠</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#e8e3da;margin-bottom:10px;">No profile yet</div>
-        <div style="font-size:13px;font-weight:300;color:#8a9490;margin-bottom:24px;max-width:340px;margin-left:auto;margin-right:auto;">
-          This page is written entirely for you — your patterns, your hormones, your psychology. Complete onboarding first.
-        </div>
-        <a href="bodylens-onboard.html" style="display:inline-block;padding:12px 24px;background:#00c8a0;border-radius:6px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0c1010;text-decoration:none;">Get started →</a>
-      </div>`;
-    return;
-  }
+    const isFemale=(p.sex||'').toLowerCase()==='female';
+    const age=p.age||35;
+    const supps=p.supplements||[];
+    const hasAshw=supps.some(s=>(s.name||'').toLowerCase().includes('ashwagandha'));
+    const hasMag=supps.some(s=>(s.name||'').toLowerCase().includes('magnesium'));
+    const hasOmega=supps.some(s=>(s.name||'').toLowerCase().includes('omega'));
+    const hasTrigger=p.triggerFoods&&!p.triggerFoods.toLowerCase().includes('none');
+    const energy=(p.energyPattern||'').toLowerCase();
+    const hasCrash=energy.includes('crash');
+    const recovery=(p.recoveryTools||[]).map(r=>r.toLowerCase());
+    const hasCold=recovery.some(r=>r.includes('cold')||r.includes('plunge'));
+    const injuries=p.injuryAssessments||p.injuries||[];
 
-  document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${profile.name}</span>`;
+    inject('pc-cortisol',`${p.name} — ${hasAshw?'Ashwagandha in your stack is actively managing the cortisol curve. KSM-66/Sensoril forms have the strongest evidence for the 15-30% cortisol reduction effect. Keep it consistent.':'Ashwagandha (KSM-66 or Sensoril, 300-600mg) is not in your current stack — it has the strongest evidence base for cortisol reduction of any supplement and may be worth adding.'} ${hasCold?'Your cold exposure routine is training the stress-response system — the cortisol and catecholamine surge from cold exposure, repeated consistently, produces a lower baseline anxiety response over time.':''} ${hasCrash?'Your afternoon energy crashes suggest cortisol is either too high (chronic stress) or too low (depleted HPA axis) in the afternoon — both respond to consistent sleep, structured eating, and cortisol-managing supplements.':''} ${isFemale&&age>=40?'In perimenopause, declining progesterone (a GABA agonist) can increase cortisol sensitivity — this is why anxiety often increases in this transition. Magnesium glycinate and consistent sleep are especially important in this window.':''}`);
 
-  const isFemale = (profile.sex||'').toLowerCase() === 'female';
-  document.getElementById('hero-sub').textContent = isFemale
-    ? `How hormones, cortisol, gut chemistry, and emotional patterns connect to your results. Written for ${profile.name}.`
-    : `How cortisol, sleep, gut chemistry, and psychological patterns connect to your results. Written for ${profile.name}.`;
+    inject('pc-gut',`${p.name} — your eating pattern (${p.dietType||'—'}, ${(p.cuisinePrefs||[]).join(', ')||'varied'}) ${(p.cuisinePrefs||[]).join('').toLowerCase().includes('mediterranean')?'naturally includes polyphenol-rich foods, olive oil, and fermented staples — strong microbiome support.':'should prioritise diversity across plant sources for microbiome health.'} ${hasOmega?'Omega-3 (EPA specifically) in your stack is reducing neuroinflammation — a direct gut-brain axis intervention.':'Omega-3 with high EPA is the most evidence-supported supplement for both gut-brain inflammation and direct mood support.'} ${isFemale?'Oestrogen supports serotonin receptor sensitivity — as oestrogen shifts, serotonin regulation can become less stable. Gut health interventions that support serotonin production directly (fibre diversity, fermented foods) become more important in this context.':''}`);
 
-  const regen = document.createElement('button');
-  regen.textContent = '↺ Regenerate';
-  regen.style.cssText = 'margin-top:12px;background:transparent;border:1px solid #3e504a;color:#8a9490;padding:6px 14px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all 0.12s;display:block;';
-  regen.onclick = () => { BL_GENERATOR.clearCache('mentalhealth', profile); location.reload(); };
-  document.getElementById('page-hero').appendChild(regen);
+    inject('pc-sleep',`${p.name} — sleep target: ${p.sleep||'7-8h'}. ${hasMag?'Magnesium glycinate in your stack is directly supporting GABA tone and sleep architecture — take it 30-45 minutes before bed for best effect.':'Magnesium glycinate (300-400mg, 30-45 min before sleep) is missing from your stack — the GABA support it provides is particularly relevant for sleep onset and reducing the anxiety-insomnia cycle.'} ${isFemale&&(p.menstrualCycle||'').includes('track')?'In the luteal phase (days 15-28), progesterone is a natural GABA agonist that aids sleep — but its fluctuation can disrupt sleep architecture in some women. If sleep quality varies cyclically, this is the mechanism. Magnesium glycinate and consistent sleep timing are the most effective interventions.':''}`);
 
-  const container = document.getElementById('generated-content');
-  BL_GENERATOR.generate(
-    'mentalhealth',
-    profile,
-    (loading) => { container.innerHTML = loading; },
-    (html)    => { container.innerHTML = html; },
-    (err)     => {
-      console.error(err);
-      container.innerHTML = `<div style="padding:40px 0;text-align:center;color:#8a9490;font-size:13px;">
-        Could not generate content.
-        <button onclick="location.reload()" style="color:#00c8a0;background:none;border:none;cursor:pointer;font-size:13px;text-decoration:underline;">Try again</button>
-      </div>`;
+    inject('pc-training',`${p.name} — your ${p.trainingDays} training sessions per week are your most powerful mental health intervention. The BDNF produced during each session peaks 30-60 minutes into training and remains elevated for several hours — scheduling cognitively demanding work in this window amplifies both the cognitive and mood benefit. ${isFemale?'The antidepressant effect of exercise is particularly relevant for women — oestrogen modulates the serotonin system, and as oestrogen shifts, exercise becomes a more important serotonin-support mechanism.':''} ${injuries.length?'Your '+injuries.map(i=>i.location||i).join('/')+ ' modifications do not reduce the mental health benefit of training — the BDNF and endocannabinoid response occurs regardless of which exercises are used, as long as intensity is adequate.':''}`);
+
+    inject('pc-goal',`${p.name}'s goal: "${p.goal||'—'}". ${hasTrigger?`Trigger food (${p.triggerFoods}) — the restriction mindset makes this harder, not easier. The evidence-based approach is planned flexibility rather than categorical prohibition. Allowing it in defined contexts (specific occasions, specific amounts) removes the "forbidden" status that amplifies its dopaminergic pull.`:''} ${isFemale?'Female body image and the restriction-obsession cycle: the luteal phase (days 15-28) often intensifies body dissatisfaction alongside increased cravings — both are hormonal, not attitudinal. This is not the phase to judge progress or impose stricter restriction. The follicular phase (days 1-14) is a more accurate window for assessing body composition and a better time for more demanding dietary phases.':''}`);
+
+    // Profile pane
+    const mhEl=document.getElementById('mh-render');
+    if(mhEl){
+      mhEl.innerHTML=`
+        <div class="body-sm">
+          <strong style="color:var(--dk-1);">Your mental health-performance interface</strong><br><br>
+          <strong>Cortisol management:</strong> ${hasAshw?'Ashwagandha in stack ✓':'Consider ashwagandha'} · ${hasCold?'Cold exposure ✓':'Cold exposure: consider adding'} · Sleep ${p.sleep||'—'}<br>
+          <strong>Gut-brain health:</strong> ${hasOmega?'Omega-3 (neuroinflammation) ✓':'Omega-3: high priority add'} · ${(p.cuisinePrefs||[]).join('').toLowerCase().includes('mediterranean')||( p.cuisinePrefs||[]).join('').toLowerCase().includes('middle')?'Mediterranean/polyphenol diet ✓':'Increase dietary diversity'}<br>
+          <strong>Sleep quality:</strong> ${hasMag?'Magnesium glycinate ✓':'Magnesium glycinate: high priority add'} · Target: ${p.sleep||'7-8h'}<br>
+          <strong>Exercise as medicine:</strong> ${p.trainingDays} sessions/week · BDNF window: 2-3h post-training<br><br>
+          ${isFemale?`<strong style="color:var(--gold);">Female mental health specifics:</strong><br>
+          Follicular phase (days 1-14): oestrogen peaks — mood, focus, and energy typically best. Training performance is highest. This is the phase for more demanding nutrition phases and heavier training.<br>
+          Luteal phase (days 15-28): progesterone rises, then falls sharply before menstruation. This drop correlates with PMS symptoms, mood changes, and disrupted sleep for some women. This is a phase for support (magnesium, reduced alcohol, prioritised sleep) not for self-criticism about reduced performance.<br><br>`:``}
+          <strong style="color:var(--jade);">Your highest-leverage mental health levers:</strong><br>
+          1. Sleep (${p.sleep||'7-8h'}) — the foundation of emotional regulation, cortisol management, and cognitive function<br>
+          2. Training consistency — the BDNF and endocannabinoid production is dose-dependent and cumulative<br>
+          3. ${hasAshw?'Ashwagandha (continue consistently — the cortisol effects are dose-dependent over weeks)':'Ashwagandha — the highest-evidence adaptogen for cortisol management, not in your current stack'}<br>
+          4. Gut diversity — 30+ plant species per week, fermented foods 2-3×/week
+        </div>`;
     }
-  );
+  }catch(e){console.error(e);}
 })();
 </script>
 </body>
