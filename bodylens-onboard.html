@@ -686,7 +686,46 @@
             <div class="ob2-chip single" data-group="gym" data-val="Home gym — full" onclick="selectSingle(this)">Home gym — full</div>
             <div class="ob2-chip single" data-group="gym" data-val="Home gym — basic" onclick="selectSingle(this)">Home gym — basic</div>
             <div class="ob2-chip single" data-group="gym" data-val="Bodyweight only" onclick="selectSingle(this)">Bodyweight only</div>
+  
+        <div class="ob2-q">
+          <div class="ob2-q-label">What equipment do you actually use?</div>
+          <div class="ob2-q-sub">Select everything you use regularly — not what's available</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip" data-group="equipment" data-val="Barbells" onclick="selectMulti(this)">Barbells</div>
+            <div class="ob2-chip" data-group="equipment" data-val="Dumbbells" onclick="selectMulti(this)">Dumbbells</div>
+            <div class="ob2-chip" data-group="equipment" data-val="Machines &amp; cables" onclick="selectMulti(this)">Machines &amp; cables</div>
+            <div class="ob2-chip" data-group="equipment" data-val="Resistance bands" onclick="selectMulti(this)">Resistance bands</div>
+            <div class="ob2-chip" data-group="equipment" data-val="Bodyweight &amp; floor work" onclick="selectMulti(this)">Bodyweight</div>
+            <div class="ob2-chip" data-group="equipment" data-val="Cardio machines" onclick="selectMulti(this)">Cardio machines</div>
+            <div class="ob2-chip" data-group="equipment" data-val="Classes" onclick="selectMulti(this)">Classes</div>
+            <div class="ob2-chip" data-group="equipment" data-val="Pool &amp; swimming" onclick="selectMulti(this)">Pool</div>
+            <div class="ob2-chip" data-group="equipment" data-val="Kettlebells" onclick="selectMulti(this)">Kettlebells</div>
           </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Free weight comfort</div>
+          <div class="ob2-q-sub">Honest answer — it shapes what exercises you're given</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="fwcomfort" data-val="Comfortable loading my own barbell lifts" onclick="selectSingle(this)">Fully comfortable — I programme my own lifts</div>
+            <div class="ob2-chip single" data-group="fwcomfort" data-val="Comfortable with dumbbells, prefer to avoid barbells" onclick="selectSingle(this)">Dumbbells yes, barbells no</div>
+            <div class="ob2-chip single" data-group="fwcomfort" data-val="Prefer machines — free weights feel uncomfortable" onclick="selectSingle(this)">Prefer machines</div>
+            <div class="ob2-chip single" data-group="fwcomfort" data-val="Just starting — need guidance on the basics" onclick="selectSingle(this)">Just starting out</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">When do you train?</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="traintime" data-val="Early morning — before 8am" onclick="selectSingle(this)">Early morning</div>
+            <div class="ob2-chip single" data-group="traintime" data-val="Morning — 8 to 11am" onclick="selectSingle(this)">Morning</div>
+            <div class="ob2-chip single" data-group="traintime" data-val="Lunchtime" onclick="selectSingle(this)">Lunchtime</div>
+            <div class="ob2-chip single" data-group="traintime" data-val="Afternoon" onclick="selectSingle(this)">Afternoon</div>
+            <div class="ob2-chip single" data-group="traintime" data-val="Evening — after 6pm" onclick="selectSingle(this)">Evening</div>
+          </div>
+        </div>
+
+        </div>
         </div>
 
         <div class="ob2-q">
@@ -792,6 +831,29 @@
           </div>
         </div>
 
+        <div class="ob2-q" id="cycle-question" style="display:none;">
+          <div class="ob2-q-label">Your menstrual cycle</div>
+          <div class="ob2-q-sub">Helps us apply hormonal periodisation — heavier training when oestrogen peaks, more recovery when progesterone dominates</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="cycle" data-val="Regular cycle — happy to track" onclick="selectSingle(this)">Regular cycle — happy to track it</div>
+            <div class="ob2-chip single" data-group="cycle" data-val="Regular cycle — prefer not to track" onclick="selectSingle(this)">Regular — but I'd rather not track</div>
+            <div class="ob2-chip single" data-group="cycle" data-val="Irregular cycle" onclick="selectSingle(this)">Irregular cycle</div>
+            <div class="ob2-chip single" data-group="cycle" data-val="On hormonal contraception" onclick="selectSingle(this)">On hormonal contraception</div>
+            <div class="ob2-chip single" data-group="cycle" data-val="Post-menopausal" onclick="selectSingle(this)">Post-menopausal</div>
+          </div>
+        </div>
+
+        <div class="ob2-q" id="activity-level-q">
+          <div class="ob2-q-label">Activity outside training</div>
+          <div class="ob2-q-sub">Affects your total calorie needs significantly</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="activity" data-val="Mostly sedentary — desk job, minimal walking" onclick="selectSingle(this)">Desk job — mostly sitting</div>
+            <div class="ob2-chip single" data-group="activity" data-val="Lightly active — some walking, standing" onclick="selectSingle(this)">Some walking and standing</div>
+            <div class="ob2-chip single" data-group="activity" data-val="Moderately active — on my feet a lot" onclick="selectSingle(this)">On my feet a lot</div>
+            <div class="ob2-chip single" data-group="activity" data-val="Very active — physical job or lots of movement" onclick="selectSingle(this)">Physical job or very active day</div>
+          </div>
+        </div>
+
         <div class="ob2-q">
           <div class="ob2-q-label">Non-negotiables</div>
           <div class="ob2-q-sub">Things the programme works around, not tries to remove</div>
@@ -878,6 +940,15 @@ function selectSingle(el) {
   document.querySelectorAll(`[data-group="${group}"]`).forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   formData[group] = el.dataset.val;
+
+  // Show cycle question for females only
+  if (group === 'sex') {
+    const cycleQ = document.getElementById('cycle-question');
+    if (cycleQ) {
+      cycleQ.style.display = el.dataset.val === 'Female' ? 'block' : 'none';
+    }
+  }
+
   updateProgress();
 }
 
@@ -941,15 +1012,26 @@ function updateProgress() {
 // ── SUBMIT FORM ───────────────────────────────────
 function submitForm() {
   // Collect number inputs
-  formData.age    = parseInt(document.getElementById('f-age').value) || null;
-  formData.height = parseInt(document.getElementById('f-height').value) || null;
-  formData.weight = parseFloat(document.getElementById('f-weight').value) || null;
-  formData.target = document.getElementById('f-target').value.trim();
+  formData.age       = parseInt(document.getElementById('f-age').value) || null;
+  formData.height    = parseInt(document.getElementById('f-height').value) || null;
+  formData.weight    = parseFloat(document.getElementById('f-weight').value) || null;
+  formData.target    = document.getElementById('f-target').value.trim();
   formData.injuryDetail = document.getElementById('f-injury-detail').value.trim();
-  formData.fat    = formData.fat || [];
-  formData.nonneg = formData.nonneg || [];
-  formData.recovery = formData.recovery || [];
-  formData.triggers = formData.triggers || [];
+  formData.fat       = formData.fat || [];
+  formData.nonneg    = formData.nonneg || [];
+  formData.recovery  = formData.recovery || [];
+  formData.triggers  = formData.triggers || [];
+  formData.equipment = formData.equipment || [];
+  // Derive eating window from fasting preference
+  if (formData.fastingpref) {
+    if (formData.fastingpref.includes('Open to it')) {
+      formData.eatingWindow = 'Open to IF — let programme decide';
+    } else if (formData.fastingpref.includes('Already fasting')) {
+      formData.eatingWindow = formData.firstmeal || '12:00–20:00';
+    } else {
+      formData.eatingWindow = 'Flexible — eating throughout the day';
+    }
+  }
 
   // Validate minimum
   if (!formData.weight || !formData.goal) {
@@ -973,18 +1055,21 @@ function showPhase(name) {
 const FOLLOWUP_SYSTEM = `You are a BodyLens intake coach doing a brief follow-up after a user completed a profile form. You have their form data and need to clarify 2-4 things that require human nuance before building their programme.
 
 Your job:
-1. Start with a warm, brief introduction — tell them their name isn't set yet so ask it first
-2. Ask about injuries in detail IF they selected any injury areas
-3. Ask one question about anything that needs clarification — energy crashes, aggressive goals, specific constraints
-4. When you have enough (after 3-5 exchanges MAX), say exactly: [READY_TO_BUILD] on its own line, then stop.
+1. Start with a warm, brief introduction — ask their name first
+2. Ask about injuries in detail IF they selected any injury areas — location, what makes it worse, any sharp pain
+3. If fasting preference was "Open to it" — ask one question about their energy and schedule to help decide the right window
+4. If they said they prefer machines or are just starting — ask what specific movements they enjoy or feel confident with
+5. If they are female and cycle question was shown — probe gently if relevant (e.g. do they notice energy changes through the month)
+6. One final question about cardio — do they do any, what kind, how often
+7. When you have enough (after 3-6 exchanges MAX), say exactly: [READY_TO_BUILD] on its own line, then stop.
 
 Rules:
 - One question at a time
-- Keep messages short — this is a conversation not a lecture  
-- Be warm and direct
-- Do NOT ask about things already clear from the form
-- Do NOT ask more than 5 questions total
-- After the name and injuries (if any), 1-2 more targeted questions maximum, then [READY_TO_BUILD]`;
+- Warm and direct — like a good coach at a first session
+- Do NOT re-ask things already on the form
+- Do NOT ask more than 6 questions total
+- Probe injuries and equipment comfort if relevant — these change the programme most
+- After name, injuries, and 2-3 targeted follow-ups, say [READY_TO_BUILD]`;
 
 async function startFollowUp() {
   const formSummary = buildFormSummary();
@@ -1116,27 +1201,33 @@ async function triggerGeneration() {
     const finalProfile = {
       name:          formData.name || 'User',
       age:           formData.age,
-      sex:           formData.sex,
-      height:        formData.height,
-      weight:        formData.weight,
-      bodyFat:       formData.bf ? parseInt(formData.bf) : null,
-      fatStorage:    (formData.fat || []).join(', '),
-      goal:          formData.goal,
-      target:        formData.target,
-      experience:    formData.exp,
-      trainingDays:  parseInt(formData.days) || 4,
-      wakeTime:      formData.wake || '07:00',
-      gymAccess:     formData.gym,
-      recoveryTools: formData.recovery || [],
-      dietType:      formData.diet,
-      eatingWindow:  formData.firstmeal,
-      energyPattern: formData.energy,
-      triggerFoods:  (formData.triggers || []).join(', '),
-      alcoholHabit:  formData.alcohol,
-      sleep:         formData.sleep,
-      nonNegotiables: formData.nonneg || [],
-      injuries:       formData.injuries || [],
-      injuryDetail:   formData.injuryDetail || '',
+      sex:              formData.sex,
+      height:           formData.height,
+      weight:           formData.weight,
+      bodyFat:          formData.bf ? parseInt(formData.bf) : null,
+      fatStorage:       (formData.fat || []).join(', '),
+      goal:             formData.goal,
+      target:           formData.target,
+      experience:       formData.exp,
+      trainingDays:     parseInt(formData.days) || 4,
+      wakeTime:         formData.wake || '07:00',
+      gymAccess:        formData.gym,
+      equipmentUsed:    formData.equipment || [],
+      freeWeightComfort: formData.fwcomfort || '',
+      trainingTime:     formData.traintime || '',
+      recoveryTools:    formData.recovery || [],
+      dietType:         formData.diet,
+      fastingPreference: formData.fastingpref || '',
+      eatingWindow:     formData.eatingWindow || formData.firstmeal || '',
+      energyPattern:    formData.energy,
+      triggerFoods:     (formData.triggers || []).join(', '),
+      alcoholHabit:     formData.alcohol,
+      sleep:            formData.sleep,
+      activityLevel:    formData.activity || '',
+      menstrualCycle:   formData.cycle || '',
+      nonNegotiables:   formData.nonneg || [],
+      injuries:         formData.injuries || [],
+      injuryDetail:     formData.injuryDetail || '',
       // From AI generation
       ...programme.profile,
       weekPlan:           programme.weekPlan,
@@ -1191,7 +1282,30 @@ async function generateProgramme() {
   const summary = buildFormSummary();
   const chatContext = chatHistory.map(m => `${m.role}: ${m.content}`).join('\n');
 
-  const prompt = `You are a senior performance coach. Build a complete personalised programme from this profile data. Reason through each decision like a coach.
+  const prompt = `You are a senior performance coach. Build a complete personalised programme. Reason through each decision like a coach would in a real session.
+
+CRITICAL — EQUIPMENT AND TRAINING CONTEXT:
+Equipment actually used: ${formData.equipment&&formData.equipment.length?formData.equipment.join(', '):'full gym'}
+Free weight comfort: ${formData.fwcomfort||'not specified'}
+IMPORTANT: Build exercises from what they actually use. If they prefer machines, give machine-based exercises. If they are comfortable with barbells, use them. Do NOT default to barbell squats for someone who prefers machines.
+
+Training time of day: ${formData.traintime||'not specified'}
+This affects supplement timing — an evening trainer has a different cascade than a morning trainer.
+
+Fasting preference: ${formData.fastingpref||'not specified'}
+If "Open to it" — recommend the eating window that best suits their goal, energy pattern, and activity level.
+If "Already fasting" — respect their existing window exactly.
+If "Not interested" — standard meal timing, no window restriction.
+
+Activity level outside training: ${formData.activity||'not specified'}
+Factor this into the activity multiplier for TDEE calculation.
+
+${formData.sex==='Female' && formData.cycle ? `FEMALE CYCLE CONTEXT: ${formData.cycle}
+${formData.cycle.includes('happy to track') ? 'Apply hormonal periodisation in the week plan. Label follicular phase sessions as higher intensity, luteal phase as lower intensity with more recovery.' :
+  formData.cycle.includes('contraception') ? 'On hormonal contraception — natural cycle suppressed. Apply standard periodisation.' :
+  formData.cycle.includes('Post-menopausal') ? 'Post-menopausal — prioritise bone density, resistance training, no cycle periodisation.' :
+  formData.cycle.includes('Irregular') ? 'Irregular cycle — build programme robust to hormonal variation.' :
+  'Has cycle, prefers not to track — build resilient programme.'}` : ''}
 
 FORM DATA:
 ${summary}
@@ -1305,13 +1419,19 @@ function buildFormSummary() {
 Body fat estimate: ${formData.bf||'not given'} | Fat storage: ${(formData.fat||[]).join(', ')||'not given'}
 Goal: ${formData.goal||'?'} | Target physique: ${formData.target||'not given'}
 Training experience: ${formData.exp||'?'} | Training days/week: ${formData.days||'?'}
+Training time: ${formData.traintime||'not specified'}
 Wake time: ${formData.wake||'?'} | Gym: ${formData.gym||'?'}
+Equipment actually used: ${(formData.equipment||[]).join(', ')||'not specified'}
+Free weight comfort: ${formData.fwcomfort||'not specified'}
 Recovery tools: ${(formData.recovery||[]).join(', ')||'none'}
-Energy pattern: ${formData.energy||'?'} | First meal: ${formData.firstmeal||'?'}
+Fasting preference: ${formData.fastingpref||'not specified'} | Eating window: ${formData.eatingWindow||formData.firstmeal||'?'}
+Energy pattern: ${formData.energy||'?'}
 Diet: ${formData.diet||'?'} | Trigger foods: ${(formData.triggers||[]).join(', ')||'none'}
+Activity level outside training: ${formData.activity||'not specified'}
 Injuries selected: ${formData.injuries&&formData.injuries.length?(formData.injuries.join(', ')):'none'} | Detail: ${formData.injuryDetail||'none'}
 Sleep: ${formData.sleep||'?'} | Alcohol: ${formData.alcohol||'?'}
-Non-negotiables: ${(formData.nonneg||[]).join(', ')||'none'}`;
+Non-negotiables: ${(formData.nonneg||[]).join(', ')||'none'}
+${formData.sex==='Female' ? 'Menstrual cycle: '+(formData.cycle||'not specified') : ''}`;
 }
 
 // ── FALLBACK MACROS ───────────────────────────────

@@ -77,6 +77,12 @@ INJURIES: ${injuries.length ? injuries.map(i=>(i.location||i)+': '+(i.assessment
 NON-NEGOTIABLES: ${(p.nonNegotiables||[]).join(', ')||'none'}
 SUPPLEMENTS: ${supps.map(s=>s.name+' '+s.dose+' @ '+s.timing).join(', ')||'none'}
 COACH SUMMARY: ${p.coachSummary||'—'}
+EQUIPMENT USED: ${(p.equipmentUsed||[]).join(', ')||'full gym'}
+FREE WEIGHT COMFORT: ${p.freeWeightComfort||'not specified'}
+TRAINING TIME: ${p.trainingTime||'not specified'}
+FASTING PREFERENCE: ${p.fastingPreference||'not specified'}
+ACTIVITY LEVEL: ${p.activityLevel||'not specified'}
+${p.menstrualCycle ? 'MENSTRUAL CYCLE: '+p.menstrualCycle : ''}
 ${isFemale ? `
 FEMALE PHYSIOLOGY FLAG: This is a ${p.age}-year-old woman.
 ${p.age >= 35 ? 'PERIMENOPAUSE PROXIMITY: Yes — hormonal fluctuation is relevant.' : ''}
