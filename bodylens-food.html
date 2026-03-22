@@ -507,11 +507,29 @@ const MODEL = 'claude-sonnet-4-20250514';
 // ── PROFILE ──────────────────────────────────────────────
 const profile = getProfile();
 
+// ── STATE — must be defined before renderFoodApp ──────────
+const DAY_MAP   = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
+const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const todayIdx  = DAY_MAP[new Date().getDay()];
+const todayName = DAY_NAMES[todayIdx];
+const weekPlan  = profile ? (profile.weekPlan || []) : [];
+const todayPlan = weekPlan[todayIdx] || {priority:'rest', kcal:(profile&&profile.calories)||2000};
+const isTraining = todayPlan.priority === 'training';
+
+let weekMeals  = null;
+let shopList   = null;
+let foodLog    = [];
+let activeTab  = 'today';
+
+const TODAY_LOG_KEY  = 'bl_food_log_'   + new Date().toISOString().slice(0,10);
+const WEEK_MEALS_KEY = 'bl_week_meals_' + new Date().toISOString().slice(0,10);
+const SHOP_KEY       = 'bl_shop_'       + new Date().toISOString().slice(0,10);
+
 // ── NAV ──────────────────────────────────────────────────
 (function(){
   const nav = document.getElementById('main-nav');
   if (!nav) return;
-  nav.outerHTML = `<nav class="site-nav">
+  nav.innerHTML = `
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
@@ -522,8 +540,7 @@ const profile = getProfile();
   <div class="nav-right-group">
     <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
     <div class="nav-meta" id="nav-meta"></div>
-  </div>
-</nav>`;
+  </div>`;
 })();
 
 if (!profile) {
@@ -540,23 +557,9 @@ if (!profile) {
   renderFoodApp(profile);
 }
 
-// ── STATE ─────────────────────────────────────────────────
-const DAY_MAP   = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
-const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const todayIdx  = DAY_MAP[new Date().getDay()];
-const todayName = DAY_NAMES[todayIdx];
-const weekPlan  = profile ? (profile.weekPlan || []) : [];
-const todayPlan = weekPlan[todayIdx] || {priority:'rest', kcal:profile?.calories||2000};
-const isTraining = todayPlan.priority === 'training';
 
-let weekMeals  = null;   // generated week meal plan
-let shopList   = null;   // generated shopping list
-let foodLog    = [];     // today's logged items
-let activeTab  = 'today';
 
-const TODAY_LOG_KEY = 'bl_food_log_' + new Date().toISOString().slice(0,10);
-const WEEK_MEALS_KEY = 'bl_week_meals_' + new Date().toISOString().slice(0,10);
-const SHOP_KEY = 'bl_shop_' + new Date().toISOString().slice(0,10);
+
 
 function tryGet(k){ try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;} }
 function trySet(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
@@ -753,6 +756,7 @@ function renderFoodApp(p) {
 
   // Load today's meals
   loadTodayMeals(p);
+  setTimeout(setupLogListener, 50);
 
   // Week meals — load from cache if available, otherwise defer to tab open
   weekMeals = tryGet(WEEK_MEALS_KEY);
@@ -1045,7 +1049,7 @@ Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
 ${isFemale ? 'FEMALE: Include iron-rich sources. Oestrogen-supportive foods where relevant.' : ''}
 
 WEEK PLAN:
-${weekPlan.map(d=>`${d.day}: ${d.priority==='training'?'TRAINING ('+d.type+') — '+d.kcal+' kcal':'REST — '+(Math.round((p.calories||2000)*0.91))+' kcal'}`).join('\n')}
+${weekPlan.map(d=>d.day+': '+(d.priority==='training'?'TRAINING ('+d.type+') — '+d.kcal+' kcal':'REST — '+Math.round((p.calories||2000)*0.91)+' kcal')).join('\n')}
 
 Return ONLY JSON — one entry per day:
 {
@@ -1389,9 +1393,11 @@ function switchFood(id, btn) {
 
 function printShop() { window.print(); }
 
-document.getElementById('log-input') && document.getElementById('log-input').addEventListener('keydown', e=>{
-  if(e.key==='Enter') logItem();
-});
+// Called after renderFoodApp builds the DOM
+function setupLogListener() {
+  const inp = document.getElementById('log-input');
+  if (inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') logItem(); });
+}
 </script>
 </body>
 </html>
