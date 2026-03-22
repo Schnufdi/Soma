@@ -803,24 +803,38 @@ function showDecade(decade, btnEl) {
   }
 
   function buildYouAreHereText(p, decade) {
-    const name = p.name || 'You';
-    const age  = p.age;
-    const goal = p.goal || 'build and protect';
-    const supps = (p.supplements||[]).map(s=>s.name).slice(0,5).join(', ');
-    const hasInjuries = (p.injuryAssessments||p.injuries||[]).length > 0;
+    const name     = p.name || 'You';
+    const age      = p.age;
+    const goal     = p.goal || 'build and protect';
+    const protein  = p.protein || 185;
     const trainingDays = p.trainingDays || 4;
-    const recoveryTools = (p.recoveryTools||[]).join(', ') || 'standard recovery';
+    const supps    = (p.supplements||[]).slice(0,4).map(s=>s.name).join(', ');
+    const injuries = p.injuryAssessments || p.injuries || [];
+    const recovery = (p.recoveryTools||[]).join(', ') || 'standard recovery';
+    const isFemale = (p.sex||'').toLowerCase() === 'female';
+    const sleep    = p.sleep || '7-8 hours';
 
-    const decadeTexts = {
-      20: `${name} is ${age} — in the most biologically forgiving decade. Adaptation is fast, recovery is quick, and the window for building the foundation that determines everything later is wide open. The goal right now: lay down maximal lean mass, build movement patterns, and establish the habits that compound over the next 40 years. Everything you build now costs half the effort it will in 10 years.`,
-      30: `${name} is ${age} — the first signals of biological shift are beginning, but adaptation capacity remains high. This is the decade where the habits you build either protect or erode the next 30 years. ${goal} is the right priority. The programme accounts for the early testosterone and GH changes — ${trainingDays} training days, protein at ${p.protein||185}g, ${recoveryTools} — every element is positioned for this decade.`,
-      40: `${name} is ${age} — ${age < 45 ? 'in the first half of' : 'deep in'} the decade with the highest leverage for long-term health. The decisions made in the 40s determine functional capacity at 70 more than any other decade. The programme — ${trainingDays} training days, progressive overload, high protein, optimised sleep${supps ? ', '+supps : ''} — is not coincidentally aligned with the longevity framework. It is the framework. ${hasInjuries ? 'The injury protocol is a feature, not a workaround — posterior chain strength is the primary protective mechanism.' : 'The window is open. The biology is still receptive.'} `,
-      50: `${name} is ${age} — in the decade of reckoning, where the lifestyle choices of the previous 20 years become visible. The good news: the body still responds powerfully to the right stimulus. ${trainingDays} training sessions per week is enough to reverse sarcopenia entirely. The priority shifts — maintaining lean mass becomes as important as building it. ${recoveryTools !== 'standard recovery' ? recoveryTools + ' are significant assets at this age.' : 'Recovery tools become increasingly important now.'} `,
-      60: `${name} is ${age} — collecting the dividend on decades of investment, or beginning the work of reversing neglect. Either way, the response to training remains real. The priority is VO₂max — the single strongest predictor of all-cause mortality — and lean mass preservation. Zone 2 cardio and resistance training are the two non-negotiable interventions. ${recoveryTools !== 'standard recovery' ? recoveryTools + ' support the longer recovery windows needed now.' : ''} `,
-      70: `${name} is ${age} — in the long game, where every training session is an act of deliberate biological maintenance. The research is unambiguous: the 70s responders who train consistently have VO₂max values matching sedentary 50-year-olds. The goal is function, independence, and quality — all of which respond to the same inputs as they always have. The dose is lower; the return is not.`,
+    if (isFemale) {
+      const femaleDecades = {
+        20: `${name} is ${age} — in the highest-oestrogen decade, where bone density is still building and lean mass responds fastest to training. The habits built now — especially weight-bearing training and protein intake — create the bone and muscle reserve that determines quality of life from 50 onwards. Oestrogen is protective right now. Use the window.`,
+        30: `${name} is ${age} — oestrogen is still dominant but the cycle is beginning to show variability. Energy, mood, and recovery fluctuate more across the month than in the 20s. Training around the hormonal cycle (heavier in the follicular phase, more recovery in the luteal phase) produces better results than a fixed weekly pattern. Goal: ${goal}. Protein at ${protein}g daily is non-negotiable for lean mass preservation as the first shifts begin.`,
+        40: `${name} is ${age} — in the perimenopause proximity window. Oestrogen fluctuations are real and affect sleep architecture, mood, cortisol regulation, and fat distribution (especially towards the abdomen). This is not the body failing — it is the body changing. The programme — ${trainingDays} sessions/week, ${protein}g protein, ${recovery}${supps ? ', '+supps : ''} — is specifically calibrated to counteract the 40s female hormonal shift. Resistance training is the most powerful intervention for oestrogen-driven lean mass loss. The window is open. The biology still responds.`,
+        50: `${name} is ${age} — post-menopausal transition. Oestrogen has declined and with it the natural protection against cardiovascular risk, bone density loss, and lean mass loss. The good news: resistance training replaces much of what oestrogen provided. ${trainingDays} sessions per week maintains bone mineral density, preserves lean mass, and keeps metabolic rate from collapsing. ${recovery !== 'standard recovery' ? recovery + ' support the recovery that now takes longer.' : 'Recovery windows lengthen — respect them.'}`,
+        60: `${name} is ${age} — collecting the dividend. Post-menopausal physiology is stable and highly responsive to training. VO₂max is the single strongest predictor of all-cause mortality — and it responds to Zone 2 cardio at any age. Lean mass preservation via resistance training protects hip fracture risk (the female longevity cliff). ${recovery !== 'standard recovery' ? recovery + ' are significant assets now.' : ''}`,
+        70: `${name} is ${age} — in the long game. The research on older women and exercise is unambiguous: those who train have functional capacity, independence, and quality of life that sedentary contemporaries do not. The dose is lower; the return is not.`,
+      };
+      return femaleDecades[decade] || femaleDecades[40];
+    }
+
+    const maleDecades = {
+      20: `${name} is ${age} — peak testosterone, fastest adaptation, highest recovery capacity. Build the foundation now — lean mass added in the 20s costs half the effort it will in 10 years.`,
+      30: `${name} is ${age} — testosterone begins a slow 1-2% annual decline. The first shifts are subtle but real. Goal: ${goal}. ${trainingDays} sessions/week, ${protein}g protein, optimised sleep — the programme addresses the early hormonal changes directly.`,
+      40: `${name} is ${age} — ${age < 45 ? 'in the first half of' : 'deep in'} the highest-leverage decade. Testosterone, GH, and IGF-1 have declined measurably. The decisions made now determine functional capacity at 70. The programme — ${trainingDays} sessions/week, ${protein}g protein, ${supps||'targeted supplements'} — addresses every 40s biological shift. ${injuries.length ? 'The injury protocol is built in — posterior chain strength is both the performance and rehabilitation strategy.' : 'The window is open. The biology is receptive.'}`,
+      50: `${name} is ${age} — the reckoning decade. Testosterone has declined significantly; sarcopenia accelerates without resistance training stimulus. ${trainingDays} sessions/week is enough to reverse it entirely. Recovery windows lengthen; the stimulus still works.`,
+      60: `${name} is ${age} — collecting the dividend. VO₂max is the priority — the strongest predictor of all-cause mortality. Resistance training and Zone 2 remain the two non-negotiable interventions.`,
+      70: `${name} is ${age} — in the long game. Every training session is an act of deliberate biological maintenance. The research is unambiguous: those who train consistently at 70+ have VO₂max values matching sedentary 50-year-olds.`,
     };
-
-    return decadeTexts[decade] || decadeTexts[40];
+    return maleDecades[decade] || maleDecades[40];
   }
 
   const activeDecade = getDecadeKey(age);
