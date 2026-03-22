@@ -16,30 +16,13 @@
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
-    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-profile.html">Profile</a>
-    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
-    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
-    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
-    <a class="nav-link" href="bodylens-training.html">Training</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-story.html">The Story</a>
-    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
-    <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
-    <a class="nav-link" href="bodylens-longevity.html">Longevity</a>
-    <a class="nav-link active" href="bodylens-hunger.html">Hunger</a>
-    <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
-    <a class="nav-link" href="bodylens-science.html">Science</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-mentalhealth.html">Mental Health</a>
-    <a class="nav-link" href="bodylens-mentalhealth.html">Mental Health</a>
-    <a class="nav-link" href="bodylens-howitworks.html">How It Works</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+    <a class="nav-link" href="bodylens-programme.html">Programme</a>
+    <a class="nav-link active" href="bodylens-science.html">Science</a>
+  </div>
+  <div class="nav-breadcrumb">
+    <a href="bodylens-science.html" class="nav-bc-parent">Science</a>
+    <span class="nav-bc-sep">›</span>
+    <span class="nav-bc-current">Hunger</span>
   </div>
   <div class="nav-meta" id="nav-meta"></div>
 </nav>
@@ -88,9 +71,8 @@
     (html)    => { container.innerHTML = html; },
     (err)     => {
       console.error(err);
-      container.innerHTML = `<div style="padding:40px 0;text-align:center;color:#8a9490;font-size:13px;">
-        Could not generate content. <button onclick="location.reload()" style="color:#00c8a0;background:none;border:none;cursor:pointer;font-size:13px;text-decoration:underline;">Try again</button>
-      </div>`;
+      console.error('Page generation error:', err);
+      container.innerHTML = '<div style="padding:40px 0;text-align:center;color:#8a9490;font-size:13px;">Could not generate content: ' + (err||'unknown error') + '. <button onclick="BL_GENERATOR.clearCache(\'' + 'hunger' + '\', getProfile()); location.reload()" style="color:#00c8a0;background:none;border:none;cursor:pointer;font-size:13px;text-decoration:underline;">Try again</button></div>';
     }
   );
 })();
