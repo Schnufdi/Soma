@@ -404,28 +404,8 @@
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
-    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-profile.html">Profile</a>
-    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
-    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link active" href="bodylens-fuel.html">Food System</a>
-    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
-    <a class="nav-link" href="bodylens-training.html">Training</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-story.html">The Story</a>
-    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
-    <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
-    <a class="nav-link" href="bodylens-longevity.html">Longevity</a>
-    <a class="nav-link" href="bodylens-hunger.html">Hunger</a>
-    <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
+    <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-howitworks.html">How It Works</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
   </div>
   <div class="nav-meta" id="nav-meta"></div>
 </nav>
@@ -445,7 +425,7 @@
       <div class="fh-stat">
         <div class="fh-stat-label">Training day calories</div>
         <div class="fh-stat-val hi">2,950<sup>kcal</sup></div>
-        <div class="fh-stat-sub">Fri: 3,050 kcal</div>
+        <div class="fh-stat-sub">Peak session target</div>
       </div>
       <div class="fh-stat">
         <div class="fh-stat-label">Rest day calories</div>
@@ -575,7 +555,7 @@
       <div class="shop-tile cat-protein">
         <div class="st-name">White fish — cod / sea bass / haddock</div>
         <div class="st-qty">400 g / week</div>
-        <div class="st-why">The leanest complete protein available. <strong>Cod: 23g protein per 100g, under 1g fat, 90 kcal — the highest protein-to-calorie ratio of any whole food.</strong> When the calorie budget is tight (rest days, or days when a meal has already been calorically heavy), white fish lets you hit the 185g protein target without using calories on fat. Haddock and sea bass offer the same profile with more flavour. Selenium in white fish also supports thyroid function and testosterone metabolism.</div>
+        <div class="st-why">The leanest complete protein available. <strong>Cod: 23g protein per 100g, under 1g fat, 90 kcal — the highest protein-to-calorie ratio of any whole food.</strong> When the calorie budget is tight (rest days, or days when a meal has already been calorically heavy), white fish lets you hit your protein target without using calories on fat. Haddock and sea bass offer the same profile with more flavour. Selenium in white fish also supports thyroid function and testosterone metabolism.</div>
         <div class="st-pair">Best with: <span>lemon + capers + olive oil + wilted spinach</span></div>
         <div class="st-tags">
           <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Highest protein:kcal</span>
@@ -649,7 +629,7 @@
       <div class="shop-tile cat-fuel">
         <div class="st-name">Medjool dates</div>
         <div class="st-qty">200 g (8–10 dates)</div>
-        <div class="st-why">GI ~42 but high glucose-to-fructose ratio means <strong>rapid glycogen loading without the liver bottleneck of pure fructose</strong>. 3 dates + whey + banana before Friday's posterior chain session is your highest-performance pre-workout combination. Also excellent for when you need to hit calories fast on a high-training day.</div>
+        <div class="st-why">GI ~42 but high glucose-to-fructose ratio means <strong>rapid glycogen loading without the liver bottleneck of pure fructose</strong>. 3 dates + whey + banana before your key session is your highest-performance pre-workout combination. Also excellent for when you need to hit calories fast on a high-training day.</div>
         <div class="st-pair">Best with: <span>whey + banana — the pre-Friday protocol</span></div>
         <div class="st-tags">
           <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Pre-training only</span>
@@ -1218,8 +1198,10 @@
   <div class="body-sm" style="color:var(--dk-2);margin-bottom:40px;max-width:620px;">Four distinct nutritional architectures for four distinct goals. Not government plate diagrams — performance pyramids showing proportional macro relationships, timing hierarchy, and what changes between goals. Your current journey (Balanced Precision) is highlighted.</div>
 
   <!-- Pyramid selector -->
+  <div id="user-macro-strip" style="display:none;"></div>
+
   <div style="display:flex;gap:8px;margin-bottom:40px;flex-wrap:wrap;" id="pyr-selector">
-    <button class="pyr-btn active" data-pyr="balanced" onclick="selectPyramid('balanced',this)">Balanced Precision <span style="font-size:9px;opacity:0.7;">· Current</span></button>
+    <button class="pyr-btn active" data-pyr="balanced" onclick="selectPyramid('balanced',this)">Balanced Precision <span style="font-size:9px;opacity:0.7;"></span></button>
     <button class="pyr-btn" data-pyr="recomp" onclick="selectPyramid('recomp',this)">Body Recomposition <span style="font-size:9px;color:var(--amber);opacity:0.8;">· Muscle ↑ Fat ↓</span></button>
     <button class="pyr-btn" data-pyr="muscle" onclick="selectPyramid('muscle',this)">Lean muscle gain</button>
     <button class="pyr-btn" data-pyr="cut" onclick="selectPyramid('cut',this)">Active fat loss</button>
@@ -1568,8 +1550,80 @@ function renderPyramid(id) {
   `;
 }
 
-// Init
-renderPyramid('balanced');
+// Init — profile-aware
+(function(){
+  let pyramidId = 'balanced'; // default
+
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (p && p.goal) {
+        const goal = p.goal.toLowerCase();
+        if (goal.includes('fat') || goal.includes('los') || goal.includes('cut')) {
+          pyramidId = 'cut';
+        } else if (goal.includes('muscle') || goal.includes('build') || goal.includes('bulk')) {
+          pyramidId = 'bulk';
+        } else if (goal.includes('recomp') || goal.includes('body recomp')) {
+          pyramidId = 'recomp';
+        } else if (goal.includes('longev') || goal.includes('health') || goal.includes('maintain')) {
+          pyramidId = 'maintain';
+        } else {
+          pyramidId = 'balanced';
+        }
+      }
+
+      // Update the "· Current" badge to the correct pyramid
+      document.querySelectorAll('.pyr-btn').forEach(btn => {
+        const currentBadge = btn.querySelector('span');
+        if (currentBadge && currentBadge.textContent.includes('Current')) {
+          currentBadge.textContent = '';
+        }
+      });
+      const targetBtn = document.querySelector(`[data-pyr="${pyramidId}"]`);
+      if (targetBtn) {
+        const badge = targetBtn.querySelector('span');
+        if (badge) badge.textContent = '· Your plan';
+        targetBtn.style.borderColor = 'var(--jade)';
+      }
+
+      // Inject user's actual macros at the top of the pane
+      const macroStrip = document.getElementById('user-macro-strip');
+      if (macroStrip && p.calories) {
+        macroStrip.innerHTML = `
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);
+            border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:28px;">
+            <div style="background:var(--ink-2);padding:14px 10px;text-align:center;">
+              <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--dk-1);margin-bottom:3px;">${p.calories}</div>
+              <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Your calories</div>
+            </div>
+            <div style="background:var(--ink-2);padding:14px 10px;text-align:center;">
+              <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--jade);margin-bottom:3px;">${p.protein}g</div>
+              <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Protein</div>
+            </div>
+            <div style="background:var(--ink-2);padding:14px 10px;text-align:center;">
+              <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--amber);margin-bottom:3px;">${p.carbs}g</div>
+              <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Carbs</div>
+            </div>
+            <div style="background:var(--ink-2);padding:14px 10px;text-align:center;">
+              <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--dk-2);margin-bottom:3px;">${p.fat}g</div>
+              <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Fat</div>
+            </div>
+          </div>
+          <div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-bottom:20px;font-style:italic;">
+            ${p.name}'s targets · ${p.goal||'Goal set'} · Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
+          </div>`;
+        macroStrip.style.display = 'block';
+      }
+    }
+  } catch(e) { console.error(e); }
+
+  renderPyramid(pyramidId);
+  // Activate correct button
+  document.querySelectorAll('.pyr-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`[data-pyr="${pyramidId}"]`);
+  if (btn) btn.classList.add('active');
+})();
 </script>
 
 <div class="page-end"></div>

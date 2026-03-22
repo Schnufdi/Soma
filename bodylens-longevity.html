@@ -243,26 +243,8 @@ body { background: var(--ink); color: var(--dk-1); }
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
-    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-profile.html">Profile</a>
-    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
-    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
-    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
-    <a class="nav-link" href="bodylens-training.html">Training</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-story.html">The Story</a>
-    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
-    <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
-    <a class="nav-link active" href="bodylens-longevity.html">Longevity</a>
-    <a class="nav-link" href="bodylens-hunger.html">Hunger</a>
-    <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
+    <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
   </div>
   <div class="nav-meta" id="nav-meta"></div>
 </nav>
@@ -277,7 +259,7 @@ body { background: var(--ink); color: var(--dk-1); }
     <div class="age-strip">
       <div class="age-band" onclick="showDecade(20,this)"><div class="ab-decade">20s</div><div class="ab-label">Peak everything</div></div>
       <div class="age-band" onclick="showDecade(30,this)"><div class="ab-decade">30s</div><div class="ab-label">First shifts</div></div>
-      <div class="age-band active you" onclick="showDecade(40,this)"><div class="ab-decade">40s</div><div class="ab-label">The inflection</div></div>
+      <div class="age-band" onclick="showDecade(40,this)"><div class="ab-decade">40s</div><div class="ab-label">The inflection</div></div>
       <div class="age-band" onclick="showDecade(50,this)"><div class="ab-decade">50s</div><div class="ab-label">The reckoning</div></div>
       <div class="age-band" onclick="showDecade(60,this)"><div class="ab-decade">60s</div><div class="ab-label">The dividend</div></div>
       <div class="age-band" onclick="showDecade(70,this)"><div class="ab-decade">70s</div><div class="ab-label">The long game</div></div>
@@ -838,7 +820,16 @@ function showDecade(decade, btnEl) {
   }
 
   const activeDecade = getDecadeKey(age);
-  showDecade(activeDecade, document.querySelector('.age-band.you'));
+  // Find the band by decade text content
+const allBands = document.querySelectorAll('.age-band');
+let targetBand = null;
+allBands.forEach(b => {
+  const decText = b.querySelector('.ab-decade');
+  if (decText && parseInt(decText.textContent) === activeDecade) {
+    targetBand = b;
+  }
+});
+showDecade(activeDecade, targetBand);
 })();
 </script>
 <script>
