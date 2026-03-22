@@ -52,6 +52,7 @@
 <script src="nav.js"></script>
 <script>
 (function(){
+  const PAGE_TYPE = 'training';
   const profile = getProfile();
   if (!profile) {
     document.getElementById('generated-content').innerHTML = `
@@ -75,9 +76,27 @@
       : `${profile.name}'s programme — built for your body, your goals, your life.`;
 
   // Add regenerate button
+  // Show when content was last generated
+  const cacheKey = 'bl_gen_v4_' + PAGE_TYPE + '_' + Array.from(
+    (profile.name||'') + (profile.goal||'') + (profile.age||'')
+  ).reduce((h,c)=>((h<<5)-h+c.charCodeAt(0))|0, 0);
+  const cached = (() => { try { const r=localStorage.getItem(cacheKey); return r?JSON.parse(r):null; } catch(e){return null;} })();
+  const genDate = cached && cached.ts
+    ? new Date(cached.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
+    : null;
+
+  if (genDate) {
+    const dateEl = document.createElement('div');
+    dateEl.style.cssText = 'margin-top:6px;font-size:10px;font-weight:300;color:#3e504a;';
+    dateEl.textContent = 'Generated ' + genDate + ' · cached';
+    document.getElementById('page-hero').appendChild(dateEl);
+  }
+
   const regen = document.createElement('button');
   regen.textContent = '↺ Regenerate';
-  regen.style.cssText = 'margin-top:12px;background:transparent;border:1px solid rgba(255,255,255,0.13);color:#3e504a;padding:6px 14px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);';
+  regen.style.cssText = 'margin-top:10px;background:transparent;border:1px solid #3e504a;color:#8a9490;padding:6px 14px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all 0.12s;';
+  regen.onmouseover = () => { regen.style.color='#00c8a0'; regen.style.borderColor='#00c8a0'; };
+  regen.onmouseout  = () => { regen.style.color='#8a9490'; regen.style.borderColor='#3e504a'; };
   regen.onclick = () => { BL_GENERATOR.clearCache('training', profile); location.reload(); };
   document.getElementById('page-hero').appendChild(regen);
 
