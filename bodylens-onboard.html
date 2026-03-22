@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Get Started</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="ob-shell">
+
+  <!-- Header -->
+  <div class="ob-header">
+    <div class="ob-brand">Body<em>Lens</em></div>
+    <div class="ob-step" id="ob-step">Setting up your profile</div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="ob-progress">
+    <div class="ob-progress-fill" id="ob-progress" style="width:0%"></div>
+  </div>
+
+  <!-- Messages -->
+  <div class="ob-messages" id="ob-messages"></div>
+
+  <!-- Quick reply chips -->
+  <div class="ob-chips" id="ob-chips"></div>
+
+  <!-- Input bar -->
+  <div class="ob-input-bar">
+    <div class="ob-input-inner">
+      <input
+        class="ob-input"
+        id="ob-input"
+        type="text"
+        placeholder="Type your answer…"
+        autocomplete="off"
+        autocorrect="off"
+      >
+      <button class="ob-send" id="ob-send" onclick="handleSend()">↑</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="nav.js"></script>
+<script>
+// ════════════════════════════════════════════════════════
+//  ONBOARDING CONVERSATION ENGINE
+//  Collects profile data through a natural conversation,
+//  stores it in localStorage, then generates the programme.
+// ════════════════════════════════════════════════════════
+
+// If profile already exists, go straight to the day page
+if (hasProfile()) {
+  location.href = 'bodylens-day.html';
+}
+
+// ── PROFILE BEING BUILT ──────────────────────────────────
+let profile = {
+  name: null, age: null, sex: null, height: null, weight: null,
+  bodyFat: null, fatStorage: null, experience: null,
+  goal: null, target: null, timeline: null, secondaryGoals: [],
+  trainingDays: null, trainingSchedule: null, wakeTime: null,
+  gymAccess: null, equipmentExclusions: null, recoveryTools: [],
+  dietType: null, calories: null, protein: null, carbs: null, fat: null,
+  foodExclusions: [], triggerFoods: null, eatingWindow: null,
+  injuries: [], nonNegotiables: [], supplements: [],
+  weekPlan: null, generated: false,
+};
+
+// ── CONVERSATION SCRIPT ──────────────────────────────────
+// Each step has: a message from the AI, chips (quick replies),
+// a field to fill, and a parser to extract the value.
+
+const STEPS = [
+
+  {
+    id: 'welcome',
+    msg: `Hey. I'm going to build you a complete personal programme — training, nutrition, recovery, supplements — everything you need to get to the best version of yourself.\n\nI just need to know you first. This takes about 5 minutes. Let's start simple.\n\n<strong>What's your name?</strong>`,
+    field: 'name',
+    chips: [],
+    parse: v => v.trim().split(' ')[0],
+    validate: v => v.length > 1,
+  },
+
+  {
+    id: 'basics',
+    msg: (p) => `Good to meet you, ${p.name}.\n\n<strong>Quick stats — age, height, and current weight?</strong>\n\nJust type them naturally. Something like: <em>44, 181cm, 85kg</em>`,
+    field: 'basics',
+    chips: [],
+    parse: (v, p) => {
+      const nums = v.match(/\d+(\.\d+)?/g) || [];
+      if (nums.length >= 3) {
+        p.age    = parseInt(nums[0]);
+        p.height = parseInt(nums[1]);
+        p.weight = parseFloat(nums[2]);
+      } else if (nums.length === 2) {
+        p.age    = parseInt(nums[0]);
+        p.weight = parseFloat(nums[1]);
+      }
+      return true;
+    },
+    validate: (v, p) => p.age && p.weight,
+  },
+
+  {
+    id: 'sex',
+    msg: () => `And your sex — just so I can calibrate hormonal and caloric targets correctly.`,
+    field: 'sex',
+    chips: ['Male', 'Female'],
+    parse: v => v.toLowerCase().includes('f') ? 'Female' : 'Male',
+    validate: v => v.length > 1,
+  },
+
+  {
+    id: 'bodyfat',
+    msg: () => `Do you have an estimate of your current body fat percentage? If not, that's fine — I can work with your weight and physique description.`,
+    field: 'bodyFat',
+    chips: ['Around 10%', 'Around 12-13%', 'Around 15-18%', 'Around 20%+', 'Not sure'],
+    parse: v => {
+      const m = v.match(/\d+/);
+      if (!m) return null;
+      return parseInt(m[0]);
+    },
+    validate: () => true, // optional
+  },
+
+  {
+    id: 'fat_storage',
+    msg: () => `Where do you tend to store fat? This tells me where we'll see the most visible change.`,
+    field: 'fatStorage',
+    chips: ['Love handles / lower back', 'Belly / abs', 'Chest', 'Thighs / hips', 'All over evenly'],
+    parse: v => v.trim(),
+    validate: () => true,
+  },
+
+  {
+    id: 'goal',
+    msg: () => `What's the primary goal? Be honest — the programme is completely different depending on this.`,
+    field: 'goal',
+    chips: ['Lose fat, keep muscle', 'Build lean muscle', 'Body recomposition', 'Athletic performance', 'General health & longevity'],
+    parse: v => v.trim(),
+    validate: v => v.length > 3,
+  },
+
+  {
+    id: 'target',
+    msg: (p) => `And what does success look like for you? A number, a look, a performance target — whatever it is.\n\nFor example: <em>sub-10% body fat, visible abs, back to playing tennis, run a 5k.</em>`,
+    field: 'target',
+    chips: [],
+    parse: v => v.trim(),
+    validate: v => v.length > 3,
+  },
+
+  {
+    id: 'timeline',
+    msg: () => `How long are you giving this? Be realistic.`,
+    field: 'timeline',
+    chips: ['8 weeks', '12 weeks', '6 months', '1 year', 'This is a lifestyle, no deadline'],
+    parse: v => v.trim(),
+    validate: () => true,
+  },
+
+  {
+    id: 'experience',
+    msg: () => `How long have you been training seriously?`,
+    field: 'experience',
+    chips: ['Just starting out', '1-2 years', '2-3 years', '3-5 years', '5+ years — advanced'],
+    parse: v => v.trim(),
+    validate: () => true,
+  },
+
+  {
+    id: 'training_days',
+    msg: () => `How many days a week can you realistically train — not optimistically, realistically?`,
+    field: 'trainingDays',
+    chips: ['3 days', '4 days', '5 days', '6 days'],
+    parse: v => {
+      const m = v.match(/\d/);
+      return m ? parseInt(m[0]) : 4;
+    },
+    validate: () => true,
+  },
+
+  {
+    id: 'wake_time',
+    msg: () => `What time do you normally wake up? This affects supplement timing, cortisol windows, and coffee timing.`,
+    field: 'wakeTime',
+    chips: ['05:30', '06:00', '06:30', '07:00', '07:30', '08:00+'],
+    parse: v => {
+      const m = v.match(/(\d{1,2})[:.]?(\d{2})?/);
+      if (!m) return '07:00';
+      const h = m[1].padStart(2,'0');
+      const min = m[2] || '00';
+      return `${h}:${min}`;
+    },
+    validate: () => true,
+  },
+
+  {
+    id: 'gym',
+    msg: () => `What gym or training setup do you have access to?`,
+    field: 'gymAccess',
+    chips: ['Full commercial gym', 'Home gym — full', 'Home gym — basic', 'Bodyweight only', 'Third Space London'],
+    parse: v => v.trim(),
+    validate: () => true,
+  },
+
+  {
+    id: 'recovery',
+    msg: () => `Any recovery tools available — sauna, pool, cold plunge, steam room?`,
+    field: 'recoveryTools',
+    chips: ['Sauna', 'Pool / swimming', 'Cold plunge / ice bath', 'Steam room', 'Hydro pool', 'None of these'],
+    parse: v => {
+      if (v.toLowerCase().includes('none') || v.toLowerCase().includes('no')) return [];
+      const tools = [];
+      if (/sauna/i.test(v)) tools.push('Sauna');
+      if (/pool|swim/i.test(v)) tools.push('Pool');
+      if (/cold|ice|plunge/i.test(v)) tools.push('Cold plunge');
+      if (/steam/i.test(v)) tools.push('Steam room');
+      if (/hydro/i.test(v)) tools.push('Hydro pool');
+      if (tools.length === 0) tools.push(v.trim());
+      return tools;
+    },
+    validate: () => true,
+    multiChip: true,
+  },
+
+  {
+    id: 'diet',
+    msg: () => `How do you eat? Any restrictions or exclusions?`,
+    field: 'dietType',
+    chips: ['Omnivore — no restrictions', 'No red meat', 'No dairy', 'Vegetarian', 'Vegan', 'Gluten free'],
+    parse: v => v.trim(),
+    validate: () => true,
+  },
+
+  {
+    id: 'triggers',
+    msg: () => `Any trigger foods — things you know you overeat when they're around? No judgement, this is important for the plan.`,
+    field: 'triggerFoods',
+    chips: ['Bread', 'Crisps / snacks', 'Chocolate / sweets', 'Alcohol', 'Takeaways', 'None — good self-control'],
+    parse: v => v.trim(),
+    validate: () => true,
+  },
+
+  {
+    id: 'injuries',
+    msg: () => `Any injuries or physical constraints I need to know about? Knee, back, shoulder — anything that limits what you can do.`,
+    field: 'injuries',
+    chips: ['No injuries', 'Knee issue', 'Lower back', 'Shoulder', 'Hip'],
+    parse: (v, p) => {
+      if (v.toLowerCase().includes('no ') || v.toLowerCase() === 'none') {
+        p.injuries = [];
+      } else {
+        p.injuries = [{ location: 'General', detail: v.trim() }];
+      }
+      return p.injuries;
+    },
+    validate: () => true,
+  },
+
+  {
+    id: 'nonneg',
+    msg: () => `Non-negotiables — things that are part of your life and the programme has to work around. Morning coffee, social drinks, specific schedule constraints.`,
+    field: 'nonNegotiables',
+    chips: ['Morning coffee', 'Weekend social drinks', 'Family evenings', 'Early starts', 'Nothing — fully flexible'],
+    parse: (v, p) => {
+      if (v.toLowerCase().includes('nothing') || v.toLowerCase().includes('flexible')) {
+        p.nonNegotiables = [];
+      } else {
+        p.nonNegotiables = v.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+      }
+      return p.nonNegotiables;
+    },
+    validate: () => true,
+  },
+
+  {
+    id: 'confirm',
+    msg: (p) => `That's everything I need.\n\nHere's what I've got:\n\n<strong>${p.name}</strong> · ${p.age || '?'}yo · ${p.weight || '?'}kg\n<strong>Goal:</strong> ${p.goal}\n<strong>Target:</strong> ${p.target}\n<strong>Training:</strong> ${p.trainingDays} days/week · ${p.gymAccess}\n<strong>Diet:</strong> ${p.dietType}\n${p.injuries && p.injuries.length ? '<strong>Injuries:</strong> ' + p.injuries.map(i=>i.detail||i.location).join(', ') + '\n' : ''}\nLook right?`,
+    field: 'confirm',
+    chips: ["Yes — build my programme", "Let me change something"],
+    parse: v => v,
+    validate: () => true,
+    isConfirm: true,
+  },
+
+];
+
+// ── STATE ────────────────────────────────────────────────
+let currentStep = 0;
+let conversationHistory = [];
+let selectedChips = [];
+
+// ── RENDER HELPERS ───────────────────────────────────────
+function addMessage(role, html, isTyping = false) {
+  const msgs = document.getElementById('ob-messages');
+  const div = document.createElement('div');
+  div.className = `ob-msg ${role}${isTyping ? ' ob-typing' : ''}`;
+  div.id = isTyping ? 'typing-indicator' : '';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'ob-avatar';
+  avatar.textContent = role === 'ai' ? 'BL' : (profile.name ? profile.name[0].toUpperCase() : 'U');
+
+  const bubble = document.createElement('div');
+  bubble.className = 'ob-bubble';
+
+  if (isTyping) {
+    bubble.innerHTML = '<div class="ob-dots"><span></span><span></span><span></span></div>';
+  } else {
+    bubble.innerHTML = html;
+  }
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+function showChips(chips, multiChip = false) {
+  const container = document.getElementById('ob-chips');
+  container.innerHTML = '';
+  selectedChips = [];
+  chips.forEach(chip => {
+    const btn = document.createElement('button');
+    btn.className = 'ob-chip';
+    btn.textContent = chip;
+    btn.onclick = () => {
+      if (multiChip) {
+        btn.classList.toggle('active');
+        btn.style.borderColor = btn.classList.contains('active') ? 'var(--jade)' : '';
+        btn.style.color = btn.classList.contains('active') ? 'var(--jade)' : '';
+        btn.style.background = btn.classList.contains('active') ? 'var(--jade-dim)' : '';
+        if (btn.classList.contains('active')) {
+          selectedChips.push(chip);
+        } else {
+          selectedChips = selectedChips.filter(c => c !== chip);
+        }
+      } else {
+        document.getElementById('ob-input').value = chip;
+        handleSend();
+      }
+    };
+    container.appendChild(btn);
+  });
+
+  if (multiChip) {
+    const confirm = document.createElement('button');
+    confirm.className = 'ob-chip';
+    confirm.textContent = 'Done →';
+    confirm.style.borderColor = 'var(--jade-br)';
+    confirm.style.color = 'var(--jade)';
+    confirm.onclick = () => {
+      const val = selectedChips.length ? selectedChips.join(', ') : 'None';
+      document.getElementById('ob-input').value = val;
+      handleSend();
+    };
+    container.appendChild(confirm);
+  }
+}
+
+function clearChips() {
+  document.getElementById('ob-chips').innerHTML = '';
+}
+
+function updateProgress(stepIdx) {
+  const pct = Math.round((stepIdx / STEPS.length) * 100);
+  document.getElementById('ob-progress').style.width = pct + '%';
+  document.getElementById('ob-step').textContent =
+    stepIdx < STEPS.length ? `Step ${stepIdx + 1} of ${STEPS.length}` : 'Complete';
+}
+
+// ── STEP LOGIC ───────────────────────────────────────────
+async function showStep(idx) {
+  if (idx >= STEPS.length) {
+    await generateProgramme();
+    return;
+  }
+
+  const step = STEPS[idx];
+  updateProgress(idx);
+
+  // Typing delay
+  addMessage('ai', '', true);
+  await delay(600 + Math.random() * 400);
+  removeTyping();
+
+  const msgText = typeof step.msg === 'function' ? step.msg(profile) : step.msg;
+  addMessage('ai', msgText);
+
+  const chips = typeof step.chips === 'function' ? step.chips(profile) : step.chips;
+  if (chips && chips.length > 0) {
+    showChips(chips, step.multiChip);
+  } else {
+    clearChips();
+  }
+
+  const input = document.getElementById('ob-input');
+  input.placeholder = step.placeholder || 'Type your answer…';
+  input.focus();
+}
+
+async function handleSend() {
+  const input = document.getElementById('ob-input');
+  const val = input.value.trim();
+  if (!val) return;
+
+  input.value = '';
+  clearChips();
+
+  const step = STEPS[currentStep];
+
+  // Show user message
+  addMessage('user', val);
+
+  // Handle confirm step
+  if (step.isConfirm) {
+    if (val.toLowerCase().includes('change') || val.toLowerCase().includes('no')) {
+      addMessage('ai', 'No problem — what would you like to update?');
+      // Simple restart for now
+      setTimeout(() => {
+        currentStep = 0;
+        showStep(0);
+      }, 1000);
+      return;
+    } else {
+      currentStep++;
+      await generateProgramme();
+      return;
+    }
+  }
+
+  // Parse the value into the profile
+  const parsed = step.parse(val, profile);
+  if (typeof parsed !== 'boolean' && parsed !== undefined) {
+    profile[step.field] = parsed;
+  }
+
+  // Brief acknowledgement
+  const acks = [
+    'Got it.',
+    'Perfect.',
+    'Understood.',
+    'Good.',
+    'Noted.',
+    'Makes sense.',
+  ];
+  const needsAck = currentStep > 0 && currentStep < STEPS.length - 2;
+  if (needsAck && Math.random() > 0.4) {
+    addMessage('ai', acks[Math.floor(Math.random() * acks.length)]);
+    await delay(300);
+  }
+
+  currentStep++;
+  await showStep(currentStep);
+}
+
+// ── PROGRAMME GENERATION ─────────────────────────────────
+async function generateProgramme() {
+  clearChips();
+
+  addMessage('ai', `Building your programme now. I'm calculating your macros, training split, supplement timing, and daily structure.\n\nThis takes about 15 seconds.`);
+
+  await delay(800);
+
+  // Show generating UI
+  const genDiv = document.createElement('div');
+  genDiv.className = 'ob-msg ai';
+  genDiv.innerHTML = `
+    <div class="ob-avatar">BL</div>
+    <div class="ob-bubble" id="gen-status" style="min-width:200px;">
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--dk-3);">
+        <div id="gs-1">⏳ Calculating your macros…</div>
+        <div id="gs-2" style="opacity:0.3;">⏳ Building your training split…</div>
+        <div id="gs-3" style="opacity:0.3;">⏳ Programming supplement timing…</div>
+        <div id="gs-4" style="opacity:0.3;">⏳ Generating your week plan…</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('ob-messages').appendChild(genDiv);
+  document.getElementById('ob-messages').scrollTop = 99999;
+
+  // Animate status
+  const statusUpdates = [
+    { id: 'gs-1', delay: 0,    text: '✓ Macros calculated', color: 'var(--jade)' },
+    { id: 'gs-2', delay: 3000, text: '✓ Training split built', color: 'var(--jade)' },
+    { id: 'gs-3', delay: 6000, text: '✓ Supplements timed', color: 'var(--jade)' },
+    { id: 'gs-4', delay: 9000, text: '✓ Week plan ready', color: 'var(--jade)' },
+  ];
+
+  statusUpdates.forEach(({ id, delay: d, text, color }) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = text;
+        el.style.color = color;
+        el.style.opacity = '1';
+      }
+    }, d);
+  });
+
+  try {
+    // Calculate macros first (we do this ourselves, not via API)
+    calculateMacros();
+
+    // Build the week plan via Claude
+    const weekPlan = await buildWeekPlan();
+    profile.weekPlan = weekPlan;
+
+    // Build supplement stack
+    const supplements = buildSupplements();
+    profile.supplements = supplements;
+
+    profile.generated = true;
+    profile.generatedAt = new Date().toISOString();
+
+    // Save to localStorage
+    BL_STORE.set('profile', profile);
+
+    await delay(1200);
+
+    // Success message
+    addMessage('ai', `Done, ${profile.name}. Your programme is ready.\n\nEvery day from here has a complete plan — what to eat, when, what to train, your supplements timed to the minute. The coach knows everything about you and can answer any question in context.\n\n<strong>Open your day.</strong>`);
+
+    await delay(600);
+
+    // Generate button
+    const btndiv = document.createElement('div');
+    btndiv.style.cssText = 'padding:0 32px;max-width:760px;margin:0 auto;';
+    btndiv.innerHTML = `<button class="ob-generate" onclick="location.href='bodylens-day.html'">Open today's plan →</button>`;
+    document.getElementById('ob-messages').appendChild(btndiv);
+    document.getElementById('ob-messages').scrollTop = 99999;
+
+    document.getElementById('ob-input-bar').style.display = 'none';
+
+  } catch(err) {
+    console.error('Generation error:', err);
+    addMessage('ai', `There was a connection issue. Your profile has been saved — <a href="bodylens-day.html" style="color:var(--jade);">open your day</a> and the plan will generate when you get there.`);
+    BL_STORE.set('profile', profile);
+  }
+}
+
+// ── MACRO CALCULATION ────────────────────────────────────
+function calculateMacros() {
+  const w = profile.weight || 80;
+  const age = profile.age || 35;
+  const sex = profile.sex || 'Male';
+  const goal = (profile.goal || '').toLowerCase();
+  const exp = (profile.experience || '').toLowerCase();
+
+  // BMR (Mifflin-St Jeor)
+  let bmr;
+  if (sex === 'Male') {
+    bmr = 10 * w + 6.25 * (profile.height || 175) - 5 * age + 5;
+  } else {
+    bmr = 10 * w + 6.25 * (profile.height || 165) - 5 * age - 161;
+  }
+
+  // Activity multiplier — assumes moderate training
+  const days = profile.trainingDays || 4;
+  const actMultiplier = days <= 3 ? 1.55 : days <= 5 ? 1.65 : 1.725;
+  const tdee = Math.round(bmr * actMultiplier);
+
+  // Calorie target based on goal
+  let calories;
+  if (goal.includes('lose') || goal.includes('fat') || goal.includes('cut')) {
+    calories = tdee - 400; // moderate deficit
+  } else if (goal.includes('build') || goal.includes('muscle') || goal.includes('gain')) {
+    calories = tdee + 200; // lean surplus
+  } else if (goal.includes('recomp')) {
+    calories = tdee; // maintenance
+  } else {
+    calories = tdee;
+  }
+
+  // Protein — 2.2g/kg for advanced, 2g/kg for intermediate
+  const proteinMultiplier = exp.includes('advanced') || exp.includes('5+') ? 2.2 : 2.0;
+  const protein = Math.round(w * proteinMultiplier);
+
+  // Fat — minimum 25% of calories, ~1g/kg
+  const fat = Math.max(Math.round(w * 1.0), Math.round(calories * 0.25 / 9));
+
+  // Carbs — fill the rest
+  const carbs = Math.round((calories - protein * 4 - fat * 9) / 4);
+
+  profile.calories = calories;
+  profile.protein  = protein;
+  profile.fat      = fat;
+  profile.carbs    = carbs > 0 ? carbs : 100;
+  profile.tdee     = tdee;
+}
+
+// ── WEEK PLAN BUILDER ────────────────────────────────────
+async function buildWeekPlan() {
+  const days = profile.trainingDays || 4;
+  const goal = profile.goal || 'Build lean muscle';
+  const injuries = profile.injuries && profile.injuries.length
+    ? profile.injuries.map(i => i.detail || i.location).join(', ')
+    : 'None';
+  const exclusions = profile.equipmentExclusions || 'None';
+
+  const prompt = `Given this person's profile, design a ${days}-day training week plan.
+
+PROFILE:
+- Goal: ${goal}
+- Experience: ${profile.experience}
+- Injuries/constraints: ${injuries}
+- Equipment exclusions: ${exclusions}
+- Gym: ${profile.gymAccess}
+
+Return ONLY a JSON array of 7 objects (Monday to Sunday, index 0-6), each with:
+{
+  "day": "Monday",
+  "type": "Push" | "Pull" | "Posterior Chain" | "Upper" | "Full Body" | "Legs" | "Rest",
+  "focus": "brief description e.g. Chest, shoulders, triceps",
+  "kcal": ${profile.calories || 2500} for training days, ${Math.round((profile.calories || 2500) * 0.9)} for rest days,
+  "priority": "training" | "rest" | "active recovery",
+  "keyExercises": ["exercise 1", "exercise 2", "exercise 3"],
+  "modifications": ["any exercise modification for injuries"]
+}
+
+Injury-aware: modify or replace any exercises that conflict with: ${injuries}
+Return ONLY the JSON array, no other text.`;
+
+  try {
+    const response = await quickCoach(prompt, '', 1200);
+    // Extract JSON from response
+    const jsonMatch = response.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+  } catch(e) {
+    console.error('Week plan error:', e);
+  }
+
+  // Fallback week plan
+  return buildFallbackWeekPlan();
+}
+
+function buildFallbackWeekPlan() {
+  const days = profile.trainingDays || 4;
+  const kcal = profile.calories || 2500;
+  const restKcal = Math.round(kcal * 0.9);
+
+  const plans = {
+    3: [
+      { day:'Monday',    type:'Push',            focus:'Chest, shoulders, triceps',  kcal, priority:'training', keyExercises:['Bench press','Overhead press','Lateral raise'], modifications:[] },
+      { day:'Tuesday',   type:'Rest',             focus:'Recovery and nutrition',      kcal:restKcal, priority:'rest', keyExercises:[], modifications:[] },
+      { day:'Wednesday', type:'Pull',             focus:'Back, biceps, rear delts',   kcal, priority:'training', keyExercises:['Pull-ups','Row','Face pull'], modifications:[] },
+      { day:'Thursday',  type:'Rest',             focus:'Recovery and nutrition',      kcal:restKcal, priority:'rest', keyExercises:[], modifications:[] },
+      { day:'Friday',    type:'Posterior Chain',  focus:'Glutes, hamstrings, lower back', kcal, priority:'training', keyExercises:['Hip thrust','RDL','Step-up'], modifications:[] },
+      { day:'Saturday',  type:'Rest',             focus:'Active recovery or light walk', kcal:restKcal, priority:'rest', keyExercises:[], modifications:[] },
+      { day:'Sunday',    type:'Rest',             focus:'Full rest',                   kcal:restKcal, priority:'rest', keyExercises:[], modifications:[] },
+    ],
+    4: [
+      { day:'Monday',    type:'Push',             focus:'Chest, shoulders, triceps',  kcal, priority:'training', keyExercises:['Bench press','Overhead press','Lateral raise'], modifications:[] },
+      { day:'Tuesday',   type:'Rest',             focus:'Recovery and nutrition',      kcal:restKcal, priority:'rest', keyExercises:[], modifications:[] },
+      { day:'Wednesday', type:'Pull',             focus:'Back, biceps, rear delts',   kcal, priority:'training', keyExercises:['Pull-ups','Row','Face pull'], modifications:[] },
+      { day:'Thursday',  type:'Rest',             focus:'Recovery and nutrition',      kcal:restKcal, priority:'rest', keyExercises:[], modifications:[] },
+      { day:'Friday',    type:'Posterior Chain',  focus:'Glutes, hamstrings',         kcal, priority:'training', keyExercises:['Hip thrust','RDL','Step-up'], modifications:[] },
+      { day:'Saturday',  type:'Upper',            focus:'Full upper body strength',   kcal, priority:'training', keyExercises:['Shoulder press','Pull-up','Tricep dip'], modifications:[] },
+      { day:'Sunday',    type:'Rest',             focus:'Full rest',                  kcal:restKcal, priority:'rest', keyExercises:[], modifications:[] },
+    ],
+    5: [
+      { day:'Monday',    type:'Push',             focus:'Chest, shoulders, triceps',  kcal, priority:'training', keyExercises:['Bench press','Overhead press','Lateral raise'], modifications:[] },
+      { day:'Tuesday',   type:'Posterior Chain',  focus:'Glutes, hamstrings',         kcal, priority:'training', keyExercises:['Hip thrust','RDL'], modifications:[] },
+      { day:'Wednesday', type:'Pull',             focus:'Back, biceps',               kcal, priority:'training', keyExercises:['Pull-up','Row','Curl'], modifications:[] },
+      { day:'Thursday',  type:'Rest',             focus:'Recovery',                   kcal:restKcal, priority:'rest', keyExercises:[], modifications:[] },
+      { day:'Friday',    type:'Legs',             focus:'Quads, hamstrings, calves',  kcal, priority:'training', keyExercises:['Squat','Leg press','Leg curl'], modifications:[] },
+      { day:'Saturday',  type:'Upper',            focus:'Full upper body',            kcal, priority:'training', keyExercises:['Press','Row','Arms'], modifications:[] },
+      { day:'Sunday',    type:'Rest',             focus:'Full rest',                  kcal:restKcal, priority:'rest', keyExercises:[], modifications:[] },
+    ],
+  };
+
+  return plans[days] || plans[4];
+}
+
+// ── SUPPLEMENT BUILDER ───────────────────────────────────
+function buildSupplements() {
+  const goal = (profile.goal || '').toLowerCase();
+  const injuries = profile.injuries && profile.injuries.length > 0;
+  const age = profile.age || 30;
+
+  const stack = [
+    'Creatine monohydrate 5g — daily, any time',
+    `Omega-3 EPA/DHA 2-3g — with largest meal`,
+    `Vitamin D3 3000IU + K2 100mcg — with fat meal`,
+    `Magnesium glycinate 400mg — 30min before sleep`,
+  ];
+
+  if (age >= 35) {
+    stack.push('Ashwagandha KSM-66 600mg — daily (cortisol and testosterone support)');
+  }
+
+  if (injuries || goal.includes('muscle') || goal.includes('build')) {
+    stack.push('Collagen peptides 15g + Vitamin C 50mg — 45min before training');
+  }
+
+  stack.push('L-Theanine 200mg — with each coffee');
+
+  return stack;
+}
+
+// ── UTILITIES ────────────────────────────────────────────
+function delay(ms) {
+  return new Promise(res => setTimeout(res, ms));
+}
+
+// Enter key send
+document.getElementById('ob-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleSend();
+});
+
+// ── BOOT ────────────────────────────────────────────────
+showStep(0);
+</script>
+</body>
+</html>
