@@ -174,7 +174,7 @@ async function sendCoach(inputId, respId, btnId, extraCtx) {
   messages.push({ role: 'user', content: q });
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -207,7 +207,7 @@ async function quickCoach(question, extraContext, maxTokens) {
   const systemPrompt = buildSystemPrompt(profile);
   const messages = [{ role: 'user', content: question }];
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
