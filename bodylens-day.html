@@ -7,10 +7,364 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+body { background: var(--ink); color: var(--dk-1); }
+
+/* ── PAGE ── */
+.day-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 24px 120px;
+}
+
+/* ── DAY HEADER ── */
+.day-hero {
+  padding: 36px 0 28px;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 28px;
+}
+.day-date-line {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.day-date-line::before { content:''; width:18px; height:1px; background:var(--jade); }
+.day-title {
+  font-family: var(--serif);
+  font-size: 52px;
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--dk-1);
+  margin-bottom: 12px;
+}
+.day-brief {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.65;
+  max-width: 480px;
+  margin-bottom: 14px;
+}
+.day-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--jade-dim);
+  border: 1px solid var(--jade-br);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--jade);
+}
+.day-priority::before { content: '↑'; font-size: 14px; }
+
+/* ── MACRO STRIP ── */
+.day-macros {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px;
+  background: var(--bd);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.day-macro {
+  background: var(--ink-2);
+  padding: 14px 12px;
+  text-align: center;
+}
+.day-macro-val {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--dk-1);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.day-macro-val.jade  { color: var(--jade); }
+.day-macro-val.amber { color: var(--amber); }
+.day-macro-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+}
+
+/* ── SECTION LABEL ── */
+.day-sec {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  margin: 24px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.day-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
+
+/* ── TIMELINE BLOCK ── */
+.tl-block {
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+.tl-block:hover { border-color: var(--bd-2); }
+.tl-block.type-training { border-left: 3px solid var(--jade); }
+.tl-block.type-meal     { border-left: 3px solid var(--amber); }
+.tl-block.type-supp     { border-left: 3px solid var(--gold); }
+.tl-block.type-recovery { border-left: 3px solid var(--slate); }
+.tl-block.type-sleep    { border-left: 3px solid rgba(74,98,117,0.5); }
+.tl-block.type-note     { border-left: 3px solid var(--dk-3); }
+
+.tl-head {
+  display: grid;
+  grid-template-columns: 58px 1fr auto;
+  align-items: center;
+  padding: 13px 16px;
+  background: var(--ink-1);
+  gap: 12px;
+}
+.tl-block.open .tl-head { background: var(--ink-2); }
+
+.tl-time {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--jade);
+}
+.tl-block.type-meal     .tl-time { color: var(--amber); }
+.tl-block.type-supp     .tl-time { color: var(--gold); }
+.tl-block.type-recovery .tl-time { color: var(--dk-2); }
+.tl-block.type-sleep    .tl-time { color: var(--slate); }
+
+.tl-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dk-1);
+  line-height: 1.3;
+}
+.tl-chevron {
+  font-size: 12px;
+  color: var(--dk-3);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.tl-block.open .tl-chevron { transform: rotate(90deg); }
+
+.tl-body {
+  display: none;
+  padding: 14px 16px 16px;
+  background: var(--ink-1);
+  border-top: 1px solid var(--bd);
+}
+.tl-block.open .tl-body { display: block; }
+
+.tl-detail {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.82;
+  margin-bottom: 10px;
+}
+.tl-detail strong { color: var(--dk-1); font-weight: 500; }
+
+.tl-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.tl-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--bd);
+  font-size: 12px;
+  gap: 12px;
+}
+.tl-item:last-child { border-bottom: none; padding-bottom: 0; }
+.tl-item-name { font-weight: 400; color: var(--dk-1); flex: 1; }
+.tl-item-meta { font-weight: 300; color: var(--dk-3); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+
+/* ── LOADING STATE ── */
+.day-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+}
+.day-spinner {
+  width: 36px; height: 36px;
+  border: 2px solid var(--bd-2);
+  border-top-color: var(--jade);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.day-loading-label {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-3);
+}
+
+/* ── ASK BAR ── */
+.ask-wrap {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(12,16,16,0.97);
+  border-top: 1px solid var(--bd);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  padding: 10px 24px 14px;
+}
+.ask-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.ask-resp {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.7;
+  padding: 10px 14px;
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: none;
+  animation: fadeUp 0.2s ease;
+}
+.ask-resp.visible { display: block; }
+.ask-resp.loading { color: var(--jade); }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(4px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.ask-chips-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.ask-chip {
+  font-size: 11px;
+  padding: 5px 12px;
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 14px;
+  color: var(--dk-3);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: var(--sans);
+  white-space: nowrap;
+}
+.ask-chip:hover { color: var(--jade); border-color: var(--jade-br); background: var(--jade-dim); }
+.ask-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ask-input {
+  flex: 1;
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 22px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--dk-1);
+  font-family: var(--sans);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.ask-input:focus { border-color: var(--jade-br); }
+.ask-input::placeholder { color: var(--dk-3); font-size: 12px; }
+.ask-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--jade);
+  border: none;
+  color: var(--ink);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.ask-btn:hover { background: var(--jade-hi); }
+.ask-btn:disabled { background: var(--ink-3); cursor: not-allowed; }
+
+/* ── NO PROFILE ── */
+.no-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  text-align: center;
+  padding: 48px 24px;
+  gap: 14px;
+}
+.no-profile-icon { font-size: 44px; }
+.no-profile h2 {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 300;
+  color: var(--dk-1);
+}
+.no-profile p {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--dk-2);
+  max-width: 360px;
+  line-height: 1.7;
+}
+.no-profile a {
+  display: inline-block;
+  padding: 12px 28px;
+  background: var(--jade);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.no-profile a:hover { background: var(--jade-hi); }
+
+@media(max-width:600px){
+  .day-page { padding: 0 16px 120px; }
+  .day-title { font-size: 38px; }
+  .day-macros { grid-template-columns: repeat(2,1fr); }
+  .ask-wrap { padding: 8px 16px 12px; }
+  .ask-chips-row { display: none; }
+  .tl-head { grid-template-columns: 50px 1fr auto; padding: 11px 12px; }
+  .tl-body { padding: 12px 12px 14px; }
+}
+</style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
@@ -29,308 +383,285 @@
     <a class="nav-link" href="bodylens-story.html">The Story</a>
     <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
     <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-onboard.html" id="nav-setup">⚙ Setup</a>
+    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
   </div>
   <div class="nav-meta" id="nav-meta"></div>
 </nav>
 
-<!-- MAIN -->
-<div class="day-shell" id="day-main">
-  <!-- Content rendered by JS -->
-  <div class="generating" id="loading-state">
-    <div class="gen-spinner"></div>
-    <div class="gen-label" id="loading-label">Loading your day…</div>
+<div class="day-page" id="day-page">
+  <div class="day-loading" id="loading">
+    <div class="day-spinner"></div>
+    <div class="day-loading-label" id="loading-label">Building your day…</div>
   </div>
 </div>
 
-<!-- ASK ANYTHING BAR — fixed bottom -->
-<div class="ask-bar" id="ask-bar" style="display:none;">
-  <div style="max-width:680px;margin:0 auto;">
+<!-- ASK ANYTHING -->
+<div class="ask-wrap" id="ask-wrap" style="display:none;">
+  <div class="ask-inner">
     <div class="ask-resp" id="ask-resp"></div>
-    <div class="ask-chips" id="ask-chips"></div>
-  </div>
-  <div class="ask-bar-inner">
-    <input
-      class="ask-input"
-      id="ask-input"
-      type="text"
-      placeholder="Ask anything — I'm hungry, knee feels tight, can I have wine tonight…"
-      autocomplete="off"
-    >
-    <button class="ask-btn" id="ask-btn" onclick="handleAsk()">↑</button>
+    <div class="ask-chips-row" id="ask-chips"></div>
+    <div class="ask-row">
+      <input class="ask-input" id="ask-input"
+        type="text"
+        placeholder="Ask anything — I'm hungry, knee feels tight, can I drink tonight…"
+        autocomplete="off">
+      <button class="ask-btn" id="ask-btn">↑</button>
+    </div>
   </div>
 </div>
 
 <script src="nav.js"></script>
 <script>
-// ════════════════════════════════════════════════════════
-//  DAY PAGE — Daily operating system
-//  Builds the day plan from stored profile.
-//  Renders timeline. Answers any question in context.
-// ════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  BodyLens — Day Page
+//  Generates a structured daily plan from the profile.
+//  Caches it so it doesn't regenerate on every open.
+//  Ask-anything bar answers in full context.
+// ══════════════════════════════════════════════════
 
-const profile   = getProfile();
-const todayIdx  = getTodayIndex();
-const todayName = getTodayName();
+const API   = '/api/chat';
+const MODEL = 'claude-sonnet-4-20250514';
 
-// ── REDIRECT IF NO PROFILE ───────────────────────────────
+// ── PROFILE ────────────────────────────────────────
+const profile = getProfile();
+
 if (!profile) {
-  document.getElementById('day-main').innerHTML = `
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('day-page').innerHTML = `
     <div class="no-profile">
       <div class="no-profile-icon">💪</div>
       <h2>Let's build your programme</h2>
-      <p>Answer a few questions and I'll create a complete personalised plan — training, nutrition, supplements, recovery. Everything you need.</p>
+      <p>Answer a few questions and your personalised daily plan will be ready in minutes.</p>
       <a href="bodylens-onboard.html">Get started →</a>
     </div>`;
-  document.getElementById('ask-bar').style.display = 'none';
-  document.getElementById('nav-setup').style.color = 'var(--jade)';
-  document.querySelector('.nav-meta').innerHTML = '';
-  throw new Error('No profile'); // Stop execution
+} else {
+  init();
 }
 
-// ── NAV META ────────────────────────────────────────────
-const navMeta = document.getElementById('nav-meta');
-if (profile.name) {
-  navMeta.innerHTML = `<span class="nav-tag nt-jade">${profile.name}</span>`;
+// ── NAV ────────────────────────────────────────────
+if (profile && profile.name) {
+  document.getElementById('nav-meta').innerHTML =
+    `<span class="nav-tag nt-jade">${profile.name}</span>`;
 }
 
-// ── DAY DATA ─────────────────────────────────────────────
-const weekPlan  = profile.weekPlan || [];
-const todayPlan = weekPlan[todayIdx] || { type: 'Rest', focus: 'Recovery', kcal: profile.calories || 2200 };
+// ── DAY CONTEXT ────────────────────────────────────
+const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DAY_MAP   = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
+const todayIdx  = DAY_MAP[new Date().getDay()];
+const todayName = DAY_NAMES[todayIdx];
+const weekPlan  = (profile && profile.weekPlan) || [];
+const todayPlan = weekPlan[todayIdx] || {type:'Rest',focus:'Recovery',kcal:profile&&profile.calories||2200,priority:'rest'};
 const isTraining = todayPlan.priority === 'training';
+const CACHE_KEY  = 'dayplan_' + new Date().toISOString().slice(0,10);
 
-// ── CACHE KEY ────────────────────────────────────────────
-// Cache today's plan so we don't regenerate on every page open
-const CACHE_KEY = 'dayplan_' + new Date().toISOString().slice(0, 10);
-
-// ── BOOT ────────────────────────────────────────────────
+// ── INIT ───────────────────────────────────────────
 async function init() {
   const cached = BL_STORE.get(CACHE_KEY);
-  if (cached && cached.blocks) {
+  if (cached && cached.blocks && cached.blocks.length > 0) {
     renderDay(cached);
     return;
   }
-
-  setLoading('Building your day…');
+  document.getElementById('loading-label').textContent = 'Building your day…';
   try {
     const plan = await generateDayPlan();
     BL_STORE.set(CACHE_KEY, plan);
     renderDay(plan);
-  } catch(err) {
-    console.error('Day plan error:', err);
+  } catch(e) {
+    console.error(e);
     renderDay(buildFallbackPlan());
   }
 }
 
-function setLoading(msg) {
-  document.getElementById('loading-label').textContent = msg;
-  document.getElementById('loading-state').style.display = 'flex';
-  document.getElementById('ask-bar').style.display = 'none';
-}
-
-// ── GENERATE DAY PLAN ────────────────────────────────────
+// ── GENERATE ───────────────────────────────────────
 async function generateDayPlan() {
-  const wakeTime = profile.wakeTime || '06:30';
-  const [wakeH, wakeM] = wakeTime.split(':').map(Number);
+  const p = profile;
+  const wake = p.wakeTime || '07:00';
+  const [wH] = wake.split(':').map(Number);
 
-  const prompt = `Generate a complete daily plan for ${todayName} for this person.
+  const prompt = `Build a complete structured daily plan for ${p.name} for ${todayName}.
+
+PERSON:
+${p.name}, ${p.age||'?'}yo ${p.sex||'male'}, ${p.weight||'?'}kg
+Goal: ${p.goal || 'body recomposition'}
+Experience: ${p.experience || 'intermediate'}
+Wake time: ${wake}
+Diet: ${p.dietType || 'no restrictions'}
+Food exclusions: ${(p.foodExclusions||[]).join(', ')||'none'}
+Trigger foods: ${p.triggerFoods||'none'}
+Recovery tools: ${(p.recoveryTools||[]).join(', ')||'none'}
+Non-negotiables: ${(p.nonNegotiables||[]).join(', ')||'none'}
+Injuries: ${p.injuries&&p.injuries.length?p.injuries.join(', '):'none'}
+Injury detail: ${p.injuryDetail||'none'}
+Alcohol habit: ${p.alcoholHabit||'social'}
 
 TODAY: ${todayName} — ${todayPlan.type} (${todayPlan.focus})
-Training day: ${isTraining ? 'YES' : 'NO'}
-Key exercises: ${(todayPlan.keyExercises || []).join(', ') || 'Rest day'}
-Modifications: ${(todayPlan.modifications || []).join(', ') || 'None'}
-Wake time: ${wakeTime}
-Calories today: ${todayPlan.kcal || profile.calories}
-Protein: ${profile.protein}g | Carbs: ${profile.carbs}g | Fat: ${profile.fat}g
-Injuries: ${profile.injuries && profile.injuries.length ? profile.injuries.map(i=>i.detail||i.location).join(', ') : 'None'}
-Non-negotiables: ${profile.nonNegotiables ? profile.nonNegotiables.join(', ') : 'None'}
-Supplements: ${profile.supplements ? profile.supplements.join(' | ') : 'Standard stack'}
-Recovery tools: ${profile.recoveryTools ? profile.recoveryTools.join(', ') : 'None'}
-Food exclusions: ${profile.foodExclusions ? profile.foodExclusions.join(', ') : 'None'}
-Trigger foods to avoid: ${profile.triggerFoods || 'None'}
-Goal: ${profile.goal}
+Training day: ${isTraining?'YES':'NO'}
+${isTraining?`Key exercises: ${(todayPlan.keyExercises||[]).join(', ')}
+Modifications: ${(todayPlan.modifications||[]).join(', ')||'none'}`:'Rest day — focus on nutrition and recovery'}
+Calories today: ${todayPlan.kcal || p.calories || 2400}
+Protein: ${p.protein||185}g | Carbs: ${p.carbs||200}g | Fat: ${p.fat||80}g
+Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
 
-Return a JSON object with this structure:
+Return ONLY valid JSON:
 {
-  "dayTitle": "Monday — Push Day" (or "Tuesday — Rest & Recover"),
-  "dayBrief": "2-3 sentence description of what today is about and why",
+  "dayTitle": "${todayName} — ${todayPlan.type}",
+  "dayBrief": "2 sentences: what today is about and the key thing to get right",
   "priority": "One sentence — the single most important thing today",
   "blocks": [
     {
-      "time": "06:00",
-      "type": "training" | "meal" | "supp" | "recovery" | "sleep" | "note",
-      "title": "Brief title e.g. Wake + morning ignition",
-      "tag": "optional short tag e.g. Non-negotiable",
-      "tagColor": "jade" | "amber" | "gold" | "slate",
-      "detail": "Full instructions. Be specific and practical. What exactly to do, eat, or take.",
+      "time": "HH:MM",
+      "type": "training|meal|supp|recovery|sleep|note",
+      "title": "Brief title",
+      "tag": "optional short label",
+      "tagColor": "jade|amber|gold|slate",
+      "detail": "Full instructions. Specific. What exactly to do or eat. Why it matters.",
       "items": [
-        { "name": "Item name", "meta": "e.g. 200mg or 3 reps" }
+        { "name": "item name", "meta": "dose or quantity" }
       ]
     }
   ],
   "macroTargets": {
-    "calories": ${todayPlan.kcal || profile.calories},
-    "protein": ${profile.protein},
-    "carbs": ${profile.carbs},
-    "fat": ${profile.fat}
+    "calories": ${todayPlan.kcal||p.calories||2400},
+    "protein": ${p.protein||185},
+    "carbs": ${p.carbs||200},
+    "fat": ${p.fat||80}
   }
 }
 
-REQUIREMENTS:
-- Include ALL of: wake routine, supplements with exact timing, all meals with specific foods and portions, training session (if training day) with exercises and sets/reps, recovery protocol, wind-down, sleep time
-- Supplements: be exact — what, how much, when, with what
-- Meals: be specific — exact foods, approximate portions, why this meal at this time
-- Training: list specific exercises with sets, reps, and any weight guidance
-- Recovery: specify which tools to use (sauna, pool etc) and for how long
-- Sleep: what time, what to do beforehand, any sleep supplements
-- If training day: include collagen timing before training if relevant to their goals/injuries
-- Make it feel like a personal trainer wrote it, not a generic plan
-- Return ONLY the JSON object, no other text`;
+REQUIRED BLOCKS — include all of these:
+1. Wake routine (${wake}) — water, sunlight, cold shower, no phone rule
+2. Supplements — collagen + VitC if training day (45min before session), coffee timing, L-Theanine
+${isTraining?`3. Training session — list exercises with sets and reps, any injury modifications
+4. Post-training — protein within 30min, sauna if available, hydro pool if available`:'3. Active recovery — what to do on a rest day (walk, Zone 2, mobility)'}
+5. All meals — specific foods, approximate quantities, why that meal at that time
+   - Respect eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
+   - Respect food exclusions: ${(p.foodExclusions||[]).join(', ')||'none'}
+   - Trigger foods to avoid: ${p.triggerFoods||'none'}
+6. Evening supplements (magnesium, omega-3 if not taken earlier)
+7. Wind-down and sleep — screens off, room temp, time
 
-  const response = await quickCoach(prompt, '', 2000);
-  const jsonMatch = response.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('No JSON in response');
-  return JSON.parse(jsonMatch[0]);
+Be specific. A good coach tells you what to eat — not just "protein and carbs" but "200g chicken breast, 150g sweet potato, unlimited spinach."
+Return ONLY the JSON.`;
+
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 2500,
+      system: 'You are a performance coach building a daily plan. Return only valid JSON. No preamble.',
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  const data = await res.json();
+  const text = data.content?.map(b => b.text||'').join('') || '';
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('No JSON');
+  return JSON.parse(match[0]);
 }
 
-// ── RENDER DAY ───────────────────────────────────────────
+// ── RENDER ─────────────────────────────────────────
 function renderDay(plan) {
-  document.getElementById('loading-state').style.display = 'none';
-  document.getElementById('ask-bar').style.display = 'block';
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('ask-wrap').style.display = 'block';
 
-  const main = document.getElementById('day-main');
-  const macros = plan.macroTargets || { calories: profile.calories, protein: profile.protein, carbs: profile.carbs, fat: profile.fat };
-  const logged = getTodayMacros();
+  const m = plan.macroTargets || {
+    calories: todayPlan.kcal||profile.calories||2400,
+    protein:  profile.protein||185,
+    carbs:    profile.carbs||200,
+    fat:      profile.fat||80
+  };
 
-  main.innerHTML = `
-    <!-- Day header -->
-    <div class="day-header">
-      <div class="day-date">${formatDate()}</div>
+  const page = document.getElementById('day-page');
+  page.innerHTML = `
+    <div class="day-hero">
+      <div class="day-date-line">${formatDate()}</div>
       <div class="day-title">${plan.dayTitle || todayName}</div>
-      <div class="day-subtitle">${plan.dayBrief || ''}</div>
-      ${plan.priority ? `<div style="margin-top:12px;padding:10px 14px;background:var(--jade-dim);border:1px solid var(--jade-br);border-radius:4px;font-size:12px;font-weight:500;color:var(--jade);">${plan.priority}</div>` : ''}
+      <div class="day-brief">${plan.dayBrief || ''}</div>
+      ${plan.priority ? `<div class="day-priority">${plan.priority}</div>` : ''}
     </div>
 
-    <!-- Macro targets -->
     <div class="day-macros">
       <div class="day-macro">
-        <div class="day-macro-val jade">${macros.calories}</div>
+        <div class="day-macro-val">${m.calories}</div>
         <div class="day-macro-label">Calories</div>
       </div>
       <div class="day-macro">
-        <div class="day-macro-val jade">${macros.protein}g</div>
+        <div class="day-macro-val jade">${m.protein}g</div>
         <div class="day-macro-label">Protein</div>
       </div>
       <div class="day-macro">
-        <div class="day-macro-val amber">${macros.carbs}g</div>
+        <div class="day-macro-val amber">${m.carbs}g</div>
         <div class="day-macro-label">Carbs</div>
       </div>
       <div class="day-macro">
-        <div class="day-macro-val">${macros.fat}g</div>
+        <div class="day-macro-val">${m.fat}g</div>
         <div class="day-macro-label">Fat</div>
       </div>
     </div>
 
-    <!-- Macro progress (if food logged) -->
-    ${logged.calories > 0 ? renderMacroBars(logged, macros) : ''}
+    <div class="day-sec">Your day</div>
 
-    <!-- Timeline -->
-    <div class="day-section-label">Your day</div>
-    <div id="timeline-blocks">
-      ${(plan.blocks || []).map(renderBlock).join('')}
+    <div id="tl-blocks">
+      ${(plan.blocks||[]).map((b,i) => renderBlock(b, i===0)).join('')}
     </div>
 
-    <!-- Refresh -->
-    <div style="margin-top:24px;text-align:center;">
-      <button onclick="refreshPlan()" style="background:transparent;border:1px solid var(--bd-2);color:var(--dk-3);padding:8px 18px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans);letter-spacing:0.04em;">↺ Regenerate today's plan</button>
+    <div style="margin-top:20px;text-align:center;">
+      <button onclick="regenerate()"
+        style="background:transparent;border:1px solid var(--bd-2);color:var(--dk-3);
+        padding:8px 18px;border-radius:20px;font-size:11px;cursor:pointer;
+        font-family:var(--sans);letter-spacing:0.04em;">
+        ↺ Regenerate today
+      </button>
     </div>
   `;
 
-  // Set up ask chips
   setupAskChips();
-  // Open first block by default
-  const first = document.querySelector('.timeline-block');
-  if (first) first.classList.add('open');
 }
 
-function renderBlock(block) {
-  const items = (block.items || []).map(item => `
+function renderBlock(b, open) {
+  const items = (b.items||[]).map(item => `
     <div class="tl-item">
       <span class="tl-item-name">${item.name}</span>
-      <span class="tl-item-meta">${item.meta || ''}</span>
-    </div>
-  `).join('');
+      <span class="tl-item-meta">${item.meta||''}</span>
+    </div>`).join('');
 
-  const tag = block.tag
-    ? `<div class="tl-tag ${block.tagColor || 'slate'}">${block.tag}</div>`
+  const tag = b.tag
+    ? `<span style="font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+        padding:3px 10px;border-radius:12px;flex-shrink:0;
+        color:var(--${b.tagColor||'slate'});
+        background:var(--${b.tagColor||'slate'}-dim);
+        border:1px solid var(--${b.tagColor||'slate'}-br);">${b.tag}</span>`
     : '';
 
   return `
-    <div class="timeline-block ${block.type || 'note'}" onclick="this.classList.toggle('open')">
+    <div class="tl-block type-${b.type||'note'}${open?' open':''}"
+      onclick="this.classList.toggle('open')">
       <div class="tl-head">
-        <div class="tl-time">${block.time || ''}</div>
-        <div class="tl-title">${block.title || ''}</div>
-        ${tag}
+        <div class="tl-time">${b.time||''}</div>
+        <div class="tl-title">${b.title||''}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${tag}
+          <div class="tl-chevron">›</div>
+        </div>
       </div>
       <div class="tl-body">
-        <div class="tl-detail">${(block.detail || '').replace(/\n/g, '<br>')}</div>
+        <div class="tl-detail">${(b.detail||'').replace(/\n/g,'<br>')}</div>
         ${items ? `<div class="tl-items">${items}</div>` : ''}
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-function renderMacroBars(logged, targets) {
-  return `
-    <div style="background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:16px;margin-bottom:24px;">
-      <div style="font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:12px;">Logged today</div>
-      ${macrBar('Calories', logged.calories, targets.calories, 'jade')}
-      ${macrBar('Protein',  logged.protein,  targets.protein,  'jade')}
-      ${macrBar('Carbs',    logged.carbs,    targets.carbs,    'amber')}
-      ${macrBar('Fat',      logged.fat,      targets.fat,      '')}
-    </div>
-  `;
-}
-
-function macrBar(label, val, target, color) {
-  const pct = Math.min(100, Math.round((val / target) * 100));
-  const over = val > target * 1.05;
-  return `
-    <div class="macro-bar-wrap">
-      <div class="macro-bar-label">
-        <span>${label}</span>
-        <span>${val}${label === 'Calories' ? '' : 'g'} / ${target}${label === 'Calories' ? '' : 'g'}</span>
-      </div>
-      <div class="macro-bar-track">
-        <div class="macro-bar-fill ${over ? 'red' : color}" style="width:${pct}%"></div>
-      </div>
-    </div>
-  `;
-}
-
-// ── ASK ANYTHING ─────────────────────────────────────────
+// ── ASK ANYTHING ───────────────────────────────────
 function setupAskChips() {
-  const chips = document.getElementById('ask-chips');
-  const todayType = todayPlan.type || 'Rest';
-  const isRest = !isTraining;
+  const chips = isTraining
+    ? ["I'm hungry — what can I eat?", "How heavy should I go?", "Can I drink tonight?", "Knee feels tight"]
+    : ["I'm hungry — what can I eat?", "What's best for recovery today?", "Can I drink tonight?", "Low energy — what helps?"];
 
-  const questions = isRest
-    ? [
-        "I'm hungry — what can I eat?",
-        "What's the best recovery today?",
-        "Can I have a drink tonight?",
-        "How many calories have I got left?",
-      ]
-    : [
-        "I'm hungry — what can I eat?",
-        "Should I train if I feel tired?",
-        "How heavy should I go today?",
-        "Can I have a drink tonight?",
-      ];
-
-  chips.innerHTML = questions.map(q => `
-    <button class="ask-chip" onclick="setAsk(this.textContent)">${q}</button>
-  `).join('');
+  document.getElementById('ask-chips').innerHTML = chips
+    .map(q => `<button class="ask-chip" onclick="setAsk('${q.replace(/'/g,"\\'")}')">${q}</button>`)
+    .join('');
 }
 
 function setAsk(text) {
@@ -338,175 +669,135 @@ function setAsk(text) {
   document.getElementById('ask-input').focus();
 }
 
-async function handleAsk() {
-  const input = document.getElementById('ask-input');
-  const q = input.value.trim();
-  if (!q) return;
-
-  const btn  = document.getElementById('ask-btn');
-  const resp = document.getElementById('ask-resp');
-
-  btn.disabled = true;
-  input.value = '';
-  resp.className = 'ask-resp visible loading';
-  resp.textContent = 'Thinking…';
-
-  // Build context — what the person has eaten, what day it is, what the plan says
-  const foodLog = getFoodLog();
-  const logged  = getTodayMacros();
-  const context = `
-TODAY: ${todayName} — ${todayPlan.type}
-Calories remaining: ${(todayPlan.kcal || profile.calories) - logged.calories} kcal
-Protein remaining: ${profile.protein - logged.protein}g
-Food logged so far: ${foodLog.length ? foodLog.map(e => `${e.time} ${e.name}`).join(', ') : 'Nothing yet'}
-Training today: ${isTraining ? 'YES — ' + (todayPlan.keyExercises || []).join(', ') : 'No — rest day'}
-Question context: User is asking in real time during their day.
-`.trim();
-
-  try {
-    const answer = await quickCoach(q, context, 400);
-    resp.className = 'ask-resp visible';
-    resp.textContent = answer;
-  } catch(e) {
-    resp.className = 'ask-resp visible';
-    resp.textContent = 'Connection error — try again.';
-  }
-
-  btn.disabled = false;
-}
-
-// ── REFRESH ──────────────────────────────────────────────
-async function refreshPlan() {
-  BL_STORE.del(CACHE_KEY);
-  document.getElementById('day-main').innerHTML = `
-    <div class="generating">
-      <div class="gen-spinner"></div>
-      <div class="gen-label">Regenerating today's plan…</div>
-    </div>`;
-  document.getElementById('ask-bar').style.display = 'none';
-  await init();
-}
-
-// ── FALLBACK ─────────────────────────────────────────────
-function buildFallbackPlan() {
-  const wakeTime = profile.wakeTime || '06:30';
-  const [wakeH] = wakeTime.split(':').map(Number);
-  const kcal = todayPlan.kcal || profile.calories || 2500;
-  const protein = profile.protein || 185;
-
-  const blocks = [
-    {
-      time: wakeTime,
-      type: 'note',
-      title: 'Wake + morning routine',
-      detail: `No phone for the first 5 minutes. 500ml water immediately. 10 minutes outside facing the sky — no sunglasses. This sets your circadian clock for the day and determines tonight's sleep quality.\n\nCold shower to finish — 30-60 seconds cold at the end. Noradrenaline surge, HPA recalibration.`,
-      items: [{ name: 'Water', meta: '500ml immediately' }, { name: 'Sunlight', meta: '10 minutes' }, { name: 'Cold shower', meta: '30-60 sec cold finish' }],
-    },
-  ];
-
-  if (isTraining) {
-    // Add collagen timing
-    const collTime = `${String(wakeH + 1).padStart(2,'0')}:30`;
-    blocks.push({
-      time: collTime,
-      type: 'supp',
-      title: 'Pre-training: Collagen + Vitamin C',
-      tag: 'Take now',
-      tagColor: 'gold',
-      detail: `Take 45-60 minutes before training starts. Peak plasma hydroxyproline during the loading window = 5.5x connective tissue synthesis. This is the most targeted joint/tendon intervention in the stack.`,
-      items: [{ name: 'Collagen peptides', meta: '15g' }, { name: 'Vitamin C', meta: '50mg' }],
-    });
-  }
-
-  // Add coffee
-  const coffeeH = wakeH + 1;
-  blocks.push({
-    time: `${String(coffeeH).padStart(2,'0')}:30`,
-    type: 'note',
-    title: 'Coffee + L-Theanine',
-    detail: `Coffee arrives 90 minutes after waking — after the cortisol peak has cleared. Taking it during the cortisol peak builds tolerance faster and produces a larger crash when both drop. 200mg L-Theanine with each flat white: alpha wave modulation, removes the anxiety amplification, leaves the focus.`,
-    items: [{ name: 'Flat white', meta: '1-2 cups' }, { name: 'L-Theanine', meta: '200mg with each' }],
-  });
-
-  // Add training or rest content
-  if (isTraining) {
-    const trainH = wakeH + 2;
-    blocks.push({
-      time: `${String(trainH).padStart(2,'0')}:00`,
-      type: 'training',
-      title: `${todayPlan.type} session`,
-      tag: 'Train',
-      tagColor: 'jade',
-      detail: `Focus: ${todayPlan.focus}\n\nKey exercises: ${(todayPlan.keyExercises || []).join(', ')}\n\n${todayPlan.modifications && todayPlan.modifications.length ? 'Modifications: ' + todayPlan.modifications.join(', ') : ''}`,
-      items: (todayPlan.keyExercises || []).map(ex => ({ name: ex, meta: '3-4 sets' })),
-    });
-  }
-
-  // Meals
-  const mealTimes = ['08:00', '12:00', '16:00', '19:00'];
-  const mealDescs = [
-    { title: 'Breakfast', detail: `High protein start. Eggs or Greek yoghurt + oats. ${Math.round(protein * 0.25)}g protein target for this meal.`, items: [{ name: 'Eggs or Greek yoghurt', meta: `${Math.round(protein * 0.25)}g protein` }, { name: 'Oats or sourdough', meta: '60-80g' }] },
-    { title: 'Lunch', detail: `Lean protein + complex carbs. Chicken or fish + rice or sweet potato + vegetables. ${Math.round(protein * 0.3)}g protein.`, items: [{ name: 'Chicken / fish', meta: '200g' }, { name: 'Rice / sweet potato', meta: '150g cooked' }, { name: 'Vegetables', meta: 'Unlimited' }] },
-    { title: 'Afternoon snack', detail: `Protein hit to bridge to dinner. Keep it simple.`, items: [{ name: 'Greek yoghurt or whey', meta: `${Math.round(protein * 0.2)}g protein` }] },
-    { title: 'Dinner', detail: `Complete the protein target. Moderate fat, lower carbs unless training day.`, items: [{ name: 'Protein source', meta: '200-250g' }, { name: 'Vegetables', meta: 'Generous' }] },
-  ];
-
-  mealDescs.forEach((meal, i) => {
-    blocks.push({ time: mealTimes[i], type: 'meal', title: meal.title, tag: 'Eat', tagColor: 'amber', detail: meal.detail, items: meal.items });
-  });
-
-  // Supplements
-  blocks.push({
-    time: '22:00',
-    type: 'supp',
-    title: 'Evening supplements',
-    tag: 'Before bed',
-    tagColor: 'gold',
-    detail: `Take 30-60 minutes before sleep. Magnesium glycinate enables the GABAergic inhibition that allows the brain to properly switch off. Without it, the cortex stays activated. This is the most evidence-backed non-pharmaceutical sleep intervention available.`,
-    items: [
-      { name: 'Magnesium glycinate', meta: '400mg' },
-      { name: 'Omega-3', meta: '2-3g (if not taken at dinner)' },
-    ],
-  });
-
-  // Sleep
-  const sleepH = wakeH === 6 ? 22 : wakeH + 16;
-  blocks.push({
-    time: `${String(sleepH).padStart(2,'0')}:00`,
-    type: 'sleep',
-    title: 'Sleep',
-    tag: 'Non-negotiable',
-    tagColor: 'slate',
-    detail: `No screens from ${sleepH - 1}:00. Cool room: 17-19°C. Dark. The GH pulse happens in the first slow-wave cycle — every factor that delays or fragments sleep reduces the pulse. 8 hours is the operating condition, not a preference.`,
-    items: [
-      { name: 'Screen-off by', meta: `${String(sleepH - 1).padStart(2,'0')}:00` },
-      { name: 'Room temperature', meta: '17-19°C' },
-      { name: 'Target sleep', meta: '8 hours' },
-    ],
-  });
-
-  return {
-    dayTitle: `${todayName} — ${todayPlan.type}`,
-    dayBrief: `${todayPlan.focus}. ${kcal} kcal today. Protein target: ${protein}g.`,
-    priority: isTraining ? `Training day. Hit ${protein}g protein. Take collagen 45 min before the session.` : `Rest day. Nutrition is the lever — hit ${protein}g protein. Let yesterday's work complete.`,
-    blocks: blocks.sort((a, b) => a.time.localeCompare(b.time)),
-    macroTargets: { calories: kcal, protein, carbs: profile.carbs || 200, fat: profile.fat || 80 },
-  };
-}
-
-// ── UTILITIES ────────────────────────────────────────────
-function formatDate() {
-  const now = new Date();
-  return now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-// Enter key for ask
+document.getElementById('ask-btn').onclick = handleAsk;
 document.getElementById('ask-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') handleAsk();
 });
 
-// ── BOOT ────────────────────────────────────────────────
-init();
+async function handleAsk() {
+  const inp  = document.getElementById('ask-input');
+  const btn  = document.getElementById('ask-btn');
+  const resp = document.getElementById('ask-resp');
+  const q    = inp.value.trim();
+  if (!q) return;
+
+  inp.value = '';
+  btn.disabled = true;
+  resp.className = 'ask-resp visible loading';
+  resp.textContent = 'Thinking…';
+
+  // Build today context
+  const logged  = getTodayMacros();
+  const context = `TODAY: ${todayName} — ${todayPlan.type}
+Training: ${isTraining ? 'YES — ' + (todayPlan.keyExercises||[]).slice(0,3).join(', ') : 'Rest day'}
+Calories remaining: ~${(todayPlan.kcal||profile.calories||2400) - logged.calories} kcal
+Protein remaining: ~${(profile.protein||185) - logged.protein}g
+Food logged today: ${getFoodLog().map(e=>e.name).join(', ')||'nothing yet'}`;
+
+  try {
+    const answer = await quickCoach(q, context, 350);
+    resp.className = 'ask-resp visible';
+    resp.textContent = answer;
+  } catch(e) {
+    resp.className = 'ask-resp visible';
+    resp.textContent = 'Connection issue — try again.';
+  }
+  btn.disabled = false;
+}
+
+// ── REGENERATE ─────────────────────────────────────
+async function regenerate() {
+  BL_STORE.del(CACHE_KEY);
+  document.getElementById('day-page').innerHTML = `
+    <div class="day-loading">
+      <div class="day-spinner"></div>
+      <div class="day-loading-label">Regenerating your day…</div>
+    </div>`;
+  document.getElementById('ask-wrap').style.display = 'none';
+  await init();
+}
+
+// ── FALLBACK ───────────────────────────────────────
+function buildFallbackPlan() {
+  const wake = profile.wakeTime || '07:00';
+  const [wH, wM] = wake.split(':').map(Number);
+  const t = (h, m=0) => `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  const kcal = todayPlan.kcal || profile.calories || 2400;
+  const prot = profile.protein || 185;
+
+  const blocks = [
+    {
+      time: wake, type:'note', title:'Wake + morning ignition',
+      detail:`No phone for the first 5 minutes. 500ml water immediately.\n\nOutside for 10 minutes — morning sunlight sets your circadian clock for the day and determines tonight's sleep quality.\n\nCold shower to finish — 30-60 seconds cold. Noradrenaline surge, dopamine elevated for hours, HPA axis recalibrated.`,
+      items:[{name:'Water',meta:'500ml immediately'},{name:'Sunlight',meta:'10 minutes outside'},{name:'Cold shower',meta:'30-60 sec cold finish'}]
+    },
+    {
+      time: t(wH+1, 30), type:'supp', title:'Coffee + L-Theanine', tag:'Non-negotiable', tagColor:'jade',
+      detail:`Coffee arrives 90 minutes after waking — after the cortisol peak clears. Taking it during the cortisol peak builds tolerance faster and produces a larger crash.\n\n200mg L-Theanine with each coffee: removes the anxiety amplification, leaves the focus and alertness.`,
+      items:[{name:'Flat white',meta:'1-2 cups'},{name:'L-Theanine',meta:'200mg with each'}]
+    },
+  ];
+
+  if (isTraining) {
+    blocks.push({
+      time: t(wH+1), type:'supp', title:'Pre-training: Collagen + Vitamin C', tag:'45 min before', tagColor:'gold',
+      detail:`Take 45-60 minutes before training. Peak plasma hydroxyproline during the loading window = 5.5x connective tissue synthesis. The most targeted joint and tendon intervention in the stack.`,
+      items:[{name:'Collagen peptides',meta:'15g'},{name:'Vitamin C',meta:'50mg'}]
+    });
+    blocks.push({
+      time: t(wH+2), type:'training', title:`${todayPlan.type} session`, tag:'Train', tagColor:'jade',
+      detail:`Focus: ${todayPlan.focus}\n\n${(todayPlan.keyExercises||[]).join('\n')}${todayPlan.modifications&&todayPlan.modifications.length?'\n\nModifications: '+todayPlan.modifications.join(', '):''}`,
+      items:(todayPlan.keyExercises||[]).map(ex=>({name:ex,meta:''}))
+    });
+    blocks.push({
+      time: t(wH+4), type:'recovery', title:'Post-training recovery',
+      detail:`Protein within 30 minutes of finishing — mTOR is activated and looking for substrate now.\n\n${(profile.recoveryTools||[]).includes('Sauna')?'Sauna: 15-20 min at 80-90°C. Second GH pulse, heat shock protein activation.\n\n':''}${(profile.recoveryTools||[]).includes('Hydro pool')?'Hydro pool: 10-15 min. Knee unloaded to 30% bodyweight. Cartilage nutrition via compression-decompression.':''}`,
+      items:[{name:'Whey protein or chicken',meta:`${Math.round(prot*0.25)}g protein`},{name:'Rehydrate',meta:'500ml water'}]
+    });
+  }
+
+  // Meals
+  const mealWindow = profile.fastingWindow || profile.eatingWindow || 'flexible';
+  const firstMealH = mealWindow.includes('12') ? 12 : mealWindow.includes('09') ? 9 : 8;
+
+  blocks.push({time:t(firstMealH), type:'meal', title:'First meal', tag:'Eat', tagColor:'amber',
+    detail:`High protein start. Sets the leucine threshold for the first MPS window of the day.`,
+    items:[{name:'Eggs (3 whole)',meta:'18g protein'},{name:'Greek yoghurt',meta:'170g, 17g protein'},{name:'Oats or sourdough',meta:'60-80g'}]});
+  blocks.push({time:t(firstMealH+4), type:'meal', title:'Lunch', tag:'Eat', tagColor:'amber',
+    detail:`Lean protein + complex carbs. The largest meal of the day on a training day.`,
+    items:[{name:'Chicken breast or salmon',meta:'200g'},{name:'Sweet potato or rice',meta:'150g cooked'},{name:'Vegetables',meta:'Unlimited'}]});
+  blocks.push({time:t(firstMealH+8), type:'meal', title:'Dinner', tag:'Eat', tagColor:'amber',
+    detail:`Complete the protein target. Moderate fat. Lower carbs on a rest day.`,
+    items:[{name:'Protein source',meta:'200-250g'},{name:'Vegetables',meta:'Generous portion'},{name:'Olive oil',meta:'1 tbsp'}]});
+
+  blocks.push({
+    time:'21:30', type:'supp', title:'Evening supplements', tag:'Before bed', tagColor:'gold',
+    detail:`Magnesium glycinate enables the GABAergic inhibition that allows the brain to switch off properly. Most underrated supplement in the stack.`,
+    items:[{name:'Magnesium glycinate',meta:'400mg'},{name:'Omega-3',meta:'2-3g (if not taken at dinner)'}]
+  });
+
+  const sleepH = wH <= 6 ? 22 : 23;
+  blocks.push({
+    time: t(sleepH), type:'sleep', title:'Sleep', tag:'8 hours', tagColor:'slate',
+    detail:`Screens off from ${t(sleepH-1)}. Cool room 17-19°C. Dark. The GH pulse happens in the first slow-wave cycle — everything that fragments or delays sleep reduces it.\n\n8 hours is the operating condition, not a preference.`,
+    items:[{name:'Screens off',meta:t(sleepH-1)},{name:'Room temp',meta:'17-19°C'},{name:'Target wake',meta:wake}]
+  });
+
+  return {
+    dayTitle: `${todayName} — ${todayPlan.type}`,
+    dayBrief: `${todayPlan.focus}. ${kcal} kcal today. Protein target: ${prot}g.`,
+    priority: isTraining
+      ? `Training day. Hit ${prot}g protein. Take collagen 45 min before the session.`
+      : `Rest day. Nutrition is the lever — hit ${prot}g protein. Let the adaptation complete.`,
+    blocks: blocks.sort((a,b) => a.time.localeCompare(b.time)),
+    macroTargets: { calories:kcal, protein:prot, carbs:profile.carbs||200, fat:profile.fat||80 }
+  };
+}
+
+// ── UTILS ──────────────────────────────────────────
+function formatDate() {
+  return new Date().toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
 </script>
 </body>
 </html>
