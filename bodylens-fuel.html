@@ -423,6 +423,8 @@
     <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
     <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-howitworks.html">How It Works</a>
+    <div class="nav-sep"></div>
     <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
   </div>
   <div class="nav-meta" id="nav-meta"></div>
@@ -472,6 +474,7 @@
   <button class="ftab" onclick="showPane('pane-hacks',this)">Satiety &amp; energy</button>
   <button class="ftab" onclick="showPane('pane-avoid',this)">Avoid this week</button>
   <button class="ftab" onclick="showPane('pane-pyramids',this)">Food pyramids</button>
+  <button class="ftab" onclick="showPane('pane-meals',this);loadMealIdeas()">Meal ideas</button>
 </div>
 
 <!-- ═══════════════════════════════════════════
@@ -1570,6 +1573,337 @@ renderPyramid('balanced');
 </script>
 
 <div class="page-end"></div>
+
+<!-- ═══════════════════════════════════════════
+     PANE 7 — MEAL IDEAS (profile-driven)
+═══════════════════════════════════════════ -->
+<div class="fuel-pane" id="pane-meals">
+<div class="wrap" style="padding:40px 0 80px;">
+
+  <div class="sec-rule" style="margin-bottom:32px;">
+    <div class="sr-label">Meal ideas for you</div>
+  </div>
+
+  <div id="meal-ideas-shell">
+    <div id="meal-ideas-loading" style="display:none;text-align:center;padding:60px 0;">
+      <div style="width:36px;height:36px;border:2px solid var(--bd-2);border-top-color:var(--jade);
+        border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;"></div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-3);">Building your meal ideas…</div>
+    </div>
+
+    <div id="meal-ideas-content" style="display:none;">
+      <!-- Populated by loadMealIdeas() -->
+    </div>
+
+    <div id="meal-ideas-empty" style="text-align:center;padding:60px 24px;">
+      <div style="font-size:40px;margin-bottom:16px;">🍽️</div>
+      <div style="font-family:var(--serif);font-size:28px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">
+        Complete your profile first
+      </div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-2);margin-bottom:24px;max-width:360px;margin-left:auto;margin-right:auto;">
+        Meal ideas are built from your profile — your calorie targets, protein goal, diet type, and food exclusions.
+      </div>
+      <a href="bodylens-onboard.html" style="display:inline-block;padding:12px 24px;background:var(--jade);
+        border-radius:6px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+        color:var(--ink);text-decoration:none;">Complete onboarding →</a>
+    </div>
+  </div>
+
+</div>
+</div><!-- /pane-meals -->
+
+<style>
+.meal-day-header {
+  font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--jade);margin:32px 0 14px;display:flex;align-items:center;gap:10px;
+}
+.meal-day-header::after{content:'';flex:1;height:1px;background:var(--bd);}
+
+.meal-card {
+  background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;
+  margin-bottom:10px;overflow:hidden;
+}
+.meal-card-head {
+  display:grid;grid-template-columns:70px 1fr auto;
+  align-items:center;padding:14px 18px;gap:12px;
+  cursor:pointer;transition:background 0.12s;
+}
+.meal-card-head:hover{background:rgba(255,255,255,0.02);}
+.meal-card.open .meal-card-head{background:var(--ink-1);border-bottom:1px solid var(--bd);}
+.meal-card-time{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--amber);}
+.meal-card-name{font-size:13px;font-weight:500;color:var(--dk-1);}
+.meal-card-macros{font-size:11px;font-weight:300;color:var(--dk-3);text-align:right;white-space:nowrap;}
+.meal-card-chevron{font-size:11px;color:var(--dk-3);transition:transform 0.2s;margin-left:8px;}
+.meal-card.open .meal-card-chevron{transform:rotate(90deg);}
+.meal-card-body{display:none;padding:16px 18px;background:var(--ink-1);}
+.meal-card.open .meal-card-body{display:block;}
+.meal-card-desc{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:10px;}
+.meal-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;}
+.meal-item:last-child{border-bottom:none;padding-bottom:0;}
+.meal-item-name{font-weight:400;color:var(--dk-1);}
+.meal-item-qty{font-weight:300;color:var(--dk-3);font-family:var(--mono);font-size:11px;}
+
+.meal-type-badge{
+  font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;
+  padding:3px 10px;border-radius:12px;flex-shrink:0;
+}
+.meal-type-training{color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);}
+.meal-type-rest{color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd);}
+
+.meal-day-macros{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--bd);border:1px solid var(--bd);border-radius:6px;
+  overflow:hidden;margin-bottom:20px;
+}
+.meal-day-macro{background:var(--ink-2);padding:12px 10px;text-align:center;}
+.meal-day-macro-val{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--jade);line-height:1;margin-bottom:3px;}
+.meal-day-macro-val.amber{color:var(--amber);}
+.meal-day-macro-val.slate{color:var(--dk-2);}
+.meal-day-macro-label{font-size:8px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);}
+</style>
+
+<script>
+let mealIdeasLoaded = false;
+
+async function loadMealIdeas() {
+  if (mealIdeasLoaded) return;
+
+  const profile = (() => {
+    try {
+      const raw = localStorage.getItem('bl_profile');
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  })();
+
+  if (!profile || !profile.name) {
+    document.getElementById('meal-ideas-empty').style.display = 'block';
+    return;
+  }
+
+  // Check cache
+  const cacheKey = 'bl_meal_ideas_' + new Date().toISOString().slice(0,10);
+  const cached = (() => { try { const v = localStorage.getItem(cacheKey); return v ? JSON.parse(v) : null; } catch(e){return null;} })();
+
+  if (cached) {
+    renderMealIdeas(cached, profile);
+    mealIdeasLoaded = true;
+    return;
+  }
+
+  document.getElementById('meal-ideas-loading').style.display = 'block';
+
+  try {
+    const mealPlan = await generateMealIdeas(profile);
+    localStorage.setItem(cacheKey, JSON.stringify(mealPlan));
+    document.getElementById('meal-ideas-loading').style.display = 'none';
+    renderMealIdeas(mealPlan, profile);
+    mealIdeasLoaded = true;
+  } catch(e) {
+    document.getElementById('meal-ideas-loading').style.display = 'none';
+    document.getElementById('meal-ideas-empty').style.display = 'block';
+    console.error('Meal ideas error:', e);
+  }
+}
+
+async function generateMealIdeas(p) {
+  const weekPlan = p.weekPlan || [];
+  const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day);
+  const restDays = weekPlan.filter(d=>d.priority!=='training').map(d=>d.day);
+  const isFemale = (p.sex||'').toLowerCase() === 'female';
+
+  const prompt = `You are a performance nutritionist. Build a full week of meal ideas for this person.
+
+PROFILE:
+Name: ${p.name} | Age: ${p.age} | Sex: ${p.sex}
+Goal: ${p.goal} | Target: ${p.target||'—'}
+Calories: ${p.calories} kcal | Protein: ${p.protein}g | Carbs: ${p.carbs}g | Fat: ${p.fat}g
+Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
+Diet: ${p.dietType||'no restrictions'}
+Food exclusions: ${(p.foodExclusions||[]).join(', ')||'none'}
+Trigger foods (avoid): ${p.triggerFoods||'none'}
+Cooking: ${p.cookingHabits||'moderate'}
+Training days: ${trainingDays.join(', ')||'Mon,Wed,Fri,Sat'}
+Rest days: ${restDays.join(', ')||'Tue,Thu,Sun'}
+${isFemale ? `FEMALE: Account for female hormonal patterns — higher iron needs, oestrogen effects on nutrient partitioning, cycle-phase nutrition if relevant.` : ''}
+
+Build TWO day templates:
+1. A TRAINING DAY meal plan (${p.calories} kcal, ${p.protein}g protein)
+2. A REST DAY meal plan (~${Math.round((p.calories||2400)*0.9)} kcal, same protein)
+
+For each day provide 4 meals. Each meal must:
+- Have specific foods with exact quantities (grams)
+- Respect all exclusions and avoid trigger foods
+- Be realistic to prepare — not elaborate
+- Have a clear performance or recovery purpose
+
+Return ONLY valid JSON:
+{
+  "trainingDay": {
+    "label": "Training day",
+    "calories": ${p.calories},
+    "protein": ${p.protein},
+    "carbs": ${p.carbs},
+    "fat": ${p.fat},
+    "meals": [
+      {
+        "time": "HH:MM",
+        "name": "Meal name",
+        "purpose": "one sentence why this meal at this time",
+        "calories": 0,
+        "protein": 0,
+        "carbs": 0,
+        "fat": 0,
+        "items": [
+          { "name": "food item", "quantity": "200g" }
+        ]
+      }
+    ]
+  },
+  "restDay": {
+    "label": "Rest day",
+    "calories": ${Math.round((p.calories||2400)*0.9)},
+    "protein": ${p.protein},
+    "carbs": ${Math.round((p.carbs||200)*0.8)},
+    "fat": ${p.fat},
+    "meals": []
+  },
+  "principles": [
+    "Key principle 1 specific to this person",
+    "Key principle 2",
+    "Key principle 3"
+  ],
+  "avoidNote": "1-2 sentences on managing their specific trigger foods: ${p.triggerFoods||'none'}"
+}`;
+
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2500,
+      system: 'You are a performance nutritionist. Return only valid JSON. No markdown, no preamble.',
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  const data = await res.json();
+  const text = data.content?.map(b=>b.text||'').join('') || '';
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('No JSON');
+  return JSON.parse(match[0]);
+}
+
+function renderMealIdeas(plan, profile) {
+  const shell = document.getElementById('meal-ideas-content');
+  shell.style.display = 'block';
+
+  const tabs = `
+    <div style="display:flex;gap:8px;margin-bottom:28px;">
+      <button id="mi-tab-train" onclick="switchMealTab('training')"
+        style="padding:9px 20px;background:var(--jade);border:none;border-radius:4px;
+        font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.06em;
+        text-transform:uppercase;color:var(--ink);cursor:pointer;">
+        Training day
+      </button>
+      <button id="mi-tab-rest" onclick="switchMealTab('rest')"
+        style="padding:9px 20px;background:transparent;border:1px solid var(--bd-2);border-radius:4px;
+        font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.06em;
+        text-transform:uppercase;color:var(--dk-3);cursor:pointer;">
+        Rest day
+      </button>
+    </div>`;
+
+  const trainingHTML = renderDayMeals(plan.trainingDay, 'training');
+  const restHTML     = renderDayMeals(plan.restDay, 'rest');
+
+  const principles = plan.principles && plan.principles.length ? `
+    <div style="margin-top:32px;">
+      <div class="meal-day-header">Your food rules</div>
+      ${plan.principles.map(pr => `
+        <div style="padding:10px 16px;background:var(--ink-2);border:1px solid var(--bd);
+          border-left:3px solid var(--jade-br);border-radius:0 4px 4px 0;
+          font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;margin-bottom:6px;">
+          ${pr}
+        </div>`).join('')}
+    </div>` : '';
+
+  const avoidNote = plan.avoidNote ? `
+    <div style="margin-top:16px;padding:14px 16px;background:rgba(217,78,53,0.05);
+      border:1px solid var(--red-br);border-radius:4px;
+      font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">
+      <strong style="color:var(--red);">Trigger management:</strong> ${plan.avoidNote}
+    </div>` : '';
+
+  shell.innerHTML = tabs +
+    `<div id="mi-training">${trainingHTML}</div>` +
+    `<div id="mi-rest" style="display:none;">${restHTML}</div>` +
+    principles + avoidNote +
+    `<div style="margin-top:24px;text-align:center;">
+      <button onclick="refreshMealIdeas()"
+        style="background:transparent;border:1px solid var(--bd-2);color:var(--dk-3);
+        padding:8px 18px;border-radius:20px;font-size:11px;cursor:pointer;
+        font-family:var(--sans);letter-spacing:0.04em;">
+        ↺ Generate new ideas
+      </button>
+    </div>`;
+}
+
+function renderDayMeals(day, type) {
+  if (!day || !day.meals) return '<div style="color:var(--dk-3);font-size:13px;padding:20px 0;">No meals generated.</div>';
+
+  const macros = `
+    <div class="meal-day-macros">
+      <div class="meal-day-macro"><div class="meal-day-macro-val">${day.calories||'—'}</div><div class="meal-day-macro-label">Calories</div></div>
+      <div class="meal-day-macro"><div class="meal-day-macro-val jade">${day.protein||'—'}g</div><div class="meal-day-macro-label">Protein</div></div>
+      <div class="meal-day-macro"><div class="meal-day-macro-val amber">${day.carbs||'—'}g</div><div class="meal-day-macro-label">Carbs</div></div>
+      <div class="meal-day-macro"><div class="meal-day-macro-val slate">${day.fat||'—'}g</div><div class="meal-day-macro-label">Fat</div></div>
+    </div>`;
+
+  const cards = (day.meals||[]).map((m, i) => `
+    <div class="meal-card" id="meal-${type}-${i}">
+      <div class="meal-card-head" onclick="document.getElementById('meal-${type}-${i}').classList.toggle('open')">
+        <div class="meal-card-time">${m.time||'—'}</div>
+        <div>
+          <div class="meal-card-name">${m.name||'—'}</div>
+          ${m.purpose ? `<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:2px;">${m.purpose}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="meal-card-macros">${m.calories||'—'} kcal · ${m.protein||'—'}g protein</div>
+          <div class="meal-card-chevron">›</div>
+        </div>
+      </div>
+      <div class="meal-card-body">
+        ${(m.items||[]).map(item => `
+          <div class="meal-item">
+            <span class="meal-item-name">${item.name}</span>
+            <span class="meal-item-qty">${item.quantity||''}</span>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  return macros + cards;
+}
+
+function switchMealTab(tab) {
+  const isTrain = tab === 'training';
+  document.getElementById('mi-training').style.display = isTrain ? 'block' : 'none';
+  document.getElementById('mi-rest').style.display     = isTrain ? 'none'  : 'block';
+  document.getElementById('mi-tab-train').style.background = isTrain ? 'var(--jade)' : 'transparent';
+  document.getElementById('mi-tab-train').style.color      = isTrain ? 'var(--ink)'  : 'var(--dk-3)';
+  document.getElementById('mi-tab-train').style.border     = isTrain ? 'none'        : '1px solid var(--bd-2)';
+  document.getElementById('mi-tab-rest').style.background  = isTrain ? 'transparent' : 'var(--jade)';
+  document.getElementById('mi-tab-rest').style.color       = isTrain ? 'var(--dk-3)'  : 'var(--ink)';
+  document.getElementById('mi-tab-rest').style.border      = isTrain ? '1px solid var(--bd-2)' : 'none';
+}
+
+async function refreshMealIdeas() {
+  mealIdeasLoaded = false;
+  const cacheKey = 'bl_meal_ideas_' + new Date().toISOString().slice(0,10);
+  localStorage.removeItem(cacheKey);
+  document.getElementById('meal-ideas-content').style.display = 'none';
+  await loadMealIdeas();
+}
+</script>
 
 <script src="nav.js"></script>
 <script>

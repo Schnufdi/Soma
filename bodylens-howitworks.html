@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — How It Works</title>
+<meta name="bl-inject" content="howitworks">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="profile-inject.js"></script>
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.page { max-width:860px; margin:0 auto; padding:0 32px 100px; }
+
+/* Hero */
+.hw-hero { padding:52px 0 40px; border-bottom:1px solid var(--bd); margin-bottom:40px; }
+.hw-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.hw-kicker::before { content:''; width:18px; height:1px; background:var(--jade); }
+.hw-title { font-family:var(--serif); font-size:56px; font-weight:300; line-height:0.93; letter-spacing:-0.025em; color:var(--dk-1); margin-bottom:16px; }
+.hw-title em { font-style:italic; color:var(--dk-3); }
+.hw-sub { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:560px; }
+
+/* Tabs */
+.hw-tabs { display:flex; gap:0; border-bottom:1px solid var(--bd); margin-bottom:40px; overflow-x:auto; }
+.hw-tab {
+  font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+  padding:13px 20px; border:none; background:transparent;
+  color:var(--dk-3); cursor:pointer; font-family:var(--sans);
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  white-space:nowrap; transition:all 0.12s;
+}
+.hw-tab:hover { color:var(--dk-2); }
+.hw-tab.active { color:var(--jade); border-bottom-color:var(--jade); }
+
+.hw-pane { display:none; }
+.hw-pane.active { display:block; }
+
+/* Section */
+.hw-sec { margin-bottom:40px; }
+.hw-sec-label {
+  font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--jade); margin-bottom:12px; display:flex; align-items:center; gap:10px;
+}
+.hw-sec-label::after { content:''; flex:1; height:1px; background:var(--bd); }
+.hw-sec-label.amber { color:var(--amber); }
+.hw-sec-label.amber::after { background:var(--bd); }
+.hw-sec-label.gold { color:var(--gold); }
+
+.hw-h2 { font-family:var(--serif); font-size:34px; font-weight:300; color:var(--dk-1); margin-bottom:12px; line-height:1.05; letter-spacing:-0.015em; }
+.hw-body { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.85; margin-bottom:16px; }
+.hw-body strong { color:var(--dk-1); font-weight:500; }
+
+/* Step cards */
+.hw-steps { display:flex; flex-direction:column; gap:0; }
+.hw-step {
+  display:grid; grid-template-columns:52px 1fr;
+  border-bottom:1px solid var(--bd); padding:20px 0; gap:16px;
+}
+.hw-step:last-child { border-bottom:none; }
+.hw-step-num {
+  font-family:var(--serif); font-size:42px; font-weight:300;
+  color:var(--jade); opacity:0.4; line-height:1;
+}
+.hw-step-content {}
+.hw-step-title { font-size:15px; font-weight:600; color:var(--dk-1); margin-bottom:6px; }
+.hw-step-text { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; }
+.hw-step-text strong { color:var(--jade); font-weight:500; }
+
+/* Formula cards */
+.hw-formula {
+  background:var(--ink-2); border:1px solid var(--bd); border-radius:6px;
+  padding:20px 24px; margin-bottom:10px;
+}
+.hw-formula-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
+.hw-formula-eq {
+  font-family:var(--mono); font-size:14px; font-weight:400; color:var(--jade);
+  line-height:1.6; margin-bottom:8px;
+}
+.hw-formula-note { font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.65; }
+.hw-formula-note strong { color:var(--dk-1); font-weight:500; }
+
+/* Input/output cards */
+.hw-io { display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:start; margin-bottom:24px; }
+.hw-io-box { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:16px 18px; }
+.hw-io-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px; }
+.hw-io-label.jade { color:var(--jade); }
+.hw-io-label.amber { color:var(--amber); }
+.hw-io-arrow { font-size:24px; color:var(--jade); text-align:center; padding-top:28px; }
+.hw-io-item { font-size:12px; font-weight:300; color:var(--dk-2); padding:5px 0; border-bottom:1px solid var(--bd); line-height:1.4; }
+.hw-io-item:last-child { border-bottom:none; }
+.hw-io-item strong { color:var(--dk-1); font-weight:500; }
+
+/* Signal map */
+.hw-signal-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px; }
+.hw-signal-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:18px 20px; }
+.hw-signal-card.jade  { border-top:3px solid var(--jade); }
+.hw-signal-card.amber { border-top:3px solid var(--amber); }
+.hw-signal-card.red   { border-top:3px solid var(--red); }
+.hw-signal-card.gold  { border-top:3px solid var(--gold); }
+.hw-signal-icon { font-size:22px; margin-bottom:8px; }
+.hw-signal-title { font-size:12px; font-weight:600; color:var(--dk-1); margin-bottom:6px; letter-spacing:0.02em; }
+.hw-signal-text { font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.65; }
+
+/* Science connections */
+.hw-connection {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:12px 0; border-bottom:1px solid var(--bd);
+  font-size:13px;
+}
+.hw-connection:last-child { border-bottom:none; }
+.hw-conn-input { font-weight:500; color:var(--jade); min-width:180px; }
+.hw-conn-arrow { color:var(--dk-3); flex-shrink:0; padding-top:1px; }
+.hw-conn-output { font-weight:300; color:var(--dk-2); line-height:1.6; }
+
+/* Profile result preview */
+.hw-profile-result {
+  background:var(--ink-2); border:1px solid var(--jade-br);
+  border-radius:6px; overflow:hidden; margin-bottom:16px;
+}
+.hw-pr-head {
+  background:var(--ink-1); border-bottom:1px solid var(--bd);
+  padding:13px 18px; font-size:9px; font-weight:600;
+  letter-spacing:0.12em; text-transform:uppercase; color:var(--jade);
+}
+.hw-pr-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:10px 18px; border-bottom:1px solid var(--bd);
+  font-size:12px; gap:16px;
+}
+.hw-pr-row:last-child { border-bottom:none; }
+.hw-pr-label { font-weight:400; color:var(--dk-3); }
+.hw-pr-val { font-weight:500; color:var(--dk-1); text-align:right; }
+.hw-pr-val.jade { color:var(--jade); }
+.hw-pr-val.amber { color:var(--amber); }
+
+@media(max-width:600px){
+  .page { padding:0 16px 80px; }
+  .hw-title { font-size:38px; }
+  .hw-io { grid-template-columns:1fr; }
+  .hw-io-arrow { display:none; }
+  .hw-signal-grid { grid-template-columns:1fr; }
+  .hw-connection { flex-direction:column; gap:4px; }
+  .hw-conn-input { min-width:auto; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
+    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-profile.html">Profile</a>
+    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
+    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
+    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
+    <a class="nav-link" href="bodylens-training.html">Training</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-story.html">The Story</a>
+    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
+    <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
+    <a class="nav-link" href="bodylens-longevity.html">Longevity</a>
+    <a class="nav-link" href="bodylens-hunger.html">Hunger</a>
+    <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
+    <a class="nav-link" href="bodylens-science.html">Science</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link active" href="bodylens-howitworks.html">How It Works</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+  </div>
+  <div class="nav-meta" id="nav-meta"></div>
+</nav>
+
+<div class="page">
+
+  <div class="hw-hero">
+    <div class="hw-kicker">Under the hood</div>
+    <div class="hw-title">How<br><em>BodyLens</em><br>works.</div>
+    <div class="hw-sub">
+      The logic behind every number, every recommendation, every modification. How the programme was built from your answers, and why it produces what it produces.
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="hw-tabs">
+    <button class="hw-tab active" onclick="showPane('pane-logic',this)">The logic engine</button>
+    <button class="hw-tab" onclick="showPane('pane-macros',this)">Macro calculation</button>
+    <button class="hw-tab" onclick="showPane('pane-split',this)">Training split</button>
+    <button class="hw-tab" onclick="showPane('pane-nutrition',this)">Nutrition logic</button>
+    <button class="hw-tab" onclick="showPane('pane-supplements',this)">Supplement logic</button>
+    <button class="hw-tab" onclick="showPane('pane-profile',this)">Your numbers</button>
+  </div>
+
+  <!-- PANE 1: THE LOGIC ENGINE -->
+  <div class="hw-pane active" id="pane-logic">
+
+    <div class="hw-sec">
+      <div class="hw-sec-label">How it's built</div>
+      <div class="hw-h2">From answers to programme.</div>
+      <div class="hw-body">
+        BodyLens doesn't use a template. It uses a reasoning model — Claude — to interpret your profile the way a senior performance coach would, then apply the relevant science to your specific situation. Here's the exact process.
+      </div>
+    </div>
+
+    <div class="hw-steps">
+      <div class="hw-step">
+        <div class="hw-step-num">1</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Profile intake</div>
+          <div class="hw-step-text">
+            The onboarding form collects 13 data points through visual selectors — age, sex, weight, body fat, goal, training history, gym access, eating patterns, trigger foods, injuries, sleep, alcohol, non-negotiables. A short AI follow-up conversation fills in what can't be captured by multiple choice — injury detail, goal nuance, lifestyle constraints. The AI is given strict instructions to ask one question at a time and probe injuries thoroughly. <strong>Your sex is a primary filter</strong> — female and male physiology produce materially different programmes.
+          </div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num">2</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Programme generation</div>
+          <div class="hw-step-text">
+            The full profile is sent to Claude with a structured prompt that requires it to reason through macros, training split, injury modifications, supplement stack, and a coaching brief. The model is instructed to derive everything from the actual situation — not use generic targets. It produces: calorie target with reasoning, protein/carbs/fat breakdown, 7-day week plan with exercises and coach notes per day, injury-specific movement modifications, supplement stack with timing and mechanism, a coach summary, and a full instructions document.
+          </div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num">3</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Daily plan generation</div>
+          <div class="hw-step-text">
+            Every morning, the day page reads the stored profile and generates a structured timeline for that specific day. It knows whether it's a training or rest day, the exact exercises, any injury modifications, your eating window, your food exclusions, your supplement timing relative to your wake time. The plan is cached for the day so it loads instantly on every open after the first. The <strong>ask-anything bar</strong> answers questions in full context — it knows the plan, the macros, the day type, and the food log.
+          </div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num">4</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Science personalisation</div>
+          <div class="hw-step-text">
+            Every science page — longevity, alcohol, training, fuel, hunger, synthesis — generates a personalised commentary panel from your profile. The panel accounts for your sex, age, goal, and specific data. A 39-year-old woman reading the longevity page gets commentary on oestrogen dynamics and perimenopause proximity, not the testosterone decline narrative written for a 44-year-old man. The panels are generated once per day and cached.
+          </div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num">5</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">The coach</div>
+          <div class="hw-step-text">
+            The ask-anything bar on every page is a context-aware AI coach. It has access to your full profile, today's plan, your macro targets, and what you've logged. It answers questions about training, nutrition, recovery, and supplements in the context of who you are and what today looks like. <strong>It does not give generic advice</strong> — every response is filtered through your programme.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hw-sec" style="margin-top:48px;">
+      <div class="hw-sec-label">What drives what</div>
+      <div class="hw-h2">Inputs → outputs.</div>
+    </div>
+
+    <div class="hw-io">
+      <div class="hw-io-box">
+        <div class="hw-io-label jade">Your inputs</div>
+        <div class="hw-io-item"><strong>Age + Sex</strong> — BMR formula selection, hormonal framework</div>
+        <div class="hw-io-item"><strong>Weight + height</strong> — calorie baseline</div>
+        <div class="hw-io-item"><strong>Body fat estimate</strong> — lean mass target, deficit depth</div>
+        <div class="hw-io-item"><strong>Goal</strong> — surplus vs deficit vs maintenance</div>
+        <div class="hw-io-item"><strong>Training days</strong> — activity multiplier, split design</div>
+        <div class="hw-io-item"><strong>Injuries</strong> — exercise modifications throughout</div>
+        <div class="hw-io-item"><strong>Diet / exclusions</strong> — all food suggestions filtered</div>
+        <div class="hw-io-item"><strong>Trigger foods</strong> — strategy for managing them</div>
+        <div class="hw-io-item"><strong>Eating window</strong> — meal timing and count</div>
+        <div class="hw-io-item"><strong>Wake time</strong> — supplement timing cascade</div>
+        <div class="hw-io-item"><strong>Recovery tools</strong> — built into training and rest days</div>
+        <div class="hw-io-item"><strong>Alcohol</strong> — protocol and protected nights</div>
+        <div class="hw-io-item"><strong>Non-negotiables</strong> — programme works around them</div>
+      </div>
+      <div class="hw-io-arrow">→</div>
+      <div class="hw-io-box">
+        <div class="hw-io-label amber">Your programme</div>
+        <div class="hw-io-item"><strong>Calorie target</strong> with reasoning</div>
+        <div class="hw-io-item"><strong>Protein / carbs / fat</strong> breakdown</div>
+        <div class="hw-io-item"><strong>7-day training split</strong> with exercises</div>
+        <div class="hw-io-item"><strong>Injury modifications</strong> per session</div>
+        <div class="hw-io-item"><strong>Supplement stack</strong> with timing</div>
+        <div class="hw-io-item"><strong>Daily plan</strong> every morning</div>
+        <div class="hw-io-item"><strong>Meal ideas</strong> for your targets</div>
+        <div class="hw-io-item"><strong>Coach commentary</strong> on every science page</div>
+        <div class="hw-io-item"><strong>Ask-anything</strong> in full context</div>
+        <div class="hw-io-item"><strong>Instructions document</strong> — your coaching brief</div>
+      </div>
+    </div>
+
+  </div><!-- /pane-logic -->
+
+  <!-- PANE 2: MACRO CALCULATION -->
+  <div class="hw-pane" id="pane-macros">
+
+    <div class="hw-sec">
+      <div class="hw-sec-label">The maths</div>
+      <div class="hw-h2">How your calories are calculated.</div>
+      <div class="hw-body">
+        The calorie calculation uses Mifflin-St Jeor — the most validated BMR equation for most adults — then applies an activity multiplier based on training frequency, then adjusts for goal. The AI then reviews these numbers in the context of your full profile and may modify them based on factors the formula doesn't capture.
+      </div>
+    </div>
+
+    <div class="hw-formula">
+      <div class="hw-formula-label">Step 1 — Basal Metabolic Rate (Mifflin-St Jeor)</div>
+      <div class="hw-formula-eq">
+        Male: BMR = (10 × weight kg) + (6.25 × height cm) − (5 × age) + 5<br>
+        Female: BMR = (10 × weight kg) + (6.25 × height cm) − (5 × age) − 161
+      </div>
+      <div class="hw-formula-note">
+        The −161 vs +5 offset reflects the average metabolic difference between sexes at rest. <strong>This is why sex is a primary input</strong> — not a demographic label, but a physiological variable with direct numerical consequence.
+      </div>
+    </div>
+
+    <div class="hw-formula">
+      <div class="hw-formula-label">Step 2 — TDEE (Total Daily Energy Expenditure)</div>
+      <div class="hw-formula-eq">
+        TDEE = BMR × Activity Multiplier<br><br>
+        3 training days/week → × 1.55<br>
+        4 training days/week → × 1.65<br>
+        5 training days/week → × 1.725<br>
+        6 training days/week → × 1.80
+      </div>
+      <div class="hw-formula-note">These multipliers account for both structured training and general daily movement. <strong>The multiplier is the most variable factor</strong> — underestimating it produces chronic under-fuelling; overestimating it stalls fat loss.</div>
+    </div>
+
+    <div class="hw-formula">
+      <div class="hw-formula-label">Step 3 — Goal adjustment</div>
+      <div class="hw-formula-eq">
+        Fat loss → TDEE − 300 to 500 kcal (moderate deficit)<br>
+        Recomposition → TDEE ± 0 to 150 kcal (maintenance with protein surplus)<br>
+        Muscle gain → TDEE + 150 to 250 kcal (lean surplus)<br>
+        Performance → TDEE + variable (fuel the work)
+      </div>
+      <div class="hw-formula-note">Larger deficits produce faster scale movement but accelerate lean mass loss — <strong>protein becomes the primary protection mechanism</strong>. The AI coaches for the largest deficit that still preserves muscle, which is typically 300–500 kcal for most people.</div>
+    </div>
+
+    <div class="hw-formula">
+      <div class="hw-formula-label">Step 4 — Protein target</div>
+      <div class="hw-formula-eq">
+        Advanced lifters: 2.0–2.2g per kg bodyweight<br>
+        Intermediate: 1.8–2.0g per kg<br>
+        Beginner: 1.6–1.8g per kg<br>
+        In deficit: upper end of range (muscle preservation)<br>
+        Female: same g/kg — but often lower total due to lower bodyweight
+      </div>
+      <div class="hw-formula-note"><strong>Protein target is the most important number in the programme.</strong> It is non-negotiable across all day types. Every meal must clear ~2.5g leucine to trigger mTOR activation — distribution matters as much as total.</div>
+    </div>
+
+    <div class="hw-formula">
+      <div class="hw-formula-label">Step 5 — Carbs and fat</div>
+      <div class="hw-formula-eq">
+        Fat = max(bodyweight × 1.0g, 25% of total calories / 9)<br>
+        Carbs = (Total calories − protein×4 − fat×9) / 4
+      </div>
+      <div class="hw-formula-note">Fat minimum is set at 1g/kg to protect hormonal function — particularly testosterone in men, oestrogen in women. <strong>Carbs are the residual variable</strong> — they fill the remaining calorie space after protein and essential fat are accounted for. Higher carbs on training days, lower on rest.</div>
+    </div>
+
+    <div class="hw-sec" style="margin-top:40px;" id="your-macro-section">
+      <div class="hw-sec-label amber">Your numbers</div>
+      <div class="hw-h2">How your targets were derived.</div>
+      <div id="your-macro-content">
+        <div style="font-size:13px;font-weight:300;color:var(--dk-3);">
+          Complete onboarding to see your specific calculation.
+          <a href="bodylens-onboard.html" style="color:var(--jade);">Get started →</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pane-macros -->
+
+  <!-- PANE 3: TRAINING SPLIT -->
+  <div class="hw-pane" id="pane-split">
+
+    <div class="hw-sec">
+      <div class="hw-sec-label">Split logic</div>
+      <div class="hw-h2">Why the week is structured the way it is.</div>
+      <div class="hw-body">
+        The training split is not arbitrary. Each decision — which days to train, what order to sequence muscle groups, where to place rest days — follows from both the science of recovery and your specific constraints.
+      </div>
+    </div>
+
+    <div class="hw-signal-grid">
+      <div class="hw-signal-card jade">
+        <div class="hw-signal-icon">📈</div>
+        <div class="hw-signal-title">Progressive overload</div>
+        <div class="hw-signal-text">The only mechanism for long-term strength and size gain. Each session must provide a greater stimulus than the last — more weight, more reps, less rest, or better technique. The programme is built around this as the primary principle.</div>
+      </div>
+      <div class="hw-signal-card amber">
+        <div class="hw-signal-icon">⏱️</div>
+        <div class="hw-signal-title">Muscle protein synthesis window</div>
+        <div class="hw-signal-text">MPS remains elevated 24–48h post-session. Rest days are not wasted — they are when the adaptation happens. This is why rest day nutrition (especially protein) is as important as training day nutrition.</div>
+      </div>
+      <div class="hw-signal-card red">
+        <div class="hw-signal-icon">🔄</div>
+        <div class="hw-signal-title">Recovery debt</div>
+        <div class="hw-signal-text">Training too frequently on the same muscle group before full recovery produces diminishing returns and eventual overtraining. The split ensures each group gets 48–72h before its next stimulus.</div>
+      </div>
+      <div class="hw-signal-card gold">
+        <div class="hw-signal-icon">🩹</div>
+        <div class="hw-signal-title">Injury modification logic</div>
+        <div class="hw-signal-text">Where injuries exist, the AI identifies the movement pattern to avoid, finds the closest alternative that produces the same muscular stimulus, and notes it per session. The goal is full stimulus with zero aggravation.</div>
+      </div>
+    </div>
+
+    <div class="hw-sec" style="margin-top:40px;">
+      <div class="hw-sec-label">Why each session is placed where it is</div>
+    </div>
+
+    <div class="hw-body">
+      <strong>Push sessions on Monday or Tuesday:</strong> CNS is freshest after the weekend. Bench press and overhead press are the most CNS-demanding movements — they benefit from maximum neural freshness. <br><br>
+      <strong>Pull sessions mid-week:</strong> 48h after push allows the shoulder joint to recover (press and pull share the shoulder complex) while back muscles are independent and ready.<br><br>
+      <strong>Posterior chain at week end:</strong> Glutes and hamstrings benefit from the full glycogen reload of the mid-week rest day. Posterior chain sessions also produce the largest acute hormonal response — testosterone and GH — which benefits from being followed by a rest day.<br><br>
+      <strong>Rest days after heavy sessions:</strong> Not because training every day is harmful, but because adaptation requires the anabolic window to complete without interference.
+    </div>
+
+    <div id="your-split-section">
+      <div class="hw-sec-label jade">Your split</div>
+      <div id="your-split-content">
+        <div style="font-size:13px;font-weight:300;color:var(--dk-3);">Complete onboarding to see your split rationale. <a href="bodylens-onboard.html" style="color:var(--jade);">Get started →</a></div>
+      </div>
+    </div>
+
+  </div><!-- /pane-split -->
+
+  <!-- PANE 4: NUTRITION LOGIC -->
+  <div class="hw-pane" id="pane-nutrition">
+
+    <div class="hw-sec">
+      <div class="hw-sec-label">Food as signal</div>
+      <div class="hw-h2">Why food choices are structured the way they are.</div>
+      <div class="hw-body">
+        Every food recommendation is derived from two questions: does it hit the leucine threshold to trigger mTOR? And does it support the goal without creating the conditions for overeating? The programme is built around protein anchors — foods that clear the 2.5g leucine threshold cleanly — with carbs and fat built around them.
+      </div>
+    </div>
+
+    <div class="hw-sec">
+      <div class="hw-sec-label amber">The leucine threshold</div>
+      <div class="hw-h2">Why each meal needs ~30g protein.</div>
+      <div class="hw-body">
+        mTOR — the molecular switch for muscle protein synthesis — is activated by leucine, an amino acid in protein. The threshold is approximately 2.5g leucine per meal, which corresponds to roughly <strong>25–35g complete protein</strong> depending on the source. Below this threshold, MPS is sub-maximally stimulated regardless of total daily protein. <br><br>
+        This is why <strong>protein distribution across meals matters</strong> — not just the daily total. Four meals of 40g protein produces more total MPS than one meal of 160g and three of 0g.
+      </div>
+    </div>
+
+    <div class="hw-sec">
+      <div class="hw-sec-label amber">Eating window logic</div>
+      <div class="hw-h2">Why the programme respects your fasting window.</div>
+      <div class="hw-body">
+        If your eating window is compressed (e.g. 12:00–20:00), the programme must fit your full protein target into fewer meals — which means higher per-meal protein targets and fewer opportunities for glycaemic crashes. The benefit: <strong>insulin sensitivity is elevated after the fasting period</strong>, which improves nutrient partitioning when you break the fast. The risk: if meals are too small, you may miss the leucine threshold. The programme balances these by setting meal sizes that clear the threshold within your window.
+      </div>
+    </div>
+
+    <div class="hw-sec">
+      <div class="hw-sec-label amber">Trigger food strategy</div>
+      <div class="hw-h2">Why the programme names specific foods to manage.</div>
+      <div class="hw-body">
+        Trigger foods are not moral failures — they are foods that, once in the environment, produce consumption patterns that break the calorie target. The programme names them explicitly and provides a management strategy: <strong>environmental control</strong> (don't keep them in the house), <strong>substitution</strong> (have a high-protein alternative ready), and <strong>planned inclusion</strong> (if alcohol or snacks are a trigger, schedule them on rest days with a defined limit rather than leaving them unplanned).
+      </div>
+    </div>
+
+    <div class="hw-sec">
+      <div class="hw-sec-label amber">Sex-specific nutrition notes</div>
+    </div>
+
+    <div class="hw-signal-grid">
+      <div class="hw-signal-card amber">
+        <div class="hw-signal-icon">♀️</div>
+        <div class="hw-signal-title">Female nutrition considerations</div>
+        <div class="hw-signal-text">Oestrogen affects nutrient partitioning — women tend to oxidise more fat and less carbohydrate than men at the same relative exercise intensity. In the luteal phase (post-ovulation), resting metabolic rate increases ~100–300 kcal and cravings intensify. Higher iron requirements (1.8× men). Same protein g/kg target, typically lower total calories.</div>
+      </div>
+      <div class="hw-signal-card jade">
+        <div class="hw-signal-icon">♂️</div>
+        <div class="hw-signal-title">Male nutrition considerations</div>
+        <div class="hw-signal-text">Higher absolute calorie requirements. Greater carbohydrate oxidation during training. Testosterone supports higher MPS rates, which means slightly higher protein synthesis ceiling. More susceptible to alcohol-induced testosterone suppression — the programme accounts for this in the alcohol protocol.</div>
+      </div>
+    </div>
+
+  </div><!-- /pane-nutrition -->
+
+  <!-- PANE 5: SUPPLEMENT LOGIC -->
+  <div class="hw-pane" id="pane-supplements">
+
+    <div class="hw-sec">
+      <div class="hw-sec-label gold">Why supplements are in the stack</div>
+      <div class="hw-h2">The mechanism behind each one.</div>
+      <div class="hw-body">
+        Every supplement in the stack is selected because it addresses a specific gap that food alone cannot close, or because the evidence for its mechanism is strong enough to justify inclusion. Nothing is in the stack for branding reasons. The timing for each is specific — not morning vs night, but relative to training, cortisol windows, and sleep architecture.
+      </div>
+    </div>
+
+    <div class="hw-steps">
+      <div class="hw-step">
+        <div class="hw-step-num" style="color:var(--gold);font-size:28px;line-height:1.4;">Cr</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Creatine monohydrate</div>
+          <div class="hw-step-text"><strong>Mechanism:</strong> Phosphocreatine resynthesis — replenishes ATP during high-intensity efforts, allowing more reps at the same weight over time. Effect size: 5–15% strength increase across hundreds of RCTs. <strong>Why it's timed any time:</strong> daily saturation matters more than acute timing. Loading is unnecessary — 5g daily reaches saturation within 3–4 weeks.</div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num" style="color:var(--gold);font-size:28px;line-height:1.4;">ω3</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Omega-3 EPA/DHA</div>
+          <div class="hw-step-text"><strong>Mechanism:</strong> COX pathway suppression — reduces systemic and joint inflammation by competing with arachidonic acid for the same enzymes. Also directly amplifies the MPS response to protein. <strong>Why it's timed with food:</strong> fat-soluble, requires dietary fat for absorption. Higher doses are better — 2–3g EPA+DHA not total omega-3.</div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num" style="color:var(--gold);font-size:28px;line-height:1.4;">D3</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Vitamin D3 + K2</div>
+          <div class="hw-step-text"><strong>Mechanism:</strong> Vitamin D3 drives testosterone production via the hypothalamic-pituitary axis and immune function. Near-universal deficiency in UK/northern Europe Oct–Apr. K2 directs calcium into bone rather than arteries. <strong>Why they're paired:</strong> D3 increases calcium absorption; K2 ensures it goes to bone. Separate them and you get incomplete benefit.</div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num" style="color:var(--gold);font-size:28px;line-height:1.4;">Mg</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Magnesium glycinate</div>
+          <div class="hw-step-text"><strong>Mechanism:</strong> GABA receptor cofactor — enables the GABAergic inhibition that allows the brain to switch from alert to sleep mode. <strong>Why glycinate specifically:</strong> most bioavailable form, doesn't cause the GI distress of magnesium oxide or citrate at sleep doses. <strong>Why before sleep:</strong> the GH pulse happens in the first slow-wave cycle. Anything that fragments or delays sleep reduces it.</div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num" style="color:var(--gold);font-size:28px;line-height:1.4;">Col</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Collagen peptides + Vitamin C</div>
+          <div class="hw-step-text"><strong>Mechanism:</strong> Shaw et al. 2017 — taking collagen peptides with Vitamin C 45–60 minutes before training produces 5.5× the connective tissue synthesis during the loading window. The mechanical loading of training stimulates collagen cross-linking; the supplemental collagen provides the substrate; the Vitamin C enables hydroxylation (the chemistry that makes collagen structurally functional). <strong>Directly relevant to any tendon, ligament, or joint injury.</strong></div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num" style="color:var(--gold);font-size:28px;line-height:1.4;">L-T</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">L-Theanine</div>
+          <div class="hw-step-text"><strong>Mechanism:</strong> Alpha wave modulation — increases alpha wave activity in the brain, producing relaxed alertness. Taken with caffeine, it removes the anxiety and jitteriness while preserving the focus and alertness. <strong>Why it's paired with coffee:</strong> caffeine alone produces cortisol elevation and HPA axis activation that degrades the quality of the focus state. L-Theanine neutralises this.</div>
+        </div>
+      </div>
+      <div class="hw-step">
+        <div class="hw-step-num" style="color:var(--gold);font-size:28px;line-height:1.4;">Ash</div>
+        <div class="hw-step-content">
+          <div class="hw-step-title">Ashwagandha KSM-66</div>
+          <div class="hw-step-text"><strong>Mechanism:</strong> HPA axis modulation — reduces cortisol 25–30% in RCTs (Chandrasekhar 2012), and supports testosterone via the HPT axis. <strong>Why KSM-66 specifically:</strong> the most studied extract with the highest withanolide concentration. Most ashwagandha products use inferior extracts. Particularly relevant for high-stress periods, sleep disruption, and anyone over 35 experiencing hormonal decline.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="your-supps-section" style="margin-top:40px;">
+      <div class="hw-sec-label gold">Your stack</div>
+      <div id="your-supps-content">
+        <div style="font-size:13px;font-weight:300;color:var(--dk-3);">Complete onboarding to see your personalised stack. <a href="bodylens-onboard.html" style="color:var(--jade);">Get started →</a></div>
+      </div>
+    </div>
+
+  </div><!-- /pane-supplements -->
+
+  <!-- PANE 6: YOUR NUMBERS -->
+  <div class="hw-pane" id="pane-profile">
+    <div class="hw-sec">
+      <div class="hw-sec-label jade">Your programme</div>
+      <div class="hw-h2">The numbers and why.</div>
+    </div>
+    <div id="your-numbers-content">
+      <div style="font-size:13px;font-weight:300;color:var(--dk-3);">Complete onboarding to see your programme breakdown. <a href="bodylens-onboard.html" style="color:var(--jade);">Get started →</a></div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script src="nav.js"></script>
+<script>
+// Tab switching
+function showPane(id, btn) {
+  document.querySelectorAll('.hw-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.hw-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// Populate profile sections if profile exists
+(function(){
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (!p || !p.name) return;
+
+    // Nav meta
+    const navMeta = document.getElementById('nav-meta');
+    if (navMeta) navMeta.innerHTML = `<span class="nav-tag nt-jade">${p.name}</span>`;
+
+    const isFemale = (p.sex||'').toLowerCase() === 'female';
+    const weekPlan = p.weekPlan || [];
+    const injuries = p.injuryAssessments || p.injuries || [];
+    const supps    = p.supplements || [];
+
+    // ── YOUR MACROS ──────────────────────────────────────
+    document.getElementById('your-macro-content').innerHTML = `
+      <div class="hw-profile-result">
+        <div class="hw-pr-head">Your calculation — ${p.name}, ${p.age}yo ${p.sex}</div>
+        <div class="hw-pr-row"><span class="hw-pr-label">BMR formula</span><span class="hw-pr-val">${isFemale ? 'Female (−161 offset)' : 'Male (+5 offset)'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">TDEE estimate</span><span class="hw-pr-val">${p.tdee||'—'} kcal/day</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Goal adjustment</span><span class="hw-pr-val">${getGoalAdjustment(p)}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Daily calories</span><span class="hw-pr-val jade">${p.calories||'—'} kcal</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Protein target</span><span class="hw-pr-val jade">${p.protein||'—'}g (${p.weight ? Math.round((p.protein||0)/p.weight*10)/10 : '—'}g/kg)</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Carbs</span><span class="hw-pr-val amber">${p.carbs||'—'}g</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Fat</span><span class="hw-pr-val">${p.fat||'—'}g</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Eating window</span><span class="hw-pr-val">${p.fastingWindow||p.eatingWindow||'Flexible'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Meals per day</span><span class="hw-pr-val">${p.mealCount||4}</span></div>
+      </div>
+      ${p.calorieReasoning ? `<div style="padding:14px 16px;background:var(--ink-2);border:1px solid var(--bd);border-left:3px solid var(--jade-br);border-radius:0 4px 4px 0;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;font-style:italic;">${p.calorieReasoning}</div>` : ''}
+    `;
+
+    // ── YOUR SPLIT ───────────────────────────────────────
+    const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
+    document.getElementById('your-split-content').innerHTML = `
+      <div class="hw-profile-result">
+        <div class="hw-pr-head">${p.name}'s ${p.trainingDays||4}-day split</div>
+        ${weekPlan.map(day => `
+          <div class="hw-pr-row" style="${day.priority==='training'?'border-left:3px solid var(--jade-br);':'' }">
+            <span class="hw-pr-label" style="${day.priority==='training'?'color:var(--jade);':''}">${day.day}</span>
+            <span class="hw-pr-val">${day.type} — ${day.focus||''}</span>
+          </div>`).join('')}
+      </div>
+      ${injuries.length ? `
+        <div style="margin-top:12px;padding:14px 16px;background:rgba(200,148,30,0.06);border:1px solid var(--gold-br);border-radius:4px;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;">
+          <strong style="color:var(--gold);">Injury modifications active:</strong><br>
+          ${injuries.map(i => `${i.location}: ${(i.avoidMovements||[]).slice(0,2).join(', ')||'see detail'} → ${(i.safeAlternatives||[]).slice(0,2).join(', ')||'see instructions'}`).join('<br>')}
+        </div>` : ''}
+    `;
+
+    // ── YOUR SUPPLEMENTS ─────────────────────────────────
+    document.getElementById('your-supps-content').innerHTML = supps.length ? `
+      <div class="hw-profile-result">
+        <div class="hw-pr-head">${p.name}'s stack</div>
+        ${supps.map(s => `
+          <div class="hw-pr-row">
+            <span class="hw-pr-label">${s.name}</span>
+            <span class="hw-pr-val" style="font-size:11px;">${s.dose} · ${s.timing}</span>
+          </div>`).join('')}
+      </div>` : '<div style="font-size:13px;color:var(--dk-3);">No supplement stack generated.</div>';
+
+    // ── YOUR NUMBERS (full) ──────────────────────────────
+    document.getElementById('your-numbers-content').innerHTML = `
+      <div class="hw-profile-result">
+        <div class="hw-pr-head">${p.name} · Complete programme summary</div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Goal</span><span class="hw-pr-val">${p.goal||'—'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Daily calories</span><span class="hw-pr-val jade">${p.calories||'—'} kcal</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Protein</span><span class="hw-pr-val jade">${p.protein||'—'}g</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Training days</span><span class="hw-pr-val">${trainingDays||'—'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Eating window</span><span class="hw-pr-val">${p.fastingWindow||p.eatingWindow||'Flexible'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Wake time</span><span class="hw-pr-val">${p.wakeTime||'—'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Recovery tools</span><span class="hw-pr-val">${(p.recoveryTools||[]).join(', ')||'None'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Injuries</span><span class="hw-pr-val" style="${injuries.length?'color:var(--gold);':''}">${injuries.length ? injuries.map(i=>i.location||i).join(', ') : 'None'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Non-negotiables</span><span class="hw-pr-val">${(p.nonNegotiables||[]).join(', ')||'None'}</span></div>
+      </div>
+      ${p.coachSummary ? `
+        <div style="margin-top:12px;padding:18px 20px;background:var(--ink-2);border:1px solid var(--bd);
+          border-left:3px solid var(--jade-br);border-radius:0 4px 4px 0;
+          font-family:var(--serif);font-size:15px;font-weight:300;font-style:italic;
+          color:var(--dk-2);line-height:1.8;">
+          ${p.coachSummary}
+        </div>` : ''}
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="bodylens-instructions.html" style="display:inline-block;padding:10px 20px;background:var(--jade);border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink);text-decoration:none;">Full instructions →</a>
+        <a href="bodylens-profile.html" style="display:inline-block;padding:10px 20px;background:transparent;border:1px solid var(--bd-2);border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--dk-3);text-decoration:none;">Profile →</a>
+      </div>
+    `;
+
+  } catch(e) { console.error(e); }
+})();
+
+function getGoalAdjustment(p) {
+  const goal = (p.goal||'').toLowerCase();
+  if (goal.includes('fat') || goal.includes('los') || goal.includes('cut')) return 'Deficit −300 to −500 kcal';
+  if (goal.includes('muscle') || goal.includes('build') || goal.includes('gain')) return 'Lean surplus +150 to +250 kcal';
+  if (goal.includes('recomp')) return 'Maintenance ±0–150 kcal';
+  if (goal.includes('perform') || goal.includes('athletic')) return 'Performance fuelling';
+  return 'Goal-adjusted';
+}
+</script>
+</body>
+</html>
