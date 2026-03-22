@@ -1,401 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="bl-inject" content="science">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BodyLens — Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script src="profile-inject.js"></script>
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.page { max-width:900px; margin:0 auto; padding:0 32px 100px; }
+
+.sci-hero {
+  padding:48px 0 36px; border-bottom:1px solid var(--bd); margin-bottom:40px;
+}
+.sci-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.sci-kicker::before { content:''; width:18px; height:1px; background:var(--jade); }
+.sci-title { font-family:var(--serif); font-size:56px; font-weight:300; line-height:0.93; letter-spacing:-0.025em; color:var(--dk-1); margin-bottom:14px; }
+.sci-title em { font-style:italic; color:var(--dk-3); }
+.sci-sub { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:480px; }
+
+/* Section label */
+.sci-sec { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin:0 0 14px; display:flex; align-items:center; gap:10px; }
+.sci-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
+.sci-sec.jade  { color:var(--jade); }
+.sci-sec.amber { color:var(--amber); }
+.sci-sec.gold  { color:var(--gold); }
+
+/* Cards grid */
+.sci-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:40px; }
+
+.sci-card {
+  background:var(--ink-2); border:1px solid var(--bd);
+  border-radius:6px; padding:20px 18px;
+  text-decoration:none; display:block;
+  transition:all 0.15s; position:relative;
+  overflow:hidden;
+}
+.sci-card:hover { border-color:var(--bd-2); transform:translateY(-1px); }
+.sci-card.jade  { border-top:3px solid var(--jade); }
+.sci-card.amber { border-top:3px solid var(--amber); }
+.sci-card.gold  { border-top:3px solid var(--gold); }
+.sci-card.red   { border-top:3px solid var(--red); }
+.sci-card.slate { border-top:3px solid var(--dk-3); }
+
+.sci-card-icon { font-size:24px; margin-bottom:10px; display:block; }
+.sci-card-title { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:6px; }
+.sci-card.jade  .sci-card-title { color:var(--jade); }
+.sci-card.amber .sci-card-title { color:var(--amber); }
+.sci-card.gold  .sci-card-title { color:var(--gold); }
+.sci-card.red   .sci-card-title { color:var(--red); }
+.sci-card-desc { font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.55; }
+
+.sci-card-badge {
+  position:absolute; top:12px; right:12px;
+  font-size:8px; font-weight:600; letter-spacing:0.08em;
+  text-transform:uppercase; padding:2px 8px; border-radius:10px;
+}
+.sci-card-badge.personal {
+  color:var(--jade); background:var(--jade-dim); border:1px solid var(--jade-br);
+}
+.sci-card-badge.reference {
+  color:var(--dk-3); background:var(--ink-3); border:1px solid var(--bd);
+}
+
+@media(max-width:700px) { .sci-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:480px) { .sci-grid { grid-template-columns:1fr; } .page { padding:0 16px 80px; } .sci-title { font-size:40px; } }
+</style>
 </head>
-<body style="background:var(--ink);color:var(--dk-1);">
+<body>
+
 <nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
-    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-profile.html">Profile</a>
-    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
-    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
-    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
-    <a class="nav-link" href="bodylens-training.html">Training</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-story.html">The Story</a>
-    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
-    <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
-    <a class="nav-link" href="bodylens-longevity.html">Longevity</a>
-    <a class="nav-link" href="bodylens-hunger.html">Hunger</a>
-    <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
+    <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link active" href="bodylens-science.html">Science</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
   </div>
   <div class="nav-meta" id="nav-meta"></div>
 </nav>
 
-<div class="page" style="padding-top:40px;">
+<div class="page">
 
-  <div class="spoken-summary">
-    <div class="ss-head"><div class="ss-dot"></div><div class="ss-label">From your coach</div></div>
-    <div class="ss-text">Every decision in this programme has a mechanism. This page is where the mechanisms live. The protocol cards in Today expand into the science when you tap them — this page collects it all in one place and lets you filter by category. The myths are the ones most worth reading first. They are the assumptions that cause advanced lifters to waste months. The knee section explains why training is the therapy, not the risk. The peri-workout section explains why the timing of what you eat around training matters as much as what you eat.</div>
+  <div class="sci-hero">
+    <div class="sci-kicker">Knowledge base</div>
+    <div class="sci-title">The<br><em>science.</em></div>
+    <div class="sci-sub" id="sci-sub">
+      Every page is generated for you. The science is universal — the application is specific to your body, your sex, your goal.
+    </div>
   </div>
 
-  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;">
-    <div class="title-lg">Science briefing</div>
+  <!-- PERSONAL SCIENCE -->
+  <div class="sci-sec jade">Generated for you</div>
+  <div class="sci-grid" id="personal-grid">
+
+    <a href="bodylens-training.html" class="sci-card jade">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">🏋️</span>
+      <div class="sci-card-title">Training</div>
+      <div class="sci-card-desc">Your split, your exercises, your periodisation. Built for your sex, age, and goal.</div>
+    </a>
+
+    <a href="bodylens-synthesis.html" class="sci-card jade">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">⚡</span>
+      <div class="sci-card-title">How It Runs</div>
+      <div class="sci-card-desc">Signal · Build · Protect · Repeat — the framework behind your specific programme.</div>
+    </a>
+
+    <a href="bodylens-story.html" class="sci-card jade">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">📖</span>
+      <div class="sci-card-title">The Story</div>
+      <div class="sci-card-desc">One day in your life, from wake to sleep. Every system connected.</div>
+    </a>
+
+    <a href="bodylens-optimal.html" class="sci-card jade">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">⚙️</span>
+      <div class="sci-card-title">The Machine</div>
+      <div class="sci-card-desc">Your complete daily operating system — morning, supplements, recovery, sleep.</div>
+    </a>
+
+    <a href="bodylens-mentalhealth.html" class="sci-card gold">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">🧠</span>
+      <div class="sci-card-title">Mental Health</div>
+      <div class="sci-card-desc">Cortisol, gut-brain axis, hormonal mood patterns, psychology of your goal.</div>
+    </a>
+
+    <a href="bodylens-howitworks.html" class="sci-card slate">
+      <div class="sci-card-badge reference">Reference</div>
+      <span class="sci-card-icon">🔧</span>
+      <div class="sci-card-title">How It Works</div>
+      <div class="sci-card-desc">The logic engine — how BodyLens built your programme and calculated your numbers.</div>
+    </a>
+
   </div>
 
-  <!-- Filter row -->
-  <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:22px;" id="filter-row">
-    <button class="pill pill-ghost" style="cursor:pointer;padding:5px 11px;" data-filter="all" onclick="filterSci('all',this)">All</button>
-    <button class="pill" style="cursor:pointer;padding:5px 11px;color:var(--red);background:var(--red-dim);border:1px solid var(--red-br);" data-filter="myth" onclick="filterSci('myth',this)">↯ Myths</button>
-    <button class="pill" style="cursor:pointer;padding:5px 11px;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);" data-filter="syn" onclick="filterSci('syn',this)">⟳ Synergies</button>
-    <button class="pill" style="cursor:pointer;padding:5px 11px;color:var(--slate);background:var(--slate-dim);border:1px solid var(--slate-br);" data-filter="fact" onclick="filterSci('fact',this)">◈ Facts</button>
-    <button class="pill" style="cursor:pointer;padding:5px 11px;color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);" data-filter="warn" onclick="filterSci('warn',this)">⚠ Warnings</button>
-    <button class="pill" style="cursor:pointer;padding:5px 11px;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br);" data-filter="knee-sci" onclick="filterSci('knee-sci',this)">◈ Knee</button>
-    <button class="pill" style="cursor:pointer;padding:5px 11px;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);" data-filter="supp" onclick="filterSci('supp',this)">● Supplements</button>
-    <button class="pill" style="cursor:pointer;padding:5px 11px;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br);" data-filter="peri" onclick="filterSci('peri',this)">⧗ Peri-workout</button>
+  <!-- NUTRITION SCIENCE -->
+  <div class="sci-sec amber">Nutrition</div>
+  <div class="sci-grid">
+
+    <a href="bodylens-fuel.html" class="sci-card amber">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">🥗</span>
+      <div class="sci-card-title">Food System</div>
+      <div class="sci-card-desc">Your macros, meal timing, food choices, and personalised meal ideas.</div>
+    </a>
+
+    <a href="bodylens-hunger.html" class="sci-card amber">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">😤</span>
+      <div class="sci-card-title">Hunger</div>
+      <div class="sci-card-desc">Why you eat the way you do. Ghrelin, leptin, satiety — applied to your patterns.</div>
+    </a>
+
+    <a href="bodylens-weightloss.html" class="sci-card amber">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">🔥</span>
+      <div class="sci-card-title">Weight Loss</div>
+      <div class="sci-card-desc">The fat loss science behind your programme. Sex-specific mechanics.</div>
+    </a>
+
+    <a href="bodylens-alcohol.html" class="sci-card red">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">🍷</span>
+      <div class="sci-card-title">Alcohol</div>
+      <div class="sci-card-desc">What it costs your programme. Your protocol, your training nights, your rules.</div>
+    </a>
+
   </div>
 
-  <!-- Science grid -->
-  <div style="columns:2;column-gap:12px;" id="sci-grid">
+  <!-- BODY SCIENCE -->
+  <div class="sci-sec gold">Body</div>
+  <div class="sci-grid">
 
-    <div class="sci-card myth" data-type="myth" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">↯ Myth</span>
-      <div class="sci-headline">More calories accelerates muscle gain in advanced lifters</div>
-      <div class="sci-body">An advanced lifter gains 0.5–1kg lean mass per month under ideal conditions. This is a physiological ceiling — not a mindset limitation. A surplus above +300 kcal adds fat on top of lean mass without accelerating muscle protein synthesis. <strong>The +200 kcal is calibrated to the actual rate of accretion.</strong></div>
-    </div>
+    <a href="bodylens-longevity.html" class="sci-card gold">
+      <div class="sci-card-badge personal">Personal</div>
+      <span class="sci-card-icon">🧬</span>
+      <div class="sci-card-title">Longevity</div>
+      <div class="sci-card-desc">Your decade, your biological shifts, your leverage points for the long game.</div>
+    </a>
 
-    <div class="sci-card myth" data-type="myth" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">↯ Myth</span>
-      <div class="sci-headline">Knee injury means no leg training</div>
-      <div class="sci-body">The most counterproductive belief in MSK rehab. Complete rest weakens surrounding muscles, reduces joint stability, and deconditions support structures. <strong>Appropriate loading is the primary stimulus for connective tissue adaptation.</strong> The research consistently shows controlled progressive loading improves functional outcomes for degenerative tears more reliably than rest.</div>
-    </div>
+    <a href="bodylens-body.html" class="sci-card slate">
+      <div class="sci-card-badge reference">Reference</div>
+      <span class="sci-card-icon">💪</span>
+      <div class="sci-card-title">Muscle Guide</div>
+      <div class="sci-card-desc">Interactive muscle anatomy — how each muscle works, how to train it.</div>
+    </a>
 
-    <div class="sci-card myth" data-type="myth" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">↯ Myth</span>
-      <div class="sci-headline">Carbs at night cause fat gain</div>
-      <div class="sci-body"><strong>Total caloric balance over 24–48 hours</strong> determines fat accumulation — not meal timing. Insulin sensitivity is elevated post-training, making the evening post-workout window one of the best times to consume carbohydrates. The dinner carbs in this programme are mechanistically correct, not a concession.</div>
-    </div>
+  </div>
 
-    <div class="sci-card myth" data-type="myth" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">↯ Myth</span>
-      <div class="sci-headline">High reps tone, low reps bulk</div>
-      <div class="sci-body">Both rep ranges build muscle when taken close to failure. <strong>"Toning" is fat loss revealing muscle</strong> — it is not a distinct training adaptation. This programme uses 6–20 rep ranges to maximise mechanical tension at lower reps and metabolic stress at higher reps simultaneously, not for aesthetic classification.</div>
-    </div>
-
-    <div class="sci-card myth" data-type="myth" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">↯ Myth</span>
-      <div class="sci-headline">The post-workout window is 30 minutes — always</div>
-      <div class="sci-body">The urgency of post-workout protein applies when training fasted. If you ate a protein-containing meal 60–90 min before training, <strong>amino acids are still elevated at session end</strong>. What matters: hit total protein across the day. The 30-minute window is relevant for morning fasted training — which is your actual situation, so the advice stands, but for the right reason.</div>
-    </div>
-
-    <div class="sci-card syn" data-type="syn" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⟳ Synergy</span>
-      <div class="sci-headline">Posterior chain training produces systemic anabolism</div>
-      <div class="sci-body">Heavy hip hinge and glute work produces <strong>the largest acute hormonal response of any training category</strong> — testosterone and GH elevation proportional to muscle mass recruited and total load. Friday's session creates an anabolic environment that accelerates recovery across all muscle groups, not just the posterior chain trained that day.</div>
-    </div>
-
-    <div class="sci-card syn" data-type="syn" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⟳ Synergy</span>
-      <div class="sci-headline">Sleep and testosterone: one week of disruption causes measurable damage</div>
-      <div class="sci-body">Leproult &amp; Van Cauter (2011): restricting sleep to 5 hours for one week <strong>reduced testosterone by 10–15%</strong> — equivalent to ageing 10–15 years. The same window drives GH and IGF-1 release for joint repair. Poor sleep simultaneously suppresses muscle gain and slows meniscus recovery.</div>
-    </div>
-
-    <div class="sci-card syn" data-type="syn" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⟳ Synergy</span>
-      <div class="sci-headline">Leucine threshold: MPS is triggered by one amino acid, not total protein</div>
-      <div class="sci-body">mTOR activation requires ~2–3g leucine per meal as a threshold event. <strong>185g across four meals (~46g per meal) consistently clears the threshold at every window.</strong> 185g across two meals leaves two MPS activation windows empty. Protein distribution is pharmacokinetics, not preference.</div>
-    </div>
-
-    <div class="sci-card syn" data-type="syn" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⟳ Synergy</span>
-      <div class="sci-headline">Twice-weekly frequency produces ~70% more hypertrophy at matched volume</div>
-      <div class="sci-body">Schoenfeld et al. (2016) meta-analysis: training each muscle group <strong>twice weekly produces significantly more hypertrophy</strong> than once-weekly at the same total volume. MPS elevation from a session decays within 48–72 hours — frequency timing re-stimulates before MPS returns to baseline.</div>
-    </div>
-
-    <div class="sci-card fact" data-type="fact" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">◈ Fact</span>
-      <div class="sci-headline">Each kg of lean mass raises resting metabolism by ~13 kcal — permanently</div>
-      <div class="sci-body">Adding 3kg lean mass raises RMR by ~40 kcal/day permanently. At 44, this directly counteracts the <strong>1–2% per decade metabolic rate decline.</strong> The lean mass built in this mesocycle compounds metabolically for decades. Body composition matters more than body weight as a long-term health marker.</div>
-    </div>
-
-    <div class="sci-card fact" data-type="fact" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">◈ Fact</span>
-      <div class="sci-headline">90 minutes post-wake is the optimal morning training window</div>
-      <div class="sci-body">Core body temperature, testosterone, and neuromuscular activation all reach their morning peak approximately 90 minutes after waking. <strong>Training immediately on waking means training at biological low tide.</strong> The 90-minute activation window — hydration, food, supplements — is preparation, not delay.</div>
-    </div>
-
-    <div class="sci-card fact" data-type="fact" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">◈ Fact</span>
-      <div class="sci-headline">The eccentric phase is where hypertrophy stimulus is greatest</div>
-      <div class="sci-body">Mechanical tension during the lengthening phase — the controlled descent — creates more muscle damage and metabolic stress than the concentric contraction. <strong>A 2–3 second eccentric on every rep is the training mechanism, not a technique cue.</strong> Dropping the weight quickly discards the majority of each rep's hypertrophic value.</div>
-    </div>
-
-    <div class="sci-card warn" data-type="warn" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⚠ Warning</span>
-      <div class="sci-headline">Swelling within 24h means load was excessive — do not train through it</div>
-      <div class="sci-body">Post-exercise knee swelling is an intra-articular inflammatory response. <strong>Arthrogenic muscle inhibition</strong> — fluid in the joint mechanically suppresses activation of surrounding musculature — makes training through swelling simultaneously harmful and ineffective. Reduce depth and load 30% for the following session. Do not progress depth until two consecutive clean sessions.</div>
-    </div>
-
-    <div class="sci-card warn" data-type="warn" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⚠ Warning</span>
-      <div class="sci-headline">Chronic stress creates a biochemical environment where training cannot adapt</div>
-      <div class="sci-body">Cortisol directly suppresses testosterone and inhibits MPS. <strong>High sustained stress makes training nearly useless at the cellular level</strong> — the stimulus lands but the adaptation signal is blocked. Sleep, rest days, and stress management are the physiological conditions required for the programme to function. They are not lifestyle recommendations.</div>
-    </div>
-
-    <div class="sci-card warn" data-type="warn" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⚠ Warning</span>
-      <div class="sci-headline">Alcohol post-training directly inhibits mTOR</div>
-      <div class="sci-body">Ethanol suppresses mTOR signalling independently of calories or sleep disruption. 1–2 drinks post-training = ~15% MPS suppression. 3–4 drinks = ~25%. 5+ = near-complete cancellation of the session's anabolic signal. <strong>The mechanism is direct, not indirect.</strong> If drinking on training days, hit the post-workout protein window first.</div>
-    </div>
-
-    <div class="sci-card knee-sci" data-type="knee-sci" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">◈ Knee</span>
-      <div class="sci-headline">Strong glutes reduce medial compartment load — you are training the knee's defenders</div>
-      <div class="sci-body">The medial meniscus absorbs 50–70% of medial compartment compressive load. <strong>Glute maximus and medius strength directly control femoral alignment and valgus collapse</strong> — the primary overload mechanism for medial meniscal tissue. Every hip thrust and RDL in this programme is structural knee medicine with muscle gain as a side effect.</div>
-    </div>
-
-    <div class="sci-card knee-sci" data-type="knee-sci" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">◈ Knee</span>
-      <div class="sci-headline">Degenerative tears are not fragile — appropriate loading is the intervention</div>
-      <div class="sci-body">A degenerative meniscal tear is gradual fibrocartilage breakdown over years — not a clean acute rupture. <strong>Appropriate loading does not worsen the tear.</strong> Extended rest weakens surrounding structures and reduces joint stability. Controlled progressive loading improves functional outcomes for degenerative tears more reliably than conservative rest — the evidence is consistent.</div>
-    </div>
-
-    <div class="sci-card knee-sci" data-type="knee-sci" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">◈ Knee</span>
-      <div class="sci-headline">Articular cartilage has no blood supply — it feeds through movement</div>
-      <div class="sci-body">Cartilage receives nutrients exclusively via synovial fluid, <strong>which only circulates during joint movement.</strong> Rest day cycling and walking are not optional cardio — they are cartilage nutrition delivery. Prolonged sitting with the knee bent for hours is more damaging to cartilage than controlled movement under appropriate load.</div>
-    </div>
-
-    <div class="sci-card knee-sci" data-type="knee-sci" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">◈ Knee</span>
-      <div class="sci-headline">Collagen + Vitamin C doubles connective tissue synthesis — timing is the variable</div>
-      <div class="sci-body">Shaw et al. (2019): 15g collagen peptides + 50mg vitamin C taken <strong>45–60 minutes before exercise doubled collagen synthesis</strong> in tendons and ligaments vs. placebo. Vitamin C is required for hydroxylation of proline in collagen. Exercise increases collagen turnover — the supplement primes the pool at exactly the right moment. This is the most targeted meniscus intervention available without a prescription.</div>
-    </div>
-
-    <div class="sci-card supp" data-type="supp" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">● Supplement</span>
-      <div class="sci-headline">Creatine monohydrate: the only supplement with tier-1 evidence across all training populations</div>
-      <div class="sci-body">Hundreds of RCTs. Consistent 5–15% strength and power output improvement via expanded phosphocreatine stores. No cycling needed. No loading required — 5g daily works identically to a loading protocol after day 28. <strong>Monohydrate is identical to more expensive forms.</strong> If you are not on creatine, you are leaving the most accessible performance gain untaken.</div>
-    </div>
-
-    <div class="sci-card supp" data-type="supp" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">● Supplement</span>
-      <div class="sci-headline">Magnesium glycinate: sleep quality and 300 enzymatic reactions including MPS</div>
-      <div class="sci-body">Most people are deficient. Glycinate form is superior to magnesium oxide for absorption and avoids GI side effects. Relevant pathways: NMDA receptor regulation (sleep depth), ATP synthesis (energy production), and <strong>direct involvement in mRNA translation during muscle protein synthesis.</strong> Before-bed timing targets sleep architecture first.</div>
-    </div>
-
-    <div class="sci-card supp" data-type="supp" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">● Supplement</span>
-      <div class="sci-headline">Ashwagandha KSM-66: cortisol reduction with genuine testosterone RCT data</div>
-      <div class="sci-body">Multiple RCTs in resistance-trained men: <strong>10–15% testosterone increase, significant cortisol reduction</strong> vs. placebo. KSM-66 standardisation matters — generic ashwagandha shows inconsistent results. At 44 with high training stress, the testosterone-to-cortisol ratio is a meaningful lever. Additive benefit on sleep quality when taken consistently.</div>
-    </div>
-
-    <div class="sci-card supp" data-type="supp" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">● Supplement</span>
-      <div class="sci-headline">Vitamin D3 deficiency accelerates cartilage degradation — not just bone</div>
-      <div class="sci-body">UK latitude means most people are deficient October–April. D3 is directly involved in <strong>chondrocyte function and type II collagen synthesis in articular cartilage</strong> — the tissue your MRI flagged with chondromalacia. D3+K2 combination: K2 ensures calcium is directed to bone, not arteries. 3000–4000 IU daily with a fat-containing meal for absorption.</div>
-    </div>
-
-    <div class="sci-card supp" data-type="supp" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">● Supplement</span>
-      <div class="sci-headline">Omega-3: EPA and DHA compete with arachidonic acid at the COX enzyme level</div>
-      <div class="sci-body">EPA and DHA don't just "reduce inflammation" generally. <strong>They compete directly with arachidonic acid for COX-1 and COX-2 enzymes</strong> — reducing prostaglandin E2 synthesis specifically. PGE2 is the primary inflammatory mediator in synovial tissue. This is both a performance supplement and targeted joint medicine. Non-negotiable given the meniscus condition.</div>
-    </div>
-
-    <div class="sci-card peri" data-type="peri" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⧗ Peri-workout</span>
-      <div class="sci-headline">Sauna post-training: net anabolic if executed correctly</div>
-      <div class="sci-body">Post-workout sauna activates heat shock proteins that enhance muscle protein folding and repair. <strong>Protocol: protein first, then sauna under 20 minutes, 500ml water before entering, electrolytes after.</strong> Beyond 30 minutes post-training, cortisol elevation starts competing with MPS and the benefit is cancelled. Sequence is non-negotiable: protein → sauna.</div>
-    </div>
-
-    <div class="sci-card peri" data-type="peri" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⧗ Peri-workout</span>
-      <div class="sci-headline">Carbs pre-training protect muscle — not just performance</div>
-      <div class="sci-body">When glycogen depletes mid-session, the body <strong>catabolises muscle protein to maintain blood glucose.</strong> This is not a performance issue — it is net-negative for the session's anabolic outcome. Pre-workout carbs are muscle protection. The high-GI dates and banana before Friday's session are not comfort food; they are structural.</div>
-    </div>
-
-    <div class="sci-card peri" data-type="peri" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⧗ Peri-workout</span>
-      <div class="sci-headline">The pre-sleep meal is a training intervention, not a late snack</div>
-      <div class="sci-body">GH is released during slow-wave sleep, 60–90 minutes after sleep onset. The amino acids available when GH peaks determine how much protein synthesis occurs overnight. <strong>Cottage cheese before bed provides casein protein that digests over 6–8 hours</strong> — ensuring amino acid availability aligns with the GH pulse. This is intentional engineering, not habit.</div>
-    </div>
-
-    <div class="sci-card peri" data-type="peri" style="break-inside:avoid;margin-bottom:10px;">
-      <span class="sci-type">⧗ Peri-workout</span>
-      <div class="sci-headline">Thursday's carb load fuels Friday's session — not Friday's breakfast</div>
-      <div class="sci-body">Muscle glycogen replenishment takes 12–24 hours from carbohydrate ingestion. <strong>Friday morning's oats are insufficient to fully stock glycogen stores by the time the RDL starts.</strong> Thursday afternoon's carbs are the primary fuel for Friday's session. This is why the pre-posterior-chain rest day protocol starts the carb load at Thursday lunch.</div>
-    </div>
-
-  </div><!-- sci-grid -->
-
-  <div class="page-end"></div>
 </div>
 
 <script src="nav.js"></script>
 <script>
-let activeFilter = 'all';
-
-function filterSci(type, btn) {
-  activeFilter = type;
-  // Update button styles
-  document.querySelectorAll('#filter-row button').forEach(b => {
-    b.style.opacity = '0.45';
-  });
-  btn.style.opacity = '1';
-
-  document.querySelectorAll('#sci-grid .sci-card').forEach(c => {
-    if (type === 'all') {
-      c.classList.remove('hidden');
-    } else {
-      c.classList.toggle('hidden', c.dataset.type !== type);
-    }
-  });
-}
-// Init — all visible
-document.querySelectorAll('#filter-row button').forEach(b => { b.style.opacity = '1'; });
-</script>
-<script>
 (function(){
   try {
-    const p = localStorage.getItem('bl_profile');
-    if (p) {
-      const profile = JSON.parse(p);
-      const el = document.getElementById('nav-meta');
-      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
-    }
+    const raw = localStorage.getItem('bl_profile');
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (!p || !p.name) return;
+
+    document.getElementById('nav-meta').innerHTML =
+      `<span class="nav-tag nt-jade">${p.name}</span>`;
+
+    document.getElementById('sci-sub').textContent =
+      `Every page generated for ${p.name}. The science is universal — the application is specific to ${p.sex==='Female'?'your hormonal cycle, your body fat distribution, your goal.':'your physiology, your training history, your goal.'}`;
+
   } catch(e){}
 })();
-</script>
-
-<script>
-function personalisePageContent(p) {
-  // Replace wake time references
-  const wake = p.wakeTime || '07:00';
-  const [wH] = wake.split(':').map(Number);
-  const coffeeTime = `${String(wH+1).padStart(2,'0')}:30`;
-  const collagenTime = `${String(wH+2).padStart(2,'0')}:00`;
-
-  const age = p.age || '?';
-  const weight = p.weight || '?';
-  const protein = p.protein || 185;
-  const name = p.name;
-  const goal = p.goal || 'body recomposition';
-  const supps = p.supplements || [];
-  const injuries = p.injuryAssessments || p.injuries || [];
-  const recoveryTools = p.recoveryTools || [];
-  const trainingDays = p.trainingDays || 4;
-  const weekPlan = p.weekPlan || [];
-  const trainingDayNames = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
-
-  // Replace all personal stat references in the visible text
-  replaceInContent([
-    // Age
-    [/\b44\b(?!px|%|rem|em|vw|vh)/g, age],
-    // Weight
-    [/85\s*kg/g, weight + 'kg'],
-    // Protein
-    [/185g/g, protein + 'g'],
-    [/185\s*g/g, protein + 'g'],
-    // Wake time
-    [/06:00(?! alarm)/g, wake],
-    [/07:30 flat white/g, coffeeTime + ' flat white'],
-    // Training days
-    [/Mon(day)?.*?Push/g, trainingDayNames.split(',')[0]?.trim() || 'Monday'],
-    [/Fri(day)?.*?Posterior Chain/g, trainingDayNames.split(',').slice(-1)[0]?.trim() || 'Friday'],
-  ]);
-
-  // Update the "you are here" stat boxes that show age
-  document.querySelectorAll('.age-val, .stat-age, [data-stat="age"]').forEach(el => {
-    el.textContent = age;
-  });
-
-  // Update supplement stack section if it exists
-  const suppSection = document.getElementById('supp-stack-personal');
-  if (suppSection && supps.length) {
-    suppSection.innerHTML = supps.map(s => `
-      <div class="supp-row">
-        <span class="supp-name">${s.name}</span>
-        <span class="supp-dose">${s.dose}</span>
-        <span class="supp-time">${s.timing}</span>
-      </div>`).join('');
-  }
-
-  // Update injury section
-  const injSection = document.getElementById('injury-personal');
-  if (injSection) {
-    if (injuries.length) {
-      injSection.innerHTML = injuries.map(inj => `
-        <div class="inj-item" style="padding:10px 0;border-bottom:1px solid var(--bd);">
-          <strong style="color:var(--gold);">${inj.location}</strong><br>
-          <span style="font-size:12px;color:var(--dk-2);">${inj.assessment||inj.detail||''}</span>
-          ${inj.avoidMovements && inj.avoidMovements.length ? `<br><span style="font-size:11px;color:var(--red);">Avoid: ${inj.avoidMovements.join(', ')}</span>` : ''}
-        </div>`).join('');
-    } else {
-      injSection.innerHTML = '<div style="font-size:12px;color:var(--dk-3);padding:10px 0;">No current injuries on record.</div>';
-    }
-  }
-
-  // Patch "you are here" callout text
-  document.querySelectorAll('.you-are-here-text, .hc-body').forEach(el => {
-    if (el.textContent.includes('44') || el.textContent.includes('Sven') || el.textContent.includes('tennis')) {
-      el.innerHTML = buildPersonalCallout(p);
-    }
-  });
-}
-
-function replaceInContent(replacements) {
-  // Walk all text nodes and apply replacements
-  const walker = document.createTreeWalker(
-    document.body,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode: n => {
-        const parent = n.parentElement;
-        if (!parent) return NodeFilter.FILTER_REJECT;
-        const tag = parent.tagName;
-        if (['SCRIPT','STYLE','META','LINK'].includes(tag)) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }
-    }
-  );
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-
-  nodes.forEach(node => {
-    let text = node.textContent;
-    let changed = false;
-    replacements.forEach(([pat, repl]) => {
-      const newText = text.replace(pat, repl);
-      if (newText !== text) { text = newText; changed = true; }
-    });
-    if (changed) node.textContent = text;
-  });
-}
-
-function buildPersonalCallout(p) {
-  const age = p.age || '?';
-  const name = p.name;
-  const goal = p.goal || 'body recomposition';
-  const protein = p.protein || 185;
-  const trainingDays = p.trainingDays || 4;
-  const supps = (p.supplements||[]).slice(0,4).map(s=>s.name).join(', ');
-  const injuries = p.injuryAssessments || p.injuries || [];
-  const decade = age < 30 ? 20 : age < 40 ? 30 : age < 50 ? 40 : age < 60 ? 50 : 60;
-
-  const callouts = {
-    20: `${name} is ${age} — in the most biologically forgiving decade. Build the foundation now. Lean mass added in the 20s compounds for 50 years.`,
-    30: `${name} is ${age} — adaptation is still high but the first biological shifts have begun. The programme addresses them directly: ${trainingDays} sessions, ${protein}g protein, structured recovery.`,
-    40: `${name} is ${age} — the highest leverage decade for long-term health. Every element of this programme — ${trainingDays} sessions/week, ${protein}g protein, ${supps} — addresses a specific biological shift happening right now. ${injuries.length ? 'The injury protocol is part of the programme, not a workaround.' : 'The window is open. The biology is receptive.'}`,
-    50: `${name} is ${age} — the decade where training decisions become especially consequential. ${trainingDays} sessions/week is enough to reverse sarcopenia entirely. Recovery windows lengthen; the stimulus still works.`,
-    60: `${name} is ${age} — collecting the dividend on decades of work. VO₂max is the priority. Resistance training and Zone 2 remain the two non-negotiable interventions.`,
-  };
-  return callouts[decade] || callouts[40];
-}
 </script>
 </body>
 </html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — My Programme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.page { max-width:900px; margin:0 auto; padding:0 32px 100px; }
+
+/* Hero */
+.prog-hero {
+  padding:44px 0 36px;
+  border-bottom:1px solid var(--bd);
+  margin-bottom:36px;
+  display:flex; justify-content:space-between; align-items:flex-end; gap:24px;
+}
+.prog-name {
+  font-family:var(--serif);
+  font-size:60px; font-weight:300;
+  line-height:0.92; letter-spacing:-0.03em;
+  color:var(--dk-1);
+}
+.prog-name em { font-style:italic; color:var(--dk-3); }
+.prog-goal {
+  font-size:14px; font-weight:300; color:var(--dk-2);
+  line-height:1.6; margin-top:10px; max-width:440px;
+}
+.prog-hero-actions { display:flex; flex-direction:column; gap:8px; align-items:flex-end; flex-shrink:0; }
+.prog-meta { font-size:10px; font-weight:300; color:var(--dk-3); }
+
+/* Stat strip */
+.prog-stats {
+  display:grid; grid-template-columns:repeat(5,1fr);
+  gap:1px; background:var(--bd);
+  border:1px solid var(--bd); border-radius:6px;
+  overflow:hidden; margin-bottom:32px;
+}
+.prog-stat { background:var(--ink-2); padding:14px 10px; text-align:center; }
+.prog-stat-val { font-family:var(--mono); font-size:22px; font-weight:500; color:var(--jade); line-height:1; margin-bottom:4px; }
+.prog-stat-val.amber { color:var(--amber); }
+.prog-stat-val.slate { color:var(--dk-2); }
+.prog-stat-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+
+/* Section label */
+.prog-sec {
+  font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--dk-3); margin:0 0 12px;
+  display:flex; align-items:center; gap:10px;
+}
+.prog-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
+.prog-sec.jade  { color:var(--jade); }
+.prog-sec.amber { color:var(--amber); }
+.prog-sec.gold  { color:var(--gold); }
+
+/* Coach summary */
+.prog-coach {
+  background:var(--ink-2); border:1px solid var(--jade-br);
+  border-radius:6px; padding:20px 24px; margin-bottom:28px;
+  font-family:var(--serif); font-size:16px; font-weight:300;
+  font-style:italic; color:var(--dk-2); line-height:1.82;
+  border-left:3px solid var(--jade-br);
+}
+
+/* Tabs */
+.prog-tabs {
+  display:flex; gap:0; border-bottom:1px solid var(--bd); margin-bottom:28px;
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+}
+.prog-tab {
+  font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+  padding:12px 18px; border:none; background:transparent;
+  color:var(--dk-3); cursor:pointer; font-family:var(--sans);
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  white-space:nowrap; transition:all 0.12s; flex-shrink:0;
+}
+.prog-tab:hover { color:var(--dk-2); }
+.prog-tab.active { color:var(--jade); border-bottom-color:var(--jade); }
+
+.prog-pane { display:none; }
+.prog-pane.active { display:block; }
+
+/* Cards */
+.prog-card {
+  background:var(--ink-2); border:1px solid var(--bd); border-radius:6px;
+  overflow:hidden; margin-bottom:10px;
+}
+.prog-card.jade  { border-top:2px solid var(--jade); }
+.prog-card.amber { border-top:2px solid var(--amber); }
+.prog-card.gold  { border-top:2px solid var(--gold); }
+.prog-card.red   { border-top:2px solid var(--red); }
+
+.prog-card-head {
+  padding:14px 18px; background:var(--ink-1);
+  border-bottom:1px solid var(--bd);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.prog-card-title { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); }
+.prog-card.jade  .prog-card-title { color:var(--jade); }
+.prog-card.amber .prog-card-title { color:var(--amber); }
+.prog-card.gold  .prog-card-title { color:var(--gold); }
+
+/* Row */
+.prog-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:10px 18px; border-bottom:1px solid var(--bd);
+  font-size:12px; gap:16px;
+}
+.prog-row:last-child { border-bottom:none; }
+.prog-row-label { font-weight:400; color:var(--dk-3); flex-shrink:0; }
+.prog-row-val   { font-weight:500; color:var(--dk-1); text-align:right; line-height:1.4; }
+.prog-row-val.jade  { color:var(--jade); }
+.prog-row-val.amber { color:var(--amber); }
+.prog-row-val.red   { color:var(--red); }
+
+/* Macro grid */
+.prog-macros {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1px; background:var(--bd);
+}
+.prog-macro { background:var(--ink-1); padding:16px 10px; text-align:center; }
+.prog-macro-val { font-family:var(--mono); font-size:24px; font-weight:500; color:var(--jade); line-height:1; margin-bottom:4px; }
+.prog-macro-val.amber { color:var(--amber); }
+.prog-macro-val.slate { color:var(--dk-2); }
+.prog-macro-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+
+/* Week plan */
+.prog-day {
+  display:grid; grid-template-columns:90px 1fr;
+  padding:13px 18px; border-bottom:1px solid var(--bd); gap:12px;
+}
+.prog-day:last-child { border-bottom:none; }
+.prog-day-name { font-size:12px; font-weight:600; color:var(--dk-3); }
+.prog-day-name.training { color:var(--jade); }
+.prog-day-type { font-size:12px; font-weight:500; color:var(--dk-1); margin-bottom:2px; }
+.prog-day-focus { font-size:11px; font-weight:300; color:var(--dk-3); }
+.prog-day-exs { font-size:10px; font-weight:300; color:var(--dk-3); margin-top:2px; }
+.prog-day-note { font-size:10px; font-style:italic; color:var(--dk-3); margin-top:2px; }
+
+/* Injury */
+.prog-injury {
+  padding:14px 18px; border-bottom:1px solid var(--bd);
+  border-left:3px solid var(--gold);
+}
+.prog-injury:last-child { border-bottom:none; }
+.prog-injury-loc { font-size:12px; font-weight:600; color:var(--gold); margin-bottom:4px; }
+.prog-injury-text { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65; }
+.prog-injury-rules { margin-top:8px; font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.7; }
+
+/* Supplement */
+.prog-supp {
+  display:grid; grid-template-columns:1fr 80px 120px;
+  padding:10px 18px; border-bottom:1px solid var(--bd);
+  font-size:12px; gap:12px; align-items:baseline;
+}
+.prog-supp:last-child { border-bottom:none; }
+.prog-supp.head { background:var(--ink-1); }
+.prog-supp.head div { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+.prog-supp-name { font-weight:500; color:var(--dk-1); }
+.prog-supp-dose { font-family:var(--mono); font-weight:300; color:var(--amber); }
+.prog-supp-time { font-weight:300; color:var(--dk-3); }
+
+/* Instructions */
+.prog-instructions {
+  padding:20px 18px;
+  font-family:var(--mono); font-size:12px; font-weight:300;
+  color:var(--dk-2); line-height:1.9; white-space:pre-wrap;
+  word-break:break-word; max-height:60vh; overflow-y:auto;
+  background:var(--ink-1);
+}
+
+/* Actions */
+.prog-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:24px; }
+.prog-btn {
+  padding:10px 20px; background:transparent;
+  border:1px solid var(--bd-2); border-radius:4px;
+  font-family:var(--sans); font-size:10px; font-weight:600;
+  letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--dk-3); cursor:pointer; transition:all 0.15s;
+  text-decoration:none; display:inline-block;
+}
+.prog-btn:hover { color:var(--jade); border-color:var(--jade-br); }
+.prog-btn.jade {
+  background:var(--jade); border-color:var(--jade); color:var(--ink);
+}
+.prog-btn.jade:hover { background:var(--jade-hi); }
+.prog-btn.red { color:var(--red); border-color:var(--red-br); }
+
+/* No profile */
+.no-profile { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center; padding:48px; gap:14px; }
+.no-profile h2 { font-family:var(--serif); font-size:30px; font-weight:300; }
+.no-profile p  { font-size:14px; font-weight:300; color:var(--dk-2); max-width:360px; line-height:1.7; }
+.no-profile a  { display:inline-block; padding:12px 28px; background:var(--jade); border-radius:6px; font-size:13px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink); text-decoration:none; }
+
+@media(max-width:860px){
+  .prog-hero { flex-direction:column; gap:16px; align-items:flex-start; }
+  .prog-hero-actions { align-items:flex-start; }
+  .prog-stats { grid-template-columns:repeat(3,1fr); }
+}
+@media(max-width:600px){
+  .page { padding:0 16px 80px; }
+  .prog-name { font-size:44px; }
+  .prog-stats { grid-template-columns:repeat(2,1fr); }
+  .prog-macros { grid-template-columns:repeat(2,1fr); }
+  .prog-supp { grid-template-columns:1fr 70px; }
+  .prog-supp-time { display:none; }
+  .prog-day { grid-template-columns:70px 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link active" href="bodylens-programme.html">Programme</a>
+    <a class="nav-link" href="bodylens-science.html">Science</a>
+  </div>
+  <div class="nav-meta" id="nav-meta"></div>
+</nav>
+
+<div class="page" id="main"></div>
+
+<script src="nav.js"></script>
+<script>
+const profile = getProfile();
+
+if (!profile) {
+  document.getElementById('main').innerHTML = `
+    <div class="no-profile">
+      <div style="font-size:44px;">💪</div>
+      <h2>No programme yet</h2>
+      <p>Complete the onboarding and your full programme will appear here.</p>
+      <a href="bodylens-onboard.html">Get started →</a>
+    </div>`;
+} else {
+  document.getElementById('nav-meta').innerHTML =
+    `<span class="nav-tag nt-jade">${profile.name}</span>`;
+  render(profile);
+}
+
+function render(p) {
+  const injuries  = p.injuryAssessments || [];
+  const supps     = p.supplements || [];
+  const weekPlan  = p.weekPlan || [];
+  const genDate   = p.generatedAt
+    ? new Date(p.generatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+    : '—';
+  const isFemale  = (p.sex||'').toLowerCase() === 'female';
+
+  document.getElementById('main').innerHTML = `
+
+    <div class="prog-hero">
+      <div>
+        <div class="prog-name">${p.name}<br><em>programme.</em></div>
+        <div class="prog-goal">${p.goal||''} ${p.target ? '— ' + p.target : ''}</div>
+      </div>
+      <div class="prog-hero-actions">
+        <div class="prog-meta">Generated ${genDate}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a href="bodylens-day.html" class="prog-btn jade">Today's plan →</a>
+          <button onclick="location.href='bodylens-reset.html'" class="prog-btn red">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="prog-stats">
+      <div class="prog-stat">
+        <div class="prog-stat-val">${p.age||'—'}</div>
+        <div class="prog-stat-label">Age</div>
+      </div>
+      <div class="prog-stat">
+        <div class="prog-stat-val slate">${p.weight||'—'}kg</div>
+        <div class="prog-stat-label">Weight</div>
+      </div>
+      <div class="prog-stat">
+        <div class="prog-stat-val jade">${p.calories||'—'}</div>
+        <div class="prog-stat-label">Kcal/day</div>
+      </div>
+      <div class="prog-stat">
+        <div class="prog-stat-val jade">${p.protein||'—'}g</div>
+        <div class="prog-stat-label">Protein</div>
+      </div>
+      <div class="prog-stat">
+        <div class="prog-stat-val amber">${p.trainingDays||'—'}</div>
+        <div class="prog-stat-label">Train days</div>
+      </div>
+    </div>
+
+    ${p.coachSummary ? `<div class="prog-coach">${p.coachSummary}</div>` : ''}
+
+    <!-- Tabs -->
+    <div class="prog-tabs">
+      <button class="prog-tab active" onclick="switchTab('overview',this)">Overview</button>
+      <button class="prog-tab" onclick="switchTab('week',this)">Week plan</button>
+      <button class="prog-tab" onclick="switchTab('nutrition',this)">Nutrition</button>
+      <button class="prog-tab" onclick="switchTab('supplements',this)">Supplements</button>
+      ${injuries.length ? `<button class="prog-tab" onclick="switchTab('injuries',this)">Injuries</button>` : ''}
+      <button class="prog-tab" onclick="switchTab('instructions',this)">Instructions</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="prog-pane active" id="pane-overview">
+
+      <div class="prog-card jade">
+        <div class="prog-card-head"><div class="prog-card-title jade">Your baseline</div></div>
+        <div class="prog-row"><span class="prog-row-label">Name</span><span class="prog-row-val jade">${p.name}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Age / Sex</span><span class="prog-row-val">${p.age||'—'} · ${p.sex||'—'}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Height / Weight</span><span class="prog-row-val">${p.height||'—'}cm · ${p.weight||'—'}kg</span></div>
+        <div class="prog-row"><span class="prog-row-label">Body fat</span><span class="prog-row-val">${p.bodyFat||'—'}%</span></div>
+        <div class="prog-row"><span class="prog-row-label">Fat storage</span><span class="prog-row-val">${p.fatStorage||'—'}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Goal</span><span class="prog-row-val">${p.goal||'—'}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Wake time</span><span class="prog-row-val">${p.wakeTime||'—'}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Sleep</span><span class="prog-row-val">${p.sleep||'—'}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Gym</span><span class="prog-row-val">${p.gymAccess||'—'}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Recovery</span><span class="prog-row-val">${(p.recoveryTools||[]).join(', ')||'None'}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Alcohol</span><span class="prog-row-val">${p.alcoholHabit||'—'}</span></div>
+        ${(p.nonNegotiables||[]).length ? `<div class="prog-row"><span class="prog-row-label">Non-negotiables</span><span class="prog-row-val">${p.nonNegotiables.join(', ')}</span></div>` : ''}
+      </div>
+
+      <div class="prog-actions">
+        <a href="bodylens-day.html" class="prog-btn jade">Today's plan →</a>
+        <a href="bodylens-week.html" class="prog-btn">Week view</a>
+        <button onclick="BL_GENERATOR && BL_GENERATOR.clearAllCache(); location.reload()" class="prog-btn">Regenerate science pages</button>
+        <button onclick="location.href='bodylens-reset.html'" class="prog-btn red">Reset all data</button>
+      </div>
+
+    </div>
+
+    <!-- WEEK -->
+    <div class="prog-pane" id="pane-week">
+      <div class="prog-card jade">
+        <div class="prog-card-head">
+          <div class="prog-card-title jade">Your ${p.trainingDays||4}-day split</div>
+          <div style="font-size:11px;font-weight:300;color:var(--dk-3);">${weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ')}</div>
+        </div>
+        ${weekPlan.map((day,i) => {
+          const DAY_MAP = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
+          const todayIdx = DAY_MAP[new Date().getDay()];
+          const isToday = i === todayIdx;
+          return `
+          <div class="prog-day" style="${isToday?'background:rgba(0,200,160,0.03);':''}">
+            <div>
+              <div class="prog-day-name ${day.priority==='training'?'training':''}">${day.day.slice(0,3)}${isToday?' <span style="font-size:8px;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);padding:1px 6px;border-radius:10px;letter-spacing:0.06em;">TODAY</span>':''}</div>
+            </div>
+            <div>
+              <div class="prog-day-type">${day.type}</div>
+              <div class="prog-day-focus">${day.focus||''}</div>
+              ${day.keyExercises&&day.keyExercises.length?`<div class="prog-day-exs">${day.keyExercises.slice(0,3).join(' · ')}</div>`:''}
+              ${day.coachNote?`<div class="prog-day-note">${day.coachNote}</div>`:''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- NUTRITION -->
+    <div class="prog-pane" id="pane-nutrition">
+      <div class="prog-card amber">
+        <div class="prog-card-head"><div class="prog-card-title amber">Daily targets</div></div>
+        <div class="prog-macros">
+          <div class="prog-macro"><div class="prog-macro-val">${p.calories||'—'}</div><div class="prog-macro-label">Calories</div></div>
+          <div class="prog-macro"><div class="prog-macro-val jade">${p.protein||'—'}g</div><div class="prog-macro-label">Protein</div></div>
+          <div class="prog-macro"><div class="prog-macro-val amber">${p.carbs||'—'}g</div><div class="prog-macro-label">Carbs</div></div>
+          <div class="prog-macro"><div class="prog-macro-val slate">${p.fat||'—'}g</div><div class="prog-macro-label">Fat</div></div>
+        </div>
+        ${p.calorieReasoning?`<div style="padding:14px 18px;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;font-style:italic;border-top:1px solid var(--bd);">${p.calorieReasoning}</div>`:''}
+        <div class="prog-row"><span class="prog-row-label">TDEE</span><span class="prog-row-val">${p.tdee||'—'} kcal</span></div>
+        <div class="prog-row"><span class="prog-row-label">Eating window</span><span class="prog-row-val">${p.fastingWindow||p.eatingWindow||'Flexible'}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Meals / day</span><span class="prog-row-val">${p.mealCount||4}</span></div>
+        <div class="prog-row"><span class="prog-row-label">Diet</span><span class="prog-row-val">${p.dietType||'—'}</span></div>
+        ${(p.foodExclusions||[]).length?`<div class="prog-row"><span class="prog-row-label">Avoid</span><span class="prog-row-val red">${p.foodExclusions.join(', ')}</span></div>`:''}
+        ${p.triggerFoods&&!p.triggerFoods.includes('None')?`<div class="prog-row"><span class="prog-row-label">Trigger foods</span><span class="prog-row-val red">${p.triggerFoods}</span></div>`:''}
+      </div>
+      <div style="margin-top:12px;">
+        <a href="bodylens-fuel.html" class="prog-btn">Food system & meal ideas →</a>
+      </div>
+    </div>
+
+    <!-- SUPPLEMENTS -->
+    <div class="prog-pane" id="pane-supplements">
+      ${supps.length ? `
+      <div class="prog-card gold">
+        <div class="prog-card-head"><div class="prog-card-title gold">Your stack — ${supps.length} supplements</div></div>
+        <div class="prog-supp head">
+          <div>Supplement</div><div>Dose</div><div>Timing</div>
+        </div>
+        ${supps.map(s=>`
+        <div class="prog-supp">
+          <div class="prog-supp-name">${s.name}</div>
+          <div class="prog-supp-dose">${s.dose}</div>
+          <div class="prog-supp-time">${s.timing}</div>
+        </div>`).join('')}
+      </div>
+      <div style="margin-top:12px;">
+        <a href="bodylens-howitworks.html" class="prog-btn">Supplement science →</a>
+      </div>` : '<div style="color:var(--dk-3);font-size:13px;padding:20px 0;">No supplement stack generated.</div>'}
+    </div>
+
+    <!-- INJURIES -->
+    ${injuries.length ? `
+    <div class="prog-pane" id="pane-injuries">
+      <div class="prog-card gold">
+        <div class="prog-card-head"><div class="prog-card-title gold">${injuries.length} injury note${injuries.length>1?'s':''}</div></div>
+        ${injuries.map(inj=>`
+        <div class="prog-injury">
+          <div class="prog-injury-loc">${inj.location}</div>
+          <div class="prog-injury-text">${inj.assessment||inj.detail||''}</div>
+          ${inj.avoidMovements&&inj.avoidMovements.length?`
+          <div class="prog-injury-rules">
+            <strong style="color:var(--red);">Avoid:</strong> ${inj.avoidMovements.join(', ')}<br>
+            <strong style="color:var(--jade);">Instead:</strong> ${(inj.safeAlternatives||[]).join(', ')}<br>
+            ${inj.rehabilitationNotes?`<strong style="color:var(--gold);">Long term:</strong> ${inj.rehabilitationNotes}`:''}
+          </div>`:''}
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- INSTRUCTIONS -->
+    <div class="prog-pane" id="pane-instructions">
+      <div class="prog-card">
+        <div class="prog-card-head">
+          <div class="prog-card-title">Coaching brief</div>
+          <div style="font-size:10px;font-weight:300;color:var(--dk-3);">Generated ${genDate}</div>
+        </div>
+        <div class="prog-instructions">${(p.instructions||'No instructions generated.').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      </div>
+    </div>
+
+  `;
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.prog-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.prog-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pane-' + id).classList.add('active');
+}
+</script>
+</body>
+</html>

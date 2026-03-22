@@ -369,21 +369,8 @@ body { background: var(--ink); color: var(--dk-1); }
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily active" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
-    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-profile.html">Profile</a>
-    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
-    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
-    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
-    <a class="nav-link" href="bodylens-training.html">Training</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-story.html">The Story</a>
-    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
-    <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+    <a class="nav-link" href="bodylens-programme.html">Programme</a>
+    <a class="nav-link" href="bodylens-science.html">Science</a>
   </div>
   <div class="nav-meta" id="nav-meta"></div>
 </nav>
@@ -798,6 +785,18 @@ function buildFallbackPlan() {
 function formatDate() {
   return new Date().toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
+</script>
+<script>
+(function(){
+  try {
+    const p = localStorage.getItem('bl_profile');
+    if (p) {
+      const profile = JSON.parse(p);
+      const el = document.getElementById('nav-meta');
+      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
+    }
+  } catch(e){}
+})();
 </script>
 </body>
 </html>
