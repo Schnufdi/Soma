@@ -1146,5 +1146,131 @@ document.querySelectorAll('.sc-example').forEach(e => e.style.display = 'block')
   } catch(e){}
 })();
 </script>
+
+<script>
+function personalisePageContent(p) {
+  // Replace wake time references
+  const wake = p.wakeTime || '07:00';
+  const [wH] = wake.split(':').map(Number);
+  const coffeeTime = `${String(wH+1).padStart(2,'0')}:30`;
+  const collagenTime = `${String(wH+2).padStart(2,'0')}:00`;
+
+  const age = p.age || '?';
+  const weight = p.weight || '?';
+  const protein = p.protein || 185;
+  const name = p.name;
+  const goal = p.goal || 'body recomposition';
+  const supps = p.supplements || [];
+  const injuries = p.injuryAssessments || p.injuries || [];
+  const recoveryTools = p.recoveryTools || [];
+  const trainingDays = p.trainingDays || 4;
+  const weekPlan = p.weekPlan || [];
+  const trainingDayNames = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
+
+  // Replace all personal stat references in the visible text
+  replaceInContent([
+    // Age
+    [/\b44\b(?!px|%|rem|em|vw|vh)/g, age],
+    // Weight
+    [/85\s*kg/g, weight + 'kg'],
+    // Protein
+    [/185g/g, protein + 'g'],
+    [/185\s*g/g, protein + 'g'],
+    // Wake time
+    [/06:00(?! alarm)/g, wake],
+    [/07:30 flat white/g, coffeeTime + ' flat white'],
+    // Training days
+    [/Mon(day)?.*?Push/g, trainingDayNames.split(',')[0]?.trim() || 'Monday'],
+    [/Fri(day)?.*?Posterior Chain/g, trainingDayNames.split(',').slice(-1)[0]?.trim() || 'Friday'],
+  ]);
+
+  // Update the "you are here" stat boxes that show age
+  document.querySelectorAll('.age-val, .stat-age, [data-stat="age"]').forEach(el => {
+    el.textContent = age;
+  });
+
+  // Update supplement stack section if it exists
+  const suppSection = document.getElementById('supp-stack-personal');
+  if (suppSection && supps.length) {
+    suppSection.innerHTML = supps.map(s => `
+      <div class="supp-row">
+        <span class="supp-name">${s.name}</span>
+        <span class="supp-dose">${s.dose}</span>
+        <span class="supp-time">${s.timing}</span>
+      </div>`).join('');
+  }
+
+  // Update injury section
+  const injSection = document.getElementById('injury-personal');
+  if (injSection) {
+    if (injuries.length) {
+      injSection.innerHTML = injuries.map(inj => `
+        <div class="inj-item" style="padding:10px 0;border-bottom:1px solid var(--bd);">
+          <strong style="color:var(--gold);">${inj.location}</strong><br>
+          <span style="font-size:12px;color:var(--dk-2);">${inj.assessment||inj.detail||''}</span>
+          ${inj.avoidMovements && inj.avoidMovements.length ? `<br><span style="font-size:11px;color:var(--red);">Avoid: ${inj.avoidMovements.join(', ')}</span>` : ''}
+        </div>`).join('');
+    } else {
+      injSection.innerHTML = '<div style="font-size:12px;color:var(--dk-3);padding:10px 0;">No current injuries on record.</div>';
+    }
+  }
+
+  // Patch "you are here" callout text
+  document.querySelectorAll('.you-are-here-text, .hc-body').forEach(el => {
+    if (el.textContent.includes('44') || el.textContent.includes('Sven') || el.textContent.includes('tennis')) {
+      el.innerHTML = buildPersonalCallout(p);
+    }
+  });
+}
+
+function replaceInContent(replacements) {
+  // Walk all text nodes and apply replacements
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    {
+      acceptNode: n => {
+        const parent = n.parentElement;
+        if (!parent) return NodeFilter.FILTER_REJECT;
+        const tag = parent.tagName;
+        if (['SCRIPT','STYLE','META','LINK'].includes(tag)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    }
+  );
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+  nodes.forEach(node => {
+    let text = node.textContent;
+    let changed = false;
+    replacements.forEach(([pat, repl]) => {
+      const newText = text.replace(pat, repl);
+      if (newText !== text) { text = newText; changed = true; }
+    });
+    if (changed) node.textContent = text;
+  });
+}
+
+function buildPersonalCallout(p) {
+  const age = p.age || '?';
+  const name = p.name;
+  const goal = p.goal || 'body recomposition';
+  const protein = p.protein || 185;
+  const trainingDays = p.trainingDays || 4;
+  const supps = (p.supplements||[]).slice(0,4).map(s=>s.name).join(', ');
+  const injuries = p.injuryAssessments || p.injuries || [];
+  const decade = age < 30 ? 20 : age < 40 ? 30 : age < 50 ? 40 : age < 60 ? 50 : 60;
+
+  const callouts = {
+    20: `${name} is ${age} — in the most biologically forgiving decade. Build the foundation now. Lean mass added in the 20s compounds for 50 years.`,
+    30: `${name} is ${age} — adaptation is still high but the first biological shifts have begun. The programme addresses them directly: ${trainingDays} sessions, ${protein}g protein, structured recovery.`,
+    40: `${name} is ${age} — the highest leverage decade for long-term health. Every element of this programme — ${trainingDays} sessions/week, ${protein}g protein, ${supps} — addresses a specific biological shift happening right now. ${injuries.length ? 'The injury protocol is part of the programme, not a workaround.' : 'The window is open. The biology is receptive.'}`,
+    50: `${name} is ${age} — the decade where training decisions become especially consequential. ${trainingDays} sessions/week is enough to reverse sarcopenia entirely. Recovery windows lengthen; the stimulus still works.`,
+    60: `${name} is ${age} — collecting the dividend on decades of work. VO₂max is the priority. Resistance training and Zone 2 remain the two non-negotiable interventions.`,
+  };
+  return callouts[decade] || callouts[40];
+}
+</script>
 </body>
 </html>

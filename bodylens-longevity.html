@@ -292,6 +292,13 @@ body { background: var(--ink); color: var(--dk-1); }
 
 <script src="nav.js"></script>
 <script>
+// Populate profile reference for template use
+try {
+  const raw = localStorage.getItem('bl_profile');
+  window.__BL_PROFILE__ = raw ? JSON.parse(raw) : null;
+} catch(e) { window.__BL_PROFILE__ = null; }
+</script>
+<script>
 
 const DECADES = {
 
@@ -704,7 +711,7 @@ function showDecade(decade, btnEl) {
   container.innerHTML = `
     ${d.youAreHere ? `
     <div class="here-callout" style="margin-top:48px;">
-      <div class="hc-pre">◈ You are here · Age 44</div>
+      <div class="hc-pre">◈ You are here · Age ${window.__BL_PROFILE__ ? window.__BL_PROFILE__.age : ""}</div>
       <div class="hc-title">${d.label}</div>
       <div class="hc-body">${d.youAreHereText}</div>
     </div>` : `<div style="height:48px;"></div>`}
@@ -746,8 +753,79 @@ function showDecade(decade, btnEl) {
   `;
 }
 
-// Init — open on 40s
-showDecade(40, document.querySelector('.age-band.you'));
+// Init — driven by profile age
+(function(){
+  let age = 40; // default
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (p && p.age) age = p.age;
+      // Patch youAreHereText for the correct decade
+      const decade = getDecadeKey(age);
+      if (DECADES[decade]) {
+        DECADES[decade].youAreHere = true;
+        DECADES[decade].youAreHereText = buildYouAreHereText(p, decade);
+        // Clear youAreHere flag from other decades
+        Object.keys(DECADES).forEach(k => {
+          if (parseInt(k) !== decade) DECADES[k].youAreHere = false;
+        });
+      }
+      // Update age-band markup
+      document.querySelectorAll('.age-band').forEach(b => b.classList.remove('active','you'));
+      document.querySelectorAll('.age-band').forEach(b => {
+        const label = b.querySelector('.ab-decade');
+        if (!label) return;
+        const bandDecade = parseInt(label.textContent);
+        if (bandDecade === decade) {
+          b.classList.add('active','you');
+          // Add "← You" label
+          let youTag = b.querySelector('.you-tag');
+          if (!youTag) {
+            youTag = document.createElement('div');
+            youTag.className = 'you-tag';
+            youTag.style.cssText = 'font-size:8px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--jade);margin-bottom:2px;';
+            youTag.textContent = '← You';
+            b.insertBefore(youTag, b.firstChild);
+          }
+        }
+      });
+    }
+  } catch(e) { console.error('Profile init error:', e); }
+
+  function getDecadeKey(age) {
+    if (age < 30) return 20;
+    if (age < 40) return 30;
+    if (age < 50) return 40;
+    if (age < 60) return 50;
+    if (age < 70) return 60;
+    return 70;
+  }
+
+  function buildYouAreHereText(p, decade) {
+    const name = p.name || 'You';
+    const age  = p.age;
+    const goal = p.goal || 'build and protect';
+    const supps = (p.supplements||[]).map(s=>s.name).slice(0,5).join(', ');
+    const hasInjuries = (p.injuryAssessments||p.injuries||[]).length > 0;
+    const trainingDays = p.trainingDays || 4;
+    const recoveryTools = (p.recoveryTools||[]).join(', ') || 'standard recovery';
+
+    const decadeTexts = {
+      20: `${name} is ${age} — in the most biologically forgiving decade. Adaptation is fast, recovery is quick, and the window for building the foundation that determines everything later is wide open. The goal right now: lay down maximal lean mass, build movement patterns, and establish the habits that compound over the next 40 years. Everything you build now costs half the effort it will in 10 years.`,
+      30: `${name} is ${age} — the first signals of biological shift are beginning, but adaptation capacity remains high. This is the decade where the habits you build either protect or erode the next 30 years. ${goal} is the right priority. The programme accounts for the early testosterone and GH changes — ${trainingDays} training days, protein at ${p.protein||185}g, ${recoveryTools} — every element is positioned for this decade.`,
+      40: `${name} is ${age} — ${age < 45 ? 'in the first half of' : 'deep in'} the decade with the highest leverage for long-term health. The decisions made in the 40s determine functional capacity at 70 more than any other decade. The programme — ${trainingDays} training days, progressive overload, high protein, optimised sleep${supps ? ', '+supps : ''} — is not coincidentally aligned with the longevity framework. It is the framework. ${hasInjuries ? 'The injury protocol is a feature, not a workaround — posterior chain strength is the primary protective mechanism.' : 'The window is open. The biology is still receptive.'} `,
+      50: `${name} is ${age} — in the decade of reckoning, where the lifestyle choices of the previous 20 years become visible. The good news: the body still responds powerfully to the right stimulus. ${trainingDays} training sessions per week is enough to reverse sarcopenia entirely. The priority shifts — maintaining lean mass becomes as important as building it. ${recoveryTools !== 'standard recovery' ? recoveryTools + ' are significant assets at this age.' : 'Recovery tools become increasingly important now.'} `,
+      60: `${name} is ${age} — collecting the dividend on decades of investment, or beginning the work of reversing neglect. Either way, the response to training remains real. The priority is VO₂max — the single strongest predictor of all-cause mortality — and lean mass preservation. Zone 2 cardio and resistance training are the two non-negotiable interventions. ${recoveryTools !== 'standard recovery' ? recoveryTools + ' support the longer recovery windows needed now.' : ''} `,
+      70: `${name} is ${age} — in the long game, where every training session is an act of deliberate biological maintenance. The research is unambiguous: the 70s responders who train consistently have VO₂max values matching sedentary 50-year-olds. The goal is function, independence, and quality — all of which respond to the same inputs as they always have. The dose is lower; the return is not.`,
+    };
+
+    return decadeTexts[decade] || decadeTexts[40];
+  }
+
+  const activeDecade = getDecadeKey(age);
+  showDecade(activeDecade, document.querySelector('.age-band.you'));
+})();
 </script>
 <script>
 (function(){
