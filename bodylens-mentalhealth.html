@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="bl-page" content="story">
-<title>BodyLens — The Story</title>
+<meta name="bl-page" content="mentalhealth">
+<title>BodyLens — Mental Health</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -27,7 +27,7 @@
     <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
     <a class="nav-link" href="bodylens-training.html">Training</a>
     <div class="nav-sep"></div>
-    <a class="nav-link active" href="bodylens-story.html">The Story</a>
+    <a class="nav-link" href="bodylens-story.html">The Story</a>
     <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
     <a class="nav-link" href="bodylens-weightloss.html">Weight Loss</a>
     <a class="nav-link" href="bodylens-longevity.html">Longevity</a>
@@ -35,8 +35,7 @@
     <a class="nav-link" href="bodylens-alcohol.html">Alcohol</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
     <div class="nav-sep"></div>
-    <a class="nav-link" href="bodylens-mentalhealth.html">Mental Health</a>
-    <a class="nav-link" href="bodylens-mentalhealth.html">Mental Health</a>
+    <a class="nav-link active" href="bodylens-mentalhealth.html">Mental Health</a>
     <a class="nav-link" href="bodylens-howitworks.html">How It Works</a>
     <div class="nav-sep"></div>
     <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
@@ -47,12 +46,14 @@
 <div id="page-hero" style="max-width:900px;margin:0 auto;padding:48px 32px 32px;border-bottom:1px solid rgba(255,255,255,0.07);">
   <div style="font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#00c8a0;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
     <span style="width:18px;height:1px;background:#00c8a0;display:inline-block;"></span>
-    The Story
+    Mind &amp; body
   </div>
   <div style="font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;line-height:0.93;letter-spacing:-0.025em;color:#e8e3da;margin-bottom:14px;">
-    The<br><em style="font-style:italic;color:#3e504a;">story.</em>
+    The mind<br><em style="font-style:italic;color:#3e504a;">behind the machine.</em>
   </div>
-  <div id="hero-sub" style="font-size:14px;font-weight:300;color:#8a9490;line-height:1.7;max-width:480px;">One day. Every system.</div>
+  <div id="hero-sub" style="font-size:14px;font-weight:300;color:#8a9490;line-height:1.7;max-width:520px;">
+    How your mental state connects to your physical results. The neuroscience of your specific patterns.
+  </div>
 </div>
 
 <div style="max-width:900px;margin:0 auto;padding:40px 32px 120px;" id="generated-content"></div>
@@ -61,35 +62,44 @@
 <script>
 (function(){
   const profile = getProfile();
+
   if (!profile) {
     document.getElementById('generated-content').innerHTML = `
       <div style="text-align:center;padding:80px 24px;">
+        <div style="font-size:44px;margin-bottom:16px;">🧠</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#e8e3da;margin-bottom:10px;">No profile yet</div>
-        <div style="font-size:13px;font-weight:300;color:#8a9490;margin-bottom:24px;">Complete onboarding to see your personalised content.</div>
+        <div style="font-size:13px;font-weight:300;color:#8a9490;margin-bottom:24px;max-width:340px;margin-left:auto;margin-right:auto;">
+          This page is written entirely for you — your patterns, your hormones, your psychology. Complete onboarding first.
+        </div>
         <a href="bodylens-onboard.html" style="display:inline-block;padding:12px 24px;background:#00c8a0;border-radius:6px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0c1010;text-decoration:none;">Get started →</a>
       </div>`;
     return;
   }
 
   document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${profile.name}</span>`;
-  document.getElementById('hero-sub').textContent = profile.name + " · " + (profile.goal||'') + (profile.sex?' · '+profile.sex:'');
+
+  const isFemale = (profile.sex||'').toLowerCase() === 'female';
+  document.getElementById('hero-sub').textContent = isFemale
+    ? `How hormones, cortisol, gut chemistry, and emotional patterns connect to your results. Written for ${profile.name}.`
+    : `How cortisol, sleep, gut chemistry, and psychological patterns connect to your results. Written for ${profile.name}.`;
 
   const regen = document.createElement('button');
   regen.textContent = '↺ Regenerate';
   regen.style.cssText = 'margin-top:12px;background:transparent;border:1px solid rgba(255,255,255,0.13);color:#3e504a;padding:6px 14px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);display:block;';
-  regen.onclick = () => { BL_GENERATOR.clearCache('story', profile); location.reload(); };
+  regen.onclick = () => { BL_GENERATOR.clearCache('mentalhealth', profile); location.reload(); };
   document.getElementById('page-hero').appendChild(regen);
 
   const container = document.getElementById('generated-content');
   BL_GENERATOR.generate(
-    'story',
+    'mentalhealth',
     profile,
     (loading) => { container.innerHTML = loading; },
     (html)    => { container.innerHTML = html; },
     (err)     => {
       console.error(err);
       container.innerHTML = `<div style="padding:40px 0;text-align:center;color:#8a9490;font-size:13px;">
-        Could not generate content. <button onclick="location.reload()" style="color:#00c8a0;background:none;border:none;cursor:pointer;font-size:13px;text-decoration:underline;">Try again</button>
+        Could not generate content.
+        <button onclick="location.reload()" style="color:#00c8a0;background:none;border:none;cursor:pointer;font-size:13px;text-decoration:underline;">Try again</button>
       </div>`;
     }
   );
