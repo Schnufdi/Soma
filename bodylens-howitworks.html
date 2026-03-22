@@ -657,6 +657,45 @@ function showPane(id, btn) {
   } catch(e) { console.error(e); }
 })();
 
+// Sex-specific nutrition section
+(function(){
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (!p) return;
+    const isFemale = (p.sex||'').toLowerCase() === 'female';
+    const el = document.getElementById('hw-sex-nutrition');
+    if (!el) return;
+
+    if (isFemale) {
+      el.innerHTML = `
+        <div class="hw-signal-card amber">
+          <div class="hw-signal-icon">⚡</div>
+          <div class="hw-signal-title">Your nutrition physiology</div>
+          <div class="hw-signal-text">Oestrogen drives fat oxidation — you burn more fat relative to carbohydrate at the same exercise intensity as a man. In your luteal phase (days 15–28) resting metabolic rate rises ~100–300 kcal and cravings intensify. This is hormonal, not a discipline failure. Your iron requirements are 1.8× male requirements.</div>
+        </div>
+        <div class="hw-signal-card jade">
+          <div class="hw-signal-icon">🎯</div>
+          <div class="hw-signal-title">How this shapes your programme</div>
+          <div class="hw-signal-text">Same protein per kg as men — ${p.protein||'—'}g daily. Slightly lower carbohydrate needs at rest. The eating window (${p.fastingWindow||p.eatingWindow||'flexible'}) is calibrated to your insulin sensitivity pattern. Calorie target (${p.calories||'—'} kcal) accounts for female BMR offset.</div>
+        </div>`;
+    } else {
+      el.innerHTML = `
+        <div class="hw-signal-card amber">
+          <div class="hw-signal-icon">⚡</div>
+          <div class="hw-signal-title">Your nutrition physiology</div>
+          <div class="hw-signal-text">Testosterone supports higher absolute MPS rates — your protein target (${p.protein||'—'}g) reflects this. Greater carbohydrate oxidation during training means carb timing around sessions matters more for you than for women. Alcohol-induced testosterone suppression is a direct risk — the protocol accounts for this.</div>
+        </div>
+        <div class="hw-signal-card jade">
+          <div class="hw-signal-icon">🎯</div>
+          <div class="hw-signal-title">How this shapes your programme</div>
+          <div class="hw-signal-text">Higher absolute calorie requirement (${p.calories||'—'} kcal, TDEE ${p.tdee||'—'}). Training-day carbs are higher to support glycogen and the testosterone response to heavy training. ${p.age >= 40 ? 'At '+p.age+', testosterone decline increases the importance of sleep quality, zinc, and magnesium — all addressed in the supplement stack.' : ''}</div>
+        </div>`;
+    }
+  } catch(e) {}
+})();
+
 function getGoalAdjustment(p) {
   const goal = (p.goal||'').toLowerCase();
   if (goal.includes('fat') || goal.includes('los') || goal.includes('cut')) return 'Deficit −300 to −500 kcal';

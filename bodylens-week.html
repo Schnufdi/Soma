@@ -254,42 +254,55 @@ function render(p) {
 
 function buildCoachNotes(weekPlan, p) {
   const notes = [];
+  const isFemale = (p.sex||'').toLowerCase() === 'female';
   const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day);
-  const hasPostChain = weekPlan.some(d=>d.type&&d.type.toLowerCase().includes('posterior'));
-  const hasPush = weekPlan.some(d=>d.type&&d.type.toLowerCase().includes('push'));
-  const hasPull = weekPlan.some(d=>d.type&&d.type.toLowerCase().includes('pull'));
-  const hasInjuries = p.injuries && p.injuries.length > 0;
+  const hasInjuries  = (p.injuryAssessments||p.injuries||[]).length > 0;
+  const goal = (p.goal||'').toLowerCase();
+  const experience = p.experience||'';
+
+  // Training placement — sex and split aware
+  const splitNote = weekPlan.filter(d=>d.priority==='training')
+    .map(d=>d.type).join(', ');
 
   notes.push(`<div class="wk-note">
-    <div class="wk-note-label">Training placement</div>
+    <div class="wk-note-label">Why this split</div>
     <div class="wk-note-text">
-      ${hasPush && hasPull ? `Push and pull days are separated to allow the pressing muscles to recover before the next stimulus. ` : ''}
-      ${hasPostChain ? `Posterior chain is placed at the end of the training week — it benefits from the full glycogen reload of the rest day before it and generates the largest hormonal response of the week. ` : ''}
-      <strong>Rest days are not wasted days</strong> — muscle protein synthesis peaks 24–48 hours after training. Rest day nutrition is as important as training day nutrition.
+      ${isFemale
+        ? `Women recover faster than men from resistance training — lower testosterone means less muscle damage per session, which supports higher frequency. <strong>Your ${trainingDays.length}-day split</strong> takes advantage of this. ${splitNote.toLowerCase().includes('glute')||splitNote.toLowerCase().includes('posterior')?'Glute and posterior chain sessions are prioritised — female biomechanics benefit most from posterior chain strength for posture, injury prevention, and aesthetics.':''}`
+        : `Your split follows CNS recovery logic — the most demanding sessions (${trainingDays.slice(0,2).join(', ')}) are placed when neural freshness is highest, with posterior chain work at the end of the week to take advantage of full glycogen reload.`}
+      <strong>Rest days are not wasted</strong> — muscle protein synthesis peaks 24-48 hours after training.
     </div>
   </div>`);
+
+  // Calorie rhythm
+  const trainKcal = Math.round(weekPlan.filter(d=>d.priority==='training').reduce((a,d)=>a+(d.kcal||0),0)/(trainingDays.length||1));
+  const restKcal  = Math.round(weekPlan.filter(d=>d.priority!=='training').reduce((a,d)=>a+(d.kcal||0),0)/((weekPlan.length-trainingDays.length)||1));
 
   notes.push(`<div class="wk-note amber">
     <div class="wk-note-label">Calorie rhythm</div>
     <div class="wk-note-text">
-      Training days carry higher calories because the training stimulus creates an elevated anabolic window — nutrients go to muscle rather than fat storage.
-      Rest days are lower because the demand is lower, but <strong>protein stays constant every day</strong>. MPS peaks on rest days. Never drop protein on a rest day.
+      Training days: <strong>${trainKcal||p.calories||'—'} kcal</strong> · Rest days: <strong>${restKcal||Math.round((p.calories||2400)*0.9)||'—'} kcal</strong>.
+      ${isFemale
+        ? `Oestrogen in the follicular phase (days 1-14) suppresses appetite and improves insulin sensitivity — your training days are better fuelled during this phase. In the luteal phase (days 15-28) cravings increase and core temperature rises — this is normal, not a failure.`
+        : `Training days carry higher calories because the anabolic window amplifies nutrient partitioning — surplus calories go to muscle rather than fat storage when the training stimulus is present.`}
+      <strong>Protein stays constant every day</strong> — ${p.protein||185}g regardless of training or rest. MPS peaks on rest days.
     </div>
   </div>`);
 
+  // Injury note if relevant
   if (hasInjuries) {
+    const injuries = p.injuryAssessments||p.injuries||[];
     notes.push(`<div class="wk-note gold">
       <div class="wk-note-label">Injury protocol</div>
       <div class="wk-note-text">
-        Exercise modifications are built into each training session. The goal is to maintain full training stimulus while protecting the affected area.
-        <strong>The posterior chain is the primary protective mechanism</strong> for most lower body injuries — training it consistently is both the performance goal and the rehabilitation strategy.
+        ${injuries.map(i=>`<strong>${i.location||i}:</strong> ${i.assessment||i.detail||'modifications applied'}`).join(' · ')}
+        Every session has modifications built in. The goal is full stimulus with zero aggravation.
       </div>
     </div>`);
   }
 
   return notes.join('');
-}
-</script>
+}</script>
 <script>
 (function(){
   try {

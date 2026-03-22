@@ -453,11 +453,11 @@
 
 <!-- ═══ TAB NAV ═══ -->
 <div class="fuel-tabs">
-  <button class="ftab active" onclick="showPane('pane-shop',this)">Shopping list</button>
-  <button class="ftab" onclick="showPane('pane-syn',this)">Food synergies</button>
-  <button class="ftab" onclick="showPane('pane-timing',this)">Timing map</button>
-  <button class="ftab" onclick="showPane('pane-hacks',this)">Satiety &amp; energy</button>
-  <button class="ftab" onclick="showPane('pane-avoid',this)">Avoid this week</button>
+  <button class="ftab active" onclick="showPane('pane-shop',this);loadFuelPane('pane-shop','shop')">Shopping list</button>
+  <button class="ftab" onclick="showPane('pane-syn',this);loadFuelPane('pane-syn','syn')">Food synergies</button>
+  <button class="ftab" onclick="showPane('pane-timing',this);loadFuelPane('pane-timing','timing')">Timing map</button>
+  <button class="ftab" onclick="showPane('pane-hacks',this);loadFuelPane('pane-hacks','hacks')">Satiety &amp; energy</button>
+  <button class="ftab" onclick="showPane('pane-avoid',this);loadFuelPane('pane-avoid','avoid')">Avoid this week</button>
   <button class="ftab" onclick="showPane('pane-pyramids',this)">Food pyramids</button>
   <button class="ftab" onclick="showPane('pane-meals',this);loadMealIdeas()">Meal ideas</button>
 </div>
@@ -465,419 +465,43 @@
 <!-- ═══════════════════════════════════════════
      PANE 1 — SHOPPING LIST
 ═══════════════════════════════════════════ -->
-<div class="fuel-pane active" id="pane-shop">
-<div class="shop-section">
-<div class="wrap">
-
-  <div class="sec-rule" style="margin-top:0;padding-top:52px;">
-    The weekly kit <em>— 19 items, every base covered</em>
-  </div>
-  <div class="body-sm" style="margin-bottom:40px;color:var(--dk-2);max-width:640px;">
-    Buy these once. They cover all macro targets for the full week across all day types. Each item has a specific job — protein anchor, training fuel, joint medicine, hormonal support, or satiety tool. Nothing is filler.
-  </div>
-
-  <!-- PROTEIN ANCHORS -->
-  <div class="shop-category">
-    <div class="sc-header">
-      <div class="sc-letter" style="color:var(--jade);">P</div>
-      <div>
-        <div class="sc-title" style="color:var(--jade);">Protein anchors</div>
-        <div class="sc-count">5 sources · ~190g protein/day target · leucine threshold at every meal</div>
-      </div>
-    </div>
-    <div class="shop-grid">
-      <div class="shop-tile cat-protein">
-        <div class="st-name">Chicken breast</div>
-        <div class="st-qty">1.4 kg / week</div>
-        <div class="st-why">Highest protein-to-calorie ratio of any meat. <strong>31g protein per 100g, 2g leucine per portion</strong> — clears the mTOR activation threshold cleanly. Mild flavour means it takes seasoning without fighting it. Cook a batch Sunday, use Mon–Wed.</div>
-        <div class="st-pair">Best with: <span>sweet potato + olive oil</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Leucine-dense</span>
-          <span class="st-tag" style="color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd-2);">Batch cook</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-protein">
-        <div class="st-name">Salmon fillets</div>
-        <div class="st-qty">600 g / week</div>
-        <div class="st-why">Dual purpose: <strong>25g protein per 100g plus 2–3g EPA/DHA omega-3</strong> per fillet. The omega-3 directly suppresses the COX inflammatory pathway that your meniscus environment depends on. Use Tuesday and Thursday — the peak repair days after training.</div>
-        <div class="st-pair">Best with: <span>white rice + spinach + lemon</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br);">Joint medicine</span>
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Omega-3</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-protein">
-        <div class="st-name">Whole eggs</div>
-        <div class="st-qty">18 eggs / week</div>
-        <div class="st-why">Complete amino acid profile. Egg yolk delivers <strong>Vitamin D3 + K2 naturally</strong>, plus choline for neurotransmitter synthesis. Breakfast staple — 3 eggs gives 18g protein and fat without the carb load, keeping gastric emptying fast pre-training.</div>
-        <div class="st-pair">Best with: <span>spinach + turmeric + olive oil</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Complete amino</span>
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">D3 natural</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-protein">
-        <div class="st-name">Full-fat Greek yoghurt</div>
-        <div class="st-qty">1 kg / week</div>
-        <div class="st-why">The only whole food that provides both fast whey and slow casein protein simultaneously. <strong>Casein digests over 5–7 hours</strong> — ideal before bed or as a mid-morning snack to extend MPS elevation between meals. Full-fat: the fat is structural for testosterone.</div>
-        <div class="st-pair">Best with: <span>berries + walnuts + cinnamon</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Casein slow-release</span>
-          <span class="st-tag" style="color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd-2);">Pre-sleep</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-protein">
-        <div class="st-name">Whey protein</div>
-        <div class="st-qty">280 g powder</div>
-        <div class="st-why">The fastest-absorbing protein source available. <strong>Peak plasma amino acids in 60–90 minutes</strong> — purpose-built for the post-workout window and pre-training leucine priming. Not a food replacement. A targeted tool for two specific moments in the day.</div>
-        <div class="st-pair">Best with: <span>banana + milk · or water post-session</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Fast-absorbing</span>
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Post-training only</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-protein">
-        <div class="st-name">Smoked mackerel</div>
-        <div class="st-qty">300 g / week</div>
-        <div class="st-why"><strong>The highest EPA/DHA per gram of any food you can buy</strong> — higher than fresh salmon. Pre-cooked, zero effort. Outstanding for rest days when anti-inflammatory priority is highest. On rye with red onion and lemon — 3 minutes, 35g protein, 3g omega-3.</div>
-        <div class="st-pair">Best with: <span>rye bread + lemon + cucumber</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br);">Highest EPA/DHA</span>
-          <span class="st-tag" style="color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd-2);">Zero prep</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-protein">
-        <div class="st-name">Sirloin / lean beef</div>
-        <div class="st-qty">400–500 g / week</div>
-        <div class="st-why">The most micronutrient-dense protein source available. <strong>Zinc (essential cofactor for testosterone synthesis), haem iron (the most bioavailable form — 2–3× more absorbable than plant iron), B12, creatine precursors, and carnitine</strong> — all in one food. At 44, zinc depletion from hard training directly suppresses testosterone. Red meat 2–3× per week is the most efficient way to replenish it. Use sirloin or lean beef mince — the fat profile of lean cuts is anti-inflammatory when grass-fed.</div>
-        <div class="st-pair">Best with: <span>roasted sweet potato + chimichurri + spinach</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Zinc + iron</span>
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Testosterone support</span>
-          <span class="st-tag" style="color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd-2);">Post-training ideal</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-protein">
-        <div class="st-name">White fish — cod / sea bass / haddock</div>
-        <div class="st-qty">400 g / week</div>
-        <div class="st-why">The leanest complete protein available. <strong>Cod: 23g protein per 100g, under 1g fat, 90 kcal — the highest protein-to-calorie ratio of any whole food.</strong> When the calorie budget is tight (rest days, or days when a meal has already been calorically heavy), white fish lets you hit your protein target without using calories on fat. Haddock and sea bass offer the same profile with more flavour. Selenium in white fish also supports thyroid function and testosterone metabolism.</div>
-        <div class="st-pair">Best with: <span>lemon + capers + olive oil + wilted spinach</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Highest protein:kcal</span>
-          <span class="st-tag" style="color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd-2);">Rest day protein</span>
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Thyroid support</span>
-        </div>
-      </div>
+<div class="fuel-pane active" id="pane-shop" data-generated="false">
+<div class="wrap" style="padding:40px 0 80px;">
+  <div id="pane-shop-content">
+    <div style="text-align:center;padding:80px 0;">
+      <div style="font-size:32px;margin-bottom:14px;">🛒</div>
+      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Shopping List</div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
+      <button onclick="loadFuelPane('pane-shop','shop')"
+        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
+        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
+        text-transform:uppercase;color:var(--ink);cursor:pointer;">
+        Generate →
+      </button>
     </div>
   </div>
-
-  <!-- TRAINING FUEL -->
-  <div class="shop-category">
-    <div class="sc-header">
-      <div class="sc-letter" style="color:var(--amber);">C</div>
-      <div>
-        <div class="sc-title" style="color:var(--amber);">Training fuel — carbohydrates</div>
-        <div class="sc-count">5 sources · fast for pre/post-training · slow for base loading · none are optional</div>
-      </div>
-    </div>
-    <div class="shop-grid">
-      <div class="shop-tile cat-fuel">
-        <div class="st-name">Oats (rolled)</div>
-        <div class="st-qty">560 g / week</div>
-        <div class="st-why">Low glycaemic index (GI 55) means <strong>sustained glucose release over 2–3 hours</strong> — the perfect breakfast base for morning training. Beta-glucan fibre also lowers LDL and feeds gut microbiome. 100g oats + 30g whey is your highest-value breakfast combination.</div>
-        <div class="st-pair">Best with: <span>whey + banana + peanut butter</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Slow fuel</span>
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Gut health</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-fuel">
-        <div class="st-name">White rice</div>
-        <div class="st-qty">700 g dry</div>
-        <div class="st-why">High GI (GI 72), low fibre — <strong>fastest whole-food glycogen replenishment available</strong>. The absence of fibre is a feature, not a flaw, for post-training meals. Digests quickly so nutrients reach muscle tissue faster. Training days only. Use microwave pouches on busy days — same food, zero effort.</div>
-        <div class="st-pair">Best with: <span>chicken + spinach · soy sauce permitted</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Fast glycogen</span>
-          <span class="st-tag" style="color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd-2);">Training days</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-fuel">
-        <div class="st-name">Sweet potato</div>
-        <div class="st-qty">1.2 kg / week</div>
-        <div class="st-why">Complex carbs plus <strong>beta-carotene, which converts to Vitamin A for cartilage proteoglycan synthesis</strong> — a direct benefit for the chondromalacia flagged in your MRI. Slower digesting than white potato, making it better for steady energy and satiety on rest days.</div>
-        <div class="st-pair">Best with: <span>chicken or steak + olive oil + cinnamon</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br);">Cartilage support</span>
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Slow fuel</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-fuel">
-        <div class="st-name">Bananas</div>
-        <div class="st-qty">8 bananas</div>
-        <div class="st-why">Ripe banana GI ~62 — fast enough to matter pre-training, with <strong>potassium for electrolyte balance during heavy compound lifts</strong> plus a small dose of B6 for protein metabolism. The standard "athletes eat bananas" cliché is actually correct. Pre-training and post-training only.</div>
-        <div class="st-pair">Best with: <span>whey pre-training · or peanut butter for slower release</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Fast fuel</span>
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Electrolytes</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-fuel">
-        <div class="st-name">Sourdough bread</div>
-        <div class="st-qty">1 loaf</div>
-        <div class="st-why">Lower GI than standard bread (GI ~54) due to fermentation reducing starch digestibility. The <strong>fermentation process produces short-chain fatty acids that feed gut microbiome bacteria</strong> linked to inflammation reduction. Not a training fuel — a breakfast and snack base with structural advantages over supermarket white bread.</div>
-        <div class="st-pair">Best with: <span>eggs + avocado · or smoked salmon</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Gut health</span>
-          <span class="st-tag" style="color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd-2);">Breakfast / snack</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-fuel">
-        <div class="st-name">Medjool dates</div>
-        <div class="st-qty">200 g (8–10 dates)</div>
-        <div class="st-why">GI ~42 but high glucose-to-fructose ratio means <strong>rapid glycogen loading without the liver bottleneck of pure fructose</strong>. 3 dates + whey + banana before your key session is your highest-performance pre-workout combination. Also excellent for when you need to hit calories fast on a high-training day.</div>
-        <div class="st-pair">Best with: <span>whey + banana — the pre-Friday protocol</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Pre-training only</span>
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Fast glycogen</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FATS & HORMONES -->
-  <div class="shop-category">
-    <div class="sc-header">
-      <div class="sc-letter" style="color:var(--gold);">F</div>
-      <div>
-        <div class="sc-title" style="color:var(--gold);">Fats, hormones &amp; joint medicine</div>
-        <div class="sc-count">4 items · testosterone floor · omega-3 protocol · anti-inflammatory signal</div>
-      </div>
-    </div>
-    <div class="shop-grid">
-      <div class="shop-tile cat-fat">
-        <div class="st-name">Extra virgin olive oil</div>
-        <div class="st-qty">1 bottle (~500ml)</div>
-        <div class="st-why"><strong>Oleocanthal in EVOO inhibits COX-1 and COX-2 at a similar mechanism to ibuprofen</strong> — a natural anti-inflammatory measured in milligrams per tablespoon. The fat also dramatically increases absorption of fat-soluble vitamins D3, K2, and A. Never heat above 180°C. Use raw on salads and drizzled over finished dishes.</div>
-        <div class="st-pair">Best with: <span>everything — but especially vegetables and fish</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br);">Natural COX inhibitor</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-fat">
-        <div class="st-name">Avocados</div>
-        <div class="st-qty">4 avocados</div>
-        <div class="st-why">Monounsaturated fat plus <strong>the highest potassium content of any common food — higher than a banana</strong>. Potassium is critical for nerve signal transmission and muscle contraction, lost significantly through sweat during heavy training. The fat delays gastric emptying, making it an excellent satiety tool on rest days. Never eat directly before training.</div>
-        <div class="st-pair">Best with: <span>eggs + sourdough · or in salads on rest days</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Potassium</span>
-          <span class="st-tag" style="color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd-2);">Satiety tool</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-fat">
-        <div class="st-name">Walnuts</div>
-        <div class="st-qty">150 g</div>
-        <div class="st-why">The only nut with a significant ALA omega-3 content plus <strong>ellagitannins that convert to urolithins in the gut — directly stimulating mitochondrial biogenesis</strong>. Research suggests walnut consumption improves muscle endurance markers. 20–25g walnuts (a small handful) before bed with cottage cheese is the ideal pre-sleep snack combination.</div>
-        <div class="st-pair">Best with: <span>cottage cheese or Greek yoghurt before bed</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">ALA omega-3</span>
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Pre-sleep</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-fat">
-        <div class="st-name">Natural peanut butter</div>
-        <div class="st-qty">1 jar (340 g)</div>
-        <div class="st-why">Mono- and polyunsaturated fats plus <strong>7–8g protein per tablespoon, with resveratrol in the skin</strong> (buy skin-on/natural). Excellent calorie-dense food for hitting the daily surplus without large volume. A tablespoon added to the oat bowl adds 100 kcal of slow-digesting fat and protein without making you feel overfull before training.</div>
-        <div class="st-pair">Best with: <span>oats + whey at breakfast</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber-br);">Calorie density</span>
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Satiety</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MICRONUTRIENT DENSITY -->
-  <div class="shop-category">
-    <div class="sc-header">
-      <div class="sc-letter" style="color:var(--green);">M</div>
-      <div>
-        <div class="sc-title" style="color:var(--green);">Micronutrient density &amp; joint support</div>
-        <div class="sc-count">4 items · anti-inflammatory · mineral base · vitamin delivery</div>
-      </div>
-    </div>
-    <div class="shop-grid">
-      <div class="shop-tile cat-micro">
-        <div class="st-name">Spinach</div>
-        <div class="st-qty">300 g / week</div>
-        <div class="st-why"><strong>Highest magnesium density of any leafy green</strong> — directly supporting the 300+ enzymatic reactions magnesium participates in, including MPS. Also high in Vitamin K for bone density and nitrates that improve muscular efficiency. Wilt it in olive oil and add to everything. 80g covers ~15% of daily magnesium needs.</div>
-        <div class="st-pair">Best with: <span>eggs + olive oil · or in protein shakes (raw)</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Magnesium-rich</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-micro">
-        <div class="st-name">Blueberries</div>
-        <div class="st-qty">400 g / week</div>
-        <div class="st-why">Anthocyanins in blueberries have been shown to <strong>reduce post-exercise muscle soreness by up to 10% and speed creatine kinase clearance</strong> in research on resistance training. The polyphenols also suppress NFkB — a key inflammatory transcription factor activated by heavy training. A handful on yoghurt every day is one of the easiest wins in this list.</div>
-        <div class="st-pair">Best with: <span>Greek yoghurt + walnuts</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">Recovery</span>
-          <span class="st-tag" style="color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br);">Anti-inflammatory</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-micro">
-        <div class="st-name">Turmeric (ground)</div>
-        <div class="st-qty">1 jar</div>
-        <div class="st-why">Curcumin inhibits NFkB, COX-2, and TNF-alpha — <strong>three of the primary inflammatory signalling molecules</strong> activated by training stress and by the synovial environment around a degenerative meniscal tear. Bioavailability is near-zero without two things: fat (increases absorption 8-fold) and black pepper (increases absorption 20-fold via piperine).</div>
-        <div class="st-pair">Best with: <span>eggs + black pepper + olive oil — the inflammation-crushing breakfast</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br);">Curcumin</span>
-          <span class="st-tag" style="color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd-2);">Must add pepper + fat</span>
-        </div>
-      </div>
-      <div class="shop-tile cat-micro">
-        <div class="st-name">Broccoli</div>
-        <div class="st-qty">400 g / week</div>
-        <div class="st-why"><strong>Sulforaphane in broccoli activates the NRF2 pathway</strong> — the body's own master antioxidant switch, upregulating glutathione and other protective enzymes. Eat it slightly undercooked (steamed 3–4 minutes max) to preserve sulforaphane. The Vitamin C also directly supports the pre-training collagen synthesis protocol.</div>
-        <div class="st-pair">Best with: <span>any protein + olive oil · eat with collagen days</span></div>
-        <div class="st-tags">
-          <span class="st-tag" style="color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);">NRF2 activation</span>
-          <span class="st-tag" style="color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-br);">Vitamin C</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- wrap -->
-</div><!-- shop-section -->
+</div>
 </div><!-- pane-shop -->
 
 
 <!-- ═══════════════════════════════════════════
      PANE 2 — FOOD SYNERGIES
 ═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-syn">
-<div class="syn-section">
-<div class="wrap">
-
-  <div class="sec-rule-light" style="margin-top:0;padding-top:52px;">Food synergies <em style="color:var(--jade);">— combinations that work mechanistically</em></div>
-  <div class="body-sm" style="color:var(--lt-2);margin-bottom:36px;max-width:600px;">These are not food trends. Each combination produces a measurable biological effect beyond what either food achieves alone. Most are already built into your daily protocol — this explains why.</div>
-
-  <div class="synergy-card">
-    <div class="syn-combo">
-      <div class="syn-item">Collagen</div>
-      <div class="syn-plus">+</div>
-      <div class="syn-item">Vitamin C</div>
-      <div class="syn-arrow">→</div>
-    </div>
-    <div class="syn-body">
-      <div class="syn-headline">Doubles connective tissue collagen synthesis</div>
-      <div class="syn-mechanism">Vitamin C is a required cofactor for prolyl hydroxylase — the enzyme that hydroxylates proline in collagen chains, a non-negotiable step in collagen cross-linking. Without it, collagen synthesis stalls. <strong>Shaw et al. (2019): this combination taken 45–60 minutes before exercise doubled collagen synthesis in tendons and ligaments</strong> compared to collagen alone or placebo. This is why collagen is only effective in the pre-training window — exercise increases the blood flow that delivers the amino acids to the tissue being loaded.</div>
-      <div class="syn-uplift">↑ 2× collagen synthesis · take 45–60 min before training</div>
+<div class="fuel-pane" id="pane-syn" data-generated="false">
+<div class="wrap" style="padding:40px 0 80px;">
+  <div id="pane-syn-content">
+    <div style="text-align:center;padding:80px 0;">
+      <div style="font-size:32px;margin-bottom:14px;">⚡</div>
+      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Food Synergies</div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
+      <button onclick="loadFuelPane('pane-syn','syn')"
+        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
+        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
+        text-transform:uppercase;color:var(--ink);cursor:pointer;">
+        Generate →
+      </button>
     </div>
   </div>
-
-  <div class="synergy-card">
-    <div class="syn-combo">
-      <div class="syn-item">Turmeric</div>
-      <div class="syn-plus">+</div>
-      <div class="syn-item">Black pepper</div>
-      <div class="syn-plus">+</div>
-      <div class="syn-item">Fat</div>
-      <div class="syn-arrow">→</div>
-    </div>
-    <div class="syn-body">
-      <div class="syn-headline">Increases curcumin absorption by up to 20× combined</div>
-      <div class="syn-mechanism">Curcumin (the active compound in turmeric) has near-zero bioavailability on its own — it is poorly absorbed and rapidly metabolised. Piperine in black pepper inhibits glucuronidation in the intestinal wall, increasing absorption by roughly 20-fold. Dietary fat increases solubility (curcumin is fat-soluble). <strong>Use turmeric with eggs in olive oil, plus black pepper — you are now getting the actual anti-inflammatory dose, not a trace amount.</strong></div>
-      <div class="syn-uplift">↑ ~20× curcumin absorption · applies to supplemental curcumin too</div>
-    </div>
-  </div>
-
-  <div class="synergy-card">
-    <div class="syn-combo">
-      <div class="syn-item">Vitamin D3</div>
-      <div class="syn-plus">+</div>
-      <div class="syn-item">Dietary fat</div>
-      <div class="syn-arrow">→</div>
-    </div>
-    <div class="syn-body">
-      <div class="syn-headline">Fat-soluble vitamins require fat — or they pass straight through</div>
-      <div class="syn-mechanism">D3, K2, A, and E are fat-soluble — they are packaged into chylomicrons in the intestinal wall and require dietary fat to be incorporated. <strong>Taking D3 with a fat-free meal reduces absorption by ~50–70%</strong> in pharmacokinetic studies. This is why your D3+K2 timing always pairs with a fat-containing meal. The olive oil on eggs at breakfast is not incidental — it is the absorption vehicle.</div>
-      <div class="syn-uplift">↑ 2–3× D3 absorption · take with eggs, salmon, avocado</div>
-    </div>
-  </div>
-
-  <div class="synergy-card">
-    <div class="syn-combo">
-      <div class="syn-item">Iron-rich food</div>
-      <div class="syn-plus">+</div>
-      <div class="syn-item">Vitamin C</div>
-      <div class="syn-arrow">→</div>
-    </div>
-    <div class="syn-body">
-      <div class="syn-headline">Triples non-haem iron absorption</div>
-      <div class="syn-mechanism">Non-haem iron (from plant foods and eggs) is absorbed at only 2–20% without enhancement. Vitamin C reduces ferric iron (Fe³⁺) to ferrous iron (Fe²⁺) — the absorbable form — and chelates it to prevent it binding to inhibitory phytates. <strong>Adding lemon juice or broccoli to a spinach-based dish can triple the iron absorbed from that meal.</strong> Iron is critical for oxygen transport and testosterone synthesis — relevant at 44 with heavy training load.</div>
-      <div class="syn-uplift">↑ 3× iron absorption · spinach + lemon · eggs + broccoli</div>
-    </div>
-  </div>
-
-  <div class="synergy-card">
-    <div class="syn-combo">
-      <div class="syn-item">Whey protein</div>
-      <div class="syn-plus">+</div>
-      <div class="syn-item">Fast carbs</div>
-      <div class="syn-arrow">→</div>
-    </div>
-    <div class="syn-body">
-      <div class="syn-headline">Insulin spike maximises post-workout uptake</div>
-      <div class="syn-mechanism">Leucine from whey triggers mTOR. The insulin spike from fast carbohydrates (banana, white rice) simultaneously suppresses muscle protein breakdown and drives glucose into muscle cells for glycogen restoration. <strong>The whey + banana combination post-training is not just convenient — the insulin response from carbs amplifies the anabolic signal from the protein.</strong> This is why post-workout nutrition should always combine both macronutrients.</div>
-      <div class="syn-uplift">Synergistic: protein builds + carbs protect + insulin drives uptake</div>
-    </div>
-  </div>
-
-  <div class="synergy-card">
-    <div class="syn-combo">
-      <div class="syn-item">Magnesium</div>
-      <div class="syn-plus">+</div>
-      <div class="syn-item">Sleep</div>
-      <div class="syn-arrow">→</div>
-    </div>
-    <div class="syn-body">
-      <div class="syn-headline">Deepens slow-wave sleep — the GH release window</div>
-      <div class="syn-mechanism">Magnesium modulates NMDA glutamate receptors, reducing excitatory signalling before sleep. This deepens slow-wave (stage 3) sleep — the phase during which GH is released and muscle repair occurs. <strong>Magnesium glycinate before bed does not just help you sleep faster — it increases the proportion of sleep spent in the anabolic stage.</strong> The supplement timing (before bed) is not arbitrary; it is pharmacokinetically matched to the peak benefit window.</div>
-      <div class="syn-uplift">↑ Slow-wave sleep · ↑ GH pulse · ↑ overnight MPS</div>
-    </div>
-  </div>
-
-  <div class="synergy-card">
-    <div class="syn-combo">
-      <div class="syn-item">Creatine</div>
-      <div class="syn-plus">+</div>
-      <div class="syn-item">Carbohydrates</div>
-      <div class="syn-arrow">→</div>
-    </div>
-    <div class="syn-body">
-      <div class="syn-headline">Insulin-mediated creatine uptake into muscle</div>
-      <div class="syn-mechanism">Creatine transport into muscle is partially insulin-dependent — the same GLUT4 pathway that drives glucose into cells is upregulated by insulin and facilitates creatine uptake. <strong>Taking creatine with a carbohydrate-containing meal can increase muscle creatine uptake by 10–15%</strong> compared to fasted ingestion. The practical implication: take creatine with breakfast rather than fasted first thing. Already built into the protocol.</div>
-      <div class="syn-uplift">↑ ~10–15% creatine muscle uptake · take with oats/banana</div>
-    </div>
-  </div>
-
-  <div class="synergy-card">
-    <div class="syn-combo">
-      <div class="syn-item">Omega-3</div>
-      <div class="syn-plus">+</div>
-      <div class="syn-item">Training stimulus</div>
-      <div class="syn-arrow">→</div>
-    </div>
-    <div class="syn-body">
-      <div class="syn-headline">Amplifies muscle protein synthesis response to training</div>
-      <div class="syn-mechanism">EPA and DHA are incorporated into muscle cell membranes, increasing their fluidity and insulin sensitivity. Multiple RCTs have shown omega-3 supplementation <strong>enhances MPS response to a given protein dose by 20–35% in older adults</strong> — the "anabolic resistance" of aging is partially mediated by reduced membrane omega-3 content. This means your salmon and mackerel intake is not just anti-inflammatory — it is making your protein work harder.</div>
-      <div class="syn-uplift">↑ 20–35% MPS response from the same protein dose</div>
-    </div>
-  </div>
-
-</div>
 </div>
 </div><!-- pane-syn -->
 
@@ -885,103 +509,21 @@
 <!-- ═══════════════════════════════════════════
      PANE 3 — TIMING MAP
 ═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-timing">
-<div class="timing-section">
-<div class="wrap">
-
-  <div class="sec-rule" style="margin-top:0;padding-top:52px;">Timing map <em>— when matters as much as what</em></div>
-  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:600px;">The same food eaten at different times produces different outcomes. This matrix shows what to eat when, and why the timing produces the result it does.</div>
-
-  <div class="timing-grid">
-    <!-- Headers -->
-    <div class="tg-header row-label"></div>
-    <div class="tg-header train-day">Training day<br><span style="font-size:9px;font-weight:300;letter-spacing:0;">Mon · Wed · Fri · Sat</span></div>
-    <div class="tg-header rest-day">Rest day<br><span style="font-size:9px;font-weight:300;letter-spacing:0;">Tue · Thu · Sun</span></div>
-    <div class="tg-header pre-train">Pre-posterior chain<br><span style="font-size:9px;font-weight:300;letter-spacing:0;">Thursday — special rules</span></div>
-
-    <!-- Wake -->
-    <div class="tg-label"><div class="tg-time">On waking</div><div class="tg-slot">Hydration</div></div>
-    <div class="tg-cell high-priority"><strong>500ml water immediately.</strong> Core temperature and testosterone are at daily nadir. Hydration is the first physiological act of the day — even mild dehydration reduces strength output 2–5%.</div>
-    <div class="tg-cell high-priority"><strong>500ml water immediately.</strong> Same rule. MPS from yesterday peaks now — amino acid delivery requires adequate hydration to function.</div>
-    <div class="tg-cell high-priority"><strong>500ml water immediately.</strong> Extra importance tonight: you need to be fully hydrated tomorrow for Friday's session. Tonight's magnesium also depends on water for absorption.</div>
-
-    <!-- Breakfast -->
-    <div class="tg-label"><div class="tg-time">15–30 min</div><div class="tg-slot">Breakfast</div></div>
-    <div class="tg-cell high-priority"><strong>Oats + whey + banana + peanut butter.</strong> High protein clears leucine threshold. Slow carbs begin glycogen loading. Fat provides hormonal stability. This meal is building the glycogen you'll burn in 90 minutes.</div>
-    <div class="tg-cell"><strong>Anti-inflammatory focus.</strong> Turmeric eggs + sourdough + spinach + berries. No need to rush carbs — prioritise the anti-inflammatory breakfast architecture instead. Let MPS recovery run.</div>
-    <div class="tg-cell"><strong>Omega-3 priority.</strong> Smoked salmon + eggs + sourdough. Start the anti-inflammatory pre-load for tomorrow. Double collagen dose today — the Thursday morning dose primes tomorrow's pre-training dose.</div>
-
-    <!-- Supplements -->
-    <div class="tg-label"><div class="tg-time">With breakfast</div><div class="tg-slot">Supplements</div></div>
-    <div class="tg-cell"><strong>D3 + K2 + Omega-3 + Ashwagandha + Creatine.</strong> All with fat-containing food for D3 absorption. Creatine with carbs for insulin-mediated uptake.</div>
-    <div class="tg-cell"><strong>D3 + K2 + Omega-3 + Ashwagandha + Creatine.</strong> Identical to training day. Omega-3 is more important today — peak synovial repair window.</div>
-    <div class="tg-cell"><strong>D3 + K2 + Omega-3 + Creatine + Collagen + Vit C.</strong> Thursday collagen dose creates the 24h priming elevation for tomorrow's synthesis response.</div>
-
-    <!-- Pre-training -->
-    <div class="tg-label"><div class="tg-time">60–75 min pre-session</div><div class="tg-slot">Pre-training</div></div>
-    <div class="tg-cell high-priority"><strong>Fast carbs + fast protein.</strong> Whey + banana (general) or whey + banana + dates (Friday). High GI, low fat, low fibre. Gastric emptying must be near-complete when lifting. Collagen + Vitamin C now on training days.</div>
-    <div class="tg-cell skip">No training. Skip this window. Zone 2 cycling does not require pre-fuelling beyond normal meals.</div>
-    <div class="tg-cell high-priority"><strong>Carb load at lunch — begins now.</strong> Lentil soup + chicken + pitta. Muscle glycogen takes 12–24h to replenish — Thursday lunch carbs are Friday's fuel. This is the most impactful pre-session nutrition decision of the week.</div>
-
-    <!-- Training -->
-    <div class="tg-label"><div class="tg-time">Session</div><div class="tg-slot">Intra</div></div>
-    <div class="tg-cell"><strong>Water only</strong> for sessions under 75 minutes. No intra-training nutrition needed — pre-training meals cover it. Caffeine peak (if used) should coincide with the first compound set.</div>
-    <div class="tg-cell skip">Zone 2 cardio 30–40 min. Fasted or fed makes no difference for low-intensity work. Take water.</div>
-    <div class="tg-cell skip">Rest day. Any movement is for synovial fluid circulation — easy cycling. No fuelling needed.</div>
-
-    <!-- Post-training -->
-    <div class="tg-label"><div class="tg-time">Within 30 min post</div><div class="tg-slot">Recovery window</div></div>
-    <div class="tg-cell high-priority"><strong>30–40g whey immediately.</strong> Non-negotiable. MPS peaks now. Leucine threshold must be cleared within 30 minutes to maximally activate mTOR at the peak anabolic signal. If doing sauna: protein first, then sauna max 20 min.</div>
-    <div class="tg-cell skip">No post-training window. MPS from yesterday's session peaks during the day — ensure protein at every meal is more important than specific timing.</div>
-    <div class="tg-cell skip">Rest day — maintain protein frequency.</div>
-
-    <!-- Main meal -->
-    <div class="tg-label"><div class="tg-time">2–4 hr post</div><div class="tg-slot">Main meal</div></div>
-    <div class="tg-cell"><strong>High protein + high carb + moderate fat.</strong> Fat is fine now — gastric emptying irrelevant. White rice + chicken or steak. This meal completes glycogen restoration and sustains MPS elevation.</div>
-    <div class="tg-cell"><strong>Fatty fish priority.</strong> Salmon or mackerel + lentils or quinoa + greens. The anti-inflammatory meal architecture: omega-3s delivered during peak synovial repair window.</div>
-    <div class="tg-cell"><strong>Lean protein + moderate carbs.</strong> Lean mince + roasted veg + new potatoes. Continue glycogen loading. Potatoes over rice tonight for slower carb delivery.</div>
-
-    <!-- Pre-sleep -->
-    <div class="tg-label"><div class="tg-time">Before bed</div><div class="tg-slot">Sleep nutrition</div></div>
-    <div class="tg-cell"><strong>Magnesium glycinate + ZMA (hard days).</strong> Optionally: 250g cottage cheese — casein digests over 5–7 hours, providing amino acids through the GH release window.</div>
-    <div class="tg-cell"><strong>Magnesium glycinate.</strong> Cottage cheese is particularly valuable on rest days — the casein sustains MPS overnight when there was no training stimulus to drive it.</div>
-    <div class="tg-cell"><strong>Magnesium glycinate + Ashwagandha.</strong> Tonight's sleep is the most strategically important of the week. Earlier to bed = extra slow-wave sleep cycle = better Friday session. This is worth more than any pre-workout.</div>
-  </div>
-
-  <!-- Timing principles -->
-  <div class="sec-rule">Core timing principles</div>
-  <div style="max-width:760px;">
-    <div class="timing-principle">
-      <div class="tp-num">1</div>
-      <div class="tp-body">
-        <div class="tp-title">Carbs follow training demand, not clock time</div>
-        <div class="tp-text">Carbohydrates do not make you fat at night. They make you fat when consumed in excess of need. On training days, carbs at every meal are appropriate — you are loading glycogen for the next session. On rest days, reduce carbs by ~60g (primarily from the main meal) because glycogen demand is lower. <strong>This is not a calorie cut — protein and fat stay identical. Only the carb-to-fat ratio shifts.</strong></div>
-      </div>
-    </div>
-    <div class="timing-principle">
-      <div class="tp-num">2</div>
-      <div class="tp-body">
-        <div class="tp-title">Fat slows — use this as a tool, not a fear</div>
-        <div class="tp-text">Dietary fat slows gastric emptying. This is a negative before training (you want nutrients absorbed before lifting), a positive before sleep (casein + fat at night means sustained amino acid release for hours), and neutral at main meals when timing doesn't matter. <strong>The practical rule: keep fat low in the pre-training window, and use fat strategically in the evening meals and pre-sleep snack.</strong></div>
-      </div>
-    </div>
-    <div class="timing-principle">
-      <div class="tp-num">3</div>
-      <div class="tp-body">
-        <div class="tp-title">The 90-minute morning window is preparation, not delay</div>
-        <div class="tp-text">Training immediately on waking is training at biological low tide. Testosterone peaks mid-morning. Core body temperature rises over the first 90 minutes of waking. Neuromuscular activation improves across the same window. <strong>The 90 minutes between waking and training is the most valuable preparation available — more important than any supplement or warmup.</strong></div>
-      </div>
-    </div>
-    <div class="timing-principle">
-      <div class="tp-num">4</div>
-      <div class="tp-body">
-        <div class="tp-title">Thursday's food is Friday's session</div>
-        <div class="tp-text">Muscle glycogen replenishment takes 12–24 hours. Eating a large carbohydrate meal Friday morning does not meaningfully improve glycogen availability by the time you train at 07:30. <strong>Thursday's lunch and dinner are the primary fuel for Friday's posterior chain session.</strong> This is the most frequently missed timing insight in performance nutrition, and explains why elite athletes "carb load" the day before, not the morning of.</div>
-      </div>
+<div class="fuel-pane" id="pane-timing" data-generated="false">
+<div class="wrap" style="padding:40px 0 80px;">
+  <div id="pane-timing-content">
+    <div style="text-align:center;padding:80px 0;">
+      <div style="font-size:32px;margin-bottom:14px;">⏱️</div>
+      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Timing Map</div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
+      <button onclick="loadFuelPane('pane-timing','timing')"
+        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
+        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
+        text-transform:uppercase;color:var(--ink);cursor:pointer;">
+        Generate →
+      </button>
     </div>
   </div>
-
-</div>
 </div>
 </div><!-- pane-timing -->
 
@@ -989,123 +531,21 @@
 <!-- ═══════════════════════════════════════════
      PANE 4 — SATIETY & ENERGY HACKS
 ═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-hacks">
-<div class="satiety-section">
-<div class="wrap">
-
-  <div class="sec-rule-light" style="margin-top:0;padding-top:52px;">Satiety &amp; energy <em style="color:var(--jade);">— happy, full, and performing</em></div>
-  <div class="body-sm" style="color:var(--lt-2);margin-bottom:36px;max-width:620px;">A lean surplus means you are slightly undereating relative to maximum gain rate. The goal is to hit the targets without feeling depleted, hungry, or miserable. These are the tools that make the plan liveable — because the plan that is liveable is the plan that works.</div>
-
-  <!-- SATIETY SECTION -->
-  <div class="sec-rule-light">Satiety — staying full</div>
-
-  <div class="hack-card">
-    <div class="hack-bar"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-satiety">Satiety hack</div>
-      <div class="hack-title">Protein leverages every other meal</div>
-      <div class="hack-text">High-protein meals suppress ghrelin (the hunger hormone) more effectively than carbohydrate or fat-matched meals. <strong>185g protein per day is not just a muscle-building target — it is a hunger management tool.</strong> If you hit protein at every meal, you will rarely feel truly hungry between them. The mechanism: protein stimulates PYY and GLP-1 (satiety hormones) and suppresses ghrelin for significantly longer than carbohydrates. When the plan feels hard to stick to, the first question to ask is: did you hit protein at every meal?</div>
-      <div class="hack-payoff">Hit protein first at every meal → hunger manages itself</div>
+<div class="fuel-pane" id="pane-hacks" data-generated="false">
+<div class="wrap" style="padding:40px 0 80px;">
+  <div id="pane-hacks-content">
+    <div style="text-align:center;padding:80px 0;">
+      <div style="font-size:32px;margin-bottom:14px;">😌</div>
+      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Satiety & Energy</div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
+      <button onclick="loadFuelPane('pane-hacks','hacks')"
+        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
+        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
+        text-transform:uppercase;color:var(--ink);cursor:pointer;">
+        Generate →
+      </button>
     </div>
   </div>
-
-  <div class="hack-card">
-    <div class="hack-bar"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-satiety">Satiety hack</div>
-      <div class="hack-title">Volume eating — fill the plate, not the macros</div>
-      <div class="hack-text">Stomach stretch receptors register fullness before calorie receptors do. <strong>High-volume, low-calorie foods eaten alongside protein sources create physical fullness without using up calorie budget.</strong> The practical toolkit: unlimited spinach, rocket, cucumber, cherry tomatoes, mushrooms, courgette, celery, broccoli. These foods have almost no caloric consequence but occupy significant stomach volume. Eating 300g of salad alongside your chicken and rice means you finish the meal feeling genuinely full, not technically fed.</div>
-      <div class="hack-payoff">Unlimited: spinach · rocket · cucumber · courgette · mushrooms</div>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-bar"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-satiety">Satiety hack</div>
-      <div class="hack-title">Greek yoghurt + berries + walnuts — the perfect snack architecture</div>
-      <div class="hack-text">This combination covers every satiety mechanism simultaneously: <strong>casein protein (slow-digesting, 5–7 hours), fat (slows gastric emptying), fibre from berries (gut motility), volume from yoghurt</strong>. It also delivers ~35g protein, antioxidants, omega-3 ALA, and polyphenols. At ~380 kcal it fits anywhere in the day. The critical detail: full-fat yoghurt is more satiating than low-fat — the fat is what makes the meal last.</div>
-      <div class="hack-payoff">250g full-fat yoghurt + 80g blueberries + 20g walnuts = 380 kcal · 35g protein · 5h satiety</div>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-bar"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-satiety">Satiety hack</div>
-      <div class="hack-title">Slow eating is a legitimate performance strategy</div>
-      <div class="hack-text">Satiety hormones take 15–20 minutes to register after eating begins. <strong>People who eat quickly consume on average 15% more calories before feeling full.</strong> On a lean surplus where calorie precision matters, eating speed is a meaningful variable. The practical application: eat your protein first (it triggers satiety signals earliest), eat with a fork rather than standing at the counter, and pause between bites on the main meal. This is not precious — it is a mechanism.</div>
-      <div class="hack-payoff">Protein first · slow down by 30% → 15% fewer calories before satiety registers</div>
-    </div>
-  </div>
-
-  <!-- ENERGY SECTION -->
-  <div class="sec-rule-light">Energy — performing all day</div>
-
-  <div class="hack-card">
-    <div class="hack-bar energy"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-energy">Energy hack</div>
-      <div class="hack-title">The 90-minute caffeine delay — your most underused tool</div>
-      <div class="hack-text">Cortisol peaks naturally in the first 60–90 minutes after waking. <strong>Drinking coffee immediately on waking means your caffeine peak coincides with the natural cortisol peak — producing tolerance faster and blunting the effect.</strong> Delaying your first coffee to 90 minutes post-wake means the caffeine peak coincides with the start of your training session, where you actually want it. This is the simplest single change for most morning trainers and produces a meaningfully better pre-training state from the same two flat whites.</div>
-      <div class="hack-payoff amber">Delay first coffee 90 min → natural cortisol peak + caffeine peak both hit at session start</div>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-bar energy"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-energy">Energy hack</div>
-      <div class="hack-title">Training day vs rest day energy feels different — on purpose</div>
-      <div class="hack-text">Rest day energy will be slightly lower than training days. This is not a problem — it is biology. <strong>Carbohydrate reduction on rest days means slightly less circulating glucose for energy, and lower training volume means less of the stimulant hormones (adrenaline, testosterone) being released.</strong> The correct response is not to try to recreate training-day energy on rest days through more caffeine or food. The correct response is to use the lower energy state for cognitive work, recovery protocols, and lower-intensity tasks. Rest day energy is not depleted — it is calibrated.</div>
-      <div class="hack-payoff amber">Rest day lower energy = correct physiology, not a problem to fix</div>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-bar energy"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-energy">Energy hack</div>
-      <div class="hack-title">The mid-afternoon dip is glycaemic — fix it with protein and fat, not carbs</div>
-      <div class="hack-text">The mid-afternoon energy dip (~14:00–15:00) has two causes: circadian rhythm (a genuine biological lull) and post-lunch blood glucose crash. <strong>Fixing the crash with more carbohydrates prolongs the blood sugar cycle.</strong> Fixing it with protein + fat produces a sustained energy state without the crash. The practical fix: replace the afternoon biscuit with Greek yoghurt + walnuts. The protein and fat slow glucose release, the casein sustains it, and the walnuts provide alpha-linolenic acid for brain function.</div>
-      <div class="hack-payoff amber">Afternoon dip → protein + fat snack, not sugar</div>
-    </div>
-  </div>
-
-  <!-- MINDSET / SUSTAINABILITY -->
-  <div class="sec-rule-light">Sustainability — making it last 12 weeks</div>
-
-  <div class="hack-card">
-    <div class="hack-bar mind"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-mind">Sustainability</div>
-      <div class="hack-title">The one-rule Sunday — protein only, everything else yours</div>
-      <div class="hack-text">Sunday is deliberately the plan's most flexible day. The psychological research on dietary adherence is consistent: <strong>complete restriction produces a "what-the-hell effect" — one transgression leads to complete abandonment</strong>. One day of dietary flexibility per week, within a clear single constraint (hit your protein), dramatically improves full-week adherence. The Sunday rule is not a cheat day — it is a designed pressure valve. Eat what you enjoy. The only rule: 180g protein, distributed through the day.</div>
-      <div class="hack-payoff" style="background:var(--gold-dim);border-color:var(--gold-br);color:var(--gold);">One rule Sunday = better 6-day adherence, not worse</div>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-bar mind"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-mind">Sustainability</div>
-      <div class="hack-title">When you're over chicken — the protein swap protocol</div>
-      <div class="hack-text">Week 3 of any programme, the monotony of a fixed protein source becomes the biggest adherence risk. <strong>The food shuffle button in the Today page exists for exactly this moment.</strong> The key principle: any protein source that clears the leucine threshold (~3g leucine per portion) is nutritionally interchangeable for MPS purposes. Swap chicken for: salmon (same protein, adds omega-3), turkey (similar profile, different flavour), whole eggs (complete, fast-digesting), tuna (leanest option), sirloin or lean beef (adds zinc, iron, and creatine precursors — 2–3× per week is optimal for testosterone support), white fish like cod or sea bass (highest protein-to-calorie ratio of any whole food — the rest day protein of choice), haddock (same profile, more flavour). The science does not care about the flavour. Your brain does. Rotate freely.</div>
-      <div class="hack-payoff" style="background:var(--gold-dim);border-color:var(--gold-br);color:var(--gold);">Chicken → salmon → sirloin → cod → turkey → eggs → sea bass — all hit the leucine threshold · each adds different micronutrients</div>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-bar mind"></div>
-    <div class="hack-body">
-      <div class="hack-category cat-mind">Sustainability</div>
-      <div class="hack-title">Eating at restaurants — the 80% rule</div>
-      <div class="hack-text">Restaurant meals will happen. The goal is not to avoid them — it is to make them a ~15–20% variance rather than a session-cancelling event. <strong>The 80% rule: ensure 80% of the meal is protein and vegetables, and be less precise about the rest.</strong> Practical framework: at any restaurant, order protein + vegetables as the primary. Bread, sauce, and alcohol are the variables. A steak + greens + olive oil + glass of wine is effectively on-plan. A pizza + three beers is a different conversation. The choice is available at almost any restaurant — it just requires choosing it.</div>
-      <div class="hack-payoff" style="background:var(--gold-dim);border-color:var(--gold-br);color:var(--gold);">Protein + vegetables first, variables second → restaurants are not a problem</div>
-    </div>
-  </div>
-
-</div>
 </div>
 </div><!-- pane-hacks -->
 
@@ -1113,82 +553,21 @@
 <!-- ═══════════════════════════════════════════
      PANE 5 — AVOID
 ═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-avoid">
-<div class="avoid-section">
-<div class="wrap">
-
-  <div class="sec-rule" style="margin-top:0;padding-top:52px;">Avoid this week <em>— and the mechanism</em></div>
-  <div class="body-sm" style="color:var(--dk-2);margin-bottom:36px;max-width:600px;">Not prohibition. Optimisation. Every item here is working against a specific goal you have stated. The mechanism is given so you understand what you are trading — and can make an informed call when life intervenes.</div>
-
-  <div style="margin-bottom:8px;display:flex;gap:8px;margin-bottom:20px;">
-    <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--red);"><div style="width:12px;height:12px;background:var(--red-dim);border:1px solid var(--red-br);border-left:3px solid var(--red);border-radius:2px;"></div>Always avoid during programme</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--amber);margin-left:16px;"><div style="width:12px;height:12px;background:var(--amber-dim);border:1px solid var(--amber-br);border-left:3px solid var(--amber);border-radius:2px;"></div>Context-dependent — read the rule</div>
-  </div>
-
-  <div class="avoid-tile critical">
-    <div class="at-icon">🛢️</div>
-    <div class="at-body">
-      <div class="at-name">Refined seed oils — sunflower, vegetable, corn, rapeseed</div>
-      <div class="at-why">High linoleic acid (omega-6) competes directly with EPA/DHA for the same COX enzymes your supplement stack is working to down-regulate. <strong>You cannot suppress the inflammatory pathway with omega-3s while simultaneously flooding it with omega-6.</strong> Seed oils are in almost every restaurant kitchen, most ready meals, and most processed sauces. At home: olive oil and butter only. Eating out: this is unavoidable and acceptable — it's the daily home cooking that matters.</div>
+<div class="fuel-pane" id="pane-avoid" data-generated="false">
+<div class="wrap" style="padding:40px 0 80px;">
+  <div id="pane-avoid-content">
+    <div style="text-align:center;padding:80px 0;">
+      <div style="font-size:32px;margin-bottom:14px;">🚫</div>
+      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Avoid This Week</div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
+      <button onclick="loadFuelPane('pane-avoid','avoid')"
+        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
+        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
+        text-transform:uppercase;color:var(--ink);cursor:pointer;">
+        Generate →
+      </button>
     </div>
-    <div class="at-badge badge-always">Always</div>
   </div>
-
-  <div class="avoid-tile critical">
-    <div class="at-icon">🍺</div>
-    <div class="at-body">
-      <div class="at-name">Alcohol on training days — any amount</div>
-      <div class="at-why">Ethanol inhibits mTOR directly, independent of calories or sleep. <strong>1–2 drinks post-training: ~15% MPS suppression. 3–4 drinks: ~25%. 5+: near-total cancellation of the session's anabolic signal.</strong> The mechanism is direct phosphorylation interference with the mTOR pathway — not indirect via sleep disruption (though that also applies). If drinking, do it on full rest days, never within 6 hours of training. The post-workout protein window non-negotiable: protein before the first drink, every time.</div>
-    </div>
-    <div class="at-badge badge-always">Training days</div>
-  </div>
-
-  <div class="avoid-tile critical">
-    <div class="at-icon">🦠</div>
-    <div class="at-body">
-      <div class="at-name">Ultra-processed protein sources — most protein bars, deli meats, processed sausages</div>
-      <div class="at-why">Most protein bars use hydrolysed collagen, soy isolate, or whey blend profiles that do not provide sufficient leucine to clear the mTOR activation threshold. <strong>A bar claiming 20g protein may only deliver 1.2g leucine — below the 2–3g required to trigger MPS.</strong> Additionally, nitrites in deli meats convert to nitrosamines and are associated with systemic inflammation. Whole food protein sources (chicken, eggs, fish, Greek yoghurt) have superior amino acid profiles and no additives. Convenience is not worth MPS suppression.</div>
-    </div>
-    <div class="at-badge badge-always">Always</div>
-  </div>
-
-  <div class="avoid-tile contextual">
-    <div class="at-icon">🍭</div>
-    <div class="at-body">
-      <div class="at-name">High-fructose foods on rest days — fruit juice, honey, agave, corn syrup</div>
-      <div class="at-why">Fructose is metabolised exclusively in the liver — it cannot be stored as muscle glycogen. <strong>On rest days when muscle glycogen demand is low, excess fructose converts to liver fat (de novo lipogenesis) and drives triglyceride synthesis.</strong> On training days directly before a session, the picture changes: a small amount of fructose (bananas, berries) is fine because muscle glycogen demand is high and liver throughput is not the bottleneck. Rule: whole fruit fine always, fruit juice and syrups contextually.</div>
-    </div>
-    <div class="at-badge badge-context">Rest days</div>
-  </div>
-
-  <div class="avoid-tile contextual">
-    <div class="at-icon">🍖</div>
-    <div class="at-body">
-      <div class="at-name">Large meals within 90 min of training</div>
-      <div class="at-why">Fat and fibre significantly slow gastric emptying. A high-fat, high-fibre meal within 90 minutes of compound lifting means <strong>blood is diverted to digestion during the session, RPE increases, and nausea risk rises under heavy loading</strong>. The pre-workout meal is specifically engineered to be fast-digesting (whey + banana + dates, or eggs without fat) precisely because gastric emptying speed affects performance. The main meal after training is when fat is entirely appropriate. Timing the fat accordingly is the difference between a 95% session and a 100% session.</div>
-    </div>
-    <div class="at-badge badge-context">Pre-training</div>
-  </div>
-
-  <div class="avoid-tile contextual">
-    <div class="at-icon">☕</div>
-    <div class="at-body">
-      <div class="at-name">Coffee immediately on waking — the cortisol mistake</div>
-      <div class="at-why">Cortisol peaks naturally in the first 60–90 minutes after waking as part of the cortisol awakening response (CAR). <strong>Drinking coffee during this window means caffeine peaks when cortisol is already high — producing tolerance faster, increasing afternoon cortisol resistance, and contributing to the mid-afternoon energy crash.</strong> The fix: water first, then 90 minutes of food + hydration + movement, then coffee. Two flat whites before training remains entirely fine — the timing shift alone changes the quality of the effect significantly. Your two oat milk flat whites: move them 60–90 minutes later for a meaningfully better outcome.</div>
-    </div>
-    <div class="at-badge badge-context">First 90 min</div>
-  </div>
-
-  <div class="avoid-tile contextual">
-    <div class="at-icon">🛏️</div>
-    <div class="at-body">
-      <div class="at-name">Eating within 60–90 minutes of sleep</div>
-      <div class="at-why">Late eating raises core body temperature and insulin, both of which <strong>interfere with the drop in core temperature that triggers slow-wave sleep onset</strong>. Late insulin spikes also suppress GH release — the primary hormonal signal for overnight muscle repair and connective tissue remodelling. The exception and intentional exception: cottage cheese before bed is high casein/low caloric impact and does not significantly raise insulin. The rule applies to large carbohydrate or calorie-dense meals, not the pre-sleep casein snack.</div>
-    </div>
-    <div class="at-badge badge-context">Pre-sleep</div>
-  </div>
-
-</div>
 </div>
 </div><!-- pane-avoid -->
 
@@ -2111,5 +1490,59 @@ function buildPersonalCallout(p) {
   return callouts[decade] || callouts[40];
 }
 </script>
+
+<script src="page-generator.js"></script>
+<script>
+// ── FUEL PANE LAZY LOADER ─────────────────────────────────
+function loadFuelPane(paneId, tabKey) {
+  const profile = (() => {
+    try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); }
+    catch(e) { return null; }
+  })();
+
+  if (!profile) {
+    document.getElementById(paneId + '-content').innerHTML =
+      '<div style="text-align:center;padding:60px 24px;color:#8a9490;font-size:13px;">' +
+      'Complete onboarding first. <a href="bodylens-onboard.html" style="color:#00c8a0;">Get started →</a></div>';
+    return;
+  }
+
+  const pane = document.getElementById(paneId);
+  if (pane.dataset.generated === 'true') return; // already loaded
+
+  const container = document.getElementById(paneId + '-content');
+
+  BL_GENERATOR.generate(
+    'fuel_' + tabKey,
+    profile,
+    (loading) => { container.innerHTML = loading; },
+    (html) => {
+      container.innerHTML = html;
+      pane.dataset.generated = 'true';
+    },
+    (err) => {
+      console.error('Fuel pane error:', tabKey, err);
+      container.innerHTML =
+        '<div style="text-align:center;padding:40px 24px;color:#8a9490;font-size:13px;">' +
+        'Could not generate: ' + (err||'unknown') +
+        ' <button onclick="loadFuelPane('' + paneId + '','' + tabKey + '')" ' +
+        'style="color:#00c8a0;background:none;border:none;cursor:pointer;text-decoration:underline;">Try again</button></div>';
+    }
+  );
+}
+
+// Auto-load the active tab on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const profile = (() => {
+    try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); }
+    catch(e) { return null; }
+  })();
+  if (profile) {
+    // Auto-load the shopping list (first tab, shown by default)
+    loadFuelPane('pane-shop', 'shop');
+  }
+});
+</script>
+
 </body>
 </html>

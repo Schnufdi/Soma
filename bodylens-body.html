@@ -1025,6 +1025,52 @@ function showMuscle(id) {
   const m = MUSCLES[id];
   if (!m) return;
 
+  // ── PROFILE INJURY OVERRIDE ──────────────────────────────
+  // If this muscle area matches a user injury, replace the
+  // hardcoded medical data with their actual assessment
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (raw) {
+      const p = JSON.parse(raw);
+      const injuries = p.injuryAssessments || p.injuries || [];
+      if (injuries.length) {
+        // Map muscle IDs to injury location keywords
+        const muscleToInjury = {
+          'glutes':'glute|hip', 'hamstrings':'hamstring|knee',
+          'quads':'quad|knee', 'knee':'knee', 'lower_back':'back|spine|lumbar',
+          'back':'back|spine', 'shoulder':'shoulder', 'rotator':'shoulder|rotator',
+          'hip_flexors':'hip', 'calves':'ankle|calf', 'chest':'chest|pec',
+        };
+        const keywords = (muscleToInjury[id] || id).split('|');
+        const matchedInjury = injuries.find(inj => {
+          const loc = (inj.location||inj||'').toLowerCase();
+          return keywords.some(k => loc.includes(k));
+        });
+        if (matchedInjury) {
+          // Override medical data with profile injury assessment
+          m.medical = [
+            {
+              tier: 'tier-1st',
+              title: matchedInjury.location + ' — Your assessment',
+              body: matchedInjury.assessment || matchedInjury.detail || 'See your injury notes.'
+            },
+            ...(matchedInjury.avoidMovements||[]).map(mv => ({
+              tier: 'tier-ref',
+              title: 'Avoid: ' + mv,
+              body: 'Modification in your programme: ' + ((matchedInjury.safeAlternatives||[])[0] || 'See instructions')
+            })),
+            ...(matchedInjury.rehabilitationNotes ? [{
+              tier: 'tier-2nd',
+              title: 'Long-term protocol',
+              body: matchedInjury.rehabilitationNotes
+            }] : [])
+          ];
+        }
+      }
+    }
+  } catch(e) {}
+  // ── END INJURY OVERRIDE ─────────────────────────────────
+
   // Update active button
   document.querySelectorAll('.mn-btn').forEach(b => b.classList.remove('active'));
   const btn = [...document.querySelectorAll('.mn-btn')].find(b => b.getAttribute('onclick') === `showMuscle('${id}')`);
@@ -1130,78 +1176,44 @@ showMuscle('glutes');
 
 <script>
 function personalisePageContent(p) {
-  // Replace wake time references
-  const wake = p.wakeTime || '07:00';
-  const [wH] = wake.split(':').map(Number);
-  const coffeeTime = `${String(wH+1).padStart(2,'0')}:30`;
-  const collagenTime = `${String(wH+2).padStart(2,'0')}:00`;
+  if (!p) return;
+  const injuries   = p.injuryAssessments || p.injuries || [];
+  const weekPlan   = p.weekPlan || [];
+  const isFemale   = (p.sex||'').toLowerCase() === 'female';
+  const trainingFocus = weekPlan.filter(d=>d.priority==='training')
+    .map(d=>d.type).join(', ') || 'your programme';
 
-  const age = p.age || '?';
-  const weight = p.weight || '?';
-  const protein = p.protein || 185;
-  const name = p.name;
-  const goal = p.goal || 'body recomposition';
-  const supps = p.supplements || [];
-  const injuries = p.injuryAssessments || p.injuries || [];
-  const recoveryTools = p.recoveryTools || [];
-  const trainingDays = p.trainingDays || 4;
-  const weekPlan = p.weekPlan || [];
-  const trainingDayNames = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
-
-  // Replace all personal stat references in the visible text
-  replaceInContent([
-    // Age
-    [/\b44\b(?!px|%|rem|em|vw|vh)/g, age],
-    // Weight
-    [/85\s*kg/g, weight + 'kg'],
-    // Protein
-    [/185g/g, protein + 'g'],
-    [/185\s*g/g, protein + 'g'],
-    // Wake time
-    [/06:00(?! alarm)/g, wake],
-    [/07:30 flat white/g, coffeeTime + ' flat white'],
-    // Training days
-    [/Mon(day)?.*?Push/g, trainingDayNames.split(',')[0]?.trim() || 'Monday'],
-    [/Fri(day)?.*?Posterior Chain/g, trainingDayNames.split(',').slice(-1)[0]?.trim() || 'Friday'],
-  ]);
-
-  // Update the "you are here" stat boxes that show age
-  document.querySelectorAll('.age-val, .stat-age, [data-stat="age"]').forEach(el => {
-    el.textContent = age;
-  });
-
-  // Update supplement stack section if it exists
-  const suppSection = document.getElementById('supp-stack-personal');
-  if (suppSection && supps.length) {
-    suppSection.innerHTML = supps.map(s => `
-      <div class="supp-row">
-        <span class="supp-name">${s.name}</span>
-        <span class="supp-dose">${s.dose}</span>
-        <span class="supp-time">${s.timing}</span>
-      </div>`).join('');
-  }
-
-  // Update injury section
-  const injSection = document.getElementById('injury-personal');
-  if (injSection) {
+  // Inject personalised injury callout
+  const injuryEl = document.getElementById('profile-injury-callout');
+  if (injuryEl) {
     if (injuries.length) {
-      injSection.innerHTML = injuries.map(inj => `
-        <div class="inj-item" style="padding:10px 0;border-bottom:1px solid var(--bd);">
-          <strong style="color:var(--gold);">${inj.location}</strong><br>
-          <span style="font-size:12px;color:var(--dk-2);">${inj.assessment||inj.detail||''}</span>
-          ${inj.avoidMovements && inj.avoidMovements.length ? `<br><span style="font-size:11px;color:var(--red);">Avoid: ${inj.avoidMovements.join(', ')}</span>` : ''}
+      injuryEl.innerHTML = injuries.map(inj => `
+        <div style="padding:14px 18px;border-left:3px solid var(--gold);margin-bottom:8px;background:var(--ink-2);border-radius:0 4px 4px 0;">
+          <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:4px;">${inj.location||inj}</div>
+          <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">${inj.assessment||inj.detail||''}</div>
+          ${inj.avoidMovements&&inj.avoidMovements.length ? `
+            <div style="font-size:11px;color:var(--red);margin-top:6px;">Avoid: ${inj.avoidMovements.join(', ')}</div>
+            <div style="font-size:11px;color:var(--jade);margin-top:2px;">Instead: ${(inj.safeAlternatives||[]).join(', ')}</div>` : ''}
         </div>`).join('');
+      injuryEl.style.display = 'block';
     } else {
-      injSection.innerHTML = '<div style="font-size:12px;color:var(--dk-3);padding:10px 0;">No current injuries on record.</div>';
+      injuryEl.innerHTML = '<div style="font-size:12px;color:var(--dk-3);padding:10px 0;">No current injuries on record.</div>';
+      injuryEl.style.display = 'block';
     }
   }
 
-  // Patch "you are here" callout text
-  document.querySelectorAll('.you-are-here-text, .hc-body').forEach(el => {
-    if (el.textContent.includes('44') || el.textContent.includes('Sven') || el.textContent.includes('tennis')) {
-      el.innerHTML = buildPersonalCallout(p);
-    }
-  });
+  // Inject programme focus callout
+  const focusEl = document.getElementById('profile-focus-callout');
+  if (focusEl) {
+    focusEl.innerHTML = `
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;">
+        ${p.name}'s programme focuses on: <strong style="color:var(--jade);">${trainingFocus}</strong>.
+        ${isFemale
+          ? 'For female biomechanics, glute and posterior chain strength is the primary functional and aesthetic goal.'
+          : 'The split is built around maximising MPS across all major muscle groups with full recovery between sessions.'}
+      </div>`;
+    focusEl.style.display = 'block';
+  }
 }
 
 function replaceInContent(replacements) {

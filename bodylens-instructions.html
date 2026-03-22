@@ -611,6 +611,7 @@ function renderInstructions(p) {
         <div class="ins-card">
           <div class="ins-card-label">Generated</div>
           <div class="ins-card-note">${genDate}</div>
+          <button class="ins-rebuild-btn" id="regen-btn" onclick="regenInstructions()">↺ Regenerate instructions</button>
           <button class="ins-rebuild-btn" onclick="location.href='bodylens-onboard.html'">Redo onboarding</button>
           <button class="ins-reset-btn" onclick="location.href='bodylens-reset.html'">Reset all data</button>
         </div>
@@ -646,5 +647,83 @@ function switchView(id, btn) {
   } catch(e){}
 })();
 </script>
+
+<script>
+async function regenInstructions() {
+  const btn = document.getElementById('regen-btn');
+  const profile = getProfile();
+  if (!profile) return;
+
+  btn.textContent = 'Generating…';
+  btn.disabled = true;
+
+  try {
+    const isFemale = (profile.sex||'').toLowerCase() === 'female';
+    const injuries = profile.injuryAssessments || [];
+    const supps    = profile.supplements || [];
+    const weekPlan = profile.weekPlan || [];
+    const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
+
+    const prompt = `Write a complete coaching brief document for ${profile.name}.
+
+PROFILE:
+${profile.name}, ${profile.age}yo ${profile.sex}, ${profile.height}cm, ${profile.weight}kg
+Goal: ${profile.goal} | Target: ${profile.target||'—'}
+Calories: ${profile.calories} kcal | Protein: ${profile.protein}g | Carbs: ${profile.carbs}g | Fat: ${profile.fat}g
+Training: ${profile.trainingDays} days/week (${trainingDays})
+Wake: ${profile.wakeTime} | Eating window: ${profile.fastingWindow||profile.eatingWindow||'flexible'}
+Diet: ${profile.dietType} | Exclusions: ${(profile.foodExclusions||[]).join(', ')||'none'}
+Trigger foods: ${profile.triggerFoods||'none'}
+Injuries: ${injuries.length ? injuries.map(i=>i.location+': '+i.assessment).join('; ') : 'none'}
+Non-negotiables: ${(profile.nonNegotiables||[]).join(', ')||'none'}
+Recovery: ${(profile.recoveryTools||[]).join(', ')||'none'}
+${isFemale ? 'SEX: Female — all content must reflect female physiology, hormonal context, and female-specific training and nutrition science.' : 'SEX: Male — reflect male physiology and hormonal context.'}
+
+Write a comprehensive coaching brief with these sections:
+1. Workout Objective — one clear statement
+2. Goals — 4-6 specific bullet points, measurable where possible
+3. Approach — training split, cardio protocol, recovery protocol, nutrition strategy. Specific to their sex and profile.
+4. Current Baseline — all stats, strengths and weaknesses derived from their answers
+5. Injuries — each injury with: diagnosis/assessment, movements to avoid, safe alternatives, long-term protocol
+6. Food Philosophy — proteins, carbs, fats philosophy; cooking approach; exclusions; trigger food strategy
+7. Meal Rhythm — eating window, meals per day, macro targets per meal, timing around training
+8. Supplement Stack — each supplement with dose, timing, and the specific mechanism for this person
+9. Efficiency Rule — the single most important habit that determines whether this programme works
+
+Write it as a proper coaching document — direct, specific, actionable, personalised.
+Return only the document text, no JSON.`;
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2500,
+        system: 'You are a senior performance coach writing a personalised coaching brief. Be direct, specific, and personal. No generic advice.',
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    const data = await res.json();
+    const text = data.content?.map(b => b.text||'').join('') || '';
+    if (!text) throw new Error('Empty response');
+
+    // Save back to profile
+    profile.instructions = text;
+    localStorage.setItem('bl_profile', JSON.stringify(profile));
+
+    // Re-render
+    btn.textContent = '✓ Done — reload to see';
+    btn.disabled = false;
+    setTimeout(() => location.reload(), 800);
+
+  } catch(e) {
+    console.error(e);
+    btn.textContent = 'Error — try again';
+    btn.disabled = false;
+  }
+}
+</script>
+
 </body>
 </html>

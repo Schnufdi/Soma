@@ -429,81 +429,139 @@ Return a JSON object:
   "sexSpecificNote": "2-3 sentences on the elements of their daily system that are specifically calibrated for their sex and age"
 }
 
-Return ONLY valid JSON.`
+Return ONLY valid JSON.`,
+
+
+    // ── FUEL PAGE TAB PROMPTS ─────────────────────────────────────────
+
+    fuel_shop: (p) => {
+      const isFemale = (p.sex||'').toLowerCase() === 'female';
+      const injuries = p.injuryAssessments||p.injuries||[];
+      return `You are a performance nutritionist. Build a personalised weekly shopping list.
+
+${profileSummary(p)}
+
+Return ONLY valid JSON:
+{
+  "headline": "Your weekly kit",
+  "subhead": "one sentence — what these items cover",
+  "categories": [
+    {
+      "name": "category name",
+      "color": "jade|amber|gold|red",
+      "items": [
+        { "name": "food", "quantity": "weekly amount", "purpose": "one sentence job in the programme", "protein": "per 100g if protein source", "note": "prep note" }
+      ]
+    }
+  ]
+}
+
+Categories: (1) Protein anchors — respect exclusions: ${(p.foodExclusions||[]).join(', ')||'none'}, quantities for ${p.protein||185}g daily target. (2) Training fuel — carbs for ${p.trainingDays||4} training days. (3) Recovery foods — anti-inflammatory, joint support${injuries.length?' — especially for '+injuries.map(i=>i.location||i).join(', '):''}. (4) Fats and flavour. (5) Avoid — their trigger foods: ${p.triggerFoods||'none'}.
+${isFemale ? 'FEMALE: Include iron-rich foods. Note foods supporting oestrogen metabolism.' : 'MALE: Include testosterone-supporting foods relevant for age '+p.age+'.'}
+Return ONLY the JSON.`;
+    },
+
+    fuel_syn: (p) => {
+      const isFemale = (p.sex||'').toLowerCase() === 'female';
+      const injuries = p.injuryAssessments||p.injuries||[];
+      return `You are a performance nutritionist. Write food synergies — combinations that work mechanistically.
+
+${profileSummary(p)}
+
+Return ONLY valid JSON:
+{
+  "headline": "Combinations that work",
+  "intro": "2 sentences on why combinations matter",
+  "synergies": [
+    { "combo": "A + B", "mechanism": "the science", "timing": "when to use", "relevance": "why for this person specifically", "example": "specific meal" }
+  ]
+}
+
+Include 6-8 synergies. Prioritise for their profile: protein + leucine amplifiers for ${p.protein||185}g target, collagen+VitC${injuries.length?' (injury protocol active)':''}, ${isFemale?'iron+VitC (female iron needs 1.8x male)':'omega-3 combos'}, anti-inflammatory for goal: ${p.goal||'recomposition'}. Exclude foods: ${(p.foodExclusions||[]).join(', ')||'none'}.
+Return ONLY the JSON.`;
+    },
+
+    fuel_timing: (p) => {
+      const weekPlan = p.weekPlan||[];
+      const tDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ')||'training days';
+      const rDays = weekPlan.filter(d=>d.priority!=='training').map(d=>d.day).join(', ')||'rest days';
+      const isFemale = (p.sex||'').toLowerCase() === 'female';
+      return `You are a performance nutritionist. Write the nutrient timing guide.
+
+${profileSummary(p)}
+
+Return ONLY valid JSON:
+{
+  "headline": "When matters as much as what",
+  "intro": "2 sentences on timing for their goal",
+  "trainingDay": {
+    "label": "Training day — ${tDays}",
+    "windows": [ { "time": "HH:MM", "window": "window name", "eat": "what to eat", "avoid": "what to avoid", "why": "mechanism" } ]
+  },
+  "restDay": {
+    "label": "Rest day — ${rDays}",
+    "windows": [ { "time": "HH:MM", "window": "window name", "eat": "what to eat", "avoid": "what to avoid", "why": "mechanism" } ]
+  },
+  "eatingWindowNote": "how their window (${p.fastingWindow||p.eatingWindow||'flexible'}) affects timing",
+  "sexSpecificNote": "${isFemale?'cycle phase effects on insulin sensitivity and appetite across the month':'testosterone and cortisol interaction with meal timing'} — 2 sentences"
+}
+
+Use actual training days. Wake time: ${p.wakeTime||'07:00'}. Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}.
+Return ONLY the JSON.`;
+    },
+
+    fuel_hacks: (p) => {
+      const isFemale = (p.sex||'').toLowerCase() === 'female';
+      return `You are a performance nutritionist. Write the satiety and energy management guide.
+
+${profileSummary(p)}
+
+Return ONLY valid JSON:
+{
+  "headline": "Staying full, staying sharp",
+  "energyProfile": "2-3 sentences on their energy pattern (${p.energyPattern||'unknown'}) and what drives it",
+  "strategies": [
+    { "situation": "when", "strategy": "exactly what to do", "why": "mechanism", "specific": "why this works for their profile" }
+  ],
+  "triggerManagement": {
+    "trigger": "${p.triggerFoods||'none identified'}",
+    "neuroscience": "why this specific food is hard to moderate",
+    "protocol": "specific realistic management strategy for their lifestyle"
+  },
+  "sexSpecificNote": "${isFemale?'ghrelin/leptin fluctuation across the hormonal cycle':'testosterone effects on appetite regulation'} — 2 sentences"
+}
+
+Cover: hunger between meals, pre-training energy, post-training cravings, evening snacking, stress eating.
+Return ONLY the JSON.`;
+    },
+
+    fuel_avoid: (p) => {
+      const weekPlan = p.weekPlan||[];
+      const tDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ')||'training days';
+      const isFemale = (p.sex||'').toLowerCase() === 'female';
+      return `You are a performance nutritionist. Write the avoid list — not prohibition, optimisation.
+
+${profileSummary(p)}
+
+Return ONLY valid JSON:
+{
+  "headline": "What to avoid and why",
+  "intro": "1-2 sentences — remove what works against the programme",
+  "avoidList": [
+    { "item": "what to avoid", "why": "specific mechanism", "frequency": "absolute|training days only|limit X/week", "alternative": "have this instead", "personalNote": "why specifically relevant for this person" }
+  ]
+}
+
+Must include: trigger foods (${p.triggerFoods||'none'}) with neuroscience, exclusions (${(p.foodExclusions||[]).join(', ')||'none'}), alcohol on training days (${tDays}), wrong-time high-GI foods for goal (${p.goal||'recomposition'}), eating window conflicts (${p.fastingWindow||p.eatingWindow||'flexible'}), ${isFemale?'foods worsening hormonal symptoms':'foods suppressing testosterone/elevating cortisol'}.
+Be specific — not "avoid processed foods" but the exact food, the exact mechanism, the exact alternative.
+Return ONLY the JSON.`;
+    },
+
+
+
 
   };
 
-  // ── RENDER HELPERS ────────────────────────────────────
-  // CSS for generated content — uses the design system
-  const GENERATED_STYLES = `
-    <style>
-    .gen-section { margin-bottom: 48px; }
-    .gen-label { font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--jade);margin-bottom:12px;display:flex;align-items:center;gap:10px; }
-    .gen-label::after { content:'';flex:1;height:1px;background:var(--bd); }
-    .gen-label.amber { color:var(--amber); }
-    .gen-label.gold  { color:var(--gold); }
-    .gen-label.red   { color:var(--red); }
-    .gen-h2 { font-family:var(--serif);font-size:36px;font-weight:300;color:var(--dk-1);margin-bottom:14px;line-height:1.05;letter-spacing:-0.015em; }
-    .gen-body { font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.85;margin-bottom:16px; }
-    .gen-body strong { color:var(--dk-1);font-weight:500; }
-    .gen-body em { color:var(--jade);font-style:italic; }
-    .gen-card { background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:20px 24px;margin-bottom:10px; }
-    .gen-card.jade  { border-top:3px solid var(--jade); }
-    .gen-card.amber { border-top:3px solid var(--amber); }
-    .gen-card.gold  { border-top:3px solid var(--gold); }
-    .gen-card.red   { border-top:3px solid var(--red); }
-    .gen-card-title { font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:8px; }
-    .gen-card.jade .gen-card-title { color:var(--jade); }
-    .gen-card.amber .gen-card-title { color:var(--amber); }
-    .gen-card.gold .gen-card-title { color:var(--gold); }
-    .gen-card.red .gen-card-title { color:var(--red); }
-    .gen-card-body { font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8; }
-    .gen-grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px; }
-    .gen-callout { padding:18px 22px;background:rgba(0,200,160,0.05);border-left:3px solid var(--jade-br);border-radius:0 4px 4px 0;font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:16px; }
-    .gen-callout.amber { background:rgba(196,124,24,0.05);border-left-color:var(--amber-br); }
-    .gen-callout.red   { background:rgba(217,78,53,0.05);border-left-color:var(--red-br); }
-    .gen-callout.gold  { background:rgba(200,148,30,0.05);border-left-color:var(--gold-br); }
-    .gen-step { display:grid;grid-template-columns:44px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--bd); }
-    .gen-step:last-child { border-bottom:none; }
-    .gen-step-num { font-family:var(--serif);font-size:36px;font-weight:300;color:var(--jade);opacity:0.4;line-height:1; }
-    .gen-step-title { font-size:14px;font-weight:600;color:var(--dk-1);margin-bottom:6px; }
-    .gen-step-text { font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8; }
-    .gen-row { display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--bd);font-size:12px;gap:16px; }
-    .gen-row:last-child { border-bottom:none; }
-    .gen-row-label { font-weight:400;color:var(--dk-3);flex-shrink:0; }
-    .gen-row-val { font-weight:500;color:var(--dk-1);text-align:right; }
-    .gen-row-val.jade { color:var(--jade); }
-    .gen-row-val.amber { color:var(--amber); }
-    .gen-tl { border-left:2px solid var(--jade-br);padding-left:20px;margin-left:10px; }
-    .gen-tl-item { position:relative;padding:0 0 20px 0; }
-    .gen-tl-item::before { content:'';position:absolute;left:-24px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--jade);opacity:0.5; }
-    .gen-tl-time { font-family:var(--mono);font-size:11px;font-weight:500;color:var(--jade);margin-bottom:3px; }
-    .gen-tl-title { font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:4px; }
-    .gen-tl-text { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7; }
-    @media(max-width:600px){ .gen-grid-2 { grid-template-columns:1fr; } }
-    </style>`;
-
-  // ── LOADING SKELETON ──────────────────────────────────
-  function loadingSkeleton(name) {
-    return `
-      ${GENERATED_STYLES}
-      <div style="padding:60px 0;text-align:center;">
-        <div style="width:36px;height:36px;border:2px solid rgba(255,255,255,0.07);
-          border-top-color:#00c8a0;border-radius:50%;
-          animation:spin 0.8s linear infinite;margin:0 auto 16px;">
-        </div>
-        <div style="font-size:13px;font-weight:300;color:#3e504a;">
-          Building your programme, ${name}…
-        </div>
-        <div style="font-size:11px;font-weight:300;color:#3e504a;margin-top:6px;opacity:0.7;">
-          This takes 10–15 seconds. Cached after first load.
-        </div>
-      </div>
-      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
-  }
-
-  // ── CONTENT RENDERERS ─────────────────────────────────
-  // Each page type has a renderer that turns the JSON into HTML
 
   const RENDERERS = {
 
@@ -771,6 +829,119 @@ Return ONLY valid JSON.`
         </div>` : ''}
       ${data.sexSpecificNote ? `
         <div class="gen-callout gold">${data.sexSpecificNote}</div>` : ''}`,
+
+
+    fuel_shop: (data, p) => `
+      ${GENERATED_STYLES}
+      <div class="gen-section">
+        <div class="gen-label amber">${data.headline||'Your weekly kit'}</div>
+        <div class="gen-body">${data.subhead||''}</div>
+      </div>
+      ${(data.categories||[]).map(cat => `
+        <div class="gen-section">
+          <div class="gen-label ${cat.color||'jade'}">${cat.name}</div>
+          ${(cat.items||[]).map(item => `
+            <div class="gen-card" style="margin-bottom:8px;padding:14px 18px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+                <div style="font-size:13px;font-weight:600;color:var(--dk-1);">${item.name}</div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--amber);">${item.quantity||''}</div>
+              </div>
+              <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.6;">${item.purpose||''}</div>
+              ${item.protein ? `<div style="font-size:11px;color:var(--jade);margin-top:3px;">${item.protein} protein/100g</div>` : ''}
+              ${item.note ? `<div style="font-size:11px;color:var(--dk-3);font-style:italic;margin-top:3px;">${item.note}</div>` : ''}
+            </div>`).join('')}
+        </div>`).join('')}`,
+
+    fuel_syn: (data, p) => `
+      ${GENERATED_STYLES}
+      <div class="gen-section">
+        <div class="gen-label jade">${data.headline||'Combinations that work'}</div>
+        <div class="gen-body">${data.intro||''}</div>
+      </div>
+      ${(data.synergies||[]).map(s => `
+        <div class="gen-card jade" style="margin-bottom:10px;">
+          <div class="gen-card-title">${s.combo||''}</div>
+          <div class="gen-card-body">${s.mechanism||''}</div>
+          ${s.timing ? `<div style="font-size:11px;color:var(--amber);margin-top:6px;">⏱ ${s.timing}</div>` : ''}
+          ${s.relevance ? `<div style="font-size:11px;color:var(--jade);margin-top:4px;">↳ ${s.relevance}</div>` : ''}
+          ${s.example ? `<div style="font-size:11px;color:var(--dk-3);font-style:italic;margin-top:4px;">e.g. ${s.example}</div>` : ''}
+        </div>`).join('')}`,
+
+    fuel_timing: (data, p) => `
+      ${GENERATED_STYLES}
+      <div class="gen-section">
+        <div class="gen-label jade">${data.headline||'Timing map'}</div>
+        <div class="gen-body">${data.intro||''}</div>
+      </div>
+      ${data.trainingDay ? `
+        <div class="gen-section">
+          <div class="gen-label jade">${data.trainingDay.label||'Training day'}</div>
+          <div class="gen-tl">
+            ${(data.trainingDay.windows||[]).map(w => `
+              <div class="gen-tl-item">
+                <div class="gen-tl-time">${w.time||''}</div>
+                <div class="gen-tl-title">${w.window||''}</div>
+                <div class="gen-tl-text"><strong>Eat:</strong> ${w.eat||''} ${w.avoid ? `<span style="color:var(--red);"> · Avoid: ${w.avoid}</span>` : ''}</div>
+                ${w.why ? `<div style="font-size:11px;font-style:italic;color:var(--dk-3);margin-top:3px;">${w.why}</div>` : ''}
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+      ${data.restDay ? `
+        <div class="gen-section">
+          <div class="gen-label amber">${data.restDay.label||'Rest day'}</div>
+          <div class="gen-tl">
+            ${(data.restDay.windows||[]).map(w => `
+              <div class="gen-tl-item">
+                <div class="gen-tl-time">${w.time||''}</div>
+                <div class="gen-tl-title">${w.window||''}</div>
+                <div class="gen-tl-text">${w.eat||''}</div>
+                ${w.why ? `<div style="font-size:11px;font-style:italic;color:var(--dk-3);margin-top:3px;">${w.why}</div>` : ''}
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+      ${data.sexSpecificNote ? `<div class="gen-callout amber">${data.sexSpecificNote}</div>` : ''}
+      ${data.eatingWindowNote ? `<div class="gen-callout">${data.eatingWindowNote}</div>` : ''}`,
+
+    fuel_hacks: (data, p) => `
+      ${GENERATED_STYLES}
+      <div class="gen-section">
+        <div class="gen-label jade">${data.headline||'Satiety & energy'}</div>
+        <div class="gen-callout">${data.energyProfile||''}</div>
+      </div>
+      ${(data.strategies||[]).map(s => `
+        <div class="gen-card" style="margin-bottom:8px;">
+          <div class="gen-card-title">${s.situation||''}</div>
+          <div class="gen-card-body">${s.strategy||''}</div>
+          ${s.why ? `<div style="font-size:11px;font-style:italic;color:var(--dk-3);margin-top:4px;">${s.why}</div>` : ''}
+        </div>`).join('')}
+      ${data.triggerManagement && data.triggerManagement.trigger && !data.triggerManagement.trigger.includes('none') ? `
+        <div class="gen-section">
+          <div class="gen-label red">Your trigger: ${data.triggerManagement.trigger}</div>
+          <div class="gen-body">${data.triggerManagement.neuroscience||''}</div>
+          <div class="gen-callout amber">${data.triggerManagement.protocol||''}</div>
+        </div>` : ''}
+      ${data.sexSpecificNote ? `<div class="gen-callout gold">${data.sexSpecificNote}</div>` : ''}`,
+
+    fuel_avoid: (data, p) => `
+      ${GENERATED_STYLES}
+      <div class="gen-section">
+        <div class="gen-label red">${data.headline||'What to avoid'}</div>
+        <div class="gen-body">${data.intro||''}</div>
+      </div>
+      ${(data.avoidList||[]).map(item => `
+        <div class="gen-card red" style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+            <div class="gen-card-title">${item.item||''}</div>
+            <div style="font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+              color:${item.frequency&&item.frequency.includes('absolute')?'var(--red)':'var(--amber)'};">
+              ${item.frequency||''}
+            </div>
+          </div>
+          <div class="gen-card-body">${item.why||''}</div>
+          ${item.alternative ? `<div style="font-size:12px;color:var(--jade);margin-top:6px;">Instead: ${item.alternative}</div>` : ''}
+          ${item.personalNote ? `<div style="font-size:11px;color:var(--dk-3);font-style:italic;margin-top:4px;">${item.personalNote}</div>` : ''}
+        </div>`).join('')}`,
+
 
     longevity: (data, p) => data, // handled by the longevity page's own init
 

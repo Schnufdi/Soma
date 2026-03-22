@@ -594,6 +594,98 @@ const DECADES = {
 
 };
 
+// ── SEX-AWARE BIOMARKER PATCH ─────────────────────────────
+// Replace male-default biomarkers with female values if user is female
+(function() {
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (!p || (p.sex||'').toLowerCase() !== 'female') return;
+
+    // Female biomarker reference ranges per decade
+    const FEMALE_BIOMARKERS = {
+      20: [
+        { name:'Oestrogen', val:'200–400', unit:'pg/mL', trend:'Peak', color:'#00c8a0', bar:'#00c8a0' },
+        { name:'VO₂max', val:'38–48', unit:'ml/kg', trend:'Peak', color:'#00c8a0', bar:'#00c8a0' },
+        { name:'Lean mass', val:'Peak', unit:'potential', trend:'Building fast', color:'#00c8a0', bar:'#00c8a0' },
+        { name:'Bone density', val:'Building', unit:'peak ~28', trend:'Accumulating', color:'#00c8a0', bar:'#00c8a0' },
+        { name:'Progesterone', val:'Cycling', unit:'regular', trend:'Stable cycles', color:'#00c8a0', bar:'#00c8a0' },
+      ],
+      30: [
+        { name:'Oestrogen', val:'150–300', unit:'pg/mL', trend:'Still dominant', color:'#00c8a0', bar:'#00c8a0' },
+        { name:'VO₂max', val:'35–44', unit:'ml/kg', trend:'-0.5%/yr', color:'#c47c18', bar:'#c47c18' },
+        { name:'Lean mass', val:'Defending', unit:'–0.5%/yr', trend:'Needs stimulus', color:'#c47c18', bar:'#c47c18' },
+        { name:'Bone density', val:'Peak', unit:'maintaining', trend:'Defend now', color:'#c47c18', bar:'#c47c18' },
+        { name:'Fertility', val:'Declining', unit:'35+', trend:'Window closing', color:'#c47c18', bar:'#c47c18' },
+      ],
+      40: [
+        { name:'Oestrogen', val:'Fluctuating', unit:'perimenopause', trend:'Variable', color:'#c47c18', bar:'#c47c18' },
+        { name:'VO₂max', val:'30–40', unit:'ml/kg', trend:'-1%/yr', color:'#c47c18', bar:'#c47c18' },
+        { name:'Lean mass', val:'-3-5%', unit:'vs 30s', trend:'Accelerating loss', color:'var(--red)', bar:'var(--red)' },
+        { name:'Bone density', val:'Declining', unit:'-0.5%/yr', trend:'Resistance training critical', color:'var(--red)', bar:'var(--red)' },
+        { name:'Progesterone', val:'Dropping', unit:'first to fall', trend:'Sleep disruption', color:'var(--red)', bar:'var(--red)' },
+      ],
+      50: [
+        { name:'Oestrogen', val:'Low', unit:'post-menopause', trend:'Stabilising', color:'#c47c18', bar:'#c47c18' },
+        { name:'VO₂max', val:'25–35', unit:'ml/kg', trend:'Training reverses', color:'#c47c18', bar:'#c47c18' },
+        { name:'Lean mass', val:'–8-12%', unit:'vs 30s', trend:'Training reverses', color:'#c47c18', bar:'#c47c18' },
+        { name:'Bone density', val:'Risk zone', unit:'–1%/yr', trend:'Loading essential', color:'var(--red)', bar:'var(--red)' },
+        { name:'Cardiovasc. risk', val:'Rising', unit:'oestrogen gone', trend:'Exercise is medicine', color:'var(--red)', bar:'var(--red)' },
+      ],
+      60: [
+        { name:'Oestrogen', val:'Very low', unit:'stable', trend:'Post-menopause', color:'#c47c18', bar:'#c47c18' },
+        { name:'VO₂max', val:'22–30', unit:'ml/kg', trend:'Zone 2 priority', color:'#c47c18', bar:'#c47c18' },
+        { name:'Lean mass', val:'Critical', unit:'sarcopenia risk', trend:'Resistance = survival', color:'var(--red)', bar:'var(--red)' },
+        { name:'Bone density', val:'Fracture risk', unit:'hip priority', trend:'Loading essential', color:'var(--red)', bar:'var(--red)' },
+        { name:'Cognitive', val:'Protecting', unit:'oestrogen gone', trend:'Exercise is protection', color:'#c47c18', bar:'#c47c18' },
+      ],
+      70: [
+        { name:'VO₂max', val:'18–25', unit:'ml/kg', trend:'Still trainable', color:'#c47c18', bar:'#c47c18' },
+        { name:'Lean mass', val:'Critical', unit:'independence', trend:'Use it or lose it', color:'var(--red)', bar:'var(--red)' },
+        { name:'Bone density', val:'Monitor', unit:'fracture prevention', trend:'Loading non-negotiable', color:'var(--red)', bar:'var(--red)' },
+        { name:'Balance', val:'Key metric', unit:'fall prevention', trend:'Train specifically', color:'#c47c18', bar:'#c47c18' },
+        { name:'Functional age', val:'Trainable', unit:'10yr gap possible', trend:'Consistent exercise', color:'#00c8a0', bar:'#00c8a0' },
+      ],
+    };
+
+    // Replace biomarkers in each decade
+    Object.keys(FEMALE_BIOMARKERS).forEach(decade => {
+      const d = DECADES[parseInt(decade)];
+      if (d) d.biomarkers = FEMALE_BIOMARKERS[decade];
+    });
+
+    // Also patch decade labels to be female-framed
+    const FEMALE_LABELS = {
+      20: '20s — Peak oestrogen',
+      30: '30s — First shifts',
+      40: '40s — The transition',
+      50: '50s — Post-menopause',
+      60: '60s — The dividend',
+      70: '70s — The long game',
+    };
+    Object.keys(FEMALE_LABELS).forEach(decade => {
+      const d = DECADES[parseInt(decade)];
+      if (d) d.label = FEMALE_LABELS[decade];
+    });
+
+    // Update age-band labels in the HTML
+    document.querySelectorAll('.age-band').forEach(band => {
+      const decText = band.querySelector('.ab-decade');
+      const labelText = band.querySelector('.ab-label');
+      if (!decText || !labelText) return;
+      const decade = parseInt(decText.textContent);
+      const femaleLabel = {
+        20:'Peak oestrogen', 30:'First shifts', 40:'The transition',
+        50:'Post-menopause', 60:'The dividend', 70:'Long game'
+      };
+      if (femaleLabel[decade]) labelText.textContent = femaleLabel[decade];
+    });
+
+  } catch(e) { console.error('Longevity female patch error:', e); }
+})();
+
+
 // ─── FULL COMPARISON TABLE ────────────────────────────────
 const TABLE_ROWS = [
   { group: true, label: 'MUSCLE & STRENGTH' },

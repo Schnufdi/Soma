@@ -642,9 +642,29 @@ function renderBlock(b, open) {
 
 // ── ASK ANYTHING ───────────────────────────────────
 function setupAskChips() {
-  const chips = isTraining
-    ? ["I'm hungry — what can I eat?", "How heavy should I go?", "Can I drink tonight?", "Knee feels tight"]
-    : ["I'm hungry — what can I eat?", "What's best for recovery today?", "Can I drink tonight?", "Low energy — what helps?"];
+  const injuries = (profile.injuryAssessments || profile.injuries || []);
+  const injuryChip = injuries.length
+    ? injuries[0].location + ' feels tight'
+    : null;
+  const triggerChip = profile.triggerFoods && !profile.triggerFoods.toLowerCase().includes('none')
+    ? 'I want ' + profile.triggerFoods.split(/[,/]/)[0].trim().toLowerCase()
+    : null;
+
+  const trainingChips = [
+    "I'm hungry — what can I eat?",
+    "How heavy should I go today?",
+    "Can I drink tonight?",
+    injuryChip || "Low energy — what helps?",
+  ].filter(Boolean);
+
+  const restChips = [
+    "I'm hungry — what can I eat?",
+    "What's best for recovery today?",
+    "Can I drink tonight?",
+    triggerChip || "Low energy — what helps?",
+  ].filter(Boolean);
+
+  const chips = isTraining ? trainingChips : restChips;
 
   document.getElementById('ask-chips').innerHTML = chips
     .map(q => `<button class="ask-chip" onclick="setAsk('${q.replace(/'/g,"\\'")}')">${q}</button>`)
