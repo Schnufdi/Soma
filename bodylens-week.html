@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Week</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.page { max-width:900px; margin:0 auto; padding:0 24px 80px; }
+
+/* Hero */
+.wk-hero { padding:40px 0 32px; border-bottom:1px solid var(--bd); margin-bottom:32px; }
+.wk-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+.wk-kicker::before { content:''; width:18px; height:1px; background:var(--jade); }
+.wk-title { font-family:var(--serif); font-size:48px; font-weight:300; line-height:0.95; letter-spacing:-0.025em; color:var(--dk-1); margin-bottom:12px; }
+.wk-title em { font-style:italic; color:var(--dk-3); }
+.wk-sub { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.65; max-width:480px; }
+
+/* Week stats strip */
+.wk-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--bd); border:1px solid var(--bd); border-radius:6px; overflow:hidden; margin-bottom:28px; }
+.wk-stat { background:var(--ink-2); padding:14px 12px; text-align:center; }
+.wk-stat-val { font-family:var(--mono); font-size:20px; font-weight:500; color:var(--jade); line-height:1; margin-bottom:4px; }
+.wk-stat-val.amber { color:var(--amber); }
+.wk-stat-val.slate { color:var(--dk-2); }
+.wk-stat-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+
+/* Section label */
+.wk-sec { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin:0 0 12px; display:flex; align-items:center; gap:10px; }
+.wk-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
+
+/* Day cards grid */
+.wk-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; margin-bottom:32px; }
+
+.wk-card {
+  background:var(--ink-2);
+  border:1px solid var(--bd);
+  border-radius:6px;
+  padding:14px 10px;
+  text-decoration:none;
+  display:block;
+  transition:border-color 0.15s;
+  position:relative;
+  overflow:hidden;
+}
+.wk-card:hover { border-color:var(--bd-2); }
+.wk-card.training { border-top:3px solid var(--jade); }
+.wk-card.rest     { border-top:3px solid var(--ink-3); }
+.wk-card.today    { border-color:var(--jade); background:rgba(0,200,160,0.04); }
+.wk-card.today.rest { border-color:var(--jade); }
+
+.wk-card-day {
+  font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--dk-3); margin-bottom:6px;
+}
+.wk-card.today .wk-card-day { color:var(--jade); }
+
+.wk-card-type {
+  font-size:12px; font-weight:600; color:var(--dk-1);
+  margin-bottom:4px; line-height:1.2;
+}
+.wk-card.rest .wk-card-type { color:var(--dk-3); font-weight:400; }
+
+.wk-card-focus {
+  font-size:10px; font-weight:300; color:var(--dk-3);
+  line-height:1.4; margin-bottom:8px;
+}
+
+.wk-card-kcal {
+  font-family:var(--mono); font-size:11px; font-weight:500;
+  color:var(--jade);
+}
+.wk-card.rest .wk-card-kcal { color:var(--dk-3); }
+
+.wk-card-exercises {
+  font-size:9px; font-weight:300; color:var(--dk-3);
+  line-height:1.5; margin-top:4px;
+}
+
+.wk-today-badge {
+  position:absolute; top:8px; right:8px;
+  font-size:8px; font-weight:600; letter-spacing:0.08em;
+  text-transform:uppercase; color:var(--jade);
+  background:var(--jade-dim); border:1px solid var(--jade-br);
+  padding:2px 6px; border-radius:10px;
+}
+
+/* Week rhythm bar chart */
+.wk-rhythm { margin-bottom:32px; }
+.wk-rhythm-row {
+  display:grid; grid-template-columns:70px 1fr 60px;
+  align-items:center; gap:10px; margin-bottom:8px;
+}
+.wk-rhythm-label { font-size:11px; font-weight:500; color:var(--dk-2); }
+.wk-rhythm-track { height:6px; background:var(--ink-3); border-radius:3px; overflow:hidden; }
+.wk-rhythm-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
+.wk-rhythm-fill.training { background:var(--jade); }
+.wk-rhythm-fill.rest     { background:var(--dk-3); }
+.wk-rhythm-kcal { font-family:var(--mono); font-size:10px; font-weight:300; color:var(--dk-3); text-align:right; }
+
+/* Coach notes section */
+.wk-notes { display:flex; flex-direction:column; gap:8px; }
+.wk-note {
+  background:var(--ink-2); border:1px solid var(--bd); border-radius:6px;
+  padding:16px 18px; border-left:3px solid var(--jade-br);
+}
+.wk-note.amber { border-left-color:var(--amber-br); }
+.wk-note.gold  { border-left-color:var(--gold-br); }
+.wk-note-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--jade); margin-bottom:6px; }
+.wk-note.amber .wk-note-label { color:var(--amber); }
+.wk-note.gold  .wk-note-label { color:var(--gold); }
+.wk-note-text { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.75; }
+.wk-note-text strong { color:var(--dk-1); font-weight:500; }
+
+/* No profile */
+.no-profile { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center; padding:48px 24px; gap:14px; }
+.no-profile h2 { font-family:var(--serif); font-size:30px; font-weight:300; color:var(--dk-1); }
+.no-profile p  { font-size:14px; font-weight:300; color:var(--dk-2); max-width:360px; line-height:1.7; }
+.no-profile a  { display:inline-block; padding:12px 28px; background:var(--jade); border-radius:6px; font-size:13px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink); text-decoration:none; }
+
+@media(max-width:860px) {
+  .wk-grid { grid-template-columns:repeat(4,1fr); }
+  .wk-stats { grid-template-columns:repeat(2,1fr); }
+}
+@media(max-width:600px) {
+  .wk-grid { grid-template-columns:1fr 1fr; }
+  .page { padding:0 16px 60px; }
+  .wk-title { font-size:36px; }
+  .wk-stats { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-daily active" href="bodylens-week.html">Week</a>
+    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-profile.html">Profile</a>
+    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
+    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
+    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
+    <a class="nav-link" href="bodylens-training.html">Training</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-story.html">The Story</a>
+    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+  </div>
+  <div class="nav-meta" id="nav-meta"></div>
+</nav>
+
+<div class="page" id="main"></div>
+
+<script src="nav.js"></script>
+<script>
+const profile = getProfile();
+
+if (!profile) {
+  document.getElementById('main').innerHTML = `
+    <div class="no-profile">
+      <div style="font-size:44px;">📅</div>
+      <h2>No programme yet</h2>
+      <p>Complete the onboarding and your week plan will appear here.</p>
+      <a href="bodylens-onboard.html">Get started →</a>
+    </div>`;
+} else {
+  document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${profile.name}</span>`;
+  render(profile);
+}
+
+function render(p) {
+  const weekPlan = p.weekPlan || [];
+  const DAY_MAP  = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
+  const todayIdx = DAY_MAP[new Date().getDay()];
+  const trainingDays = weekPlan.filter(d => d.priority === 'training').length;
+  const restDays     = weekPlan.filter(d => d.priority !== 'training').length;
+  const avgTrainKcal = Math.round(weekPlan.filter(d=>d.priority==='training').reduce((a,d)=>a+(d.kcal||0),0) / (trainingDays||1));
+  const avgRestKcal  = Math.round(weekPlan.filter(d=>d.priority!=='training').reduce((a,d)=>a+(d.kcal||0),0) / (restDays||1));
+  const maxKcal      = Math.max(...weekPlan.map(d=>d.kcal||0));
+
+  document.getElementById('main').innerHTML = `
+    <div class="wk-hero">
+      <div class="wk-kicker">Week plan · ${p.name}</div>
+      <div class="wk-title">The<br><em>week.</em></div>
+      <div class="wk-sub">
+        ${trainingDays} training days, ${restDays} rest days. The structure is intentional — every session placement has a reason.
+        ${p.goal ? 'Goal: ' + p.goal + '.' : ''}
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="wk-stats">
+      <div class="wk-stat">
+        <div class="wk-stat-val">${trainingDays}</div>
+        <div class="wk-stat-label">Training days</div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-val jade">${p.protein||'—'}g</div>
+        <div class="wk-stat-label">Protein daily</div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-val amber">${avgTrainKcal||'—'}</div>
+        <div class="wk-stat-label">Train day kcal</div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-val slate">${avgRestKcal||'—'}</div>
+        <div class="wk-stat-label">Rest day kcal</div>
+      </div>
+    </div>
+
+    <!-- Day cards -->
+    <div class="wk-sec">Your week</div>
+    <div class="wk-grid">
+      ${weekPlan.map((day, i) => {
+        const isToday = i === todayIdx;
+        const isTraining = day.priority === 'training';
+        return `
+          <a href="bodylens-day.html" class="wk-card ${isTraining?'training':'rest'}${isToday?' today':''}" style="text-decoration:none;">
+            ${isToday ? '<div class="wk-today-badge">Today</div>' : ''}
+            <div class="wk-card-day">${day.day.slice(0,3)}</div>
+            <div class="wk-card-type">${day.type}</div>
+            <div class="wk-card-focus">${day.focus || ''}</div>
+            <div class="wk-card-kcal">${day.kcal ? day.kcal.toLocaleString() + ' kcal' : ''}</div>
+            ${isTraining && day.keyExercises && day.keyExercises.length ?
+              `<div class="wk-card-exercises">${day.keyExercises.slice(0,2).join('<br>')}</div>` : ''}
+          </a>`;
+      }).join('')}
+    </div>
+
+    <!-- Calorie rhythm -->
+    <div class="wk-sec">Calorie rhythm</div>
+    <div class="wk-rhythm">
+      ${weekPlan.map(day => {
+        const pct = maxKcal ? Math.round((day.kcal||0) / maxKcal * 100) : 50;
+        const isTraining = day.priority === 'training';
+        return `
+          <div class="wk-rhythm-row">
+            <div class="wk-rhythm-label">${day.day.slice(0,3)}</div>
+            <div class="wk-rhythm-track">
+              <div class="wk-rhythm-fill ${isTraining?'training':'rest'}" style="width:${pct}%"></div>
+            </div>
+            <div class="wk-rhythm-kcal">${day.kcal ? day.kcal.toLocaleString() : '—'}</div>
+          </div>`;
+      }).join('')}
+    </div>
+
+    <!-- Coach notes -->
+    <div class="wk-sec">Why it's structured this way</div>
+    <div class="wk-notes">
+      ${buildCoachNotes(weekPlan, p)}
+    </div>
+  `;
+}
+
+function buildCoachNotes(weekPlan, p) {
+  const notes = [];
+  const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day);
+  const hasPostChain = weekPlan.some(d=>d.type&&d.type.toLowerCase().includes('posterior'));
+  const hasPush = weekPlan.some(d=>d.type&&d.type.toLowerCase().includes('push'));
+  const hasPull = weekPlan.some(d=>d.type&&d.type.toLowerCase().includes('pull'));
+  const hasInjuries = p.injuries && p.injuries.length > 0;
+
+  notes.push(`<div class="wk-note">
+    <div class="wk-note-label">Training placement</div>
+    <div class="wk-note-text">
+      ${hasPush && hasPull ? `Push and pull days are separated to allow the pressing muscles to recover before the next stimulus. ` : ''}
+      ${hasPostChain ? `Posterior chain is placed at the end of the training week — it benefits from the full glycogen reload of the rest day before it and generates the largest hormonal response of the week. ` : ''}
+      <strong>Rest days are not wasted days</strong> — muscle protein synthesis peaks 24–48 hours after training. Rest day nutrition is as important as training day nutrition.
+    </div>
+  </div>`);
+
+  notes.push(`<div class="wk-note amber">
+    <div class="wk-note-label">Calorie rhythm</div>
+    <div class="wk-note-text">
+      Training days carry higher calories because the training stimulus creates an elevated anabolic window — nutrients go to muscle rather than fat storage.
+      Rest days are lower because the demand is lower, but <strong>protein stays constant every day</strong>. MPS peaks on rest days. Never drop protein on a rest day.
+    </div>
+  </div>`);
+
+  if (hasInjuries) {
+    notes.push(`<div class="wk-note gold">
+      <div class="wk-note-label">Injury protocol</div>
+      <div class="wk-note-text">
+        Exercise modifications are built into each training session. The goal is to maintain full training stimulus while protecting the affected area.
+        <strong>The posterior chain is the primary protective mechanism</strong> for most lower body injuries — training it consistently is both the performance goal and the rehabilitation strategy.
+      </div>
+    </div>`);
+  }
+
+  return notes.join('');
+}
+</script>
+</body>
+</html>

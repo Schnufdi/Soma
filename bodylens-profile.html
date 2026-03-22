@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.page { max-width:900px; margin:0 auto; padding:0 24px 80px; }
+
+/* Hero */
+.prof-hero {
+  padding:48px 0 36px;
+  border-bottom:1px solid var(--bd);
+  margin-bottom:36px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:32px;
+  align-items:end;
+}
+.prof-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+.prof-kicker::before { content:''; width:18px; height:1px; background:var(--jade); }
+.prof-name { font-family:var(--serif); font-size:64px; font-weight:300; line-height:0.92; letter-spacing:-0.03em; color:var(--dk-1); }
+.prof-goal { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.6; margin-top:12px; max-width:440px; }
+
+/* Benchmark grid */
+.prof-benchmarks {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:1px;
+  background:var(--bd);
+  border:1px solid var(--bd);
+  border-radius:6px;
+  overflow:hidden;
+}
+.prof-bm {
+  background:var(--ink-2);
+  padding:16px 12px;
+  text-align:center;
+}
+.prof-bm-val {
+  font-family:var(--mono);
+  font-size:24px; font-weight:500;
+  color:var(--jade); line-height:1; margin-bottom:5px;
+}
+.prof-bm-val.amber { color:var(--amber); }
+.prof-bm-val.slate { color:var(--dk-2); }
+.prof-bm-val.red   { color:var(--red); }
+.prof-bm-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+
+/* Sections */
+.prof-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+
+.prof-card {
+  background:var(--ink-2);
+  border:1px solid var(--bd);
+  border-radius:6px;
+  overflow:hidden;
+}
+.prof-card.full { grid-column:1/-1; }
+.prof-card.jade  { border-top:3px solid var(--jade); }
+.prof-card.amber { border-top:3px solid var(--amber); }
+.prof-card.gold  { border-top:3px solid var(--gold); }
+.prof-card.red   { border-top:3px solid var(--red); }
+.prof-card.slate { border-top:3px solid var(--slate); }
+
+.prof-card-head {
+  padding:14px 18px;
+  background:var(--ink-1);
+  border-bottom:1px solid var(--bd);
+  display:flex; align-items:center; gap:8px;
+}
+.prof-card-icon { font-size:14px; }
+.prof-card-title { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+.prof-card.jade  .prof-card-title { color:var(--jade); }
+.prof-card.amber .prof-card-title { color:var(--amber); }
+.prof-card.gold  .prof-card-title { color:var(--gold); }
+.prof-card.red   .prof-card-title { color:var(--red); }
+
+.prof-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:10px 18px; border-bottom:1px solid var(--bd);
+  font-size:12px; gap:12px;
+}
+.prof-row:last-child { border-bottom:none; }
+.prof-row-label { font-weight:400; color:var(--dk-3); flex-shrink:0; }
+.prof-row-val   { font-weight:500; color:var(--dk-1); text-align:right; line-height:1.4; }
+.prof-row-val.jade  { color:var(--jade); }
+.prof-row-val.amber { color:var(--amber); }
+.prof-row-val.red   { color:var(--red); }
+
+/* Injury card */
+.prof-injury {
+  padding:14px 18px;
+  border-bottom:1px solid var(--bd);
+  border-left:3px solid var(--gold);
+  margin-left:-1px;
+}
+.prof-injury:last-child { border-bottom:none; }
+.prof-injury-loc { font-size:12px; font-weight:600; color:var(--gold); margin-bottom:4px; }
+.prof-injury-text { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65; }
+.prof-injury-rules { margin-top:8px; font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.65; }
+
+/* Supplement table */
+.supp-row {
+  display:grid;
+  grid-template-columns:1fr 80px 120px;
+  padding:10px 18px;
+  border-bottom:1px solid var(--bd);
+  font-size:12px; gap:12px; align-items:baseline;
+}
+.supp-row:last-child { border-bottom:none; }
+.supp-row.head { background:var(--ink-1); }
+.supp-row.head div { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+.supp-name  { font-weight:500; color:var(--dk-1); }
+.supp-dose  { font-family:var(--mono); font-weight:300; color:var(--amber); }
+.supp-time  { font-weight:300; color:var(--dk-3); }
+
+/* Coach summary */
+.prof-coach-summary {
+  padding:20px 18px;
+  font-family:var(--serif);
+  font-size:16px; font-weight:300; font-style:italic;
+  line-height:1.82; color:var(--dk-2);
+  border-left:2px solid var(--jade-br);
+  margin:4px 0;
+}
+
+/* Laws */
+.prof-law { padding:16px 18px; border-bottom:1px solid var(--bd); }
+.prof-law:last-child { border-bottom:none; }
+.prof-law-num { font-family:var(--serif); font-size:28px; font-weight:300; color:var(--jade); opacity:0.4; float:left; margin-right:12px; line-height:1; }
+.prof-law-text { font-size:13px; font-weight:500; color:var(--dk-1); margin-bottom:4px; }
+.prof-law-why  { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65; clear:both; }
+
+/* No profile */
+.no-profile { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center; padding:48px 24px; gap:14px; }
+.no-profile h2 { font-family:var(--serif); font-size:30px; font-weight:300; color:var(--dk-1); }
+.no-profile p  { font-size:14px; font-weight:300; color:var(--dk-2); max-width:360px; line-height:1.7; }
+.no-profile a  { display:inline-block; padding:12px 28px; background:var(--jade); border-radius:6px; font-size:13px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink); text-decoration:none; }
+
+@media(max-width:860px) {
+  .prof-hero { grid-template-columns:1fr; gap:20px; }
+  .prof-benchmarks { grid-template-columns:repeat(3,1fr); }
+  .prof-grid { grid-template-columns:1fr; }
+  .prof-card.full { grid-column:1; }
+}
+@media(max-width:600px) {
+  .page { padding:0 16px 60px; }
+  .prof-name { font-size:44px; }
+  .prof-benchmarks { grid-template-columns:repeat(2,1fr); }
+  .supp-row { grid-template-columns:1fr 70px; }
+  .supp-time { display:none; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
+    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link active" href="bodylens-profile.html">Profile</a>
+    <a class="nav-link" href="bodylens-instructions.html">Instructions</a>
+    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
+    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
+    <a class="nav-link" href="bodylens-training.html">Training</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-story.html">The Story</a>
+    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+  </div>
+  <div class="nav-meta" id="nav-meta"></div>
+</nav>
+
+<div class="page" id="main"></div>
+
+<script src="nav.js"></script>
+<script>
+const profile = getProfile();
+
+if (!profile) {
+  document.getElementById('main').innerHTML = `
+    <div class="no-profile">
+      <div style="font-size:44px;">👤</div>
+      <h2>No profile yet</h2>
+      <p>Complete the onboarding and your full profile will appear here.</p>
+      <a href="bodylens-onboard.html">Get started →</a>
+    </div>`;
+} else {
+  document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${profile.name}</span>`;
+  render(profile);
+}
+
+function render(p) {
+  const injuries    = p.injuryAssessments || [];
+  const supps       = p.supplements || [];
+  const weekPlan    = p.weekPlan || [];
+  const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
+  const genDate     = p.generatedAt ? new Date(p.generatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '—';
+
+  document.getElementById('main').innerHTML = `
+
+    <!-- Hero -->
+    <div class="prof-hero">
+      <div>
+        <div class="prof-kicker">Performance profile</div>
+        <div class="prof-name">${p.name || 'Profile'}</div>
+        <div class="prof-goal">${p.goal || ''} ${p.target ? '— ' + p.target : ''}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;font-weight:300;color:var(--dk-3);">Generated ${genDate}</div>
+        <a href="bodylens-reset.html" style="display:inline-block;margin-top:8px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--dk-3);border:1px solid var(--bd-2);padding:6px 14px;border-radius:4px;text-decoration:none;">Reset</a>
+      </div>
+    </div>
+
+    <!-- Benchmarks -->
+    <div class="prof-benchmarks" style="margin-bottom:32px;">
+      <div class="prof-bm">
+        <div class="prof-bm-val">${p.age||'—'}</div>
+        <div class="prof-bm-label">Age</div>
+      </div>
+      <div class="prof-bm">
+        <div class="prof-bm-val slate">${p.weight||'—'}kg</div>
+        <div class="prof-bm-label">Weight</div>
+      </div>
+      <div class="prof-bm">
+        <div class="prof-bm-val jade">${p.bodyFat||'—'}%</div>
+        <div class="prof-bm-label">Body fat</div>
+      </div>
+      <div class="prof-bm">
+        <div class="prof-bm-val amber">${p.calories||'—'}</div>
+        <div class="prof-bm-label">Kcal/day</div>
+      </div>
+      <div class="prof-bm">
+        <div class="prof-bm-val jade">${p.protein||'—'}g</div>
+        <div class="prof-bm-label">Protein</div>
+      </div>
+    </div>
+
+    <!-- Coach summary -->
+    ${p.coachSummary ? `
+    <div class="prof-card full jade" style="margin-bottom:16px;">
+      <div class="prof-card-head"><div class="prof-card-icon">🎯</div><div class="prof-card-title jade">Coach's read</div></div>
+      <div class="prof-coach-summary">${p.coachSummary}</div>
+    </div>` : ''}
+
+    <div class="prof-grid">
+
+      <!-- Baseline -->
+      <div class="prof-card slate">
+        <div class="prof-card-head"><div class="prof-card-icon">👤</div><div class="prof-card-title">Baseline</div></div>
+        <div class="prof-row"><span class="prof-row-label">Age / Sex</span><span class="prof-row-val">${p.age||'—'} · ${p.sex||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Height</span><span class="prof-row-val">${p.height||'—'} cm</span></div>
+        <div class="prof-row"><span class="prof-row-label">Weight</span><span class="prof-row-val">${p.weight||'—'} kg</span></div>
+        <div class="prof-row"><span class="prof-row-label">Body fat</span><span class="prof-row-val jade">${p.bodyFat||'—'}%</span></div>
+        <div class="prof-row"><span class="prof-row-label">Fat storage</span><span class="prof-row-val">${p.fatStorage||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Experience</span><span class="prof-row-val">${p.experience||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Wake time</span><span class="prof-row-val">${p.wakeTime||'—'}</span></div>
+      </div>
+
+      <!-- Nutrition -->
+      <div class="prof-card amber">
+        <div class="prof-card-head"><div class="prof-card-icon">🥗</div><div class="prof-card-title amber">Nutrition</div></div>
+        <div class="prof-row"><span class="prof-row-label">Calories</span><span class="prof-row-val amber">${p.calories||'—'} kcal</span></div>
+        <div class="prof-row"><span class="prof-row-label">Protein</span><span class="prof-row-val jade">${p.protein||'—'}g</span></div>
+        <div class="prof-row"><span class="prof-row-label">Carbs</span><span class="prof-row-val amber">${p.carbs||'—'}g</span></div>
+        <div class="prof-row"><span class="prof-row-label">Fat</span><span class="prof-row-val">${p.fat||'—'}g</span></div>
+        <div class="prof-row"><span class="prof-row-label">Eating window</span><span class="prof-row-val">${p.fastingWindow||p.eatingWindow||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Diet</span><span class="prof-row-val">${p.dietType||'—'}</span></div>
+        ${(p.foodExclusions||[]).length ? `<div class="prof-row"><span class="prof-row-label">Avoid</span><span class="prof-row-val red">${p.foodExclusions.join(', ')}</span></div>` : ''}
+        ${p.triggerFoods&&p.triggerFoods!=='Nothing — good discipline' ? `<div class="prof-row"><span class="prof-row-label">Triggers</span><span class="prof-row-val red">${p.triggerFoods}</span></div>` : ''}
+      </div>
+
+      <!-- Training -->
+      <div class="prof-card jade">
+        <div class="prof-card-head"><div class="prof-card-icon">🏋️</div><div class="prof-card-title jade">Training</div></div>
+        <div class="prof-row"><span class="prof-row-label">Days/week</span><span class="prof-row-val jade">${p.trainingDays||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Training days</span><span class="prof-row-val">${trainingDays||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Gym</span><span class="prof-row-val">${p.gymAccess||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Recovery</span><span class="prof-row-val">${(p.recoveryTools||[]).join(', ')||'None'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Sleep</span><span class="prof-row-val">${p.sleep||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Alcohol</span><span class="prof-row-val">${p.alcoholHabit||'—'}</span></div>
+      </div>
+
+      <!-- Non-negotiables -->
+      <div class="prof-card slate">
+        <div class="prof-card-head"><div class="prof-card-icon">✓</div><div class="prof-card-title">Non-negotiables</div></div>
+        ${(p.nonNegotiables||[]).length
+          ? (p.nonNegotiables||[]).map(n => `<div class="prof-row"><span class="prof-row-label">·</span><span class="prof-row-val">${n}</span></div>`).join('')
+          : '<div class="prof-row"><span class="prof-row-val" style="color:var(--dk-3);">None specified — fully flexible</span></div>'}
+      </div>
+
+      <!-- Injuries -->
+      ${injuries.length || (p.injuries&&p.injuries.length) ? `
+      <div class="prof-card gold full">
+        <div class="prof-card-head"><div class="prof-card-icon">🩹</div><div class="prof-card-title gold">Injuries &amp; modifications</div></div>
+        ${injuries.length ? injuries.map(inj=>`
+          <div class="prof-injury">
+            <div class="prof-injury-loc">${inj.location}</div>
+            <div class="prof-injury-text">${inj.assessment||inj.detail||''}</div>
+            ${inj.avoidMovements&&inj.avoidMovements.length ? `
+            <div class="prof-injury-rules">
+              <strong style="color:var(--red);">Avoid:</strong> ${inj.avoidMovements.join(', ')}<br>
+              <strong style="color:var(--jade);">Instead:</strong> ${(inj.safeAlternatives||[]).join(', ')}<br>
+              ${inj.rehabilitationNotes?`<strong style="color:var(--gold);">Long term:</strong> ${inj.rehabilitationNotes}`:''}
+            </div>` : ''}
+          </div>`).join('')
+          : (p.injuries||[]).map(loc=>`
+          <div class="prof-injury">
+            <div class="prof-injury-loc">${loc}</div>
+            <div class="prof-injury-text">${p.injuryDetail||'See Instructions for detail'}</div>
+          </div>`).join('')}
+      </div>` : ''}
+
+      <!-- Supplements -->
+      ${supps.length ? `
+      <div class="prof-card gold full">
+        <div class="prof-card-head"><div class="prof-card-icon">💊</div><div class="prof-card-title gold">Supplement stack</div></div>
+        <div class="supp-row head">
+          <div>Supplement</div>
+          <div>Dose</div>
+          <div>Timing</div>
+        </div>
+        ${supps.map(s=>`
+        <div class="supp-row">
+          <div class="supp-name">${s.name}</div>
+          <div class="supp-dose">${s.dose}</div>
+          <div class="supp-time">${s.timing}</div>
+        </div>`).join('')}
+      </div>` : ''}
+
+      <!-- Three laws -->
+      <div class="prof-card jade full">
+        <div class="prof-card-head"><div class="prof-card-icon">⚡</div><div class="prof-card-title jade">The three laws</div></div>
+        <div class="prof-law">
+          <div class="prof-law-num">I</div>
+          <div class="prof-law-text">Protein is non-negotiable. Every day. No exceptions.</div>
+          <div class="prof-law-why">${p.protein||185}g daily across ${p.mealCount||4} meals. Each meal must clear the leucine threshold to trigger mTOR activation — the molecular switch for muscle protein synthesis. A missed meal doesn't average out.</div>
+        </div>
+        <div class="prof-law">
+          <div class="prof-law-num">II</div>
+          <div class="prof-law-text">Sleep is training. Skipping it skips the adaptation.</div>
+          <div class="prof-law-why">GH pulses in the first slow-wave cycle. Testosterone consolidates overnight. One week of sub-6h sleep reduces testosterone 10–15%. The gym session is the signal. Sleep is where the body responds.</div>
+        </div>
+        <div class="prof-law">
+          <div class="prof-law-num">III</div>
+          <div class="prof-law-text">Consistency beats intensity. The loop compounds.</div>
+          <div class="prof-law-why">One perfect week does almost nothing. Twelve consistent weeks changes the body permanently. Every habit that sustains the programme is not self-discipline — it is loop management.</div>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
