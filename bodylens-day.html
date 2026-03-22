@@ -257,6 +257,9 @@ Calories: ${todayPlan.kcal||p.calories||2000} kcal | Protein: ${p.protein||140}g
 Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
 Diet: ${p.dietType||'no restrictions'} | Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}
 Trigger foods to avoid: ${p.triggerFoods||'none'}
+Food profile: ${p.cookingApproach||'standard'} | Cuisines: ${(p.cuisinePrefs||[]).join(', ')||'neutral'} | Complexity: ${p.recipeComplexity||'standard'}
+${(p.recipeComplexity||'').includes('5 ingredient') ? 'MEAL RULE: Max 5 ingredients per meal. Simple only.' : (p.recipeComplexity||'').includes('enjoy cooking') ? 'MEAL RULE: Full recipe complexity welcome.' : 'MEAL RULE: Standard home cooking complexity.'}
+${(p.cuisinePrefs||[]).length && !(p.cuisinePrefs||[]).join('').includes('no strong') ? 'MEAL STYLE: Build around '+((p.cuisinePrefs||[]).join(' + '))+' flavours where possible.' : ''}
 Today: ${todayName} — ${todayPlan.type} (${isTraining?'TRAINING DAY':'REST DAY'})
 ${isTraining ? 'Exercises: '+(todayPlan.keyExercises||[]).join(', ') : 'Rest day — focus on nutrition, recovery, adaptation'}
 ${injuries.length ? 'Injuries: '+injuries.map(i=>(i.location||i)+': '+(i.assessment||'')).join('; ') : ''}

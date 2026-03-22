@@ -1149,6 +1149,10 @@ async function generateMealIdeas(p) {
   const restDays = weekPlan.filter(d=>d.priority!=='training').map(d=>d.day);
   const isFemale = (p.sex||'').toLowerCase() === 'female';
 
+  const cookingNote = p.cookingApproach || 'standard';
+  const cuisines = (p.cuisinePrefs||[]).join(', ') || 'no strong preference';
+  const complexity = p.recipeComplexity || 'standard';
+  
   const prompt = `You are a performance nutritionist. Build a full week of meal ideas for this person.
 
 PROFILE:
@@ -1159,10 +1163,23 @@ Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
 Diet: ${p.dietType||'no restrictions'}
 Food exclusions: ${(p.foodExclusions||[]).join(', ')||'none'}
 Trigger foods (avoid): ${p.triggerFoods||'none'}
-Cooking: ${p.cookingHabits||'moderate'}
 Training days: ${trainingDays.join(', ')||'Mon,Wed,Fri,Sat'}
 Rest days: ${restDays.join(', ')||'Tue,Thu,Sun'}
-${isFemale ? `FEMALE: Account for female hormonal patterns — higher iron needs, oestrogen effects on nutrient partitioning, cycle-phase nutrition if relevant.` : ''}
+${isFemale ? 'FEMALE: Account for female hormonal patterns — higher iron needs, oestrogen effects on nutrient partitioning, cycle-phase nutrition if relevant.' : ''}
+
+FOOD PROFILE — CRITICAL, follow exactly:
+Cooking approach: ${cookingNote}
+Cuisine preferences: ${cuisines}
+Recipe complexity: ${complexity}
+
+MEAL STYLE RULES:
+${complexity.includes('5 ingredient') ? '- MAXIMUM 5 ingredients per meal. No exceptions. Simple preparations only.' : ''}
+${complexity.includes('Standard') ? '- Standard home cooking. 6-10 ingredients. Nothing requiring specialist techniques.' : ''}
+${complexity.includes('enjoy cooking') ? '- Full recipe complexity welcome. Proper techniques, multiple components, interesting preparations.' : ''}
+${cookingNote.includes('Convenience') ? '- Quick to prepare. Under 20 minutes. Batch-cook friendly.' : ''}
+${cookingNote.includes('Adventurous') ? '- Bold flavours welcome. Interesting spice combinations. Global techniques.' : ''}
+${cookingNote.includes('Simple') ? '- Plain, clean flavours. Grilled or baked proteins. No complex sauces.' : ''}
+Cuisine direction: ${cuisines.includes('no strong') ? 'Keep it neutral and familiar.' : 'Build meals around '+cuisines+' flavour profiles where possible.'}
 
 Build TWO day templates:
 1. A TRAINING DAY meal plan (${p.calories} kcal, ${p.protein}g protein)

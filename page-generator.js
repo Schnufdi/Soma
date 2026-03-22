@@ -82,6 +82,10 @@ FREE WEIGHT COMFORT: ${p.freeWeightComfort||'not specified'}
 TRAINING TIME: ${p.trainingTime||'not specified'}
 FASTING PREFERENCE: ${p.fastingPreference||'not specified'}
 ACTIVITY LEVEL: ${p.activityLevel||'not specified'}
+COOKING APPROACH: ${p.cookingApproach||'not specified'}
+CUISINE PREFERENCES: ${(p.cuisinePrefs||[]).join(', ')||'no preference'}
+RECIPE COMPLEXITY: ${p.recipeComplexity||'not specified'}
+FOOD PROFILE NOTE: All meal suggestions must match these. "Simple and clean" = grilled protein + rice + veg, 5 ingredients. "Adventurous + Middle Eastern" = spiced lamb, tahini, pomegranate. Always match complexity level.
 ${p.menstrualCycle ? 'MENSTRUAL CYCLE: '+p.menstrualCycle : ''}
 ${isFemale
       ? 'FEMALE PHYSIOLOGY FLAG: This is a ' + p.age + '-year-old woman.\n'

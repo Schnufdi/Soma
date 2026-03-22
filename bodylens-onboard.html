@@ -769,6 +769,39 @@
         </div>
 
         <div class="ob2-q">
+          <div class="ob2-q-label">How do you approach food?</div>
+          <div class="ob2-q-sub">Shapes how your meals are built — honesty gets better recipes</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="cooking" data-val="Simple and clean — chicken, rice, veg. I don't need it interesting." onclick="selectSingle(this)">Simple and clean</div>
+            <div class="ob2-chip single" data-group="cooking" data-val="Home cooking — I cook most meals and want variety" onclick="selectSingle(this)">Home cooking with variety</div>
+            <div class="ob2-chip single" data-group="cooking" data-val="Adventurous — bold flavours, global cuisines" onclick="selectSingle(this)">Adventurous eater</div>
+            <div class="ob2-chip single" data-group="cooking" data-val="Convenience-first — quick to prepare, minimal ingredients" onclick="selectSingle(this)">Convenience-first</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Flavour world</div>
+          <div class="ob2-q-sub">Select the cuisines you actually enjoy — up to 3</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip" data-group="cuisines" data-val="Mediterranean" onclick="selectMulti(this)">Mediterranean</div>
+            <div class="ob2-chip" data-group="cuisines" data-val="Asian" onclick="selectMulti(this)">Asian</div>
+            <div class="ob2-chip" data-group="cuisines" data-val="Middle Eastern" onclick="selectMulti(this)">Middle Eastern</div>
+            <div class="ob2-chip" data-group="cuisines" data-val="British &amp; European" onclick="selectMulti(this)">British &amp; European</div>
+            <div class="ob2-chip" data-group="cuisines" data-val="Latin &amp; South American" onclick="selectMulti(this)">Latin</div>
+            <div class="ob2-chip" data-group="cuisines" data-val="No strong preference — keep it plain" onclick="selectMulti(this)">No preference</div>
+          </div>
+        </div>
+
+        <div class="ob2-q">
+          <div class="ob2-q-label">Recipe complexity</div>
+          <div class="ob2-chips">
+            <div class="ob2-chip single" data-group="complexity" data-val="5 ingredients max — the simpler the better" onclick="selectSingle(this)">5 ingredients max</div>
+            <div class="ob2-chip single" data-group="complexity" data-val="Standard home cooking — happy with 8-10 ingredients" onclick="selectSingle(this)">Standard home cooking</div>
+            <div class="ob2-chip single" data-group="complexity" data-val="I enjoy cooking — complexity is fine" onclick="selectSingle(this)">I enjoy cooking — bring the complexity</div>
+          </div>
+        </div>
+
+                <div class="ob2-q">
           <div class="ob2-q-label">Diet</div>
           <div class="ob2-chips">
             <div class="ob2-chip single" data-group="diet" data-val="No restrictions" onclick="selectSingle(this)">No restrictions</div>
@@ -1022,6 +1055,9 @@ function submitForm() {
   formData.recovery  = formData.recovery || [];
   formData.triggers  = formData.triggers || [];
   formData.equipment = formData.equipment || [];
+  formData.cuisines   = formData.cuisines || [];
+  // Enforce max 3 cuisines
+  if (formData.cuisines.length > 3) formData.cuisines = formData.cuisines.slice(0, 3);
   // Derive eating window from fasting preference
   if (formData.fastingpref) {
     if (formData.fastingpref.includes('Open to it')) {
@@ -1224,6 +1260,9 @@ async function triggerGeneration() {
       alcoholHabit:     formData.alcohol,
       sleep:            formData.sleep,
       activityLevel:    formData.activity || '',
+  cookingApproach:  formData.cooking || '',
+  cuisinePrefs:     formData.cuisines || [],
+  recipeComplexity: formData.complexity || '',
       menstrualCycle:   formData.cycle || '',
       nonNegotiables:   formData.nonneg || [],
       injuries:         formData.injuries || [],
