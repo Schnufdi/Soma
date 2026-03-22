@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Instructions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background: var(--ink); color: var(--dk-1); }
+
+/* ── HERO ── */
+.ins-hero {
+  padding: 52px 32px 44px;
+  border-bottom: 1px solid var(--bd);
+  max-width: 860px;
+  margin: 0 auto;
+}
+.ins-kicker {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--jade);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.ins-kicker::before { content:''; width:20px; height:1px; background:var(--jade); }
+.ins-title {
+  font-family: var(--serif);
+  font-size: 52px; font-weight: 300;
+  line-height: 0.95; letter-spacing: -0.025em;
+  color: var(--dk-1); margin-bottom: 14px;
+}
+.ins-title em { font-style: italic; color: var(--dk-3); }
+.ins-sub {
+  font-size: 14px; font-weight: 300; color: var(--dk-2);
+  line-height: 1.7; max-width: 520px; margin-bottom: 20px;
+}
+.ins-meta {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  font-size: 11px; font-weight: 500; color: var(--dk-3);
+  letter-spacing: 0.04em;
+}
+.ins-meta span {
+  display: flex; align-items: center; gap: 6px;
+}
+.ins-meta span::before {
+  content: '·'; color: var(--jade);
+}
+.ins-meta span:first-child::before { display: none; }
+
+/* ── LAYOUT ── */
+.ins-shell {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ── DOCUMENT VIEW ── */
+.ins-doc {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ins-doc-head {
+  background: var(--ink-1);
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--bd);
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.ins-doc-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--dk-3);
+}
+
+.ins-doc-label.jade { color: var(--jade); }
+
+.ins-tabs {
+  display: flex; gap: 2px;
+}
+
+.ins-tab {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 5px 12px;
+  border-radius: 4px; border: none; cursor: pointer;
+  font-family: var(--sans); background: transparent;
+  color: var(--dk-3); transition: all 0.12s;
+}
+.ins-tab:hover { color: var(--dk-2); }
+.ins-tab.active { background: var(--jade); color: var(--ink); }
+
+/* Document text view */
+.ins-text {
+  padding: 24px 28px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.9;
+  color: var(--dk-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 500px;
+  max-height: 70vh;
+  overflow-y: auto;
+  display: none;
+}
+.ins-text.active { display: block; }
+
+/* Structured view */
+.ins-structured {
+  display: none;
+}
+.ins-structured.active { display: block; }
+
+/* Section card */
+.ins-section {
+  border-bottom: 1px solid var(--bd);
+}
+.ins-section:last-child { border-bottom: none; }
+
+.ins-sec-head {
+  padding: 16px 22px;
+  cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: background 0.12s;
+  background: var(--ink-2);
+}
+.ins-sec-head:hover { background: rgba(255,255,255,0.02); }
+
+.ins-sec-title {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ins-sec-title.jade  { color: var(--jade); }
+.ins-sec-title.amber { color: var(--amber); }
+.ins-sec-title.gold  { color: var(--gold); }
+.ins-sec-title.red   { color: var(--red); }
+.ins-sec-title.slate { color: var(--dk-2); }
+
+.ins-sec-toggle {
+  font-size: 11px; color: var(--dk-3); transition: transform 0.2s;
+}
+.ins-section.open .ins-sec-toggle { transform: rotate(90deg); }
+
+.ins-sec-body {
+  display: none;
+  padding: 0 22px 20px;
+  background: var(--ink-1);
+}
+.ins-section.open .ins-sec-body { display: block; }
+
+/* Row inside section */
+.ins-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  border-bottom: 1px solid var(--bd);
+  padding: 10px 0;
+  gap: 12px;
+  align-items: baseline;
+}
+.ins-row:last-child { border-bottom: none; }
+
+.ins-row-label {
+  font-size: 11px; font-weight: 600; color: var(--dk-3);
+  letter-spacing: 0.03em;
+}
+
+.ins-row-val {
+  font-size: 12px; font-weight: 300; color: var(--dk-1);
+  line-height: 1.65;
+}
+.ins-row-val.jade  { color: var(--jade); font-weight: 500; }
+.ins-row-val.amber { color: var(--amber); }
+.ins-row-val.red   { color: var(--red); }
+
+/* Macro strip */
+.ins-macros {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px; background: var(--bd);
+  margin: 12px 0;
+}
+.ins-macro {
+  background: var(--ink-2);
+  padding: 14px 10px; text-align: center;
+}
+.ins-macro-val {
+  font-family: var(--mono);
+  font-size: 22px; font-weight: 500;
+  color: var(--jade); line-height: 1; margin-bottom: 3px;
+}
+.ins-macro-val.amber { color: var(--amber); }
+.ins-macro-val.slate { color: var(--dk-2); }
+.ins-macro-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--dk-3);
+}
+
+/* Injury card */
+.ins-injury {
+  background: var(--ink-2);
+  border: 1px solid var(--gold-br);
+  border-left: 3px solid var(--gold);
+  border-radius: 4px;
+  padding: 14px 16px;
+  margin: 8px 0;
+}
+.ins-injury-loc {
+  font-size: 12px; font-weight: 600; color: var(--gold);
+  margin-bottom: 5px;
+}
+.ins-injury-text {
+  font-size: 12px; font-weight: 300; color: var(--dk-2);
+  line-height: 1.65;
+}
+.ins-injury-mods {
+  margin-top: 8px;
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  line-height: 1.7;
+}
+
+/* Week plan */
+.ins-week-day {
+  border-bottom: 1px solid var(--bd);
+  padding: 12px 0;
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 12px;
+}
+.ins-week-day:last-child { border-bottom: none; }
+.ins-week-name {
+  font-size: 12px; font-weight: 600;
+  color: var(--dk-3);
+}
+.ins-week-name.training { color: var(--jade); }
+.ins-week-body {}
+.ins-week-type {
+  font-size: 12px; font-weight: 500; color: var(--dk-1);
+  margin-bottom: 2px;
+}
+.ins-week-exercises {
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  line-height: 1.5;
+}
+
+/* Supplement row */
+.ins-supp {
+  border-bottom: 1px solid var(--bd);
+  padding: 10px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ins-supp:last-child { border-bottom: none; }
+.ins-supp-name {
+  font-size: 12px; font-weight: 600; color: var(--dk-1);
+}
+.ins-supp-timing {
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+}
+.ins-supp-reason {
+  font-size: 11px; font-weight: 300; color: var(--dk-2);
+  line-height: 1.5;
+}
+
+/* ── SIDEBAR ── */
+.ins-sidebar { position: sticky; top: 80px; }
+
+.ins-card {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin-bottom: 10px;
+}
+
+.ins-card-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--dk-3);
+  margin-bottom: 10px;
+}
+.ins-card-label.jade  { color: var(--jade); }
+.ins-card-label.amber { color: var(--amber); }
+.ins-card-label.red   { color: var(--red); }
+
+.ins-card-stat {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-bottom: 1px solid var(--bd);
+  padding: 7px 0; font-size: 12px;
+}
+.ins-card-stat:last-child { border-bottom: none; }
+.ins-card-stat-label { font-weight: 300; color: var(--dk-3); }
+.ins-card-stat-val   { font-weight: 600; color: var(--dk-1); }
+.ins-card-stat-val.jade { color: var(--jade); }
+.ins-card-stat-val.red  { color: var(--red); }
+
+.ins-card-note {
+  font-size: 12px; font-weight: 300; color: var(--dk-2);
+  line-height: 1.6; margin-top: 8px;
+}
+
+.ins-rebuild-btn {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--bd-2);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--dk-3); cursor: pointer;
+  transition: all 0.15s; margin-top: 8px;
+}
+.ins-rebuild-btn:hover { color: var(--jade); border-color: var(--jade-br); }
+
+.ins-reset-btn {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--red-br);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--red); cursor: pointer;
+  transition: all 0.15s; margin-top: 6px;
+}
+.ins-reset-btn:hover { background: var(--red-dim); }
+
+@media(max-width:860px){
+  .ins-shell { grid-template-columns: 1fr; }
+  .ins-sidebar { position: static; }
+  .ins-hero, .ins-shell { padding-left: 16px; padding-right: 16px; }
+}
+@media(max-width:600px){
+  .ins-title { font-size: 36px; }
+  .ins-macros { grid-template-columns: repeat(2,1fr); }
+  .ins-row { grid-template-columns: 1fr; gap: 3px; }
+  .ins-supp { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-daily" href="bodylens-week.html">Week</a>
+    <a class="nav-link nav-daily" href="bodylens-optimal.html">The Machine</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-profile.html">Profile</a>
+    <a class="nav-link active" href="bodylens-instructions.html">Instructions</a>
+    <a class="nav-link" href="bodylens-nonneg.html">My Rules</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-fuel.html">Food System</a>
+    <a class="nav-link" href="bodylens-body.html">Muscle Guide</a>
+    <a class="nav-link" href="bodylens-training.html">Training</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-story.html">The Story</a>
+    <a class="nav-link" href="bodylens-synthesis.html">How It Runs</a>
+    <div class="nav-sep"></div>
+    <a class="nav-link" href="bodylens-reset.html" style="color:var(--dk-3);">Reset</a>
+  </div>
+  <div class="nav-meta" id="nav-meta"></div>
+</nav>
+
+<div id="main-content">
+  <!-- Rendered by JS -->
+</div>
+
+<script src="nav.js"></script>
+<script>
+const profile = getProfile();
+
+// ── NO PROFILE ─────────────────────────────────────────
+if (!profile) {
+  document.getElementById('main-content').innerHTML = `
+    <div class="no-profile">
+      <div class="no-profile-icon">📋</div>
+      <h2>No instructions yet</h2>
+      <p>Complete the onboarding conversation and your full programme instructions will appear here — macros, training split, injury protocol, supplements, everything.</p>
+      <a href="bodylens-onboard.html">Start onboarding →</a>
+    </div>`;
+} else {
+  renderInstructions(profile);
+}
+
+// ── NAV META ───────────────────────────────────────────
+if (profile && profile.name) {
+  document.getElementById('nav-meta').innerHTML =
+    `<span class="nav-tag nt-jade">${profile.name}</span>`;
+}
+
+// ── RENDER ─────────────────────────────────────────────
+function renderInstructions(p) {
+  const injuries = p.injuryAssessments || p.injuries || [];
+  const supps    = p.supplements || [];
+  const weekPlan = p.weekPlan || [];
+  const cal = p.calories || '—';
+  const prot = p.protein || '—';
+  const carbs = p.carbs || '—';
+  const fat = p.fat || '—';
+  const genDate = p.generatedAt
+    ? new Date(p.generatedAt).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
+    : 'Unknown';
+
+  document.getElementById('main-content').innerHTML = `
+
+    <!-- HERO -->
+    <div class="ins-hero">
+      <div class="ins-kicker">Programme instructions · Generated by coach AI</div>
+      <div class="ins-title">${p.name || 'Your'}<br><em>instructions.</em></div>
+      <div class="ins-sub">
+        This is your complete programme brief — derived from your onboarding conversation by the coaching AI. Everything here is specific to you.
+      </div>
+      <div class="ins-meta">
+        <span>Generated ${genDate}</span>
+        <span>${p.goal || 'Goal set'}</span>
+        ${p.trainingDays ? `<span>${p.trainingDays} training days/week</span>` : ''}
+        ${injuries.length ? `<span>${injuries.length} injury note${injuries.length > 1 ? 's' : ''}</span>` : ''}
+      </div>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="ins-shell">
+
+      <!-- DOCUMENT / STRUCTURED TOGGLE -->
+      <div>
+        <div class="ins-doc">
+          <div class="ins-doc-head">
+            <div class="ins-doc-label jade">Programme brief</div>
+            <div class="ins-tabs">
+              <button class="ins-tab active" onclick="switchView('structured',this)">Overview</button>
+              <button class="ins-tab" onclick="switchView('text',this)">Full document</button>
+            </div>
+          </div>
+
+          <!-- STRUCTURED VIEW -->
+          <div class="ins-structured active" id="view-structured">
+
+            ${p.coachSummary ? `
+            <!-- Coach read -->
+            <div class="ins-section open">
+              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
+                <div class="ins-sec-title jade">Coach's read</div>
+                <div class="ins-sec-toggle">›</div>
+              </div>
+              <div class="ins-sec-body">
+                <div style="padding-top:14px;font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.85;font-style:italic;border-left:2px solid var(--jade-br);padding-left:16px;">
+                  ${p.coachSummary}
+                </div>
+              </div>
+            </div>` : ''}
+
+            <!-- Baseline -->
+            <div class="ins-section open">
+              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
+                <div class="ins-sec-title">Baseline</div>
+                <div class="ins-sec-toggle">›</div>
+              </div>
+              <div class="ins-sec-body">
+                <div class="ins-row"><div class="ins-row-label">Name</div><div class="ins-row-val jade">${p.name || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Age / Sex</div><div class="ins-row-val">${p.age || '—'} · ${p.sex || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Height / Weight</div><div class="ins-row-val">${p.height ? p.height+'cm' : '—'} · ${p.weight ? p.weight+'kg' : '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Body fat</div><div class="ins-row-val">${p.bodyFat ? p.bodyFat+'%' : 'Not assessed'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Fat storage</div><div class="ins-row-val">${p.fatStorage || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Goal</div><div class="ins-row-val">${p.goal || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Target</div><div class="ins-row-val">${p.target || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Wake time</div><div class="ins-row-val">${p.wakeTime || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Experience</div><div class="ins-row-val">${p.experience || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Gym</div><div class="ins-row-val">${p.gymAccess || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Recovery tools</div><div class="ins-row-val">${p.recoveryTools && p.recoveryTools.length ? p.recoveryTools.join(', ') : 'None'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Non-negotiables</div><div class="ins-row-val">${p.nonNegotiables && p.nonNegotiables.length ? p.nonNegotiables.join(', ') : 'None specified'}</div></div>
+              </div>
+            </div>
+
+            <!-- Nutrition -->
+            <div class="ins-section open">
+              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
+                <div class="ins-sec-title amber">Nutrition</div>
+                <div class="ins-sec-toggle">›</div>
+              </div>
+              <div class="ins-sec-body">
+                <div class="ins-macros">
+                  <div class="ins-macro"><div class="ins-macro-val">${cal}</div><div class="ins-macro-label">Calories</div></div>
+                  <div class="ins-macro"><div class="ins-macro-val jade">${prot}g</div><div class="ins-macro-label">Protein</div></div>
+                  <div class="ins-macro"><div class="ins-macro-val amber">${carbs}g</div><div class="ins-macro-label">Carbs</div></div>
+                  <div class="ins-macro"><div class="ins-macro-val slate">${fat}g</div><div class="ins-macro-label">Fat</div></div>
+                </div>
+                ${p.calorieReasoning ? `<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;font-style:italic;padding:10px 0;border-bottom:1px solid var(--bd);margin-bottom:8px;">${p.calorieReasoning}</div>` : ''}
+                <div class="ins-row"><div class="ins-row-label">TDEE</div><div class="ins-row-val">${p.tdee || '—'} kcal</div></div>
+                <div class="ins-row"><div class="ins-row-label">Eating window</div><div class="ins-row-val">${p.fastingWindow || p.eatingWindow || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Meals/day</div><div class="ins-row-val">${p.mealCount || '3–4'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Diet type</div><div class="ins-row-val">${p.dietType || '—'}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Exclusions</div><div class="ins-row-val ${(p.foodExclusions||[]).length ? 'red' : ''}">${(p.foodExclusions||[]).join(', ') || 'None'}</div></div>
+                ${p.triggerFoods ? `<div class="ins-row"><div class="ins-row-label">Trigger foods</div><div class="ins-row-val red">${p.triggerFoods}</div></div>` : ''}
+                ${p.triggerStrategy ? `<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;padding:10px 0;">${p.triggerStrategy}</div>` : ''}
+                ${p.keyFoodPrinciples && p.keyFoodPrinciples.length ? `
+                <div style="padding:10px 0;">
+                  ${p.keyFoodPrinciples.map(pr => `<div style="font-size:11px;padding:5px 10px;background:var(--amber-dim);border-left:2px solid var(--amber-br);border-radius:2px;color:var(--dk-1);margin-bottom:4px;">${pr}</div>`).join('')}
+                </div>` : ''}
+              </div>
+            </div>
+
+            <!-- Training -->
+            <div class="ins-section">
+              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
+                <div class="ins-sec-title jade">Training split</div>
+                <div class="ins-sec-toggle">›</div>
+              </div>
+              <div class="ins-sec-body">
+                ${weekPlan.map(day => `
+                <div class="ins-week-day">
+                  <div class="ins-week-name ${day.priority==='training'?'training':''}">${day.day}</div>
+                  <div class="ins-week-body">
+                    <div class="ins-week-type">${day.type} — ${day.focus || ''}</div>
+                    ${day.keyExercises && day.keyExercises.length ? `<div class="ins-week-exercises">${day.keyExercises.join(' · ')}</div>` : ''}
+                    ${day.modifications && day.modifications.length ? `<div style="font-size:10px;color:var(--gold);margin-top:3px;">Mod: ${day.modifications.join(', ')}</div>` : ''}
+                    ${day.coachNote ? `<div style="font-size:11px;font-style:italic;color:var(--dk-3);margin-top:3px;">${day.coachNote}</div>` : ''}
+                  </div>
+                </div>`).join('')}
+              </div>
+            </div>
+
+            <!-- Injuries -->
+            ${injuries.length ? `
+            <div class="ins-section">
+              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
+                <div class="ins-sec-title gold">Injuries &amp; modifications</div>
+                <div class="ins-sec-toggle">›</div>
+              </div>
+              <div class="ins-sec-body" style="padding-top:12px;">
+                ${injuries.map(inj => `
+                <div class="ins-injury">
+                  <div class="ins-injury-loc">${inj.location}</div>
+                  <div class="ins-injury-text">${inj.assessment || inj.detail || ''}</div>
+                  ${inj.avoidMovements && inj.avoidMovements.length ? `
+                  <div class="ins-injury-mods">
+                    <strong style="color:var(--red);">Avoid:</strong> ${inj.avoidMovements.join(', ')}<br>
+                    <strong style="color:var(--jade);">Instead:</strong> ${(inj.safeAlternatives||[]).join(', ')}<br>
+                    ${inj.rehabilitationNotes ? `<strong style="color:var(--gold);">Long term:</strong> ${inj.rehabilitationNotes}` : ''}
+                  </div>` : ''}
+                </div>`).join('')}
+              </div>
+            </div>` : ''}
+
+            <!-- Supplements -->
+            ${supps.length ? `
+            <div class="ins-section">
+              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
+                <div class="ins-sec-title gold">Supplement stack</div>
+                <div class="ins-sec-toggle">›</div>
+              </div>
+              <div class="ins-sec-body">
+                ${supps.map(s => `
+                <div class="ins-supp">
+                  <div>
+                    <div class="ins-supp-name">${s.name}</div>
+                    <div class="ins-supp-timing">${s.dose} · ${s.timing}</div>
+                  </div>
+                  <div class="ins-supp-reason">${s.reason || ''}</div>
+                </div>`).join('')}
+              </div>
+            </div>` : ''}
+
+            <!-- Alcohol -->
+            ${p.alcoholHabit && !p.alcoholHabit.toLowerCase().includes('rarely') ? `
+            <div class="ins-section">
+              <div class="ins-sec-head" onclick="toggleSection(this.parentElement)">
+                <div class="ins-sec-title red">Alcohol protocol</div>
+                <div class="ins-sec-toggle">›</div>
+              </div>
+              <div class="ins-sec-body">
+                <div class="ins-row"><div class="ins-row-label">Your habit</div><div class="ins-row-val">${p.alcoholHabit}</div></div>
+                <div class="ins-row"><div class="ins-row-label">Rule</div><div class="ins-row-val red">No alcohol on training days</div></div>
+                <div class="ins-row"><div class="ins-row-label">Rest days</div><div class="ins-row-val">Max 2 units · Finish by 20:00</div></div>
+                <div style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.65;padding:10px 0;font-style:italic;">Alcohol blocks mTOR directly — a training session followed by significant alcohol is work without adaptation. Thursday evening is protected for Friday's session.</div>
+              </div>
+            </div>` : ''}
+
+          </div><!-- /structured -->
+
+          <!-- TEXT VIEW -->
+          <div class="ins-text" id="view-text">${(p.instructions || 'No instructions document generated.').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
+
+        </div><!-- /ins-doc -->
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="ins-sidebar">
+
+        <div class="ins-card" style="border-color:var(--jade-br);">
+          <div class="ins-card-label jade">At a glance</div>
+          <div class="ins-card-stat"><span class="ins-card-stat-label">Calories</span><span class="ins-card-stat-val">${cal} kcal</span></div>
+          <div class="ins-card-stat"><span class="ins-card-stat-label">Protein</span><span class="ins-card-stat-val jade">${prot}g</span></div>
+          <div class="ins-card-stat"><span class="ins-card-stat-label">Training days</span><span class="ins-card-stat-val">${p.trainingDays || weekPlan.filter(d=>d.priority==='training').length}</span></div>
+          <div class="ins-card-stat"><span class="ins-card-stat-label">Wake time</span><span class="ins-card-stat-val">${p.wakeTime || '—'}</span></div>
+          <div class="ins-card-stat"><span class="ins-card-stat-label">Eating window</span><span class="ins-card-stat-val">${p.fastingWindow || p.eatingWindow || '—'}</span></div>
+        </div>
+
+        ${injuries.length ? `
+        <div class="ins-card" style="border-color:var(--gold-br);">
+          <div class="ins-card-label" style="color:var(--gold);">Active injury notes</div>
+          ${injuries.map(inj => `
+          <div class="ins-card-stat">
+            <span class="ins-card-stat-label" style="color:var(--gold);">${inj.location}</span>
+            <span class="ins-card-stat-val" style="font-size:10px;color:var(--dk-3);">${(inj.avoidMovements||[]).slice(0,1).join('')||'See detail'}</span>
+          </div>`).join('')}
+          <div class="ins-card-note">Tap Injuries section for full modifications and alternatives.</div>
+        </div>` : ''}
+
+        <div class="ins-card">
+          <div class="ins-card-label">Generated</div>
+          <div class="ins-card-note">${genDate}</div>
+          <button class="ins-rebuild-btn" onclick="location.href='bodylens-onboard.html'">Redo onboarding</button>
+          <button class="ins-reset-btn" onclick="location.href='bodylens-reset.html'">Reset all data</button>
+        </div>
+
+      </div>
+
+    </div><!-- /ins-shell -->
+  `;
+}
+
+// ── TOGGLE SECTION ─────────────────────────────────────
+function toggleSection(section) {
+  section.classList.toggle('open');
+}
+
+// ── SWITCH VIEW ────────────────────────────────────────
+function switchView(id, btn) {
+  document.querySelectorAll('.ins-tabs .ins-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('view-structured').classList.toggle('active', id === 'structured');
+  document.getElementById('view-text').classList.toggle('active', id === 'text');
+}
+</script>
+</body>
+</html>
