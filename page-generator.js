@@ -18,6 +18,13 @@ const BL_GENERATOR = (function() {
   const API   = '/api/chat';
   const MODEL = 'claude-sonnet-4-20250514';
 
+  // ── REQUEST QUEUE ── serialise all API calls to avoid hammering the proxy
+  let _queue = Promise.resolve();
+  function enqueue(fn) {
+    _queue = _queue.then(() => fn()).catch(() => {});
+    return _queue;
+  }
+
   // ── PROFILE HASH ──────────────────────────────────────
   // Short hash to detect profile changes
   function profileHash(p) {
@@ -34,7 +41,7 @@ const BL_GENERATOR = (function() {
   // ── CACHE ─────────────────────────────────────────────
   function getCached(pageType, profile) {
     try {
-      const key   = 'bl_gen_v3_' + pageType + '_' + profileHash(profile);
+      const key   = 'bl_gen_v4_' + pageType + '_' + profileHash(profile);
       const raw   = localStorage.getItem(key);
       if (!raw) return null;
       const data  = JSON.parse(raw);
@@ -47,7 +54,7 @@ const BL_GENERATOR = (function() {
 
   function setCached(pageType, profile, content) {
     try {
-      const key = 'bl_gen_v3_' + pageType + '_' + profileHash(profile);
+      const key = 'bl_gen_v4_' + pageType + '_' + profileHash(profile);
       localStorage.setItem(key, JSON.stringify({ content, ts: Date.now() }));
     } catch(e) {}
   }
@@ -1221,7 +1228,7 @@ CRITICAL: Write every word as if you know this person. Use their name. Reference
       return;
     }
 
-    try {
+    await enqueue(async () => { try {
       const res = await fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1244,7 +1251,7 @@ CRITICAL: Write every word as if you know this person. Use their name. Reference
       if (!text) throw new Error('Empty response from API. Status: ' + res.status);
       
       // Some page types return plain text, not JSON
-      const plainTextTypes = ['coachreport'];
+      const plainTextTypes = []; // all page types now return JSON
       let data;
 
       if (plainTextTypes.includes(pageType)) {
@@ -1256,8 +1263,12 @@ CRITICAL: Write every word as if you know this person. Use their name. Reference
           throw new Error('No JSON in response');
         }
         try {
+          data = JSON.parse(match[0]);
         } catch(parseErr) {
-          let cleaned = match[0].replace(/[\x00-\x1F\x7F]/g,' ').replace(/,\s*}/g,'}').replace(/,\s*]/g,']');
+          let cleaned = match[0]
+            .replace(/[\x00-\x1F\x7F]/g,' ')
+            .replace(/,\s*}/g,'}')
+            .replace(/,\s*]/g,']');
           try { data = JSON.parse(cleaned); }
           catch(e2) { throw new Error('JSON parse error: ' + parseErr.message); }
         }
@@ -1279,7 +1290,8 @@ CRITICAL: Write every word as if you know this person. Use their name. Reference
     } catch(e) {
       console.error('Generator error for', pageType, ':', e);
       onError && onError(e.message || String(e));
-    }
+    } }); // end enqueue
+
   }
 
   // ── PUBLIC API ────────────────────────────────────────
@@ -1287,7 +1299,7 @@ CRITICAL: Write every word as if you know this person. Use their name. Reference
     generate,
     clearCache: (pageType, profile) => {
       try {
-        const key = 'bl_gen_v3_' + pageType + '_' + profileHash(profile);
+        const key = 'bl_gen_v4_' + pageType + '_' + profileHash(profile);
         localStorage.removeItem(key);
       } catch(e) {}
     },

@@ -645,7 +645,7 @@ function renderFoodApp(p) {
     <!-- TABS -->
     <div class="food-tabs">
       <button class="food-tab active" onclick="switchFood('today',this)">Today's meals</button>
-      <button class="food-tab" onclick="switchFood('week',this)">This week</button>
+      <button class="food-tab" onclick="switchFood('week',this);if(!weekMeals)loadWeekMeals(profile);">This week</button>
       <button class="food-tab" onclick="switchFood('shop',this);loadShoppingList()">Shopping list</button>
       <button class="food-tab" onclick="switchFood('science',this)">Food science</button>
     </div>
@@ -754,10 +754,10 @@ function renderFoodApp(p) {
   // Load today's meals
   loadTodayMeals(p);
 
-  // Load week meals
+  // Week meals — load from cache if available, otherwise defer to tab open
   weekMeals = tryGet(WEEK_MEALS_KEY);
   if (weekMeals) renderWeekMeals(weekMeals, p);
-  else loadWeekMeals(p);
+  // else: loads when user clicks the week tab
 }
 
 // ── MACRO PROGRESS ────────────────────────────────────────
