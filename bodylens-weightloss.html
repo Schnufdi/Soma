@@ -4,11 +4,71 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="bl-page" content="weightloss">
-<title>BodyLens — Weight Loss</title>
+<title>BodyLens — Weight Loss Science</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script src="page-generator.js"></script>
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.hero { padding:64px 0 56px; border-bottom:1px solid var(--bd); position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 800px 400px at 80% 50%, rgba(0,200,160,0.04) 0%, transparent 70%); }
+.hi { max-width:1080px; margin:0 auto; padding:0 48px; position:relative; z-index:1; }
+.h-eye { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+.h-eye::before { content:''; width:24px; height:1px; background:var(--jade); }
+.h-title { font-family:var(--serif); font-size:72px; font-weight:300; line-height:0.9; letter-spacing:-0.03em; color:var(--dk-1); margin-bottom:20px; }
+.h-two { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:540px; margin-bottom:32px; }
+.h-myths { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--bd); border-radius:6px; overflow:hidden; max-width:760px; }
+.myth-row { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--bd); }
+.myth-row:last-child { border-bottom:none; }
+.myth-q { padding:10px 14px; font-size:11px; font-weight:300; color:var(--dk-3); border-right:1px solid var(--bd); }
+.myth-a { padding:10px 14px; font-size:11px; font-weight:500; color:var(--jade); }
+.myth-a.red { color:var(--red); }
+.myth-a.amber { color:var(--amber); }
+.snav { display:flex; gap:0; border-bottom:1px solid var(--bd); max-width:1080px; margin:0 auto; padding:0 48px; overflow-x:auto; }
+.sn { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:13px 16px; border:none; background:transparent; color:var(--dk-3); cursor:pointer; font-family:var(--sans); white-space:nowrap; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color 0.12s; }
+.sn:hover { color:var(--dk-2); }
+.sn.active { color:var(--jade); border-bottom-color:var(--jade); }
+.pane { display:none; }
+.pane.active { display:block; }
+.dark  { background:var(--ink);   padding:56px 0; }
+.ink1  { background:var(--ink-1); padding:56px 0; border-top:1px solid var(--bd); }
+.w { max-width:1080px; margin:0 auto; padding:0 48px; }
+.dr { display:flex; align-items:center; gap:14px; margin:0 0 28px; font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); }
+.dr::after { content:''; flex:1; height:1px; background:var(--bd); }
+.dr.jade { color:var(--jade); } .dr.amber { color:var(--amber); } .dr.red { color:var(--red); }
+.body-lg { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.85; margin-bottom:20px; max-width:720px; }
+.body-sm { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; margin-bottom:16px; max-width:680px; }
+.body-sm strong { color:var(--dk-1); font-weight:500; }
+.stm { display:grid; grid-template-columns:56px 1fr; border-top:1px solid var(--bd); }
+.stm-n { font-family:var(--serif); font-size:42px; font-weight:300; color:var(--jade); opacity:0.35; padding:20px 0; line-height:1; }
+.stm-b { padding:20px 0; }
+.stm-t { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:8px; line-height:1.3; }
+.stm-p { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; }
+.stm-p strong { color:var(--dk-1); font-weight:500; }
+.tdee-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:1px; background:var(--bd); border-radius:6px; overflow:hidden; margin-bottom:28px; }
+.tdee-cell { background:var(--ink-2); padding:18px 16px; }
+.tdee-cell.head { background:var(--ink-1); }
+.tdee-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:6px; }
+.tdee-pct { font-family:var(--mono); font-size:28px; font-weight:500; color:var(--jade); margin-bottom:4px; }
+.tdee-name { font-size:12px; font-weight:600; color:var(--dk-1); margin-bottom:4px; }
+.tdee-desc { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.5; }
+.stat-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--bd); border-radius:6px; overflow:hidden; margin-bottom:28px; }
+.ss-cell { background:var(--ink-2); padding:16px 12px; text-align:center; }
+.ss-val { font-family:var(--mono); font-size:24px; font-weight:500; color:var(--jade); margin-bottom:4px; }
+.ss-val.amber { color:var(--amber); }
+.ss-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+.profile-callout { background:rgba(0,200,160,0.05); border:1px solid var(--jade-br); border-left:3px solid var(--jade); border-radius:0 6px 6px 0; padding:14px 18px; margin-top:28px; display:none; }
+.profile-callout.visible { display:block; }
+.pc-label { font-size:9px; font-weight:600; letter-spacing:0.13em; text-transform:uppercase; color:var(--jade); margin-bottom:8px; }
+.pc-text { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.75; }
+.pc-text strong { color:var(--dk-1); font-weight:500; }
+.myth-bust { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px; }
+.mb-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:18px 16px; }
+.mb-myth { font-size:11px; font-weight:600; color:var(--red); margin-bottom:6px; }
+.mb-truth { font-size:12px; font-weight:500; color:var(--jade); margin-bottom:8px; }
+.mb-body { font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.65; }
+@media(max-width:700px){ .hi,.snav,.w{padding-left:20px;padding-right:20px;} .h-title{font-size:48px;} .h-myths{grid-template-columns:1fr;} .tdee-grid{grid-template-columns:1fr 1fr;} .myth-bust{grid-template-columns:1fr;} .stat-strip{grid-template-columns:1fr 1fr;} }
+</style>
 </head>
 <body>
 
@@ -16,70 +76,294 @@
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
+    <a class="nav-link nav-food" href="bodylens-fuel.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
-    <a class="nav-link" href="bodylens-science.html">Science</a>
+    <a class="nav-link active" href="bodylens-science.html">Science</a>
   </div>
-
   <div class="nav-breadcrumb">
     <a href="bodylens-science.html" class="nav-bc-parent">Science</a>
     <span class="nav-bc-sep">›</span>
     <span class="nav-bc-current">Weight Loss</span>
   </div>
   <div class="nav-right-group">
-    <a class="nav-link nav-right" href="bodylens-howitworks.html">How it works</a>
+    <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
     <div class="nav-meta" id="nav-meta"></div>
   </div>
 </nav>
 
-<div id="page-hero" style="max-width:900px;margin:0 auto;padding:48px 32px 32px;border-bottom:1px solid rgba(255,255,255,0.07);">
-  <div style="font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#00c8a0;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-    <span style="width:18px;height:1px;background:#00c8a0;display:inline-block;"></span>
-    Weight Loss
+<div class="hero">
+<div class="hi">
+  <div class="h-eye">The science of weight loss · Full mechanism</div>
+  <div class="h-title">Why it works.<br><em>Why it stops.</em></div>
+  <div class="h-two">Most weight loss advice treats the body like a simple machine. Cut calories in, fat falls off. The reality is adaptive, hormonal, and significantly more interesting — which is why understanding it makes you dramatically more effective at changing your body.</div>
+  <div class="h-myths">
+    <div class="myth-row"><div class="myth-q">Willpower is why diets fail</div><div class="myth-a red">Leptin resistance and hormonal adaptation</div></div>
+    <div class="myth-row"><div class="myth-q">Eat less, exercise more</div><div class="myth-a amber">Correct but massively incomplete</div></div>
+    <div class="myth-row"><div class="myth-q">Fat cells disappear when you lose weight</div><div class="myth-a">They shrink. They never leave.</div></div>
+    <div class="myth-row"><div class="myth-q">Slow metabolism causes obesity</div><div class="myth-a">Obese people have higher TDEE</div></div>
+    <div class="myth-row"><div class="myth-q">Cardio is the primary fat loss tool</div><div class="myth-a jade">Diet drives fat loss. Muscle preserves it.</div></div>
+    <div class="myth-row"><div class="myth-q">Starvation mode — real concept</div><div class="myth-a amber">Metabolic adaptation — different and real</div></div>
   </div>
-  <div style="font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;line-height:0.93;letter-spacing:-0.025em;color:#e8e3da;margin-bottom:14px;">
-    Weight<br><em style="font-style:italic;color:#3e504a;">loss.</em>
-  </div>
-  <div id="hero-sub" style="font-size:14px;font-weight:300;color:#8a9490;line-height:1.7;max-width:480px;">The fat loss science.</div>
+</div>
 </div>
 
-<div style="max-width:900px;margin:0 auto;padding:40px 32px 120px;" id="generated-content"></div>
+<div class="snav">
+  <button class="sn active" onclick="showPane('p1',this)">The equation</button>
+  <button class="sn" onclick="showPane('p2',this)">TDEE components</button>
+  <button class="sn" onclick="showPane('p3',this)">The four hormones</button>
+  <button class="sn" onclick="showPane('p4',this)">Why diets fail</button>
+  <button class="sn" onclick="showPane('p5',this)">Fat loss vs weight loss</button>
+  <button class="sn" onclick="showPane('p6',this)">What actually works</button>
+  <button class="sn" onclick="showPane('p7',this)">Your profile</button>
+</div>
+
+<!-- P1: THE EQUATION -->
+<div class="pane active" id="p1">
+<div class="dark"><div class="w">
+  <div class="dr jade">The fundamental equation — true and incomplete</div>
+  <div class="body-lg">CICO — calories in, calories out — is the most argued concept in nutrition. It is simultaneously the most correct and the most misleading framework in existence. Here is why both are true.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">Energy balance is thermodynamically inviolable — fat storage requires a caloric surplus</div>
+    <div class="stm-p">The first law of thermodynamics applies to human metabolism without exception. You cannot store fat without consuming more energy than you expend. No diet, food combination, hormone protocol, or timing strategy circumvents the energy balance equation. The debate is not whether energy balance governs fat gain and loss. It does. <strong>The debate is about what determines the variables on each side — and that is where it gets interesting.</strong></div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">Why CICO is massively incomplete — "calories out" is not a fixed number</div>
+    <div class="stm-p">The critical flaw in simple CICO thinking: treating total daily energy expenditure as a fixed, calculable number that does not respond to what you eat, how you exercise, or how much you've previously dieted. In reality, TDEE is a dynamic, adaptive variable — it responds to deficit, to training, to stress, to sleep, to hormonal status. <strong>Your body defends its fat stores with considerable biological sophistication.</strong></div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">Where fat actually goes when you lose it — you breathe it out</div>
+    <div class="stm-p">This is one of the most misunderstood facts in biology. Fat (triglyceride) is broken down through lipolysis into fatty acids and glycerol. Through beta-oxidation, these become acetyl-CoA which enters the Krebs cycle, producing CO₂ and H₂O. <strong>Approximately 84% of the weight lost during fat loss leaves the body through the lungs as carbon dioxide.</strong> The remainder leaves as water through sweat, urine, and breath. Fat does not "convert" to muscle. It does not leave through sweat or waste.</div>
+  </div></div>
+  <div class="profile-callout" id="pc-equation">
+    <div class="pc-label">→ Your numbers</div>
+    <div class="pc-text" id="pc-equation-text"></div>
+  </div>
+</div></div>
+</div>
+
+<!-- P2: TDEE COMPONENTS -->
+<div class="pane" id="p2">
+<div class="dark"><div class="w">
+  <div class="dr jade">TDEE has four components — most people only think about one</div>
+  <div class="body-sm" style="margin-bottom:32px;">Total Daily Energy Expenditure is not just "exercise." It has four distinct components that behave very differently — and only one of them is directly under your control in the way most people think.</div>
+  <div class="tdee-grid">
+    <div class="tdee-cell">
+      <div class="tdee-label">BMR</div>
+      <div class="tdee-pct">60–70%</div>
+      <div class="tdee-name">Basal Metabolic Rate</div>
+      <div class="tdee-desc">Energy to stay alive at rest. Determined by lean mass, age, sex, and genetics. The dominant component — and the one that adapts when you diet.</div>
+    </div>
+    <div class="tdee-cell">
+      <div class="tdee-label">TEF</div>
+      <div class="tdee-pct">8–15%</div>
+      <div class="tdee-name">Thermic Effect of Food</div>
+      <div class="tdee-desc">Energy to digest and process food. Protein has the highest TEF (20-35% of its calories). Fat has the lowest (2-3%). Eating more protein slightly increases TDEE.</div>
+    </div>
+    <div class="tdee-cell">
+      <div class="tdee-label">EAT</div>
+      <div class="tdee-pct">5–15%</div>
+      <div class="tdee-name">Exercise Activity</div>
+      <div class="tdee-desc">Formal training. The component most people focus on — but actually a smaller fraction of total expenditure than assumed. Highly variable and adaptive.</div>
+    </div>
+    <div class="tdee-cell">
+      <div class="tdee-label">NEAT</div>
+      <div class="tdee-pct">15–50%</div>
+      <div class="tdee-name">Non-Exercise Activity</div>
+      <div class="tdee-desc">Everything else — walking, fidgeting, posture, spontaneous movement. Enormously variable. This is the component that changes most dramatically during dieting — and explains most of diet failure.</div>
+    </div>
+  </div>
+  <div class="stm"><div class="stm-n">!</div><div class="stm-b">
+    <div class="stm-t">NEAT is the component that makes or breaks fat loss — and is almost entirely unconscious</div>
+    <div class="stm-p">When you go into a caloric deficit, your body reduces NEAT automatically — you move less, fidget less, sit more, take shorter steps. In severe caloric restriction, NEAT can drop by 400-600 kcal per day. This is not willpower. It is a coordinated biological response to energy shortage — driven by leptin, thyroid hormones, and the hypothalamus. <strong>This is why adding more exercise to a severe diet often produces less fat loss than expected: the body compensates by reducing NEAT.</strong></div>
+  </div></div>
+  <div class="profile-callout" id="pc-tdee">
+    <div class="pc-label">→ Your TDEE breakdown</div>
+    <div class="pc-text" id="pc-tdee-text"></div>
+  </div>
+</div></div>
+</div>
+
+<!-- P3: FOUR HORMONES -->
+<div class="pane" id="p3">
+<div class="dark"><div class="w">
+  <div class="dr jade">The four hormones that govern fat loss</div>
+  <div class="body-lg">Hormones don't override energy balance. But they profoundly affect how easy or hard energy balance is to maintain — by controlling hunger, satiety, energy expenditure, and fat cell behaviour.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">Leptin — the satiety and metabolic rate signal from fat cells</div>
+    <div class="stm-p">Leptin is produced by fat cells in proportion to how much fat you carry. It signals the hypothalamus that you have adequate energy stores, suppressing hunger and maintaining metabolic rate. <strong>During fat loss, leptin drops — which is why hunger increases and metabolic rate slows as you get leaner.</strong> This is an evolutionary feature: your body interprets fat loss as famine and fights back. Leptin sensitivity (how well the brain responds to leptin) is impaired by obesity, sleep deprivation, and chronic stress.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">Ghrelin — the hunger hormone that rises during deficit</div>
+    <div class="stm-p">Ghrelin is the primary hunger-signalling hormone — it rises before meals and drops after eating. During caloric restriction, ghrelin baseline levels rise — meaning you are genuinely physiologically hungrier in a deficit, not just lacking willpower. This elevation persists for months after weight loss, which explains why maintaining weight loss is harder than losing it. The body continues signalling hunger long after the deficit has ended.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">Insulin — the fat storage gatekeeper</div>
+    <div class="stm-p">Insulin's role in fat loss is frequently misrepresented. The truth: <strong>you cannot store fat without insulin present, but insulin is not the primary driver of fat gain — caloric surplus is.</strong> High insulin (from high carbohydrate intake) does inhibit lipolysis (fat burning) — but only in the context of adequate energy intake. In a caloric deficit, even high insulin cannot prevent fat loss. The carbohydrate-insulin model of obesity overstates insulin's role. Insulin sensitivity, however, dramatically affects how easily you access fat stores and how much muscle you preserve during a deficit.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">4</div><div class="stm-b">
+    <div class="stm-t">Cortisol — the stress hormone that drives fat storage and muscle loss</div>
+    <div class="stm-p">Cortisol mobilises energy in response to stress — useful acutely, deeply counterproductive chronically. Chronically elevated cortisol: breaks down muscle tissue (gluconeogenesis — converting protein to glucose), drives visceral fat accumulation specifically (cortisol receptors are dense in abdominal fat cells), elevates insulin, and directly impairs leptin signalling. <strong>You cannot out-diet chronic stress.</strong> Sleep deprivation, excessive training volume, and psychological stress all chronically elevate cortisol and make fat loss harder at the hormonal level.</div>
+  </div></div>
+  <div class="profile-callout" id="pc-hormones">
+    <div class="pc-label">→ Your hormonal context</div>
+    <div class="pc-text" id="pc-hormones-text"></div>
+  </div>
+</div></div>
+</div>
+
+<!-- P4: WHY DIETS FAIL -->
+<div class="pane" id="p4">
+<div class="dark"><div class="w">
+  <div class="dr red">Why diets fail — the four adaptive responses</div>
+  <div class="body-lg">The failure rate of caloric restriction diets is not a character flaw problem. It is a biology problem. The body has four distinct adaptive mechanisms designed to restore lost fat. Understanding them is the prerequisite for not being defeated by them.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">Metabolic adaptation — the BMR drops more than lean mass loss explains</div>
+    <div class="stm-p">When you go into a caloric deficit, BMR falls. Some of this is expected — less body mass means less energy to maintain it. But research consistently shows that BMR falls <em>more</em> than lean mass loss alone explains. The body actively downregulates thyroid hormone (T3), reduces sympathetic nervous system activity, and decreases the cellular energy cost of basic processes. This "adaptive thermogenesis" can amount to 100-300 kcal per day of extra reduction — a meaningful headwind for fat loss maintenance.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">NEAT collapse — unconscious movement drops dramatically in deficit</div>
+    <div class="stm-p">As described in TDEE Components — when you diet, your body automatically reduces non-exercise movement. Fidgeting stops. You take fewer steps. You sit more. You unconsciously reduce all the small movements that burn 200-500 kcal per day. This is not a decision. It is a hypothalamic response coordinated by leptin, NPY, and orexin systems. Adding more gym sessions does not compensate — the body just reduces NEAT further to preserve energy balance.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">Leptin drops and hunger escalates — the hormonal fight-back</div>
+    <div class="stm-p">As fat mass decreases, leptin production decreases. Lower leptin signals the hypothalamus to increase hunger, reduce satiety, and trigger metabolic slowdown. This is the system working exactly as designed — protecting against starvation. The result: the leaner you get, the hungrier you become and the slower your metabolism runs. This is why the last 5-10% of fat loss is dramatically harder than the first 20% — you are fighting an increasingly organised biological resistance.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">4</div><div class="stm-b">
+    <div class="stm-t">Fat cells never disappear — they wait to refill</div>
+    <div class="stm-p">Adipocytes (fat cells) shrink during fat loss but they do not die. The number of fat cells you have is largely determined in childhood and adolescence and remains relatively fixed throughout adult life. Empty fat cells produce signals (resistin, RBP4) that drive hunger and reduce insulin sensitivity — essentially demanding to be refilled. This is a real biological pressure that persists after weight loss and contributes to regain. <strong>You can stay lean — but the pressure to refill is real and permanent.</strong></div>
+  </div></div>
+</div></div>
+</div>
+
+<!-- P5: FAT LOSS VS WEIGHT LOSS -->
+<div class="pane" id="p5">
+<div class="dark"><div class="w">
+  <div class="dr jade">Fat loss vs weight loss — they are not the same</div>
+  <div class="body-lg">The scale measures everything: fat, muscle, water, glycogen, food in transit, bone. Most "weight loss" is not fat loss. And much of what appears to be fat loss on the scale is not. The distinction matters enormously for programme design.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">Glycogen and water — the first week is mostly this</div>
+    <div class="stm-p">Each gram of glycogen is stored with 3-4g of water. A standard carbohydrate restriction drops glycogen stores by 300-500g — taking 1-2kg of water with it. This is not fat loss. It returns immediately when carbohydrates are restored. This is why low-carb diets produce dramatic early weight loss — and why that weight returns within 48 hours of reintroducing carbohydrates. Understanding this prevents the demoralisation of "gaining back" weight that was never fat to begin with.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">Muscle loss — the hidden cost of aggressive deficits</div>
+    <div class="stm-p">Without adequate protein and resistance training stimulus, caloric restriction produces significant muscle loss alongside fat loss. The body uses muscle protein as a gluconeogenic substrate during aggressive deficits — especially in the absence of training stimulus. <strong>At a 500 kcal/day deficit without strength training, up to 30-40% of weight lost may be lean mass.</strong> This is why scale weight is a poor proxy for body composition change and why the combination of resistance training + adequate protein is non-negotiable for fat loss that actually improves body composition.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">The DEXA standard — why body composition measurement matters</div>
+    <div class="stm-p">DEXA (dual-energy X-ray absorptiometry) is the gold standard for body composition — it measures lean mass, fat mass, bone density, and visceral fat independently. The scale cannot tell you whether you've lost fat or muscle. Progress photos cannot either with precision. DEXA can. Attia recommends annual DEXA scans for anyone serious about long-term health and body composition tracking. The data is actionable in ways that scale weight is not.</div>
+  </div></div>
+  <div class="profile-callout" id="pc-fatvsweight">
+    <div class="pc-label">→ Your context</div>
+    <div class="pc-text" id="pc-fatvsweight-text"></div>
+  </div>
+</div></div>
+</div>
+
+<!-- P6: WHAT WORKS -->
+<div class="pane" id="p6">
+<div class="dark"><div class="w">
+  <div class="dr jade">What actually works — the evidence base</div>
+  <div class="body-lg">Given the adaptive responses above, the interventions that reliably produce sustained fat loss are those that work with — or around — the body's adaptive machinery rather than simply overriding it with willpower.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">Moderate deficit + high protein + resistance training — the evidence-based combination</div>
+    <div class="stm-p">A 300-500 kcal deficit (not 1000+) reduces adaptive thermogenesis and NEAT collapse compared to aggressive restriction. High protein (1.8-2.4g/kg) maximises muscle preservation, increases satiety through TEF, and reduces the anabolic cost of dieting. Resistance training maintains the training stimulus for muscle protein synthesis, preventing the lean mass loss that occurs with diet alone. <strong>This combination outperforms any other approach in long-term body composition improvement.</strong></div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">Diet breaks and re-feeds — managing the hormonal adaptation</div>
+    <div class="stm-p">Periods at maintenance calories (1-2 weeks after every 4-8 weeks of deficit) partially restore leptin, reduce cortisol, and allow NEAT to recover. They do not meaningfully slow fat loss over a longer time horizon — the fat lost during the deficit is not regained in a maintenance week. They do meaningfully improve adherence, hormonal status, and training performance. <strong>Diet breaks are not cheating — they are a strategic tool for managing the biology.</strong></div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">Sleep — the underrated fat loss variable</div>
+    <div class="stm-p">Insufficient sleep (sub-6h) produces: elevated ghrelin (more hunger), reduced leptin (less satiety), elevated cortisol (more visceral fat storage and muscle breakdown), increased insulin resistance (poorer nutrient partitioning), and dramatically reduced NEAT. A single week of sleep restriction reduces fat loss by approximately 55% and increases lean mass loss — even when calories are identical. Sleep deprivation does not allow fat loss to continue at the expected rate regardless of dietary adherence.</div>
+  </div></div>
+  <div class="profile-callout" id="pc-whatworks">
+    <div class="pc-label">→ Your approach</div>
+    <div class="pc-text" id="pc-whatworks-text"></div>
+  </div>
+</div></div>
+</div>
+
+<!-- P7: YOUR PROFILE -->
+<div class="pane" id="p7">
+<div class="dark"><div class="w">
+  <div class="dr jade">Your profile — applied to you specifically</div>
+  <div id="profile-render">
+    <div style="color:var(--dk-3);font-size:13px;padding:40px 0;">Complete onboarding to see your personalised weight loss analysis. <a href="bodylens-onboard.html" style="color:var(--jade);margin-left:8px;">Get started →</a></div>
+  </div>
+</div></div>
+</div>
 
 <script src="nav.js"></script>
 <script>
+function showPane(id,btn){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+function inject(id,text){
+  const el=document.getElementById(id);
+  const tx=document.getElementById(id+'-text');
+  if(el&&tx){tx.innerHTML=text;el.classList.add('visible');}
+}
+
 (function(){
-  const profile = getProfile();
-  if (!profile) {
-    document.getElementById('generated-content').innerHTML = `
-      <div style="text-align:center;padding:80px 24px;">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#e8e3da;margin-bottom:10px;">No profile yet</div>
-        <div style="font-size:13px;font-weight:300;color:#8a9490;margin-bottom:24px;">Complete onboarding to see your personalised content.</div>
-        <a href="bodylens-onboard.html" style="display:inline-block;padding:12px 24px;background:#00c8a0;border-radius:6px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0c1010;text-decoration:none;">Get started →</a>
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    if (!p||!p.name) return;
+    document.getElementById('nav-meta').innerHTML=`<span class="nav-tag nt-jade">${p.name}</span>`;
+
+    const isFemale = (p.sex||'').toLowerCase()==='female';
+    const age = p.age||35;
+    const bmr = isFemale
+      ? 10*(p.weight||70)+6.25*(p.height||165)-5*age-161
+      : 10*(p.weight||80)+6.25*(p.height||175)-5*age+5;
+    const actBonus = (p.activityLevel||'').includes('physical')?0.1:(p.activityLevel||'').includes('feet')?0.05:0;
+    const mult = ((p.trainingDays||4)<=3?1.55:(p.trainingDays||4)<=5?1.65:1.725)+actBonus;
+    const tdee = Math.round(bmr*mult);
+    const deficit = tdee - (p.calories||tdee);
+    const goal = (p.goal||'').toLowerCase();
+    const isDeficit = deficit > 0;
+
+    inject('pc-equation', `${p.name} — your calorie target is ${p.calories||'—'} kcal. Your estimated TDEE is ${tdee} kcal. This represents a ${Math.abs(deficit)} kcal ${deficit>0?'deficit':'surplus'} per day. ${deficit>0?`At a ${Math.abs(deficit)} kcal daily deficit, theoretical fat loss rate is ~${(Math.abs(deficit)*7/7700).toFixed(2)}kg/week — though metabolic adaptation will reduce this over time.`:'You are in a slight surplus, prioritising muscle gain over fat loss.'}`);
+
+    inject('pc-tdee', `${p.name}'s TDEE breakdown (estimated): BMR ~${Math.round(bmr)} kcal (${Math.round(bmr/tdee*100)}%) · Activity ~${tdee-Math.round(bmr)} kcal (${Math.round((tdee-Math.round(bmr))/tdee*100)}%). ${(p.activityLevel||'').includes('sedentary')?'Your sedentary activity level outside training means NEAT is a smaller component — be intentional about daily movement beyond formal training.':'Your activity level outside training contributes meaningfully to your total expenditure.'} Training on ${p.trainingDays||4} days per week.`);
+
+    inject('pc-hormones', isFemale
+      ? `${p.name} — female fat loss has specific hormonal dynamics. In the follicular phase (days 1-14), oestrogen suppresses appetite and improves insulin sensitivity — fat loss is typically easier. In the luteal phase (days 15-28), progesterone raises core temperature, increases resting metabolic rate by ~100-300 kcal, but also intensifies cravings. ${p.fatStorage?'Fat storage in '+p.fatStorage+' — this pattern reflects '+((p.fatStorage.toLowerCase().includes('abdominal')||p.fatStorage.toLowerCase().includes('lower back'))?'cortisol-sensitive visceral fat storage. Stress management and sleep are especially important for you.':'hormonal fat distribution — which responds to the overall programme rather than spot reduction.'):'The hormonal programme responds to consistent deficit, protein, training, and sleep.'}`
+      : `${p.name} — at ${age}, testosterone is declining at approximately 1-2% per year. This affects fat loss in two ways: reduced muscle mass (lower BMR) and reduced insulin sensitivity. Your programme addresses this directly — resistance training maintains and builds lean mass (offsetting BMR decline), and protein-first eating supports insulin sensitivity. ${p.fatStorage?'Your fat storage in '+p.fatStorage+' — '+((p.fatStorage.toLowerCase().includes('abdominal')||p.fatStorage.toLowerCase().includes('belly'))?'abdominal/visceral fat is cortisol-sensitive. Sleep, stress management, and training all affect this storage pattern specifically.':'this is typical hormonal distribution and responds to the programme consistently.'):'Cortisol management through sleep and stress reduction directly affects visceral fat specifically.'}`);
+
+    inject('pc-fatvsweight', `${p.name} — ${p.bodyFat?`your current body fat is approximately ${p.bodyFat}%. `:''}Goal: ${p.goal||'recomposition'}. ${goal.includes('recomp')?'Body recomposition — simultaneous fat loss and muscle gain — means the scale may not move significantly even as body composition improves dramatically. Track measurements, progress photos, and strength alongside weight.':isDeficit?'Your deficit is calibrated for fat loss while preserving lean mass. Resistance training + '+p.protein+'g protein daily is the protective combination.':'You are prioritising muscle gain over fat loss — scale weight will rise, which is expected and correct if body composition is improving.'}`);
+
+    inject('pc-whatworks', `${p.name}'s programme applies all three evidence-based interventions: ${Math.abs(deficit)} kcal ${isDeficit?'deficit':'surplus'} (${isDeficit&&Math.abs(deficit)<=500?'well within the 300-500 optimal range':'adjusted for your goal'}), ${p.protein}g protein daily, and ${p.trainingDays} resistance sessions per week. Sleep quality (${p.sleep||'target 7-8h'}) is the variable most people underestimate — protect it as a fat loss tool, not just recovery.`);
+
+    // Full profile pane
+    const profileEl = document.getElementById('profile-render');
+    if(profileEl) profileEl.innerHTML = `
+      <div class="stat-strip">
+        <div class="ss-cell"><div class="ss-val">${p.calories||'—'}</div><div class="ss-label">Daily target (kcal)</div></div>
+        <div class="ss-cell"><div class="ss-val amber">${Math.abs(deficit)}</div><div class="ss-label">${deficit>0?'Deficit':'Surplus'} (kcal/day)</div></div>
+        <div class="ss-cell"><div class="ss-val">${p.protein||'—'}g</div><div class="ss-label">Protein daily</div></div>
+        <div class="ss-cell"><div class="ss-val">${tdee}</div><div class="ss-label">Est. TDEE</div></div>
+      </div>
+      <div class="dr jade">Your fat loss physics</div>
+      <div class="body-sm">
+        <strong>Goal:</strong> ${p.goal||'—'} · <strong>Current:</strong> ${p.weight||'—'}kg${p.bodyFat?', '+p.bodyFat+'% body fat':''}<br>
+        At a ${Math.abs(deficit)} kcal ${isDeficit?'deficit':'surplus'}, theoretical rate of change: ~${(Math.abs(deficit)*7/7700).toFixed(2)}kg/week before adaptive compensation.<br><br>
+        ${isFemale
+          ? 'Female fat loss: follicular phase (days 1-14) is your high-performance window — oestrogen suppresses appetite and improves insulin sensitivity. Use it for your heaviest training. Luteal phase (days 15-28) — cravings are physiological, not failure. Slightly higher calories (up to +150) during this phase can reduce cortisol and improve adherence without compromising fat loss over the month.'
+          : `At ${age}, the combination of declining testosterone and the natural reduction in lean mass means the resistance training component of your programme is not optional — it is the primary defence against metabolic slowdown. ${p.trainingDays} sessions per week is the minimum effective dose.`}
+      </div>
+      <div class="dr amber" style="margin-top:24px;">The variables that matter most for you</div>
+      <div class="body-sm">
+        <strong style="color:var(--jade);">1. Protein consistency</strong> — ${p.protein}g every day, not just training days. This is muscle preservation and metabolic rate maintenance. Non-negotiable.<br><br>
+        <strong style="color:var(--jade);">2. Sleep</strong> — ${p.sleep||'7-8h'} target. Sub-6h halves fat loss rate and doubles lean mass loss, identical calories. Sleep is a fat loss intervention.<br><br>
+        <strong style="color:var(--jade);">3. Deficit consistency</strong> — not aggressive restriction. Your ${Math.abs(deficit)} kcal ${isDeficit?'deficit':'surplus'} is calibrated. Bigger is not better — it accelerates lean mass loss and adaptive thermogenesis.<br><br>
+        <strong style="color:var(--amber);">4. Diet breaks</strong> — every 6-8 weeks of deficit, consider 1-2 weeks at maintenance. This is biological management, not failure.
       </div>`;
-    return;
-  }
-
-  document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${profile.name}</span>`;
-  document.getElementById('hero-sub').textContent = profile.name + " · " + (profile.goal||'') + (profile.sex?' · '+profile.sex:'');
-
-  const regen = document.createElement('button');
-  regen.textContent = '↺ Regenerate';
-  regen.style.cssText = 'margin-top:12px;background:transparent;border:1px solid #3e504a;color:#8a9490;padding:6px 14px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all 0.12s;display:block;';
-  regen.onclick = () => { BL_GENERATOR.clearCache('weightloss', profile); location.reload(); };
-  document.getElementById('page-hero').appendChild(regen);
-
-  const container = document.getElementById('generated-content');
-  BL_GENERATOR.generate(
-    'weightloss',
-    profile,
-    (loading) => { container.innerHTML = loading; },
-    (html)    => { container.innerHTML = html; },
-    (err)     => {
-      console.error(err);
-      console.error('Page generation error:', err);
-      container.innerHTML = '<div style="padding:40px 0;text-align:center;color:#8a9490;font-size:13px;">Could not generate content: ' + (err||'unknown error') + '. <button onclick="BL_GENERATOR.clearCache(\'' + 'weightloss' + '\', getProfile()); location.reload()" style="color:#00c8a0;background:none;border:none;cursor:pointer;font-size:13px;text-decoration:underline;">Try again</button></div>';
-    }
-  );
+  } catch(e) { console.error(e); }
 })();
 </script>
 </body>
