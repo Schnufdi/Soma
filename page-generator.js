@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════
-//  page-generator.js
+//  page-generator.js  v3 — 2026-03-22
 //  The core AI content engine for BodyLens.
 //
 //  Every science page calls:
@@ -34,7 +34,7 @@ const BL_GENERATOR = (function() {
   // ── CACHE ─────────────────────────────────────────────
   function getCached(pageType, profile) {
     try {
-      const key   = 'bl_gen_' + pageType + '_' + profileHash(profile);
+      const key   = 'bl_gen_v3_' + pageType + '_' + profileHash(profile);
       const raw   = localStorage.getItem(key);
       if (!raw) return null;
       const data  = JSON.parse(raw);
@@ -47,7 +47,7 @@ const BL_GENERATOR = (function() {
 
   function setCached(pageType, profile, content) {
     try {
-      const key = 'bl_gen_' + pageType + '_' + profileHash(profile);
+      const key = 'bl_gen_v3_' + pageType + '_' + profileHash(profile);
       localStorage.setItem(key, JSON.stringify({ content, ts: Date.now() }));
     } catch(e) {}
   }
@@ -83,16 +83,18 @@ TRAINING TIME: ${p.trainingTime||'not specified'}
 FASTING PREFERENCE: ${p.fastingPreference||'not specified'}
 ACTIVITY LEVEL: ${p.activityLevel||'not specified'}
 ${p.menstrualCycle ? 'MENSTRUAL CYCLE: '+p.menstrualCycle : ''}
-${isFemale ? `
-FEMALE PHYSIOLOGY FLAG: This is a ${p.age}-year-old woman.
-${p.age >= 35 ? 'PERIMENOPAUSE PROXIMITY: Yes — hormonal fluctuation is relevant.' : ''}
-${p.age >= 30 && p.age < 40 ? 'HORMONAL CONTEXT: Peak reproductive years with early cycle variability.' : ''}
-All science, training, nutrition, and mental health content must be written for female physiology.
-Training structure must reflect female biomechanics, hormonal periodisation, and female-specific goals.
-Mental health content must address female-specific cortisol patterns, body image context, and hormonal mood effects.` : `
-MALE PHYSIOLOGY FLAG: This is a ${p.age}-year-old man.
-${p.age >= 40 ? 'HORMONAL CONTEXT: Testosterone decline is relevant. 40s is the highest-leverage decade.' : ''}
-All science content must be written for male physiology.`}`.trim();
+${isFemale
+      ? 'FEMALE PHYSIOLOGY FLAG: This is a ' + p.age + '-year-old woman.\n'
+        + (p.age >= 35 ? 'PERIMENOPAUSE PROXIMITY: Yes — hormonal fluctuation is relevant.\n' : '')
+        + (p.age >= 30 && p.age < 40 ? 'HORMONAL CONTEXT: Peak reproductive years with early cycle variability.\n' : '')
+        + (p.menstrualCycle ? 'CYCLE STATUS: ' + p.menstrualCycle + '\n' : '')
+        + 'All science, training, nutrition, and mental health content must be written for female physiology.\n'
+        + 'Training structure must reflect female biomechanics, hormonal periodisation, and female-specific goals.\n'
+        + 'Mental health content must address female-specific cortisol patterns, body image context, and hormonal mood effects.'
+      : 'MALE PHYSIOLOGY FLAG: This is a ' + p.age + '-year-old man.\n'
+        + (p.age >= 40 ? 'HORMONAL CONTEXT: Testosterone decline is relevant. 40s is the highest-leverage decade.\n' : '')
+        + 'All science content must be written for male physiology.'
+    }`.trim();
   }
 
   // ── PAGE PROMPTS ──────────────────────────────────────
@@ -568,6 +570,84 @@ Return ONLY the JSON.`;
 
   };
 
+
+
+  // ── GENERATED STYLES ─────────────────────────────────
+  // CSS injected into every generated page
+  const GENERATED_STYLES = `<style>
+    .gen-section{margin-bottom:48px;}
+    .gen-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--jade);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+    .gen-label::after{content:'';flex:1;height:1px;background:var(--bd);}
+    .gen-label.amber{color:var(--amber);}.gen-label.gold{color:var(--gold);}.gen-label.red{color:var(--red);}
+    .gen-h2{font-family:var(--serif);font-size:36px;font-weight:300;color:var(--dk-1);margin-bottom:14px;line-height:1.05;letter-spacing:-0.015em;}
+    .gen-body{font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.85;margin-bottom:16px;}
+    .gen-body strong{color:var(--dk-1);font-weight:500;}.gen-body em{color:var(--jade);font-style:italic;}
+    .gen-card{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:20px 24px;margin-bottom:10px;}
+    .gen-card.jade{border-top:3px solid var(--jade);}.gen-card.amber{border-top:3px solid var(--amber);}
+    .gen-card.gold{border-top:3px solid var(--gold);}.gen-card.red{border-top:3px solid var(--red);}
+    .gen-card-title{font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:8px;}
+    .gen-card.jade .gen-card-title{color:var(--jade);}.gen-card.amber .gen-card-title{color:var(--amber);}
+    .gen-card.gold .gen-card-title{color:var(--gold);}.gen-card.red .gen-card-title{color:var(--red);}
+    .gen-card-body{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;}
+    .gen-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+    .gen-callout{padding:18px 22px;background:rgba(0,200,160,0.05);border-left:3px solid var(--jade-br);border-radius:0 4px 4px 0;font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:16px;}
+    .gen-callout.amber{background:rgba(196,124,24,0.05);border-left-color:var(--amber-br);}
+    .gen-callout.red{background:rgba(217,78,53,0.05);border-left-color:var(--red-br);}
+    .gen-callout.gold{background:rgba(200,148,30,0.05);border-left-color:var(--gold-br);}
+    .gen-step{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--bd);}
+    .gen-step:last-child{border-bottom:none;}
+    .gen-step-num{font-family:var(--serif);font-size:36px;font-weight:300;color:var(--jade);opacity:0.4;line-height:1;}
+    .gen-step-title{font-size:14px;font-weight:600;color:var(--dk-1);margin-bottom:6px;}
+    .gen-step-text{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;}
+    .gen-row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--bd);font-size:12px;gap:16px;}
+    .gen-row:last-child{border-bottom:none;}
+    .gen-row-label{font-weight:400;color:var(--dk-3);flex-shrink:0;}
+    .gen-row-val{font-weight:500;color:var(--dk-1);text-align:right;}
+    .gen-row-val.jade{color:var(--jade);}.gen-row-val.amber{color:var(--amber);}
+    .gen-tl{border-left:2px solid var(--jade-br);padding-left:20px;margin-left:10px;}
+    .gen-tl-item{position:relative;padding:0 0 20px 0;}
+    .gen-tl-item::before{content:'';position:absolute;left:-24px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--jade);opacity:0.5;}
+    .gen-tl-time{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--jade);margin-bottom:3px;}
+    .gen-tl-title{font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:4px;}
+    .gen-tl-text{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:600px){.gen-grid-2{grid-template-columns:1fr;}}
+  </style>`;
+
+  // ── LOADING SKELETON ──────────────────────────────────
+  function loadingSkeleton(name) {
+    return GENERATED_STYLES + `
+      <div style="padding:60px 0;text-align:center;">
+        <div style="width:36px;height:36px;border:2px solid rgba(255,255,255,0.07);
+          border-top-color:#00c8a0;border-radius:50%;
+          animation:spin 0.8s linear infinite;margin:0 auto 16px;"></div>
+        <div style="font-size:13px;font-weight:300;color:#3e504a;">
+          Building your programme, ${name || 'you'}…
+        </div>
+        <div style="font-size:11px;font-weight:300;color:#3e504a;margin-top:6px;opacity:0.7;">
+          This takes 10–20 seconds. Cached after first load.
+        </div>
+      </div>`;
+  }
+
+  // ── WEEK PLAN HTML HELPER ─────────────────────────────
+  function buildWeekPlanHTML(p) {
+    const weekPlan = p.weekPlan || [];
+    if (!weekPlan.length) return '';
+    return `
+      <div class="gen-section">
+        <div class="gen-label jade">Your week</div>
+        ${weekPlan.map(day => `
+          <div style="border-bottom:1px solid var(--bd);padding:14px 0;display:grid;grid-template-columns:90px 1fr;gap:12px;">
+            <div style="font-size:12px;font-weight:600;color:${day.priority==='training'?'var(--jade)':'var(--dk-3)'};">${day.day}</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--dk-1);margin-bottom:2px;">${day.type} — ${day.focus||''}</div>
+              ${day.keyExercises&&day.keyExercises.length?`<div style="font-size:11px;font-weight:300;color:var(--dk-3);">${day.keyExercises.join(' · ')}</div>`:''}
+              ${day.coachNote?`<div style="font-size:11px;font-style:italic;color:var(--dk-3);margin-top:3px;">${day.coachNote}</div>`:''}
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
 
   const RENDERERS = {
 
@@ -1066,7 +1146,7 @@ Return ONLY the JSON.`;
     generate,
     clearCache: (pageType, profile) => {
       try {
-        const key = 'bl_gen_' + pageType + '_' + profileHash(profile);
+        const key = 'bl_gen_v3_' + pageType + '_' + profileHash(profile);
         localStorage.removeItem(key);
       } catch(e) {}
     },
