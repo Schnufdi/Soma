@@ -265,6 +265,7 @@
 .ask-ans p:last-child{margin:0;}
 .regen-btn{background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:6px 14px;border-radius:14px;font-size:10px;font-weight:600;letter-spacing:.04em;cursor:pointer;font-family:var(--sans);margin-top:16px;transition:all .12s;}
 .regen-btn:hover{border-color:var(--jade-br);color:var(--jade);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes shimmer{0%,100%{opacity:0.4}50%{opacity:0.9}}
 .macro-summary{background:var(--ink-2);border:1px solid var(--bd);border-radius:7px;padding:14px 16px;margin-bottom:14px;}
 .ms-title{font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;display:flex;justify-content:space-between;}
@@ -1132,6 +1133,48 @@ function sendAsk(text){
 }
 
 // ── Enrich meal names ─────────────────────────────
+function preloadRecipes(p, t) {
+  // Fire-and-forget background fetch for all meal slots
+  // Shows skeleton → recipe when ready, doesn't block anything
+  var slots = ['pre-training','midday','post-training','afternoon','evening'];
+  var mealCount = p.mealCount || 4;
+  var dayKcal = t.isTraining ? (t.plan.kcal || p.calories || 2000) : Math.round((p.calories||2000)*0.91);
+  var mt = {
+    calories: Math.round(dayKcal / mealCount),
+    protein:  Math.round((p.protein||140) / mealCount),
+    carbs:    Math.round((p.carbs||160) * 0.25),
+    fat:      Math.round((p.fat||60) * 0.25)
+  };
+  // Find which meal slots are actually in today's blocks
+  var activeSlots = (window._blocks || [])
+    .filter(function(b){ return b.mealSlot && !_recipes[b.mealSlot]; })
+    .map(function(b){ return { slot: b.mealSlot, idx: window._blocks.indexOf(b), title: b.title }; });
+
+  activeSlots.forEach(function(item) {
+    // Show skeleton immediately
+    var zone = document.getElementById('ri-' + item.idx);
+    if (zone && !_recipes[item.slot]) {
+      zone.innerHTML = '<div style="padding:12px;background:var(--ink-2);border:1px solid var(--bd);border-radius:5px;">'
+        + '<div style="height:11px;background:var(--bd);border-radius:3px;margin-bottom:8px;width:60%;animation:pulse 1.2s ease infinite;"></div>'
+        + '<div style="height:9px;background:var(--bd);border-radius:3px;margin-bottom:5px;width:85%;animation:pulse 1.2s ease infinite 0.1s;"></div>'
+        + '<div style="height:9px;background:var(--bd);border-radius:3px;width:45%;animation:pulse 1.2s ease infinite 0.2s;"></div>'
+        + '</div>';
+    }
+    // Fetch in background
+    setTimeout(function() {
+      fetchRecipe(item.slot, item.title, mt, false)
+        .then(function(recipe) {
+          var zone2 = document.getElementById('ri-' + item.idx);
+          if (zone2) zone2.innerHTML = buildRecipeHtml(recipe, mt, item.slot, item.idx);
+        })
+        .catch(function() {
+          var zone3 = document.getElementById('ri-' + item.idx);
+          if (zone3) zone3.innerHTML = '<button class="meal-btn pri" onclick="loadRecipe(\''+item.slot+'\','+item.idx+',this)">&#127859; Load recipe</button>';
+        });
+    }, activeSlots.indexOf(item) * 400); // stagger 400ms apart to avoid hammering API
+  });
+}
+
 function enrichMeals(p,t){
   var slots=document.querySelectorAll('[data-slot]');
   if(!slots.length)return;
@@ -1151,6 +1194,31 @@ function enrichMeals(p,t){
 }
 
 // ── Render plan ───────────────────────────────────
+function buildMealBars(loggedM, mProt, p, mealCount) {
+  function bar(pct, colour) {
+    return '<div style="flex:1;height:3px;background:var(--ink-1);border-radius:2px;overflow:hidden;">'
+      +'<div style="height:100%;width:'+Math.min(100,pct)+'%;background:'+colour+';border-radius:2px;transition:width 0.5s;"></div></div>';
+  }
+  function row(label, pct, val, colour) {
+    return '<div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;">'
+      +'<div style="width:9px;font-size:8px;font-weight:700;color:'+colour+';">'+label+'</div>'
+      +bar(pct, colour)
+      +'<div style="width:28px;font-size:8px;font-family:var(--mono);color:var(--dk-3);text-align:right;">'+val+'</div>'
+      +'</div>';
+  }
+  if (loggedM) {
+    var tP = Math.round((p.protein||140)/mealCount);
+    var tC = Math.round((p.carbs||160)/mealCount);
+    var tF = Math.round((p.fat||60)/mealCount);
+    return row('P', Math.round(loggedM.prot/Math.max(1,tP)*100), loggedM.prot+'g', 'var(--jade)')
+         + row('C', Math.round((loggedM.carbs||0)/Math.max(1,tC)*100), (loggedM.carbs||0)+'g', 'var(--amber)')
+         + row('F', Math.round((loggedM.fat||0)/Math.max(1,tF)*100), (loggedM.fat||0)+'g', '#5a7898');
+  } else {
+    // Not yet logged — show target as dimmed single bar
+    return row('P', 0, mProt+'g', 'rgba(0,200,160,0.25)');
+  }
+}
+
 function renderPlan(plan){
   var root=document.getElementById('day-root');
   window._blocks=plan.blocks;
@@ -1199,9 +1267,7 @@ function renderPlan(plan){
         +'<div class="tl-time">'+(b.time||'')+'</div>'
         +'<div class="tl-main"><div class="tl-title">'+b.title+'</div>'
         +'<div class="tl-sub" id="sub-'+slot+'" style="'+subCol+'">'+ subText+'</div>'
-        +'<div style="margin-top:4px;height:2px;background:var(--ink-1);border-radius:2px;overflow:hidden;max-width:120px;">'
-        +'<div id="mbar-'+slot+'" style="height:100%;width:'+protPct+'%;background:var(--jade);border-radius:2px;transition:width 0.5s;"></div>'
-        +'</div>'
+        +'<div id="mbars-'+slot+'" style="margin-top:5px;">'+buildMealBars(loggedM, mProt, p, mealCount)+'</div>'
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:6px;">'
         +'<div class="tl-tick'+(eaten?' done':'')+'" onclick="event.stopPropagation();quickTick(\''+slot+'\','+i+')">\u2713</div>'
@@ -1373,7 +1439,7 @@ function preloadRecipes(p, t){
     renderPlan(cached);
     updateMacroBar();
     enrichMeals(P, TODAY);
-    prefetchRecipes(P, TODAY);
+    preloadRecipes(P, TODAY);
     return;
   }
 
@@ -1422,7 +1488,7 @@ function buildDay(){
     renderPlan(plan);
     updateMacroBar();
     enrichMeals(P, TODAY);
-    prefetchRecipes(P, TODAY);
+    preloadRecipes(P, TODAY);
   } catch(e){
     root.innerHTML = '<div style="text-align:center;padding:60px;">'
       +'<div style="font-size:13px;color:var(--dk-3);margin-bottom:14px;">Could not build plan: '+e.message+'</div>'
