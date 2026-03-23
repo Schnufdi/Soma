@@ -109,14 +109,32 @@ Only add this tag if there is genuinely new information that would change the pr
   }
 
   // ── FOLLOW-UP PROMPT ──────────────────────────────────
-  function buildFollowUpPrompt(lastUserMsg, lastCoachReply, profile) {
-    return `Based on this exchange, generate 2-3 short follow-up questions that ${profile.name} might naturally want to ask next. Make them specific to what was just discussed and to their profile.
+  function buildFollowUpPrompt(lastUserMsg, lastCoachReply, profile, history) {
+    // Include recent conversation context (last 4 exchanges)
+    const recentHistory = (history || []).slice(-8).map(m =>
+      (m.role === 'user' ? profile.name : 'Coach') + ': ' + m.content.slice(0, 120)
+    ).join('\n');
 
-Their question: "${lastUserMsg}"
-Your answer: "${lastCoachReply.slice(0, 300)}..."
+    return `You are generating follow-up question chips for a fitness coaching chat.
 
-Return ONLY a JSON array of 2-3 short strings. Each under 8 words. No punctuation at end. No explanation.
-Example: ["How long until I see results", "Does timing matter for this", "What if I miss a session"]`;
+RECENT CONVERSATION:
+${recentHistory}
+
+LAST EXCHANGE:
+${profile.name}: "${lastUserMsg}"
+Coach: "${lastCoachReply.slice(0, 400)}"
+
+PROFILE CONTEXT:
+${profile.name}, ${profile.age}yo, goal: ${profile.goal}, training: ${profile.trainingDays} days/week, today: ${profile.todayContext || 'training day'}
+
+Generate 3 follow-up questions that ${profile.name} would genuinely want to ask next based on the specific concern just raised. Questions should:
+- Directly follow from what was just discussed (not generic)
+- Probe the practical implication, timing, or adjustment needed
+- Be phrased as the user would actually say them (casual, first person)
+- Be 5-12 words — specific enough to be useful
+
+Return ONLY a JSON array of 3 strings. No explanation.
+Example for "gym later than expected": ["Does this change when I should eat?", "Will a shorter warm-up be enough?", "Should I adjust my sets if I'm rushed?"]`;
   }
 
   // ── PAGE DETECTION ────────────────────────────────────
@@ -239,9 +257,9 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: MODEL,
-          max_tokens: 120,
-          system: 'You generate follow-up questions. Return only a JSON array. No explanation.',
-          messages: [{ role: 'user', content: buildFollowUpPrompt(lastUser, lastCoach, profile) }],
+          max_tokens: 180,
+          system: 'You generate follow-up questions for a fitness coaching chat. Return ONLY a valid JSON array of 3 strings. No explanation, no markdown.',
+          messages: [{ role: 'user', content: buildFollowUpPrompt(lastUser, lastCoach, profile, loadHistory()) }],
         }),
       });
       if (!res.ok) return null;
@@ -741,13 +759,19 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
   function showFollowUpChips(chips) {
     const container = document.getElementById('bl-coach-chips');
     if (!container || !chips || !chips.length) return;
-    container.style.display = 'flex';
-    container.innerHTML = chips.map(c =>
-      `<div class="coach-chip followup" data-msg="${c.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${c}</div>`
-    ).join('');
-    container.querySelectorAll('.coach-chip').forEach(chip => {
-      chip.addEventListener('click', () => window._blCoach.send(chip.dataset.msg));
-    });
+    // Animate out old chips, then replace
+    container.style.opacity = '0';
+    container.style.transition = 'opacity 0.15s ease';
+    setTimeout(() => {
+      container.innerHTML = chips.map(c =>
+        `<div class="coach-chip followup" data-msg="${c.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${c}</div>`
+      ).join('');
+      container.querySelectorAll('.coach-chip').forEach(chip => {
+        chip.addEventListener('click', () => window._blCoach.send(chip.dataset.msg));
+      });
+      container.style.display = 'flex';
+      container.style.opacity = '1';
+    }, 150);
   }
 
   // ── INIT ──────────────────────────────────────────────
