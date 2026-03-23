@@ -2,1401 +2,950 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0c1010">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BodyLens">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="food">
 <title>BodyLens — Food</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
 body { background:var(--ink); color:var(--dk-1); }
+.page { max-width:1080px; margin:0 auto; padding:0 48px 100px; }
 
 /* ── HERO ── */
-.food-hero {
-  padding:44px 32px 36px;
-  max-width:1100px; margin:0 auto;
-  border-bottom:1px solid var(--bd);
-  display:grid; grid-template-columns:1fr auto;
-  align-items:end; gap:32px;
-}
-.food-hero-left {}
-.food-kicker {
-  font-size:10px; font-weight:600; letter-spacing:0.2em;
-  text-transform:uppercase; color:var(--amber);
-  margin-bottom:10px; display:flex; align-items:center; gap:10px;
-}
-.food-kicker::before { content:''; width:18px; height:1px; background:var(--amber); }
-.food-title {
-  font-family:var(--serif); font-size:56px; font-weight:300;
-  line-height:0.93; letter-spacing:-0.025em; color:var(--dk-1);
-  margin-bottom:12px;
-}
-.food-title em { font-style:italic; color:var(--dk-3); }
-.food-sub {
-  font-size:14px; font-weight:300; color:var(--dk-2);
-  line-height:1.7; max-width:460px;
-}
+.food-hero { padding:52px 0 40px; border-bottom:1px solid var(--bd); margin-bottom:40px; position:relative; overflow:hidden; }
+.food-hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 700px 400px at 75% 40%, rgba(196,124,24,0.05) 0%, transparent 65%); }
+.fh-inner { position:relative; }
+.fh-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); margin-bottom:12px; display:flex; align-items:center; gap:12px; }
+.fh-kicker::before { content:''; width:24px; height:1px; background:var(--amber); }
+.fh-title { font-family:var(--serif); font-size:62px; font-weight:300; line-height:0.9; letter-spacing:-0.03em; color:var(--dk-1); margin-bottom:18px; }
+.fh-title em { font-style:italic; color:var(--dk-3); }
+.fh-sub { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:520px; margin-bottom:28px; }
 
-/* ── BASELINE CHART ── */
-.food-baseline {
-  background:var(--ink-2); border:1px solid var(--bd);
-  border-radius:8px; padding:22px 24px; min-width:320px;
-}
-.food-baseline-title {
-  font-size:9px; font-weight:600; letter-spacing:0.14em;
-  text-transform:uppercase; color:var(--dk-3); margin-bottom:14px;
-}
-.food-bl-row {
-  display:grid; grid-template-columns:120px 1fr 52px;
-  align-items:center; gap:10px; margin-bottom:8px;
-}
-.food-bl-label { font-size:11px; font-weight:400; color:var(--dk-3); }
-.food-bl-track {
-  height:4px; background:var(--ink-3); border-radius:2px; overflow:hidden;
-}
-.food-bl-fill {
-  height:100%; border-radius:2px; transition:width 0.6s ease;
-}
-.food-bl-val {
-  font-family:var(--mono); font-size:11px; font-weight:500;
-  color:var(--dk-2); text-align:right;
-}
-.food-bl-val.amber { color:var(--amber); }
-.food-bl-divider {
-  border:none; border-top:1px solid var(--bd); margin:10px 0;
-}
-.food-bl-target {
-  display:flex; justify-content:space-between; align-items:baseline;
-  font-size:12px;
-}
-.food-bl-target-label { font-weight:300; color:var(--dk-3); }
-.food-bl-target-val { font-family:var(--mono); font-weight:600; color:var(--amber); }
+/* Macro strip */
+.macro-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--bd); border-radius:8px; overflow:hidden; max-width:640px; }
+.ms-cell { background:var(--ink-2); padding:14px 10px; text-align:center; }
+.ms-val { font-family:var(--mono); font-size:20px; font-weight:500; color:var(--dk-1); margin-bottom:3px; }
+.ms-val.amber { color:var(--amber); }
+.ms-val.jade  { color:var(--jade); }
+.ms-val.water { color:rgba(100,180,220,0.8); }
+.ms-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
 
-/* ── TABS ── */
-.food-tabs {
-  display:flex; gap:0; border-bottom:1px solid var(--bd);
-  max-width:1100px; margin:0 auto;
-  overflow-x:auto; -webkit-overflow-scrolling:touch;
-}
-.food-tab {
-  font-size:11px; font-weight:600; letter-spacing:0.08em;
-  text-transform:uppercase; padding:14px 22px;
-  border:none; background:transparent;
-  color:var(--dk-3); cursor:pointer;
-  font-family:var(--sans); border-bottom:2px solid transparent;
-  margin-bottom:-1px; white-space:nowrap; transition:all 0.12s;
-}
-.food-tab:hover { color:var(--dk-2); }
-.food-tab.active { color:var(--amber); border-bottom-color:var(--amber); }
+/* ── SECTION LABEL ── */
+.sec-label { font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--amber); margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+.sec-label::after { content:''; flex:1; height:1px; background:var(--bd); }
 
-.food-pane { display:none; }
-.food-pane.active { display:block; }
+/* ── FOOD CARDS — same pattern as sci-cards ── */
+.food-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:40px; }
 
-/* ── CONTENT WRAPPER ── */
-.food-content { max-width:1100px; margin:0 auto; padding:36px 32px 100px; }
+.food-card {
+  background:var(--ink-2); border:1px solid var(--bd); border-radius:6px;
+  padding:20px 18px; text-decoration:none; display:block;
+  transition:all 0.15s; position:relative; overflow:hidden; cursor:pointer;
+}
+.food-card:hover { border-color:var(--bd-2); transform:translateY(-1px); }
+.food-card.amber { border-top:3px solid var(--amber); }
+.food-card.jade  { border-top:3px solid var(--jade); }
+.food-card.gold  { border-top:3px solid var(--gold); }
+.food-card.slate { border-top:3px solid var(--dk-3); }
 
-/* ── TODAY TAB ── */
-.today-grid {
-  display:grid; grid-template-columns:1fr 340px;
-  gap:24px; align-items:start;
+.food-card-icon { font-size:24px; margin-bottom:10px; display:block; }
+.food-card-title { font-size:14px; font-weight:600; margin-bottom:6px; }
+.food-card.amber .food-card-title { color:var(--amber); }
+.food-card.jade  .food-card-title { color:var(--jade); }
+.food-card.gold  .food-card-title { color:var(--gold); }
+.food-card-desc { font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.55; }
+.food-card-badge {
+  position:absolute; top:12px; right:12px; font-size:8px; font-weight:600;
+  letter-spacing:0.08em; text-transform:uppercase; padding:2px 8px; border-radius:10px;
+  color:var(--amber); background:rgba(196,124,24,0.08); border:1px solid var(--amber-br);
 }
+.food-card-badge.today { color:var(--jade); background:var(--jade-dim); border-color:var(--jade-br); }
 
-/* Macro progress */
-.macro-progress-card {
-  background:var(--ink-2); border:1px solid var(--bd);
-  border-radius:8px; overflow:hidden;
+/* ── EXPANDED PANEL — slides open below its card ── */
+.food-panel {
+  display:none; grid-column:1/-1;
+  background:var(--ink-1); border:1px solid var(--bd); border-radius:6px;
+  margin-top:-4px; overflow:hidden; animation:panelIn 0.2s ease;
 }
-.mpc-head {
-  background:var(--ink-1); border-bottom:1px solid var(--bd);
-  padding:14px 20px; display:flex; justify-content:space-between;
-  align-items:center;
-}
-.mpc-head-label {
-  font-size:9px; font-weight:600; letter-spacing:0.14em;
-  text-transform:uppercase; color:var(--amber);
-}
-.mpc-head-day {
-  font-size:11px; font-weight:300; color:var(--dk-3);
-}
-.mpc-macros {
-  display:grid; grid-template-columns:repeat(4,1fr);
-  gap:1px; background:var(--bd);
-}
-.mpc-macro {
-  background:var(--ink-1); padding:14px 12px; text-align:center;
-}
-.mpc-val {
-  font-family:var(--mono); font-size:20px; font-weight:500;
-  color:var(--jade); line-height:1; margin-bottom:3px;
-}
-.mpc-val.amber { color:var(--amber); }
-.mpc-val.slate { color:var(--dk-2); }
-.mpc-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
-.mpc-remaining { font-size:9px; font-weight:300; color:var(--dk-3); margin-top:2px; }
+.food-panel.active { display:block; }
+@keyframes panelIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.fp-inner { padding:28px 32px 32px; }
+.fp-close { float:right; background:none; border:none; color:var(--dk-3); cursor:pointer; font-size:18px; line-height:1; padding:0 0 4px 8px; }
+.fp-close:hover { color:var(--dk-1); }
+.fp-title { font-family:var(--serif); font-size:28px; font-weight:300; color:var(--dk-1); margin-bottom:4px; }
+.fp-sub { font-size:12px; font-weight:300; color:var(--dk-3); margin-bottom:24px; }
 
-/* Progress bars */
-.mpc-bars { padding:16px 20px; }
-.mpc-bar-row { margin-bottom:12px; }
-.mpc-bar-top {
-  display:flex; justify-content:space-between;
-  font-size:11px; margin-bottom:5px;
+/* Meal cards inside panel */
+.meal-list { display:flex; flex-direction:column; gap:8px; }
+.meal-row {
+  background:var(--ink-2); border:1px solid var(--bd); border-radius:6px;
+  display:grid; grid-template-columns:52px 1fr auto; align-items:center;
+  gap:0; cursor:pointer; overflow:hidden;
 }
-.mpc-bar-name { font-weight:500; color:var(--dk-2); }
-.mpc-bar-nums { font-family:var(--mono); font-weight:300; color:var(--dk-3); }
-.mpc-bar-track {
-  height:6px; background:var(--ink-3); border-radius:3px; overflow:hidden;
-}
-.mpc-bar-fill {
-  height:100%; border-radius:3px; transition:width 0.5s ease;
-}
+.meal-row.open { border-color:var(--amber-br); }
+.mr-head { display:contents; }
+.mr-time { padding:14px 0 14px 16px; font-family:var(--mono); font-size:11px; font-weight:500; color:var(--amber); }
+.mr-main { padding:14px 12px; }
+.mr-name { font-size:14px; font-weight:500; color:var(--dk-1); margin-bottom:2px; }
+.mr-purpose { font-size:11px; font-weight:300; color:var(--dk-3); }
+.mr-meta { padding:14px 16px; display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+.mr-prot { font-family:var(--mono); font-size:13px; font-weight:600; color:var(--jade); }
+.mr-kcal { font-family:var(--mono); font-size:10px; color:var(--dk-3); }
+.mr-body { display:none; padding:14px 16px 14px 68px; border-top:1px solid var(--bd); background:var(--ink-1); }
+.meal-row.open .mr-body { display:block; }
+.mr-items { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.mr-item { background:var(--ink-2); border:1px solid var(--bd); border-radius:4px; padding:4px 10px; font-size:11px; }
+.mr-item-name { font-weight:400; color:var(--dk-1); }
+.mr-item-qty { font-weight:300; color:var(--dk-3); margin-left:4px; }
+.mr-macros { display:flex; gap:14px; }
+.mr-m { text-align:center; }
+.mr-m-val { font-family:var(--mono); font-size:13px; font-weight:600; }
+.mr-m-val.j { color:var(--jade); }
+.mr-m-val.a { color:var(--amber); }
+.mr-m-label { font-size:8px; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); }
 
-/* Log strip */
-.log-strip {
-  background:var(--ink-2); border:1px solid var(--bd);
-  border-radius:8px; padding:16px 20px; margin-top:16px;
-}
-.log-strip-title {
-  font-size:9px; font-weight:600; letter-spacing:0.14em;
-  text-transform:uppercase; color:var(--dk-3); margin-bottom:12px;
-}
-.log-input-row { display:flex; gap:8px; }
-.log-input {
-  flex:1; background:var(--ink-3); border:1px solid var(--bd-2);
-  border-radius:4px; padding:9px 14px; font-size:13px;
-  color:var(--dk-1); font-family:var(--sans); outline:none;
-  transition:border-color 0.12s;
-}
-.log-input:focus { border-color:var(--amber-br); }
-.log-input::placeholder { color:var(--dk-3); font-size:12px; }
-.log-btn {
-  padding:9px 18px; background:var(--amber); border:none;
-  border-radius:4px; font-family:var(--sans); font-size:11px;
-  font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
-  color:var(--ink); cursor:pointer; transition:opacity 0.12s;
-  flex-shrink:0;
-}
-.log-btn:hover { opacity:0.85; }
-.log-entries { margin-top:10px; }
-.log-entry {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:7px 0; border-bottom:1px solid var(--bd);
-  font-size:12px;
-}
-.log-entry:last-child { border-bottom:none; }
-.log-entry-name { font-weight:400; color:var(--dk-1); }
-.log-entry-cals { font-family:var(--mono); font-weight:300; color:var(--amber); }
-.log-entry-del { color:var(--dk-3); cursor:pointer; padding:2px 6px; font-size:14px; }
-.log-entry-del:hover { color:var(--red); }
-
-/* Today meals */
-.today-meals {}
-.today-meal-sec {
-  font-size:9px; font-weight:600; letter-spacing:0.18em;
-  text-transform:uppercase; color:var(--amber);
-  margin:0 0 12px; display:flex; align-items:center; gap:10px;
-}
-.today-meal-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
-
-/* ── WEEK TAB ── */
-.week-header {
-  display:flex; justify-content:space-between; align-items:center;
-  margin-bottom:20px;
-}
-.week-header-title {
-  font-family:var(--serif); font-size:28px; font-weight:300; color:var(--dk-1);
-}
-
-/* Calorie rhythm chart */
-.cal-rhythm {
-  background:var(--ink-2); border:1px solid var(--bd);
-  border-radius:8px; padding:20px 24px; margin-bottom:24px;
-}
-.cal-rhythm-title {
-  font-size:9px; font-weight:600; letter-spacing:0.14em;
-  text-transform:uppercase; color:var(--dk-3); margin-bottom:16px;
-}
-.cal-rhythm-chart {
-  display:grid; grid-template-columns:repeat(7,1fr);
-  gap:6px; align-items:end; height:80px;
-}
-.cal-day-bar { display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; }
-.cal-bar-wrap { flex:1; display:flex; align-items:flex-end; width:100%; }
-.cal-bar {
-  width:100%; border-radius:3px 3px 0 0;
-  transition:height 0.5s ease; min-height:4px;
-}
-.cal-bar.training { background:var(--amber); }
-.cal-bar.rest     { background:var(--ink-3); }
-.cal-bar.today-bar { background:var(--jade); }
-.cal-day-label {
-  font-size:9px; font-weight:500; letter-spacing:0.05em;
-  text-transform:uppercase; color:var(--dk-3);
-}
-.cal-day-num {
-  font-family:var(--mono); font-size:9px; font-weight:300;
-  color:var(--dk-3);
-}
-
-/* Week meal grid */
-.week-meal-grid {
-  display:grid; grid-template-columns:repeat(7,1fr);
-  gap:10px; margin-bottom:32px;
-}
-.week-day-col {
-  background:var(--ink-2); border:1px solid var(--bd);
-  border-radius:6px; overflow:hidden;
-  transition:border-color 0.15s;
-}
-.week-day-col.training-day { border-top:3px solid var(--amber); }
-.week-day-col.rest-day     { border-top:3px solid var(--bd); }
-.week-day-col.is-today     { border-color:var(--jade); }
-
-.wdc-head {
-  padding:10px 12px;
-  background:var(--ink-1);
-  border-bottom:1px solid var(--bd);
-}
-.wdc-name {
-  font-size:10px; font-weight:600; letter-spacing:0.08em;
-  text-transform:uppercase;
-  color:var(--dk-3);
-}
-.wdc-name.training { color:var(--amber); }
-.wdc-name.today    { color:var(--jade); }
-.wdc-kcal {
-  font-family:var(--mono); font-size:10px; font-weight:300;
-  color:var(--dk-3); margin-top:2px;
-}
-
-.wdc-meals { padding:8px; }
-.wdc-meal {
-  background:var(--ink-3); border-radius:4px;
-  padding:8px 10px; margin-bottom:6px; cursor:pointer;
-  transition:background 0.12s; position:relative;
-}
-.wdc-meal:last-child { margin-bottom:0; }
-.wdc-meal:hover { background:rgba(255,255,255,0.04); }
-.wdc-meal-name {
-  font-size:11px; font-weight:500; color:var(--dk-1);
-  line-height:1.3; margin-bottom:3px;
-}
-.wdc-meal-macros {
-  font-size:9px; font-weight:300; color:var(--dk-3);
-  font-family:var(--mono);
-}
-.wdc-meal-swap {
-  position:absolute; top:6px; right:8px;
-  font-size:11px; color:var(--dk-3); opacity:0;
-  transition:opacity 0.12s; cursor:pointer;
-  background:none; border:none; padding:0;
-}
-.wdc-meal:hover .wdc-meal-swap { opacity:1; }
-.wdc-meal-swap:hover { color:var(--amber); }
-
-.wdc-loading {
-  padding:20px 10px; text-align:center;
-  font-size:11px; font-weight:300; color:var(--dk-3);
-}
-
-/* Meal detail modal */
-.meal-modal-overlay {
-  position:fixed; inset:0; background:rgba(12,16,16,0.92);
-  z-index:500; display:flex; align-items:center; justify-content:center;
-  padding:24px; display:none;
-}
-.meal-modal-overlay.open { display:flex; }
-.meal-modal {
-  background:var(--ink-2); border:1px solid var(--bd-2);
-  border-radius:10px; padding:32px; max-width:520px;
-  width:100%; max-height:80vh; overflow-y:auto;
-  animation:slideUp 0.2s ease;
-}
-@keyframes slideUp {
-  from { opacity:0; transform:translateY(12px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.mm-close {
-  float:right; font-size:20px; color:var(--dk-3);
-  cursor:pointer; background:none; border:none;
-  margin-top:-8px; margin-right:-8px;
-}
-.mm-close:hover { color:var(--dk-1); }
-.mm-meal-name {
-  font-family:var(--serif); font-size:30px; font-weight:300;
-  color:var(--dk-1); margin-bottom:6px; clear:both;
-}
-.mm-meal-type { font-size:11px; font-weight:300; color:var(--dk-3); margin-bottom:16px; }
-.mm-macros {
-  display:grid; grid-template-columns:repeat(4,1fr);
-  gap:1px; background:var(--bd); border-radius:4px;
-  overflow:hidden; margin-bottom:20px;
-}
-.mm-macro {
-  background:var(--ink-1); padding:12px 8px; text-align:center;
-}
-.mm-macro-val {
-  font-family:var(--mono); font-size:18px; font-weight:500;
-  color:var(--jade); line-height:1; margin-bottom:3px;
-}
-.mm-macro-val.amber { color:var(--amber); }
-.mm-macro-val.slate { color:var(--dk-2); }
-.mm-macro-label { font-size:8px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
-.mm-section-label {
-  font-size:9px; font-weight:600; letter-spacing:0.14em;
-  text-transform:uppercase; color:var(--amber); margin:16px 0 8px;
-}
-.mm-ingredient {
-  display:flex; justify-content:space-between;
-  padding:7px 0; border-bottom:1px solid var(--bd);
-  font-size:12px;
-}
-.mm-ingredient:last-child { border-bottom:none; }
-.mm-ing-name { font-weight:400; color:var(--dk-1); }
-.mm-ing-qty  { font-family:var(--mono); font-weight:300; color:var(--dk-3); }
-.mm-instructions {
-  font-size:13px; font-weight:300; color:var(--dk-2);
-  line-height:1.8; margin-top:4px;
-}
-.mm-why {
-  padding:12px 16px; background:rgba(196,124,24,0.06);
-  border-left:3px solid var(--amber-br); border-radius:0 4px 4px 0;
-  font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.7;
-  margin-top:16px;
-}
-.mm-swap-btn {
-  width:100%; margin-top:20px; padding:12px;
-  background:transparent; border:1px solid var(--amber-br);
-  border-radius:4px; font-family:var(--sans); font-size:11px;
-  font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
-  color:var(--amber); cursor:pointer; transition:all 0.12s;
-}
-.mm-swap-btn:hover { background:var(--amber-dim); }
-
-/* ── SHOPPING LIST TAB ── */
-.shop-header {
-  display:flex; justify-content:space-between; align-items:center;
-  margin-bottom:24px;
-}
-.shop-header-title {
-  font-family:var(--serif); font-size:28px; font-weight:300; color:var(--dk-1);
-}
-.shop-actions { display:flex; gap:8px; }
-.shop-btn {
-  padding:9px 18px; background:transparent;
-  border:1px solid var(--bd-2); border-radius:4px;
-  font-family:var(--sans); font-size:10px; font-weight:600;
-  letter-spacing:0.08em; text-transform:uppercase;
-  color:var(--dk-3); cursor:pointer; transition:all 0.12s;
-}
-.shop-btn:hover { color:var(--amber); border-color:var(--amber-br); }
-.shop-btn.amber { background:var(--amber); border-color:var(--amber); color:var(--ink); }
-.shop-btn.amber:hover { opacity:0.85; }
-
-.shop-categories { columns:2; gap:24px; }
-.shop-cat { break-inside:avoid; margin-bottom:24px; }
-.shop-cat-title {
-  font-size:9px; font-weight:600; letter-spacing:0.18em;
-  text-transform:uppercase; color:var(--amber);
-  margin-bottom:10px; display:flex; align-items:center; gap:10px;
-}
-.shop-cat-title::after { content:''; flex:1; height:1px; background:var(--bd); }
-.shop-item {
-  display:flex; align-items:center; gap:12px;
-  padding:9px 0; border-bottom:1px solid var(--bd);
-  cursor:pointer; transition:opacity 0.15s;
-}
-.shop-item:last-child { border-bottom:none; }
-.shop-item.checked { opacity:0.35; }
-.shop-item-check {
-  width:16px; height:16px; border-radius:3px;
-  border:1px solid var(--bd-2); flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  transition:all 0.12s;
-}
-.shop-item.checked .shop-item-check {
-  background:var(--jade); border-color:var(--jade);
-  color:var(--ink); font-size:10px;
-}
-.shop-item-name { font-size:13px; font-weight:400; color:var(--dk-1); flex:1; }
-.shop-item.checked .shop-item-name { text-decoration:line-through; }
-.shop-item-qty { font-family:var(--mono); font-size:11px; font-weight:300; color:var(--amber); white-space:nowrap; }
-.shop-item-meals { font-size:10px; font-weight:300; color:var(--dk-3); margin-top:1px; }
-
-/* ── SCIENCE TAB ── */
-.science-link-grid {
-  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
-}
-.sci-link-card {
-  background:var(--ink-2); border:1px solid var(--bd);
-  border-radius:6px; padding:18px 16px; text-decoration:none;
-  display:block; transition:all 0.15s;
-}
-.sci-link-card:hover { border-color:var(--amber-br); transform:translateY(-1px); }
-.sci-link-icon { font-size:22px; margin-bottom:8px; display:block; }
-.sci-link-title { font-size:13px; font-weight:600; color:var(--amber); margin-bottom:4px; }
-.sci-link-desc  { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.5; }
-
-/* ── LOADING ── */
-.food-loading {
-  display:flex; flex-direction:column; align-items:center;
-  justify-content:center; min-height:300px; gap:14px;
-}
-.food-spinner {
-  width:36px; height:36px; border:2px solid var(--bd-2);
-  border-top-color:var(--amber); border-radius:50%;
-  animation:spin 0.8s linear infinite;
-}
+/* Loading inside panel */
+.fp-loading { padding:40px 0; text-align:center; }
+.fp-spinner { width:24px; height:24px; border:2px solid var(--bd); border-top-color:var(--amber); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
 @keyframes spin { to { transform:rotate(360deg); } }
-.food-loading-text { font-size:13px; font-weight:300; color:var(--dk-3); }
+.fp-load-text { font-size:12px; font-weight:300; color:var(--dk-3); }
 
-/* ── NO PROFILE ── */
-.no-profile-food {
-  display:flex; flex-direction:column; align-items:center;
-  justify-content:center; min-height:60vh; text-align:center; padding:48px;
-}
-.no-profile-food h2 {
-  font-family:var(--serif); font-size:32px; font-weight:300; color:var(--dk-1);
-  margin-bottom:10px;
-}
-.no-profile-food p {
-  font-size:14px; font-weight:300; color:var(--dk-2);
-  max-width:360px; line-height:1.7; margin-bottom:24px;
-}
-.no-profile-food a {
-  display:inline-block; padding:12px 28px; background:var(--amber);
-  border-radius:6px; font-size:12px; font-weight:600;
-  letter-spacing:0.06em; text-transform:uppercase;
-  color:var(--ink); text-decoration:none;
-}
+/* Week grid */
+.week-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:20px; }
+.wg-day { background:var(--ink-2); border:1px solid var(--bd); border-radius:4px; padding:10px 6px; text-align:center; cursor:pointer; transition:border-color 0.12s; }
+.wg-day.train { border-top:2px solid var(--amber); }
+.wg-day.selected { border-color:var(--amber-br); background:rgba(196,124,24,0.05); }
+.wg-day.today-day { box-shadow:0 0 0 1px var(--amber-br); }
+.wg-name { font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); margin-bottom:3px; }
+.wg-name.t { color:var(--amber); }
+.wg-type { font-size:10px; font-weight:500; color:var(--dk-1); margin-bottom:2px; }
+.wg-kcal { font-size:8px; font-family:var(--mono); color:var(--dk-3); }
 
-@media(max-width:900px){
-  .today-grid { grid-template-columns:1fr; }
-  .week-meal-grid { grid-template-columns:repeat(4,1fr); }
-  .food-hero { grid-template-columns:1fr; }
-  .science-link-grid { grid-template-columns:1fr 1fr; }
-  .shop-categories { columns:1; }
+/* Pyramid bars */
+.pyr-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:24px; }
+.pyr-tab { padding:7px 16px; border:1px solid var(--bd); border-radius:4px; background:transparent; font-family:var(--sans); font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--dk-3); cursor:pointer; transition:all 0.12s; }
+.pyr-tab:hover { border-color:var(--amber-br); color:var(--amber); }
+.pyr-tab.active { background:rgba(196,124,24,0.08); border-color:var(--amber); color:var(--amber); }
+.pyr-layout { display:grid; grid-template-columns:1fr 280px; gap:32px; }
+.pyr-bar-wrap { display:flex; flex-direction:column; gap:5px; margin-bottom:20px; }
+.pyr-layer { display:flex; align-items:center; gap:12px; justify-content:flex-end; }
+.pyr-bar { height:32px; border-radius:3px; display:flex; align-items:center; padding:0 12px; }
+.pyr-bar-label { font-size:10px; font-weight:500; color:rgba(255,255,255,0.8); white-space:nowrap; }
+.pyr-bar-note { font-size:10px; font-weight:300; color:var(--dk-3); text-align:right; max-width:160px; }
+.pyr-mac-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:16px; }
+.pyr-mac { background:var(--ink-2); border:1px solid var(--bd); border-radius:4px; padding:12px; }
+.pyr-mac-label { font-size:8px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:3px; }
+.pyr-mac-amount { font-family:var(--mono); font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:3px; }
+.pyr-mac-note { font-size:10px; font-weight:300; color:var(--dk-3); line-height:1.4; }
+.pyr-kcal-box { background:var(--ink-2); border:1px solid var(--bd); border-radius:4px; padding:16px; margin-bottom:12px; }
+.pkb-label { font-size:8px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--dk-3); margin-bottom:10px; }
+.pkb-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--bd); }
+.pkb-row:last-child { border-bottom:none; }
+.pkb-name { font-size:12px; color:var(--dk-2); }
+.pkb-val { font-family:var(--mono); font-size:16px; font-weight:600; color:var(--amber); }
+.pyr-timing { display:flex; flex-direction:column; gap:0; }
+.pt-row { padding:10px 0; border-bottom:1px solid var(--bd); }
+.pt-row:last-child { border-bottom:none; }
+.pt-title { font-size:12px; font-weight:500; color:var(--dk-1); margin-bottom:3px; }
+.pt-text { font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.65; }
+
+/* Shopping */
+.shop-cols { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.shop-cat-label { font-size:9px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--amber); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.shop-cat-label::after { content:''; flex:1; height:1px; background:var(--bd); }
+.shop-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--bd); cursor:pointer; }
+.shop-item:last-child { border-bottom:none; }
+.shop-cb { width:16px; height:16px; border:1px solid var(--bd); border-radius:3px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--jade); }
+.shop-item.checked .shop-cb { background:var(--jade-dim); border-color:var(--jade-br); }
+.shop-item.checked .shop-name { text-decoration:line-through; color:var(--dk-3); }
+.shop-name { font-size:12px; font-weight:300; color:var(--dk-1); flex:1; }
+.shop-qty  { font-size:10px; font-family:var(--mono); color:var(--dk-3); }
+
+/* Intelligence cards */
+.intel-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.intel-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; overflow:hidden; }
+.ic-head { background:var(--ink-1); border-bottom:1px solid var(--bd); padding:12px 16px; }
+.ic-label { font-size:8px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--amber); margin-bottom:3px; }
+.ic-title { font-size:14px; font-weight:500; color:var(--dk-1); }
+.ic-body { padding:14px 16px; font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.8; }
+
+/* Regen button */
+.regen-btn { background:transparent; border:1px solid var(--bd); color:var(--dk-3); padding:6px 14px; border-radius:16px; font-size:10px; font-weight:600; letter-spacing:0.04em; cursor:pointer; font-family:var(--sans); margin-top:16px; transition:all 0.12s; }
+.regen-btn:hover { border-color:var(--amber-br); color:var(--amber); }
+
+@media(max-width:800px) {
+  .page { padding:0 20px 80px; }
+  .fh-title { font-size:44px; }
+  .food-grid { grid-template-columns:1fr 1fr; }
+  .macro-strip { grid-template-columns:1fr 1fr 1fr; }
+  .week-grid { grid-template-columns:repeat(7,1fr); }
+  .pyr-layout { grid-template-columns:1fr; }
+  .shop-cols { grid-template-columns:1fr; }
+  .intel-grid { grid-template-columns:1fr; }
 }
-@media(max-width:600px){
-  .food-hero, .food-content { padding-left:16px; padding-right:16px; }
-  .food-title { font-size:38px; }
-  .week-meal-grid { grid-template-columns:1fr 1fr; }
-  .mpc-macros { grid-template-columns:repeat(2,1fr); }
-  .food-tabs { padding:0 16px; }
-  .science-link-grid { grid-template-columns:1fr; }
+@media(max-width:500px) {
+  .food-grid { grid-template-columns:1fr; }
 }
 </style>
 </head>
 <body>
 
-<nav class="site-nav" id="main-nav"><!-- populated by script --></nav>
-
-<div id="food-app">
-  <!-- Rendered by JS after profile loads -->
-</div>
-
-<!-- Meal detail modal -->
-<div class="meal-modal-overlay" id="meal-modal">
-  <div class="meal-modal" id="meal-modal-inner"></div>
-</div>
-
-<script src="nav.js"></script>
-<script src="page-generator.js"></script>
-<script>
-const API   = '/api/chat';
-const MODEL = 'claude-sonnet-4-20250514';
-
-// ── PROFILE ──────────────────────────────────────────────
-const profile = getProfile();
-
-// ── STATE — must be defined before renderFoodApp ──────────
-const DAY_MAP   = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
-const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const todayIdx  = DAY_MAP[new Date().getDay()];
-const todayName = DAY_NAMES[todayIdx];
-const weekPlan  = profile ? (profile.weekPlan || []) : [];
-const todayPlan = weekPlan[todayIdx] || {priority:'rest', kcal:(profile&&profile.calories)||2000};
-const isTraining = todayPlan.priority === 'training';
-
-let weekMeals  = null;
-let shopList   = null;
-let foodLog    = [];
-let activeTab  = 'today';
-
-const TODAY_LOG_KEY  = 'bl_food_log_'   + new Date().toISOString().slice(0,10);
-const WEEK_MEALS_KEY = 'bl_week_meals_' + new Date().toISOString().slice(0,10);
-const SHOP_KEY       = 'bl_shop_'       + new Date().toISOString().slice(0,10);
-
-// ── NAV ──────────────────────────────────────────────────
-(function(){
-  const nav = document.getElementById('main-nav');
-  if (!nav) return;
-  nav.innerHTML = `
+<nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
-    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
+    <a class="nav-link nav-daily" href="bodylens-dailyplan.html">Today</a>
     <a class="nav-link nav-food active" href="bodylens-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
+    <a class="nav-link" href="bodylens-instructions.html">Report</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
   </div>
   <div class="nav-right-group">
+    <a class="nav-right" href="bodylens-guide.html">Guide</a>
     <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
     <div class="nav-meta" id="nav-meta"></div>
-  </div>`;
-})();
+  </div>
+</nav>
 
-if (!profile) {
-  document.getElementById('food-app').innerHTML = `
-    <div class="no-profile-food">
-      <div style="font-size:48px;margin-bottom:16px;">🍽️</div>
-      <h2>Build your food system</h2>
-      <p>Complete onboarding and your personalised food system — meals, shopping list, and nutrition science — will be ready.</p>
-      <a href="bodylens-onboard.html">Get started →</a>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="food-hero">
+    <div class="fh-inner">
+      <div class="fh-kicker" id="fh-kicker">Food intelligence</div>
+      <div class="fh-title">Eat to<br><em>perform.</em></div>
+      <div class="fh-sub" id="fh-sub">Your complete food system — what to eat, when to eat it, and why every decision matters for your goal.</div>
+      <div class="macro-strip" id="macro-strip">
+        <div class="ms-cell"><div class="ms-val">—</div><div class="ms-label">kcal</div></div>
+        <div class="ms-cell"><div class="ms-val jade">—</div><div class="ms-label">protein</div></div>
+        <div class="ms-cell"><div class="ms-val amber">—</div><div class="ms-label">carbs</div></div>
+        <div class="ms-cell"><div class="ms-val">—</div><div class="ms-label">fat</div></div>
+        <div class="ms-cell"><div class="ms-val water">—</div><div class="ms-label">water</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: TODAY & WEEK -->
+  <div class="sec-label">Daily & weekly plan</div>
+  <div class="food-grid">
+
+    <div class="food-card amber" onclick="togglePanel('panel-today', this)">
+      <div class="food-card-badge today">Today</div>
+      <span class="food-card-icon">🍽</span>
+      <div class="food-card-title" id="today-card-title">Today's meals</div>
+      <div class="food-card-desc" id="today-card-desc">Your full eating schedule — meals, timing, macros for today.</div>
+    </div>
+
+    <div class="food-card amber" onclick="togglePanel('panel-week', this)">
+      <span class="food-card-icon">📅</span>
+      <div class="food-card-title">This week</div>
+      <div class="food-card-desc">7-day meal plan. Training days vs rest days. Tap any day to see meals.</div>
+    </div>
+
+    <div class="food-card jade" onclick="togglePanel('panel-shopping', this)">
+      <span class="food-card-icon">🛒</span>
+      <div class="food-card-title">Shopping list</div>
+      <div class="food-card-desc">Everything you need this week. Organised by category. Tap to check off.</div>
+    </div>
+
+  </div>
+
+  <!-- TODAY PANEL -->
+  <div class="food-panel" id="panel-today">
+    <div class="fp-inner">
+      <button class="fp-close" onclick="closePanel('panel-today')">✕</button>
+      <div class="fp-title" id="today-panel-title">Today's meals</div>
+      <div class="fp-sub" id="today-panel-sub">Loading your day…</div>
+      <div id="today-content">
+        <div class="fp-loading"><div class="fp-spinner"></div><div class="fp-load-text">Building today's meals…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK PANEL -->
+  <div class="food-panel" id="panel-week">
+    <div class="fp-inner">
+      <button class="fp-close" onclick="closePanel('panel-week')">✕</button>
+      <div class="fp-title">This week</div>
+      <div class="fp-sub">Tap any day to see its meals.</div>
+      <div class="week-grid" id="week-grid"></div>
+      <div id="week-day-content" style="font-size:13px;font-weight:300;color:var(--dk-3);padding:12px 0;">Select a day above</div>
+    </div>
+  </div>
+
+  <!-- SHOPPING PANEL -->
+  <div class="food-panel" id="panel-shopping">
+    <div class="fp-inner">
+      <button class="fp-close" onclick="closePanel('panel-shopping')">✕</button>
+      <div class="fp-title">Shopping list</div>
+      <div class="fp-sub" id="shop-sub">Your weekly essentials.</div>
+      <div class="shop-cols" id="shop-cols"></div>
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <button class="regen-btn" onclick="clearShopChecks()">Clear checks</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: FOOD SCIENCE -->
+  <div class="sec-label" style="margin-top:8px;">Food science</div>
+  <div class="food-grid">
+
+    <div class="food-card gold" onclick="togglePanel('panel-pyramids', this)">
+      <span class="food-card-icon">🔺</span>
+      <div class="food-card-title">Food pyramids</div>
+      <div class="food-card-desc">Four macro architectures. Your goal determines your pyramid. The visual behind every eating decision.</div>
+    </div>
+
+    <div class="food-card gold" onclick="togglePanel('panel-intel', this)">
+      <span class="food-card-icon">🧬</span>
+      <div class="food-card-title">Nutrient intelligence</div>
+      <div class="food-card-desc">Timing, synergies, trigger food management, anti-inflammatory eating, your eating window.</div>
+    </div>
+
+    <div class="food-card slate" onclick="window.location.href='bodylens-hunger.html'">
+      <span class="food-card-icon">⚡</span>
+      <div class="food-card-title">Hunger & balance</div>
+      <div class="food-card-desc">Ghrelin, leptin, food noise, emotional eating. The operating system behind your appetite.</div>
+    </div>
+
+    <div class="food-card slate" onclick="window.location.href='bodylens-alcohol.html'">
+      <span class="food-card-icon">🍷</span>
+      <div class="food-card-title">Alcohol</div>
+      <div class="food-card-desc">The full mechanism — mTOR, sleep architecture, hormones, fat storage. Your protocol.</div>
+    </div>
+
+    <div class="food-card slate" onclick="window.location.href='bodylens-weightloss.html'">
+      <span class="food-card-icon">📉</span>
+      <div class="food-card-title">Fat loss science</div>
+      <div class="food-card-desc">Why diets fail, TDEE components, the four hormones. Calibrated to your numbers.</div>
+    </div>
+
+    <div class="food-card jade" onclick="window.location.href='bodylens-fuel.html'">
+      <span class="food-card-icon">🗂</span>
+      <div class="food-card-title">Full food system</div>
+      <div class="food-card-desc">Synergies, timing map, what to avoid, meal ideas. The deep reference layer.</div>
+    </div>
+
+  </div>
+
+  <!-- PYRAMIDS PANEL -->
+  <div class="food-panel" id="panel-pyramids">
+    <div class="fp-inner">
+      <button class="fp-close" onclick="closePanel('panel-pyramids')">✕</button>
+      <div class="fp-title">Food pyramids</div>
+      <div class="fp-sub">Four nutritional architectures — your goal determines your pyramid.</div>
+      <div class="pyr-tabs" id="pyr-tabs"></div>
+      <div class="pyr-layout">
+        <div id="pyr-main"></div>
+        <div id="pyr-side"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTELLIGENCE PANEL -->
+  <div class="food-panel" id="panel-intel">
+    <div class="fp-inner">
+      <button class="fp-close" onclick="closePanel('panel-intel')">✕</button>
+      <div class="fp-title">Nutrient intelligence</div>
+      <div class="fp-sub">The science behind your eating decisions.</div>
+      <div class="intel-grid" id="intel-grid"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="nav.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+//  bodylens-food.html
+//  Instant load — no API on initial render
+//  API calls only when user taps Today (one per day, cached)
+// ═══════════════════════════════════════════════════
+
+const API   = '/api/chat';
+const MODEL = 'claude-sonnet-4-20250514';
+
+// ── LOAD PROFILE ─────────────────────────────────
+const _p = (() => { try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); } catch(e){ return null; } })();
+
+if (!_p) {
+  document.querySelector('.page').innerHTML = `
+    <div style="text-align:center;padding:100px 24px;">
+      <div style="font-size:44px;margin-bottom:16px;">🍽</div>
+      <div style="font-family:var(--serif);font-size:32px;font-weight:300;color:var(--dk-1);margin-bottom:12px;">Your food system awaits</div>
+      <div style="font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:28px;">Complete onboarding to unlock your personalised food intelligence.</div>
+      <a href="bodylens-onboard.html" style="display:inline-block;background:var(--amber);color:var(--ink);padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;">Get started →</a>
     </div>`;
 } else {
-  document.getElementById('nav-meta').innerHTML =
-    `<span class="nav-tag nt-jade">${profile.name}</span>`;
-  renderFoodApp(profile);
+
+// ── TODAY CONTEXT ─────────────────────────────────
+const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DAY_MAP   = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
+const _todayIdx = DAY_MAP[new Date().getDay()];
+const _todayName = DAY_NAMES[_todayIdx];
+const _weekPlan  = _p.weekPlan || [];
+const _todayPlan = _weekPlan[_todayIdx] || {type:'Rest',focus:'Recovery',priority:'rest'};
+const _isTrain   = _todayPlan.priority === 'training';
+const _isFemale  = (_p.sex||'').toLowerCase() === 'female';
+const _trainKcal = _todayPlan.kcal || _p.calories || 2000;
+const _restKcal  = Math.round(_trainKcal * 0.91);
+const _todayKcal = _isTrain ? _trainKcal : _restKcal;
+const _prot = _p.protein || 140;
+const _carbs= _p.carbs   || 160;
+const _fat  = _p.fat     || 60;
+const _water= (( (_p.weight||75)*35 + (_isTrain?500:0) ) / 1000).toFixed(1) + 'L';
+
+let _shopChecks = (() => { try { return JSON.parse(localStorage.getItem('bl_shop_checks')||'{}'); } catch(e){return{};} })();
+let _pyramidInited = false;
+let _intelInited   = false;
+let _todayLoaded   = false;
+let _weekInited    = false;
+let _activePanel   = null;
+let _activeCard    = null;
+
+// ── HERO ──────────────────────────────────────────
+document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${_p.name}</span>`;
+document.getElementById('fh-kicker').textContent = `${_todayName} · ${_isTrain ? _todayPlan.type + ' day' : 'Rest day'} · ${_p.name}`;
+document.getElementById('fh-sub').textContent = `${_p.cuisinePrefs&&_p.cuisinePrefs.length ? _p.cuisinePrefs.join(' · ') + ' · ' : ''}${_p.recipeComplexity||'Standard cooking'} · ${_p.dietType||'Flexible diet'}`;
+document.getElementById('today-card-title').textContent = _todayName + ((_isTrain) ? ' — ' + _todayPlan.type : ' — Rest');
+document.getElementById('today-card-desc').textContent = _isTrain
+  ? `${_todayPlan.focus} · ${_trainKcal} kcal · ${_prot}g protein`
+  : `Recovery day · ${_restKcal} kcal · ${_prot}g protein`;
+
+document.getElementById('macro-strip').innerHTML = `
+  <div class="ms-cell"><div class="ms-val">${_todayKcal}</div><div class="ms-label">kcal today</div></div>
+  <div class="ms-cell"><div class="ms-val jade">${_prot}g</div><div class="ms-label">protein</div></div>
+  <div class="ms-cell"><div class="ms-val amber">${_carbs}g</div><div class="ms-label">carbs</div></div>
+  <div class="ms-cell"><div class="ms-val">${_fat}g</div><div class="ms-label">fat</div></div>
+  <div class="ms-cell"><div class="ms-val water">${_water}</div><div class="ms-label">water</div></div>`;
+
+// ── PANEL TOGGLE ──────────────────────────────────
+function togglePanel(id, card) {
+  const panel = document.getElementById(id);
+  const isOpen = panel.classList.contains('active');
+
+  // Close any open panel
+  document.querySelectorAll('.food-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.food-card').forEach(c => c.style.borderColor = '');
+
+  if (isOpen) {
+    _activePanel = null; _activeCard = null;
+    return;
+  }
+
+  panel.classList.add('active');
+  _activePanel = id; _activeCard = card;
+
+  // Scroll panel into view
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
+
+  // Lazy init content
+  if (id === 'panel-today'    && !_todayLoaded)  loadToday();
+  if (id === 'panel-week'     && !_weekInited)   initWeek();
+  if (id === 'panel-shopping')                   renderShopping();
+  if (id === 'panel-pyramids' && !_pyramidInited) initPyramids();
+  if (id === 'panel-intel'    && !_intelInited)  renderIntelligence();
 }
 
-
-
-
-
-function tryGet(k){ try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;} }
-function trySet(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
-
-// ── RENDER APP ────────────────────────────────────────────
-function renderFoodApp(p) {
-  const bmr = p.sex === 'Female'
-    ? 10*(p.weight||70) + 6.25*(p.height||165) - 5*(p.age||30) - 161
-    : 10*(p.weight||80) + 6.25*(p.height||175) - 5*(p.age||35) + 5;
-  const actBonus = (p.activityLevel||'').includes('physical') ? 0.1
-    : (p.activityLevel||'').includes('feet') ? 0.05 : 0;
-  const days = p.trainingDays || 4;
-  const actMult = (days <= 3 ? 1.55 : days <= 5 ? 1.65 : 1.725) + actBonus;
-  const tdee = Math.round(bmr * actMult);
-  const trainTarget = p.calories || Math.round(tdee + 150);
-  const restTarget  = Math.round(trainTarget * 0.91);
-  const trainAdd    = trainTarget - Math.round(tdee);
-  const maxVal      = trainTarget;
-
-  document.getElementById('food-app').innerHTML = `
-
-    <!-- HERO -->
-    <div class="food-hero">
-      <div class="food-hero-left">
-        <div class="food-kicker">Nutrition system · ${p.name}</div>
-        <div class="food-title">Eat<br><em>with purpose.</em></div>
-        <div class="food-sub">
-          Every meal built for your goal, your body, and your taste.
-          ${p.cuisinePrefs && p.cuisinePrefs.length ? p.cuisinePrefs.join(' · ') + ' · ' : ''}
-          ${p.cookingApproach ? p.cookingApproach.split('—')[0].trim() + '.' : ''}
-        </div>
-      </div>
-
-      <!-- BASELINE CHART -->
-      <div class="food-baseline">
-        <div class="food-baseline-title">Your calorie baseline</div>
-
-        <div class="food-bl-row">
-          <div class="food-bl-label">BMR (at rest)</div>
-          <div class="food-bl-track">
-            <div class="food-bl-fill" style="width:${Math.round(bmr/maxVal*100)}%;background:#3e504a;"></div>
-          </div>
-          <div class="food-bl-val">${Math.round(bmr)}</div>
-        </div>
-
-        <div class="food-bl-row">
-          <div class="food-bl-label">+ Daily activity</div>
-          <div class="food-bl-track">
-            <div class="food-bl-fill" style="width:${Math.round(tdee/maxVal*100)}%;background:#8a9490;"></div>
-          </div>
-          <div class="food-bl-val">${tdee}</div>
-        </div>
-
-        <div class="food-bl-row">
-          <div class="food-bl-label">= TDEE</div>
-          <div class="food-bl-track">
-            <div class="food-bl-fill" style="width:${Math.round(tdee/maxVal*100)}%;background:var(--amber);opacity:0.6;"></div>
-          </div>
-          <div class="food-bl-val amber">${tdee}</div>
-        </div>
-
-        <div class="food-bl-row">
-          <div class="food-bl-label">+ Training</div>
-          <div class="food-bl-track">
-            <div class="food-bl-fill" style="width:${Math.round(trainTarget/maxVal*100)}%;background:var(--amber);"></div>
-          </div>
-          <div class="food-bl-val amber">${trainTarget}</div>
-        </div>
-
-        <hr class="food-bl-divider">
-
-        <div class="food-bl-target">
-          <span class="food-bl-target-label">🏋️ Training day target</span>
-          <span class="food-bl-target-val">${trainTarget} kcal</span>
-        </div>
-        <div class="food-bl-target" style="margin-top:6px;">
-          <span class="food-bl-target-label" style="color:var(--dk-3);">😴 Rest day target</span>
-          <span class="food-bl-target-val" style="color:var(--dk-3);">${restTarget} kcal</span>
-        </div>
-        <div style="margin-top:8px;padding:8px 12px;background:rgba(196,124,24,0.06);border-radius:4px;font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.6;">
-          Training adds ~${trainAdd > 0 ? '+'+trainAdd : trainAdd} kcal. This fuels adaptation — not fat storage.
-        </div>
-      </div>
-    </div>
-
-    <!-- TABS -->
-    <div class="food-tabs">
-      <button class="food-tab active" onclick="switchFood('today',this)">Today's meals</button>
-      <button class="food-tab" onclick="switchFood('week',this);if(!weekMeals)loadWeekMeals(profile);">This week</button>
-      <button class="food-tab" onclick="switchFood('shop',this);loadShoppingList()">Shopping list</button>
-      <button class="food-tab" onclick="switchFood('science',this)">Food science</button>
-    </div>
-
-    <!-- TODAY -->
-    <div class="food-pane active" id="fpane-today">
-      <div class="food-content">
-        <div class="today-grid">
-          <div id="today-meals-col">
-            <div class="food-loading" id="today-loading">
-              <div class="food-spinner"></div>
-              <div class="food-loading-text">Building today's meals…</div>
-            </div>
-          </div>
-          <div>
-            ${renderMacroProgress(p, [])}
-            ${renderLogStrip()}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- THIS WEEK -->
-    <div class="food-pane" id="fpane-week">
-      <div class="food-content">
-        <div class="week-header">
-          <div class="week-header-title">This week's meals</div>
-          <button class="shop-btn" onclick="regenerateWeek()">↺ New meal plan</button>
-        </div>
-        ${renderCalRhythm(weekPlan)}
-        <div id="week-meal-grid-wrap">
-          <div class="food-loading">
-            <div class="food-spinner"></div>
-            <div class="food-loading-text">Generating your week…</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SHOPPING LIST -->
-    <div class="food-pane" id="fpane-shop">
-      <div class="food-content">
-        <div class="shop-header">
-          <div class="shop-header-title">Weekly shopping list</div>
-          <div class="shop-actions">
-            <button class="shop-btn" onclick="printShop()">Print list</button>
-            <button class="shop-btn amber" onclick="regenerateShop()">↺ Regenerate</button>
-          </div>
-        </div>
-        <div id="shop-content">
-          <div class="food-loading">
-            <div class="food-spinner"></div>
-            <div class="food-loading-text">Building your shopping list…</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FOOD SCIENCE -->
-    <div class="food-pane" id="fpane-science">
-      <div class="food-content">
-        <div style="margin-bottom:24px;">
-          <div style="font-family:var(--serif);font-size:28px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">The science behind your food</div>
-          <div style="font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.7;">Generated for ${p.name} — the mechanisms behind your nutrition plan.</div>
-        </div>
-        <div class="science-link-grid">
-          <a href="bodylens-fuel.html" class="sci-link-card">
-            <span class="sci-link-icon">🍽️</span>
-            <div class="sci-link-title">Food System</div>
-            <div class="sci-link-desc">Synergies, timing, pyramids and your personalised food principles.</div>
-          </a>
-          <a href="bodylens-hunger.html" class="sci-link-card">
-            <span class="sci-link-icon">😤</span>
-            <div class="sci-link-title">Hunger Science</div>
-            <div class="sci-link-desc">Why you eat the way you do. Ghrelin, leptin, satiety applied to your patterns.</div>
-          </a>
-          <a href="bodylens-alcohol.html" class="sci-link-card">
-            <span class="sci-link-icon">🍷</span>
-            <div class="sci-link-title">Alcohol Protocol</div>
-            <div class="sci-link-desc">What it costs your programme. Your specific rules and protected nights.</div>
-          </a>
-          <a href="bodylens-weightloss.html" class="sci-link-card">
-            <span class="sci-link-icon">🔥</span>
-            <div class="sci-link-title">Fat Loss Science</div>
-            <div class="sci-link-desc">The mechanics behind your calorie target and fat loss approach.</div>
-          </a>
-          <div class="sci-link-card" onclick="switchFood('shop',document.querySelectorAll('.food-tab')[2]);loadShoppingList()" style="cursor:pointer;">
-            <span class="sci-link-icon">🛒</span>
-            <div class="sci-link-title">Shopping List</div>
-            <div class="sci-link-desc">This week's ingredients consolidated from your meal plan.</div>
-          </div>
-          <div class="sci-link-card" onclick="switchFood('week',document.querySelectorAll('.food-tab')[1])" style="cursor:pointer;">
-            <span class="sci-link-icon">📅</span>
-            <div class="sci-link-title">Week Plan</div>
-            <div class="sci-link-desc">All 7 days of meals — training days higher carb, rest days lower.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Load food log from cache
-  foodLog = tryGet(TODAY_LOG_KEY) || [];
-  updateMacroDisplay(p);
-
-  // Load today's meals
-  loadTodayMeals(p);
-  setTimeout(setupLogListener, 50);
-
-  // Week meals — load from cache if available, otherwise defer to tab open
-  weekMeals = tryGet(WEEK_MEALS_KEY);
-  if (weekMeals) renderWeekMeals(weekMeals, p);
-  // else: loads when user clicks the week tab
+function closePanel(id) {
+  document.getElementById(id)?.classList.remove('active');
+  _activePanel = null;
 }
 
-// ── MACRO PROGRESS ────────────────────────────────────────
-function renderMacroProgress(p, log) {
-  const target = { cal: todayPlan.kcal||p.calories||2000, prot: p.protein||140, carbs: p.carbs||160, fat: p.fat||60 };
-  const logged = log.reduce((a,e)=>({cal:a.cal+(e.cal||0),prot:a.prot+(e.prot||0),carbs:a.carbs+(e.carbs||0),fat:a.fat+(e.fat||0)}),{cal:0,prot:0,carbs:0,fat:0});
+// ── TODAY MEALS ───────────────────────────────────
+const _todayCacheKey = 'bl_food_today_' + new Date().toISOString().slice(0,10);
 
-  const pct = (v,t) => Math.min(100, Math.round((v/t)*100)) + '%';
-
-  return `<div class="macro-progress-card" id="macro-progress-card">
-    <div class="mpc-head">
-      <div class="mpc-head-label">${isTraining ? '🏋️ Training day' : '😴 Rest day'}</div>
-      <div class="mpc-head-day">${todayName}</div>
-    </div>
-    <div class="mpc-macros">
-      <div class="mpc-macro">
-        <div class="mpc-val">${target.cal}</div>
-        <div class="mpc-label">Calories</div>
-        <div class="mpc-remaining" id="rem-cal">${target.cal - logged.cal} left</div>
-      </div>
-      <div class="mpc-macro">
-        <div class="mpc-val">${target.prot}g</div>
-        <div class="mpc-label">Protein</div>
-        <div class="mpc-remaining" id="rem-prot">${target.prot - logged.prot}g left</div>
-      </div>
-      <div class="mpc-macro">
-        <div class="mpc-val amber">${target.carbs}g</div>
-        <div class="mpc-label">Carbs</div>
-        <div class="mpc-remaining" id="rem-carbs">${target.carbs - logged.carbs}g left</div>
-      </div>
-      <div class="mpc-macro">
-        <div class="mpc-val slate">${target.fat}g</div>
-        <div class="mpc-label">Fat</div>
-        <div class="mpc-remaining" id="rem-fat">${target.fat - logged.fat}g left</div>
-      </div>
-    </div>
-    <div class="mpc-bars">
-      ${renderBar('Protein', logged.prot, target.prot, 'var(--jade)')}
-      ${renderBar('Carbs',   logged.carbs, target.carbs, 'var(--amber)')}
-      ${renderBar('Fat',     logged.fat,   target.fat,   '#8a9490')}
-      ${renderBar('Calories',logged.cal,   target.cal,   '#c47c18')}
-    </div>
-  </div>`;
+function loadToday() {
+  _todayLoaded = true;
+  const cached = (() => { try { return JSON.parse(localStorage.getItem(_todayCacheKey)||'null'); } catch(e){return null;} })();
+  if (cached && cached.meals && cached.meals.length) {
+    renderToday(cached);
+  } else {
+    fetchToday();
+  }
 }
 
-function renderBar(name, logged, target, color) {
-  const pct = Math.min(100, Math.round((logged/target)*100));
-  const unit = name === 'Calories' ? ' kcal' : 'g';
-  return `<div class="mpc-bar-row">
-    <div class="mpc-bar-top">
-      <span class="mpc-bar-name">${name}</span>
-      <span class="mpc-bar-nums">${logged}${unit} / ${target}${unit}</span>
-    </div>
-    <div class="mpc-bar-track">
-      <div class="mpc-bar-fill" style="width:${pct}%;background:${color};"></div>
-    </div>
-  </div>`;
+function fetchToday() {
+  const exclusions = (_p.foodExclusions||[]).join(', ')||'none';
+  const cuisines   = (_p.cuisinePrefs||[]).join(', ')||'neutral';
+  const injuries   = (_p.injuryAssessments||_p.injuries||[]).map(i=>i.location||i).join(', ');
+
+  // Lean prompt — ONE day only, lean JSON
+  const prompt = `Performance nutritionist. Build a ${_isTrain ? 'training' : 'rest'} day meal plan for ${_p.name}.
+
+${_isTrain ? 'Training: ' + _todayPlan.type + ' — ' + _todayPlan.focus : 'Rest day — recovery focus'}
+Target: ${_todayKcal} kcal | ${_prot}g protein | ${_carbs}g carbs | ${_fat}g fat
+Diet: ${_p.dietType||'flexible'} | Exclude: ${exclusions} | Avoid: ${_p.triggerFoods||'none'}
+Cuisine: ${cuisines} | Complexity: ${_p.recipeComplexity||'standard'}
+Eating window: ${_p.actualEatingWindow||_p.eatingWindow||'flexible'}
+Meals: ${_p.mealCount||4}
+${_isFemale?'Female.':''} ${injuries?'Injuries: '+injuries:''}
+${_p.recipeComplexity&&_p.recipeComplexity.includes('5')?'MAX 5 ingredients each.':''}
+
+Return ONLY JSON (no markdown):
+{"meals":[{"time":"08:00","name":"Meal name","purpose":"one sentence","calories":0,"protein":0,"carbs":0,"fat":0,"items":[{"name":"food","quantity":"200g"}]}],"dayNote":"one sentence on today's nutrition focus"}`;
+
+  fetch(API, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:MODEL, max_tokens:700,
+      system:'Return only valid JSON. No markdown. No preamble.',
+      messages:[{role:'user',content:prompt}]
+    })
+  })
+  .then(r=>r.json())
+  .then(data => {
+    const text = (data.content||[]).map(b=>b.text||'').join('').trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    const parsed = JSON.parse(match[0]);
+    try { localStorage.setItem(_todayCacheKey, JSON.stringify(parsed)); } catch(e){}
+    renderToday(parsed);
+  })
+  .catch(() => {
+    renderToday(buildFallbackToday());
+  });
 }
 
-// ── LOG STRIP ─────────────────────────────────────────────
-function renderLogStrip() {
-  return `<div class="log-strip" id="log-strip" style="margin-top:12px;">
-    <div class="log-strip-title">Quick log</div>
-    <div class="log-input-row">
-      <input class="log-input" id="log-input" type="text"
-        placeholder="e.g. 200g chicken breast, 1 banana…" autocomplete="off">
-      <button class="log-btn" onclick="logItem()">Log</button>
-    </div>
-    <div class="log-entries" id="log-entries"></div>
-  </div>`;
+function buildFallbackToday() {
+  const pp = Math.round(_prot / (_p.mealCount||4));
+  const kk = Math.round(_todayKcal / (_p.mealCount||4));
+  return {
+    dayNote: _isTrain ? `${_todayPlan.type} day — signal, feed, recover.` : 'Recovery day — protein consistent, carbs lower.',
+    meals: [
+      {time:'08:00',name:'Breakfast',purpose:'First protein hit — sets ghrelin for the day.',calories:kk,protein:pp,carbs:Math.round(_carbs*0.3),fat:Math.round(_fat*0.25),items:[{name:'Protein source',quantity:pp+'g'},{name:'Complex carbs',quantity:'60g'}]},
+      {time:'12:30',name:'Midday meal',purpose:'Protein anchor — sustains MPS through the afternoon.',calories:kk,protein:pp,carbs:Math.round(_carbs*0.3),fat:Math.round(_fat*0.25),items:[{name:'Lean protein',quantity:pp+'g'},{name:'Vegetables',quantity:'200g'}]},
+      {time:'19:00',name:'Evening meal',purpose:'Casein-rich close — overnight MPS support.',calories:kk,protein:pp,carbs:Math.round(_carbs*0.25),fat:Math.round(_fat*0.25),items:[{name:'Lean protein',quantity:pp+'g'},{name:'Vegetables',quantity:'200g'}]},
+    ].slice(0, _p.mealCount||4)
+  };
 }
 
-function updateLogDisplay() {
-  const el = document.getElementById('log-entries');
-  if (!el) return;
-  if (!foodLog.length) { el.innerHTML = ''; return; }
-  el.innerHTML = foodLog.map((e,i) => `
-    <div class="log-entry">
-      <span class="log-entry-name">${e.name}</span>
-      <span class="log-entry-cals">${e.cal} kcal</span>
-      <button class="log-entry-del" onclick="removeLog(${i})">×</button>
+function renderToday(data) {
+  const title = _todayName + (_isTrain ? ' — ' + _todayPlan.type : ' — Rest day');
+  document.getElementById('today-panel-title').textContent = title;
+  document.getElementById('today-panel-sub').textContent = data.dayNote || '';
+
+  const html = (data.meals||[]).map((m,i) => `
+    <div class="meal-row" id="mrow-${i}" onclick="toggleMealRow(${i})">
+      <div class="mr-time">${m.time||'—'}</div>
+      <div class="mr-main">
+        <div class="mr-name">${m.name}</div>
+        <div class="mr-purpose">${m.purpose||''}</div>
+      </div>
+      <div class="mr-meta">
+        <div class="mr-prot">${m.protein}g P</div>
+        <div class="mr-kcal">${m.calories} kcal</div>
+      </div>
+      <div class="mr-body" style="grid-column:1/-1;">
+        <div class="mr-items">
+          ${(m.items||[]).map(it=>`<div class="mr-item"><span class="mr-item-name">${it.name}</span><span class="mr-item-qty">${it.quantity||''}</span></div>`).join('')}
+        </div>
+        <div class="mr-macros">
+          <div class="mr-m"><div class="mr-m-val j">${m.protein}g</div><div class="mr-m-label">Protein</div></div>
+          <div class="mr-m"><div class="mr-m-val a">${m.carbs||0}g</div><div class="mr-m-label">Carbs</div></div>
+          <div class="mr-m"><div class="mr-m-val">${m.fat||0}g</div><div class="mr-m-label">Fat</div></div>
+          <div class="mr-m"><div class="mr-m-val">${m.calories}</div><div class="mr-m-label">kcal</div></div>
+        </div>
+      </div>
     </div>`).join('');
+
+  document.getElementById('today-content').innerHTML = `
+    <div class="meal-list">${html}</div>
+    <button class="regen-btn" onclick="regenToday()">↺ New meal ideas</button>`;
 }
 
-async function logItem() {
-  const inp = document.getElementById('log-input');
-  const val = inp.value.trim();
-  if (!val) return;
-  inp.value = '';
-  inp.disabled = true;
+function toggleMealRow(i) {
+  document.getElementById('mrow-'+i)?.classList.toggle('open');
+}
 
-  // Ask Claude to estimate macros
+function regenToday() {
+  try { localStorage.removeItem(_todayCacheKey); } catch(e){}
+  _todayLoaded = false;
+  document.getElementById('today-content').innerHTML = '<div class="fp-loading"><div class="fp-spinner"></div><div class="fp-load-text">Building fresh meal ideas…</div></div>';
+  loadToday();
+}
+
+// ── WEEK ──────────────────────────────────────────
+let _selectedWeekDay = _todayIdx;
+
+// ── MODULAR WEEK MEAL PLAN ─────────────────────────
+// One ingredient pool generated per week. Each day draws from it.
+// Shopping list = the pool. Mix and match across the week.
+
+const _WEEK_POOL_KEY = 'bl_week_pool_' + new Date().toISOString().slice(0,7); // monthly cache
+let _weekPool = null;  // { proteins:[], carbs:[], veg:[], fats:[], extras:[] }
+let _weekPlan_meals = {}; // { dayIdx: { meals:[] } }
+
+// The 7-day template — which pool categories go where
+const DAY_MEAL_TEMPLATE = {
+  training: [
+    { time:'08:00', slot:'breakfast',    label:'Breakfast',          prot:0, carb:1, veg:0, fat:1 },
+    { time:'pre',   slot:'pre-train',    label:'Pre-training',       prot:0, carb:1, veg:0, fat:0 },
+    { time:'post',  slot:'post-train',   label:'Post-training',      prot:1, carb:0, veg:0, fat:0 },
+    { time:'19:00', slot:'dinner',       label:'Dinner',             prot:0, carb:1, veg:1, fat:1 },
+  ],
+  rest: [
+    { time:'08:00', slot:'breakfast',    label:'Breakfast',          prot:0, carb:1, veg:0, fat:1 },
+    { time:'12:30', slot:'lunch',        label:'Lunch',              prot:0, carb:0, veg:1, fat:1 },
+    { time:'19:00', slot:'dinner',       label:'Dinner',             prot:0, carb:0, veg:1, fat:1 },
+  ],
+};
+// prot/carb/veg/fat are indices into the pool arrays (cycled)
+
+function initWeek() {
+  _weekInited = true;
+  const cached = (() => { try { return JSON.parse(localStorage.getItem(_WEEK_POOL_KEY)||'null'); } catch(e){return null;} })();
+  if (cached) { _weekPool = cached; buildWeekFromPool(); }
+  else generateWeekPool();
+}
+
+async function generateWeekPool() {
+  const grid = document.getElementById('week-grid');
+  if (grid) grid.innerHTML = '<div style="grid-column:1/-1;padding:20px 0;text-align:center;"><div class="fp-spinner"></div><div style="font-size:12px;color:var(--dk-3);margin-top:8px;">Building your week plan…</div></div>';
+  
+  const p = _p;
+  const exclusions = (p.foodExclusions||[]).join(', ')||'none';
+  const cuisines   = (p.cuisinePrefs||[]).join(', ')||'flexible';
+  const isFemale   = _isFemale;
+
+  const prompt = `Performance nutritionist. Build a modular ingredient pool for a week of meals for ${p.name}.
+
+Profile: ${p.age}yo ${p.sex}, ${p.weight}kg, goal: ${p.goal}
+Calories: ${_trainKcal} training / ${_restKcal} rest | Protein: ${_prot}g/day
+Diet: ${p.dietType||'flexible'} | Exclude: ${exclusions} | Cuisine: ${cuisines}
+Complexity: ${p.recipeComplexity||'standard'}
+${isFemale?'Female — consider hormonal context.':''}
+
+The pool will be mixed across 7 days. Design for variety and flexibility — ingredients that work in multiple combinations.
+
+Return ONLY valid JSON:
+{
+  "proteins": [
+    {"name":"Chicken breast","cook":"grill/bake/pan","protein":31,"per":"100g","note":"works breakfast lunch dinner"},
+    {"name":"Salmon fillet","cook":"pan-fry/oven","protein":25,"per":"100g","note":"omega-3, dinner or lunch"},
+    {"name":"Eggs","cook":"scramble/boil/fry","protein":13,"per":"2 eggs","note":"breakfast anchor"},
+    {"name":"Greek yoghurt","cook":"ready","protein":17,"per":"200g","note":"breakfast or snack"},
+    {"name":"Whey protein","cook":"shake","protein":25,"per":"30g scoop","note":"post-training"}
+  ],
+  "carbs": [
+    {"name":"Basmati rice","cook":"boil","carbs":45,"per":"180g cooked","note":"training days"},
+    {"name":"Sweet potato","cook":"roast/microwave","carbs":35,"per":"200g","note":"training days"},
+    {"name":"Oats","cook":"overnight/cook","carbs":40,"per":"80g dry","note":"breakfast"},
+    {"name":"Sourdough","cook":"toast","carbs":30,"per":"2 slices","note":"breakfast or pre-train"}
+  ],
+  "veg": [
+    {"name":"Spinach","prep":"wilt/raw","note":"add to anything"},
+    {"name":"Broccoli","prep":"steam/roast","note":"dinner staple"},
+    {"name":"Cherry tomatoes","prep":"raw/roast","note":"salads and sides"},
+    {"name":"Cucumber","prep":"raw","note":"salads"}
+  ],
+  "fats": [
+    {"name":"Extra virgin olive oil","use":"cooking/dressing","note":"every meal"},
+    {"name":"Avocado","use":"raw","note":"breakfast and lunch"},
+    {"name":"Walnuts","use":"raw","note":"snack or topping"}
+  ],
+  "extras": [
+    {"name":"Lemons","use":"dressing/seasoning"},
+    {"name":"Garlic","use":"cooking"},
+    {"name":"Dijon mustard","use":"dressing"}
+  ],
+  "mealIdeas": {
+    "breakfast": ["Scrambled eggs on sourdough with avocado", "Greek yoghurt with oats and banana", "Oat porridge with whey protein"],
+    "lunch": ["Chicken and rice bowl with spinach", "Salmon with sweet potato and broccoli", "Egg salad with sourdough"],
+    "dinner": ["Pan-fried salmon with rice and broccoli", "Chicken breast with sweet potato and spinach", "Baked salmon with roasted veg"],
+    "preTrain": ["Oats with banana", "Sourdough with eggs", "Rice cakes with honey"],
+    "postTrain": ["Whey shake with banana", "Greek yoghurt with oats", "Eggs with rice"]
+  },
+  "shoppingQuantities": {
+    "Chicken breast": "1.2kg", "Salmon fillet": "600g", "Eggs": "18",
+    "Greek yoghurt": "1kg", "Whey protein": "as needed",
+    "Basmati rice": "1kg", "Sweet potato": "1kg", "Oats": "1kg",
+    "Sourdough": "1 loaf", "Spinach": "400g bag", "Broccoli": "500g",
+    "Cherry tomatoes": "400g", "Cucumber": "2", "Extra virgin olive oil": "1 bottle",
+    "Avocado": "4", "Walnuts": "200g", "Lemons": "4", "Garlic": "1 bulb"
+  }
+}`;
+
   try {
-    const res = await fetch(API, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: MODEL, max_tokens: 150,
-        system: 'You are a nutrition calculator. Return ONLY valid JSON: {"name":"item","cal":0,"prot":0,"carbs":0,"fat":0}',
-        messages:[{role:'user',content:'Estimate macros for: '+val}],
-      }),
+    const res = await fetch('/api/chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200,
+        system:'Return only valid JSON. No markdown. No preamble.',
+        messages:[{role:'user',content:prompt}]
+      })
     });
     const data = await res.json();
-    const text = (data.content||[]).map(b=>b.text||'').join('');
-    const match = text.match(/\{[^}]+\}/);
-    if (match) {
-      const item = JSON.parse(match[0]);
-      foodLog.push(item);
-      trySet(TODAY_LOG_KEY, foodLog);
-      updateMacroDisplay(profile);
-      updateLogDisplay();
-    }
+    const text = (data.content||[]).map(b=>b.text||'').join('').trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    _weekPool = JSON.parse(match[0]);
+    try { localStorage.setItem(_WEEK_POOL_KEY, JSON.stringify(_weekPool)); } catch(e){}
+    buildWeekFromPool();
   } catch(e) {
-    // Fallback — add with 0 macros
-    foodLog.push({name:val, cal:0, prot:0, carbs:0, fat:0});
-    trySet(TODAY_LOG_KEY, foodLog);
-    updateLogDisplay();
+    console.error('Week pool error:', e);
+    // Fallback: use hardcoded pool
+    _weekPool = {
+      proteins:[{name:'Chicken breast',protein:31,per:'100g'},{name:'Salmon',protein:25,per:'100g'},{name:'Eggs',protein:13,per:'2 eggs'},{name:'Greek yoghurt',protein:17,per:'200g'},{name:'Whey protein',protein:25,per:'30g scoop'}],
+      carbs:[{name:'Basmati rice',carbs:45,per:'180g cooked'},{name:'Sweet potato',carbs:35,per:'200g'},{name:'Oats',carbs:40,per:'80g dry'},{name:'Sourdough',carbs:30,per:'2 slices'}],
+      veg:[{name:'Spinach'},{name:'Broccoli'},{name:'Cherry tomatoes'},{name:'Cucumber'}],
+      fats:[{name:'Olive oil'},{name:'Avocado'},{name:'Walnuts'}],
+      extras:[{name:'Lemons'},{name:'Garlic'}],
+      mealIdeas:{breakfast:['Eggs with oats and avocado','Greek yoghurt with oats'],lunch:['Chicken rice bowl','Salmon with sweet potato'],dinner:['Pan-fried salmon with broccoli','Chicken with rice and spinach'],preTrain:['Oats with banana','Sourdough with eggs'],postTrain:['Whey shake','Greek yoghurt']},
+      shoppingQuantities:{'Chicken breast':'1.2kg','Salmon':'600g','Eggs':'18','Greek yoghurt':'1kg','Basmati rice':'1kg','Sweet potato':'1kg','Oats':'1kg','Sourdough':'1 loaf','Spinach':'400g','Broccoli':'500g','Olive oil':'1 bottle','Avocado':'4','Walnuts':'200g'}
+    };
+    buildWeekFromPool();
   }
-  inp.disabled = false;
-  inp.focus();
 }
 
-function removeLog(idx) {
-  foodLog.splice(idx, 1);
-  trySet(TODAY_LOG_KEY, foodLog);
-  updateMacroDisplay(profile);
-  updateLogDisplay();
+function buildWeekFromPool() {
+  if (!_weekPool) return;
+  const pool = _weekPool;
+  // Assign meals to each day by cycling pool items
+  DAY_NAMES.forEach((name, i) => {
+    const dayPlan = _weekPlan[i] || {type:'Rest',priority:'rest'};
+    const isTraining = dayPlan.priority === 'training';
+    const template = isTraining ? DAY_MEAL_TEMPLATE.training : DAY_MEAL_TEMPLATE.rest;
+    const ideas = pool.mealIdeas || {};
+    
+    // Rotate through ideas based on day index to vary the week
+    const pickIdea = (arr, offset) => arr && arr.length ? arr[(i + offset) % arr.length] : null;
+    
+    _weekPlan_meals[i] = {
+      isTraining,
+      kcal: isTraining ? _trainKcal : _restKcal,
+      prot: _prot,
+      meals: template.map((slot, si) => {
+        let mealName = '';
+        if (slot.slot === 'breakfast') mealName = pickIdea(ideas.breakfast, si) || 'Breakfast';
+        else if (slot.slot === 'pre-train') mealName = pickIdea(ideas.preTrain, si) || 'Pre-training meal';
+        else if (slot.slot === 'post-train') mealName = pickIdea(ideas.postTrain, si) || 'Post-training meal';
+        else if (slot.slot === 'lunch') mealName = pickIdea(ideas.lunch, si+1) || 'Lunch';
+        else if (slot.slot === 'dinner') mealName = pickIdea(ideas.dinner, i) || 'Dinner';
+        
+        // Pick protein for this meal (cycle through pool)
+        const protItem = pool.proteins ? pool.proteins[(i + si) % pool.proteins.length] : null;
+        const carbItem = pool.carbs && slot.carb ? pool.carbs[(i + si) % pool.carbs.length] : null;
+        const vegItem  = pool.veg && slot.veg  ? pool.veg[(i + si) % pool.veg.length] : null;
+        const fatItem  = pool.fats ? pool.fats[si % (pool.fats.length||1)] : null;
+        
+        const protG = Math.round(_prot / template.length);
+        const kcalEach = Math.round((isTraining?_trainKcal:_restKcal) / template.length);
+        
+        return {
+          time: slot.time,
+          slot: slot.slot,
+          label: slot.label,
+          name: mealName,
+          protein: protG,
+          kcal: kcalEach,
+          components: [
+            protItem && `${protItem.name} (${protItem.per})`,
+            carbItem && `${carbItem.name} (${carbItem.per})`,
+            vegItem  && vegItem.name,
+            fatItem  && fatItem.name,
+          ].filter(Boolean),
+        };
+      }),
+    };
+  });
+  
+  renderWeekGrid();
 }
 
-function updateMacroDisplay(p) {
-  // Re-render the macro card
-  const card = document.getElementById('macro-progress-card');
-  if (!card) return;
-  card.outerHTML = renderMacroProgress(p, foodLog);
-  updateLogDisplay();
+function renderWeekGrid() {
+  const grid = document.getElementById('week-grid');
+  if (!grid) return;
+  grid.innerHTML = DAY_NAMES.map((name, i) => {
+    const dayData = _weekPlan_meals[i] || {};
+    const isT = dayData.isTraining;
+    return `<div class="wg-day ${isT?'train':''} ${i===_todayIdx?'today-day':''} ${i===_selectedWeekDay?'selected':''}"
+      onclick="selectWeekDay(${i})">
+      <div class="wg-name ${isT?'t':''}">${name.slice(0,3)}</div>
+      <div class="wg-type">${(_weekPlan[i]||{}).type||'Rest'}</div>
+      <div class="wg-kcal">${dayData.kcal||''}</div>
+    </div>`;
+  }).join('');
+  selectWeekDay(_todayIdx);
 }
 
-// ── CALORIE RHYTHM CHART ──────────────────────────────────
-function renderCalRhythm(weekPlan) {
-  if (!weekPlan.length) return '';
-  const maxKcal = Math.max(...weekPlan.map(d=>d.kcal||0));
-  return `<div class="cal-rhythm">
-    <div class="cal-rhythm-title">Calorie rhythm — training vs rest</div>
-    <div class="cal-rhythm-chart">
-      ${weekPlan.map((d,i) => {
-        const pct = maxKcal ? Math.round((d.kcal||0)/maxKcal*100) : 50;
-        const isT = d.priority==='training';
-        const isTD = i === todayIdx;
-        const cls = isTD ? 'today-bar' : isT ? 'training' : 'rest';
-        return `<div class="cal-day-bar">
-          <div class="cal-bar-wrap">
-            <div class="cal-bar ${cls}" style="height:${pct}%;" title="${d.day}: ${d.kcal||'—'} kcal"></div>
-          </div>
-          <div class="cal-day-label">${d.day.slice(0,3)}</div>
-          <div class="cal-day-num">${d.kcal?Math.round(d.kcal/100)/10+'k':'—'}</div>
+function selectWeekDay(idx) {
+  _selectedWeekDay = idx;
+  document.querySelectorAll('.wg-day').forEach((el,i) => el.classList.toggle('selected', i===idx));
+  const dayData = _weekPlan_meals[idx];
+  if (!dayData || !dayData.meals) {
+    document.getElementById('week-day-content').innerHTML = '<div style="color:var(--dk-3);font-size:13px;padding:12px 0;">Select a day above</div>';
+    return;
+  }
+  const label = `${DAY_NAMES[idx]} — ${(_weekPlan[idx]||{}).type||'Rest'} · ${dayData.kcal} kcal · ${dayData.prot}g protein`;
+  
+  document.getElementById('week-day-content').innerHTML = `
+    <div style="font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);margin-bottom:14px;">${label}</div>
+    ${dayData.meals.map(m => `
+      <div style="padding:12px 0;border-bottom:1px solid var(--bd);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--dk-1);">${m.name}</div>
+          <div style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--jade);">${m.protein}g P · ${m.kcal} kcal</div>
+        </div>
+        <div style="font-size:10px;font-weight:300;color:var(--dk-3);">${m.time !== '08:00' && m.time !== '19:00' && m.time !== '12:30' ? m.time + ' · ' : ''}${m.components.join(' + ')}</div>
+      </div>`).join('')}
+    <div style="margin-top:12px;">
+      <button class="regen-btn" onclick="regenWeek()">↺ New week plan</button>
+    </div>`;
+}
+
+function regenWeek() {
+  try { localStorage.removeItem(_WEEK_POOL_KEY); } catch(e){}
+  _weekPool = null; _weekPlan_meals = {};
+  generateWeekPool();
+}
+
+// ── SHOPPING ─────────────────────────────────────────
+// Shopping list now derives from the generated ingredient pool
+function renderShopping() {
+  const shopEl = document.getElementById('shop-cols');
+  if (!shopEl) return;
+
+  // Use pool if available, otherwise static template
+  if (_weekPool && _weekPool.shoppingQuantities) {
+    renderShoppingFromPool();
+    return;
+  }
+  // Trigger week pool load if not yet done
+  if (!_weekPool) { generateWeekPool().then(renderShoppingFromPool); return; }
+  renderShoppingFromPool();
+}
+
+function renderShoppingFromPool() {
+  const shopEl = document.getElementById('shop-cols');
+  const subEl  = document.getElementById('shop-sub');
+  if (!shopEl) return;
+  
+  const pool = _weekPool || {};
+  const excluded = (_p.foodExclusions||[]).map(e=>e.toLowerCase());
+  const triggers = (_p.triggerFoods||'').toLowerCase().split(/[,/]/).map(t=>t.trim()).filter(Boolean);
+
+  function isExcluded(name) {
+    const n = name.toLowerCase();
+    return excluded.some(e=>n.includes(e)) || triggers.some(t=>t&&n.includes(t));
+  }
+
+  // Build categorised list from pool
+  const quantities = pool.shoppingQuantities || {};
+  
+  const sections = [
+    { label:'Proteins', items: (pool.proteins||[]).map(i=>({n:i.name,q:quantities[i.name]||'as needed'})) },
+    { label:'Carbohydrates', items: (pool.carbs||[]).map(i=>({n:i.name,q:quantities[i.name]||'as needed'})) },
+    { label:'Vegetables & fruit', items: [
+      ...(pool.veg||[]).map(i=>({n:i.name,q:quantities[i.name]||'1 pack'})),
+      {n:'Bananas',q:'6-8'}, {n:'Blueberries',q:'400g'},
+    ]},
+    { label:'Fats & oils', items: (pool.fats||[]).map(i=>({n:i.name,q:quantities[i.name]||'as needed'})) },
+    { label:'Extras & flavour', items: (pool.extras||[]).map(i=>({n:i.name,q:quantities[i.name]||'1'})) },
+    { label:'Supplements', items: [
+      {n:'Creatine monohydrate',q:'5g/day'},
+      {n:'Omega-3 EPA/DHA',q:'2-3g/day'},
+      {n:'Magnesium glycinate',q:'300mg/night'},
+    ]},
+  ];
+
+  const half = Math.ceil(sections.length / 2);
+  
+  function renderSection(section) {
+    const filtered = section.items.filter(item => !isExcluded(item.n));
+    if (!filtered.length) return '';
+    return `<div style="margin-bottom:20px;">
+      <div class="shop-cat-label">${section.label}</div>
+      ${filtered.map(item => {
+        const key = item.n.toLowerCase().replace(/\s+/g,'-');
+        const checked = _shopChecks[key];
+        return `<div class="shop-item ${checked?'checked':''}" onclick="toggleShop('${key}',this)">
+          <div class="shop-cb">${checked?'✓':''}</div>
+          <div class="shop-name">${item.n}</div>
+          <div class="shop-qty">${item.q||''}</div>
         </div>`;
       }).join('')}
-    </div>
-    <div style="display:flex;gap:16px;margin-top:10px;font-size:10px;font-weight:300;color:var(--dk-3);">
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--amber);display:inline-block;"></span>Training day</span>
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--ink-3);display:inline-block;"></span>Rest day</span>
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--jade);display:inline-block;"></span>Today</span>
-    </div>
-  </div>`;
-}
+    </div>`;
+  }
 
-// ── TODAY MEALS ───────────────────────────────────────────
-async function loadTodayMeals(p) {
-  const cacheKey = 'bl_today_meals_' + new Date().toISOString().slice(0,10);
-  const cached = tryGet(cacheKey);
-  if (cached) { renderTodayMeals(cached, p); return; }
+  shopEl.innerHTML = `
+    <div>${sections.slice(0,half).map(renderSection).join('')}</div>
+    <div>${sections.slice(half).map(renderSection).join('')}</div>`;
 
-  try {
-    const isFemale = (p.sex||'').toLowerCase() === 'female';
-    const prompt = `Generate today's meal plan for ${p.name}.
-
-TODAY: ${todayName} — ${todayPlan.type} (${isTraining?'TRAINING DAY':'REST DAY'})
-CALORIES: ${todayPlan.kcal||p.calories} kcal | PROTEIN: ${p.protein}g | CARBS: ${p.carbs}g | FAT: ${p.fat}g
-EATING WINDOW: ${p.fastingWindow||p.eatingWindow||'flexible'}
-DIET: ${p.dietType||'no restrictions'} | EXCLUDE: ${(p.foodExclusions||[]).join(', ')||'none'}
-TRIGGER FOODS (avoid): ${p.triggerFoods||'none'}
-CUISINE PREFERENCES: ${(p.cuisinePrefs||[]).join(', ')||'neutral'}
-COOKING STYLE: ${p.cookingApproach||'standard'} | COMPLEXITY: ${p.recipeComplexity||'standard'}
-${isTraining ? 'TRAINING: '+todayPlan.type+' — '+todayPlan.focus : 'REST DAY — lighter carbs, full protein'}
-${isFemale ? 'FEMALE: Include iron-rich options where relevant.' : ''}
-
-Return ONLY JSON:
-{
-  "meals": [
-    {
-      "time": "HH:MM",
-      "type": "Breakfast|Lunch|Dinner|Snack|Pre-training|Post-training",
-      "name": "meal name",
-      "calories": 0,
-      "protein": 0,
-      "carbs": 0,
-      "fat": 0,
-      "ingredients": [
-        { "name": "ingredient", "quantity": "200g" }
-      ],
-      "prep": "2-3 sentence cooking instructions",
-      "why": "one sentence — why this meal at this time for this person"
-    }
-  ]
-}
-
-Generate ${p.mealCount||4} meals that fill the window ${p.fastingWindow||p.eatingWindow||'throughout the day'}. Match cuisine preferences. Follow complexity level strictly.`;
-
-    const res = await fetch(API, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: MODEL, max_tokens: 2000,
-        system: 'You are a performance nutritionist. Return only valid JSON.',
-        messages: [{role:'user', content: prompt}],
-      }),
-    });
-    const data = await res.json();
-    const text = (data.content||[]).map(b=>b.text||'').join('');
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('No JSON');
-    const plan = JSON.parse(match[0]);
-    trySet(cacheKey, plan);
-    renderTodayMeals(plan, p);
-  } catch(e) {
-    console.error('Today meals error:', e);
-    document.getElementById('today-loading').innerHTML =
-      `<div style="text-align:center;padding:40px;color:var(--dk-3);font-size:13px;">
-        Could not generate meals.
-        <button onclick="loadTodayMeals(profile)" style="color:var(--amber);background:none;border:none;cursor:pointer;text-decoration:underline;">Try again</button>
-      </div>`;
+  if (subEl) {
+    const poolNote = pool.proteins ? `Ingredients for your ${(_p.cuisinePrefs||[]).join('/')||'flexible'} week plan — all mix-and-match.` : 'Your weekly essentials.';
+    subEl.textContent = poolNote;
   }
 }
 
-function renderTodayMeals(plan, p) {
-  const col = document.getElementById('today-meals-col');
-  if (!col) return;
 
-  const mealCards = (plan.meals||[]).map((m,i) => `
-    <div style="background:var(--ink-2);border:1px solid var(--bd);border-left:3px solid var(--amber);
-      border-radius:6px;margin-bottom:10px;cursor:pointer;overflow:hidden;"
-      onclick="openMealModal(${i}, 'today')">
-      <div style="display:grid;grid-template-columns:58px 1fr auto;align-items:center;padding:14px 16px;gap:12px;">
-        <div style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--amber);">${m.time||'—'}</div>
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:2px;">${m.name||'—'}</div>
-          <div style="font-size:11px;font-weight:300;color:var(--dk-3);">${m.type||''} · ${m.why||''}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--amber);">${m.calories||'—'} kcal</div>
-          <div style="font-size:10px;font-weight:300;color:var(--jade);">${m.protein||'—'}g protein</div>
-        </div>
-      </div>
+// ── INTELLIGENCE ──────────────────────────────────
+function renderIntelligence() {
+  _intelInited = true;
+  const hasOmega = (_p.supplements||[]).some(s=>(s.name||'').toLowerCase().includes('omega'));
+  const trigger  = _p.triggerFoods||'none';
+  const hasTrig  = trigger && !trigger.toLowerCase().includes('none');
+  const injuries = _p.injuryAssessments||_p.injuries||[];
+  const hasKnee  = injuries.some(i=>(i.location||i||'').toLowerCase().includes('knee'));
+  const window_  = _p.actualEatingWindow||_p.eatingWindow||'flexible';
+
+  const cards = [
+    {label:'Nutrient timing', title:'When you eat matters',
+     body:`Pre-training (90-120 min before): high protein, moderate fast carbs, low fat. Fat slows glucose delivery — keep it under 15g. Post-training (within 30 min): ${Math.round(_prot*0.28)}g fast protein + 30-40g fast carbs. mTOR peaks here and the leucine threshold triggers protein synthesis. Pre-sleep: casein-rich foods digest over 6-8h, covering the overnight GH repair window.`},
+    {label:'Food synergies', title:'Combinations that outperform',
+     body:`Protein + vitamin C: required for collagen synthesis. ${hasKnee?'Your knee protocol depends on this — collagen + VitC 45 min before training directly accelerates connective tissue repair.':'Collagen + VitC 45 min before training amplifies connective tissue repair.'} Fat-soluble vitamins + fat: D3, K2, and omega-3 require dietary fat for absorption — always take with a fat-containing meal. Leucine-rich foods: eggs, chicken, dairy, and whey all clear the 2.5g threshold that triggers mTOR.`},
+    {label:'Trigger management', title: hasTrig ? 'Managing ' + trigger : 'Food noise',
+     body: hasTrig
+       ? `Your trigger food is ${trigger}. The dopamine anticipation loop is established — restriction amplifies craving, it doesn't eliminate it. Environmental design first: don't keep it accessible. Cravings peak at 15-20 minutes and subside without action. Have a high-protein alternative ready — the satiety response from protein partially interrupts the dopaminergic craving signal. If you eat it: plan it, don't react to it.`
+       : `Food noise — persistent background thinking about food — is hormonal. Ghrelin is entrained to expected meal times. Inconsistent timing creates unpredictable peaks. Your ${_prot}g protein distributed across ${_p.mealCount||4} meals suppresses ghrelin most effectively. Consistent meal windows and adequate sleep complete the system.`},
+    {label:'Anti-inflammatory', title:'Food as medicine',
+     body:`${hasOmega ? 'Your omega-3 supplementation works by competing with arachidonic acid for COX enzymes — reducing pro-inflammatory prostaglandin production. Alcohol directly counteracts this for 24-48h.' : 'Omega-3 (EPA/DHA, 2-3g daily) competes with arachidonic acid for COX enzymes, reducing systemic inflammation. High priority addition to your stack.'} Dietary sources: salmon and mackerel, extra virgin olive oil (oleocanthal), berries (anthocyanins), turmeric with black pepper, walnuts. ${_isFemale?'As oestrogen shifts, dietary anti-inflammatory support becomes progressively more important.':''}`},
+    {label:'Eating window', title:`Your window: ${window_}`,
+     body: window_ && !window_.toLowerCase().includes('flex')
+       ? `Your eating window is ${window_}. The metabolic benefits operate through extended overnight fast — allowing autophagy, reducing insulin exposure time, and improving sensitivity over time. The first meal sets ghrelin for the whole window: high protein here is disproportionately important. Close the window at a consistent time — ghrelin is entrained to it and quietens earlier each week of consistency.`
+       : `No fixed eating window. If you want to explore time-restricted eating: start with a 12-hour window and adjust from there. The main benefit is the structure — and the reduction in late-night eating that tends to follow. The first meal being protein-dominant matters most regardless of window.`},
+    {label:'Gut & absorption', title:'Gut health is performance health',
+     body:`95% of serotonin is produced in the gut — through measurable inflammatory pathways, not metaphorically. Microbiome diversity directly affects mood, recovery, and cognitive function. The 30 plants per week target from the American Gut Project is the single most impactful dietary intervention for microbiome health. Count each variety separately. Fermented foods — kefir, Greek yoghurt, kimchi — provide direct microbiome supplementation. Your ${(_p.cuisinePrefs||[]).join(', ')||'food choices'} ${(_p.cuisinePrefs||[]).some(c=>c.toLowerCase().includes('mediterranean'))?'naturally support microbiome diversity through polyphenols and fermented staples.':'should include diverse plant sources.'}`},
+  ];
+
+  document.getElementById('intel-grid').innerHTML = cards.map(c=>`
+    <div class="intel-card">
+      <div class="ic-head"><div class="ic-label">${c.label}</div><div class="ic-title">${c.title}</div></div>
+      <div class="ic-body">${c.body}</div>
     </div>`).join('');
-
-  // Totals
-  const totCal  = (plan.meals||[]).reduce((a,m)=>a+(m.calories||0),0);
-  const totProt = (plan.meals||[]).reduce((a,m)=>a+(m.protein||0),0);
-
-  col.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
-      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);">${todayName}</div>
-      <div style="font-size:11px;font-weight:300;color:var(--dk-3);">${totCal} kcal · ${totProt}g protein</div>
-    </div>
-    ${mealCards}
-    <button onclick="regenerateTodayMeals()" style="margin-top:8px;background:transparent;
-      border:1px solid var(--bd-2);color:var(--dk-3);padding:7px 16px;border-radius:4px;
-      font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
-      cursor:pointer;font-family:var(--sans);">↺ New meal ideas</button>`;
-
-  // Store meals for modal access
-  window._todayMeals = plan.meals || [];
 }
 
-// ── WEEK MEALS ────────────────────────────────────────────
-async function loadWeekMeals(p) {
-  const isFemale = (p.sex||'').toLowerCase() === 'female';
-  const prompt = `Generate a full week of meals for ${p.name}.
+} // end profile check
+</script>
 
-PROFILE:
-Goal: ${p.goal} | Calories: ${p.calories} kcal | Protein: ${p.protein}g
-Diet: ${p.dietType||'no restrictions'} | Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}
-Trigger foods (avoid): ${p.triggerFoods||'none'}
-Cuisine: ${(p.cuisinePrefs||[]).join(', ')||'neutral'} | Style: ${p.cookingApproach||'standard'} | Complexity: ${p.recipeComplexity||'standard'}
-Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
-${isFemale ? 'FEMALE: Include iron-rich sources. Oestrogen-supportive foods where relevant.' : ''}
+<script src="nav.js"></script>
+<script src="pwa.js"></script>
+<script src="coach.js"></script>
 
-WEEK PLAN:
-${weekPlan.map(d=>d.day+': '+(d.priority==='training'?'TRAINING ('+d.type+') — '+d.kcal+' kcal':'REST — '+Math.round((p.calories||2000)*0.91)+' kcal')).join('\n')}
-
-Return ONLY JSON — one entry per day:
-{
-  "days": [
-    {
-      "day": "Monday",
-      "type": "training|rest",
-      "meals": [
-        {
-          "type": "Breakfast|Lunch|Dinner|Snack|Pre-training|Post-training",
-          "name": "meal name",
-          "calories": 0,
-          "protein": 0,
-          "carbs": 0,
-          "fat": 0,
-          "ingredients": [{ "name": "item", "quantity": "200g" }],
-          "prep": "2-3 sentence instructions",
-          "why": "one sentence why this meal today"
-        }
-      ]
-    }
-  ]
-}
-
-Generate 7 days Mon-Sun. Training days: higher carb. Rest days: lower carb, same protein. Match cuisine preferences throughout. Vary meals — no repeated dinners.`;
-
-  try {
-    const res = await fetch(API, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: MODEL, max_tokens: 4000,
-        system: 'You are a performance nutritionist. Return only valid JSON.',
-        messages: [{role:'user',content:prompt}],
-      }),
-    });
-    const data = await res.json();
-    const text = (data.content||[]).map(b=>b.text||'').join('');
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('No JSON');
-    weekMeals = JSON.parse(match[0]);
-    trySet(WEEK_MEALS_KEY, weekMeals);
-    renderWeekMeals(weekMeals, p);
-
-    // Also generate shopping list from these meals
-    generateShoppingFromMeals(weekMeals, p);
-  } catch(e) {
-    console.error('Week meals error:', e);
-    document.getElementById('week-meal-grid-wrap').innerHTML =
-      `<div style="text-align:center;padding:60px;color:var(--dk-3);font-size:13px;">
-        Could not generate week plan.
-        <button onclick="loadWeekMeals(profile)" style="color:var(--amber);background:none;border:none;cursor:pointer;text-decoration:underline;">Try again</button>
-      </div>`;
-  }
-}
-
-function renderWeekMeals(plan, p) {
-  const wrap = document.getElementById('week-meal-grid-wrap');
-  if (!wrap) return;
-  window._weekMeals = plan.days || [];
-
-  const cols = (plan.days||[]).map((day, di) => {
-    const isT = day.type === 'training';
-    const isTD = DAY_NAMES[todayIdx] === day.day;
-    const cls = isTD ? 'is-today' : isT ? 'training-day' : 'rest-day';
-
-    const mealSlots = (day.meals||[]).map((m,mi) => `
-      <div class="wdc-meal" onclick="openMealModal(${mi}, 'week', ${di})">
-        <div class="wdc-meal-name">${m.name||'—'}</div>
-        <div class="wdc-meal-macros">${m.calories||'—'} kcal · ${m.protein||'—'}g P</div>
-        <button class="wdc-meal-swap" onclick="event.stopPropagation();swapMeal(${di},${mi})" title="Swap this meal">⟳</button>
-      </div>`).join('');
-
-    const totalCal = (day.meals||[]).reduce((a,m)=>a+(m.calories||0),0);
-
-    return `<div class="week-day-col ${cls}">
-      <div class="wdc-head">
-        <div class="wdc-name ${isTD?'today':isT?'training':''}">${day.day.slice(0,3)}${isTD?' ·':''}</div>
-        <div class="wdc-kcal">${totalCal||'—'} kcal</div>
-      </div>
-      <div class="wdc-meals">${mealSlots}</div>
-    </div>`;
-  }).join('');
-
-  wrap.innerHTML = `<div class="week-meal-grid">${cols}</div>`;
-}
-
-// ── SHOPPING LIST ─────────────────────────────────────────
-async function loadShoppingList() {
-  const cached = tryGet(SHOP_KEY);
-  if (cached) { renderShoppingList(cached); return; }
-
-  if (weekMeals) {
-    await generateShoppingFromMeals(weekMeals, profile);
-  } else {
-    document.getElementById('shop-content').innerHTML =
-      `<div style="text-align:center;padding:60px;color:var(--dk-3);font-size:13px;">
-        Generate your week plan first — shopping list is derived from it.
-        <button onclick="switchFood('week',document.querySelectorAll('.food-tab')[1]);loadWeekMeals(profile)"
-          style="display:block;margin:16px auto 0;color:var(--amber);background:none;border:1px solid var(--amber-br);
-          border-radius:4px;padding:9px 20px;cursor:pointer;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;font-family:var(--sans);">
-          Generate week plan →
-        </button>
-      </div>`;
-  }
-}
-
-async function generateShoppingFromMeals(meals, p) {
-  if (!meals || !meals.days) return;
-
-  // Collect all ingredients
-  const allIngredients = [];
-  (meals.days||[]).forEach(day => {
-    (day.meals||[]).forEach(meal => {
-      (meal.ingredients||[]).forEach(ing => {
-        allIngredients.push({ ...ing, meal: meal.name, day: day.day });
-      });
-    });
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(reg => {
+        window.__SW_REG = reg;
+        // Check for updates silently
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[BodyLens] SW registration failed:', err));
   });
-
-  const prompt = `Consolidate this list of weekly meal ingredients into a clean shopping list.
-
-INGREDIENTS FROM WEEK PLAN:
-${allIngredients.map(i=>`${i.quantity} ${i.name} (for ${i.meal}, ${i.day})`).join('\n')}
-
-PERSON:
-Diet: ${p.dietType||'no restrictions'} | Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}
-Cuisine preferences: ${(p.cuisinePrefs||[]).join(', ')||'neutral'}
-
-Consolidate duplicates, add up quantities where possible. Organise by supermarket category.
-
-Return ONLY JSON:
-{
-  "categories": [
-    {
-      "name": "Protein",
-      "icon": "🥩",
-      "items": [
-        { "name": "Chicken breast", "quantity": "1.4kg", "meals": ["Lunch Mon", "Dinner Wed"] }
-      ]
-    }
-  ]
-}
-
-Categories: Protein, Dairy & eggs, Produce, Grains & carbs, Pantry & condiments, Supplements & extras.
-Every ingredient from the week plan must appear somewhere.`;
-
-  try {
-    const res = await fetch(API, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: MODEL, max_tokens: 2000,
-        system: 'You are a nutritionist organising a shopping list. Return only valid JSON.',
-        messages: [{role:'user',content:prompt}],
-      }),
-    });
-    const data = await res.json();
-    const text = (data.content||[]).map(b=>b.text||'').join('');
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('No JSON');
-    shopList = JSON.parse(match[0]);
-    trySet(SHOP_KEY, shopList);
-    renderShoppingList(shopList);
-  } catch(e) {
-    console.error('Shopping list error:', e);
-  }
-}
-
-function renderShoppingList(list) {
-  const el = document.getElementById('shop-content');
-  if (!el) return;
-
-  // Load checked state
-  const checked = tryGet('bl_shop_checked') || {};
-
-  const catsHTML = (list.categories||[]).map(cat => {
-    const items = (cat.items||[]).map((item,i) => {
-      const key = cat.name + '_' + i;
-      const isChecked = checked[key];
-      return `<div class="shop-item ${isChecked?'checked':''}" onclick="toggleShopItem('${key}', this)">
-        <div class="shop-item-check">${isChecked?'✓':''}</div>
-        <div>
-          <div class="shop-item-name">${item.name}</div>
-          ${item.meals ? `<div class="shop-item-meals">${item.meals.join(', ')}</div>` : ''}
-        </div>
-        <div class="shop-item-qty">${item.quantity||''}</div>
-      </div>`;
-    }).join('');
-
-    return `<div class="shop-cat">
-      <div class="shop-cat-title">${cat.icon||'🛒'} ${cat.name}</div>
-      ${items}
-    </div>`;
-  }).join('');
-
-  el.innerHTML = `
-    <div style="margin-bottom:16px;font-size:13px;font-weight:300;color:var(--dk-3);">
-      Derived from your week meal plan · Tap items to check off as you shop
-    </div>
-    <div class="shop-categories">${catsHTML}</div>
-    <div style="margin-top:24px;display:flex;gap:8px;">
-      <button class="shop-btn" onclick="clearShopChecked()">Clear all checks</button>
-    </div>`;
-}
-
-function toggleShopItem(key, el) {
-  el.classList.toggle('checked');
-  const checked = tryGet('bl_shop_checked') || {};
-  if (el.classList.contains('checked')) {
-    checked[key] = true;
-    el.querySelector('.shop-item-check').textContent = '✓';
-  } else {
-    delete checked[key];
-    el.querySelector('.shop-item-check').textContent = '';
-  }
-  trySet('bl_shop_checked', checked);
-}
-
-function clearShopChecked() {
-  trySet('bl_shop_checked', {});
-  loadShoppingList();
-}
-
-// ── MEAL MODAL ────────────────────────────────────────────
-function openMealModal(mealIdx, source, dayIdx) {
-  let meal;
-  if (source === 'today') {
-    meal = (window._todayMeals||[])[mealIdx];
-  } else if (source === 'week') {
-    meal = ((window._weekMeals||[])[dayIdx]?.meals||[])[mealIdx];
-  }
-  if (!meal) return;
-
-  const modal = document.getElementById('meal-modal');
-  const inner = document.getElementById('meal-modal-inner');
-
-  inner.innerHTML = `
-    <button class="mm-close" onclick="closeMealModal()">×</button>
-    <div class="mm-meal-name">${meal.name||'—'}</div>
-    <div class="mm-meal-type">${meal.type||''} · ${meal.time||''}</div>
-    <div class="mm-macros">
-      <div class="mm-macro"><div class="mm-macro-val">${meal.calories||'—'}</div><div class="mm-macro-label">Calories</div></div>
-      <div class="mm-macro"><div class="mm-macro-val">${meal.protein||'—'}g</div><div class="mm-macro-label">Protein</div></div>
-      <div class="mm-macro"><div class="mm-macro-val amber">${meal.carbs||'—'}g</div><div class="mm-macro-label">Carbs</div></div>
-      <div class="mm-macro"><div class="mm-macro-val slate">${meal.fat||'—'}g</div><div class="mm-macro-label">Fat</div></div>
-    </div>
-    ${meal.ingredients && meal.ingredients.length ? `
-      <div class="mm-section-label">Ingredients</div>
-      ${meal.ingredients.map(i=>`
-        <div class="mm-ingredient">
-          <span class="mm-ing-name">${i.name}</span>
-          <span class="mm-ing-qty">${i.quantity||''}</span>
-        </div>`).join('')}` : ''}
-    ${meal.prep ? `
-      <div class="mm-section-label">How to make it</div>
-      <div class="mm-instructions">${meal.prep}</div>` : ''}
-    ${meal.why ? `<div class="mm-why">${meal.why}</div>` : ''}
-    <button class="mm-swap-btn" onclick="closeMealModal();swapMeal(${dayIdx||0},${mealIdx})">⟳ Swap this meal</button>`;
-
-  modal.classList.add('open');
-}
-
-function closeMealModal() {
-  document.getElementById('meal-modal').classList.remove('open');
-}
-
-document.getElementById('meal-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('meal-modal')) closeMealModal();
-});
-
-async function swapMeal(dayIdx, mealIdx) {
-  if (!weekMeals || !weekMeals.days || !weekMeals.days[dayIdx]) return;
-  const day   = weekMeals.days[dayIdx];
-  const meal  = day.meals[mealIdx];
-  const p     = profile;
-
-  const prompt = `Suggest ONE alternative meal to replace: "${meal.name}" (${meal.type}, ${meal.calories} kcal, ${meal.protein}g protein).
-
-Day: ${day.day} (${day.type})
-Person: ${p.name} | Goal: ${p.goal}
-Cuisine: ${(p.cuisinePrefs||[]).join(', ')||'neutral'} | Style: ${p.cookingApproach||'standard'} | Complexity: ${p.recipeComplexity||'standard'}
-Exclude: ${(p.foodExclusions||[]).join(', ')||'none'} | Avoid: ${p.triggerFoods||'none'}
-
-Return ONLY JSON for ONE meal:
-{"type":"${meal.type}","name":"new meal name","calories":0,"protein":0,"carbs":0,"fat":0,"ingredients":[{"name":"item","quantity":"200g"}],"prep":"2-3 sentence instructions","why":"why this swap"}`;
-
-  try {
-    const res = await fetch(API, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:MODEL, max_tokens:600,
-        system:'Return only valid JSON for a single meal.',
-        messages:[{role:'user',content:prompt}] }),
-    });
-    const data = await res.json();
-    const text = (data.content||[]).map(b=>b.text||'').join('');
-    const match = text.match(/\{[^]*\}/);
-    if (match) {
-      const newMeal = JSON.parse(match[0]);
-      weekMeals.days[dayIdx].meals[mealIdx] = newMeal;
-      trySet(WEEK_MEALS_KEY, weekMeals);
-      renderWeekMeals(weekMeals, p);
-    }
-  } catch(e) { console.error('Swap error:', e); }
-}
-
-// ── REGENERATE ────────────────────────────────────────────
-function regenerateTodayMeals() {
-  localStorage.removeItem('bl_today_meals_' + new Date().toISOString().slice(0,10));
-  document.getElementById('today-meals-col').innerHTML =
-    `<div class="food-loading" id="today-loading">
-      <div class="food-spinner"></div>
-      <div class="food-loading-text">Generating new meal ideas…</div>
-    </div>`;
-  loadTodayMeals(profile);
-}
-
-function regenerateWeek() {
-  localStorage.removeItem(WEEK_MEALS_KEY);
-  localStorage.removeItem(SHOP_KEY);
-  weekMeals = null;
-  document.getElementById('week-meal-grid-wrap').innerHTML =
-    `<div class="food-loading"><div class="food-spinner"></div><div class="food-loading-text">Generating new week…</div></div>`;
-  loadWeekMeals(profile);
-}
-
-function regenerateShop() {
-  localStorage.removeItem(SHOP_KEY);
-  shopList = null;
-  document.getElementById('shop-content').innerHTML =
-    `<div class="food-loading"><div class="food-spinner"></div><div class="food-loading-text">Rebuilding shopping list…</div></div>`;
-  if (weekMeals) generateShoppingFromMeals(weekMeals, profile);
-  else loadWeekMeals(profile);
-}
-
-// ── UTILS ─────────────────────────────────────────────────
-function switchFood(id, btn) {
-  document.querySelectorAll('.food-pane').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.food-tab').forEach(b=>b.classList.remove('active'));
-  document.getElementById('fpane-' + id).classList.add('active');
-  if (btn) btn.classList.add('active');
-}
-
-function printShop() { window.print(); }
-
-// Called after renderFoodApp builds the DOM
-function setupLogListener() {
-  const inp = document.getElementById('log-input');
-  if (inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') logItem(); });
 }
 </script>
 </body>
