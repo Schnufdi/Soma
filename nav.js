@@ -1,3 +1,58 @@
+// ── NAV INJECTION — single source of truth ───────────────
+// This runs immediately and replaces ANY nav on the page.
+// No page can have a different menu — it all comes from here.
+(function injectNav() {
+  const NAV_HTML = `<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
+    <a class="nav-link" href="/bodylens-food.html">Food</a>
+    <a class="nav-link" href="/bodylens-programme.html">Programme</a>
+    <a class="nav-link" href="/bodylens-science.html">Science</a>
+    <a class="nav-link" href="/bodylens-instructions.html">Report</a>
+  </div>
+  <div class="nav-right-group">
+    <a class="nav-right" href="/bodylens-guide.html">Guide</a>
+    <a class="nav-right" href="/bodylens-howitworks.html">How it works</a>
+    <a class="nav-right" href="/bodylens-bodyscan.html">Body scan</a>
+    <div class="nav-meta" id="nav-meta"></div>
+  </div>
+</nav>`;
+
+  function doInject() {
+    // Replace existing nav if present
+    const existing = document.querySelector('nav');
+    if (existing) {
+      existing.outerHTML = NAV_HTML;
+    } else {
+      // Insert at top of body
+      document.body.insertAdjacentHTML('afterbegin', NAV_HTML);
+    }
+
+    // Mark current page active
+    const path = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link, .nav-right').forEach(a => {
+      const href = a.getAttribute('href').split('/').pop();
+      if (href === path) a.classList.add('active');
+    });
+
+    // Show profile name
+    try {
+      const p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
+      if (p && p.name) {
+        const meta = document.getElementById('nav-meta');
+        if (meta) meta.innerHTML = '<span class="nav-tag nt-jade">' + p.name + '</span>';
+      }
+    } catch(e) {}
+  }
+
+  if (document.body) {
+    doInject();
+  } else {
+    document.addEventListener('DOMContentLoaded', doInject);
+  }
+})();
+
 // ════════════════════════════════════════════════════════
 //  BodyLens — nav.js  v2.0
 //  Shared across all pages.
