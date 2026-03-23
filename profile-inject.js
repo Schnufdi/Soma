@@ -41,7 +41,12 @@
           const existing = document.getElementById('bl-inject-panel');
           if (existing) existing.remove();
           injectPanel(aiContent, profile);
+        } else {
+          // API returned null — cache static so we don't retry every load today
+          trySet(cacheKey, buildStaticPanel(pageType, profile));
         }
+      }).catch(() => {
+        trySet(cacheKey, buildStaticPanel(pageType, profile));
       });
     }
   });
@@ -254,7 +259,9 @@ Colors: #00c8a0 (positive/jade), #c8941e (caution/amber), #d94e35 (warning/red),
       return JSON.parse(match[0]);
     } catch (e) {
       console.error('Inject AI error:', e);
-      return null;
+      // Cache a static fallback so we don't hammer the API on every page load
+      // It will retry tomorrow (cache key includes date)
+      return { rows: buildStaticPanel(type, p).rows || '', callout: '' };
     }
   }
 

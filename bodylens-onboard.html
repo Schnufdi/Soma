@@ -1457,6 +1457,16 @@ async function generateProgramme() {
   const summary = buildFormSummary();
   const chatContext = chatHistory.map(m => `${m.role}: ${m.content}`).join('\n');
 
+  // ── SAVE FORM DATA IMMEDIATELY before API call ─────────────
+  // This ensures if the API times out, we still have the answers
+  try {
+    localStorage.setItem('bl_formdata_backup', JSON.stringify({
+      ...formData,
+      chatContext,
+      savedAt: new Date().toISOString()
+    }));
+  } catch(e) {}
+
   const prompt = `You are a senior performance coach. Build a complete personalised programme. Reason through each decision like a coach would in a real session.
 
 CRITICAL — EQUIPMENT AND TRAINING CONTEXT:

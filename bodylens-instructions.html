@@ -209,13 +209,325 @@ body { background:var(--ink); color:var(--dk-1); }
 <script>
 const profile = getProfile();
 
+// ── RECOVERY: build report from whatever data exists ──────────────
+
+async function rebuildFromFormBackup(formData) {
+  const resultEl = document.getElementById('scrap-result');
+  // Build the same prompt as onboarding
+  const lines = [];
+  if (formData.name)       lines.push('Name: ' + formData.name);
+  if (formData.age)        lines.push('Age: ' + formData.age);
+  if (formData.sex)        lines.push('Sex: ' + formData.sex);
+  if (formData.height)     lines.push('Height: ' + formData.height + 'cm');
+  if (formData.weight)     lines.push('Weight: ' + formData.weight + 'kg');
+  if (formData.goal)       lines.push('Goal: ' + formData.goal);
+  if (formData.days)       lines.push('Training days: ' + formData.days);
+  if (formData.gym)        lines.push('Gym access: ' + formData.gym);
+  if (formData.exp)        lines.push('Experience: ' + formData.exp);
+  if (formData.diet)       lines.push('Diet: ' + formData.diet);
+  if (formData.sleep)      lines.push('Sleep: ' + formData.sleep);
+  if (formData.wake)       lines.push('Wake time: ' + formData.wake);
+  if (formData.stress)     lines.push('Stress: ' + formData.stress);
+  if (formData.injuries && formData.injuries.length) lines.push('Injuries: ' + formData.injuries.join(', '));
+  if (formData.chatContext) lines.push('Follow-up context: ' + formData.chatContext.slice(0, 500));
+
+  const prompt = `You are a senior performance coach. Rebuild a complete personalised programme from this saved questionnaire data.
+
+${lines.join('\n')}
+
+Return ONLY a valid JSON object with this exact structure:
+{
+  "profile": {
+    "goal": "derived primary goal",
+    "calories": 0, "protein": 0, "carbs": 0, "fat": 0, "tdee": 0,
+    "calorieReasoning": "2-3 sentences",
+    "proteinReasoning": "1-2 sentences",
+    "mealCount": 4,
+    "keyFoodPrinciples": ["principle 1", "principle 2", "principle 3"],
+    "foodsToAvoid": [],
+    "triggerStrategy": "one sentence"
+  },
+  "weekPlan": [
+    {"day":"Monday","type":"Push","focus":"Chest, shoulders, triceps","kcal":0,"priority":"training","keyExercises":["Bench press 4x8-10","OHP 3x10","Lateral raise 3x15"],"modifications":[],"coachNote":"one sentence"},
+    {"day":"Tuesday","type":"Rest","focus":"Recovery","kcal":0,"priority":"rest","keyExercises":[],"modifications":[],"coachNote":"one sentence"},
+    {"day":"Wednesday","type":"Pull","focus":"Back, biceps","kcal":0,"priority":"training","keyExercises":["Pull-ups 4x6","Row 3x10"],"modifications":[],"coachNote":"one sentence"},
+    {"day":"Thursday","type":"Rest","focus":"Recovery","kcal":0,"priority":"rest","keyExercises":[],"modifications":[],"coachNote":"one sentence"},
+    {"day":"Friday","type":"Legs","focus":"Quads, glutes, hamstrings","kcal":0,"priority":"training","keyExercises":["Squat 4x8","RDL 3x10","Leg press 3x12"],"modifications":[],"coachNote":"one sentence"},
+    {"day":"Saturday","type":"Upper","focus":"Full upper body","kcal":0,"priority":"training","keyExercises":["OHP 4x8","Row 3x10","Arms"],"modifications":[],"coachNote":"one sentence"},
+    {"day":"Sunday","type":"Rest","focus":"Full rest","kcal":0,"priority":"rest","keyExercises":[],"modifications":[],"coachNote":"one sentence"}
+  ],
+  "supplements": [
+    {"name":"Creatine monohydrate","dose":"5g","timing":"Daily","reason":"one sentence"},
+    {"name":"Omega-3","dose":"2-3g","timing":"With largest meal","reason":"one sentence"},
+    {"name":"Vitamin D3","dose":"3000IU","timing":"With fat meal","reason":"one sentence"},
+    {"name":"Magnesium glycinate","dose":"400mg","timing":"30min before sleep","reason":"one sentence"}
+  ],
+  "injuries": [],
+  "weeklyProgression": {
+    "week1": {"phase":"Foundation","focus":"Learn the patterns, establish baseline loads","volumeNote":"Lower volume, technique priority","keyFocus":"one sentence"},
+    "week2": {"phase":"Build","focus":"Add volume and load","volumeNote":"+10-15% sets","keyFocus":"one sentence"},
+    "week3": {"phase":"Peak","focus":"Highest intensity","volumeNote":"RPE 8-9 on primary lifts","keyFocus":"one sentence"},
+    "week4": {"phase":"Deload","focus":"50% volume, maintain load","volumeNote":"Active recovery","keyFocus":"one sentence"}
+  },
+  "coachSummary": "3-4 sentences: overall read, biggest lever, what will make or break progress",
+  "programmeGoal": "what they should be able to do after 4 weeks"
+}
+weekPlan must have exactly 7 entries Mon-Sun.`;
+
+  try {
+    if (resultEl) resultEl.innerHTML = 'Rebuilding your programme… (this takes about 30 seconds)';
+    const res = await fetch('/api/chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1800,
+        system:'Senior performance coach. Return ONLY valid JSON. No markdown. No preamble.',
+        messages:[{role:'user', content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content||[]).map(b=>b.text||'').join('').trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    const result = JSON.parse(match[0]);
+
+    // Build final profile merging formData + AI result
+    const prog = result.profile || {};
+    const existing = (() => { try { return JSON.parse(localStorage.getItem('bl_profile')||'{}'); } catch(e) { return {}; } })();
+    const newProfile = {
+      ...existing,
+      name:           formData.name || existing.name || 'User',
+      age:            formData.age  || existing.age,
+      sex:            formData.sex  || existing.sex,
+      height:         formData.height || existing.height,
+      weight:         formData.weight || existing.weight,
+      goal:           prog.goal || formData.goal || existing.goal,
+      calories:       prog.calories || 0,
+      protein:        prog.protein  || 0,
+      carbs:          prog.carbs    || 0,
+      fat:            prog.fat      || 0,
+      tdee:           prog.tdee     || 0,
+      mealCount:      prog.mealCount || 4,
+      keyFoodPrinciples: prog.keyFoodPrinciples || [],
+      foodsToAvoid:   prog.foodsToAvoid || [],
+      weekPlan:       result.weekPlan || existing.weekPlan || [],
+      supplements:    result.supplements || existing.supplements || [],
+      injuries:       result.injuries || formData.injuries || existing.injuries || [],
+      coachSummary:   result.coachSummary || '',
+      weeklyProgression: result.weeklyProgression || existing.weeklyProgression,
+      programmeGoal:  result.programmeGoal || '',
+      experience:     formData.exp || existing.experience,
+      trainingDays:   parseInt(formData.days) || existing.trainingDays || 4,
+      wakeTime:       formData.wake || existing.wakeTime || '07:00',
+      dietType:       formData.diet || existing.dietType,
+      foodExclusions: formData.excl || existing.foodExclusions || [],
+      gymAccess:      formData.gym  || existing.gymAccess,
+      equipmentUsed:  formData.equipment || existing.equipmentUsed || [],
+      recoveryTools:  formData.recovery || existing.recoveryTools || [],
+      sleep:          formData.sleep || existing.sleep,
+      stressLevel:    formData.stress || existing.stressLevel,
+      generated:      true,
+      generatedAt:    existing.generatedAt || new Date().toISOString(),
+      instructions:   existing.instructions || '',
+    };
+    localStorage.setItem('bl_profile', JSON.stringify(newProfile));
+
+    if (resultEl) resultEl.innerHTML = 'Programme rebuilt successfully. Reloading…';
+    setTimeout(() => location.reload(), 1200);
+  } catch(e) {
+    console.error('Rebuild error:', e);
+    if (resultEl) resultEl.innerHTML = 'Rebuild failed — please try the onboarding again. <a href="bodylens-onboard.html" style="color:var(--jade);">Start onboarding →</a>';
+  }
+}
+
+async function tryRebuildFromScraps() {
+  const resultEl = document.getElementById('scrap-result');
+  if (resultEl) resultEl.innerHTML = 'Searching localStorage for any saved data…';
+  
+  // Gather every bl_ key from localStorage
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && (k.startsWith('bl_') || k.startsWith('dayplan'))) keys.push(k);
+  }
+  if (resultEl) resultEl.innerHTML = `Found ${keys.length} BodyLens keys. Looking for profile data…`;
+
+  // Check for formdata backup first — most complete recovery source
+  let formBackup = null;
+  try {
+    const fb = localStorage.getItem('bl_formdata_backup');
+    if (fb) formBackup = JSON.parse(fb);
+  } catch(e) {}
+
+  if (formBackup && (formBackup.name || formBackup.goal)) {
+    if (resultEl) resultEl.innerHTML = `Found your questionnaire answers (saved ${formBackup.savedAt ? new Date(formBackup.savedAt).toLocaleDateString() : 'earlier'}). Rebuilding your full programme now — this takes about 30 seconds…`;
+    // Trigger a full rebuild using the saved form data
+    await rebuildFromFormBackup(formBackup);
+    return;
+  }
+  
+  // Try to find any profile fragment
+  let found = null;
+  for (const key of keys) {
+    try {
+      const val = JSON.parse(localStorage.getItem(key) || 'null');
+      if (val && (val.name || val.goal || val.calories)) {
+        found = val;
+        break;
+      }
+    } catch(e) {}
+  }
+  
+  if (found && found.name) {
+    if (resultEl) resultEl.innerHTML = `Found profile for "${found.name}". Rebuilding report…`;
+    // Fill in any missing defaults so the report renders
+    const recovered = {
+      name: found.name || 'You',
+      age: found.age || '—',
+      sex: found.sex || '—',
+      weight: found.weight || '—',
+      height: found.height || '—',
+      goal: found.goal || 'General fitness',
+      calories: found.calories || 0,
+      protein: found.protein || 0,
+      carbs: found.carbs || 0,
+      fat: found.fat || 0,
+      trainingDays: found.trainingDays || 4,
+      weekPlan: found.weekPlan || [],
+      supplements: found.supplements || [],
+      injuries: found.injuries || [],
+      coachSummary: found.coachSummary || '',
+      instructions: found.instructions || '',
+      experience: found.experience || '—',
+      generatedAt: found.generatedAt || new Date().toISOString(),
+      ...found
+    };
+    localStorage.setItem('bl_profile', JSON.stringify(recovered));
+    setTimeout(() => location.reload(), 800);
+    return;
+  }
+  
+  // No profile found — offer to rebuild via AI from raw text if they have it
+  if (resultEl) resultEl.innerHTML = `No profile data found in this browser. You'll need to re-do the onboarding — it takes about 5 minutes and the follow-up chat means you won't need to fill in everything manually again.`;
+}
+
+// ── BUILD REPORT BUTTON: shown when profile has no instructions/report ─
+async function buildReportFromScratch(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Building your report…'; }
+  const container = document.getElementById('report-content');
+  if (!container) return;
+
+  // Step 1: Render immediately from JS — instant, no API
+  const cacheKey = 'bl_report_v2_' + profile.name + '_' + (profile.generatedAt||'').slice(0,10);
+  const html = buildReportHTML(profile);
+  try { localStorage.setItem(cacheKey, html); } catch(e) {}
+  renderReport(html);
+
+  // Step 2: If profile is missing coachSummary or instructions, regenerate via API
+  const needsRegen = !profile.coachSummary || !profile.instructions || profile.calories === 0;
+  if (needsRegen) {
+    // Update UI to show we're enriching
+    const statusEl = document.createElement('div');
+    statusEl.id = 'report-status';
+    statusEl.style.cssText = 'padding:12px 0;font-size:11px;font-weight:300;color:var(--jade);display:flex;align-items:center;gap:8px;';
+    statusEl.innerHTML = '<div style="width:14px;height:14px;border:2px solid rgba(0,200,160,0.3);border-top-color:var(--jade);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div> Generating your coaching summary and calibrations…';
+    if (container) container.insertAdjacentElement('afterend', statusEl);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model:'claude-sonnet-4-20250514', max_tokens:600,
+          system:'You are a senior performance coach. Return only valid JSON.',
+          messages:[{role:'user', content: buildRegenPrompt(profile)}]
+        })
+      });
+      const data = await res.json();
+      const text = (data.content||[]).map(b=>b.text||'').join('').trim();
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) {
+        const regen = JSON.parse(match[0]);
+        // Merge into profile and save
+        try {
+          const raw = localStorage.getItem('bl_profile');
+          if (raw) {
+            const p = JSON.parse(raw);
+            if (regen.coachSummary)  { p.coachSummary  = regen.coachSummary;  profile.coachSummary  = regen.coachSummary;  }
+            if (regen.instructions)  { p.instructions  = regen.instructions;  profile.instructions  = regen.instructions;  }
+            if (regen.calories && !p.calories) { p.calories = regen.calories; profile.calories = regen.calories; }
+            if (regen.protein  && !p.protein)  { p.protein  = regen.protein;  profile.protein  = regen.protein;  }
+            if (regen.carbs    && !p.carbs)    { p.carbs    = regen.carbs;    profile.carbs    = regen.carbs;    }
+            if (regen.fat      && !p.fat)      { p.fat      = regen.fat;      profile.fat      = regen.fat;      }
+            if (regen.weekPlan && (!p.weekPlan || !p.weekPlan.length)) {
+              p.weekPlan = regen.weekPlan; profile.weekPlan = regen.weekPlan;
+            }
+            localStorage.setItem('bl_profile', JSON.stringify(p));
+          }
+        } catch(e) {}
+        // Re-render with new data
+        const freshHtml = buildReportHTML(profile);
+        try { localStorage.setItem(cacheKey, freshHtml); } catch(e) {}
+        renderReport(freshHtml);
+      }
+    } catch(e) {
+      console.error('Report regen error:', e);
+    }
+    const st = document.getElementById('report-status');
+    if (st) st.remove();
+  }
+
+  // Step 3: AI voice enrichment (coach opening paragraph)
+  enrichReportAsync(profile, cacheKey);
+  if (btn) { btn.style.display = 'none'; }
+}
+
+function buildRegenPrompt(p) {
+  return `You are a senior performance coach. A user completed an onboarding questionnaire but the AI generation did not complete — their profile has basic data but is missing the coaching summary, instructions, and possibly macros. Regenerate the missing pieces.
+
+AVAILABLE PROFILE DATA:
+Name: \${p.name} | Age: \${p.age} | Sex: \${p.sex} | Height: \${p.height}cm | Weight: \${p.weight}kg
+Goal: \${p.goal || '—'} | Experience: \${p.experience || '—'} | Training: \${p.trainingDays || 4} days/week
+Wake: \${p.wakeTime || '07:00'} | Sleep: \${p.sleep || '—'}
+Diet: \${p.dietType || 'flexible'} | Exclude: \${(p.foodExclusions||[]).join(', ')||'none'}
+Injuries: \${(p.injuries||[]).map(i=>i.location||i).join(', ')||'none'}
+Current calories: \${p.calories||0} | Protein: \${p.protein||0}g
+
+Return ONLY valid JSON:
+{
+  "coachSummary": "3-4 sentences: overall read on this person, their biggest lever, and what will make or break their progress",
+  "instructions": "2-3 paragraphs of personalised coaching notes — training approach, nutritional priorities, recovery focus, key non-negotiables for this person",
+  "calories": \${p.calories||0},
+  "protein": \${p.protein||0},
+  "carbs": \${p.carbs||0},
+  "fat": \${p.fat||0}
+}`;
+}
+
+async function generateCoachSummary(p) {
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 200,
+        system: 'You are a performance coach. Write a brief coaching summary. Be direct and specific.',
+        messages: [{role:'user', content: `Write a 3-4 sentence coaching summary for ${p.name}: ${p.age}yo ${p.sex}, ${p.weight}kg, goal: ${p.goal}. Calories: ${p.calories||'?'}, protein: ${p.protein||'?'}g. Training ${p.trainingDays||4} days/week. Injuries: ${(p.injuryAssessments||p.injuries||[]).map(i=>i.location||i).join(', ')||'none'}. What's the biggest lever and what will make or break their progress?`}]
+      })
+    });
+    const data = await res.json();
+    return (data.content||[]).map(b=>b.text||'').join('').trim();
+  } catch(e) { return null; }
+}
+
 if (!profile) {
   document.getElementById('main').innerHTML = `
     <div class="no-profile">
       <div style="font-size:44px;">📋</div>
-      <h2>No programme yet</h2>
-      <p>Complete the onboarding and your full coaching report will appear here.</p>
-      <a href="bodylens-onboard.html">Get started →</a>
+      <h2>No programme found</h2>
+      <p>It looks like your profile data isn't in this browser. This can happen if you cleared your browser or switched devices.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
+        <a href="bodylens-onboard.html" style="padding:10px 22px;background:var(--jade);color:var(--ink);border-radius:4px;font-size:12px;font-weight:600;text-decoration:none;letter-spacing:0.04em;">Start fresh →</a>
+        <button onclick="tryRebuildFromScraps()" style="padding:10px 22px;background:transparent;border:1px solid var(--bd);color:var(--dk-2);border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);letter-spacing:0.04em;">Recover what I can</button>
+      </div>
+      <div id="scrap-result" style="margin-top:16px;font-size:12px;font-weight:300;color:var(--dk-3);"></div>
     </div>`;
 } else {
   document.getElementById('nav-meta').innerHTML =
@@ -254,12 +566,15 @@ function renderPage(p) {
           <div style="font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:20px;">
             Your coaching report — written from your session.
           </div>
-          <button onclick="generateReport()"
+          <button onclick="buildReportFromScratch(this)"
             style="padding:12px 28px;background:var(--jade);border:none;border-radius:4px;
             font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
             text-transform:uppercase;color:var(--ink);cursor:pointer;">
-            Generate my report →
+            Build my coaching report →
           </button>
+          <div style="margin-top:10px;font-size:11px;font-weight:300;color:var(--dk-3);max-width:400px;line-height:1.65;">
+            Builds your report from your saved profile data. If your coaching summary wasn't captured during onboarding, this generates it now.
+          </div>
         </div>
       </div>
       <div class="ins-actions">
@@ -287,8 +602,9 @@ function renderPage(p) {
     </div>
   `;
 
-  // Auto-generate report if not cached
-  setTimeout(() => generateReport(false), 100);
+  // Auto-generate report — force rebuild if profile data is thin
+  const profileIsThin = !profile.calories || profile.calories === 0 || !profile.weekPlan || profile.weekPlan.length < 7;
+  setTimeout(() => generateReport(profileIsThin), 100);
 }
 
 function buildDataTab(p) {
@@ -530,6 +846,7 @@ async function enrichReportAsync(p, cacheKey) {
   // Small API call just to get a personalised coach opening paragraph
   try {
     const isFemale = (p.sex||'').toLowerCase() === 'female';
+    const age = p.age || 35;
     const injuries = p.injuryAssessments || p.injuries || [];
     const prompt = `You are a senior performance coach. Write ONE paragraph (3-4 sentences) as a personal opening for ${p.name}'s coaching report. 
 Profile: ${age||p.age}yo ${p.sex}, ${p.weight}kg, goal: ${p.goal}. Training: ${p.trainingDays} days/week. ${injuries.length ? 'Injuries: '+injuries.map(i=>i.location||i).join(', ')+'. ' : ''}Calories: ${p.calories}, protein: ${p.protein}g.
