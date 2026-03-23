@@ -234,7 +234,7 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-dailyplan.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-magazine-food.html">Food</a>
+    <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link active" href="bodylens-instructions.html">Report</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
@@ -1244,7 +1244,37 @@ function buildReportHTML(p) {
         <span style="color:var(--jade);font-weight:600;flex-shrink:0;">→</span>${k}</div>`).join('')}</div>`:''}
 
       ${buildAssumptionsSection(p)}
-      <div style="height:1px;background:var(--bd);margin-bottom:24px;"></div>
+      ${(function(){
+  var scan = p.bodyScan;
+  if (!scan) return '<div style="padding:10px 0;margin-bottom:16px;"><div style="font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Body composition data</div><div style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.75;">No body scan data on file. <a href=\"bodylens-bodyscan.html\" style=\"color:var(--jade);text-decoration:none;font-weight:500;\">Update from body scan &#8594;</a><br>Adding real measurements (BMR, lean mass, body fat %) replaces formula estimates and makes your targets significantly more accurate.</div></div>';
+  var d = scan.scanDate || (scan.savedAt && scan.savedAt.slice(0,10)) || '';
+  var rows = [
+    scan.weight          ? ['Weight',           scan.weight + 'kg'] : null,
+    scan.bodyFatPct      ? ['Body fat',          scan.bodyFatPct + '%'] : null,
+    scan.leanMass        ? ['Lean mass',         scan.leanMass + 'kg'] : null,
+    scan.skeletalMuscleMass ? ['Skeletal muscle', scan.skeletalMuscleMass + 'kg'] : null,
+    scan.bmr             ? ['Measured BMR',      scan.bmr + ' kcal/day'] : null,
+    scan.metabolicAge    ? ['Metabolic age',     scan.metabolicAge + ' years'] : null,
+    scan.visceralFatIndex ? ['Visceral fat',     'Index ' + scan.visceralFatIndex] : null,
+    scan.restingHeartRate ? ['Resting HR',       scan.restingHeartRate + ' BPM'] : null,
+    scan.bodyWaterPct    ? ['Body water',         scan.bodyWaterPct + '%'] : null,
+  ].filter(Boolean);
+  return '<div style=\"margin-bottom:20px;\">'
+    + '<div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;\">'
+    + '<div style=\"font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--jade);\">' + (scan.source||'Body scan') + (d ? ' &middot; ' + d : '') + '</div>'
+    + '<a href=\"bodylens-bodyscan.html\" style=\"font-size:10px;color:var(--amber);text-decoration:none;font-weight:500;\">Update &#8594;</a>'
+    + '</div>'
+    + '<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bd);border-radius:6px;overflow:hidden;\">'
+    + rows.map(function(r){ return '<div style=\"background:var(--ink-2);padding:8px 12px;\">'
+        + '<div style=\"font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--dk-3);margin-bottom:2px;\">' + r[0] + '</div>'
+        + '<div style=\"font-family:var(--mono);font-size:13px;font-weight:500;color:var(--dk-1);\">' + r[1] + '</div>'
+        + '</div>'; }).join('')
+    + '</div>'
+    + (scan.healthScore ? '<div style=\"margin-top:8px;font-size:11px;font-weight:300;color:var(--dk-3);">Health score: <strong style=\"color:var(--dk-1);\">' + scan.healthScore + '</strong></div>' : '')
+    + '</div>';
+})()}
+
+<div style="height:1px;background:var(--bd);margin-bottom:24px;"></div>
       <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;">The efficiency rule</div>
       <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--dk-1);line-height:1.6;font-style:italic;">
         Hit your protein target every day — including rest days. Everything else compounds from this single habit.

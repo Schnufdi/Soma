@@ -65,6 +65,17 @@ ${profile.activityLevel ? 'Activity outside training: ' + profile.activityLevel 
 ${profile.cookingApproach ? 'Food approach: ' + profile.cookingApproach + (profile.cuisinePrefs && profile.cuisinePrefs.length ? ' | ' + profile.cuisinePrefs.join(', ') : '') : ''}
 ${isFemale && profile.menstrualCycle ? 'Cycle: ' + profile.menstrualCycle : ''}
 
+${profile.bodyScan ? `BODY SCAN DATA (${profile.bodyScan.source || 'device'}, ${profile.bodyScan.scanDate || 'recent'}) — REAL MEASUREMENTS, USE THESE OVER ANY FORMULA ESTIMATE:
+${profile.bodyScan.weight       ? '• Weight: '              + profile.bodyScan.weight + 'kg' : ''}
+${profile.bodyScan.bodyFatPct   ? '• Body fat: '            + profile.bodyScan.bodyFatPct + '%' : ''}
+${profile.bodyScan.leanMass     ? '• Lean mass: '           + profile.bodyScan.leanMass + 'kg (protein target is based on this, not total weight)' : ''}
+${profile.bodyScan.skeletalMuscleMass ? '• Skeletal muscle: ' + profile.bodyScan.skeletalMuscleMass + 'kg' : ''}
+${profile.bodyScan.bmr          ? '• Measured BMR: '        + profile.bodyScan.bmr + ' kcal/day (this is real — the formula was ' + (profile.scanBmr !== profile.bodyScan.bmr ? 'different' : 'aligned') + ')' : ''}
+${profile.bodyScan.metabolicAge ? '• Metabolic age: '       + profile.bodyScan.metabolicAge + ' years' + (profile.bodyScan.metabolicAge > (profile.age||35) + 3 ? ' — elevated, prioritise sleep and zone 2' : '') : ''}
+${profile.bodyScan.visceralFatIndex ? '• Visceral fat index: ' + profile.bodyScan.visceralFatIndex + (profile.bodyScan.visceralFatIndex >= 13 ? ' — elevated, responds to resistance + zone 2 cardio' : ' — within standard range') : ''}
+${profile.bodyScan.restingHeartRate ? '• Resting HR: '      + profile.bodyScan.restingHeartRate + ' BPM' : ''}
+${profile.bodyScan.bodyWaterPct ? '• Body water: '          + profile.bodyScan.bodyWaterPct + '%' + (profile.bodyScan.bodyWaterPct < 50 ? ' — below optimal, hydration is a priority' : '') : ''}` : ''}
+
 CURRENT PAGE: ${pageContext}
 
 YOUR VOICE:
