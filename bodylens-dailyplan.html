@@ -231,6 +231,21 @@ body { background:var(--ink); color:var(--dk-1); }
 /* Loading spinner for shuffle */
 .shuffle-loading { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(196,124,24,0.3); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 4px; }
 
+
+/* ── ACCELERATOR STRIP ────────────────────────────── */
+.acc-strip {
+  background: linear-gradient(135deg, rgba(200,148,30,0.06) 0%, rgba(200,148,30,0.02) 100%);
+  border: 1px solid rgba(200,148,30,0.22); border-radius: 8px;
+  padding: 16px 20px; margin-bottom: 16px;
+  display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+}
+.as-left {}
+.as-eyebrow { font-size:8px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:5px; }
+.as-title { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:4px; }
+.as-why { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65; }
+.as-btn { background:rgba(200,148,30,0.1); border:1px solid rgba(200,148,30,0.3); color:var(--gold); padding:7px 14px; border-radius:4px; font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; text-decoration:none; display:inline-block; }
+.as-btn:hover { background:rgba(200,148,30,0.18); }
+
 </style>
 </head>
 <body>
@@ -1090,8 +1105,74 @@ if (!_profile) {
     try { localStorage.setItem(_today.cacheKey, JSON.stringify(plan)); } catch(e) {}
   }
 
+  // ── PICK TODAY'S ACCELERATOR ──────────────────────
+  function pickAccelerator(profile, today) {
+    const goal = (profile.goal||'').toLowerCase();
+    const isTraining = today.isTraining;
+    const age = profile.age || 35;
+    const isFemale = (profile.sex||'').toLowerCase() === 'female';
+    const dayOfWeek = new Date().getDay(); // 0=Sun
+    const stress = (profile.stressLevel||'').toLowerCase();
+    const saved = profile.accelerators || [];
+
+    // Candidates — picked contextually based on day type, goal, profile
+    const candidates = [];
+
+    if (!isTraining) {
+      // Rest day — fasting and recovery accelerators
+      candidates.push({ name:'Extended overnight fast', why:'Rest day tomorrow — ideal window for a 16-hour fast. No performance cost. Fat oxidation elevated all morning.', url:'bodylens-accelerators.html#fast-16-8' });
+      candidates.push({ name:'NSDR session this afternoon', why:'Rest day recovery. 20 minutes of yoga nidra raises dopamine 65% and restores cognitive function as well as 90 minutes of sleep.', url:'bodylens-accelerators.html#nsdr' });
+    } else {
+      // Training day
+      candidates.push({ name:'Post-training walks', why:'A 10-minute walk after your post-training meal today drops glucose by 20-30% and elevates GLP-1 for appetite control.', url:'bodylens-accelerators.html#post-meal-walks' });
+      candidates.push({ name:'Dopamine scheduling before training', why:'Hold off on social media and news until after your session. The contrast effect means the training dopamine release lands harder.', url:'bodylens-accelerators.html#dopamine-scheduling' });
+    }
+
+    if (goal.includes('fat')||goal.includes('los')||goal.includes('cut')) {
+      if (!isTraining) candidates.unshift({ name:'Extended overnight fast', why:'You're in a fat loss phase. A 16-hour fast on your rest day adds meaningful fat oxidation time with zero muscle cost if protein stays high.', url:'bodylens-accelerators.html#fast-16-8' });
+      candidates.push({ name:'NEAT maximisation today', why:'3,000 extra steps is roughly 150 kcal. Over a week that's a meaningful deficit without touching training or food.', url:'bodylens-accelerators.html#neat' });
+    }
+
+    if (goal.includes('muscle')||goal.includes('build')) {
+      candidates.push({ name:'Training log tonight', why:'Write every set before you forget. Next week's progressive overload depends on knowing today's exact numbers.', url:'bodylens-accelerators.html#training-log' });
+    }
+
+    if (age >= 40) {
+      if (dayOfWeek === 3 || dayOfWeek === 6) { // Wed or Sat
+        candidates.push({ name:'Zone 2 cardio today', why:`At ${age}, VO₂max is the primary longevity lever. Even 20 minutes at conversational pace builds the mitochondrial base that determines how you feel at 60.`, url:'bodylens-accelerators.html#zone2' });
+      }
+    }
+
+    if (stress.includes('high')) {
+      candidates.push({ name:'NSDR — 20 min today', why:'Your stress level is high. A single NSDR session drops cortisol meaningfully and partially reverses the hormonal cost of chronic stress.', url:'bodylens-accelerators.html#nsdr' });
+    }
+
+    // Filter out already-saved ones after first 3 uses
+    const unseen = candidates.filter(c => !saved.includes(c.url?.split('#')[1]||''));
+    return (unseen.length ? unseen : candidates)[0] || null;
+  }
+
+  // ── RENDER ────────────────────────────────────────
+  const _acc = pickAccelerator(_profile, _today);
   // Render
   renderPlan(plan, _today.name);
+
+  // Inject accelerator strip after water-strip
+  if (_acc) {
+    const waterStrip = document.querySelector('.water-strip');
+    if (waterStrip) {
+      const stripEl = document.createElement('div');
+      stripEl.className = 'acc-strip';
+      stripEl.innerHTML = `
+        <div class="as-left">
+          <div class="as-eyebrow">💡 Accelerator — optional for today</div>
+          <div class="as-title">${_acc.name}</div>
+          <div class="as-why">${_acc.why}</div>
+        </div>
+        <a href="bodylens-accelerators.html" class="as-btn">Read more →</a>`;
+      waterStrip.parentNode.insertBefore(stripEl, waterStrip.nextSibling);
+    }
+  }
   setupChips(_profile, _today);
 
   // Wire up ask bar
