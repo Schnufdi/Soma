@@ -15,8 +15,6 @@
     <a class="nav-right" href="/bodylens-guide.html">Guide</a>
     <a class="nav-right" href="/bodylens-howitworks.html">How it works</a>
     <a class="nav-right" href="/bodylens-bodyscan.html">Body scan</a>
-    <button id="bl-theme-toggle" class="nav-icon-btn" onclick="window.BL&&window.BL.toggleTheme()" title="Switch theme">🌸</button>
-    <button id="bl-profile-btn" class="nav-icon-btn nav-profile-btn" onclick="window.BL&&window.BL.buildProfilePanel()" title="Profile & settings">👤</button>
     <div class="nav-meta" id="nav-meta"></div>
   <a class="nav-link nav-profiles" href="/bodylens-profiles.html" title="Profile Vault" style="margin-left:8px;opacity:0.6;font-size:11px;">⬡ Vault</a>
   </div>
@@ -54,6 +52,12 @@
   } else {
     document.addEventListener('DOMContentLoaded', doInject);
   }
+
+  // Re-inject after page scripts run (some pages render their own nav on DOMContentLoaded)
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(doInject, 50);
+    setTimeout(doInject, 300);
+  });
 })();
 
 // ════════════════════════════════════════════════════════

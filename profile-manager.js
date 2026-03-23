@@ -408,6 +408,69 @@ Object.assign(window.BL, {
   showToast: showToast
 });
 
+
+// ── INJECT BUTTONS INTO NAV ───────────────────────────────────────────
+// Runs after nav.js has done its thing — adds buttons directly
+// Works on all browsers including Safari
+
+function injectNavButtons() {
+  if (document.getElementById('bl-theme-toggle')) return; // already there
+
+  var navGroup = document.querySelector('.nav-right-group');
+  if (!navGroup) return;
+
+  // Inject styles
+  if (!document.getElementById('bl-nav-btn-styles')) {
+    var s = document.createElement('style');
+    s.id = 'bl-nav-btn-styles';
+    s.textContent = [
+      '.bl-nav-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);',
+      'border-radius:7px;width:32px;height:32px;display:inline-flex;align-items:center;',
+      'justify-content:center;font-size:14px;cursor:pointer;margin-left:5px;',
+      'transition:background 0.15s;vertical-align:middle;}',
+      '.bl-nav-btn:hover{background:rgba(255,255,255,0.09);border-color:var(--jade-br,rgba(0,196,160,0.25));}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  var meta = navGroup.querySelector('#nav-meta') || null;
+
+  var themeBtn = document.createElement('button');
+  themeBtn.id = 'bl-theme-toggle';
+  themeBtn.className = 'bl-nav-btn';
+  themeBtn.title = 'Switch theme';
+  themeBtn.textContent = (localStorage.getItem('bl_theme') || 'jade') === 'jade' ? '🌸' : '🌿';
+  themeBtn.onclick = function() { window.BL && window.BL.toggleTheme(); };
+
+  var profileBtn = document.createElement('button');
+  profileBtn.id = 'bl-profile-btn';
+  profileBtn.className = 'bl-nav-btn';
+  profileBtn.title = 'Profile & settings';
+  profileBtn.textContent = '👤';
+  profileBtn.onclick = function() { window.BL && window.BL.buildProfilePanel(); };
+
+  if (meta) {
+    navGroup.insertBefore(profileBtn, meta);
+    navGroup.insertBefore(themeBtn, profileBtn);
+  } else {
+    navGroup.appendChild(themeBtn);
+    navGroup.appendChild(profileBtn);
+  }
+}
+
+// Try immediately, then retry to handle Safari's timing
+injectNavButtons();
+if (document.readyState !== 'complete') {
+  window.addEventListener('load', injectNavButtons);
+}
+document.addEventListener('DOMContentLoaded', function() {
+  injectNavButtons();
+  setTimeout(injectNavButtons, 100);
+  setTimeout(injectNavButtons, 500);
+});
+// Final safety net
+setTimeout(injectNavButtons, 800);
+
 // ── AUTO-SAVE PIN on profile completion ───────────────────────────────
 // Hook into profile save events
 var _origSetItem = localStorage.setItem.bind(localStorage);
