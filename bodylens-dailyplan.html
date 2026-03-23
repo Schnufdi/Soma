@@ -276,6 +276,55 @@
 .ms-track{height:6px;background:var(--ink-1);border-radius:3px;overflow:hidden;}
 .ms-fill{height:100%;border-radius:3px;transition:width 0.5s ease;}
 .ms-val{font-size:10px;font-family:var(--mono);color:var(--dk-2);text-align:right;}
+
+/* ── SOS PANEL ───────────────────────────────── */
+.sos-trigger-row{display:flex;gap:6px;margin-top:20px;margin-bottom:6px;}
+.sos-t-btn{flex:1;background:rgba(200,148,30,0.07);border:1px solid rgba(200,148,30,0.2);border-radius:18px;padding:7px 10px;font-size:10px;font-weight:600;letter-spacing:0.03em;color:var(--gold);cursor:pointer;font-family:var(--sans);text-align:center;transition:all .12s;}
+.sos-t-btn:hover{background:rgba(200,148,30,0.14);border-color:rgba(200,148,30,0.4);}
+.sos-t-btn.primary{background:rgba(200,148,30,0.12);border-color:rgba(200,148,30,0.35);}
+.sos-overlay{display:none;position:fixed;inset:0;background:rgba(8,14,13,0.75);z-index:300;align-items:flex-end;justify-content:center;}
+.sos-overlay.open{display:flex;}
+.sos-panel{background:var(--ink-1);border:1px solid var(--bd);border-radius:14px 14px 0 0;width:100%;max-width:580px;max-height:88vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,16px);}
+.sos-hd{padding:14px 18px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.sos-hd-left{}
+.sos-kicker{font-size:8px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.sos-hdtitle{font-size:15px;font-weight:500;color:var(--dk-1);}
+.sos-x{background:none;border:1px solid var(--bd);color:var(--dk-3);width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:14px;font-family:var(--sans);}
+.sos-scenarios{padding:14px 16px 8px;}
+.sos-sc-label{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;}
+.sos-sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.sos-sc{background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .1s;text-align:left;}
+.sos-sc:hover{border-color:rgba(200,148,30,0.35);}
+.sos-sc.sel{border-color:var(--gold);background:rgba(200,148,30,0.06);}
+.sos-sc-icon{font-size:16px;margin-bottom:4px;}
+.sos-sc-lbl{font-size:12px;font-weight:500;color:var(--dk-1);line-height:1.35;}
+.sos-sc-sub{font-size:10px;font-weight:300;color:var(--dk-3);margin-top:1px;}
+.sos-or{display:flex;align-items:center;gap:8px;padding:6px 16px;}
+.sos-or-line{flex:1;height:1px;background:var(--bd);}
+.sos-or-txt{font-size:10px;color:var(--dk-3);font-weight:500;}
+.sos-free{display:block;margin:0 16px 14px;width:calc(100% - 32px);background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:9px 12px;font-size:13px;font-family:var(--sans);color:var(--dk-1);outline:none;resize:none;line-height:1.5;transition:border-color .12s;}
+.sos-free:focus{border-color:rgba(200,148,30,0.4);}
+.sos-free::placeholder{color:var(--dk-3);}
+.sos-go{display:block;margin:0 16px 14px;width:calc(100% - 32px);background:var(--gold);border:none;color:var(--ink);border-radius:8px;padding:12px;font-size:13px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);}
+.sos-go:disabled{opacity:.4;cursor:default;}
+.sos-spin-wrap{padding:20px;text-align:center;display:none;}
+.sos-spin-wrap.show{display:block;}
+.sos-result{display:none;margin:0 16px 16px;}
+.sos-result.show{display:block;}
+.sos-r-head{background:rgba(200,148,30,0.04);border:1px solid rgba(200,148,30,0.18);border-radius:8px 8px 0 0;padding:11px 14px;border-bottom:none;}
+.sos-r-kicker{font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.sos-r-title{font-size:14px;font-weight:500;color:var(--dk-1);}
+.sos-r-body{background:var(--ink-2);border:1px solid rgba(200,148,30,0.18);border-radius:0 0 8px 8px;padding:13px 14px;}
+.sos-r-text{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.85;margin-bottom:12px;}
+.sos-fixes{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;}
+.sos-fix{background:var(--ink-1);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;display:flex;gap:9px;align-items:flex-start;}
+.sos-fix-dot{width:6px;height:6px;border-radius:50%;background:var(--jade);margin-top:5px;flex-shrink:0;}
+.sos-fix-txt{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;}
+.sos-fix-txt strong{color:var(--dk-1);font-weight:500;}
+.sos-r-actions{display:flex;gap:7px;}
+.sos-done-btn{flex:1;background:var(--jade);border:none;color:var(--ink);border-radius:6px;padding:10px;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);}
+.sos-more-btn{background:transparent;border:1px solid var(--bd);color:var(--dk-3);border-radius:6px;padding:10px 14px;font-size:11px;cursor:pointer;font-family:var(--sans);}
+@media(min-width:600px){.sos-sc-grid{grid-template-columns:1fr 1fr 1fr;}}
 @media(max-width:600px){@media(max-width:600px){
   .day-page,.week-strip,.macro-bar{padding-left:16px;padding-right:16px;}
   .sp-panel{width:100vw;}
@@ -1328,7 +1377,7 @@ function renderPlan(plan){
     +'<div id="prog-strip-slot"></div>'
     +'<div class="sec-label">Your day</div>'
     +blocksHtml
-    +'<button class="regen-btn" onclick="regen()">\u8635 Rebuild today</button>'
+    +'<div class="sos-trigger-row">'    +'<button class="sos-t-btn primary" onclick="openSOS(null)">&#9889; Fix a problem</button>'    +'<button class="sos-t-btn" onclick="openSOS(\"starving\")">&#128514; I\'m starving</button>'    +'<button class="sos-t-btn" onclick="openSOS(\"bad-sleep\")">&#128564; Bad sleep</button>'    +'<button class="sos-t-btn" onclick="openSOS(\"skip-gym\")">&#127947; Skipping gym</button>'    +'</div>'    +'<button class="regen-btn" onclick="regen()">\u8635 Rebuild today</button>'
     +'<div class="ask-bar">'
     +'<div class="ask-chips" id="ask-chips"></div>'
     +'<div class="ask-row"><input class="ask-inp" id="ask-inp" type="text" placeholder="Ask anything about today\u2026"><button class="ask-snd" onclick="sendAsk()">\u2191</button></div>'
@@ -1449,6 +1498,139 @@ function preloadRecipes(p, t){
     +'<button onclick="buildDay()" style="background:var(--jade);border:none;color:var(--ink);border-radius:8px;padding:18px 48px;font-size:15px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);">'
     +'Build today&#39;s plan &#8594;</button>'
     +'</div>';
+// ── SOS PANEL ─────────────────────────────────────
+var _sosSelected = null;
+
+var SOS_SCENARIOS = {
+  'starving':    'The user is starving right now and struggling to focus.',
+  'hate-meal':   "The user hates their planned meal and won't eat it.",
+  'bad-sleep':   'The user had terrible sleep last night.',
+  'skip-gym':    'The user is skipping their gym session today.',
+  'sick':        'The user is feeling sick today.',
+  'stress':      'The user is having a massive stress day that is affecting everything.',
+  'injured':     'The user injured themselves mid-workout.',
+  'off-plan':    'The user ate significantly off plan.',
+  'drinking':    'The user wants to drink alcohol tonight.',
+  'travel':      'The user is travelling with no gym access.',
+  'plateau':     "The user feels like nothing is changing — scale not moving.",
+  'motivation':  "The user has zero motivation today and cannot face training or sticking to plan.",
+};
+
+function openSOS(preset) {
+  _sosSelected = null;
+  document.querySelectorAll('.sos-sc').forEach(function(el){ el.classList.remove('sel'); });
+  document.getElementById('sos-free').value = '';
+  document.getElementById('sos-result').classList.remove('show');
+  document.getElementById('sos-result').innerHTML = '';
+  document.getElementById('sos-spin').classList.remove('show');
+  document.getElementById('sos-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (preset) {
+    var chip = null; document.querySelectorAll('.sos-sc').forEach(function(el){ if(el.getAttribute('onclick')&&el.getAttribute('onclick').indexOf(preset)>-1)chip=el; });
+    if (chip) { chip.classList.add('sel'); _sosSelected = preset; }
+  }
+}
+
+function sosToCoach() {
+  var inp = document.getElementById('ask-inp');
+  if (inp && window._sosSituation) {
+    inp.value = window._sosSituation.slice(0,80);
+    inp.focus();
+  }
+}
+
+function closeSOS() {
+  document.getElementById('sos-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function sosSel(el, key) {
+  document.querySelectorAll('.sos-sc').forEach(function(c){ c.classList.remove('sel'); });
+  el.classList.add('sel');
+  _sosSelected = key;
+  document.getElementById('sos-free').value = '';
+}
+
+async function runSOS() {
+  var freeText = (document.getElementById('sos-free').value || '').trim();
+  var situation = freeText || (_sosSelected ? SOS_SCENARIOS[_sosSelected] : '');
+  if (!situation) {
+    document.getElementById('sos-free').focus();
+    return;
+  }
+
+  var btn = document.getElementById('sos-go');
+  var spin = document.getElementById('sos-spin');
+  var result = document.getElementById('sos-result');
+  btn.disabled = true;
+  spin.classList.add('show');
+  result.classList.remove('show');
+
+  var p = P || {};
+  var t = TODAY || {};
+  var macros = MACROS || {};
+  var eaten = macros.eaten || {};
+  var target = macros.target || {};
+  var remaining = {
+    kcal:  (target.kcal  || p.calories || 2000) - (eaten.kcal  || 0),
+    prot:  (target.prot  || p.protein  || 140)  - (eaten.prot  || 0),
+    carbs: (target.carbs || p.carbs    || 160)  - (eaten.carbs || 0),
+  };
+  var injuries = (p.injuryAssessments || p.injuries || []).map(function(x){ return x.location || x; }).join(', ');
+
+  var prompt = 'You are the BodyLens performance coach giving an emergency fix.'
+    + ' Situation: ' + situation
+    + '\n\nProfile: ' + (p.name||'user') + ', ' + (p.age||35) + 'yo ' + (p.sex||'male')
+    + ', goal: ' + (p.goal||'fat loss')
+    + ', today: ' + (t.isTraining ? 'TRAINING DAY (' + (t.plan&&t.plan.type||'session') + ')' : 'REST DAY')
+    + ', remaining today: ' + remaining.kcal + ' kcal / ' + remaining.prot + 'g protein'
+    + (injuries ? ', injuries: ' + injuries : '')
+    + '\n\nGive a SHORT, DIRECT response in this exact JSON format:'
+    + '\n{"title":"one line — what this actually is","context":"1-2 sentences max — the honest read","fixes":["fix 1 (12 words max)","fix 2","fix 3"]}'
+    + '\n\nFixes must be specific actions, not advice. Max 3 fixes. Reference their actual numbers where relevant. No fluff.';
+
+  try {
+    window._sosSituation = situation;
+    var res = await fetch('/api/chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:300,
+        system:'You are a performance coach giving emergency fixes. Return ONLY valid JSON. No markdown.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var data = await res.json();
+    var text = (data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('no json');
+    var fix = JSON.parse(match[0]);
+
+    var fixCards = (fix.fixes||[]).map(function(f){
+      return '<div class="sos-fix"><div class="sos-fix-dot"></div><div class="sos-fix-txt">' + f + '</div></div>';
+    }).join('');
+
+    result.innerHTML = '<div class="sos-r-head">'
+      + '<div class="sos-r-kicker">Your fix</div>'
+      + '<div class="sos-r-title">' + (fix.title||"Here's what to do") + '</div>'
+      + '</div>'
+      + '<div class="sos-r-body">'
+      + (fix.context ? '<div class="sos-r-text">' + fix.context + '</div>' : '')
+      + '<div class="sos-fixes">' + fixCards + '</div>'
+      + '<div class="sos-r-actions">'
+      + '<button class="sos-done-btn" onclick="closeSOS()">✓ Got it</button>'
+      + '<button class="sos-more-btn" onclick="closeSOS();sosToCoach()">Ask coach more</button>'
+      + '</div></div>';
+
+    result.classList.add('show');
+  } catch(e) {
+    result.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--dk-3);">Something went wrong — try again</div>';
+    result.classList.add('show');
+  }
+
+  spin.classList.remove('show');
+  btn.disabled = false;
+}
+
 })();
 
 // Pre-fetch all meal recipes silently in background after plan renders
@@ -1507,5 +1689,89 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
+
+<!-- SOS PANEL -->
+<div class="sos-overlay" id="sos-overlay" onclick="if(event.target===this)closeSOS()">
+  <div class="sos-panel" id="sos-panel">
+    <div class="sos-hd">
+      <div class="sos-hd-left">
+        <div class="sos-kicker">&#9889; Emergency fix</div>
+        <div class="sos-hdtitle">What&#39;s interrupting your progress?</div>
+      </div>
+      <button class="sos-x" onclick="closeSOS()">&#10005;</button>
+    </div>
+    <div class="sos-scenarios">
+      <div class="sos-sc-label">Pick your situation</div>
+      <div class="sos-sc-grid" id="sos-sc-grid">
+        <div class="sos-sc" onclick="sosSel(this,'starving')">
+          <div class="sos-sc-icon">&#128514;</div>
+          <div class="sos-sc-lbl">Starving right now</div>
+          <div class="sos-sc-sub">Can&#39;t focus, need food</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'hate-meal')">
+          <div class="sos-sc-icon">&#129314;</div>
+          <div class="sos-sc-lbl">Hate this meal</div>
+          <div class="sos-sc-sub">Won&#39;t eat it</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'bad-sleep')">
+          <div class="sos-sc-icon">&#128564;</div>
+          <div class="sos-sc-lbl">Terrible sleep</div>
+          <div class="sos-sc-sub">Should I still train?</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'skip-gym')">
+          <div class="sos-sc-icon">&#127947;</div>
+          <div class="sos-sc-lbl">Skipping the gym</div>
+          <div class="sos-sc-sub">Adjust food? The week?</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'sick')">
+          <div class="sos-sc-icon">&#129298;</div>
+          <div class="sos-sc-lbl">Feeling sick</div>
+          <div class="sos-sc-sub">Train or rest?</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'stress')">
+          <div class="sos-sc-icon">&#128165;</div>
+          <div class="sos-sc-lbl">Massive stress day</div>
+          <div class="sos-sc-sub">It&#39;s affecting everything</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'injured')">
+          <div class="sos-sc-icon">&#129326;</div>
+          <div class="sos-sc-lbl">Injured mid-workout</div>
+          <div class="sos-sc-sub">What do I do now?</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'off-plan')">
+          <div class="sos-sc-icon">&#127829;</div>
+          <div class="sos-sc-lbl">Ate off plan</div>
+          <div class="sos-sc-sub">Damage control</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'drinking')">
+          <div class="sos-sc-icon">&#127863;</div>
+          <div class="sos-sc-lbl">Want to drink tonight</div>
+          <div class="sos-sc-sub">Without wrecking it</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'travel')">
+          <div class="sos-sc-icon">&#9992;&#65039;</div>
+          <div class="sos-sc-lbl">Travelling / no gym</div>
+          <div class="sos-sc-sub">Keep momentum?</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'plateau')">
+          <div class="sos-sc-icon">&#128200;</div>
+          <div class="sos-sc-lbl">Nothing&#39;s changing</div>
+          <div class="sos-sc-sub">Scale not moving</div>
+        </div>
+        <div class="sos-sc" onclick="sosSel(this,'motivation')">
+          <div class="sos-sc-icon">&#128168;</div>
+          <div class="sos-sc-lbl">Zero motivation</div>
+          <div class="sos-sc-sub">Can&#39;t face it today</div>
+        </div>
+      </div>
+    </div>
+    <div class="sos-or"><div class="sos-or-line"></div><div class="sos-or-txt">or describe it</div><div class="sos-or-line"></div></div>
+    <textarea class="sos-free" id="sos-free" rows="2" placeholder="e.g. I just demolished a whole pizza, I haven&#39;t slept, my knee hurts&#x2026;"></textarea>
+    <button class="sos-go" id="sos-go" onclick="runSOS()">Get my fix &#8594;</button>
+    <div class="sos-spin-wrap" id="sos-spin"><div class="spin" style="width:20px;height:20px;margin:0 auto 8px;"></div><div style="font-size:12px;color:var(--dk-3);">Reading your situation&#x2026;</div></div>
+    <div class="sos-result" id="sos-result"></div>
+  </div>
+</div>
+
 </body>
 </html>
