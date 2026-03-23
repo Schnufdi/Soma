@@ -494,6 +494,80 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
       #bl-coach-panel { right:10px; bottom:82px; width:calc(100vw - 20px); }
       #bl-coach-btn { right:14px; bottom:18px; }
     }
+
+    /* ── FULL SCREEN OVERLAY ── */
+    #bl-coach-overlay {
+      display:none; position:fixed; inset:0; background:rgba(8,13,13,0.96);
+      backdrop-filter:blur(16px); z-index:10000;
+      flex-direction:column; animation:overlayIn 0.22s ease;
+    }
+    #bl-coach-overlay.open { display:flex; }
+    @keyframes overlayIn { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
+
+    #blo-header {
+      padding:18px 28px 14px; border-bottom:1px solid #1a2820;
+      display:flex; align-items:center; justify-content:space-between;
+      background:#0d1512; flex-shrink:0;
+    }
+    .blo-brand { font-size:13px; font-weight:300; color:#e8e3da; }
+    .blo-brand em { font-style:italic; color:#3e6050; }
+    .blo-title { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#00c8a0; }
+    .blo-close { background:none; border:1px solid #1e2e28; color:#8a9490; width:32px; height:32px; border-radius:6px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:all 0.12s; font-family:inherit; }
+    .blo-close:hover { border-color:#3e6050; color:#e8e3da; }
+
+    #blo-body { flex:1; display:grid; grid-template-columns:280px 1fr; overflow:hidden; }
+
+    /* Category sidebar */
+    #blo-cats { border-right:1px solid #1a2820; overflow-y:auto; padding:16px 0; }
+    .blo-cat-btn {
+      display:flex; align-items:center; gap:10px; width:100%;
+      padding:11px 20px; background:transparent; border:none;
+      text-align:left; cursor:pointer; transition:background 0.1s;
+      font-family:inherit;
+    }
+    .blo-cat-btn:hover { background:#0d1512; }
+    .blo-cat-btn.active { background:rgba(0,200,160,0.06); border-right:2px solid #00c8a0; }
+    .blo-cat-icon { font-size:16px; flex-shrink:0; }
+    .blo-cat-label { font-size:12px; font-weight:500; color:#8a9490; }
+    .blo-cat-btn.active .blo-cat-label { color:#e8e3da; }
+    .blo-cat-count { margin-left:auto; font-size:9px; font-family:'Courier New',monospace; color:#3e504a; }
+
+    /* Questions pane */
+    #blo-questions { overflow-y:auto; padding:20px 24px; }
+    .blo-q-header { font-size:9px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:#3e504a; margin-bottom:14px; }
+    .blo-q-list { display:flex; flex-direction:column; gap:8px; }
+    .blo-q-item {
+      background:#111917; border:1px solid #1e2e28; border-radius:6px;
+      padding:13px 16px; cursor:pointer; transition:all 0.12s;
+      font-size:13px; font-weight:300; color:#8a9490; line-height:1.5;
+      text-align:left; font-family:inherit;
+    }
+    .blo-q-item:hover { border-color:rgba(0,200,160,0.3); color:#e8e3da; background:#141f1a; }
+
+    /* Chat pane */
+    #blo-chat { border-left:1px solid #1a2820; display:flex; flex-direction:column; }
+    #blo-messages { flex:1; overflow-y:auto; padding:16px 20px; display:flex; flex-direction:column; gap:12px; }
+    #blo-input-wrap { padding:12px 16px; border-top:1px solid #1a2820; display:flex; gap:8px; background:#0d1512; flex-shrink:0; }
+    #blo-input { flex:1; background:#1a2820; border:1px solid #1e2e28; border-radius:8px; padding:10px 13px; font-size:13px; font-family:'Space Grotesk',sans-serif; color:#e8e3da; outline:none; }
+    #blo-input:focus { border-color:rgba(0,200,160,0.35); }
+    #blo-input::placeholder { color:#2a4038; }
+    #blo-send { width:34px; height:34px; border-radius:8px; background:#00c8a0; border:none; cursor:pointer; color:#0c1010; font-size:16px; font-weight:700; flex-shrink:0; }
+
+    /* Expand button on main panel */
+    #bl-coach-expand {
+      background:none; border:1px solid #1e2e28; color:#3e504a;
+      padding:3px 8px; border-radius:4px; font-size:10px; cursor:pointer;
+      font-family:inherit; transition:all 0.1s; margin-right:4px;
+    }
+    #bl-coach-expand:hover { border-color:#3e6050; color:#8a9490; }
+
+    @media(max-width:700px) {
+      #blo-body { grid-template-columns:1fr; }
+      #blo-cats { display:flex; overflow-x:auto; border-right:none; border-bottom:1px solid #1a2820; padding:8px 0; max-height:56px; }
+      .blo-cat-btn { padding:8px 14px; white-space:nowrap; border-bottom:2px solid transparent; }
+      .blo-cat-btn.active { border-right:none; border-bottom-color:#00c8a0; background:transparent; }
+      #blo-chat { border-left:none; }
+    }
     `;
 
     const style = document.createElement('style');
@@ -514,6 +588,7 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
           </div>
           <div class="ch-right">
             <span class="coach-status" id="coach-status">Ready</span>
+            <button id="bl-coach-expand" onclick="window._blCoach.expand()" title="Expand">⤢</button>
             <button class="ch-btn" onclick="window._blCoach.clear()" title="Clear">↺</button>
             <button class="ch-btn" onclick="window._blCoach.close()" title="Close">✕</button>
           </div>
@@ -530,6 +605,21 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
         <div id="bl-coach-input-wrap">
           <textarea id="bl-coach-input" placeholder="Ask your coach…" rows="1"></textarea>
           <button id="bl-coach-send">↑</button>
+        </div>
+      </div>
+
+      <div id="bl-coach-overlay">
+        <div id="blo-header">
+          <div class="blo-brand">Body<em>Lens</em></div>
+          <div class="blo-title" id="blo-title">Ask your coach</div>
+          <button class="blo-close" onclick="window._blCoach.collapse()">✕</button>
+        </div>
+        <div id="blo-body">
+          <div id="blo-cats"></div>
+          <div id="blo-questions">
+            <div class="blo-q-header" id="blo-q-header">Select a category</div>
+            <div class="blo-q-list" id="blo-q-list"></div>
+          </div>
         </div>
       </div>`;
     document.body.appendChild(wrap);
@@ -670,10 +760,152 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
       });
     }
 
+    // ── CATEGORISED QUESTIONS ─────────────────────────
+    const QUESTION_CATS = [
+      {
+        id:'today', icon:'📅', label:"Today's plan",
+        questions: (p, today) => {
+          const isT = today && today.isTraining;
+          const plan = today && today.plan;
+          return isT ? [
+            `Should I push hard today or hold something back?`,
+            `What's the ideal pre-training meal for ${(plan&&plan.type)||"this session"}?`,
+            `Is my warm-up long enough for ${plan&&plan.focus||'this session'}?`,
+            `How do I know if I'm recovered enough to train heavy?`,
+            `What happens if I skip today's session?`,
+          ] : [
+            `Rest day — active recovery or completely off?`,
+            `Do I need the same calories today?`,
+            `Should I do any stretching or mobility work?`,
+            `How do I make today count for tomorrow's session?`,
+            `I feel fine — can I train anyway?`,
+          ];
+        }
+      },
+      {
+        id:'nutrition', icon:'🍽', label:'Nutrition',
+        questions: (p) => [
+          `I'm ${Math.round(p.protein/4)}g short on protein — how do I close the gap at dinner?`,
+          `What happens if I skip the pre-training meal?`,
+          `Best high-protein snack for late evenings?`,
+          `Training-day vs rest-day carbs — what actually changes?`,
+          `I ate off-plan at lunch — should I adjust dinner?`,
+        ]
+      },
+      {
+        id:'training', icon:'🏋', label:'Training',
+        questions: (p) => {
+          const injuries = p.injuryAssessments||p.injuries||[];
+          return [
+            `How close to failure should my working sets be?`,
+            injuries.length ? `Can I still build muscle around my ${injuries[0].location||'injury'}?` : `Am I doing enough volume to build muscle?`,
+            `When should I add weight vs add reps?`,
+            `Progressive overload — am I doing this right?`,
+            `How do I know when it's time to deload?`,
+          ];
+        }
+      },
+      {
+        id:'recovery', icon:'😴', label:'Recovery',
+        questions: (p) => [
+          `How long before I'm fully recovered from yesterday?`,
+          `My ${p.sleep||'7-8'} hours — is that enough for my training load?`,
+          `I slept badly last night — train or rest?`,
+          `Soreness: when is it good and when is it a problem?`,
+          `What's the single best thing I can do to recover faster?`,
+        ]
+      },
+      {
+        id:'mindset', icon:'🧠', label:'Mindset',
+        questions: (p) => [
+          `I don't feel like training today — what should I do?`,
+          `Progress feels slow — am I doing something wrong?`,
+          `How do I stay consistent when life gets busy?`,
+          `I had a bad week — how do I get back on track?`,
+          `What's the biggest mistake people make at my stage?`,
+        ]
+      },
+      {
+        id:'numbers', icon:'📊', label:'My numbers',
+        questions: (p) => [
+          `Why ${p.calories} calories specifically — walk me through the logic?`,
+          `Is ${p.protein}g protein actually achievable every day?`,
+          `What would happen if I ate 200 kcal less than my target?`,
+          `My weight hasn't moved — is that a problem?`,
+          `How do I know if my TDEE estimate is right for me?`,
+        ]
+      },
+      {
+        id:'accelerators', icon:'🚀', label:'Go further',
+        questions: (p, today) => {
+          const isT = today && today.isTraining;
+          const age = p.age||35;
+          return [
+            isT ? `What's the one thing that would most accelerate today's session?` : `What should I do on rest days to accelerate fat loss?`,
+            `Have you considered fasting — what would it do for me specifically?`,
+            `What's Zone 2 cardio and should I be doing it?`,
+            `What supplements am I missing that would make a real difference?`,
+            `What would a 36-hour fast do for me at ${age}?`,
+          ];
+        }
+      },
+    ];
+
+    function buildOverlayCats(profile, todayCtx) {
+      const catsEl = document.getElementById('blo-cats');
+      if (!catsEl) return;
+      catsEl.innerHTML = QUESTION_CATS.map((cat, i) =>
+        `<button class="blo-cat-btn ${i===0?'active':''}" data-cat="${cat.id}" onclick="selectOverlayCat('${cat.id}', this, ${JSON.stringify(cat.label)})">
+          <span class="blo-cat-icon">${cat.icon}</span>
+          <span class="blo-cat-label">${cat.label}</span>
+          <span class="blo-cat-count">5</span>
+        </button>`
+      ).join('');
+      // Show first category by default
+      selectOverlayCat(QUESTION_CATS[0].id, catsEl.querySelector('.blo-cat-btn'), QUESTION_CATS[0].label, profile, todayCtx);
+    }
+
+    window.selectOverlayCat = function(catId, btn, label, p, todayCtx) {
+      document.querySelectorAll('.blo-cat-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const cat = QUESTION_CATS.find(c => c.id === catId);
+      if (!cat) return;
+
+      const profileToUse = p || profile;
+      const todayToUse   = todayCtx || window._todayCtx || null;
+      const questions    = cat.questions(profileToUse, todayToUse);
+
+      document.getElementById('blo-q-header').textContent = cat.label + ' — tap to ask';
+      document.getElementById('blo-q-list').innerHTML = questions.map(q =>
+        `<button class="blo-q-item" data-msg="${q.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${q}</button>`
+      ).join('');
+      document.querySelectorAll('.blo-q-item').forEach(item => {
+        item.addEventListener('click', () => {
+          window._blCoach.collapse();
+          window._blCoach.send(item.dataset.msg);
+        });
+      });
+    };
+
     window._blCoach = {
       send: (t) => send_msg(t),
       open: () => { panel.classList.add('open'); btn.classList.add('open'); btn.innerHTML = '✕'; },
       close: () => { panel.classList.remove('open'); btn.classList.remove('open'); btn.innerHTML = '💬'; localStorage.setItem('bl_coach_open','0'); },
+      expand: () => {
+        const overlay = document.getElementById('bl-coach-overlay');
+        if (!overlay) return;
+        overlay.classList.add('open');
+        buildOverlayCats(profile, window._todayCtx || null);
+        const pageType = getPageType();
+        const pageLabel = getPageLabel();
+        const titleEl = document.getElementById('blo-title');
+        if (titleEl) titleEl.textContent = 'Coach · ' + pageLabel;
+      },
+      collapse: () => {
+        const overlay = document.getElementById('bl-coach-overlay');
+        if (overlay) overlay.classList.remove('open');
+      },
       clear: () => {
         clearHistory();
         const c = document.getElementById('bl-coach-messages');

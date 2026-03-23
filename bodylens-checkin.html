@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="checkin">
+<title>BodyLens — 4-Week Check-In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body{background:var(--ink);color:var(--dk-1);}
+.page{max-width:680px;margin:0 auto;padding:0 32px 100px;}
+.ci-hero{padding:48px 0 36px;border-bottom:1px solid var(--bd);margin-bottom:36px;}
+.ci-kicker{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.ci-kicker::before{content:'';width:24px;height:1px;background:var(--gold);}
+.ci-title{font-family:var(--serif);font-size:52px;font-weight:300;line-height:0.9;letter-spacing:-0.03em;color:var(--dk-1);margin-bottom:16px;}
+.ci-title em{font-style:italic;color:var(--dk-3);}
+.ci-sub{font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.75;max-width:480px;}
+.progress-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:32px;}
+.prog-week{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:12px 10px;text-align:center;}
+.prog-week.done{border-top:3px solid var(--gold);background:rgba(200,148,30,0.04);}
+.prog-week.current{border-top:3px solid var(--jade);background:rgba(0,200,160,0.04);}
+.pw-num{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--dk-3);margin-bottom:3px;}
+.pw-phase{font-size:12px;font-weight:500;color:var(--dk-1);}
+.pw-status{font-size:10px;font-weight:300;color:var(--dk-3);margin-top:2px;}
+.ci-section{margin-bottom:24px;}
+.ci-label{font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.ci-label::after{content:'';flex:1;height:1px;background:var(--bd);}
+.ci-field{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.ci-input-wrap{display:flex;flex-direction:column;gap:4px;}
+.ci-input-label{font-size:11px;font-weight:500;color:var(--dk-2);}
+.ci-input{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:10px 13px;font-size:13px;font-family:var(--sans);color:var(--dk-1);outline:none;width:100%;transition:border-color 0.12s;}
+.ci-input:focus{border-color:rgba(0,200,160,0.35);}
+.ci-input::placeholder{color:var(--dk-3);}
+.ci-slider-wrap{margin-bottom:14px;}
+.ci-slider{width:100%;margin:6px 0;accent-color:var(--jade);}
+.ci-slider-labels{display:flex;justify-content:space-between;font-size:10px;font-weight:300;color:var(--dk-3);}
+.ci-textarea{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:10px 13px;font-size:13px;font-family:var(--sans);color:var(--dk-1);outline:none;width:100%;resize:vertical;min-height:80px;transition:border-color 0.12s;line-height:1.6;}
+.ci-textarea:focus{border-color:rgba(0,200,160,0.35);}
+.ci-submit{width:100%;background:var(--jade);border:none;color:var(--ink);border-radius:8px;padding:14px;font-size:13px;font-weight:700;letter-spacing:0.04em;cursor:pointer;font-family:var(--sans);transition:opacity 0.12s;margin-top:8px;}
+.ci-submit:hover{opacity:0.88;}
+.ci-submit:disabled{opacity:0.35;cursor:not-allowed;}
+.ci-generating{padding:60px 0;text-align:center;}
+.ci-gen-spinner{width:32px;height:32px;border:2px solid var(--bd);border-top-color:var(--jade);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ci-gen-text{font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:6px;}
+.ci-gen-sub{font-size:12px;font-weight:300;color:var(--dk-3);}
+.ci-done{padding:60px 0;text-align:center;}
+.ci-done-icon{font-size:48px;margin-bottom:16px;}
+.ci-done-title{font-family:var(--serif);font-size:32px;font-weight:300;color:var(--dk-1);margin-bottom:8px;}
+.ci-done-text{font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:28px;}
+.ci-done-btn{display:inline-block;background:var(--jade);color:var(--ink);padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;}
+</style>
+</head>
+<body>
+<nav class="site-nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a class="nav-link nav-daily" href="bodylens-dailyplan.html">Today</a>
+    <a class="nav-link nav-food" href="bodylens-magazine-food.html">Food</a>
+    <a class="nav-link" href="bodylens-programme.html">Programme</a>
+    <a class="nav-link active" href="bodylens-science.html">Science</a>
+  </div>
+  <div class="nav-right-group">
+    <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
+    <div class="nav-meta" id="nav-meta"></div>
+  </div>
+</nav>
+
+<div class="page" id="page">
+  <div class="ci-hero">
+    <div class="ci-kicker" id="ci-kicker">4-week check-in</div>
+    <div class="ci-title">How did<br><em>it go?</em></div>
+    <div class="ci-sub" id="ci-sub">Four weeks in. Time to take stock and rebuild the next block. Answer honestly — the next programme is only as good as the data you give it.</div>
+  </div>
+
+  <div class="progress-row" id="progress-row">
+    <div class="prog-week done"><div class="pw-num">Week 1</div><div class="pw-phase">Foundation</div><div class="pw-status">✓ Complete</div></div>
+    <div class="prog-week done"><div class="pw-num">Week 2</div><div class="pw-phase">Build</div><div class="pw-status">✓ Complete</div></div>
+    <div class="prog-week done"><div class="pw-num">Week 3</div><div class="pw-phase">Peak</div><div class="pw-status">✓ Complete</div></div>
+    <div class="prog-week done"><div class="pw-num">Week 4</div><div class="pw-phase">Deload</div><div class="pw-status">✓ Complete</div></div>
+  </div>
+
+  <form id="ci-form">
+
+    <div class="ci-section">
+      <div class="ci-label">Body metrics</div>
+      <div class="ci-field">
+        <div class="ci-input-wrap">
+          <div class="ci-input-label">Current weight (kg)</div>
+          <input class="ci-input" type="number" id="ci-weight" step="0.1" placeholder="e.g. 84.2">
+        </div>
+        <div class="ci-input-wrap">
+          <div class="ci-input-label">Waist circumference (cm, optional)</div>
+          <input class="ci-input" type="number" id="ci-waist" placeholder="e.g. 89">
+        </div>
+      </div>
+      <div class="ci-input-wrap">
+        <div class="ci-input-label">Energy levels on average this block (1 = exhausted, 10 = excellent)</div>
+        <div class="ci-slider-wrap">
+          <input class="ci-slider" type="range" id="ci-energy" min="1" max="10" value="6">
+          <div class="ci-slider-labels"><span>1 — Exhausted</span><span id="ci-energy-val">6</span><span>10 — Excellent</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ci-section">
+      <div class="ci-label">Training</div>
+      <div class="ci-input-wrap" style="margin-bottom:12px;">
+        <div class="ci-input-label">Sessions completed (out of how many planned?)</div>
+        <input class="ci-input" type="text" id="ci-sessions" placeholder="e.g. 14 out of 16">
+      </div>
+      <div class="ci-input-wrap" style="margin-bottom:12px;">
+        <div class="ci-input-label">How difficult did training feel overall? (1–10)</div>
+        <div class="ci-slider-wrap">
+          <input class="ci-slider" type="range" id="ci-difficulty" min="1" max="10" value="7">
+          <div class="ci-slider-labels"><span>1 — Too easy</span><span id="ci-diff-val">7</span><span>10 — Too hard</span></div>
+        </div>
+      </div>
+      <div class="ci-input-wrap">
+        <div class="ci-input-label">Biggest strength improvement you noticed</div>
+        <input class="ci-input" type="text" id="ci-strength" placeholder="e.g. Deadlift went from 80kg to 95kg, or just 'felt stronger'">
+      </div>
+    </div>
+
+    <div class="ci-section">
+      <div class="ci-label">Nutrition & body</div>
+      <div class="ci-input-wrap" style="margin-bottom:12px;">
+        <div class="ci-input-label">Nutrition adherence (1–10)</div>
+        <div class="ci-slider-wrap">
+          <input class="ci-slider" type="range" id="ci-nutrition" min="1" max="10" value="6">
+          <div class="ci-slider-labels"><span>1 — Off the rails</span><span id="ci-nut-val">6</span><span>10 — Perfect</span></div>
+        </div>
+      </div>
+      <div class="ci-input-wrap">
+        <div class="ci-input-label">What's changed visually or how you feel in your body?</div>
+        <textarea class="ci-textarea" id="ci-body-change" placeholder="e.g. 'Waist down, shoulders look bigger' or 'No visible change yet but feel stronger and sleep better'"></textarea>
+      </div>
+    </div>
+
+    <div class="ci-section">
+      <div class="ci-label">What didn't work</div>
+      <div class="ci-input-wrap">
+        <div class="ci-input-label">Honest reflection — what was hard, what you skipped, what needs to change</div>
+        <textarea class="ci-textarea" id="ci-struggles" placeholder="e.g. 'Missed Wednesday training every week — timing doesn't work. Protein was fine except weekends.'"></textarea>
+      </div>
+    </div>
+
+    <div class="ci-section">
+      <div class="ci-label">Next block</div>
+      <div class="ci-input-wrap" style="margin-bottom:10px;">
+        <div class="ci-input-label">What's your primary focus for the next 4 weeks?</div>
+        <input class="ci-input" type="text" id="ci-next-goal" placeholder="e.g. 'Same — fat loss' or 'Shift to muscle gain' or 'Maintain what I built'">
+      </div>
+      <div class="ci-input-wrap">
+        <div class="ci-input-label">Anything else your coach should know?</div>
+        <textarea class="ci-textarea" id="ci-notes" placeholder="New injury, life change, travel coming up, something you want to try..."></textarea>
+      </div>
+    </div>
+
+    <button type="button" class="ci-submit" id="ci-submit-btn" onclick="submitCheckin()">Build my next 4-week programme →</button>
+  </form>
+</div>
+
+<script src="nav.js"></script>
+<script>
+const API   = '/api/chat';
+const MODEL = 'claude-sonnet-4-20250514';
+
+const _p = (() => { try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); } catch(e){return null;} })();
+if (_p) {
+  document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${_p.name}</span>`;
+  if (_p.weight) document.getElementById('ci-weight').value = _p.weight;
+  document.getElementById('ci-kicker').textContent = `4-week check-in · ${_p.name}`;
+  document.getElementById('ci-sub').textContent = `Four weeks in${_p.goal?' — '+_p.goal:''}. Time to take stock and rebuild the next block.`;
+}
+
+// Slider labels
+['ci-energy','ci-difficulty','ci-nutrition'].forEach(id => {
+  const slider = document.getElementById(id);
+  const label  = document.getElementById(id.replace('ci-','ci-').replace('-energy','-energy-val').replace('-difficulty','-diff-val').replace('-nutrition','-nut-val'));
+  if (slider && label) {
+    slider.addEventListener('input', () => label.textContent = slider.value);
+  }
+});
+// Fix label IDs
+document.getElementById('ci-energy')?.addEventListener('input', e => document.getElementById('ci-energy-val').textContent = e.target.value);
+document.getElementById('ci-difficulty')?.addEventListener('input', e => document.getElementById('ci-diff-val').textContent = e.target.value);
+document.getElementById('ci-nutrition')?.addEventListener('input', e => document.getElementById('ci-nut-val').textContent = e.target.value);
+
+async function submitCheckin() {
+  const btn = document.getElementById('ci-submit-btn');
+  btn.disabled = true;
+
+  const data = {
+    weight:     document.getElementById('ci-weight').value,
+    waist:      document.getElementById('ci-waist').value,
+    energy:     document.getElementById('ci-energy').value,
+    sessions:   document.getElementById('ci-sessions').value,
+    difficulty: document.getElementById('ci-difficulty').value,
+    strength:   document.getElementById('ci-strength').value,
+    nutrition:  document.getElementById('ci-nutrition').value,
+    bodyChange: document.getElementById('ci-body-change').value,
+    struggles:  document.getElementById('ci-struggles').value,
+    nextGoal:   document.getElementById('ci-next-goal').value,
+    notes:      document.getElementById('ci-notes').value,
+  };
+
+  document.getElementById('page').innerHTML = `
+    <div class="ci-generating">
+      <div class="ci-gen-spinner"></div>
+      <div class="ci-gen-text">Building your next 4-week programme…</div>
+      <div class="ci-gen-sub">Reading your check-in · Adjusting loads and volume · Setting new targets</div>
+    </div>`;
+
+  try {
+    const p = _p || {};
+    const prompt = `You are a senior performance coach. This person just completed a 4-week programme block. Build their NEXT 4-week programme based on the check-in data.
+
+PREVIOUS PROGRAMME:
+Goal: ${p.goal||'—'} | Age: ${p.age||'—'} | Sex: ${p.sex||'—'} | Weight was: ${p.weight||'—'}kg
+Previous calories: ${p.calories||'—'} | Protein: ${p.protein||'—'}g
+Training days: ${p.trainingDays||4}/week | Equipment: ${(p.equipmentUsed||[]).join(', ')||'full gym'}
+
+CHECK-IN DATA:
+Current weight: ${data.weight}kg${data.waist?' | Waist: '+data.waist+'cm':''}
+Energy (1-10): ${data.energy}
+Sessions completed: ${data.sessions}
+Training difficulty felt (1-10): ${data.difficulty}
+Strength improvement: ${data.strength}
+Nutrition adherence (1-10): ${data.nutrition}
+Body/visual change: ${data.bodyChange}
+What struggled: ${data.struggles}
+Next goal: ${data.nextGoal||p.goal||'—'}
+Additional notes: ${data.notes}
+
+COACHING ANALYSIS REQUIRED:
+1. If difficulty was < 5: increase load/volume in week 2 and 3
+2. If difficulty was > 8: reduce volume or consider changing split
+3. If sessions missed regularly: adjust training days to what's actually achievable
+4. If nutrition < 5: simplify the eating approach, reduce meal complexity
+5. If weight moved in wrong direction: recalculate calorie targets
+6. Apply progressive overload: week 1 of new block starts where week 3 of old block ended (not from zero)
+
+Return ONLY a valid JSON object with EXACTLY this structure:
+{
+  "profile": {
+    "goal": "updated goal",
+    "calories": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fat": 0,
+    "tdee": 0,
+    "calorieReasoning": "2-3 sentences explaining the new calorie target",
+    "proteinReasoning": "1-2 sentences",
+    "mealCount": 4,
+    "keyFoodPrinciples": ["principle 1", "principle 2", "principle 3"],
+    "foodsToAvoid": [],
+    "triggerStrategy": "one sentence"
+  },
+  "weekPlan": [
+    {
+      "day": "Monday",
+      "type": "Push",
+      "focus": "Chest, shoulders, triceps",
+      "kcal": 0,
+      "priority": "training",
+      "keyExercises": ["Exercise 4xreps", "Exercise 3xreps"],
+      "modifications": [],
+      "coachNote": "one sentence"
+    }
+  ],
+  "weeklyProgression": {
+    "week1": {"phase":"Foundation","focus":"Reestablish patterns at week 3 loads from last block","volumeNote":"Match previous peak volume","keyFocus":"one sentence"},
+    "week2": {"phase":"Build","focus":"Add volume and load","volumeNote":"+10-15% sets or weight","keyFocus":"one sentence"},
+    "week3": {"phase":"Peak","focus":"Highest intensity of block","volumeNote":"RPE 8-9 on primary lifts","keyFocus":"one sentence"},
+    "week4": {"phase":"Deload","focus":"50% volume, maintain load","volumeNote":"Active recovery","keyFocus":"one sentence"}
+  },
+  "coachSummary": "3-4 sentences assessing this person's progress and what the next block is designed to do",
+  "programmeGoal": "What they should be able to measure after this next block",
+  "reassessmentTriggers": ["outcome 1", "outcome 2"],
+  "blockNumber": 2
+}
+weekPlan must have exactly 7 entries Mon-Sun.`;
+
+    const res = await fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:MODEL, max_tokens:1800,
+        system:'You are a senior performance coach building personalised programmes. Return ONLY valid JSON. No markdown. No preamble.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const apiData = await res.json();
+    const text = (apiData.content||[]).map(b=>b.text||'').join('').trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON returned');
+    const newProg = JSON.parse(match[0]);
+
+    // Merge into existing profile
+    const existingProfile = JSON.parse(localStorage.getItem('bl_profile')||'{}');
+    const updatedProfile = {
+      ...existingProfile,
+      ...newProg.profile,
+      weight:      parseFloat(data.weight) || existingProfile.weight,
+      weekPlan:    newProg.weekPlan,
+      weeklyProgression: newProg.weeklyProgression,
+      coachSummary: newProg.coachSummary,
+      programmeGoal: newProg.programmeGoal,
+      reassessmentTriggers: newProg.reassessmentTriggers,
+      blockNumber:  newProg.blockNumber || 2,
+      generatedAt:  new Date().toISOString(),
+      generated:    true,
+      // Keep personal details
+      name: existingProfile.name,
+      age:  existingProfile.age,
+      sex:  existingProfile.sex,
+      height: existingProfile.height,
+    };
+
+    localStorage.setItem('bl_profile', JSON.stringify(updatedProfile));
+    // Clear today's cached day plan so it rebuilds with new programme
+    const todayKey = 'dayplan_v4_' + new Date().toISOString().slice(0,10);
+    localStorage.removeItem(todayKey);
+    localStorage.removeItem(MACRO_KEY || ('bl_macros_' + new Date().toISOString().slice(0,10)));
+
+    document.getElementById('page').innerHTML = `
+      <div class="ci-done">
+        <div class="ci-done-icon">🚀</div>
+        <div class="ci-done-title">Block 2 is ready.</div>
+        <div class="ci-done-text">${newProg.coachSummary}</div>
+        <a href="bodylens-dailyplan.html" class="ci-done-btn">Start today →</a>
+      </div>`;
+
+  } catch(err) {
+    console.error(err);
+    document.getElementById('page').innerHTML = `
+      <div class="ci-done">
+        <div class="ci-done-icon">⚠️</div>
+        <div class="ci-done-title">Something went wrong.</div>
+        <div class="ci-done-text">We couldn't generate your next programme. Please try again.</div>
+        <button onclick="location.reload()" class="ci-done-btn" style="background:var(--amber);border:none;cursor:pointer;">Try again</button>
+      </div>`;
+  }
+}
+</script>
+<script src="coach.js"></script>
+</body>
+</html>

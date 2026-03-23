@@ -1340,7 +1340,7 @@ async function triggerGeneration() {
       supplements:        programme.supplements,
       injuryAssessments:  programme.injuries || [],
       coachSummary:       programme.coachSummary || '',
-      instructions:       programme.instructions || '',
+      instructions:       buildInstructionsDoc(formData, programme),
       generated:    true,
       generatedAt:  new Date().toISOString(),
     };
@@ -1381,6 +1381,75 @@ async function triggerGeneration() {
     await delay(5000);
     location.replace('bodylens-instructions.html');
   }
+}
+
+
+// ── BUILD INSTRUCTIONS FROM PROFILE DATA (no API needed) ──
+function buildInstructionsDoc(fd, prog) {
+  const p = prog.profile || {};
+  const wp = prog.weekPlan || [];
+  const supps = prog.supplements || [];
+  const injuries = prog.injuries || [];
+  const trainDays = wp.filter(d=>d.priority==='training').map(d=>d.day+' ('+d.type+')').join(', ');
+  const isFemale = (fd.sex||'').toLowerCase()==='female';
+  const age = fd.age || 35;
+
+  const suppList = supps.length
+    ? supps.map(s=>`• ${s.name} ${s.dose} — ${s.timing}. ${s.reason||''}`).join('\n')
+    : '• Creatine monohydrate 5g daily\n• Magnesium glycinate 300mg before sleep\n• Omega-3 2-3g daily';
+
+  const injurySection = injuries.length
+    ? injuries.map(i=>`${i.location||'Injury'}:\n  Avoid: ${(i.avoidMovements||[]).join(', ')||'high-impact loading'}\n  Safe alternatives: ${(i.safeAlternatives||[]).join(', ')||'as programmed'}\n  Protocol: ${i.rehabilitationNotes||i.assessment||'modified loading throughout'}`).join('\n\n')
+    : 'No current injuries — full range of motion available.';
+
+  const cycleSection = isFemale && fd.cycle && !fd.cycle.includes('not')
+    ? `\n\nHORMONAL PERIODISATION\nCycle context: ${fd.cycle}\nFollicular phase (days 1-14): higher intensity, heavier loads, more aggressive nutrition.\nLuteal phase (days 15-28): maintain volume, reduce peak intensity, allow extra recovery.` : '';
+
+  return `COACHING BRIEF — ${(fd.name||'Client').toUpperCase()}
+Generated: ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}
+
+WORKOUT OBJECTIVE
+${p.goal||fd.goal||'Body recomposition'} — ${fd.target||'specific target not set'}.
+
+CURRENT BASELINE
+Age: ${age} | Sex: ${fd.sex||'—'} | Weight: ${fd.weight||'—'}kg | Height: ${fd.height||'—'}cm${fd.bf?' | Body fat: '+fd.bf+'%':''}
+TDEE: ~${p.tdee||'—'} kcal | Target: ${p.calories||'—'} kcal (${p.calories&&p.tdee?(p.calories>p.tdee?'+'+(p.calories-p.tdee)+' surplus':'-'+(p.tdee-p.calories)+' deficit'):'maintenance'})
+Experience: ${fd.exp||'—'} | Training: ${fd.days||4} days/week
+
+TRAINING APPROACH
+Split: ${trainDays||'as programmed'}
+${wp.map(d=>`${d.day}: ${d.type||'Rest'} — ${d.focus||''}`).join('\n')}
+
+NUTRITION STRATEGY
+Daily targets: ${p.calories||'—'} kcal | ${p.protein||'—'}g protein | ${p.carbs||'—'}g carbs | ${p.fat||'—'}g fat
+${p.calorieReasoning||''}
+${p.proteinReasoning||''}
+
+Meal rhythm: ${p.mealCount||3} meals | Eating window: ${p.fastingWindow||fd.eatingWindow||'flexible'}
+Key principles:\n${(p.keyFoodPrinciples||[]).map(k=>'• '+k).join('\n')||'• Protein first at every meal\n• Whole foods prioritised\n• Hydration consistent'}
+
+Diet: ${fd.diet||'flexible'} | Exclude: ${(fd.foodExclusions||[]).join(', ')||'none'}
+Trigger foods to manage: ${fd.triggerFoods||'none'}
+${p.triggerStrategy?'Strategy: '+p.triggerStrategy:''}
+
+SUPPLEMENT STACK
+${suppList}
+
+INJURIES & CONSTRAINTS
+${injurySection}${cycleSection}
+
+LIFESTYLE CONTEXT
+Sleep: ${fd.sleep||'—'} | Bedtime: ${fd.bedtime||'—'} | Quality: ${fd.sleepquality||'—'}
+Stress: ${fd.stress||'—'} | Caffeine: ${fd.caffeine||'—'}
+Activity outside training: ${fd.activity||'—'}
+Recovery tools: ${(fd.recovery||[]).join(', ')||'none'}
+Non-negotiables: ${(fd.nonneg||[]).join(', ')||'none stated'}
+
+COACH SUMMARY
+${prog.coachSummary||'Programme built and calibrated to your profile.'}
+
+EFFICIENCY RULE
+The single most important daily habit: protein target met every day, including rest days. Everything else compounds from this.`;
 }
 
 // ── PROGRAMME GENERATOR ───────────────────────────
@@ -1485,18 +1554,46 @@ Return ONLY a valid JSON object:
       "reason": "one sentence specific to this person"
     }
   ],
-  "coachSummary": "3-4 sentences: overall read, biggest lever, the one thing that will make or break their progress",
-  "instructions": "Write a complete coaching brief document. Include sections: Workout Objective, Goals (bullet points), Approach (bullet points — training split, cardio, recovery, nutrition strategy, key protocols), Current Baseline (all stats, strengths derived from their answers, weaknesses), Injuries (detailed — each injury with what to avoid, what to do instead, long-term protocol), Non-Negotiables, Food Philosophy (proteins/carbs/fats/cooking/exclusions/trigger strategy), Meal Rhythm (eating window, meals per day, macro targets, timing), Supplement Stack (each with dose, timing, reason), Efficiency Rule. Write it as a proper coaching document — specific, actionable, personalised."
+  "coachSummary": "3-4 sentences: overall read on this person, the biggest lever they have, and the one thing that will make or break their progress"
+},
+  "weeklyProgression": {
+    "week1": {
+      "phase": "Foundation",
+      "focus": "Learn the patterns, establish baseline loads. RPE 6-7 across all sets.",
+      "volumeNote": "Lower total volume — priority is technique and movement quality.",
+      "keyFocus": "one sentence on the main adaptation target this week"
+    },
+    "week2": {
+      "phase": "Build",
+      "focus": "Add one working set per primary exercise. Load increases where form was solid.",
+      "volumeNote": "Volume increases 10-15% from week 1.",
+      "keyFocus": "one sentence"
+    },
+    "week3": {
+      "phase": "Peak",
+      "focus": "Highest intensity of the block. RPE 8-9 on main lifts. Supramaximal stimulus.",
+      "volumeNote": "Volume held or slightly increased. Intensity is the lever.",
+      "keyFocus": "one sentence"
+    },
+    "week4": {
+      "phase": "Deload",
+      "focus": "50% volume reduction, maintain load. Let the adaptation consolidate.",
+      "volumeNote": "50% fewer sets. Same or slightly reduced weight. Active recovery.",
+      "keyFocus": "one sentence — what this person specifically needs to deload well"
+    }
+  },
+  "programmeGoal": "What this person should be able to do or measure after 4 weeks that they cannot now",
+  "reassessmentTriggers": ["measurable outcome 1", "measurable outcome 2", "measurable outcome 3"]
 }
 
-weekPlan must have exactly 7 entries Mon-Sun. Return ONLY the JSON.`;
+weekPlan must have exactly 7 entries Mon-Sun. weeklyProgression must have all 4 weeks. Return ONLY the JSON.`;
 
   const res = await fetch(API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 3500,
+      max_tokens: 1800,
       system: 'You are a senior performance coach. Return only valid JSON. No markdown, no preamble.',
       messages: [{ role: 'user', content: prompt }],
     }),

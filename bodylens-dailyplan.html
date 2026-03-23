@@ -10,242 +10,256 @@
 <link rel="stylesheet" href="style.css">
 <style>
 body { background:var(--ink); color:var(--dk-1); }
-.page { max-width:720px; margin:0 auto; padding:0 24px 120px; }
 
-/* Hero */
-.day-hero { padding:36px 0 24px; border-bottom:1px solid var(--bd); margin-bottom:24px; }
+/* ── TWO-COLUMN LAYOUT ─────────────────────────── */
+.day-outer { display:grid; grid-template-columns:1fr 380px; gap:0; min-height:100vh; }
+.day-main  { padding:0 32px 120px; max-width:700px; }
+.day-right { background:var(--ink-2); border-left:1px solid var(--bd); position:sticky; top:0; height:100vh; overflow-y:auto; display:flex; flex-direction:column; }
+.day-right::-webkit-scrollbar { width:3px; }
+.day-right::-webkit-scrollbar-thumb { background:var(--bd); }
+
+/* ── WEEK STRIP ────────────────────────────────── */
+.week-strip { background:var(--ink-1); border-bottom:1px solid var(--bd); padding:12px 32px; display:flex; gap:6px; align-items:stretch; overflow-x:auto; }
+.week-strip::-webkit-scrollbar { display:none; }
+.ws-day { display:flex; flex-direction:column; align-items:center; padding:7px 10px; border-radius:5px; border:1px solid transparent; cursor:pointer; transition:all 0.12s; min-width:52px; flex-shrink:0; }
+.ws-day:hover { background:var(--ink-2); }
+.ws-day.today { background:var(--ink-2); border-color:var(--bd); }
+.ws-day.train { border-top:2px solid var(--jade); }
+.ws-day.rest  { border-top:2px solid var(--dk-3); }
+.ws-day.selected { background:rgba(0,200,160,0.06); border-color:var(--jade-br); }
+.ws-day-name { font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); margin-bottom:3px; }
+.ws-day.today .ws-day-name { color:var(--jade); }
+.ws-day.selected .ws-day-name { color:var(--jade); }
+.ws-day-type { font-size:10px; font-weight:500; color:var(--dk-2); }
+.ws-day-dot  { width:5px; height:5px; border-radius:50%; margin-top:4px; background:var(--bd); }
+.ws-day.train .ws-day-dot { background:var(--jade); }
+
+/* ── HERO ──────────────────────────────────────── */
+.day-hero { padding:32px 0 20px; border-bottom:1px solid var(--bd); margin-bottom:20px; }
 .day-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:8px; }
-.day-title { font-family:var(--serif); font-size:42px; font-weight:300; line-height:1; letter-spacing:-0.02em; color:var(--dk-1); margin-bottom:8px; }
-.day-brief { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.7; margin-bottom:12px; }
+.day-title  { font-family:var(--serif); font-size:40px; font-weight:300; line-height:1; letter-spacing:-0.02em; color:var(--dk-1); margin-bottom:8px; }
+.day-brief  { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.7; margin-bottom:10px; }
 .day-priority { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:500; color:var(--jade); background:var(--jade-dim); border:1px solid var(--jade-br); padding:5px 12px; border-radius:20px; }
-.day-priority::before { content:'→'; }
 
-/* Macro strip */
-.day-macros { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--bd); border-radius:8px; overflow:hidden; margin-bottom:16px; }
-.dm { background:var(--ink-2); padding:14px 10px; text-align:center; }
-.dm-val { font-family:var(--mono); font-size:20px; font-weight:500; color:var(--dk-1); margin-bottom:3px; }
-.dm-val.jade { color:var(--jade); }
+/* ── MACRO STRIP ───────────────────────────────── */
+.day-macros { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--bd); border-radius:8px; overflow:hidden; margin-bottom:12px; }
+.dm { background:var(--ink-2); padding:12px 10px; text-align:center; }
+.dm-val { font-family:var(--mono); font-size:18px; font-weight:500; color:var(--dk-1); margin-bottom:3px; }
+.dm-val.jade  { color:var(--jade); }
 .dm-val.amber { color:var(--amber); }
 .dm-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
-.water-strip { font-size:11px; font-weight:300; color:rgba(100,180,220,0.7); background:rgba(74,143,168,0.07); border:1px solid rgba(74,143,168,0.15); border-radius:4px; padding:7px 12px; margin-bottom:24px; }
 
-/* Timeline */
+/* ── LIVE MACRO CUP ────────────────────────────── */
+.macro-cup {
+  background:var(--ink-2); border:1px solid var(--bd); border-radius:8px;
+  padding:14px 16px; margin-bottom:14px;
+}
+.mc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.mc-title { font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--dk-3); }
+.mc-remaining { font-size:10px; font-weight:300; color:var(--dk-3); }
+.mc-remaining .kcal-left { font-weight:600; color:var(--jade); }
+.mc-rows { display:flex; flex-direction:column; gap:8px; }
+.mc-row { display:grid; grid-template-columns:52px 1fr 48px; gap:8px; align-items:center; }
+.mc-name { font-size:10px; font-weight:500; color:var(--dk-2); }
+.mc-bar-wrap { position:relative; height:8px; background:var(--ink-1); border-radius:4px; overflow:visible; }
+.mc-bar-bg { position:absolute; inset:0; border-radius:4px; background:var(--ink-1); }
+.mc-bar-fill { position:absolute; left:0; top:0; height:100%; border-radius:4px; transition:width 0.4s ease; }
+.mc-bar-fill.prot { background:linear-gradient(90deg, rgba(0,200,160,0.5), var(--jade)); }
+.mc-bar-fill.carb { background:linear-gradient(90deg, rgba(196,124,24,0.5), var(--amber)); }
+.mc-bar-fill.fat  { background:linear-gradient(90deg, rgba(74,98,117,0.5), #5a7898); }
+.mc-bar-fill.kcal { background:linear-gradient(90deg, rgba(200,200,200,0.2), rgba(200,200,200,0.4)); }
+.mc-bar-fill.over { background:rgba(217,78,53,0.7) !important; }
+.mc-val { font-size:10px; font-family:var(--mono); color:var(--dk-3); text-align:right; }
+
+/* ── WATER STRIP ───────────────────────────────── */
+.water-strip { font-size:11px; font-weight:300; color:rgba(100,180,220,0.7); background:rgba(74,143,168,0.07); border:1px solid rgba(74,143,168,0.15); border-radius:4px; padding:7px 12px; margin-bottom:16px; }
+
+/* ── ACCELERATOR STRIP ─────────────────────────── */
+.acc-strip { background:linear-gradient(135deg,rgba(200,148,30,0.06),rgba(200,148,30,0.02)); border:1px solid rgba(200,148,30,0.22); border-radius:8px; padding:14px 18px; margin-bottom:16px; display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; }
+.as-eyebrow { font-size:8px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:4px; }
+.as-title { font-size:13px; font-weight:600; color:var(--dk-1); margin-bottom:3px; }
+.as-why { font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.6; }
+.as-btn { background:rgba(200,148,30,0.1); border:1px solid rgba(200,148,30,0.3); color:var(--gold); padding:6px 12px; border-radius:4px; font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; text-decoration:none; display:inline-block; }
+
+/* ── TIMELINE BLOCKS ───────────────────────────── */
 .tl-label { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
 .tl-label::after { content:''; flex:1; height:1px; background:var(--bd); }
 
-.tl-block {
-  background:var(--ink-2); border:1px solid var(--bd); border-radius:8px;
-  margin-bottom:8px; overflow:hidden; cursor:pointer;
-  transition:border-color 0.15s;
-}
-.tl-block:hover { border-color:var(--bd-2); }
-.tl-block.open { border-color:var(--bd-2); }
+.tl-block { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; margin-bottom:8px; overflow:hidden; cursor:pointer; transition:border-color 0.15s; }
+.tl-block:hover { border-color:var(--bd-2,#2a3830); }
 
-/* Type accents */
-.tl-block.type-wake    { border-left:3px solid var(--jade); }
-.tl-block.type-supp    { border-left:3px solid var(--gold); }
-.tl-block.type-meal    { border-left:3px solid var(--amber); }
-.tl-block.type-training { border-left:3px solid var(--jade); background:rgba(0,200,160,0.03); }
+.tl-block.type-wake     { border-left:3px solid var(--jade); }
+.tl-block.type-supp     { border-left:3px solid var(--gold); }
+.tl-block.type-meal     { border-left:3px solid var(--amber); }
+.tl-block.type-training { border-left:3px solid var(--jade); background:rgba(0,200,160,0.02); }
 .tl-block.type-recovery { border-left:3px solid var(--dk-3); }
-.tl-block.type-sleep   { border-left:3px solid #4a6070; }
-.tl-block.type-hydration { border-left:3px solid rgba(74,143,168,0.6); }
+.tl-block.type-sleep    { border-left:3px solid #4a6070; }
+.tl-block.type-hydration{ border-left:3px solid rgba(74,143,168,0.6); }
 
-.tl-head { display:flex; align-items:center; gap:12px; padding:13px 16px; }
-.tl-time { font-family:var(--mono); font-size:12px; font-weight:500; color:var(--dk-3); width:44px; flex-shrink:0; }
+/* Eaten state */
+.tl-block.eaten { opacity:0.6; }
+.tl-block.eaten .tl-head { background:rgba(0,200,160,0.03); }
+
+.tl-head { display:flex; align-items:center; gap:10px; padding:13px 14px; }
+.tl-time { font-family:var(--mono); font-size:11px; font-weight:500; color:var(--dk-3); width:40px; flex-shrink:0; }
 .tl-main { flex:1; min-width:0; }
-.tl-title { font-size:14px; font-weight:500; color:var(--dk-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tl-title { font-size:13px; font-weight:500; color:var(--dk-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .tl-block.type-training .tl-title { color:var(--jade); }
 .tl-subtitle { font-size:11px; font-weight:300; color:var(--dk-3); margin-top:1px; }
 .tl-tag { font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:3px 9px; border-radius:10px; flex-shrink:0; }
-.tl-tag.jade  { color:var(--jade);  background:var(--jade-dim);               border:1px solid var(--jade-br); }
-.tl-tag.amber { color:var(--amber); background:rgba(196,124,24,0.08);         border:1px solid var(--amber-br); }
-.tl-tag.gold  { color:var(--gold);  background:rgba(200,148,30,0.08);         border:1px solid rgba(200,148,30,0.2); }
-.tl-tag.slate { color:var(--dk-3);  background:var(--ink-3,var(--ink-1));     border:1px solid var(--bd); }
-.tl-tag.blue  { color:rgba(100,180,220,0.8); background:rgba(74,143,168,0.08); border:1px solid rgba(74,143,168,0.2); }
-.tl-chevron { font-size:11px; color:var(--dk-3); flex-shrink:0; transition:transform 0.18s; }
+.tl-tag.jade  { color:var(--jade); background:var(--jade-dim); border:1px solid var(--jade-br); }
+.tl-tag.amber { color:var(--amber); background:rgba(196,124,24,0.08); border:1px solid var(--amber-br); }
+.tl-tag.gold  { color:var(--gold); background:rgba(200,148,30,0.08); border:1px solid rgba(200,148,30,0.2); }
+.tl-tag.slate { color:var(--dk-3); background:var(--ink-1); border:1px solid var(--bd); }
+.tl-chevron { font-size:10px; color:var(--dk-3); flex-shrink:0; transition:transform 0.18s; }
 .tl-block.open .tl-chevron { transform:rotate(180deg); }
 
-.tl-body { display:none; padding:0 16px 14px 72px; }
+.tl-body { display:none; padding:0 14px 14px 54px; }
 .tl-block.open .tl-body { display:block; }
 .tl-detail { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; margin-bottom:10px; }
-.tl-science { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.65; padding:8px 12px; background:var(--ink-3,var(--ink-1)); border-radius:4px; border-left:2px solid var(--bd); margin-bottom:10px; }
+.tl-detail p { margin-bottom:6px; }
+.tl-science { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.65; padding:8px 12px; background:var(--ink-1); border-radius:4px; border-left:2px solid var(--bd); margin-bottom:10px; }
 .tl-items { display:flex; flex-wrap:wrap; gap:6px; }
-.tl-item { background:var(--ink-1); border:1px solid var(--bd); border-radius:4px; padding:5px 10px; }
+.tl-item { background:var(--ink-1); border:1px solid var(--bd); border-radius:4px; padding:4px 9px; }
 .tl-item-name { font-size:11px; font-weight:500; color:var(--dk-1); }
 .tl-item-meta { font-size:10px; font-weight:300; color:var(--dk-3); margin-left:4px; }
 
-/* Ask bar */
-.ask-wrap { margin-top:28px; }
-.ask-sec { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:10px; display:flex; align-items:center; gap:10px; }
-.ask-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
-.ask-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
-.ask-chip { background:var(--ink-2); border:1px solid var(--bd); border-radius:20px; padding:6px 14px; font-size:11px; font-weight:400; color:var(--dk-3); cursor:pointer; transition:all 0.12s; }
-.ask-chip:hover { border-color:rgba(0,200,160,0.4); color:var(--jade); }
-.ask-input-row { display:flex; gap:8px; }
-.ask-input { flex:1; background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:10px 14px; font-size:13px; font-family:var(--sans); color:var(--dk-1); outline:none; transition:border-color 0.12s; }
-.ask-input:focus { border-color:rgba(0,200,160,0.35); }
-.ask-input::placeholder { color:var(--dk-3); }
-.ask-send { width:38px; height:38px; background:var(--jade); border:none; border-radius:8px; cursor:pointer; font-size:16px; font-weight:700; color:var(--ink); flex-shrink:0; transition:opacity 0.12s; }
-.ask-send:hover { opacity:0.85; }
-.ask-answer { margin-top:12px; padding:14px 16px; background:var(--ink-2); border:1px solid var(--bd); border-left:3px solid var(--jade); border-radius:0 6px 6px 0; font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; display:none; }
-.ask-answer p { margin:0 0 8px; }
-.ask-answer p:last-child { margin:0; }
-.ask-answer ul { margin:6px 0; padding-left:18px; }
-.ask-answer li { margin-bottom:4px; }
-.ask-answer strong { color:var(--dk-1); font-weight:500; }
+/* Meal action buttons */
+.meal-actions { display:flex; gap:7px; margin-top:12px; flex-wrap:wrap; }
+.meal-action-btn { padding:5px 14px; border-radius:14px; font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); border:1px solid var(--bd); background:transparent; color:var(--dk-3); transition:all 0.12s; }
+.meal-action-btn:hover { border-color:var(--amber-br); color:var(--amber); }
+.meal-action-btn.view-recipe { border-color:var(--amber-br); color:var(--amber); }
+.meal-action-btn.log-eaten { border-color:var(--jade-br); color:var(--jade); }
+.meal-action-btn.log-diff { border-color:var(--bd-2,#2a3830); color:var(--dk-2); }
+
+/* ── RIGHT PANEL ────────────────────────────────── */
+.right-panel-header { padding:16px 20px 12px; border-bottom:1px solid var(--bd); background:var(--ink-1); flex-shrink:0; }
+.rph-title { font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-2); margin-bottom:2px; }
+.rph-sub { font-size:11px; font-weight:300; color:var(--dk-3); }
+.right-panel-body { flex:1; padding:16px 20px; overflow-y:auto; }
+.right-panel-body::-webkit-scrollbar { width:3px; }
+.right-panel-body::-webkit-scrollbar-thumb { background:var(--bd); }
+.right-panel-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px; gap:10px; }
+.rpe-icon { font-size:32px; opacity:0.25; }
+.rpe-text { font-size:13px; font-weight:300; color:var(--dk-3); line-height:1.65; }
+
+/* Recipe card in right panel */
+.recipe-card { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; overflow:hidden; margin-bottom:12px; }
+.rc-header { padding:14px 16px; border-bottom:1px solid var(--bd); display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.rc-name { font-size:15px; font-weight:500; color:var(--dk-1); margin-bottom:2px; }
+.rc-desc { font-size:11px; font-weight:300; color:var(--dk-3); }
+.rc-shuffle-btn { background:transparent; border:1px solid var(--amber-br); color:var(--amber); border-radius:14px; padding:4px 12px; font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; transition:all 0.12s; flex-shrink:0; }
+.rc-shuffle-btn:hover { background:rgba(196,124,24,0.08); }
+.rc-shuffle-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+/* Macro fit bars */
+.macro-fit { padding:12px 16px; border-bottom:1px solid var(--bd); }
+.mf-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
+.mf-rows { display:flex; flex-direction:column; gap:6px; }
+.mf-row { display:grid; grid-template-columns:52px 1fr 36px; gap:8px; align-items:center; }
+.mf-name { font-size:10px; font-weight:500; color:var(--dk-2); }
+.mf-bar-wrap { height:6px; background:var(--ink-2); border-radius:3px; overflow:hidden; }
+.mf-bar { height:100%; border-radius:3px; transition:width 0.4s ease; }
+.mf-bar.p { background:var(--jade); }
+.mf-bar.c { background:var(--amber); }
+.mf-bar.f { background:#5a7898; }
+.mf-bar.k { background:rgba(200,200,200,0.35); }
+.mf-val { font-size:10px; font-family:var(--mono); color:var(--dk-3); text-align:right; }
+
+.rc-ingredients { padding:12px 16px; border-bottom:1px solid var(--bd); }
+.rc-ing-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:7px; }
+.rc-ing-row { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--bd); }
+.rc-ing-row:last-child { border-bottom:none; }
+.rc-ing-name { font-size:12px; font-weight:400; color:var(--dk-1); }
+.rc-ing-qty  { font-size:11px; font-family:var(--mono); color:var(--dk-3); }
+.rc-method { padding:12px 16px; font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.75; }
+.rc-method-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:6px; }
+
+/* Deviation logger */
+.dev-logger { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; padding:14px 16px; margin-bottom:12px; }
+.dev-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
+.dev-input { width:100%; background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:9px 12px; font-size:13px; font-family:var(--sans); color:var(--dk-1); outline:none; resize:none; transition:border-color 0.12s; line-height:1.4; }
+.dev-input:focus { border-color:rgba(0,200,160,0.35); }
+.dev-input::placeholder { color:var(--dk-3); }
+.dev-send { margin-top:8px; width:100%; background:var(--jade); border:none; color:var(--ink); border-radius:6px; padding:9px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); transition:opacity 0.12s; }
+.dev-send:hover { opacity:0.85; }
+.dev-send:disabled { opacity:0.35; cursor:not-allowed; }
+.dev-result { margin-top:8px; padding:10px 12px; background:var(--ink-2); border:1px solid var(--jade-br); border-radius:4px; font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.75; }
+.dev-result strong { color:var(--jade); font-weight:600; }
+
+/* Exercise cards (in right panel) */
+.session-panel { padding:4px 0; }
+.ex-card { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; margin-bottom:8px; overflow:hidden; }
+.ex-card-head { display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; padding:11px 14px; cursor:pointer; }
+.ex-card.open .ex-card-head { border-bottom:1px solid var(--bd); background:var(--ink-2); }
+.ex-name { font-size:13px; font-weight:500; color:var(--dk-1); }
+.ex-schema { font-family:var(--mono); font-size:12px; font-weight:600; color:var(--jade); }
+.ex-rpe { font-size:10px; font-weight:500; color:var(--dk-3); background:var(--ink-2); padding:2px 8px; border-radius:8px; border:1px solid var(--bd); }
+.ex-chevron { font-size:10px; color:var(--dk-3); transition:transform 0.15s; }
+.ex-card.open .ex-chevron { transform:rotate(180deg); }
+.ex-body { display:none; padding:12px 14px; }
+.ex-card.open .ex-body { display:block; }
+
+/* Benchmarks */
+.bench-strip { background:var(--ink-2); border:1px solid var(--bd); border-radius:5px; padding:12px; margin-bottom:10px; }
+.bench-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
+.bench-values { display:grid; grid-template-columns:1fr 1fr 1fr; font-family:var(--mono); font-size:13px; font-weight:600; color:var(--dk-1); margin-bottom:4px; }
+.bench-values .you { color:var(--jade); font-size:15px; }
+.bench-track { position:relative; height:7px; background:var(--bd); border-radius:4px; margin:10px 0 5px; }
+.bench-fill { position:absolute; left:0; top:0; height:100%; border-radius:4px; background:linear-gradient(90deg,rgba(0,200,160,0.4),rgba(0,200,160,0.85)); }
+.bench-marker { position:absolute; top:-4px; width:15px; height:15px; border-radius:50%; border:2px solid var(--jade); background:var(--ink); transform:translateX(-50%); }
+.bench-labels { display:grid; grid-template-columns:1fr 1fr 1fr; font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--dk-3); }
+.bench-age-note { font-size:10px; font-weight:300; color:var(--dk-3); line-height:1.6; margin-top:7px; }
+.sets-guide { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
+.set-row { display:grid; grid-template-columns:36px 1fr; gap:8px; align-items:baseline; }
+.set-num { font-family:var(--mono); font-size:10px; font-weight:600; color:var(--jade); }
+.set-detail { font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.55; }
+.ex-injury-note { padding:7px 10px; background:rgba(200,148,30,0.06); border:1px solid rgba(200,148,30,0.2); border-radius:4px; font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.6; margin-bottom:8px; }
+.ex-injury-note span { color:var(--gold); font-weight:600; }
 
 /* Loading */
-.loading-state { padding:60px 0; text-align:center; }
-.loading-spinner { width:32px; height:32px; border:2px solid var(--bd); border-top-color:var(--jade); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+.loading-state { padding:50px 0; text-align:center; }
+.loading-spinner { width:28px; height:28px; border:2px solid var(--bd); border-top-color:var(--jade); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 14px; }
 @keyframes spin { to { transform:rotate(360deg); } }
 .loading-text { font-size:13px; font-weight:300; color:var(--dk-3); }
+.fp-spinner { width:20px; height:20px; border:2px solid var(--bd); border-top-color:var(--amber); border-radius:50%; animation:spin 0.8s linear infinite; margin:8px auto; }
 
-/* Regen */
-.fp-spinner { width:24px; height:24px; border:2px solid var(--bd); border-top-color:var(--amber); border-radius:50%; animation:spin 0.8s linear infinite; margin:8px auto; }
-.fp-loading { padding:24px 0; text-align:center; }
-.fp-load-text { font-size:11px; font-weight:300; color:var(--dk-3); margin-top:8px; }
+/* Ask bar */
+.ask-wrap { margin-top:24px; }
+.ask-sec { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.ask-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
+.ask-chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
+.ask-chip { background:var(--ink-2); border:1px solid var(--bd); border-radius:20px; padding:5px 12px; font-size:11px; font-weight:400; color:var(--dk-3); cursor:pointer; transition:all 0.12s; }
+.ask-chip:hover { border-color:rgba(0,200,160,0.4); color:var(--jade); }
+.ask-input-row { display:flex; gap:8px; }
+.ask-input { flex:1; background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:9px 13px; font-size:13px; font-family:var(--sans); color:var(--dk-1); outline:none; transition:border-color 0.12s; }
+.ask-input:focus { border-color:rgba(0,200,160,0.35); }
+.ask-input::placeholder { color:var(--dk-3); }
+.ask-send { width:36px; height:36px; background:var(--jade); border:none; border-radius:8px; cursor:pointer; font-size:15px; font-weight:700; color:var(--ink); flex-shrink:0; transition:opacity 0.12s; }
+.ask-send:hover { opacity:0.85; }
+.ask-answer { margin-top:10px; padding:12px 14px; background:var(--ink-2); border:1px solid var(--bd); border-left:3px solid var(--jade); border-radius:0 6px 6px 0; font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; display:none; }
+.ask-answer p { margin:0 0 8px; }
+.ask-answer p:last-child { margin:0; }
+.regen-btn { background:transparent; border:1px solid var(--bd); color:var(--dk-3); padding:6px 14px; border-radius:16px; font-size:10px; font-weight:600; letter-spacing:0.04em; cursor:pointer; font-family:var(--sans); margin-top:16px; transition:all 0.12s; }
+.regen-btn:hover { border-color:var(--jade-br); color:var(--jade); }
 
-.regen-btn { background:transparent; border:1px solid var(--bd); color:var(--dk-3); padding:7px 16px; border-radius:20px; font-size:10px; font-weight:500; letter-spacing:0.04em; cursor:pointer; font-family:var(--sans); margin-top:20px; transition:all 0.12s; }
-.regen-btn:hover { border-color:var(--bd-2); color:var(--dk-2); }
+/* Week programme indicator */
+.week-prog-strip { background:rgba(200,148,30,0.04); border:1px solid rgba(200,148,30,0.18); border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
+.wps-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); }
+.wps-week  { font-family:var(--mono); font-size:13px; font-weight:600; color:var(--dk-1); }
+.wps-phase { font-size:11px; font-weight:300; color:var(--dk-3); }
+.wps-dots { display:flex; gap:4px; margin-top:4px; }
+.wps-dot { width:8px; height:8px; border-radius:50%; background:var(--bd); }
+.wps-dot.done { background:var(--gold); }
+.wps-dot.current { background:var(--jade); }
 
-@media(max-width:600px) {
-  .page { padding:0 16px 100px; }
-  .day-title { font-size:32px; }
-  .day-macros { grid-template-columns:1fr 1fr; }
-  .tl-body { padding-left:16px; }
+@media(max-width:900px) {
+  .day-outer { grid-template-columns:1fr; }
+  .day-right { position:fixed; right:0; top:0; bottom:0; width:90vw; max-width:400px; transform:translateX(100%); transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1); z-index:200; height:100vh; }
+  .day-right.open { transform:translateX(0); }
+  .day-main { padding:0 20px 100px; }
+  .week-strip { padding:10px 20px; }
 }
-
-/* ── RECIPE CARD ──────────────────────────────── */
-.recipe-expanded {
-  background: var(--ink-1); border-top: 1px solid var(--bd);
-  padding: 16px 16px 16px 72px; animation: slideIn 0.18s ease;
-}
-@keyframes slideIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
-
-.recipe-card {
-  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 8px;
-  overflow: hidden; margin-bottom: 10px;
-}
-.rc-head {
-  display: grid; grid-template-columns: 1fr auto;
-  align-items: center; gap: 12px; padding: 14px 16px;
-  background: var(--ink-1); border-bottom: 1px solid var(--bd);
-}
-.rc-meal-name { font-size: 15px; font-weight: 500; color: var(--dk-1); margin-bottom: 2px; }
-.rc-meal-desc { font-size: 11px; font-weight: 300; color: var(--dk-3); }
-.rc-shuffle-btn {
-  background: transparent; border: 1px solid var(--amber-br, rgba(196,124,24,0.25));
-  color: var(--amber); border-radius: 16px; padding: 5px 12px;
-  font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-  cursor: pointer; font-family: var(--sans); transition: all 0.12s; white-space: nowrap;
-}
-.rc-shuffle-btn:hover { background: rgba(196,124,24,0.08); }
-.rc-shuffle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* Macro fit bar */
-.macro-fit { padding: 12px 16px; border-bottom: 1px solid var(--bd); }
-.mf-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 8px; }
-.mf-bars { display: flex; flex-direction: column; gap: 5px; }
-.mf-row { display: grid; grid-template-columns: 60px 1fr 40px; align-items: center; gap: 8px; }
-.mf-name { font-size: 10px; font-weight: 500; color: var(--dk-2); }
-.mf-bar-wrap { background: var(--ink-3, var(--ink-1)); border-radius: 3px; height: 5px; overflow: hidden; }
-.mf-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-.mf-bar-fill.prot { background: var(--jade); }
-.mf-bar-fill.carb { background: var(--amber); }
-.mf-bar-fill.fat  { background: rgba(74,98,117,0.8); }
-.mf-val { font-size: 10px; font-family: var(--mono); color: var(--dk-3); text-align: right; }
-
-/* Ingredients list */
-.rc-ingredients { padding: 12px 16px; border-bottom: 1px solid var(--bd); }
-.rc-ing-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 8px; }
-.rc-ing-list { display: flex; flex-direction: column; gap: 5px; }
-.rc-ing-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--bd); }
-.rc-ing-row:last-child { border-bottom: none; }
-.rc-ing-name { font-size: 12px; font-weight: 400; color: var(--dk-1); }
-.rc-ing-qty  { font-size: 11px; font-family: var(--mono); color: var(--dk-3); }
-
-/* Method */
-.rc-method { padding: 12px 16px; font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.75; }
-.rc-method-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 6px; }
-
-/* ── EXERCISE CARDS ──────────────────────────── */
-.session-expanded {
-  background: var(--ink-1); border-top: 1px solid var(--bd);
-  padding: 16px; animation: slideIn 0.18s ease;
-}
-.session-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 16px;
-}
-.session-title { font-size: 14px; font-weight: 600; color: var(--jade); }
-.session-meta  { font-size: 11px; font-weight: 300; color: var(--dk-3); }
-
-.ex-card {
-  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 6px;
-  margin-bottom: 8px; overflow: hidden;
-}
-.ex-card-head {
-  display: grid; grid-template-columns: 1fr auto auto;
-  align-items: center; gap: 12px; padding: 12px 16px;
-  cursor: pointer;
-}
-.ex-card.open .ex-card-head { border-bottom: 1px solid var(--bd); background: var(--ink-1); }
-.ex-name { font-size: 13px; font-weight: 500; color: var(--dk-1); }
-.ex-schema { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--jade); }
-.ex-rpe { font-size: 10px; font-weight: 500; color: var(--dk-3); background: var(--ink-1); padding: 2px 8px; border-radius: 8px; border: 1px solid var(--bd); }
-.ex-chevron { font-size: 10px; color: var(--dk-3); transition: transform 0.15s; }
-.ex-card.open .ex-chevron { transform: rotate(180deg); }
-
-.ex-body { display: none; padding: 14px 16px; }
-.ex-card.open .ex-body { display: block; }
-
-/* Age benchmarks */
-.bench-strip {
-  background: var(--ink-3, var(--ink-1)); border: 1px solid var(--bd);
-  border-radius: 6px; padding: 14px; margin-bottom: 12px;
-}
-.bench-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 10px; }
-.bench-track { position: relative; height: 8px; background: var(--bd); border-radius: 4px; margin: 12px 0 6px; }
-.bench-fill  { position: absolute; left: 0; top: 0; height: 100%; border-radius: 4px; background: linear-gradient(90deg, rgba(0,200,160,0.4), rgba(0,200,160,0.85)); }
-.bench-marker { position: absolute; top: -4px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--jade); background: var(--ink); transform: translateX(-50%); }
-.bench-labels { display: grid; grid-template-columns: 1fr 1fr 1fr; font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dk-3); }
-.bench-values { display: grid; grid-template-columns: 1fr 1fr 1fr; font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--dk-1); margin-bottom: 4px; }
-.bench-values .you { color: var(--jade); font-size: 15px; }
-.bench-age-note { font-size: 10px; font-weight: 300; color: var(--dk-3); line-height: 1.6; margin-top: 8px; }
-
-/* Sets guide */
-.sets-guide { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-.set-row { display: grid; grid-template-columns: 36px 1fr; gap: 8px; align-items: center; }
-.set-num { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--jade); }
-.set-detail { font-size: 12px; font-weight: 300; color: var(--dk-2); }
-
-/* Injury note on exercise */
-.ex-injury-note {
-  padding: 8px 12px; background: rgba(200,148,30,0.06);
-  border: 1px solid rgba(200,148,30,0.2); border-radius: 4px;
-  font-size: 11px; font-weight: 300; color: var(--dk-2); line-height: 1.6;
-  margin-bottom: 10px;
-}
-.ex-injury-note span { color: var(--gold); font-weight: 600; }
-
-/* Loading spinner for shuffle */
-.shuffle-loading { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(196,124,24,0.3); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 4px; }
-
-
-/* ── ACCELERATOR STRIP ────────────────────────────── */
-.acc-strip {
-  background: linear-gradient(135deg, rgba(200,148,30,0.06) 0%, rgba(200,148,30,0.02) 100%);
-  border: 1px solid rgba(200,148,30,0.22); border-radius: 8px;
-  padding: 16px 20px; margin-bottom: 16px;
-  display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
-}
-.as-left {}
-.as-eyebrow { font-size:8px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:5px; }
-.as-title { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:4px; }
-.as-why { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65; }
-.as-btn { background:rgba(200,148,30,0.1); border:1px solid rgba(200,148,30,0.3); color:var(--gold); padding:7px 14px; border-radius:4px; font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; text-decoration:none; display:inline-block; }
-.as-btn:hover { background:rgba(200,148,30,0.18); }
-
 </style>
 </head>
 <body>
@@ -264,11 +278,31 @@ body { background:var(--ink); color:var(--dk-1); }
   </div>
 </nav>
 
-<div class="page">
-  <div id="day-root">
-    <div class="loading-state">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Building your day…</div>
+<!-- Week strip -->
+<div class="week-strip" id="week-strip"></div>
+
+<div class="day-outer">
+  <!-- LEFT: timeline -->
+  <div class="day-main">
+    <div id="day-root">
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Building your day…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: recipe / session panel -->
+  <div class="day-right" id="day-right">
+    <div class="right-panel-header" id="rph">
+      <div class="rph-title" id="rph-title">Detail</div>
+      <div class="rph-sub" id="rph-sub">Tap a meal or training block</div>
+    </div>
+    <div class="right-panel-body" id="rpb">
+      <div class="right-panel-empty">
+        <div class="rpe-icon">👈</div>
+        <div class="rpe-text">Tap any meal to view the recipe and log what you ate.<br>Tap the training block to see your session.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -276,9 +310,9 @@ body { background:var(--ink); color:var(--dk-1); }
 <script src="nav.js"></script>
 <script>
 // ════════════════════════════════════════════════════════
-//  bodylens-dailyplan.html
-//  Pure JS daily plan — no BL_GENERATOR, no complex state
-//  All variables declared before use
+//  bodylens-dailyplan.html  v4
+//  Right-side panel · Macro cup · Deviation logging
+//  Week strip · Programme week indicator
 // ════════════════════════════════════════════════════════
 
 const API   = '/api/chat';
@@ -290,16 +324,16 @@ function loadProfile() {
   catch(e) { return null; }
 }
 
-// ── 2. WORK OUT TODAY ─────────────────────────────────
+// ── 2. TODAY CONTEXT ──────────────────────────────────
 function getTodayContext(profile) {
   const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const DAY_MAP   = {0:6, 1:0, 2:1, 3:2, 4:3, 5:4, 6:5};
+  const DAY_MAP   = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
   const idx       = DAY_MAP[new Date().getDay()];
   const name      = DAY_NAMES[idx];
   const plan      = (profile.weekPlan || [])[idx] || { type:'Rest', focus:'Recovery', priority:'rest' };
   const isTraining = plan.priority === 'training';
-  const cacheKey  = 'dayplan_v3_' + new Date().toISOString().slice(0, 10);
-  return { idx, name, plan, isTraining, cacheKey };
+  const cacheKey  = 'dayplan_v4_' + new Date().toISOString().slice(0, 10);
+  return { idx, name, plan, isTraining, cacheKey, DAY_NAMES };
 }
 
 // ── 3. BUILD PLAN FROM PROFILE ────────────────────────
@@ -536,209 +570,424 @@ function buildPlan(profile, today) {
   };
 }
 
-// ── 4. RENDER ─────────────────────────────────────────
 
-// ── STRENGTH BENCHMARKS ──────────────────────────────
-// Based on Symmetric Strength / ExRx standards
-// Returns { beginner, intermediate, advanced } as % of bodyweight
+// ── STRENGTH BENCHMARKS ───────────────────────────────
 const STRENGTH_STANDARDS = {
-  // { m: [beg, int, adv], f: [beg, int, adv] } as bodyweight multipliers
-  'bench press':    { m:[0.5,1.0,1.5], f:[0.25,0.6,1.0] },
+  'bench press':    { m:[0.5,1.0,1.5],   f:[0.25,0.6,1.0] },
   'squat':          { m:[0.75,1.25,1.75], f:[0.5,1.0,1.5] },
-  'deadlift':       { m:[1.0,1.5,2.0], f:[0.75,1.25,1.75] },
-  'overhead press': { m:[0.3,0.65,1.0], f:[0.15,0.4,0.65] },
-  'ohp':            { m:[0.3,0.65,1.0], f:[0.15,0.4,0.65] },
-  'row':            { m:[0.5,0.9,1.3], f:[0.3,0.6,0.9] },
-  'barbell row':    { m:[0.5,0.9,1.3], f:[0.3,0.6,0.9] },
-  'pull-up':        { m:[0,0.2,0.5],   f:[0,0.1,0.35] }, // extra plates as fraction
-  'pull up':        { m:[0,0.2,0.5],   f:[0,0.1,0.35] },
+  'deadlift':       { m:[1.0,1.5,2.0],   f:[0.75,1.25,1.75] },
+  'overhead press': { m:[0.3,0.65,1.0],  f:[0.15,0.4,0.65] },
+  'ohp':            { m:[0.3,0.65,1.0],  f:[0.15,0.4,0.65] },
+  'row':            { m:[0.5,0.9,1.3],   f:[0.3,0.6,0.9] },
+  'barbell row':    { m:[0.5,0.9,1.3],   f:[0.3,0.6,0.9] },
+  'pull-up':        { m:[0,0.2,0.5],     f:[0,0.1,0.35] },
+  'pull up':        { m:[0,0.2,0.5],     f:[0,0.1,0.35] },
   'romanian deadlift':{ m:[0.7,1.1,1.6], f:[0.5,0.8,1.2] },
-  'rdl':            { m:[0.7,1.1,1.6], f:[0.5,0.8,1.2] },
-  'hip thrust':     { m:[0.9,1.4,1.9], f:[0.7,1.2,1.7] },
+  'rdl':            { m:[0.7,1.1,1.6],   f:[0.5,0.8,1.2] },
+  'hip thrust':     { m:[0.9,1.4,1.9],   f:[0.7,1.2,1.7] },
   'lateral raise':  { m:[0.06,0.12,0.2], f:[0.04,0.08,0.14] },
-  'bicep curl':     { m:[0.2,0.4,0.6], f:[0.1,0.2,0.4] },
-  'tricep':         { m:[0.15,0.35,0.55], f:[0.08,0.2,0.35] },
-  'leg press':      { m:[1.5,2.5,3.5], f:[1.0,1.8,2.6] },
-  'leg curl':       { m:[0.3,0.55,0.8], f:[0.2,0.4,0.65] },
-  'calf raise':     { m:[0.8,1.4,2.0], f:[0.6,1.0,1.5] },
+  'bicep curl':     { m:[0.2,0.4,0.6],   f:[0.1,0.2,0.4] },
+  'tricep':         { m:[0.15,0.35,0.55],f:[0.08,0.2,0.35] },
+  'leg press':      { m:[1.5,2.5,3.5],   f:[1.0,1.8,2.6] },
+  'leg curl':       { m:[0.3,0.55,0.8],  f:[0.2,0.4,0.65] },
+  'calf raise':     { m:[0.8,1.4,2.0],   f:[0.6,1.0,1.5] },
 };
 
-function getStandard(exerciseName, weight, isFemale, age) {
-  const name = exerciseName.toLowerCase();
+function getStandard(name, weight, isFemale, age) {
+  const n = name.toLowerCase();
   let std = null;
   for (const [key, val] of Object.entries(STRENGTH_STANDARDS)) {
-    if (name.includes(key)) { std = val; break; }
+    if (n.includes(key)) { std = val; break; }
   }
   if (!std) return null;
-
-  // Age adjustment factor (Wilks-inspired) — strength peaks ~28-35
   const ageFactor = age < 30 ? 0.95 : age < 40 ? 1.0 : age < 50 ? 0.93 : age < 60 ? 0.85 : 0.78;
-
-  const mults = isFemale ? std.f : std.m;
+  const m = isFemale ? std.f : std.m;
   return {
-    beginner:     Math.round(mults[0] * weight * ageFactor),
-    intermediate: Math.round(mults[1] * weight * ageFactor),
-    advanced:     Math.round(mults[2] * weight * ageFactor),
+    beginner:     Math.round(m[0] * weight * ageFactor),
+    intermediate: Math.round(m[1] * weight * ageFactor),
+    advanced:     Math.round(m[2] * weight * ageFactor),
   };
 }
-
-// Age-specific performance note
 function getAgeNote(age, isFemale) {
-  if (age < 35) return 'Prime neurological adaptation. Focus on technique now — it compounds.';
-  if (age < 45) return `At ${age}, recovery takes 72h for heavy sessions. The strength response is unchanged — the timeline isn't.`;
+  if (age < 35) return 'Prime neurological adaptation phase. Technique investment now compounds.';
+  if (age < 45) return `At ${age}, recovery takes 72h for heavy sessions. Strength response unchanged — the timeline isn't.`;
   if (age < 55) return `At ${age}, progressive overload works identically. Deloads matter more. Sleep is the primary recovery lever.`;
-  return `At ${age}, the training stimulus is as effective as ever. ${isFemale ? 'Resistance training is protecting bone density and insulin sensitivity as oestrogen shifts.' : 'GH pulses are smaller — sleep quality is the biggest performance lever available.'}`;
+  return `At ${age}, the training stimulus is as effective as ever. ${isFemale ? 'Resistance training is protecting bone density as oestrogen shifts.' : 'GH pulses are smaller — sleep quality is the biggest lever.'}`;
 }
-
-// Parse exercise string like "Bench press 4x8-10" or "OHP 3x10"
 function parseExercise(str) {
-  const schemaMatch = str.match(/(\d+)\s*[xX×]\s*([\d\-]+)/);
+  const m = str.match(/(\d+)\s*[xX×]\s*([\d\-]+)/);
   const name = str.replace(/\d+\s*[xX×]\s*[\d\-]+.*/, '').trim();
-  return {
-    name,
-    raw: str,
-    sets: schemaMatch ? parseInt(schemaMatch[1]) : 3,
-    reps: schemaMatch ? schemaMatch[2] : '8-12',
-    schema: schemaMatch ? schemaMatch[0] : '3×8-12',
-  };
+  return { name, raw:str, sets: m ? parseInt(m[1]) : 3, reps: m ? m[2] : '8-12', schema: m ? m[0] : '3×8-12' };
 }
 
-// ── RECIPE DATA (cached per slot+day) ─────────────────
+// ── MACRO TRACKING STATE ──────────────────────────────
+const MACRO_KEY = 'bl_macros_' + new Date().toISOString().slice(0,10);
+let _macroState = (() => {
+  try { return JSON.parse(localStorage.getItem(MACRO_KEY) || 'null'); }
+  catch(e) { return null; }
+})();
+
+function saveMacroState() {
+  try { localStorage.setItem(MACRO_KEY, JSON.stringify(_macroState)); } catch(e) {}
+}
+
+function initMacroState(profile, today) {
+  if (_macroState) return; // already exists for today
+  const kcal  = today.isTraining ? (today.plan.kcal || profile.calories || 2000) : Math.round((profile.calories||2000)*0.91);
+  _macroState = {
+    target: { kcal, prot: profile.protein||140, carbs: profile.carbs||160, fat: profile.fat||60 },
+    eaten:  { kcal:0, prot:0, carbs:0, fat:0 },
+    meals:  {} // mealSlot -> { eaten:bool, prot, carbs, fat, kcal }
+  };
+  saveMacroState();
+}
+
+function getMacroCupHTML() {
+  if (!_macroState) return '';
+  const { target, eaten } = _macroState;
+  const remaining = {
+    kcal:  target.kcal  - eaten.kcal,
+    prot:  target.prot  - eaten.prot,
+    carbs: target.carbs - eaten.carbs,
+    fat:   target.fat   - eaten.fat,
+  };
+  function pct(val, max) { return Math.min(100, Math.round((val/Math.max(1,max))*100)); }
+  function rowHTML(name, val, max, cls) {
+    const p = pct(val, max);
+    const over = val > max;
+    return `<div class="mc-row">
+      <div class="mc-name">${name}</div>
+      <div class="mc-bar-wrap">
+        <div class="mc-bar-bg"></div>
+        <div class="mc-bar-fill ${cls} ${over?'over':''}" style="width:${p}%"></div>
+      </div>
+      <div class="mc-val">${val}${name==='Calories'?'':'g'}</div>
+    </div>`;
+  }
+  const kcalLeft = remaining.kcal;
+  return `<div class="macro-cup">
+    <div class="mc-header">
+      <div class="mc-title">Macro cup — today</div>
+      <div class="mc-remaining"><span class="kcal-left">${kcalLeft > 0 ? kcalLeft + ' kcal left' : Math.abs(kcalLeft) + ' kcal over'}</span></div>
+    </div>
+    <div class="mc-rows">
+      ${rowHTML('Calories', eaten.kcal, target.kcal, 'kcal')}
+      ${rowHTML('Protein',  eaten.prot,  target.prot,  'prot')}
+      ${rowHTML('Carbs',    eaten.carbs, target.carbs, 'carb')}
+      ${rowHTML('Fat',      eaten.fat,   target.fat,   'fat')}
+    </div>
+  </div>`;
+}
+
+function refreshMacroCup() {
+  const cup = document.getElementById('macro-cup');
+  if (cup) cup.outerHTML = getMacroCupHTML();
+  // Re-attach id
+  const newCup = document.querySelector('.macro-cup');
+  if (newCup) newCup.id = 'macro-cup';
+}
+
+// ── WEEK PROGRAMME CONTEXT ────────────────────────────
+function getWeekProgrammeContext(profile) {
+  const startDate = profile.generatedAt ? new Date(profile.generatedAt) : new Date();
+  const now = new Date();
+  const daysDiff = Math.floor((now - startDate) / (1000*60*60*24));
+  const weekNum = Math.min(4, Math.floor(daysDiff / 7) + 1);
+  const phases = ['Foundation', 'Build', 'Peak', 'Deload'];
+  const phase = phases[Math.min(3, weekNum-1)];
+  return { weekNum, phase, totalWeeks: 4 };
+}
+
+// ── WEEK STRIP ────────────────────────────────────────
+function renderWeekStrip(profile, today) {
+  const strip = document.getElementById('week-strip');
+  if (!strip) return;
+  const { DAY_NAMES } = today;
+  strip.innerHTML = DAY_NAMES.map((name, i) => {
+    const plan = (profile.weekPlan||[])[i] || {type:'Rest',priority:'rest'};
+    const isTrain = plan.priority === 'training';
+    const isToday = i === today.idx;
+    return `<div class="ws-day ${isTrain?'train':'rest'} ${isToday?'today':''}" onclick="jumpToDay(${i})">
+      <div class="ws-day-name">${name.slice(0,3)}</div>
+      <div class="ws-day-type">${plan.type||'Rest'}</div>
+      <div class="ws-day-dot"></div>
+    </div>`;
+  }).join('');
+}
+
+function jumpToDay(idx) {
+  // For non-today days just show a tooltip — full nav would reload the page
+  const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const plan = (_profile.weekPlan||[])[idx] || {type:'Rest',focus:'Recovery',priority:'rest'};
+  showRightPanel(
+    DAY_NAMES[idx] + ' — ' + (plan.type||'Rest'),
+    plan.focus || 'Recovery',
+    `<div style="padding:8px 0;">
+      <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:12px;">
+        ${plan.coachNote || ('A ' + (plan.priority==='training'?'training':'rest') + ' day in your programme.')}
+      </div>
+      ${(plan.keyExercises||[]).length ? `
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Key exercises</div>
+        ${(plan.keyExercises||[]).map(e=>`<div style="padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--dk-1);">${e}</div>`).join('')}` : ''}
+    </div>`
+  );
+  document.querySelectorAll('.ws-day').forEach((el,i) => el.classList.toggle('selected', i===idx));
+}
+
+// ── RIGHT PANEL CONTROL ───────────────────────────────
+function showRightPanel(title, sub, html) {
+  document.getElementById('rph-title').textContent = title;
+  document.getElementById('rph-sub').textContent   = sub;
+  document.getElementById('rpb').innerHTML = html;
+  // Mobile: open
+  document.getElementById('day-right').classList.add('open');
+}
+
+// ── RECIPE FETCH ──────────────────────────────────────
 const _recipeCache = {};
 
-async function fetchRecipe(slot, mealName, mealTarget) {
-  const cacheKey = slot + '_' + new Date().toISOString().slice(0,10);
-  if (_recipeCache[cacheKey]) return _recipeCache[cacheKey];
+async function fetchRecipe(slot, mealTitle, mealTarget, forceNew) {
+  const cacheKey = 'recipe_' + (slot||mealTitle) + '_' + new Date().toISOString().slice(0,10) + (forceNew?'_'+Date.now():'');
+  if (!forceNew && _recipeCache[slot]) return _recipeCache[slot];
 
   const p = _profile;
   const exclusions = (p.foodExclusions||[]).join(', ')||'none';
   const cuisines   = (p.cuisinePrefs||[]).join(', ')||'neutral';
+  const shuffleNote = forceNew
+    ? `IMPORTANT: Return a completely different meal from what you might have given before. Different cuisine direction (${cuisines}), different protein source, different cooking method. Same macro targets.`
+    : '';
 
-  const prompt = `Give a specific recipe for "${mealName}" for ${p.name}.
+  const res = await fetch(API, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:MODEL, max_tokens:400,
+      system:'Return only valid JSON. No markdown.',
+      messages:[{role:'user', content:`Performance nutritionist. Recipe for "${mealTitle}" slot.
+${shuffleNote}
 Target: ${mealTarget.calories} kcal, ${mealTarget.protein}g protein, ${mealTarget.carbs}g carbs, ${mealTarget.fat}g fat.
 Diet: ${p.dietType||'flexible'} | Exclude: ${exclusions} | Cuisine: ${cuisines}
 Complexity: ${p.recipeComplexity||'standard'}
 ${p.recipeComplexity&&p.recipeComplexity.includes('5')?'MAX 5 ingredients.':''}
-
-Return ONLY JSON:
-{"name":"exact dish name","description":"one line","calories":0,"protein":0,"carbs":0,"fat":0,
-"prepTime":"10 min","servings":1,
-"ingredients":[{"name":"ingredient","quantity":"200g"}],
-"method":"2-3 sentences, practical prep instructions"}`;
-
-  const res = await fetch('/api/chat', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:400,
-      system:'Return only valid JSON. No markdown. No preamble.',
-      messages:[{role:'user',content:prompt}]
-    })
+Return JSON: {"name":"dish name","description":"one line","calories":0,"protein":0,"carbs":0,"fat":0,"prepTime":"10 min","ingredients":[{"name":"item","quantity":"200g"}],"method":"2-3 sentences"}`
+    }]})
   });
   const data = await res.json();
   const text = (data.content||[]).map(b=>b.text||'').join('').trim();
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error('No JSON');
   const recipe = JSON.parse(match[0]);
-  _recipeCache[cacheKey] = recipe;
+  _recipeCache[slot] = recipe;
   return recipe;
 }
 
-function renderRecipeCard(recipe, mealTarget, slot, blockIdx) {
-  const pPct = Math.min(100, Math.round((recipe.protein / mealTarget.protein) * 100));
-  const cPct = Math.min(100, Math.round((recipe.carbs   / mealTarget.carbs) * 100));
-  const fPct = Math.min(100, Math.round((recipe.fat     / mealTarget.fat) * 100));
+function recipeCardHTML(recipe, mealTarget, slot, blockIdx) {
+  function pct(v,m) { return Math.min(100, Math.round(v/Math.max(1,m)*100)); }
+  const ings = (recipe.ingredients||[]).map(i=>
+    `<div class="rc-ing-row"><div class="rc-ing-name">${i.name}</div><div class="rc-ing-qty">${i.quantity||''}</div></div>`
+  ).join('');
+  return `
+    <div class="recipe-card">
+      <div class="rc-header">
+        <div>
+          <div class="rc-name">${recipe.name}</div>
+          <div class="rc-desc">${recipe.description||''} · ${recipe.prepTime||''}</div>
+        </div>
+        <button class="rc-shuffle-btn" id="shuf-${blockIdx}" onclick="shuffleMeal('${slot}',${blockIdx})">↺ Shuffle</button>
+      </div>
+      <div class="macro-fit">
+        <div class="mf-label">Macro contribution</div>
+        <div class="mf-rows">
+          <div class="mf-row"><div class="mf-name">Protein</div><div class="mf-bar-wrap"><div class="mf-bar p" style="width:${pct(recipe.protein,mealTarget.protein)}%"></div></div><div class="mf-val">${recipe.protein}g</div></div>
+          <div class="mf-row"><div class="mf-name">Carbs</div><div class="mf-bar-wrap"><div class="mf-bar c" style="width:${pct(recipe.carbs||0,mealTarget.carbs)}%"></div></div><div class="mf-val">${recipe.carbs||0}g</div></div>
+          <div class="mf-row"><div class="mf-name">Fat</div><div class="mf-bar-wrap"><div class="mf-bar f" style="width:${pct(recipe.fat||0,mealTarget.fat)}%"></div></div><div class="mf-val">${recipe.fat||0}g</div></div>
+          <div class="mf-row"><div class="mf-name">Calories</div><div class="mf-bar-wrap"><div class="mf-bar k" style="width:${pct(recipe.calories,mealTarget.calories)}%"></div></div><div class="mf-val">${recipe.calories}</div></div>
+        </div>
+      </div>
+      <div class="rc-ingredients">
+        <div class="rc-ing-label">Ingredients</div>
+        ${ings}
+      </div>
+      <div class="rc-method">
+        <div class="rc-method-label">Method</div>
+        ${recipe.method||'Prepare as per your usual approach.'}
+      </div>
+    </div>
+    ${deviationLoggerHTML(slot, blockIdx, recipe)}`;
+}
 
-  return `<div class="recipe-card">
-    <div class="rc-head">
-      <div>
-        <div class="rc-meal-name">${recipe.name}</div>
-        <div class="rc-meal-desc">${recipe.description||''} · ${recipe.prepTime||''}</div>
+function deviationLoggerHTML(slot, blockIdx, recipe) {
+  const eaten = _macroState && _macroState.meals[slot];
+  if (eaten && eaten.logged) {
+    return `<div class="dev-logger">
+      <div class="dev-label">Logged ✓</div>
+      <div class="dev-result">
+        <strong>${eaten.prot}g P · ${eaten.carbs}g C · ${eaten.fat}g F · ${eaten.kcal} kcal</strong><br>
+        ${eaten.note||''}
       </div>
-      <button class="rc-shuffle-btn" id="shuffle-${blockIdx}" onclick="shuffleMeal('${slot}',${blockIdx},this)">↺ Shuffle</button>
-    </div>
-    <div class="macro-fit">
-      <div class="mf-label">How this meal fits your day</div>
-      <div class="mf-bars">
-        <div class="mf-row">
-          <div class="mf-name">Protein</div>
-          <div class="mf-bar-wrap"><div class="mf-bar-fill prot" style="width:${pPct}%"></div></div>
-          <div class="mf-val">${recipe.protein}g</div>
-        </div>
-        <div class="mf-row">
-          <div class="mf-name">Carbs</div>
-          <div class="mf-bar-wrap"><div class="mf-bar-fill carb" style="width:${cPct}%"></div></div>
-          <div class="mf-val">${recipe.carbs||0}g</div>
-        </div>
-        <div class="mf-row">
-          <div class="mf-name">Fat</div>
-          <div class="mf-bar-wrap"><div class="mf-bar-fill fat" style="width:${fPct}%"></div></div>
-          <div class="mf-val">${recipe.fat||0}g</div>
-        </div>
-        <div class="mf-row">
-          <div class="mf-name">Calories</div>
-          <div class="mf-bar-wrap"><div class="mf-bar-fill" style="width:${Math.min(100,Math.round(recipe.calories/mealTarget.calories*100))}%;background:rgba(200,200,200,0.3)"></div></div>
-          <div class="mf-val">${recipe.calories}</div>
-        </div>
-      </div>
-    </div>
-    <div class="rc-ingredients">
-      <div class="rc-ing-label">Ingredients</div>
-      <div class="rc-ing-list">
-        ${(recipe.ingredients||[]).map(ing=>`
-          <div class="rc-ing-row">
-            <div class="rc-ing-name">${ing.name}</div>
-            <div class="rc-ing-qty">${ing.quantity||''}</div>
-          </div>`).join('')}
-      </div>
-    </div>
-    <div class="rc-method">
-      <div class="rc-method-label">Method</div>
-      ${recipe.method||'Prepare as per your usual approach.'}
-    </div>
+      <button class="meal-action-btn" style="margin-top:8px;" onclick="clearMealLog('${slot}')">Clear log</button>
+    </div>`;
+  }
+  return `<div class="dev-logger">
+    <div class="dev-label">Log what you ate</div>
+    <textarea class="dev-input" id="dev-input-${blockIdx}" rows="2"
+      placeholder="e.g. 'Had the meal as planned' or 'Skipped — had a chicken wrap instead' or 'Ate half of it'"></textarea>
+    <button class="dev-send" id="dev-send-${blockIdx}"
+      onclick="logMeal('${slot}', ${blockIdx}, ${JSON.stringify({p:recipe.protein,c:recipe.carbs||0,f:recipe.fat||0,k:recipe.calories}).replace(/"/g,'&quot;')})">
+      Estimate macros →
+    </button>
+    <div id="dev-result-${blockIdx}" style="display:none;" class="dev-result"></div>
   </div>`;
 }
 
-async function expandMealBlock(blockIdx, block) {
-  const expandEl = document.getElementById('meal-expand-'+blockIdx);
-  if (!expandEl) return;
+async function logMeal(slot, blockIdx, planMacros) {
+  const input = document.getElementById('dev-input-'+blockIdx);
+  const btn   = document.getElementById('dev-send-'+blockIdx);
+  const result= document.getElementById('dev-result-'+blockIdx);
+  const text  = input ? input.value.trim() : '';
+  if (!text || !btn) return;
 
-  if (expandEl.dataset.loaded === 'true') {
-    expandEl.style.display = expandEl.style.display === 'none' ? 'block' : 'none';
+  btn.disabled = true;
+  btn.textContent = 'Estimating…';
+
+  const p = _profile;
+  // If they say "as planned" or "the meal" just use the plan macros
+  const isOnPlan = /as planned|the meal|as above|had it|ate it|all of it/i.test(text);
+  if (isOnPlan) {
+    const macros = { prot: planMacros.p, carbs: planMacros.c, fat: planMacros.f, kcal: planMacros.k, logged:true, note:'On plan' };
+    saveMealLog(slot, macros);
+    if (result) { result.style.display='block'; result.innerHTML = `<strong>${macros.prot}g P · ${macros.carbs}g C · ${macros.fat}g F · ${macros.kcal} kcal</strong><br>On plan — nice.`; }
+    btn.style.display='none';
+    updateRemainingMeals();
     return;
   }
 
-  expandEl.style.display = 'block';
-  expandEl.innerHTML = '<div class="fp-loading" style="padding:20px 0;"><div class="fp-spinner" style="border-top-color:var(--amber);"></div><div class="fp-load-text">Building recipe…</div></div>';
+  try {
+    const res = await fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:MODEL, max_tokens:120,
+        system:'You are a nutrition estimator. Return only valid JSON.',
+        messages:[{role:'user',content:`Estimate macros for: "${text}"
+Person: ${p.weight||80}kg, ${p.sex||'male'}.
+Return JSON only: {"protein":0,"carbs":0,"fat":0,"calories":0,"note":"one sentence on your estimate"}`}]})
+    });
+    const data = await res.json();
+    const raw  = (data.content||[]).map(b=>b.text||'').join('').trim();
+    const match= raw.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    const est  = JSON.parse(match[0]);
+    const macros = { prot:est.protein||0, carbs:est.carbs||0, fat:est.fat||0, kcal:est.calories||0, logged:true, note:est.note||'' };
+    saveMealLog(slot, macros);
+    if (result) {
+      result.style.display='block';
+      result.innerHTML = `<strong>${macros.prot}g P · ${macros.carbs}g C · ${macros.fat}g F · ${macros.kcal} kcal</strong><br>${macros.note}`;
+    }
+    btn.style.display='none';
+    updateRemainingMeals();
+  } catch(e) {
+    if (btn) { btn.disabled=false; btn.textContent='Estimate macros →'; }
+    if (result) { result.style.display='block'; result.innerHTML='Could not estimate — try again.'; }
+  }
+}
+
+function saveMealLog(slot, macros) {
+  if (!_macroState) return;
+  _macroState.meals[slot] = macros;
+  // Recompute eaten totals
+  _macroState.eaten = { kcal:0, prot:0, carbs:0, fat:0 };
+  Object.values(_macroState.meals).forEach(m => {
+    if (m.logged) {
+      _macroState.eaten.kcal  += m.kcal  || 0;
+      _macroState.eaten.prot  += m.prot  || 0;
+      _macroState.eaten.carbs += m.carbs || 0;
+      _macroState.eaten.fat   += m.fat   || 0;
+    }
+  });
+  saveMacroState();
+  refreshMacroCup();
+  // Update meal block visual
+  const block = document.querySelector(`[data-slot="${slot}"]`);
+  if (block) block.classList.add('eaten');
+}
+
+function clearMealLog(slot) {
+  if (!_macroState || !_macroState.meals[slot]) return;
+  delete _macroState.meals[slot];
+  _macroState.eaten = { kcal:0, prot:0, carbs:0, fat:0 };
+  Object.values(_macroState.meals).forEach(m => {
+    if (m.logged) {
+      _macroState.eaten.kcal  += m.kcal  || 0;
+      _macroState.eaten.prot  += m.prot  || 0;
+      _macroState.eaten.carbs += m.carbs || 0;
+      _macroState.eaten.fat   += m.fat   || 0;
+    }
+  });
+  saveMacroState();
+  refreshMacroCup();
+}
+
+function updateRemainingMeals() {
+  // Called after each meal log — shows adjusted targets on remaining meals
+  if (!_macroState) return;
+  const remaining = {
+    prot:  _macroState.target.prot  - _macroState.eaten.prot,
+    carbs: _macroState.target.carbs - _macroState.eaten.carbs,
+    fat:   _macroState.target.fat   - _macroState.eaten.fat,
+    kcal:  _macroState.target.kcal  - _macroState.eaten.kcal,
+  };
+  // Count unlogged meal slots
+  const unloggedSlots = (window._blocks||[]).filter(b => b.mealSlot && !(_macroState.meals[b.mealSlot]&&_macroState.meals[b.mealSlot].logged));
+  if (unloggedSlots.length > 0) {
+    const perMeal = {
+      prot:  Math.round(Math.max(0,remaining.prot)  / unloggedSlots.length),
+      carbs: Math.round(Math.max(0,remaining.carbs) / unloggedSlots.length),
+      fat:   Math.round(Math.max(0,remaining.fat)   / unloggedSlots.length),
+      kcal:  Math.round(Math.max(0,remaining.kcal)  / unloggedSlots.length),
+    };
+    unloggedSlots.forEach(b => {
+      const el = document.querySelector(`[data-slot="${b.mealSlot}"] .tl-subtitle`);
+      if (el && perMeal.prot > 0) {
+        el.textContent = `Adjusted target: ${perMeal.prot}g P · ${perMeal.kcal} kcal`;
+        el.style.color = 'var(--amber)';
+      }
+    });
+  }
+}
+
+// ── OPEN MEAL IN RIGHT PANEL ──────────────────────────
+async function openMealPanel(blockIdx, block) {
+  const p      = _profile;
+  const prot   = Math.round((p.protein||140) / (p.mealCount||4));
+  const kcal   = Math.round((_today.isTraining ? (_today.plan.kcal||p.calories||2000) : Math.round((p.calories||2000)*0.91)) / (p.mealCount||4));
+  const mealTarget = { calories:kcal, protein:prot, carbs:Math.round((p.carbs||160)*0.25), fat:Math.round((p.fat||60)*0.25) };
+
+  showRightPanel(block.title, block.subtitle||'Recipe + macro log', `<div class="fp-loading"><div class="fp-spinner"></div></div>`);
 
   try {
-    const p = _profile;
-    const pPerMeal = Math.round((p.protein||140) / (p.mealCount||4));
-    const kPerMeal = Math.round(((window._todayCtx&&window._todayCtx.isTraining ? (window._todayCtx.plan.kcal||p.calories||2000) : Math.round((p.calories||2000)*0.91))) / (p.mealCount||4));
-    const mealTarget = { calories: kPerMeal, protein: pPerMeal, carbs: Math.round((p.carbs||160)*0.25), fat: Math.round((p.fat||60)*0.25) };
-
-    const recipe = await fetchRecipe(block.mealSlot||block.title, block.title, mealTarget);
-    expandEl.innerHTML = renderRecipeCard(recipe, mealTarget, block.mealSlot||block.title, blockIdx);
-    expandEl.dataset.loaded = 'true';
+    const recipe = await fetchRecipe(block.mealSlot||block.title, block.title, mealTarget, false);
+    const html   = recipeCardHTML(recipe, mealTarget, block.mealSlot||block.title, blockIdx);
+    document.getElementById('rpb').innerHTML = html;
   } catch(e) {
-    expandEl.innerHTML = '<div style="padding:16px;color:var(--dk-3);font-size:12px;">Could not load recipe — <button onclick="expandMealBlock('+blockIdx+',window._blocks['+blockIdx+'])" style="color:var(--amber);background:none;border:none;cursor:pointer;">try again</button></div>';
+    document.getElementById('rpb').innerHTML = `<div style="padding:20px;color:var(--dk-3);font-size:13px;">Could not load recipe — <button onclick="openMealPanel(${blockIdx},window._blocks[${blockIdx}])" style="color:var(--amber);background:none;border:none;cursor:pointer;text-decoration:underline;">try again</button></div>`;
   }
 }
 
-async function shuffleMeal(slot, blockIdx, btn) {
-  btn.disabled = true;
-  btn.innerHTML = '<span class="shuffle-loading"></span>Shuffling…';
-  const expandEl = document.getElementById('meal-expand-'+blockIdx);
-  if (expandEl) {
-    const cacheKey = slot + '_' + new Date().toISOString().slice(0,10);
-    delete _recipeCache[cacheKey];
-    expandEl.dataset.loaded = 'false';
-    await expandMealBlock(blockIdx, window._blocks[blockIdx]);
+async function shuffleMeal(slot, blockIdx) {
+  const btn = document.getElementById('shuf-'+blockIdx);
+  if (btn) { btn.disabled=true; btn.textContent='Shuffling…'; }
+  delete _recipeCache[slot];
+  const p = _profile;
+  const prot = Math.round((p.protein||140) / (p.mealCount||4));
+  const kcal = Math.round((_today.isTraining ? (_today.plan.kcal||p.calories||2000) : Math.round((p.calories||2000)*0.91)) / (p.mealCount||4));
+  const mealTarget = { calories:kcal, protein:prot, carbs:Math.round((p.carbs||160)*0.25), fat:Math.round((p.fat||60)*0.25) };
+  try {
+    const recipe = await fetchRecipe(slot, window._blocks[blockIdx].title, mealTarget, true);
+    document.getElementById('rpb').innerHTML = recipeCardHTML(recipe, mealTarget, slot, blockIdx);
+  } catch(e) {
+    if (btn) { btn.disabled=false; btn.textContent='↺ Shuffle'; }
   }
-  btn.disabled = false;
-  btn.textContent = '↺ Shuffle';
 }
 
-// ── EXERCISE SESSION RENDERER ─────────────────────────
-function renderSessionBlock(block) {
+// ── SESSION IN RIGHT PANEL ────────────────────────────
+function openSessionPanel(blockIdx, block) {
   const p = _profile;
   const isFemale = (p.sex||'').toLowerCase() === 'female';
   const age = p.age || 35;
@@ -746,52 +995,42 @@ function renderSessionBlock(block) {
   const injuries = p.injuryAssessments || p.injuries || [];
   const exercises = (block.items||[]).filter(e => e.name !== 'Track loads');
 
-  const exCards = exercises.map((ex, i) => {
+  const exHTML = exercises.map((ex, i) => {
     const parsed = parseExercise(ex.name);
     const std = getStandard(parsed.name, weight, isFemale, age);
-    const injuryMatch = injuries.find(inj =>
+    const injMatch = injuries.find(inj =>
       ['knee','back','shoulder','hip','elbow'].some(j =>
-        (inj.location||'').toLowerCase().includes(j) &&
-        parsed.name.toLowerCase().match(new RegExp(j.slice(0,4)))
+        (inj.location||'').toLowerCase().includes(j) && parsed.name.toLowerCase().includes(j.slice(0,4))
       )
     );
-
-    // Determine RPE from schema
     const reps = parseInt((parsed.reps||'10').split('-')[0]);
     const rpe = reps <= 5 ? '8-9' : reps <= 8 ? '7-9' : '7-8';
 
     const benchHTML = std ? `
       <div class="bench-strip">
-        <div class="bench-label">Age-adjusted strength standard — ${age}yr ${isFemale?'female':'male'} · ${weight}kg</div>
+        <div class="bench-label">${age}yr ${isFemale?'female':'male'} · ${weight}kg · age-adjusted</div>
         <div class="bench-values">
           <div>${std.beginner}kg</div>
-          <div class="you">${std.intermediate}kg ← you</div>
+          <div class="you">${std.intermediate}kg</div>
           <div>${std.advanced}kg</div>
         </div>
         <div class="bench-track">
           <div class="bench-fill" style="width:66%"></div>
           <div class="bench-marker" style="left:66%"></div>
         </div>
-        <div class="bench-labels">
-          <div>Beginner</div>
-          <div style="text-align:center">Intermediate</div>
-          <div style="text-align:right">Advanced</div>
-        </div>
+        <div class="bench-labels"><div>Beginner</div><div style="text-align:center">You</div><div style="text-align:right">Advanced</div></div>
         <div class="bench-age-note">${getAgeNote(age, isFemale)}</div>
       </div>` : '';
 
-    const setsHTML = (() => {
-      const rows = [];
-      for (let s = 1; s <= parsed.sets; s++) {
-        const isLast = s === parsed.sets;
-        const intensity = s === 1 ? 'Warm-up: −20% load, focus technique' : isLast ? `Working set: RPE ${rpe} — ${parsed.reps} reps, 1-3 reps from failure` : `Build set: increase load, RPE ${parseInt(rpe)-1}`;
-        rows.push(`<div class="set-row"><div class="set-num">Set ${s}</div><div class="set-detail">${intensity}</div></div>`);
-      }
-      return rows.join('');
-    })();
+    const sets = [];
+    for (let s=1; s<=parsed.sets; s++) {
+      const isLast = s===parsed.sets;
+      const txt = s===1 ? 'Warm-up: −20% load, lock in technique' : isLast ? `Working set: RPE ${rpe} — ${parsed.reps} reps, 1-3 from failure` : `Build set: increase load, RPE ${parseInt(rpe)-1}`;
+      sets.push(`<div class="set-row"><div class="set-num">S${s}</div><div class="set-detail">${txt}</div></div>`);
+    }
 
-    return `<div class="ex-card" id="ex-${i}">
-      <div class="ex-card-head" onclick="document.getElementById('ex-${i}').classList.toggle('open')">
+    return `<div class="ex-card" id="exc-${i}">
+      <div class="ex-card-head" onclick="document.getElementById('exc-${i}').classList.toggle('open')">
         <div>
           <div class="ex-name">${parsed.name}</div>
         </div>
@@ -800,102 +1039,77 @@ function renderSessionBlock(block) {
         <span class="ex-chevron">▾</span>
       </div>
       <div class="ex-body">
-        ${injuryMatch ? `<div class="ex-injury-note"><span>⚠ Injury note:</span> ${injuryMatch.location} — ${(injuryMatch.avoidMovements||[]).some(m=>parsed.name.toLowerCase().includes(m.toLowerCase())) ? 'Substitute with: '+(injuryMatch.safeAlternatives||[]).slice(0,2).join(', ') : 'Perform with caution and reduced range of motion.'}</div>` : ''}
+        ${injMatch ? `<div class="ex-injury-note"><span>⚠ ${injMatch.location}:</span> ${(injMatch.safeAlternatives||[]).length?'Safe alternatives: '+(injMatch.safeAlternatives||[]).slice(0,2).join(', '):'Perform with reduced range of motion.'}</div>` : ''}
         ${benchHTML}
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Set guide</div>
-        <div class="sets-guide">${setsHTML}</div>
-        <div style="font-size:11px;font-weight:300;color:var(--dk-3);padding-top:8px;border-top:1px solid var(--bd);">Rest: ${reps<=5?'3-4 min':reps<=8?'2-3 min':'90 sec-2 min'} between sets</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:7px;">Set guide</div>
+        <div class="sets-guide">${sets.join('')}</div>
+        <div style="font-size:11px;font-weight:300;color:var(--dk-3);padding-top:7px;border-top:1px solid var(--bd);">Rest: ${reps<=5?'3-4 min':reps<=8?'2-3 min':'90 sec'} between sets</div>
       </div>
     </div>`;
   }).join('');
 
-  return `<div class="session-expanded">
-    <div class="session-header">
-      <div>
-        <div class="session-title">${block.title}</div>
-        <div class="session-meta">${exercises.length} exercises · ${((window._todayCtx&&window._todayCtx.plan.focus)||'')}</div>
-      </div>
-    </div>
-    ${exCards}
-    <div style="margin-top:12px;padding:10px 14px;background:rgba(0,200,160,0.04);border:1px solid var(--jade-br);border-radius:4px;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;">
-      ${block.science||'Track every set. Progressive overload — adding load, reps, or density week to week — is the mechanism.'}
-    </div>
-  </div>`;
+  showRightPanel(block.title, block.subtitle||'Today\'s session', `<div class="session-panel">${exHTML}</div>`);
 }
 
-// ── MAIN RENDER ───────────────────────────────────────
-function renderPlan(plan, todayName) {
+// ── RENDER PLAN ───────────────────────────────────────
+function renderPlan(plan) {
   const root = document.getElementById('day-root');
-  window._blocks = plan.blocks; // expose for shuffle callbacks
+  window._blocks = plan.blocks;
 
   const blocksHtml = plan.blocks.map((b, i) => {
-    const isMeal     = ['meal','wake'].includes(b.type) && b.mealSlot;
+    const isMeal     = b.mealSlot;
     const isTraining = b.type === 'training';
 
-    // Simpler blocks (supp, recovery, sleep) — same as before
     if (!isMeal && !isTraining) {
-      const detailHtml = (b.detail||'').split('\n').map(l=>l.trim()?`<p>${l}</p>`:'').join('');
-      const itemsHtml = (b.items||[]).map(it=>`<div class="tl-item"><span class="tl-item-name">${it.name}</span>${it.meta?`<span class="tl-item-meta">${it.meta}</span>`:''}</div>`).join('');
-      return `<div class="tl-block type-${b.type||'meal'}" onclick="this.classList.toggle('open')">
+      const det = (b.detail||'').split('\n').map(l=>l.trim()?`<p>${l}</p>`:'').join('');
+      const its = (b.items||[]).map(it=>`<div class="tl-item"><span class="tl-item-name">${it.name}</span>${it.meta?`<span class="tl-item-meta">${it.meta}</span>`:''}</div>`).join('');
+      return `<div class="tl-block type-${b.type||'supp'}" onclick="this.classList.toggle('open')">
         <div class="tl-head">
           <div class="tl-time">${b.time||''}</div>
-          <div class="tl-main"><div class="tl-title">${b.title||''}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
+          <div class="tl-main"><div class="tl-title">${b.title}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
           ${b.tag?`<span class="tl-tag ${b.tagColor||'slate'}">${b.tag}</span>`:''}
           <span class="tl-chevron">▾</span>
         </div>
-        <div class="tl-body">
-          ${b.detail?`<div class="tl-detail">${detailHtml}</div>`:''}
-          ${b.science?`<div class="tl-science">${b.science}</div>`:''}
-          ${itemsHtml?`<div class="tl-items">${itemsHtml}</div>`:''}
-        </div>
+        <div class="tl-body">${det?`<div class="tl-detail">${det}</div>`:''}${b.science?`<div class="tl-science">${b.science}</div>`:''}${its?`<div class="tl-items">${its}</div>`:''}</div>
       </div>`;
     }
 
-    // Meal blocks — tap header to toggle, has recipe expansion below
     if (isMeal) {
-      const itemsHtml = (b.items||[]).map(it=>`<div class="tl-item"><span class="tl-item-name">${it.name}</span>${it.meta?`<span class="tl-item-meta">${it.meta}</span>`:''}</div>`).join('');
-      return `<div class="tl-block type-meal">
-        <div class="tl-head" onclick="toggleMealExpand(${i})">
+      const eaten = _macroState && _macroState.meals[b.mealSlot] && _macroState.meals[b.mealSlot].logged;
+      return `<div class="tl-block type-meal ${eaten?'eaten':''}" data-slot="${b.mealSlot}">
+        <div class="tl-head" onclick="openMealPanel(${i},window._blocks[${i}])">
           <div class="tl-time">${b.time||''}</div>
-          <div class="tl-main"><div class="tl-title">${b.title||''}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
-          <span class="tl-tag amber">Eat</span>
-          <span class="tl-chevron" id="meal-chev-${i}">▾</span>
+          <div class="tl-main">
+            <div class="tl-title">${b.title}</div>
+            <div class="tl-subtitle" id="sub-${b.mealSlot}">${b.subtitle||''}</div>
+          </div>
+          <span class="tl-tag amber">${eaten?'✓ Eaten':'Eat'}</span>
+          <span class="tl-chevron">→</span>
         </div>
-        <div class="tl-body" id="meal-body-${i}" style="display:none;">
-          <div class="tl-detail"><p>${b.detail||''}</p></div>
-          ${itemsHtml?`<div class="tl-items">${itemsHtml}</div>`:''}
-          <button style="margin-top:12px;background:transparent;border:1px solid var(--amber-br,rgba(196,124,24,0.3));color:var(--amber);padding:5px 14px;border-radius:14px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);"
-            onclick="expandMealBlock(${i},window._blocks[${i}])">🍳 View recipe & macros</button>
-        </div>
-        <div class="recipe-expanded" id="meal-expand-${i}" style="display:none;"></div>
       </div>`;
     }
 
-    // Training block
     if (isTraining) {
       return `<div class="tl-block type-training">
-        <div class="tl-head" onclick="toggleSessionExpand(${i})">
+        <div class="tl-head" onclick="openSessionPanel(${i},window._blocks[${i}])">
           <div class="tl-time">${b.time||''}</div>
-          <div class="tl-main"><div class="tl-title">${b.title||''}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
+          <div class="tl-main"><div class="tl-title">${b.title}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
           <span class="tl-tag jade">Train</span>
-          <span class="tl-chevron" id="sess-chev-${i}">▾</span>
-        </div>
-        <div class="session-expanded" id="sess-expand-${i}" style="display:none;">
-          ${renderSessionBlock(b)}
+          <span class="tl-chevron">→</span>
         </div>
       </div>`;
     }
   }).join('');
 
   const d = new Date();
-  const dateStr = d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+  const dateStr = d.toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long'});
 
   root.innerHTML = `
     <div class="day-hero">
       <div class="day-kicker">${dateStr}</div>
       <div class="day-title">${plan.dayTitle}</div>
       <div class="day-brief">${plan.dayBrief}</div>
-      ${plan.priority ? `<div class="day-priority">${plan.priority}</div>` : ''}
+      ${plan.priority?`<div class="day-priority">${plan.priority}</div>`:''}
     </div>
     <div class="day-macros">
       <div class="dm"><div class="dm-val">${plan.macros.kcal}</div><div class="dm-label">Calories</div></div>
@@ -903,12 +1117,14 @@ function renderPlan(plan, todayName) {
       <div class="dm"><div class="dm-val amber">${plan.macros.carbs}g</div><div class="dm-label">Carbs</div></div>
       <div class="dm"><div class="dm-val">${plan.macros.fat}g</div><div class="dm-label">Fat</div></div>
     </div>
-    <div class="water-strip">💧 Water target: ${plan.macros.water} — spread across the day</div>
+    <div id="macro-cup">${getMacroCupHTML()}</div>
+    <div class="water-strip">💧 ${plan.macros.water} — spread across the day. Post-meal walks amplify every kcal burned.</div>
+    <div id="acc-strip-here"></div>
     <div class="tl-label">Your day</div>
     ${blocksHtml}
-    <button class="regen-btn" onclick="regenerate()">↺ Regenerate today</button>
+    <button class="regen-btn" onclick="window.regenerate()">↺ Rebuild today</button>
     <div class="ask-wrap">
-      <div class="ask-sec">Ask your coach</div>
+      <div class="ask-sec">Quick question</div>
       <div class="ask-chips" id="ask-chips"></div>
       <div class="ask-input-row">
         <input class="ask-input" id="ask-input" type="text" placeholder="Ask anything about today…">
@@ -918,161 +1134,120 @@ function renderPlan(plan, todayName) {
     </div>`;
 }
 
-function toggleMealExpand(i) {
-  const body = document.getElementById('meal-body-'+i);
-  const chev = document.getElementById('meal-chev-'+i);
-  if (!body) return;
-  const isOpen = body.style.display !== 'none';
-  body.style.display = isOpen ? 'none' : 'block';
-  if (chev) chev.style.transform = isOpen ? '' : 'rotate(180deg)';
-}
 
-function toggleSessionExpand(i) {
-  const el  = document.getElementById('sess-expand-'+i);
-  const chev = document.getElementById('sess-chev-'+i);
-  if (!el) return;
-  const isOpen = el.style.display !== 'none';
-  el.style.display = isOpen ? 'none' : 'block';
-  if (chev) chev.style.transform = isOpen ? '' : 'rotate(180deg)';
-}
-
-
-// ── 5. ASK CHIPS ─────────────────────────────────────
+// ── ASK CHIPS ─────────────────────────────────────────
 function setupChips(profile, today) {
   const chipsEl = document.getElementById('ask-chips');
   if (!chipsEl) return;
-
   const injuries = profile.injuryAssessments || profile.injuries || [];
   const isTraining = today.isTraining;
   const chips = isTraining ? [
     'How hard should I push today?',
+    injuries.length ? 'My '+( injuries[0].location||'injury')+' feels off' : 'Am I recovered enough?',
     'What\'s the most important meal today?',
-    injuries.length ? 'My ' + (injuries[0].location||'injury') + ' is niggly' : 'Am I recovered enough?',
-    'Swap for one of today\'s exercises?'
+    'Swap one of today\'s exercises?',
   ] : [
-    'Rest day — should I do anything?',
-    'Same calories on rest days?',
-    'How do I make the most of today?',
-    'Can I train anyway?'
+    'Rest day — active or completely off?',
+    'Same calories today?',
+    'How do I make today count?',
+    'Can I train anyway?',
   ];
-
-  chipsEl.innerHTML = chips.map(c =>
-    `<div class="ask-chip" onclick="sendAsk(${JSON.stringify(c)})">${c}</div>`
+  chipsEl.innerHTML = chips.map(c=>
+    `<div class="ask-chip" data-msg="${c.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${c}</div>`
   ).join('');
+  chipsEl.querySelectorAll('.ask-chip').forEach(chip => {
+    chip.addEventListener('click', () => sendAsk(chip.dataset.msg));
+  });
 }
 
-// ── 6. ASK HANDLER ────────────────────────────────────
-let askInFlight = false;
+// ── ASK HANDLER ───────────────────────────────────────
+let _askInFlight = false;
 
 function sendAsk(text) {
   const input  = document.getElementById('ask-input');
   const answer = document.getElementById('ask-answer');
-  const send   = document.getElementById('ask-send');
+  const sendBtn= document.getElementById('ask-send');
   const msg    = text || (input ? input.value.trim() : '');
-  if (!msg || askInFlight) return;
+  if (!msg || _askInFlight) return;
   if (input && !text) input.value = '';
-  askInFlight = true;
-  if (send) send.disabled = true;
+  _askInFlight = true;
+  if (sendBtn) sendBtn.disabled = true;
 
   answer.style.display = 'block';
-  answer.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;margin:8px auto;"></div>';
+  answer.innerHTML = '<div class="loading-spinner" style="width:18px;height:18px;margin:8px 0;border-top-color:var(--jade);"></div>';
 
   const p = _profile;
-  const today = _today;
   const isFemale = (p.sex||'').toLowerCase() === 'female';
   const injuries = p.injuryAssessments || p.injuries || [];
-  const system = `You are the BodyLens coach — senior performance coach. Speaking with ${p.name}.
-Profile: ${p.age}yo ${p.sex}, ${p.weight}kg, goal: ${p.goal}, training ${p.trainingDays}x/week.
-Today: ${today.name} — ${today.isTraining ? 'TRAINING ('+today.plan.type+': '+today.plan.focus+')' : 'REST DAY'}.
-Calories: ${p.calories} | Protein: ${p.protein}g | Carbs: ${p.carbs}g | Fat: ${p.fat}g.
-${injuries.length ? 'Injuries: '+injuries.map(i=>i.location||i).join(', ')+'.' : ''}
-${isFemale ? 'Female — apply female physiology where relevant.' : ''}
-Be direct and specific. Reference their actual numbers. Use **bold** for key points. Keep under 150 words.`;
 
   fetch(API, {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      model: MODEL, max_tokens: 300,
-      system,
-      messages:[{ role:'user', content: msg }]
+    body: JSON.stringify({ model:MODEL, max_tokens:280,
+      system:`You are the BodyLens coach. Speaking with ${p.name}. Today: ${_today.name} — ${_today.isTraining?'TRAINING ('+_today.plan.type+')':'REST DAY'}. Calories: ${p.calories}. Protein: ${p.protein}g. ${injuries.length?'Injuries: '+injuries.map(i=>i.location||i).join(', ')+'.':''} ${isFemale?'Female.':''} Be direct, personal, under 120 words. Flowing prose, no bullets.`,
+      messages:[{role:'user',content:msg}]
     })
   })
-  .then(r => r.json())
+  .then(r=>r.json())
   .then(data => {
-    if (data.error) throw new Error(data.error.message);
     const text = (data.content||[]).map(b=>b.text||'').join('').trim();
-    answer.innerHTML = formatAnswer(text);
+    answer.innerHTML = text.split(/\n\n+/).map(p=>`<p>${p.trim()}</p>`).join('');
   })
-  .catch(err => {
-    answer.innerHTML = '<p style="color:var(--dk-3)">Something went wrong — try again</p>';
-  })
+  .catch(() => { answer.innerHTML = '<p style="color:var(--dk-3)">Something went wrong — try again</p>'; })
   .finally(() => {
-    askInFlight = false;
-    if (send) send.disabled = false;
+    _askInFlight = false;
+    if (sendBtn) sendBtn.disabled = false;
   });
 }
 
-function formatAnswer(text) {
-  return text
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/^[•\-] (.+)$/gm, '<li>$1</li>')
-    .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
-    .split(/\n\n+/)
-    .map(p => {
-      const t = p.trim();
-      if (!t || t.startsWith('<ul') || t.startsWith('<li')) return t;
-      return `<p>${t}</p>`;
-    })
-    .join('') || `<p>${text}</p>`;
-}
-
-// ── 7. MEAL ENRICHMENT ────────────────────────────────
+// ── MEAL ENRICHMENT ───────────────────────────────────
 function enrichMeals(profile, today) {
   const mealSlots = document.querySelectorAll('[data-slot]');
   if (!mealSlots.length) return;
-
   const p = profile;
-  const prompt = `Give specific meal names for ${p.name}. Return ONLY a JSON object, no other text.
-Diet: ${p.dietType||'flexible'} | Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}
-Cuisine: ${(p.cuisinePrefs||[]).join(', ')||'neutral'} | Complexity: ${p.recipeComplexity||'standard'}
+  const prompt = `Meal names for ${p.name}. Return JSON only.
+Diet: ${p.dietType||'flexible'} | Exclude: ${(p.foodExclusions||[]).join(',')||'none'} | Cuisine: ${(p.cuisinePrefs||[]).join(',')||'neutral'}
 Today: ${today.isTraining ? 'training ('+today.plan.type+')' : 'rest day'}
-Calories: ${p.calories} | Protein: ${p.protein}g
-
-Return: {"pre-training":"meal name","post-training":"meal name","midday":"meal name","afternoon":"meal name","evening":"meal name"}
-Only include applicable slots. Short meal names only. No descriptions.`;
-
-  fetch(API, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      model: MODEL, max_tokens: 120,
-      system: 'Return only valid JSON. No markdown. No preamble.',
-      messages:[{ role:'user', content: prompt }]
-    })
-  })
-  .then(r => r.json())
-  .then(data => {
-    const text = (data.content||[]).map(b=>b.text||'').join('').trim();
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) return;
-    const meals = JSON.parse(match[0]);
-    Object.entries(meals).forEach(([slot, mealName]) => {
-      const block = document.querySelector(`[data-slot="${slot}"]`);
-      if (!block || !mealName) return;
-      const titleEl = block.querySelector('.tl-title');
-      if (titleEl) titleEl.textContent = mealName;
+Return: {"pre-training":"name","post-training":"name","midday":"name","afternoon":"name","evening":"name"}
+Short names only. Only include applicable slots.`;
+  fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:100,system:'Return only valid JSON.',messages:[{role:'user',content:prompt}]})})
+  .then(r=>r.json()).then(data=>{
+    const text=(data.content||[]).map(b=>b.text||'').join('').trim();
+    const m=text.match(/\{[\s\S]*\}/);
+    if(!m)return;
+    const meals=JSON.parse(m[0]);
+    Object.entries(meals).forEach(([slot,name])=>{
+      const block=document.querySelector(`[data-slot="${slot}"] .tl-title`);
+      if(block&&name)block.textContent=name;
     });
-  })
-  .catch(() => {}); // fail silently — generic titles are fine
+  }).catch(()=>{});
 }
 
-// ── 8. REGENERATE ─────────────────────────────────────
-function regenerate() {
-  try { localStorage.removeItem(_today.cacheKey); } catch(e) {}
+// ── ACCELERATOR ───────────────────────────────────────
+function pickAccelerator(profile, today) {
+  const goal = (profile.goal||'').toLowerCase();
+  const age  = profile.age||35;
+  const cands = [];
+  if (!today.isTraining) {
+    cands.push({name:'Extended overnight fast',why:'Rest day — ideal window. No performance cost. Fat oxidation elevated all morning.',url:'bodylens-accelerators.html'});
+    cands.push({name:'NSDR session today',why:'20 minutes of yoga nidra raises dopamine 65% and restores focus as well as 90 min of sleep.',url:'bodylens-accelerators.html'});
+  } else {
+    cands.push({name:'Post-training walk',why:'10 min after your post-session meal drops glucose 20-30% and keeps GLP-1 elevated.',url:'bodylens-accelerators.html'});
+    cands.push({name:'Dopamine scheduling',why:'No social media before training. The contrast makes the session dopamine hit land harder.',url:'bodylens-accelerators.html'});
+  }
+  if (goal.includes('fat')||goal.includes('los')) cands.unshift({name:'NEAT target: +3,000 steps',why:'Easiest caloric deficit available. 3,000 extra steps = ~150 kcal without touching food or training.',url:'bodylens-accelerators.html'});
+  if (age >= 40) cands.push({name:'Zone 2 cardio — 20 min today',why:`At ${age}, VO₂max is the primary longevity lever. 20 min at conversational pace today.`,url:'bodylens-accelerators.html'});
+  return cands[0];
+}
+
+// ── REGENERATE ────────────────────────────────────────
+window.regenerate = function() {
+  try { localStorage.removeItem(_today.cacheKey); } catch(e){}
   location.reload();
-}
+};
 
-// ── 9. MAIN ───────────────────────────────────────────
-// All variables declared here, in order, before anything runs
+window.sendAsk = sendAsk;
+
+// ── MAIN ──────────────────────────────────────────────
 const _profile = loadProfile();
 
 if (!_profile) {
@@ -1081,18 +1256,28 @@ if (!_profile) {
       <div style="font-size:44px;margin-bottom:16px;">💪</div>
       <div style="font-family:var(--serif);font-size:28px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">Let's build your programme</div>
       <div style="font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:28px;">Answer a few questions and your personalised daily plan will be ready in minutes.</div>
-      <a href="bodylens-onboard.html" style="display:inline-block;background:var(--jade);color:var(--ink);padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;letter-spacing:0.04em;text-decoration:none;">Get started →</a>
+      <a href="bodylens-onboard.html" style="display:inline-block;background:var(--jade);color:var(--ink);padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;">Get started →</a>
     </div>`;
+  document.getElementById('week-strip').style.display = 'none';
 } else {
-  // Set nav name
+  // Nav
   const nm = document.getElementById('nav-meta');
   if (nm) nm.innerHTML = `<span class="nav-tag nt-jade">${_profile.name}</span>`;
 
-  // Get today context — AFTER profile is loaded
+  // Today context — declared BEFORE anything uses it
   const _today = getTodayContext(_profile);
-  window._todayCtx = _today; // expose for render functions
+  window._today = _today;
 
-  // Check cache
+  // Programme week indicator
+  const progCtx = getWeekProgrammeContext(_profile);
+
+  // Init macro state
+  initMacroState(_profile, _today);
+
+  // Week strip
+  renderWeekStrip(_profile, _today);
+
+  // Cache check
   let plan = null;
   try {
     const cached = localStorage.getItem(_today.cacheKey);
@@ -1100,98 +1285,47 @@ if (!_profile) {
   } catch(e) {}
 
   if (!plan || !plan.blocks || plan.blocks.length < 3) {
-    // Build from profile
     plan = buildPlan(_profile, _today);
-    try { localStorage.setItem(_today.cacheKey, JSON.stringify(plan)); } catch(e) {}
+    try { localStorage.setItem(_today.cacheKey, JSON.stringify(plan)); } catch(e){}
   }
 
-  // ── PICK TODAY'S ACCELERATOR ──────────────────────
-  function pickAccelerator(profile, today) {
-    const goal = (profile.goal||'').toLowerCase();
-    const isTraining = today.isTraining;
-    const age = profile.age || 35;
-    const isFemale = (profile.sex||'').toLowerCase() === 'female';
-    const dayOfWeek = new Date().getDay(); // 0=Sun
-    const stress = (profile.stressLevel||'').toLowerCase();
-    const saved = profile.accelerators || [];
-
-    // Candidates — picked contextually based on day type, goal, profile
-    const candidates = [];
-
-    if (!isTraining) {
-      // Rest day — fasting and recovery accelerators
-      candidates.push({ name:'Extended overnight fast', why:'Rest day tomorrow — ideal window for a 16-hour fast. No performance cost. Fat oxidation elevated all morning.', url:'bodylens-accelerators.html#fast-16-8' });
-      candidates.push({ name:'NSDR session this afternoon', why:'Rest day recovery. 20 minutes of yoga nidra raises dopamine 65% and restores cognitive function as well as 90 minutes of sleep.', url:'bodylens-accelerators.html#nsdr' });
-    } else {
-      // Training day
-      candidates.push({ name:'Post-training walks', why:'A 10-minute walk after your post-training meal today drops glucose by 20-30% and elevates GLP-1 for appetite control.', url:'bodylens-accelerators.html#post-meal-walks' });
-      candidates.push({ name:'Dopamine scheduling before training', why:'Hold off on social media and news until after your session. The contrast effect means the training dopamine release lands harder.', url:'bodylens-accelerators.html#dopamine-scheduling' });
-    }
-
-    if (goal.includes('fat')||goal.includes('los')||goal.includes('cut')) {
-      if (!isTraining) candidates.unshift({ name:'Extended overnight fast', why:'You're in a fat loss phase. A 16-hour fast on your rest day adds meaningful fat oxidation time with zero muscle cost if protein stays high.', url:'bodylens-accelerators.html#fast-16-8' });
-      candidates.push({ name:'NEAT maximisation today', why:'3,000 extra steps is roughly 150 kcal. Over a week that's a meaningful deficit without touching training or food.', url:'bodylens-accelerators.html#neat' });
-    }
-
-    if (goal.includes('muscle')||goal.includes('build')) {
-      candidates.push({ name:'Training log tonight', why:'Write every set before you forget. Next week's progressive overload depends on knowing today's exact numbers.', url:'bodylens-accelerators.html#training-log' });
-    }
-
-    if (age >= 40) {
-      if (dayOfWeek === 3 || dayOfWeek === 6) { // Wed or Sat
-        candidates.push({ name:'Zone 2 cardio today', why:`At ${age}, VO₂max is the primary longevity lever. Even 20 minutes at conversational pace builds the mitochondrial base that determines how you feel at 60.`, url:'bodylens-accelerators.html#zone2' });
-      }
-    }
-
-    if (stress.includes('high')) {
-      candidates.push({ name:'NSDR — 20 min today', why:'Your stress level is high. A single NSDR session drops cortisol meaningfully and partially reverses the hormonal cost of chronic stress.', url:'bodylens-accelerators.html#nsdr' });
-    }
-
-    // Filter out already-saved ones after first 3 uses
-    const unseen = candidates.filter(c => !saved.includes(c.url?.split('#')[1]||''));
-    return (unseen.length ? unseen : candidates)[0] || null;
-  }
-
-  // ── RENDER ────────────────────────────────────────
-  const _acc = pickAccelerator(_profile, _today);
   // Render
-  renderPlan(plan, _today.name);
+  renderPlan(plan);
 
-  // Inject accelerator strip after water-strip
-  if (_acc) {
-    const waterStrip = document.querySelector('.water-strip');
-    if (waterStrip) {
-      const stripEl = document.createElement('div');
-      stripEl.className = 'acc-strip';
-      stripEl.innerHTML = `
-        <div class="as-left">
-          <div class="as-eyebrow">💡 Accelerator — optional for today</div>
-          <div class="as-title">${_acc.name}</div>
-          <div class="as-why">${_acc.why}</div>
+  // Programme week strip (inject after render)
+  const accSlot = document.getElementById('acc-strip-here');
+  if (accSlot) {
+    const dots = [1,2,3,4].map(w=>`<div class="wps-dot ${w<progCtx.weekNum?'done':w===progCtx.weekNum?'current':''}"></div>`).join('');
+    accSlot.innerHTML = `
+      <div class="week-prog-strip">
+        <div>
+          <div class="wps-label">Programme progress</div>
+          <div class="wps-dots">${dots}</div>
         </div>
-        <a href="bodylens-accelerators.html" class="as-btn">Read more →</a>`;
-      waterStrip.parentNode.insertBefore(stripEl, waterStrip.nextSibling);
+        <div style="text-align:right">
+          <div class="wps-week">Week ${progCtx.weekNum} of 4</div>
+          <div class="wps-phase">${progCtx.phase} phase</div>
+        </div>
+      </div>`;
+    // Accelerator
+    const acc = pickAccelerator(_profile, _today);
+    if (acc) {
+      accSlot.innerHTML += `<div class="acc-strip">
+        <div><div class="as-eyebrow">💡 Accelerator — optional</div><div class="as-title">${acc.name}</div><div class="as-why">${acc.why}</div></div>
+        <a href="${acc.url}" class="as-btn">More →</a>
+      </div>`;
     }
   }
-  setupChips(_profile, _today);
 
-  // Wire up ask bar
+  // Chips + ask bar
+  setupChips(_profile, _today);
   const askInput = document.getElementById('ask-input');
   const askSend  = document.getElementById('ask-send');
   if (askSend) askSend.addEventListener('click', () => sendAsk());
-  if (askInput) askInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendAsk();
-  });
+  if (askInput) askInput.addEventListener('keydown', e => { if (e.key==='Enter') sendAsk(); });
 
-  // Enrich meals async (background, non-blocking)
+  // Meal name enrichment (background)
   enrichMeals(_profile, _today);
-
-  // Make regenerate work with correct scope
-  window.regenerate = function() {
-    try { localStorage.removeItem(_today.cacheKey); } catch(e) {}
-    location.reload();
-  };
-  window.sendAsk = sendAsk;
 }
 </script>
 
