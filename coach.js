@@ -359,8 +359,8 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
 
     #bl-coach-panel {
       position: fixed; bottom: 92px; right: 28px;
-      width: 380px; max-width: calc(100vw - 40px);
-      height: 530px; max-height: calc(100vh - 110px);
+      width: 420px; max-width: calc(100vw - 40px);
+      height: 640px; max-height: calc(100vh - 110px);
       background: #111917; border: 1px solid #1e2e28; border-radius: 14px;
       display: flex; flex-direction: column; z-index: 9998;
       box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,200,160,0.06);
@@ -556,8 +556,11 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
     if (!container || !chips || !chips.length) return;
     container.style.display = 'flex';
     container.innerHTML = chips.map(c =>
-      `<div class="coach-chip followup" onclick="window._blCoach.send(${JSON.stringify(c)})">${c}</div>`
+      `<div class="coach-chip followup" data-msg="${c.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${c}</div>`
     ).join('');
+    container.querySelectorAll('.coach-chip').forEach(chip => {
+      chip.addEventListener('click', () => window._blCoach.send(chip.dataset.msg));
+    });
   }
 
   // ── INIT ──────────────────────────────────────────────
@@ -668,8 +671,11 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
     if (!el) return;
     el.style.display = 'flex';
     el.innerHTML = chips.map(c =>
-      `<div class="coach-chip" onclick="window._blCoach.send(${JSON.stringify(c)})">${c}</div>`
+      `<div class="coach-chip" data-msg="${c.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${c}</div>`
     ).join('');
+    el.querySelectorAll('.coach-chip').forEach(chip => {
+      chip.addEventListener('click', () => window._blCoach.send(chip.dataset.msg));
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
