@@ -1,1719 +1,1234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="bl-inject" content="fuel">
 <meta charset="UTF-8">
-<meta name="bl-page" content="fuel">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>BodyLens — Fuel</title>
+<meta name="bl-page" content="food">
+<title>BodyLens — Food</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-/* ── PAGE-SPECIFIC STYLES ── */
-
-/* Hero — dark */
-.fuel-hero {
-  background: var(--ink);
-  padding: 64px 0 0;
-  position: relative;
-  overflow: hidden;
-  border-bottom: 1px solid var(--bd);
+:root {
+  --amber-food: #c47c18;
+  --amber-dim:  rgba(196,124,24,0.08);
+  --amber-br:   rgba(196,124,24,0.25);
 }
-.fuel-hero-glow {
-  position: absolute;
-  top: -100px; right: -80px;
-  width: 500px; height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,200,160,0.05) 0%, transparent 65%);
+body { background:var(--ink); color:var(--dk-1); }
+
+/* ── STICKY TAB NAV ─────────────────────────────── */
+.food-nav {
+  position: sticky; top: 0; z-index: 90;
+  background: rgba(12,16,16,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--bd);
+  display: flex; gap: 0;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.food-nav::-webkit-scrollbar { display: none; }
+.fn { 
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 14px 20px; border: none; background: transparent; color: var(--dk-3);
+  cursor: pointer; font-family: var(--sans); white-space: nowrap;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color 0.12s;
+}
+.fn:hover { color: var(--dk-2); }
+.fn.active { color: var(--amber-food); border-bottom-color: var(--amber-food); }
+
+/* ── PANES ─────────────────────────────────────── */
+.food-pane { display: none; }
+.food-pane.active { display: block; }
+
+/* ── HERO ───────────────────────────────────────── */
+.mag-hero {
+  padding: 48px 0 0;
+  border-bottom: 1px solid var(--bd);
+  position: relative; overflow: hidden;
+}
+.mag-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 900px 500px at 80% 30%, rgba(196,124,24,0.05) 0%, transparent 65%);
   pointer-events: none;
 }
-.fuel-hero-inner {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 48px 64px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  align-items: end;
-}
-.fh-left {}
-.fh-eyebrow {
-  font-size: 10px; font-weight: 500; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--jade);
-  margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
-}
-.fh-eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--jade); }
-.fh-display {
-  font-family: var(--serif);
-  font-size: 72px; font-weight: 300;
-  line-height: 0.92; letter-spacing: -0.03em;
-  color: var(--dk-1); margin-bottom: 28px;
-}
-.fh-display em { font-style: italic; color: var(--dk-3); }
-.fh-voice {
-  font-family: var(--serif);
-  font-size: 18px; font-weight: 300; font-style: italic;
-  line-height: 1.78; color: var(--dk-2);
-  border-left: 2px solid var(--jade-br);
-  padding-left: 20px; max-width: 400px;
-}
-.fh-right {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--bd);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  overflow: hidden;
-  align-self: stretch;
-}
-.fh-stat {
-  background: var(--ink-1);
-  padding: 22px 24px;
-  display: flex; flex-direction: column; justify-content: space-between;
-}
-.fh-stat-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 8px; }
-.fh-stat-val { font-family: var(--serif); font-size: 36px; font-weight: 300; line-height: 1; color: var(--dk-1); }
-.fh-stat-val sup { font-family: var(--mono); font-size: 14px; color: var(--dk-3); vertical-align: top; margin-top: 6px; display: inline-block; }
-.fh-stat-val.hi { color: var(--jade); }
-.fh-stat-sub { font-size: 11px; font-weight: 300; color: var(--dk-3); margin-top: 6px; }
+.mh-inner { max-width: 1080px; margin: 0 auto; padding: 0 48px; position: relative; }
 
-/* Tab nav bar */
-.fuel-tabs {
-  background: var(--ink-1);
-  border-bottom: 1px solid var(--bd);
-  padding: 0 48px;
-  display: flex;
-  gap: 0;
-  position: sticky;
-  top: 60px;
-  z-index: 100;
+/* The big date + title */
+.mh-kicker {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--amber-food); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 12px;
 }
-.ftab {
-  font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 14px 20px; border: none; background: transparent;
-  color: var(--dk-3); cursor: pointer; font-family: var(--sans);
-  border-bottom: 2px solid transparent; margin-bottom: -1px;
-  transition: color 0.15s; white-space: nowrap;
+.mh-kicker::before { content: ''; width: 24px; height: 1px; background: var(--amber-food); }
+.mh-title {
+  font-family: var(--serif); font-size: 76px; font-weight: 300;
+  line-height: 0.88; letter-spacing: -0.035em; color: var(--dk-1);
+  margin-bottom: 20px;
 }
-.ftab:hover { color: var(--dk-2); }
-.ftab.active { color: var(--jade); border-bottom-color: var(--jade); }
+.mh-title em { font-style: italic; color: var(--dk-3); }
 
-/* ── SECTION 1: SHOPPING LIST (dark) ── */
-.shop-section {
-  background: var(--ink);
-  padding: 64px 0;
+/* Macro bar */
+.mh-macro-bar {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  border: 1px solid var(--bd); border-radius: 8px;
+  overflow: hidden; margin-bottom: 32px; max-width: 680px;
 }
-.shop-section .wrap { max-width: 1080px; margin: 0 auto; padding: 0 48px; }
+.mmb-cell { background: var(--ink-2); padding: 14px 12px; text-align: center; border-right: 1px solid var(--bd); }
+.mmb-cell:last-child { border-right: none; }
+.mmb-val { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--dk-1); margin-bottom: 3px; }
+.mmb-val.amber { color: var(--amber-food); }
+.mmb-val.jade  { color: var(--jade); }
+.mmb-val.water { color: rgba(100,180,220,0.8); }
+.mmb-label { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dk-3); }
 
-.shop-category {
-  margin-bottom: 40px;
-}
-.sc-header {
-  display: flex; align-items: baseline; gap: 16px;
-  margin-bottom: 16px; padding-bottom: 12px;
-  border-bottom: 1px solid var(--bd);
-}
-.sc-letter {
-  font-family: var(--serif); font-size: 48px; font-weight: 300;
-  line-height: 1; color: var(--dk-3);
-}
-.sc-title { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-.sc-count { font-size: 11px; font-weight: 300; color: var(--dk-3); }
-
-.shop-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--bd);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  overflow: hidden;
-}
-.shop-tile {
-  background: var(--ink-1);
-  padding: 18px 20px;
-  transition: background 0.15s;
-  position: relative;
-}
-.shop-tile:hover { background: var(--ink-2); }
-.shop-tile::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
+/* ── TODAY TAB ──────────────────────────────────── */
+.today-grid {
+  max-width: 1080px; margin: 0 auto; padding: 40px 48px 80px;
+  display: grid; grid-template-columns: 1fr 340px; gap: 48px;
 }
 
-/* Category colour bars */
-.cat-protein::before  { background: var(--jade); }
-.cat-fuel::before     { background: var(--amber); }
-.cat-fat::before      { background: var(--gold); }
-.cat-joint::before    { background: var(--gold); }
-.cat-micro::before    { background: var(--green); }
-
-.st-name {
-  font-family: var(--serif); font-size: 18px; font-weight: 500;
-  color: var(--dk-1); margin-bottom: 3px; line-height: 1.1;
-}
-.st-qty {
-  font-family: var(--mono); font-size: 12px; font-weight: 500;
-  color: var(--jade); margin-bottom: 8px;
-}
-.st-why { font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.65; }
-.st-why strong { color: var(--dk-1); font-weight: 500; }
-.st-pair {
-  margin-top: 10px; padding-top: 10px;
-  border-top: 1px solid var(--bd);
-  font-size: 10px; font-weight: 500; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--dk-3);
-}
-.st-pair span { color: var(--jade); }
-.st-tags {
-  display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px;
-}
-.st-tag {
-  font-size: 9px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
-  padding: 2px 7px; border-radius: 20px;
-}
-
-/* ── SECTION 2: SYNERGIES (light) ── */
-.syn-section {
-  background: var(--paper);
-  padding: 64px 0;
-}
-.syn-section .wrap { max-width: 1080px; margin: 0 auto; padding: 0 48px; }
-
-.synergy-card {
-  background: var(--paper-1);
-  border: 1px solid var(--bl);
-  border-radius: 6px;
-  padding: 22px 24px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 20px;
-  margin-bottom: 10px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.synergy-card:hover { border-color: var(--bl-2); box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
-.syn-combo {
-  display: flex; flex-direction: column; gap: 4px;
-  align-items: center; justify-content: flex-start;
-  min-width: 120px; padding-right: 20px;
-  border-right: 1px solid var(--bl);
-}
-.syn-item {
-  font-family: var(--serif); font-size: 16px; font-weight: 500;
-  color: var(--lt-1); text-align: center; line-height: 1.2;
-}
-.syn-plus {
-  font-size: 16px; color: var(--lt-3); font-weight: 300; line-height: 1;
-}
-.syn-arrow {
-  font-size: 18px; color: var(--jade); margin-top: 4px;
-}
-.syn-body {}
-.syn-headline {
-  font-family: var(--serif); font-size: 20px; font-weight: 500;
-  color: var(--lt-1); margin-bottom: 6px; line-height: 1.2;
-}
-.syn-mechanism {
-  font-size: 13px; font-weight: 300; line-height: 1.78;
-  color: var(--lt-2);
-}
-.syn-mechanism strong { color: var(--lt-1); font-weight: 500; }
-.syn-uplift {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 10px; padding: 5px 12px; border-radius: 20px;
-  background: var(--jade-dim); border: 1px solid var(--jade-br);
-  font-size: 11px; font-weight: 600; color: var(--jade);
-  letter-spacing: 0.04em;
-}
-
-/* ── SECTION 3: TIMING MAP (dark) ── */
-.timing-section {
-  background: var(--ink-1);
-  padding: 64px 0;
-  border-top: 1px solid var(--bd);
-}
-.timing-section .wrap { max-width: 1080px; margin: 0 auto; padding: 0 48px; }
-
-.timing-grid {
-  display: grid;
-  grid-template-columns: 140px 1fr 1fr 1fr;
-  gap: 1px;
-  background: var(--bd);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 28px;
-}
-.tg-header {
-  background: var(--ink-2);
-  padding: 12px 16px;
-  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.tg-header.row-label { color: var(--dk-3); }
-.tg-header.train-day { color: var(--jade); }
-.tg-header.rest-day  { color: var(--amber); }
-.tg-header.pre-train { color: var(--gold); border-left: 2px solid var(--gold); }
-
-.tg-label {
-  background: var(--ink-2);
-  padding: 16px;
-  display: flex; flex-direction: column; justify-content: center;
-}
-.tg-time { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--dk-3); margin-bottom: 3px; }
-.tg-slot { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dk-2); }
-
-.tg-cell {
-  background: var(--ink-1);
-  padding: 14px 16px;
-  font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.6;
-}
-.tg-cell strong { color: var(--dk-1); font-weight: 500; display: block; margin-bottom: 2px; }
-.tg-cell.high-priority { background: rgba(0,200,160,0.05); }
-.tg-cell.med-priority  { background: rgba(196,124,24,0.04); }
-.tg-cell.skip { opacity: 0.5; font-style: italic; color: var(--dk-3); }
-
-/* Timing principles */
-.timing-principle {
-  display: flex; gap: 16px; align-items: flex-start;
-  padding: 16px 0; border-bottom: 1px solid var(--bd);
-}
-.timing-principle:last-child { border-bottom: none; }
-.tp-num {
-  font-family: var(--serif); font-size: 28px; font-weight: 300;
-  color: var(--dk-3); line-height: 1; flex-shrink: 0; width: 32px;
-}
-.tp-body {}
-.tp-title { font-family: var(--serif); font-size: 19px; font-weight: 500; color: var(--dk-1); margin-bottom: 5px; }
-.tp-text { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.78; }
-.tp-text strong { color: var(--dk-1); font-weight: 500; }
-
-/* ── SECTION 4: SATIETY & ENERGY HACKS (light) ── */
-.satiety-section {
-  background: var(--paper-1);
-  padding: 64px 0;
-}
-.satiety-section .wrap { max-width: 1080px; margin: 0 auto; padding: 0 48px; }
-
-.hack-card {
-  background: var(--paper);
-  border: 1px solid var(--bl);
-  border-radius: 6px;
-  padding: 20px 24px;
-  margin-bottom: 10px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0;
-  overflow: hidden;
-  transition: box-shadow 0.15s;
-}
-.hack-card:hover { box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
-.hack-bar {
-  width: 3px; margin-right: 20px; border-radius: 3px;
-  background: var(--jade); flex-shrink: 0;
-}
-.hack-bar.energy { background: var(--amber); }
-.hack-bar.mind   { background: var(--gold); }
-.hack-bar.avoid  { background: var(--red); }
-.hack-body {}
-.hack-category {
-  font-size: 9px; font-weight: 600; letter-spacing: 0.12em;
-  text-transform: uppercase; margin-bottom: 6px;
-}
-.cat-satiety { color: var(--jade); }
-.cat-energy  { color: var(--amber); }
-.cat-mind    { color: var(--gold); }
-.cat-trap    { color: var(--red); }
-.hack-title {
-  font-family: var(--serif); font-size: 21px; font-weight: 500;
-  color: var(--lt-1); margin-bottom: 7px; line-height: 1.15;
-}
-.hack-text {
-  font-size: 13px; font-weight: 300; line-height: 1.78;
-  color: var(--lt-2);
-}
-.hack-text strong { color: var(--lt-1); font-weight: 500; }
-.hack-payoff {
-  display: inline-flex; align-items: center; gap: 6px; margin-top: 10px;
-  font-size: 11px; font-weight: 600; color: var(--jade);
-  padding: 4px 12px; border-radius: 20px;
-  background: var(--jade-dim); border: 1px solid var(--jade-br);
-}
-.hack-payoff.amber { color: var(--amber); background: var(--amber-dim); border-color: var(--amber-br); }
-
-/* ── SECTION 5: AVOID (dark) ── */
-.avoid-section {
-  background: var(--ink-2);
-  padding: 64px 0;
-  border-top: 1px solid var(--bd);
-}
-.avoid-section .wrap { max-width: 1080px; margin: 0 auto; padding: 0 48px; }
-
-.avoid-tile {
-  background: var(--ink-1);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  padding: 18px 20px;
-  margin-bottom: 8px;
-  display: grid;
-  grid-template-columns: 32px 1fr auto;
-  gap: 14px;
-  align-items: flex-start;
+/* Meal cards - the magazine's visual currency */
+.meal-card {
+  border: 1px solid var(--bd); border-radius: 10px;
+  overflow: hidden; margin-bottom: 12px;
   transition: border-color 0.15s;
 }
-.avoid-tile:hover { border-color: var(--bd-2); }
-.avoid-tile.critical { border-left: 3px solid var(--red); }
-.avoid-tile.contextual { border-left: 3px solid var(--amber); }
-.at-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-.at-body {}
-.at-name { font-size: 14px; font-weight: 500; color: var(--dk-1); margin-bottom: 4px; }
-.at-why  { font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.65; }
-.at-why strong { color: var(--dk-1); font-weight: 500; }
-.at-badge {
-  flex-shrink: 0; font-size: 9px; font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 3px 9px; border-radius: 20px; white-space: nowrap;
+.meal-card:hover { border-color: var(--bd-2, #2a3830); }
+.meal-card.open { border-color: var(--amber-br); }
+
+.mc-head {
+  display: grid; grid-template-columns: 52px 1fr auto;
+  align-items: center; gap: 0; cursor: pointer;
+  background: var(--ink-2); padding: 16px 18px;
 }
-.badge-always { color: var(--red);   background: var(--red-dim);   border: 1px solid var(--red-br); }
-.badge-context{ color: var(--amber); background: var(--amber-dim); border: 1px solid var(--amber-br); }
+.mc-time {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  color: var(--amber-food); letter-spacing: 0.04em;
+}
+.mc-main {}
+.mc-name {
+  font-size: 15px; font-weight: 500; color: var(--dk-1);
+  margin-bottom: 2px; line-height: 1.2;
+}
+.mc-purpose { font-size: 11px; font-weight: 300; color: var(--dk-3); }
+.mc-right { display: flex; align-items: center; gap: 12px; }
+.mc-prot {
+  font-family: var(--mono); font-size: 13px; font-weight: 600;
+  color: var(--jade);
+}
+.mc-kcal { font-family: var(--mono); font-size: 11px; color: var(--dk-3); }
+.mc-chevron { font-size: 10px; color: var(--dk-3); transition: transform 0.18s; }
+.meal-card.open .mc-chevron { transform: rotate(180deg); }
 
-/* ── TAB CONTENT VISIBILITY ── */
-.fuel-pane { display: none; }
-.fuel-pane.active { display: block; }
+.mc-body { display: none; background: var(--ink-1); border-top: 1px solid var(--bd); padding: 18px 20px; }
+.meal-card.open .mc-body { display: block; }
 
-@media(max-width:900px){
-  .fuel-hero-inner { grid-template-columns: 1fr; }
-  .fh-right { grid-template-columns: 1fr 1fr; }
+.mc-items { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.mc-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 12px; background: var(--ink-2); border-radius: 4px;
+  font-size: 12px;
+}
+.mc-item-name { font-weight: 400; color: var(--dk-1); }
+.mc-item-qty  { font-weight: 300; color: var(--dk-3); font-family: var(--mono); font-size: 11px; }
+
+.mc-macros {
+  display: flex; gap: 16px; padding: 10px 12px;
+  background: var(--ink-2); border-radius: 4px; font-size: 11px;
+}
+.mc-m-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.mc-m-val  { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+.mc-m-val.j { color: var(--jade); }
+.mc-m-val.a { color: var(--amber-food); }
+.mc-m-label { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dk-3); }
+
+/* Today sidebar */
+.today-sidebar {}
+.sidebar-widget {
+  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 10px;
+  overflow: hidden; margin-bottom: 16px;
+}
+.sw-head {
+  background: var(--ink-1); border-bottom: 1px solid var(--bd);
+  padding: 12px 16px;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--dk-3);
+}
+.sw-body { padding: 16px; }
+
+/* Protein tracker */
+.prot-track { margin-bottom: 12px; }
+.prot-bar-wrap { background: var(--ink-1); border-radius: 4px; height: 6px; overflow: hidden; margin-bottom: 6px; }
+.prot-bar { height: 100%; background: var(--jade); border-radius: 4px; transition: width 0.4s ease; }
+.prot-nums { display: flex; justify-content: space-between; font-size: 11px; }
+.prot-eaten { font-family: var(--mono); font-weight: 600; color: var(--jade); }
+.prot-target { font-family: var(--mono); font-weight: 300; color: var(--dk-3); }
+
+/* Calorie tracker */
+.kcal-track { margin-bottom: 12px; }
+.kcal-bar-wrap { background: var(--ink-1); border-radius: 4px; height: 6px; overflow: hidden; margin-bottom: 6px; }
+.kcal-bar { height: 100%; background: var(--amber-food); border-radius: 4px; transition: width 0.4s ease; }
+.kcal-nums { display: flex; justify-content: space-between; font-size: 11px; }
+.kcal-eaten { font-family: var(--mono); font-weight: 600; color: var(--amber-food); }
+.kcal-target { font-family: var(--mono); font-weight: 300; color: var(--dk-3); }
+
+/* Day type toggle */
+.day-toggle { display: flex; gap: 6px; margin-bottom: 16px; }
+.dt-btn {
+  flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--bd);
+  background: transparent; font-family: var(--sans); font-size: 11px;
+  font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--dk-3); cursor: pointer; transition: all 0.12s;
+}
+.dt-btn.active { background: var(--amber-dim); border-color: var(--amber-br); color: var(--amber-food); }
+
+/* Food rules widget */
+.food-rule {
+  display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--bd);
+  font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.5;
+}
+.food-rule:last-child { border-bottom: none; }
+.food-rule::before { content: '→'; color: var(--amber-food); font-weight: 600; flex-shrink: 0; }
+
+/* ── WEEK TAB ───────────────────────────────────── */
+.week-wrap { max-width: 1080px; margin: 0 auto; padding: 40px 48px 80px; }
+
+.week-header-row {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px;
+}
+.whr-day {
+  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 6px;
+  padding: 12px 8px; text-align: center; cursor: pointer; transition: border-color 0.12s;
+}
+.whr-day.train { border-top: 3px solid var(--amber-food); }
+.whr-day.today { border-color: var(--amber-br); background: var(--amber-dim); }
+.whr-day.active-day { border-color: var(--amber-food); }
+.whr-name { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 3px; }
+.whr-name.t { color: var(--amber-food); }
+.whr-type { font-size: 11px; font-weight: 500; color: var(--dk-1); margin-bottom: 2px; }
+.whr-kcal { font-size: 9px; font-family: var(--mono); color: var(--dk-3); }
+
+.week-day-content {
+  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 6px;
+  padding: 20px 24px; margin-top: 12px;
+}
+.wdc-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--amber-food); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.wdc-label::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+.week-meal-row {
+  display: grid; grid-template-columns: 52px 1fr auto auto;
+  gap: 12px; align-items: center; padding: 10px 0;
+  border-bottom: 1px solid var(--bd); cursor: pointer;
+}
+.week-meal-row:last-child { border-bottom: none; }
+.wmr-time { font-family: var(--mono); font-size: 11px; color: var(--amber-food); }
+.wmr-name { font-size: 13px; font-weight: 400; color: var(--dk-1); }
+.wmr-prot { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--jade); }
+.wmr-kcal { font-family: var(--mono); font-size: 11px; color: var(--dk-3); }
+
+/* ── RECIPES TAB ────────────────────────────────── */
+.recipes-wrap { max-width: 1080px; margin: 0 auto; padding: 40px 48px 80px; }
+.recipe-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.recipe-card {
+  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 8px;
+  overflow: hidden; cursor: pointer; transition: border-color 0.15s;
+}
+.recipe-card:hover { border-color: var(--amber-br); }
+.rc-top { background: var(--ink-1); padding: 16px; border-bottom: 1px solid var(--bd); }
+.rc-tag {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--amber-food); margin-bottom: 6px;
+}
+.rc-name { font-size: 15px; font-weight: 500; color: var(--dk-1); line-height: 1.2; margin-bottom: 4px; }
+.rc-sub { font-size: 11px; font-weight: 300; color: var(--dk-3); }
+.rc-body { padding: 14px 16px; }
+.rc-macros { display: flex; gap: 12px; margin-bottom: 10px; }
+.rc-m { text-align: center; }
+.rc-m-val { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--dk-1); }
+.rc-m-val.j { color: var(--jade); }
+.rc-m-val.a { color: var(--amber-food); }
+.rc-m-label { font-size: 8px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dk-3); }
+.rc-items { font-size: 11px; font-weight: 300; color: var(--dk-3); line-height: 1.8; }
+
+/* ── PYRAMIDS TAB ───────────────────────────────── */
+.pyramids-wrap { max-width: 1080px; margin: 0 auto; padding: 40px 48px 80px; }
+.pyr-selector { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+.pyr-btn {
+  padding: 8px 18px; border: 1px solid var(--bd); border-radius: 4px;
+  background: transparent; font-family: var(--sans); font-size: 11px;
+  font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--dk-3); cursor: pointer; transition: all 0.12s;
+}
+.pyr-btn:hover { border-color: var(--amber-br); color: var(--amber-food); }
+.pyr-btn.active { background: var(--amber-dim); border-color: var(--amber-food); color: var(--amber-food); }
+.pyr-btn .yours-tag { font-size: 8px; color: var(--jade); margin-left: 4px; }
+
+.pyr-layout { display: grid; grid-template-columns: 1fr 320px; gap: 40px; }
+
+.pyr-visual { margin-bottom: 32px; }
+.pyr-name { font-family: var(--serif); font-size: 36px; font-weight: 300; color: var(--dk-1); margin-bottom: 6px; }
+.pyr-sub { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.7; margin-bottom: 28px; max-width: 560px; }
+
+.pyr-bar-wrap { display: flex; flex-direction: column; gap: 6px; margin-bottom: 28px; }
+.pyr-layer {
+  display: flex; align-items: center; gap: 14px; justify-content: flex-end;
+}
+.pyr-bar {
+  height: 36px; border-radius: 3px;
+  display: flex; align-items: center; padding: 0 14px;
+  transition: width 0.5s ease;
+}
+.pyr-bar-label { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.85); white-space: nowrap; }
+.pyr-bar-note  { font-size: 10px; font-weight: 300; color: var(--dk-3); text-align: right; max-width: 180px; }
+
+.pyr-macros-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+.pyr-mac { background: var(--ink-2); border: 1px solid var(--bd); border-radius: 6px; padding: 14px; }
+.pyr-mac-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+.pyr-mac-amount { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--dk-1); margin-bottom: 4px; }
+.pyr-mac-note { font-size: 11px; font-weight: 300; color: var(--dk-3); line-height: 1.5; }
+
+.pyr-timing { margin-bottom: 24px; }
+.pt-item { padding: 12px 0; border-bottom: 1px solid var(--bd); }
+.pt-item:last-child { border-bottom: none; }
+.pt-title { font-size: 13px; font-weight: 500; color: var(--dk-1); margin-bottom: 4px; }
+.pt-text  { font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.7; }
+
+.pyr-sidebar {}
+.pyr-kcal-strip {
+  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 8px;
+  padding: 18px; margin-bottom: 16px;
+}
+.pks-label { font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 14px; }
+.pks-day { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--bd); }
+.pks-day:last-child { border-bottom: none; }
+.pks-day-name { font-size: 12px; font-weight: 400; color: var(--dk-2); }
+.pks-kcal { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--amber-food); }
+.pks-sub { font-size: 10px; color: var(--dk-3); }
+
+.pyr-food-vol { background: var(--ink-2); border: 1px solid var(--bd); border-radius: 8px; overflow: hidden; }
+.fv-head { background: var(--ink-1); border-bottom: 1px solid var(--bd); padding: 12px 16px; font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dk-3); }
+.fv-meal { padding: 12px 16px; border-bottom: 1px solid var(--bd); }
+.fv-meal:last-child { border-bottom: none; }
+.fv-meal-name { font-size: 11px; font-weight: 600; color: var(--amber-food); margin-bottom: 4px; }
+.fv-meal-detail { font-size: 11px; font-weight: 300; color: var(--dk-2); line-height: 1.55; }
+.fv-meal-macro { font-size: 10px; font-family: var(--mono); color: var(--dk-3); margin-top: 3px; }
+
+/* ── SHOPPING TAB ───────────────────────────────── */
+.shop-wrap { max-width: 1080px; margin: 0 auto; padding: 40px 48px 80px; }
+.shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.shop-cat { }
+.shop-cat-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--amber-food); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.shop-cat-label::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+.shop-item {
+  display: flex; align-items: center; gap: 12px; padding: 9px 0;
+  border-bottom: 1px solid var(--bd); cursor: pointer;
+}
+.shop-item:last-child { border-bottom: none; }
+.shop-check {
+  width: 18px; height: 18px; border: 1px solid var(--bd);
+  border-radius: 4px; flex-shrink: 0; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 10px; color: var(--jade); transition: all 0.12s;
+}
+.shop-item.checked .shop-check { background: var(--jade-dim); border-color: var(--jade-br); }
+.shop-item.checked .shop-name { text-decoration: line-through; color: var(--dk-3); }
+.shop-name { font-size: 13px; font-weight: 300; color: var(--dk-1); flex: 1; }
+.shop-qty  { font-family: var(--mono); font-size: 11px; color: var(--dk-3); }
+
+/* ── INTELLIGENCE TAB ───────────────────────────── */
+.intel-wrap { max-width: 1080px; margin: 0 auto; padding: 40px 48px 80px; }
+.intel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.intel-card {
+  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 8px;
+  overflow: hidden;
+}
+.ic-head { background: var(--ink-1); border-bottom: 1px solid var(--bd); padding: 14px 18px; }
+.ic-label { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber-food); margin-bottom: 4px; }
+.ic-title { font-size: 16px; font-weight: 500; color: var(--dk-1); }
+.ic-body { padding: 16px 18px; font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.8; }
+.ic-body strong { color: var(--dk-1); font-weight: 500; }
+
+/* ── SECTION HEADER ─────────────────────────────── */
+.sec-hdr {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--dk-3); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.sec-hdr::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+.sec-hdr.amber { color: var(--amber-food); }
+
+/* ── LOADING ─────────────────────────────────────── */
+.food-loading { padding: 60px 0; text-align: center; }
+.fl-spinner { width: 28px; height: 28px; border: 2px solid var(--bd); border-top-color: var(--amber-food); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.fl-text { font-size: 12px; font-weight: 300; color: var(--dk-3); }
+
+/* ── UTILS ────────────────────────────────────────  */
+.btn-amber {
+  background: transparent; border: 1px solid var(--amber-br); color: var(--amber-food);
+  padding: 7px 16px; border-radius: 20px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  font-family: var(--sans); transition: all 0.12s;
+}
+.btn-amber:hover { background: var(--amber-dim); }
+.btn-ghost { background: transparent; border: 1px solid var(--bd); color: var(--dk-3); padding: 7px 16px; border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; font-family: var(--sans); transition: all 0.12s; }
+.btn-ghost:hover { border-color: var(--bd-2, #2a3830); color: var(--dk-2); }
+
+@media(max-width: 800px) {
+  .mh-inner { padding: 0 20px; }
+  .mh-title { font-size: 48px; }
+  .mh-macro-bar { grid-template-columns: 1fr 1fr 1fr; }
+  .mh-macro-bar .mmb-cell:nth-child(4),
+  .mh-macro-bar .mmb-cell:nth-child(5) { grid-column: span 1; }
+  .today-grid { grid-template-columns: 1fr; padding: 24px 20px 60px; gap: 24px; }
+  .week-wrap, .recipes-wrap, .pyramids-wrap, .shop-wrap, .intel-wrap { padding: 24px 20px 60px; }
+  .week-header-row { grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .whr-day { padding: 8px 4px; }
+  .whr-type { font-size: 9px; }
+  .whr-kcal { display: none; }
+  .recipe-grid { grid-template-columns: 1fr 1fr; }
+  .pyr-layout { grid-template-columns: 1fr; }
   .shop-grid { grid-template-columns: 1fr; }
-  .timing-grid { grid-template-columns: 1fr; }
-  .fuel-tabs { padding: 0 18px; overflow-x: auto; }
-  .fuel-hero .wrap, .shop-section .wrap, .syn-section .wrap,
-  .timing-section .wrap, .satiety-section .wrap, .avoid-section .wrap { padding: 0 18px; }
-  .fuel-hero-inner { padding: 0 18px 48px; }
-  .synergy-card { grid-template-columns: 1fr; }
-  .syn-combo { flex-direction: row; border-right: none; border-bottom: 1px solid var(--bl); padding-right: 0; padding-bottom: 12px; min-width: auto; justify-content: flex-start; }
+  .intel-grid { grid-template-columns: 1fr; }
 }
 </style>
-<script src="profile-inject.js"></script>
 </head>
 <body>
 
+<!-- SITE NAV -->
 <nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
-    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food active" href="bodylens-fuel.html">Food</a>
+    <a class="nav-link nav-daily" href="bodylens-dailyplan.html">Today</a>
+    <a class="nav-link nav-food active" href="bodylens-magazine-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
   </div>
   <div class="nav-right-group">
-    <a class="nav-link nav-right" href="bodylens-howitworks.html">How it works</a>
+    <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
     <div class="nav-meta" id="nav-meta"></div>
   </div>
 </nav>
 
-<!-- ═══ HERO ═══ -->
-<div class="fuel-hero" id="fuel-hero">
-  <div class="fuel-hero-glow"></div>
-  <div class="fuel-hero-inner">
-    <div class="fh-left">
-      <div class="fh-eyebrow" id="fh-eyebrow">Food intelligence</div>
-      <div class="fh-display">Eat to<br><em>perform.</em></div>
-      <div class="fh-voice" id="fh-voice">
-        A performance fuel system built around your goals, your body, and your taste. Every item on the shopping list has a job. Every combination has a mechanism. Every timing decision has a reason.
-      </div>
-    </div>
-    <div class="fh-right" id="fh-stats">
-      <!-- Populated by JS from profile -->
-      <div class="fh-stat">
-        <div class="fh-stat-label">Loading…</div>
-        <div class="fh-stat-val">—</div>
-      </div>
+<!-- HERO — always visible above tabs -->
+<div class="mag-hero">
+  <div class="mh-inner">
+    <div class="mh-kicker" id="mh-kicker">Food intelligence</div>
+    <div class="mh-title" id="mh-title">Eat to<br><em>perform.</em></div>
+    <div class="mh-macro-bar" id="mh-macro-bar">
+      <div class="mmb-cell"><div class="mmb-val">—</div><div class="mmb-label">kcal</div></div>
+      <div class="mmb-cell"><div class="mmb-val jade">—</div><div class="mmb-label">protein</div></div>
+      <div class="mmb-cell"><div class="mmb-val amber">—</div><div class="mmb-label">carbs</div></div>
+      <div class="mmb-cell"><div class="mmb-val">—</div><div class="mmb-label">fat</div></div>
+      <div class="mmb-cell"><div class="mmb-val water">—</div><div class="mmb-label">water</div></div>
     </div>
   </div>
 </div>
 
-<script>
-// Inject profile data into hero immediately
-(function(){
-  try {
-    const raw = localStorage.getItem('bl_profile');
-    if (!raw) return;
-    const p = JSON.parse(raw);
-    window._fuelProfile = p; // expose for data structures
-    if (!p || !p.name) return;
+<!-- STICKY FOOD NAV -->
+<nav class="food-nav">
+  <button class="fn active" onclick="showPane('today', this)">Today</button>
+  <button class="fn" onclick="showPane('week', this)">This week</button>
+  <button class="fn" onclick="showPane('recipes', this)">Recipes</button>
+  <button class="fn" onclick="showPane('pyramids', this)">Pyramids</button>
+  <button class="fn" onclick="showPane('shopping', this)">Shopping</button>
+  <button class="fn" onclick="showPane('intel', this)">Intelligence</button>
+</nav>
 
-    // Update nav meta
-    const nm = document.getElementById('nav-meta');
-    if (nm) nm.innerHTML = '<span class="nav-tag nt-jade">'+p.name+'</span>';
-
-    // Calculate baseline
-    const isFemale = (p.sex||'').toLowerCase() === 'female';
-    const bmr = isFemale
-      ? 10*(p.weight||70) + 6.25*(p.height||165) - 5*(p.age||30) - 161
-      : 10*(p.weight||80) + 6.25*(p.height||175) - 5*(p.age||35) + 5;
-    const actBonus = (p.activityLevel||'').includes('physical') ? 0.1
-      : (p.activityLevel||'').includes('feet') ? 0.05 : 0;
-    const days = p.trainingDays || 4;
-    const tdee = Math.round(bmr * ((days <= 3 ? 1.55 : days <= 5 ? 1.65 : 1.725) + actBonus));
-    const trainKcal = p.calories || Math.round(tdee + 150);
-    const restKcal  = Math.round(trainKcal * 0.91);
-    const diff      = trainKcal - restKcal;
-    const weekPlan  = p.weekPlan || [];
-    const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
-
-    // Eyebrow
-    const eyebrow = document.getElementById('fh-eyebrow');
-    if (eyebrow) eyebrow.textContent = 'Food intelligence · ' + (p.goal||'Performance');
-
-    // Voice
-    const voice = document.getElementById('fh-voice');
-    if (voice) {
-      const cuisineNote = (p.cuisinePrefs||[]).length
-        ? (p.cuisinePrefs||[]).join(' · ') + ' flavours. '
-        : '';
-      const complexityNote = (p.recipeComplexity||'').includes('5 ingredient')
-        ? 'Simple, clean, no fuss. '
-        : (p.recipeComplexity||'').includes('enjoy cooking')
-        ? 'Complex recipes welcome. '
-        : 'Standard home cooking. ';
-      voice.textContent = cuisineNote + complexityNote
-        + 'Every item on the shopping list has a job. Every combination has a mechanism.';
-    }
-
-    // Stats
-    const stats = document.getElementById('fh-stats');
-    if (stats) stats.innerHTML = `
-      <div class="fh-stat">
-        <div class="fh-stat-label">Training day</div>
-        <div class="fh-stat-val hi">${trainKcal}<sup>kcal</sup></div>
-        <div class="fh-stat-sub">${trainingDays||'Training days'}</div>
-      </div>
-      <div class="fh-stat">
-        <div class="fh-stat-label">Rest day</div>
-        <div class="fh-stat-val">${restKcal}<sup>kcal</sup></div>
-        <div class="fh-stat-sub">−${diff} kcal vs training</div>
-      </div>
-      <div class="fh-stat">
-        <div class="fh-stat-label">Daily protein</div>
-        <div class="fh-stat-val hi">${p.protein||'—'}<sup>g</sup></div>
-        <div class="fh-stat-sub">${p.mealCount||4} meals · ${Math.round((p.protein||140)/( p.mealCount||4))}g each</div>
-      </div>
-      <div class="fh-stat">
-        <div class="fh-stat-label">TDEE baseline</div>
-        <div class="fh-stat-val">${tdee}<sup>kcal</sup></div>
-        <div class="fh-stat-sub">Training adds +${trainKcal-tdee} kcal</div>
-      </div>`;
-
-    // Also update pyramid selector to match goal
-    const goal = (p.goal||'').toLowerCase();
-    const pyrId = goal.includes('fat')||goal.includes('los')||goal.includes('cut') ? 'cut'
-      : goal.includes('recomp') ? 'recomp'
-      : goal.includes('muscle')||goal.includes('build') ? 'bulk'
-      : goal.includes('maintain') ? 'maintain'
-      : 'balanced';
-    setTimeout(() => {
-      const targetBtn = document.querySelector('[data-pyr="'+pyrId+'"]');
-      if (targetBtn) {
-        document.querySelectorAll('.pyr-btn').forEach(b => {
-          const badge = b.querySelector('span');
-          if (badge) badge.textContent = '';
-        });
-        const badge = targetBtn.querySelector('span');
-        if (badge) badge.textContent = '· Your plan';
-        renderPyramid(pyrId);
-        document.querySelectorAll('.pyr-btn').forEach(b => b.classList.remove('active'));
-        targetBtn.classList.add('active');
-      }
-    }, 100);
-
-  } catch(e) { console.error(e); }
-})();
-</script>
-
-<!-- ═══ TAB NAV ═══ -->
-<div class="fuel-tabs">
-  <button class="ftab active" onclick="showPane('pane-meals',this);loadMealIdeas()">Meal ideas</button>
-  <button class="ftab" onclick="showPane('pane-shop',this);loadFuelPane('pane-shop','shop')">Shopping list</button>
-  <button class="ftab" onclick="showPane('pane-timing',this);loadFuelPane('pane-timing','timing')">Timing</button>
-  <button class="ftab" onclick="showPane('pane-syn',this);loadFuelPane('pane-syn','syn')">Synergies</button>
-  <button class="ftab" onclick="showPane('pane-hacks',this);loadFuelPane('pane-hacks','hacks')">Hunger &amp; energy</button>
-  <button class="ftab" onclick="showPane('pane-avoid',this);loadFuelPane('pane-avoid','avoid')">What to avoid</button>
-  <button class="ftab" onclick="showPane('pane-pyramids',this)">Macro frameworks</button>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PANE 1 — SHOPPING LIST
-═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-shop" data-generated="false">
-<div class="wrap" style="padding:40px 0 80px;">
-  <div id="pane-shop-content">
-    <div style="text-align:center;padding:80px 0;">
-      <div style="font-size:32px;margin-bottom:14px;">🛒</div>
-      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Shopping List</div>
-      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
-      <button onclick="loadFuelPane('pane-shop','shop')"
-        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
-        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
-        text-transform:uppercase;color:var(--ink);cursor:pointer;">
-        Generate →
-      </button>
-    </div>
-  </div>
-</div>
-</div><!-- pane-shop -->
-
-
-<!-- ═══════════════════════════════════════════
-     PANE 2 — FOOD SYNERGIES
-═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-syn" data-generated="false">
-<div class="wrap" style="padding:40px 0 80px;">
-  <div id="pane-syn-content">
-    <div style="text-align:center;padding:80px 0;">
-      <div style="font-size:32px;margin-bottom:14px;">⚡</div>
-      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Food Synergies</div>
-      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
-      <button onclick="loadFuelPane('pane-syn','syn')"
-        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
-        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
-        text-transform:uppercase;color:var(--ink);cursor:pointer;">
-        Generate →
-      </button>
-    </div>
-  </div>
-</div>
-</div><!-- pane-syn -->
-
-
-<!-- ═══════════════════════════════════════════
-     PANE 3 — TIMING MAP
-═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-timing" data-generated="false">
-<div class="wrap" style="padding:40px 0 80px;">
-  <div id="pane-timing-content">
-    <div style="text-align:center;padding:80px 0;">
-      <div style="font-size:32px;margin-bottom:14px;">⏱️</div>
-      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Timing Map</div>
-      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
-      <button onclick="loadFuelPane('pane-timing','timing')"
-        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
-        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
-        text-transform:uppercase;color:var(--ink);cursor:pointer;">
-        Generate →
-      </button>
-    </div>
-  </div>
-</div>
-</div><!-- pane-timing -->
-
-
-<!-- ═══════════════════════════════════════════
-     PANE 4 — SATIETY & ENERGY HACKS
-═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-hacks" data-generated="false">
-<div class="wrap" style="padding:40px 0 80px;">
-  <div id="pane-hacks-content">
-    <div style="text-align:center;padding:80px 0;">
-      <div style="font-size:32px;margin-bottom:14px;">😌</div>
-      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Satiety & Energy</div>
-      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
-      <button onclick="loadFuelPane('pane-hacks','hacks')"
-        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
-        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
-        text-transform:uppercase;color:var(--ink);cursor:pointer;">
-        Generate →
-      </button>
-    </div>
-  </div>
-</div>
-</div><!-- pane-hacks -->
-
-
-<!-- ═══════════════════════════════════════════
-     PANE 5 — AVOID
-═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-avoid" data-generated="false">
-<div class="wrap" style="padding:40px 0 80px;">
-  <div id="pane-avoid-content">
-    <div style="text-align:center;padding:80px 0;">
-      <div style="font-size:32px;margin-bottom:14px;">🚫</div>
-      <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Avoid This Week</div>
-      <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">Generated from your profile when you open this tab.</div>
-      <button onclick="loadFuelPane('pane-avoid','avoid')"
-        style="padding:11px 24px;background:var(--jade);border:none;border-radius:4px;
-        font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.06em;
-        text-transform:uppercase;color:var(--ink);cursor:pointer;">
-        Generate →
-      </button>
-    </div>
-  </div>
-</div>
-</div><!-- pane-avoid -->
-
-<!-- ═══════════════════════════════════════════
-     PANE 6 — FOOD PYRAMIDS
-═══════════════════════════════════════════ -->
-<div class="fuel-pane" id="pane-pyramids">
-<div class="timing-section"><!-- dark bg -->
-<div class="wrap">
-
-  <div class="sec-rule" style="margin-top:0;padding-top:52px;">Food pyramids <em>— macro architecture by goal</em></div>
-  <div class="body-sm" style="color:var(--dk-2);margin-bottom:40px;max-width:620px;">Four distinct nutritional architectures for four distinct goals. Not government plate diagrams — performance pyramids showing proportional macro relationships, timing hierarchy, and what changes between goals. Your current journey (Balanced Precision) is highlighted.</div>
-
-  <!-- Pyramid selector -->
-  <div style="display:flex;gap:8px;margin-bottom:40px;flex-wrap:wrap;" id="pyr-selector">
-    <button class="pyr-btn active" data-pyr="balanced" onclick="selectPyramid('balanced',this)">Balanced Precision <span style="font-size:9px;opacity:0.7;"></span></button>
-    <button class="pyr-btn" data-pyr="recomp" onclick="selectPyramid('recomp',this)">Body Recomposition <span style="font-size:9px;color:var(--amber);opacity:0.8;">· Muscle ↑ Fat ↓</span></button>
-    <button class="pyr-btn" data-pyr="muscle" onclick="selectPyramid('muscle',this)">Lean muscle gain</button>
-    <button class="pyr-btn" data-pyr="cut" onclick="selectPyramid('cut',this)">Active fat loss</button>
-    <button class="pyr-btn" data-pyr="maintain" onclick="selectPyramid('maintain',this)">Maintenance / longevity</button>
-  </div>
-
-  <!-- Pyramid visual + breakdown -->
-  <div id="pyramid-display"></div>
-
-</div>
-</div>
-</div><!-- pane-pyramids -->
-
-<style>
-/* Pyramid selector buttons */
-.pyr-btn {
-  font-size:11px;font-weight:600;letter-spacing:0.05em;
-  padding:8px 18px;border-radius:4px;
-  border:1px solid var(--bd-2);background:transparent;
-  color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all 0.15s;
-}
-.pyr-btn:hover { color:var(--dk-2);border-color:var(--bd-2); }
-.pyr-btn.active { color:var(--jade);background:var(--jade-dim);border-color:var(--jade-br); }
-
-/* Pyramid SVG container */
-.pyramid-wrap { display:grid;grid-template-columns:480px 1fr;gap:52px;align-items:start;margin-bottom:48px; }
-.pyramid-svg-area { position:relative; }
-.pyramid-svg-area svg { width:100%;height:auto; }
-
-/* Breakdown table */
-.pyramid-breakdown {}
-.pb-title { font-family:var(--serif);font-size:34px;font-weight:300;color:var(--dk-1);margin-bottom:6px;line-height:1.0; }
-.pb-subtitle { font-size:13px;font-weight:300;color:var(--dk-2);margin-bottom:28px;line-height:1.65; }
-.pb-row { display:grid;grid-template-columns:12px 1fr auto auto;gap:10px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--bd); }
-.pb-row:last-child { border-bottom:none; }
-.pb-dot { width:10px;height:10px;border-radius:50%;flex-shrink:0;align-self:center; }
-.pb-macro { font-size:13px;font-weight:500;color:var(--dk-1); }
-.pb-amount { font-family:var(--mono);font-size:13px;font-weight:500;color:var(--dk-1); }
-.pb-pct { font-family:var(--mono);font-size:11px;color:var(--dk-3);width:40px;text-align:right; }
-.pb-note { font-size:11px;font-weight:300;color:var(--dk-2);grid-column:2;margin-top:2px;line-height:1.5; }
-
-/* Timing hierarchy */
-.timing-hierarchy { margin-bottom:40px; }
-.th-row { display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--bd);align-items:flex-start; }
-.th-row:last-child { border-bottom:none; }
-.th-num { font-family:var(--serif);font-size:28px;font-weight:300;color:var(--dk-3);flex-shrink:0;line-height:1;width:28px; }
-.th-body {}
-.th-title { font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:3px; }
-.th-text { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65; }
-.th-text strong { color:var(--dk-1);font-weight:500; }
-
-/* Comparison strip */
-.comparison-strip { display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:6px;overflow:hidden; }
-.cs-cell { background:var(--ink-2);padding:16px 18px; }
-.cs-cell.current { background:rgba(0,200,160,0.06);border:1px solid var(--jade-br); }
-.cs-label { font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px; }
-.cs-name { font-family:var(--serif);font-size:16px;font-weight:500;color:var(--dk-1);margin-bottom:12px; }
-.cs-bar-row { display:flex;flex-direction:column;gap:5px;margin-bottom:4px; }
-.cs-br { display:flex;align-items:center;gap:6px; }
-.cs-br-label { font-size:9px;color:var(--dk-3);width:14px; }
-.cs-br-track { flex:1;height:4px;background:var(--ink-3);border-radius:2px;overflow:hidden; }
-.cs-br-fill { height:100%;border-radius:2px; }
-.cs-br-val { font-family:var(--mono);font-size:9px;color:var(--dk-2);width:32px;text-align:right; }
-</style>
-
-<script>
-const PYRAMIDS = {
-  recomp: {
-    name: 'Body Recomposition',
-    subtitle: 'Muscle grows. Fat drops. The hardest architecture to execute — and the most rewarding. High protein, moderate deficit, resistance training mandatory. Body composition improves while the scale barely moves.',
-    current: false,
-    kcal: { train: 2600, rest: 2300, peak: 2650 },
-    macros: [
-      { label:'Protein', amount:'195–210g', pct:'34%', note:'Highest relative protein of any pyramid. Protects muscle during the deficit. Every gram is doing double duty: building and protecting.', color:'#00c8a0', dot:'#00c8a0' },
-      { label:'Carbohydrates', amount:'200–240g train', pct:'33%', note:'Moderate carbs timed exclusively around training. Rest days near-zero starchy carbs. Vegetables fill the volume gap.', color:'#c47c18', dot:'#c47c18' },
-      { label:'Fat', amount:'70–75g', pct:'26%', note:'At the hormonal floor. Testosterone protection is non-negotiable even in a deficit. Never drop fat below 0.7g/kg.', color:'#4a6275', dot:'#4a6275' },
-    ],
-    layers: [
-      { label:'Very high protein', note:'195–210g · muscle build + protect', width:38, color:'rgba(0,200,160,0.92)' },
-      { label:'Training-timed carbs', note:'Training days only · rest days minimal', width:50, color:'rgba(196,124,24,0.72)' },
-      { label:'Fat at hormonal floor', note:'0.7–0.85g/kg · never cut below', width:62, color:'rgba(74,98,117,0.68)' },
-      { label:'Maximum vegetable volume', note:'Unlimited · satiety + micronutrients', width:80, color:'rgba(0,168,114,0.72)' },
-      { label:'Resistance training', note:'Non-negotiable · without it, muscle is lost', width:92, color:'rgba(200,148,30,0.15)' },
-    ],
-    timing: [
-      { title:'Protein every 3–4 hours — muscle protection requires it', text:'During a deficit, MPS is suppressed. Frequent protein doses maintain anabolic stimulus continuously. <strong>Miss a protein meal during a cut and you lose muscle, not just fat.</strong>' },
-      { title:'Carbs exclusively around training', text:'On training days: carbs pre and post-session only. On rest days: near-zero starchy carbs. Vegetables unlimited. Fat and protein cover all other meals.' },
-      { title:'The resistance training rule is absolute', text:'Recomposition without resistance training is weight loss — not body recomposition. <strong>The muscle gain component only occurs with progressive resistance training stimulus.</strong> This pyramid does not work with cardio alone.' },
-      { title:'Track waist circumference, not scale weight', text:'The scale will barely move during successful recomposition — muscle gained offsets fat lost. Waist measurement and the mirror are the correct metrics. Scale weight is noise.' },
-    ],
-    foodVolume: [
-      { meal:'Breakfast', protein:'4 whole eggs scrambled', carb:'60g oats + ½ banana', fat:'1 tbsp olive oil in pan', kcal:'~520 kcal', macros:'38P · 58C · 22F' },
-      { meal:'Pre-training', protein:'30g whey in water', carb:'1 banana + 3 rice cakes', fat:'None — keep it fast', kcal:'~320 kcal', macros:'35P · 45C · 2F' },
-      { meal:'Post-training', protein:'30g whey + 150g Greek yoghurt', carb:'150g white rice (cooked)', fat:'None', kcal:'~520 kcal', macros:'52P · 58C · 6F' },
-      { meal:'Main meal', protein:'200g chicken breast', carb:'Training day: 180g sweet potato / Rest day: large salad only', fat:'1 tbsp olive oil + 30g avocado', kcal:'~480–580 kcal', macros:'50P · 40–60C · 18F' },
-      { meal:'Pre-sleep (optional)', protein:'250g cottage cheese', carb:'None on rest day', fat:'20g walnuts', kcal:'~310 kcal', macros:'30P · 8C · 16F' },
-    ],
-  },
-  balanced: {
-    name: 'Balanced Precision',
-    subtitle: 'Your current journey. Optimised for lean muscle gain with full performance capacity, anti-inflammatory eating, and long-term adherence. Protein non-negotiable, carbs timed around training, fat as hormonal floor.',
-    current: true,
-    kcal: { train: 2950, rest: 2700, peak: 3050 },
-    macros: [
-      { label:'Protein', amount:'185–190g', pct:'26%', note:'Non-negotiable. Leucine threshold at every meal. Distributed across 4 meals.', color:'#00c8a0', dot:'#00c8a0' },
-      { label:'Carbohydrates', amount:'330g train / 265g rest', pct:'45–47%', note:'Front-loaded on training days. Reduced ~60g on rest days. Fast pre-training, slow post-training.', color:'#c47c18', dot:'#c47c18' },
-      { label:'Fat', amount:'82–85g', pct:'25–27%', note:'Hormonal floor. Testosterone synthesis, fat-soluble vitamin delivery, synovial joint lubrication.', color:'#4a6275', dot:'#4a6275' },
-    ],
-    foodVolume: [
-      { meal:'Breakfast', protein:'80g oats + 30g whey', carb:'1 banana + 200ml oat milk', fat:'1 tbsp peanut butter', kcal:'~620 kcal', macros:'52P · 82C · 16F' },
-      { meal:'Pre-training', protein:'3 eggs', carb:'2 slices sourdough', fat:'Olive oil to cook', kcal:'~430 kcal', macros:'28P · 42C · 16F' },
-      { meal:'Post-training', protein:'30g whey + 150g yoghurt', carb:'1 banana + 2 rice cakes', fat:'None', kcal:'~430 kcal', macros:'48P · 60C · 6F' },
-      { meal:'Main meal', protein:'200g chicken breast', carb:'200g basmati rice (cooked) + 100g spinach', fat:'1 tbsp olive oil', kcal:'~680 kcal', macros:'52P · 72C · 14F' },
-      { meal:'Snack / pre-sleep', protein:'250g Greek yoghurt', carb:'80g blueberries', fat:'20g walnuts', kcal:'~380 kcal', macros:'34P · 28C · 18F' },
-    ],
-    layers: [
-      { label:'Protein', note:'4 × 45–48g servings', width:40, color:'rgba(0,200,160,0.85)' },
-      { label:'Training-day carbs', note:'Front-loaded, fast/slow', width:55, color:'rgba(196,124,24,0.8)' },
-      { label:'Dietary fat', note:'Every meal, hormonal role', width:68, color:'rgba(74,98,117,0.75)' },
-      { label:'Vegetables & fibre', note:'Unlimited volume eating', width:80, color:'rgba(0,168,114,0.6)' },
-      { label:'Supplements', note:'Creatine, collagen, omega-3, D3, Mg', width:92, color:'rgba(255,255,255,0.1)' },
-    ],
-    timing: [
-      { title:'Protein at every meal', text:(window._fuelProfile?window._fuelProfile.protein:'—')+'g distributed across '+(window._fuelProfile?window._fuelProfile.mealCount||4:'4')+' meals. Each clears the 2–3g leucine threshold. <strong>Distribution matters as much as total.</strong>' },
-      { title:'Training-day carbs front-loaded', text:'Higher-GI carbs before training for glycogen. Slow carbs for breakfast and post-training meals. Rest days: –60g carbs, protein and fat unchanged.' },
-      { title:'Fat with fat-soluble vitamins', text:'D3+K2 and omega-3 taken with fat-containing meals for absorption. Fat never removed from any meal.' },
-      { title:'Pre-sleep casein optional but valuable', text:'250g cottage cheese or Greek yoghurt. 6–8h casein digestion covers the overnight GH repair window.' },
-    ],
-  },
-  muscle: {
-    name: 'Lean Muscle Gain',
-    subtitle: 'Maximised for hypertrophy. Higher protein, more carbs, slightly lower fat. The most calorie-dense performance pyramid. Appropriate for phases when muscle gain is the sole priority and fat loss is not a concern.',
-    current: false,
-    kcal: { train: 3200, rest: 2900, peak: 3300 },
-    macros: [
-      { label:'Protein', amount:'200–220g', pct:'27%', note:'Higher protein ceiling. Research shows marginal but real benefit above 190g for maximally trained athletes during hard blocks.', color:'#00c8a0', dot:'#00c8a0' },
-      { label:'Carbohydrates', amount:'390–420g train', pct:'52%', note:'Maximum glycogen loading. Higher carb is the biggest lever for compound lift performance. Timing still critical.', color:'#c47c18', dot:'#c47c18' },
-      { label:'Fat', amount:'75–80g', pct:'21%', note:'Slightly reduced vs Balanced — at the hormonal floor but not exceeding it. Protein and carbs take caloric priority.', color:'#4a6275', dot:'#4a6275' },
-    ],
-    layers: [
-      { label:'High protein', note:'200g+ daily, 5 meals', width:40, color:'rgba(0,200,160,0.9)' },
-      { label:'High carbohydrates', note:'Performance fuel priority', width:58, color:'rgba(196,124,24,0.85)' },
-      { label:'Moderate fat', note:'At hormonal floor', width:70, color:'rgba(74,98,117,0.65)' },
-      { label:'Volume vegetables', note:'Unlimited', width:80, color:'rgba(0,168,114,0.6)' },
-      { label:'Performance supplements', note:'Creatine, beta-alanine, caffeine', width:92, color:'rgba(255,255,255,0.1)' },
-    ],
-    timing: [
-      { title:'5 protein meals if possible', text:'200–220g across 5 meals keeps MPS elevated more continuously than 4. The additional window (mid-afternoon snack at 40g protein) adds a fifth activation.' },
-      { title:'Maximum pre-training carb loading', text:'Dates + banana + whey = the highest-performance pre-training combination. The goal is maximum glycogen for maximal compound performance.' },
-      { title:'Post-workout window is most critical', text:'40g fast protein + 80g fast carbs within 20 minutes. Insulin spike + leucine = peak anabolic environment.' },
-      { title:'Higher calorie — monitor fat gain', text:'At +400–500 kcal surplus, expect 0.3–0.5% body weight change per month. Any more = too much fat being added.' },
-    ],
-    foodVolume: [
-      { meal:'Breakfast', protein:'100g oats + 40g whey', carb:'1 large banana + 250ml whole milk', fat:'2 tbsp peanut butter', kcal:'~780 kcal', macros:'58P · 96C · 22F' },
-      { meal:'Pre-training', protein:'4 eggs', carb:'3 slices sourdough + 3 Medjool dates', fat:'Olive oil to cook', kcal:'~580 kcal', macros:'36P · 85C · 16F' },
-      { meal:'Post-training', protein:'40g whey + 200g yoghurt', carb:'1 banana + 150g white rice (cooked)', fat:'None', kcal:'~580 kcal', macros:'58P · 82C · 6F' },
-      { meal:'Main meal', protein:'250g chicken or steak', carb:'250g basmati rice (cooked) + sweet potato 150g', fat:'1.5 tbsp olive oil', kcal:'~820 kcal', macros:'62P · 90C · 18F' },
-      { meal:'Pre-sleep', protein:'40g casein or 300g cottage cheese', carb:'2 rice cakes', fat:'30g walnuts', kcal:'~420 kcal', macros:'46P · 22C · 20F' },
-    ],
-  cut: {
-    name: 'Active Fat Loss',
-    subtitle: 'Cuts calories while protecting muscle. Protein maximised, carbs reduced and timed tightly around training, fat at minimum hormonal floor. The hardest pyramid to execute — adherence is the primary challenge. Not your current goal, but a useful reference.',
-    current: false,
-    kcal: { train: 2400, rest: 2100, peak: 2450 },
-    macros: [
-      { label:'Protein', amount:'200–210g', pct:'36%', note:'<strong>Protein increases during a cut</strong> — higher protein protects against muscle loss when calories are below maintenance. Counter-intuitive but essential.', color:'#00c8a0', dot:'#00c8a0' },
-      { label:'Carbohydrates', amount:'190–220g train', pct:'34%', note:'Significantly reduced. Timed exclusively around training — eliminated on rest days except from vegetable sources. This is where the hunger challenge lives.', color:'#c47c18', dot:'#c47c18' },
-      { label:'Fat', amount:'65–70g', pct:'26–28%', note:'At or near the hormonal floor (0.7g/kg). Do not cut below this — testosterone suppression directly undermines the goal.', color:'#4a6275', dot:'#4a6275' },
-    ],
-    layers: [
-      { label:'High protein — muscle protection', note:'Increase not decrease during cut', width:42, color:'rgba(0,200,160,0.9)' },
-      { label:'Training-timed carbs only', note:'Eliminated on rest days', width:54, color:'rgba(196,124,24,0.7)' },
-      { label:'Minimum fat floor', note:'0.7g/kg · testosterone protection', width:64, color:'rgba(74,98,117,0.65)' },
-      { label:'Maximum vegetable volume', note:'Satiety tool — unlimited', width:80, color:'rgba(0,168,114,0.7)' },
-      { label:'Anti-hunger tools', note:'Fibre, volume eating, casein', width:92, color:'rgba(255,255,255,0.08)' },
-    ],
-    timing: [
-      { title:'Protein maximised — counterintuitive', text:'Reducing protein during a cut causes muscle loss. <strong>Increase protein to 200–210g to protect lean mass</strong> while total calories are below maintenance.' },
-      { title:'Carbs only around training', text:'Rest days: near-zero carbs from starchy sources. Training days: carbs only in the pre and post-training windows. Fat and protein cover all other meals.' },
-      { title:'High-volume, low-calorie foods dominate', text:'Unlimited vegetables, lean proteins, and fibre-rich foods manage hunger without caloric cost. This is the central execution challenge of a cut.' },
-      { title:'Re-feed every 10–14 days', text:'One day at maintenance calories (with normal carbs) maintains leptin levels and prevents metabolic adaptation during extended cuts. Not a cheat day — a protocol.' },
-    ],
-    foodVolume: [
-      { meal:'Breakfast', protein:'5 egg whites + 2 whole eggs', carb:'Training day: 60g oats / Rest day: spinach only', fat:'Olive oil to cook', kcal:'~380–480 kcal', macros:'42P · 0–48C · 14F' },
-      { meal:'Pre-training', protein:'30g whey', carb:'1 banana + 2 rice cakes', fat:'None', kcal:'~280 kcal', macros:'32P · 40C · 2F' },
-      { meal:'Post-training', protein:'30g whey + 200g 0% yoghurt', carb:'Training: 100g white rice (cooked) / Rest: cucumber + tomato', fat:'None', kcal:'~360–480 kcal', macros:'46P · 10–38C · 2F' },
-      { meal:'Main meal', protein:'200g chicken or white fish', carb:'Training: 150g sweet potato / Rest: large salad + broccoli only', fat:'1 tbsp olive oil', kcal:'~380–500 kcal', macros:'46P · 10–42C · 14F' },
-      { meal:'Pre-sleep', protein:'250g cottage cheese', carb:'None', fat:'15g walnuts', kcal:'~320 kcal', macros:'34P · 8C · 16F' },
-    ],
-  },
-  maintain: {
-    name: 'Maintenance / Longevity',
-    subtitle: 'The endgame. After the 12-week programme delivers its outcomes — lean mass added, knee stable, tennis return achieved — this is the nutritional architecture for maintaining what was built while prioritising longevity markers: VO₂max, hormonal health, joint integrity.',
-    current: false,
-    kcal: { train: 2700, rest: 2700, peak: 2700 },
-    macros: [
-      { label:'Protein', amount:'160–175g', pct:'26%', note:'Slightly reduced from building phase. Still above RDA by 3×. At maintenance, protein defends lean mass rather than building it.', color:'#00c8a0', dot:'#00c8a0' },
-      { label:'Carbohydrates', amount:'290–310g', pct:'45%', note:'Stable across training and rest days — no need for the cycling strategy when no surplus is required. Timed around training still for performance.', color:'#c47c18', dot:'#c47c18' },
-      { label:'Fat', amount:'90–100g', pct:'30%', note:'Higher fat allocation — appropriate when not needing to prioritise carb loading. Supports testosterone and fat-soluble vitamin absorption throughout longevity phase.', color:'#4a6275', dot:'#4a6275' },
-    ],
-    layers: [
-      { label:'Moderate protein', note:'Muscle defence, not building', width:38, color:'rgba(0,200,160,0.8)' },
-      { label:'Balanced carbohydrates', note:'Consistent — no cycling needed', width:54, color:'rgba(196,124,24,0.75)' },
-      { label:'Higher fat for hormones', note:'Testosterone + longevity markers', width:70, color:'rgba(74,98,117,0.8)' },
-      { label:'Anti-inflammatory foods', note:'Joint, gut, brain longevity', width:82, color:'rgba(0,168,114,0.65)' },
-      { label:'Longevity supplements', note:'Omega-3, D3, Mg, collagen ongoing', width:92, color:'rgba(255,255,255,0.1)' },
-    ],
-    timing: [
-      { title:'Protein still distributed — just lower total', text:'160g across 4 meals still clears the leucine threshold. The distribution rule does not change. Only the total comes down slightly.' },
-      { title:'No training/rest day cycling required', text:'At maintenance calories with no surplus goal, carb cycling complexity is unnecessary. Consistent eating is more sustainable and adherence-friendly.' },
-      { title:'Prioritise anti-inflammatory pattern', text:'Mediterranean diet research is the longevity benchmark — olive oil, fatty fish, legumes, whole grains, vegetables dominate. This is the foundation of what you are already eating.' },
-      { title:'Zone 2 cardio becomes the primary training focus', text:'Research on VO₂max as longevity predictor: maintaining aerobic capacity in the 60s and 70s requires consistent Zone 2 investment in the 40s. The running and step machine work continues beyond the 12-week programme.' },
-    ],
-    foodVolume: [
-      { meal:'Breakfast', protein:'3 whole eggs + 100g smoked salmon', carb:'2 slices sourdough', fat:'½ avocado + olive oil', kcal:'~580 kcal', macros:'44P · 36C · 28F' },
-      { meal:'Lunch', protein:'150g mackerel or tuna', carb:'120g quinoa (cooked) + large salad', fat:'1 tbsp olive oil + 20g walnuts', kcal:'~520 kcal', macros:'38P · 48C · 22F' },
-      { meal:'Snack', protein:'200g Greek yoghurt', carb:'80g blueberries + 1 orange', fat:'15g almonds', kcal:'~340 kcal', macros:'22P · 38C · 12F' },
-      { meal:'Dinner', protein:'180g salmon fillet', carb:'150g sweet potato + broccoli + spinach', fat:'1 tbsp olive oil + lemon', kcal:'~520 kcal', macros:'40P · 44C · 20F' },
-      { meal:'Pre-sleep', protein:'200g cottage cheese', carb:'None', fat:'15g walnuts', kcal:'~280 kcal', macros:'26P · 6C · 14F' },
-    ],
-  }
-};
-
-function selectPyramid(id, btn) {
-  document.querySelectorAll('.pyr-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderPyramid(id);
-}
-
-function renderPyramid(id) {
-  const p = PYRAMIDS[id];
-  const cont = document.getElementById('pyramid-display');
-
-  // Build pyramid SVG layers
-  const layerH = 52;
-  const totalH = p.layers.length * layerH + 40;
-  const svgW = 480;
-  const cx = svgW / 2;
-  const baseY = totalH - 20;
-  const topW = 20;
-
-  const svgLayers = p.layers.map((l, i) => {
-    const y = 20 + i * layerH;
-    const halfW = (topW + (l.width - topW) * (i / (p.layers.length - 1))) * svgW / 200;
-    const x1 = cx - halfW;
-    const x2 = cx + halfW;
-    const nextHalfW = i < p.layers.length - 1
-      ? (topW + (p.layers[i+1].width - topW) * ((i+1) / (p.layers.length - 1))) * svgW / 200
-      : halfW;
-    const nx1 = cx - nextHalfW;
-    const nx2 = cx + nextHalfW;
-    const midY = y + layerH;
-
-    return `
-    <polygon points="${x1},${y} ${x2},${y} ${nx2},${midY} ${nx1},${midY}" fill="${l.color}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-    <text x="${cx}" y="${y + layerH/2 + 4}" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="11" font-weight="600" fill="rgba(232,225,216,0.9)" letter-spacing="0.04em">${l.label}</text>
-    <text x="${cx}" y="${y + layerH/2 + 17}" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="300" fill="rgba(232,225,216,0.5)">${l.note}</text>`;
-  }).join('');
-
-  const macroRows = p.macros.map(m => `
-    <div class="pb-row">
-      <div class="pb-dot" style="background:${m.dot};"></div>
-      <div>
-        <div class="pb-macro">${m.label}</div>
-        <div class="pb-note">${m.note}</div>
-      </div>
-      <div class="pb-amount">${m.amount}</div>
-      <div class="pb-pct">${m.pct}</div>
-    </div>`).join('');
-
-  const timingRows = p.timing.map((t, i) => `
-    <div class="th-row">
-      <div class="th-num">${i + 1}</div>
-      <div class="th-body">
-        <div class="th-title">${t.title}</div>
-        <div class="th-text">${t.text}</div>
-      </div>
-    </div>`).join('');
-
-  // Comparison strip
-  const compCells = Object.keys(PYRAMIDS).map(pid => {
-    const pr = PYRAMIDS[pid];
-    const isActive = pid === id;
-    const protPct = pr.macros[0].pct.split('–')[0].replace('%','');
-    const carbPct = pr.macros[1].pct.split('–')[0].replace('%','');
-    const fatPct  = pr.macros[2].pct.split('–')[0].replace('%','');
-    return `<div class="cs-cell ${isActive ? 'current' : ''}">
-      <div class="cs-label">${pr.current ? '● Current' : ''}</div>
-      <div class="cs-name">${pr.name}</div>
-      <div class="cs-bar-row">
-        <div class="cs-br"><div class="cs-br-label" style="color:#00c8a0">P</div><div class="cs-br-track"><div class="cs-br-fill" style="width:${protPct}%;background:#00c8a0"></div></div><div class="cs-br-val">${protPct}%</div></div>
-        <div class="cs-br"><div class="cs-br-label" style="color:#c47c18">C</div><div class="cs-br-track"><div class="cs-br-fill" style="width:${carbPct}%;background:#c47c18"></div></div><div class="cs-br-val">${carbPct}%</div></div>
-        <div class="cs-br"><div class="cs-br-label" style="color:#4a6275">F</div><div class="cs-br-track"><div class="cs-br-fill" style="width:${fatPct}%;background:#4a6275"></div></div><div class="cs-br-val">${fatPct}%</div></div>
-      </div>
-      <div style="margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--jade);">${pr.kcal.train} <span style="color:var(--dk-3);font-size:9px;">kcal/train</span></div>
-    </div>`;
-  }).join('');
-
-  const foodVolumeHtml = p.foodVolume ? `
-    <div class="sec-rule">What it actually looks like <em style="color:var(--jade);">— real food, real portions</em></div>
-    <div style="border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:40px;">
-      <div style="display:grid;grid-template-columns:120px 1fr 1fr 1fr 90px 130px;background:var(--ink-2);border-bottom:1px solid var(--bd);">
-        <div style="padding:9px 14px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Meal</div>
-        <div style="padding:9px 14px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--jade);">Protein source</div>
-        <div style="padding:9px 14px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);">Carbohydrate</div>
-        <div style="padding:9px 14px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-2);">Fat</div>
-        <div style="padding:9px 14px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Calories</div>
-        <div style="padding:9px 14px;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">P · C · F (g)</div>
-      </div>
-      ${p.foodVolume.map((row, i) => `
-      <div style="display:grid;grid-template-columns:120px 1fr 1fr 1fr 90px 130px;border-bottom:${i<p.foodVolume.length-1?'1px solid var(--bd)':'none'};transition:background 0.12s;" onmouseenter="this.style.background='rgba(255,255,255,0.018)'" onmouseleave="this.style.background=''">
-        <div style="padding:12px 14px;font-size:11px;font-weight:600;color:var(--dk-3);letter-spacing:0.04em;text-transform:uppercase;border-right:1px solid var(--bd);">${row.meal}</div>
-        <div style="padding:12px 14px;font-size:12px;font-weight:300;color:var(--jade);">${row.protein}</div>
-        <div style="padding:12px 14px;font-size:12px;font-weight:300;color:var(--amber);">${row.carb}</div>
-        <div style="padding:12px 14px;font-size:12px;font-weight:300;color:var(--dk-2);">${row.fat}</div>
-        <div style="padding:12px 14px;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--dk-1);border-left:1px solid var(--bd);">${row.kcal}</div>
-        <div style="padding:12px 14px;font-family:var(--mono);font-size:11px;font-weight:300;color:var(--dk-3);">${row.macros}</div>
-      </div>`).join('')}
-      <div style="padding:10px 14px;background:rgba(0,200,160,0.04);border-top:1px solid var(--jade-br);font-size:11px;font-weight:300;color:var(--dk-3);">
-        Quantities are examples — adjust portions to hit your daily targets. The structure (which food at which meal) matters more than the exact gram weights.
-      </div>
-    </div>` : '';
-
-  cont.innerHTML = `
-    <div class="pyramid-wrap">
-      <div class="pyramid-svg-area">
-        <svg viewBox="0 0 ${svgW} ${totalH}" xmlns="http://www.w3.org/2000/svg">
-          ${svgLayers}
-        </svg>
-      </div>
-      <div class="pyramid-breakdown">
-        <div class="pb-title">${p.name}${p.current ? ' <span style="font-size:16px;color:var(--jade);">●</span>' : ''}</div>
-        <div class="pb-subtitle">${p.subtitle}</div>
-        <div class="label" style="color:var(--dk-3);margin-bottom:8px;">Daily calories: <span style="color:var(--jade);font-family:var(--mono);">${p.kcal.train.toLocaleString()}</span> training · <span style="font-family:var(--mono);color:var(--amber);">${p.kcal.rest.toLocaleString()}</span> rest</div>
-        ${macroRows}
+<!-- ═══ TODAY PANE ═══ -->
+<div class="food-pane active" id="pane-today">
+  <div class="today-grid">
+    <div class="today-meals" id="today-meals">
+      <div class="food-loading">
+        <div class="fl-spinner"></div>
+        <div class="fl-text">Building today's meals…</div>
       </div>
     </div>
-
-    ${foodVolumeHtml}
-
-    <div class="sec-rule">Timing hierarchy <em style="color:var(--jade);">— what to prioritise and when</em></div>
-    <div class="timing-hierarchy">${timingRows}</div>
-
-    <div class="sec-rule">Goal comparison <em style="color:var(--jade);">— all five architectures side by side</em></div>
-    <div class="comparison-strip" style="margin-bottom:48px;">${compCells}</div>
-  `;
-}
-
-// Init — profile-aware
-(function(){
-  let pyramidId = 'balanced'; // default
-
-  try {
-    const raw = localStorage.getItem('bl_profile');
-    if (raw) {
-      const p = JSON.parse(raw);
-      if (p && p.goal) {
-        const goal = p.goal.toLowerCase();
-        if (goal.includes('fat') || goal.includes('los') || goal.includes('cut')) {
-          pyramidId = 'cut';
-        } else if (goal.includes('muscle') || goal.includes('build') || goal.includes('bulk')) {
-          pyramidId = 'bulk';
-        } else if (goal.includes('recomp') || goal.includes('body recomp')) {
-          pyramidId = 'recomp';
-        } else if (goal.includes('longev') || goal.includes('health') || goal.includes('maintain')) {
-          pyramidId = 'maintain';
-        } else {
-          pyramidId = 'balanced';
-        }
-      }
-
-      // Update the "· Current" badge to the correct pyramid
-      document.querySelectorAll('.pyr-btn').forEach(btn => {
-        const currentBadge = btn.querySelector('span');
-        if (currentBadge && currentBadge.textContent.includes('Current')) {
-          currentBadge.textContent = '';
-        }
-      });
-      const targetBtn = document.querySelector(`[data-pyr="${pyramidId}"]`);
-      if (targetBtn) {
-        const badge = targetBtn.querySelector('span');
-        if (badge) badge.textContent = '· Your plan';
-        targetBtn.style.borderColor = 'var(--jade)';
-      }
-
-      // Inject user's actual macros at the top of the pane
-      const macroStrip = document.getElementById('user-macro-strip');
-      if (macroStrip && p.calories) {
-        macroStrip.innerHTML = `
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);
-            border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:28px;">
-            <div style="background:var(--ink-2);padding:14px 10px;text-align:center;">
-              <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--dk-1);margin-bottom:3px;">${p.calories}</div>
-              <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Your calories</div>
-            </div>
-            <div style="background:var(--ink-2);padding:14px 10px;text-align:center;">
-              <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--jade);margin-bottom:3px;">${p.protein}g</div>
-              <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Protein</div>
-            </div>
-            <div style="background:var(--ink-2);padding:14px 10px;text-align:center;">
-              <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--amber);margin-bottom:3px;">${p.carbs}g</div>
-              <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Carbs</div>
-            </div>
-            <div style="background:var(--ink-2);padding:14px 10px;text-align:center;">
-              <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--dk-2);margin-bottom:3px;">${p.fat}g</div>
-              <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);">Fat</div>
+    <div class="today-sidebar">
+      <div class="sidebar-widget" id="sw-tracker">
+        <div class="sw-head">Daily targets</div>
+        <div class="sw-body">
+          <div class="day-toggle">
+            <button class="dt-btn active" id="dt-train" onclick="setDayType('training')">Training</button>
+            <button class="dt-btn" id="dt-rest" onclick="setDayType('rest')">Rest</button>
+          </div>
+          <div class="prot-track">
+            <div class="prot-bar-wrap"><div class="prot-bar" id="prot-bar" style="width:0%"></div></div>
+            <div class="prot-nums">
+              <span class="prot-eaten" id="prot-eaten">0g</span>
+              <span class="prot-target" id="prot-target">—g protein</span>
             </div>
           </div>
-          <div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-bottom:20px;font-style:italic;">
-            ${p.name}'s targets · ${p.goal||'Goal set'} · Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
-          </div>`;
-        macroStrip.style.display = 'block';
-      }
-    }
-  } catch(e) { console.error(e); }
-
-  renderPyramid(pyramidId);
-  // Activate correct button
-  document.querySelectorAll('.pyr-btn').forEach(b => b.classList.remove('active'));
-  const btn = document.querySelector(`[data-pyr="${pyramidId}"]`);
-  if (btn) btn.classList.add('active');
-})();
-</script>
-
-<div class="page-end"></div>
-
-<!-- ═══════════════════════════════════════════
-     PANE 7 — MEAL IDEAS (profile-driven)
-═══════════════════════════════════════════ -->
-<div class="fuel-pane active" id="pane-meals">
-<div class="wrap" style="padding:40px 0 80px;">
-
-  <div class="sec-rule" style="margin-bottom:32px;">
-    <div class="sr-label">Meal ideas for you</div>
-  </div>
-
-  <div id="meal-ideas-shell">
-    <div id="meal-ideas-loading" style="display:none;text-align:center;padding:60px 0;">
-      <div style="width:36px;height:36px;border:2px solid var(--bd-2);border-top-color:var(--jade);
-        border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;"></div>
-      <div style="font-size:13px;font-weight:300;color:var(--dk-3);">Building your meal ideas…</div>
-    </div>
-
-    <div id="meal-ideas-content" style="display:none;">
-      <!-- Populated by loadMealIdeas() -->
-    </div>
-
-    <div id="meal-ideas-empty" style="text-align:center;padding:60px 24px;">
-      <div style="font-size:40px;margin-bottom:16px;">🍽️</div>
-      <div style="font-family:var(--serif);font-size:28px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">
-        Complete your profile first
+          <div class="kcal-track">
+            <div class="kcal-bar-wrap"><div class="kcal-bar" id="kcal-bar" style="width:0%"></div></div>
+            <div class="kcal-nums">
+              <span class="kcal-eaten" id="kcal-eaten">0 kcal</span>
+              <span class="kcal-target" id="kcal-target">— kcal target</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div style="font-size:13px;font-weight:300;color:var(--dk-2);margin-bottom:24px;max-width:360px;margin-left:auto;margin-right:auto;">
-        Meal ideas are built from your profile — your calorie targets, protein goal, diet type, and food exclusions.
+      <div class="sidebar-widget" id="sw-rules" style="display:none">
+        <div class="sw-head">Your food rules</div>
+        <div class="sw-body" id="food-rules-body"></div>
       </div>
-      <a href="bodylens-onboard.html" style="display:inline-block;padding:12px 24px;background:var(--jade);
-        border-radius:6px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
-        color:var(--ink);text-decoration:none;">Complete onboarding →</a>
+      <div class="sidebar-widget">
+        <div class="sw-head">Profile</div>
+        <div class="sw-body" id="sw-profile-body" style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.8;">Loading…</div>
+      </div>
     </div>
   </div>
-
 </div>
-</div><!-- /pane-meals -->
 
-<style>
-.meal-day-header {
-  font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;
-  color:var(--jade);margin:32px 0 14px;display:flex;align-items:center;gap:10px;
-}
-.meal-day-header::after{content:'';flex:1;height:1px;background:var(--bd);}
+<!-- ═══ WEEK PANE ═══ -->
+<div class="food-pane" id="pane-week">
+  <div class="week-wrap">
+    <div class="sec-hdr amber">7-day meal plan</div>
+    <div class="week-header-row" id="week-days"></div>
+    <div class="week-day-content" id="week-day-content">
+      <div class="fl-text" style="text-align:center;padding:20px 0;">Select a day above</div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:8px;">
+      <button class="btn-amber" onclick="generateWeekMeals(true)">↺ Regenerate week</button>
+    </div>
+  </div>
+</div>
 
-.meal-card {
-  background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;
-  margin-bottom:10px;overflow:hidden;
-}
-.meal-card-head {
-  display:grid;grid-template-columns:70px 1fr auto;
-  align-items:center;padding:14px 18px;gap:12px;
-  cursor:pointer;transition:background 0.12s;
-}
-.meal-card-head:hover{background:rgba(255,255,255,0.02);}
-.meal-card.open .meal-card-head{background:var(--ink-1);border-bottom:1px solid var(--bd);}
-.meal-card-time{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--amber);}
-.meal-card-name{font-size:13px;font-weight:500;color:var(--dk-1);}
-.meal-card-macros{font-size:11px;font-weight:300;color:var(--dk-3);text-align:right;white-space:nowrap;}
-.meal-card-chevron{font-size:11px;color:var(--dk-3);transition:transform 0.2s;margin-left:8px;}
-.meal-card.open .meal-card-chevron{transform:rotate(90deg);}
-.meal-card-body{display:none;padding:16px 18px;background:var(--ink-1);}
-.meal-card.open .meal-card-body{display:block;}
-.meal-card-desc{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:10px;}
-.meal-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;}
-.meal-item:last-child{border-bottom:none;padding-bottom:0;}
-.meal-item-name{font-weight:400;color:var(--dk-1);}
-.meal-item-qty{font-weight:300;color:var(--dk-3);font-family:var(--mono);font-size:11px;}
+<!-- ═══ RECIPES PANE ═══ -->
+<div class="food-pane" id="pane-recipes">
+  <div class="recipes-wrap">
+    <div class="sec-hdr amber">Quick-build recipes — matched to your profile</div>
+    <div class="recipe-grid" id="recipe-grid">
+      <div class="food-loading" style="grid-column:1/-1">
+        <div class="fl-spinner"></div>
+        <div class="fl-text">Building your recipe collection…</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-.meal-type-badge{
-  font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;
-  padding:3px 10px;border-radius:12px;flex-shrink:0;
-}
-.meal-type-training{color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);}
-.meal-type-rest{color:var(--dk-3);background:var(--ink-3);border:1px solid var(--bd);}
+<!-- ═══ PYRAMIDS PANE ═══ -->
+<div class="food-pane" id="pane-pyramids">
+  <div class="pyramids-wrap">
+    <div class="sec-hdr amber">Macro frameworks — four nutritional architectures</div>
+    <div class="pyr-selector" id="pyr-selector">
+      <button class="pyr-btn" data-pyr="recomp" onclick="renderPyramid('recomp',this)">Body Recomposition</button>
+      <button class="pyr-btn active" data-pyr="balanced" onclick="renderPyramid('balanced',this)">Balanced Precision</button>
+      <button class="pyr-btn" data-pyr="muscle" onclick="renderPyramid('muscle',this)">Lean Muscle Gain</button>
+      <button class="pyr-btn" data-pyr="cut" onclick="renderPyramid('cut',this)">Active Fat Loss</button>
+      <button class="pyr-btn" data-pyr="maintain" onclick="renderPyramid('maintain',this)">Maintenance</button>
+    </div>
+    <div class="pyr-layout">
+      <div id="pyr-main"></div>
+      <div id="pyr-sidebar"></div>
+    </div>
+  </div>
+</div>
 
-.meal-day-macros{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
-  background:var(--bd);border:1px solid var(--bd);border-radius:6px;
-  overflow:hidden;margin-bottom:20px;
-}
-.meal-day-macro{background:var(--ink-2);padding:12px 10px;text-align:center;}
-.meal-day-macro-val{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--jade);line-height:1;margin-bottom:3px;}
-.meal-day-macro-val.amber{color:var(--amber);}
-.meal-day-macro-val.slate{color:var(--dk-2);}
-.meal-day-macro-label{font-size:8px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);}
-</style>
+<!-- ═══ SHOPPING PANE ═══ -->
+<div class="food-pane" id="pane-shopping">
+  <div class="shop-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div class="sec-hdr amber" style="flex:1;margin-bottom:0;">Weekly shopping list</div>
+      <button class="btn-ghost" onclick="clearShopChecks()">Clear checks</button>
+    </div>
+    <div class="shop-grid" id="shop-grid">
+      <div class="food-loading" style="grid-column:1/-1">
+        <div class="fl-spinner"></div>
+        <div class="fl-text">Building your shopping list…</div>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- ═══ INTELLIGENCE PANE ═══ -->
+<div class="food-pane" id="pane-intel">
+  <div class="intel-wrap">
+    <div class="sec-hdr amber">Food intelligence — the science behind your eating</div>
+    <div class="intel-grid" id="intel-grid">
+      <div class="food-loading" style="grid-column:1/-1">
+        <div class="fl-spinner"></div>
+        <div class="fl-text">Loading food intelligence…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="nav.js"></script>
 <script>
-let mealIdeasLoaded = false;
+// ════════════════════════════════════════════════════════
+//  bodylens-magazine-food.html
+//  Magazine-style food section — Option 1
+//  All state declared first, functions below
+// ════════════════════════════════════════════════════════
 
-async function loadMealIdeas() {
-  if (mealIdeasLoaded) return;
+const API   = '/api/chat';
+const MODEL = 'claude-sonnet-4-20250514';
 
-  const profile = (() => {
-    try {
-      const raw = localStorage.getItem('bl_profile');
-      return raw ? JSON.parse(raw) : null;
-    } catch(e) { return null; }
-  })();
+// ── STATE (all declared before any use) ───────────────
+const _p = (() => { try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); } catch(e){return null;} })();
+const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DAY_MAP   = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
+const _todayIdx = DAY_MAP[new Date().getDay()];
+const _todayName = DAY_NAMES[_todayIdx];
+const _weekPlan  = _p ? (_p.weekPlan || []) : [];
+const _todayPlan = _weekPlan[_todayIdx] || { type:'Rest', focus:'Recovery', priority:'rest' };
+const _isTrain   = _todayPlan.priority === 'training';
+const _isFemale  = _p ? (_p.sex||'').toLowerCase()==='female' : false;
 
-  if (!profile || !profile.name) {
-    document.getElementById('meal-ideas-empty').style.display = 'block';
-    return;
-  }
+let _mealsData   = null;  // { trainingDay, restDay, principles, avoidNote }
+let _weekMeals   = null;  // same shape
+let _currentDayType = _isTrain ? 'training' : 'rest';
+let _selectedWeekDay = _todayIdx;
+let _recipesLoaded = false;
+let _shopChecks  = (() => { try { return JSON.parse(localStorage.getItem('bl_shop_checks')||'{}'); } catch(e){return {};} })();
 
-  // Check cache
-  const cacheKey = 'bl_meal_ideas_' + new Date().toISOString().slice(0,10);
-  const cached = (() => { try { const v = localStorage.getItem(cacheKey); return v ? JSON.parse(v) : null; } catch(e){return null;} })();
-
-  if (cached) {
-    renderMealIdeas(cached, profile);
-    mealIdeasLoaded = true;
-    return;
-  }
-
-  document.getElementById('meal-ideas-loading').style.display = 'block';
-
-  try {
-    const mealPlan = await generateMealIdeas(profile);
-    localStorage.setItem(cacheKey, JSON.stringify(mealPlan));
-    document.getElementById('meal-ideas-loading').style.display = 'none';
-    renderMealIdeas(mealPlan, profile);
-    mealIdeasLoaded = true;
-  } catch(e) {
-    document.getElementById('meal-ideas-loading').style.display = 'none';
-    document.getElementById('meal-ideas-empty').style.display = 'block';
-    console.error('Meal ideas error:', e);
-  }
+// ── PANE SWITCHING ────────────────────────────────────
+function showPane(id, btn) {
+  document.querySelectorAll('.food-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.fn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  // Lazy load panes
+  if (id === 'week' && !_weekMeals)        loadWeekMeals();
+  if (id === 'recipes' && !_recipesLoaded) loadRecipes();
+  if (id === 'shopping')                   renderShopping();
+  if (id === 'intel')                      renderIntelligence();
+  if (id === 'pyramids')                   initPyramids();
 }
 
-async function generateMealIdeas(p) {
-  const weekPlan = p.weekPlan || [];
-  const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day);
-  const restDays = weekPlan.filter(d=>d.priority!=='training').map(d=>d.day);
-  const isFemale = (p.sex||'').toLowerCase() === 'female';
+// ── NO PROFILE ────────────────────────────────────────
+if (!_p) {
+  document.querySelectorAll('.food-pane').forEach(p => {
+    p.innerHTML = `<div style="text-align:center;padding:80px 24px;">
+      <div style="font-size:44px;margin-bottom:16px;">🍽</div>
+      <div style="font-family:var(--serif);font-size:28px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">Your food system awaits</div>
+      <div style="font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:28px;">Complete onboarding to unlock personalised meals, recipes, and your food pyramid.</div>
+      <a href="bodylens-onboard.html" style="display:inline-block;background:var(--amber-food);color:var(--ink);padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;letter-spacing:0.04em;text-decoration:none;">Get started →</a>
+    </div>`;
+  });
+} else {
 
-  const cookingNote = p.cookingApproach || 'standard';
-  const cuisines = (p.cuisinePrefs||[]).join(', ') || 'no strong preference';
-  const complexity = p.recipeComplexity || 'standard';
-  
-  const prompt = `You are a performance nutritionist. Build a full week of meal ideas for this person.
+// ── HERO SETUP ────────────────────────────────────────
+document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${_p.name}</span>`;
 
-PROFILE:
-Name: ${p.name} | Age: ${p.age} | Sex: ${p.sex}
-Goal: ${p.goal} | Target: ${p.target||'—'}
-Calories: ${p.calories} kcal | Protein: ${p.protein}g | Carbs: ${p.carbs}g | Fat: ${p.fat}g
-Eating window: ${p.fastingWindow||p.eatingWindow||'flexible'}
-Diet: ${p.dietType||'no restrictions'}
-Food exclusions: ${(p.foodExclusions||[]).join(', ')||'none'}
-Trigger foods (avoid): ${p.triggerFoods||'none'}
-Training days: ${trainingDays.join(', ')||'Mon,Wed,Fri,Sat'}
-Rest days: ${restDays.join(', ')||'Tue,Thu,Sun'}
-${isFemale ? 'FEMALE: Account for female hormonal patterns — higher iron needs, oestrogen effects on nutrient partitioning, cycle-phase nutrition if relevant.' : ''}
+const _trainKcal  = _todayPlan.kcal || _p.calories || 2000;
+const _restKcal   = Math.round(_trainKcal * 0.91);
+const _todayKcal  = _isTrain ? _trainKcal : _restKcal;
+const _prot       = _p.protein || 140;
+const _carbs      = _p.carbs   || 160;
+const _fat        = _p.fat     || 60;
+const _water      = (((_p.weight||75) * 35 + (_isTrain ? 500 : 0)) / 1000).toFixed(1) + 'L';
 
-FOOD PROFILE — CRITICAL, follow exactly:
-Cooking approach: ${cookingNote}
-Cuisine preferences: ${cuisines}
-Recipe complexity: ${complexity}
+document.getElementById('mh-kicker').textContent =
+  `${_todayName} · ${_isTrain ? _todayPlan.type + ' day' : 'Rest day'} · ${_p.name}`;
 
-MEAL STYLE RULES:
-${complexity.includes('5 ingredient') ? '- MAXIMUM 5 ingredients per meal. No exceptions. Simple preparations only.' : ''}
-${complexity.includes('Standard') ? '- Standard home cooking. 6-10 ingredients. Nothing requiring specialist techniques.' : ''}
-${complexity.includes('enjoy cooking') ? '- Full recipe complexity welcome. Proper techniques, multiple components, interesting preparations.' : ''}
-${cookingNote.includes('Convenience') ? '- Quick to prepare. Under 20 minutes. Batch-cook friendly.' : ''}
-${cookingNote.includes('Adventurous') ? '- Bold flavours welcome. Interesting spice combinations. Global techniques.' : ''}
-${cookingNote.includes('Simple') ? '- Plain, clean flavours. Grilled or baked proteins. No complex sauces.' : ''}
-Cuisine direction: ${cuisines.includes('no strong') ? 'Keep it neutral and familiar.' : 'Build meals around '+cuisines+' flavour profiles where possible.'}
+const macroBar = document.getElementById('mh-macro-bar');
+macroBar.innerHTML = `
+  <div class="mmb-cell"><div class="mmb-val">${_todayKcal}</div><div class="mmb-label">kcal today</div></div>
+  <div class="mmb-cell"><div class="mmb-val jade">${_prot}g</div><div class="mmb-label">protein</div></div>
+  <div class="mmb-cell"><div class="mmb-val amber">${_carbs}g</div><div class="mmb-label">carbs</div></div>
+  <div class="mmb-cell"><div class="mmb-val">${_fat}g</div><div class="mmb-label">fat</div></div>
+  <div class="mmb-cell"><div class="mmb-val water">${_water}</div><div class="mmb-label">water</div></div>`;
 
-Build TWO day templates:
-1. A TRAINING DAY meal plan (${p.calories} kcal, ${p.protein}g protein)
-2. A REST DAY meal plan (~${Math.round((p.calories||2400)*0.9)} kcal, same protein)
+// Sidebar profile
+document.getElementById('sw-profile-body').innerHTML =
+  `${_p.dietType||'Flexible'} · ${((_p.foodExclusions||[]).join(', ')||'no exclusions')}<br>
+   ${((_p.cuisinePrefs||[]).join(', '))||'No cuisine preference'}<br>
+   ${_p.recipeComplexity||'Standard complexity'}<br>
+   Eating window: ${_p.actualEatingWindow||_p.eatingWindow||'flexible'}`;
 
-For each day provide 4 meals. Each meal must:
-- Have specific foods with exact quantities (grams)
-- Respect all exclusions and avoid trigger foods
-- Be realistic to prepare — not elaborate
-- Have a clear performance or recovery purpose
+// Update trackers
+document.getElementById('prot-target').textContent = _prot + 'g protein';
+document.getElementById('kcal-target').textContent = _todayKcal + ' kcal';
+setDayType(_currentDayType);
+
+// Day toggle buttons
+const dtTrain = document.getElementById('dt-train');
+const dtRest  = document.getElementById('dt-rest');
+if (!_isTrain) {
+  dtRest.classList.add('active');
+  dtTrain.classList.remove('active');
+}
+
+// ── TODAY MEALS ───────────────────────────────────────
+const _todayCacheKey = 'bl_food_meals_' + new Date().toISOString().slice(0,10);
+const _cachedMeals   = (() => { try { return JSON.parse(localStorage.getItem(_todayCacheKey)||'null'); } catch(e){return null;} })();
+
+if (_cachedMeals) {
+  _mealsData = _cachedMeals;
+  renderTodayMeals();
+} else {
+  generateTodayMeals();
+}
+
+// ── GENERATE TODAY MEALS ──────────────────────────────
+function generateTodayMeals() {
+  const injuries  = (_p.injuryAssessments || _p.injuries || []).map(i=>i.location||i).join(', ');
+  const exclusions= (_p.foodExclusions||[]).join(', ')||'none';
+  const cuisines  = (_p.cuisinePrefs||[]).join(', ')||'neutral';
+
+  const prompt = `You are a performance nutritionist. Build meal plans for ${_p.name}.
+
+Profile: ${_p.age}yo ${_p.sex}, ${_p.weight}kg, goal: ${_p.goal}
+Calories: ${_trainKcal} kcal training / ${_restKcal} kcal rest
+Protein: ${_prot}g | Carbs: ${_carbs}g | Fat: ${_fat}g
+Diet: ${_p.dietType||'flexible'} | Exclude: ${exclusions} | Avoid: ${_p.triggerFoods||'none'}
+Cuisine: ${cuisines} | Complexity: ${_p.recipeComplexity||'standard'}
+Eating window: ${_p.actualEatingWindow||_p.eatingWindow||'flexible'}
+Meals per day: ${_p.mealCount||4}
+${_isFemale?'Female — apply female physiology context.':''}
+${injuries?'Injuries: '+injuries:''}
+
+Build a TRAINING DAY and REST DAY plan. ${_p.recipeComplexity&&_p.recipeComplexity.includes('5')
+  ? 'MAX 5 ingredients per meal — non-negotiable.' : ''}
 
 Return ONLY valid JSON:
 {
   "trainingDay": {
-    "label": "Training day",
-    "calories": ${p.calories},
-    "protein": ${p.protein},
-    "carbs": ${p.carbs},
-    "fat": ${p.fat},
+    "calories": ${_trainKcal}, "protein": ${_prot}, "carbs": ${_carbs}, "fat": ${_fat},
     "meals": [
-      {
-        "time": "HH:MM",
-        "name": "Meal name",
-        "purpose": "one sentence why this meal at this time",
-        "calories": 0,
-        "protein": 0,
-        "carbs": 0,
-        "fat": 0,
-        "items": [
-          { "name": "food item", "quantity": "200g" }
-        ]
-      }
+      { "time": "08:00", "name": "Meal name", "purpose": "one sentence why",
+        "calories": 0, "protein": 0, "carbs": 0, "fat": 0,
+        "items": [{ "name": "food", "quantity": "200g" }] }
     ]
   },
   "restDay": {
-    "label": "Rest day",
-    "calories": ${Math.round((p.calories||2400)*0.9)},
-    "protein": ${p.protein},
-    "carbs": ${Math.round((p.carbs||200)*0.8)},
-    "fat": ${p.fat},
+    "calories": ${_restKcal}, "protein": ${_prot}, "carbs": ${Math.round(_carbs*0.8)}, "fat": ${_fat},
     "meals": []
   },
-  "principles": [
-    "Key principle 1 specific to this person",
-    "Key principle 2",
-    "Key principle 3"
-  ],
-  "avoidNote": "1-2 sentences on managing their specific trigger foods: ${p.triggerFoods||'none'}"
+  "principles": ["principle 1", "principle 2", "principle 3"],
+  "avoidNote": "one sentence on managing trigger foods"
 }`;
 
-  const res = await fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2500,
-      system: 'You are a performance nutritionist. Return only valid JSON. No markdown, no preamble.',
-      messages: [{ role: 'user', content: prompt }],
-    }),
+  fetch(API, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:MODEL, max_tokens:1400,
+      system:'You are a performance nutritionist. Return only valid JSON, no markdown, no preamble.',
+      messages:[{role:'user',content:prompt}]
+    })
+  })
+  .then(r=>r.json())
+  .then(data => {
+    const text = (data.content||[]).map(b=>b.text||'').join('').trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    const parsed = JSON.parse(match[0]);
+    _mealsData = parsed;
+    try { localStorage.setItem(_todayCacheKey, JSON.stringify(parsed)); } catch(e){}
+    renderTodayMeals();
+  })
+  .catch(err => {
+    console.error('Meal generation failed:', err);
+    // Build fallback from profile data
+    _mealsData = buildFallbackMeals();
+    renderTodayMeals();
   });
-
-  const data = await res.json();
-  const text = data.content?.map(b=>b.text||'').join('') || '';
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('No JSON');
-  return JSON.parse(match[0]);
 }
 
-function renderMealIdeas(plan, profile) {
-  const shell = document.getElementById('meal-ideas-content');
-  shell.style.display = 'block';
-
-  const tabs = `
-    <div style="display:flex;gap:8px;margin-bottom:28px;">
-      <button id="mi-tab-train" onclick="switchMealTab('training')"
-        style="padding:9px 20px;background:var(--jade);border:none;border-radius:4px;
-        font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.06em;
-        text-transform:uppercase;color:var(--ink);cursor:pointer;">
-        Training day
-      </button>
-      <button id="mi-tab-rest" onclick="switchMealTab('rest')"
-        style="padding:9px 20px;background:transparent;border:1px solid var(--bd-2);border-radius:4px;
-        font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.06em;
-        text-transform:uppercase;color:var(--dk-3);cursor:pointer;">
-        Rest day
-      </button>
-    </div>`;
-
-  const trainingHTML = renderDayMeals(plan.trainingDay, 'training');
-  const restHTML     = renderDayMeals(plan.restDay, 'rest');
-
-  const principles = plan.principles && plan.principles.length ? `
-    <div style="margin-top:32px;">
-      <div class="meal-day-header">Your food rules</div>
-      ${plan.principles.map(pr => `
-        <div style="padding:10px 16px;background:var(--ink-2);border:1px solid var(--bd);
-          border-left:3px solid var(--jade-br);border-radius:0 4px 4px 0;
-          font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;margin-bottom:6px;">
-          ${pr}
-        </div>`).join('')}
-    </div>` : '';
-
-  const avoidNote = plan.avoidNote ? `
-    <div style="margin-top:16px;padding:14px 16px;background:rgba(217,78,53,0.05);
-      border:1px solid var(--red-br);border-radius:4px;
-      font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">
-      <strong style="color:var(--red);">Trigger management:</strong> ${plan.avoidNote}
-    </div>` : '';
-
-  shell.innerHTML = tabs +
-    `<div id="mi-training">${trainingHTML}</div>` +
-    `<div id="mi-rest" style="display:none;">${restHTML}</div>` +
-    principles + avoidNote +
-    `<div style="margin-top:24px;text-align:center;">
-      <button onclick="refreshMealIdeas()"
-        style="background:transparent;border:1px solid var(--bd-2);color:var(--dk-3);
-        padding:8px 18px;border-radius:20px;font-size:11px;cursor:pointer;
-        font-family:var(--sans);letter-spacing:0.04em;">
-        ↺ Generate new ideas
-      </button>
-    </div>`;
+function buildFallbackMeals() {
+  const pPerMeal = Math.round(_prot / (_p.mealCount||4));
+  const kPerMeal = Math.round(_trainKcal / (_p.mealCount||4));
+  const meals = [
+    { time:'08:00', name:'Breakfast', purpose:'First protein hit of the day — sets ghrelin for the session ahead.',
+      calories:kPerMeal, protein:pPerMeal, carbs:Math.round(_carbs*0.3), fat:Math.round(_fat*0.25),
+      items:[{name:'Protein source',quantity:pPerMeal+'g protein'},{name:'Complex carbs',quantity:'60g'},{name:'Healthy fat',quantity:'15g'}] },
+    { time:'12:30', name:'Midday meal', purpose:'Protein anchor — sustains MPS through the afternoon.',
+      calories:kPerMeal, protein:pPerMeal, carbs:Math.round(_carbs*0.25), fat:Math.round(_fat*0.25),
+      items:[{name:'Lean protein',quantity:pPerMeal+'g'},{name:'Vegetables',quantity:'200g'},{name:'Complex carbs',quantity:'50g'}] },
+    { time:'15:30', name:'Afternoon meal', purpose:'Third protein window — keeps leucine elevated.',
+      calories:Math.round(kPerMeal*0.7), protein:Math.round(pPerMeal*0.8), carbs:Math.round(_carbs*0.2), fat:Math.round(_fat*0.25),
+      items:[{name:'Protein source',quantity:Math.round(pPerMeal*0.8)+'g'},{name:'Fruit or veg',quantity:'150g'}] },
+    { time:'19:00', name:'Evening meal', purpose:'Casein-rich close — overnight MPS support.',
+      calories:kPerMeal, protein:pPerMeal, carbs:Math.round(_carbs*0.25), fat:Math.round(_fat*0.25),
+      items:[{name:'Lean protein',quantity:pPerMeal+'g'},{name:'Vegetables',quantity:'200g'}] },
+  ].slice(0, _p.mealCount||4);
+  return { trainingDay:{ calories:_trainKcal, protein:_prot, carbs:_carbs, fat:_fat, meals },
+           restDay:{ calories:_restKcal, protein:_prot, carbs:Math.round(_carbs*0.8), fat:_fat,
+             meals:meals.map(m=>({...m,calories:Math.round(m.calories*0.91),carbs:Math.round(m.carbs*0.8)})) },
+           principles:(_p.keyFoodPrinciples||['Protein at every meal','Carbs timed around training','Vegetables unlimited']),
+           avoidNote:_p.triggerFoods ? 'Avoid '+_p.triggerFoods+' — have a protein-forward alternative ready.' : '' };
 }
 
-function renderDayMeals(day, type) {
-  if (!day || !day.meals) return '<div style="color:var(--dk-3);font-size:13px;padding:20px 0;">No meals generated.</div>';
+function renderTodayMeals() {
+  if (!_mealsData) return;
+  const day = _currentDayType === 'training' ? _mealsData.trainingDay : _mealsData.restDay;
+  if (!day || !day.meals) return;
 
-  const macros = `
-    <div class="meal-day-macros">
-      <div class="meal-day-macro"><div class="meal-day-macro-val">${day.calories||'—'}</div><div class="meal-day-macro-label">Calories</div></div>
-      <div class="meal-day-macro"><div class="meal-day-macro-val jade">${day.protein||'—'}g</div><div class="meal-day-macro-label">Protein</div></div>
-      <div class="meal-day-macro"><div class="meal-day-macro-val amber">${day.carbs||'—'}g</div><div class="meal-day-macro-label">Carbs</div></div>
-      <div class="meal-day-macro"><div class="meal-day-macro-val slate">${day.fat||'—'}g</div><div class="meal-day-macro-label">Fat</div></div>
-    </div>`;
-
-  const cards = (day.meals||[]).map((m, i) => `
-    <div class="meal-card" id="meal-${type}-${i}">
-      <div class="meal-card-head" onclick="document.getElementById('meal-${type}-${i}').classList.toggle('open')">
-        <div class="meal-card-time">${m.time||'—'}</div>
-        <div>
-          <div class="meal-card-name">${m.name||'—'}</div>
-          ${m.purpose ? `<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:2px;">${m.purpose}</div>` : ''}
+  const mealsHtml = day.meals.map((meal, i) => `
+    <div class="meal-card" id="mc-${i}">
+      <div class="mc-head" onclick="toggleMeal(${i})">
+        <div class="mc-time">${meal.time||'—'}</div>
+        <div class="mc-main">
+          <div class="mc-name">${meal.name}</div>
+          <div class="mc-purpose">${meal.purpose||''}</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="meal-card-macros">${m.calories||'—'} kcal · ${m.protein||'—'}g protein</div>
-          <div class="meal-card-chevron">›</div>
+        <div class="mc-right">
+          <div>
+            <div class="mc-prot">${meal.protein}g</div>
+            <div class="mc-kcal">${meal.calories} kcal</div>
+          </div>
+          <span class="mc-chevron">▾</span>
         </div>
       </div>
-      <div class="meal-card-body">
-        ${(m.items||[]).map(item => `
-          <div class="meal-item">
-            <span class="meal-item-name">${item.name}</span>
-            <span class="meal-item-qty">${item.quantity||''}</span>
-          </div>`).join('')}
+      <div class="mc-body">
+        <div class="mc-items">
+          ${(meal.items||[]).map(it=>`
+            <div class="mc-item">
+              <span class="mc-item-name">${it.name}</span>
+              <span class="mc-item-qty">${it.quantity||''}</span>
+            </div>`).join('')}
+        </div>
+        <div class="mc-macros">
+          <div class="mc-m-item"><div class="mc-m-val j">${meal.protein}g</div><div class="mc-m-label">Protein</div></div>
+          <div class="mc-m-item"><div class="mc-m-val a">${meal.carbs||0}g</div><div class="mc-m-label">Carbs</div></div>
+          <div class="mc-m-item"><div class="mc-m-val">${meal.fat||0}g</div><div class="mc-m-label">Fat</div></div>
+          <div class="mc-m-item"><div class="mc-m-val">${meal.calories}</div><div class="mc-m-label">kcal</div></div>
+        </div>
       </div>
     </div>`).join('');
 
-  return macros + cards;
-}
+  const typeLabel = _currentDayType === 'training'
+    ? (_isTrain ? `Today — ${_todayPlan.type} day` : 'Training day plan')
+    : (_isTrain ? 'Rest day plan' : `Today — Rest day`);
 
-function switchMealTab(tab) {
-  const isTrain = tab === 'training';
-  document.getElementById('mi-training').style.display = isTrain ? 'block' : 'none';
-  document.getElementById('mi-rest').style.display     = isTrain ? 'none'  : 'block';
-  document.getElementById('mi-tab-train').style.background = isTrain ? 'var(--jade)' : 'transparent';
-  document.getElementById('mi-tab-train').style.color      = isTrain ? 'var(--ink)'  : 'var(--dk-3)';
-  document.getElementById('mi-tab-train').style.border     = isTrain ? 'none'        : '1px solid var(--bd-2)';
-  document.getElementById('mi-tab-rest').style.background  = isTrain ? 'transparent' : 'var(--jade)';
-  document.getElementById('mi-tab-rest').style.color       = isTrain ? 'var(--dk-3)'  : 'var(--ink)';
-  document.getElementById('mi-tab-rest').style.border      = isTrain ? '1px solid var(--bd-2)' : 'none';
-}
+  document.getElementById('today-meals').innerHTML = `
+    <div class="sec-hdr amber">${typeLabel}</div>
+    ${mealsHtml}
+    <div style="margin-top:16px;display:flex;gap:8px;">
+      <button class="btn-amber" onclick="refreshMeals()">↺ New meal ideas</button>
+    </div>`;
 
-async function refreshMealIdeas() {
-  mealIdeasLoaded = false;
-  const cacheKey = 'bl_meal_ideas_' + new Date().toISOString().slice(0,10);
-  localStorage.removeItem(cacheKey);
-  document.getElementById('meal-ideas-content').style.display = 'none';
-  await loadMealIdeas();
-}
-</script>
-
-<script src="nav.js"></script>
-<script>
-function showPane(paneId, btn) {
-  document.querySelectorAll('.fuel-pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
-  document.getElementById(paneId).classList.add('active');
-  btn.classList.add('active');
-}
-</script>
-<script>
-(function(){
-  try {
-    const p = localStorage.getItem('bl_profile');
-    if (p) {
-      const profile = JSON.parse(p);
-      const el = document.getElementById('nav-meta');
-      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
-    }
-  } catch(e){}
-})();
-</script>
-
-<script>
-function personalisePageContent(p) {
-  // Replace wake time references
-  const wake = p.wakeTime || '07:00';
-  const [wH] = wake.split(':').map(Number);
-  const coffeeTime = `${String(wH+1).padStart(2,'0')}:30`;
-  const collagenTime = `${String(wH+2).padStart(2,'0')}:00`;
-
-  const age = p.age || '?';
-  const weight = p.weight || '?';
-  const protein = p.protein || 185;
-  const name = p.name;
-  const goal = p.goal || 'body recomposition';
-  const supps = p.supplements || [];
-  const injuries = p.injuryAssessments || p.injuries || [];
-  const recoveryTools = p.recoveryTools || [];
-  const trainingDays = p.trainingDays || 4;
-  const weekPlan = p.weekPlan || [];
-  const trainingDayNames = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
-
-  // Replace all personal stat references in the visible text
-  replaceInContent([
-    // Age
-    [/\b44\b(?!px|%|rem|em|vw|vh)/g, age],
-    // Weight
-    [/85\s*kg/g, weight + 'kg'],
-    // Protein
-    [/185g/g, protein + 'g'],
-    [/185\s*g/g, protein + 'g'],
-    // Wake time
-    [/06:00(?! alarm)/g, wake],
-    [/07:30 flat white/g, coffeeTime + ' flat white'],
-    // Training days
-    [/Mon(day)?.*?Push/g, trainingDayNames.split(',')[0]?.trim() || 'Monday'],
-    [/Fri(day)?.*?Posterior Chain/g, trainingDayNames.split(',').slice(-1)[0]?.trim() || 'Friday'],
-  ]);
-
-  // Update the "you are here" stat boxes that show age
-  document.querySelectorAll('.age-val, .stat-age, [data-stat="age"]').forEach(el => {
-    el.textContent = age;
-  });
-
-  // Update supplement stack section if it exists
-  const suppSection = document.getElementById('supp-stack-personal');
-  if (suppSection && supps.length) {
-    suppSection.innerHTML = supps.map(s => `
-      <div class="supp-row">
-        <span class="supp-name">${s.name}</span>
-        <span class="supp-dose">${s.dose}</span>
-        <span class="supp-time">${s.timing}</span>
-      </div>`).join('');
-  }
-
-  // Update injury section
-  const injSection = document.getElementById('injury-personal');
-  if (injSection) {
-    if (injuries.length) {
-      injSection.innerHTML = injuries.map(inj => `
-        <div class="inj-item" style="padding:10px 0;border-bottom:1px solid var(--bd);">
-          <strong style="color:var(--gold);">${inj.location}</strong><br>
-          <span style="font-size:12px;color:var(--dk-2);">${inj.assessment||inj.detail||''}</span>
-          ${inj.avoidMovements && inj.avoidMovements.length ? `<br><span style="font-size:11px;color:var(--red);">Avoid: ${inj.avoidMovements.join(', ')}</span>` : ''}
-        </div>`).join('');
-    } else {
-      injSection.innerHTML = '<div style="font-size:12px;color:var(--dk-3);padding:10px 0;">No current injuries on record.</div>';
-    }
-  }
-
-  // Patch "you are here" callout text
-  document.querySelectorAll('.you-are-here-text, .hc-body').forEach(el => {
-    if (el.textContent.includes('Sven') || el.textContent.includes('tennis')) {
-      el.innerHTML = buildPersonalCallout(p);
-    }
-  });
-}
-
-function replaceInContent(replacements) {
-  // Walk all text nodes and apply replacements
-  const walker = document.createTreeWalker(
-    document.body,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode: n => {
-        const parent = n.parentElement;
-        if (!parent) return NodeFilter.FILTER_REJECT;
-        const tag = parent.tagName;
-        if (['SCRIPT','STYLE','META','LINK'].includes(tag)) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
+  // Show food rules
+  if (_mealsData.principles && _mealsData.principles.length) {
+    const rulesEl = document.getElementById('sw-rules');
+    const rulesBody = document.getElementById('food-rules-body');
+    if (rulesEl && rulesBody) {
+      rulesBody.innerHTML = _mealsData.principles.map(p=>
+        `<div class="food-rule">${p}</div>`).join('');
+      if (_mealsData.avoidNote) {
+        rulesBody.innerHTML += `<div style="margin-top:10px;padding:8px 12px;background:rgba(217,78,53,0.05);border:1px solid var(--red-br);border-radius:4px;font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.6;">
+          <strong style="color:var(--red);">Avoid:</strong> ${_mealsData.avoidNote}</div>`;
       }
+      rulesEl.style.display = 'block';
     }
-  );
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
+  }
+}
 
-  nodes.forEach(node => {
-    let text = node.textContent;
-    let changed = false;
-    replacements.forEach(([pat, repl]) => {
-      const newText = text.replace(pat, repl);
-      if (newText !== text) { text = newText; changed = true; }
-    });
-    if (changed) node.textContent = text;
+function toggleMeal(i) {
+  document.getElementById('mc-'+i)?.classList.toggle('open');
+}
+
+function setDayType(type) {
+  _currentDayType = type;
+  document.getElementById('dt-train').classList.toggle('active', type==='training');
+  document.getElementById('dt-rest').classList.toggle('active', type==='rest');
+  const kcal = type === 'training' ? _trainKcal : _restKcal;
+  document.getElementById('kcal-target').textContent = kcal + ' kcal';
+  document.getElementById('kcal-bar').style.width = '0%';
+  document.getElementById('kcal-eaten').textContent = '0 kcal';
+  document.getElementById('prot-bar').style.width = '0%';
+  document.getElementById('prot-eaten').textContent = '0g';
+  if (_mealsData) renderTodayMeals();
+}
+
+function refreshMeals() {
+  try { localStorage.removeItem(_todayCacheKey); } catch(e){}
+  _mealsData = null;
+  document.getElementById('today-meals').innerHTML = '<div class="food-loading"><div class="fl-spinner"></div><div class="fl-text">Building fresh meal ideas…</div></div>';
+  generateTodayMeals();
+}
+
+// ── WEEK MEALS ────────────────────────────────────────
+const _weekCacheKey = 'bl_week_meals_' + new Date().toISOString().slice(0,7); // monthly cache
+
+function loadWeekMeals() {
+  const cached = (() => { try { return JSON.parse(localStorage.getItem(_weekCacheKey)||'null'); } catch(e){return null;} })();
+  if (cached) { _weekMeals = cached; renderWeekHeader(); return; }
+  generateWeekMeals(false);
+}
+
+function generateWeekMeals(force) {
+  if (force) { try { localStorage.removeItem(_weekCacheKey); } catch(e){} }
+  document.getElementById('week-day-content').innerHTML = '<div class="food-loading"><div class="fl-spinner"></div><div class="fl-text">Building your week plan…</div></div>';
+
+  // Use today's meal data as the template for both day types
+  if (_mealsData) {
+    // Build week from the two day templates we already have
+    _weekMeals = { trainingDay: _mealsData.trainingDay, restDay: _mealsData.restDay };
+    try { localStorage.setItem(_weekCacheKey, JSON.stringify(_weekMeals)); } catch(e){}
+    renderWeekHeader();
+  } else {
+    // Wait for today meals to load first
+    setTimeout(() => { if (_mealsData) { _weekMeals = { trainingDay:_mealsData.trainingDay, restDay:_mealsData.restDay }; renderWeekHeader(); } }, 3000);
+  }
+}
+
+function renderWeekHeader() {
+  const container = document.getElementById('week-days');
+  if (!container) return;
+  container.innerHTML = DAY_NAMES.map((name, i) => {
+    const plan = _weekPlan[i] || { type:'Rest', priority:'rest' };
+    const isTrain = plan.priority === 'training';
+    const isToday = i === _todayIdx;
+    const kcal = isTrain ? _trainKcal : _restKcal;
+    return `<div class="whr-day ${isTrain?'train':''} ${isToday?'today':''} ${i===_selectedWeekDay?'active-day':''}"
+      onclick="selectWeekDay(${i})">
+      <div class="whr-name ${isTrain?'t':''}">${name.slice(0,3)}</div>
+      <div class="whr-type">${plan.type||'Rest'}</div>
+      <div class="whr-kcal">${kcal} kcal</div>
+    </div>`;
+  }).join('');
+  selectWeekDay(_todayIdx);
+}
+
+function selectWeekDay(idx) {
+  _selectedWeekDay = idx;
+  // Update active state
+  document.querySelectorAll('.whr-day').forEach((el, i) => {
+    el.classList.toggle('active-day', i === idx);
   });
-}
+  const plan = _weekPlan[idx] || { type:'Rest', priority:'rest' };
+  const isTrain = plan.priority === 'training';
+  const dayData = (_weekMeals && isTrain) ? _weekMeals.trainingDay : _weekMeals ? _weekMeals.restDay : null;
+  const kcal = isTrain ? _trainKcal : _restKcal;
+  const label = `${DAY_NAMES[idx]} — ${plan.type||'Rest'} · ${kcal} kcal`;
 
-function buildPersonalCallout(p) {
-  const age = p.age || '?';
-  const name = p.name;
-  const goal = p.goal || 'body recomposition';
-  const protein = p.protein || 185;
-  const trainingDays = p.trainingDays || 4;
-  const supps = (p.supplements||[]).slice(0,4).map(s=>s.name).join(', ');
-  const injuries = p.injuryAssessments || p.injuries || [];
-  const decade = age < 30 ? 20 : age < 40 ? 30 : age < 50 ? 40 : age < 60 ? 50 : 60;
-
-  const callouts = {
-    20: `${name} is ${age} — in the most biologically forgiving decade. Build the foundation now. Lean mass added in the 20s compounds for 50 years.`,
-    30: `${name} is ${age} — adaptation is still high but the first biological shifts have begun. The programme addresses them directly: ${trainingDays} sessions, ${protein}g protein, structured recovery.`,
-    40: `${name} is ${age} — the highest leverage decade for long-term health. Every element of this programme — ${trainingDays} sessions/week, ${protein}g protein, ${supps} — addresses a specific biological shift happening right now. ${injuries.length ? 'The injury protocol is part of the programme, not a workaround.' : 'The window is open. The biology is receptive.'}`,
-    50: `${name} is ${age} — the decade where training decisions become especially consequential. ${trainingDays} sessions/week is enough to reverse sarcopenia entirely. Recovery windows lengthen; the stimulus still works.`,
-    60: `${name} is ${age} — collecting the dividend on decades of work. VO₂max is the priority. Resistance training and Zone 2 remain the two non-negotiable interventions.`,
-  };
-  return callouts[decade] || callouts[40];
-}
-</script>
-
-<script src="page-generator.js"></script>
-<script>
-// ── FUEL PANE LAZY LOADER ─────────────────────────────────
-function loadFuelPane(paneId, tabKey) {
-  const profile = (() => {
-    try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); }
-    catch(e) { return null; }
-  })();
-
-  if (!profile) {
-    document.getElementById(paneId + '-content').innerHTML =
-      '<div style="text-align:center;padding:60px 24px;color:#8a9490;font-size:13px;">' +
-      'Complete onboarding first. <a href="bodylens-onboard.html" style="color:#00c8a0;">Get started →</a></div>';
+  if (!dayData || !dayData.meals) {
+    document.getElementById('week-day-content').innerHTML = `<div class="wdc-label">${label}</div><div style="color:var(--dk-3);font-size:13px;padding:20px 0;">Meals loading…</div>`;
     return;
   }
 
-  const pane = document.getElementById(paneId);
-  if (pane && pane.dataset.generated === 'true') return;
+  document.getElementById('week-day-content').innerHTML = `
+    <div class="wdc-label">${label}</div>
+    ${dayData.meals.map(m=>`
+      <div class="week-meal-row">
+        <div class="wmr-time">${m.time||'—'}</div>
+        <div class="wmr-name">${m.name}</div>
+        <div class="wmr-prot">${m.protein}g P</div>
+        <div class="wmr-kcal">${m.calories} kcal</div>
+      </div>`).join('')}`;
+}
 
-  const container = document.getElementById(paneId + '-content');
-  if (!container) return;
+// ── RECIPES ───────────────────────────────────────────
+function loadRecipes() {
+  const cacheKey = 'bl_recipes_v1_' + btoa((_p.cuisinePrefs||[]).join('')+_p.goal).slice(0,8);
+  const cached = (() => { try { return JSON.parse(localStorage.getItem(cacheKey)||'null'); } catch(e){return null;} })();
+  if (cached) { renderRecipes(cached); return; }
 
-  // Cache key
-  const hash = (profile.name||'') + (profile.goal||'') + (profile.weight||'');
-  const cacheKey = 'bl_fuel_v1_' + tabKey + '_' + btoa(hash).slice(0,8);
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      container.innerHTML = cached;
-      if (pane) pane.dataset.generated = 'true';
-      return;
-    }
-  } catch(e) {}
+  const cuisines = (_p.cuisinePrefs||[]).join(', ')||'neutral';
+  const complexity = _p.recipeComplexity||'standard';
 
-  // Show loading
-  container.innerHTML = '<div style="padding:40px 24px;text-align:center;">' +
-    '<div style="width:24px;height:24px;border:2px solid #1e2e28;border-top-color:#00c8a0;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>' +
-    '<div style="font-size:12px;color:#3e504a;">Building your ' + tabKey + ' guide…</div></div>';
+  fetch(API, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:MODEL, max_tokens:900,
+      system:'You are a performance nutritionist. Return only valid JSON, no markdown.',
+      messages:[{role:'user', content:`Build 6 quick-build recipes for ${_p.name}.
+Profile: ${_p.age}yo ${_p.sex}, goal: ${_p.goal}, ${_p.protein}g protein daily.
+Diet: ${_p.dietType||'flexible'} | Exclude: ${(_p.foodExclusions||[]).join(', ')||'none'}
+Cuisine: ${cuisines} | Complexity: ${complexity}
+${complexity.includes('5')?'MAX 5 ingredients each. No exceptions.':'Standard home cooking.'}
 
-  // Build prompt per tab
-  const p = profile;
-  const isFemale = (p.sex||'').toLowerCase() === 'female';
-  const injuries = (p.injuryAssessments||p.injuries||[]).map(i=>i.location||i).join(', ');
-  const baseContext = `User: ${p.name}, ${p.age}yo ${p.sex}, ${p.weight}kg, goal: ${p.goal}.
-Calories: ${p.calories} kcal | Protein: ${p.protein}g | Carbs: ${p.carbs}g | Fat: ${p.fat}g
-Diet: ${p.dietType||'flexible'} | Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}
-Cuisine: ${(p.cuisinePrefs||[]).join(', ')||'neutral'} | Complexity: ${p.recipeComplexity||'standard'}
-Triggers: ${p.triggerFoods||'none'} | Eating window: ${p.actualEatingWindow||p.eatingWindow||'flexible'}
-${injuries ? 'Injuries: '+injuries : ''}
-${isFemale ? 'Female — include hormonal context where relevant.' : ''}`;
-
-  const prompts = {
-    shop: `${baseContext}
-
-Write a personalised weekly shopping list for this person. 
-Organise by category: Protein Sources, Produce, Dairy & Eggs, Grains & Carbs, Pantry, Supplements.
-Be specific — actual food names, quantities for one week. Match their cuisine style and complexity preferences.
-Format as HTML with category headers and item lists. Keep it practical and immediately usable.`,
-
-    syn: `${baseContext}
-
-Explain the 5 most powerful food synergies for this person's specific goal (${p.goal}).
-For each: name the combination, explain the mechanism in 2-3 sentences, give a practical example fitting their cuisine (${(p.cuisinePrefs||[]).join(', ')||'neutral'}).
-Format as HTML — each synergy as a card with a title, mechanism, and example.`,
-
-    timing: `${baseContext}
-
-Create a personalised nutrient timing guide for this person.
-Eating window: ${p.actualEatingWindow||p.eatingWindow||'flexible'}. Training time: ${p.trainingTime||'morning'}.
-Cover: pre-training, post-training, meal spacing, evening window.
-Format as HTML — a timeline with time markers and what to eat/avoid at each point.`,
-
-    hacks: `${baseContext}
-
-Give 6 practical hunger management and satiety strategies for this person.
-Reference their specific trigger foods (${p.triggerFoods||'none'}), energy pattern (${p.energyPattern||'—'}), and eating window.
-Format as HTML — each hack with a title, the science in one sentence, and the practical action.`,
-
-    avoid: `${baseContext}
-
-List the 8 foods or eating patterns this person should specifically avoid this week, given their goal (${p.goal}) and profile.
-For each: name it, explain why it's counterproductive for them specifically (not generically), suggest a replacement.
-Format as HTML — avoid/replace pairs with brief reasoning.`
-  };
-
-  const prompt = prompts[tabKey] || prompts.syn;
-
-  fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 700,
-      system: 'You are a performance nutrition coach. Return HTML content only — no markdown, no preamble. Use inline styles matching a dark theme (background #131918, text #c8c0b4, accent #00c8a0). Keep it concise and specific to this person.',
-      messages: [{ role: 'user', content: prompt }]
+Return JSON: {"recipes": [
+  {"tag":"Breakfast/Lunch/Dinner/Snack", "name":"Recipe name", "subtitle":"one line description",
+   "calories":0, "protein":0, "carbs":0, "fat":0,
+   "prepTime":"10 min", "servings":1,
+   "ingredients": ["200g chicken breast","2 eggs"],
+   "method": "2-3 sentence method"}
+]}`}]
     })
   })
-  .then(r => r.json())
+  .then(r=>r.json())
   .then(data => {
-    if (data.error) throw new Error(data.error.message);
-    const html = (data.content||[]).map(b=>b.text||'').join('').trim();
-    if (!html) throw new Error('Empty');
-    container.innerHTML = '<div style="padding:8px 0;">' + html + '</div>';
-    if (pane) pane.dataset.generated = 'true';
-    try { localStorage.setItem(cacheKey, container.innerHTML); } catch(e) {}
+    const text = (data.content||[]).map(b=>b.text||'').join('');
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    const parsed = JSON.parse(match[0]);
+    try { localStorage.setItem(cacheKey, JSON.stringify(parsed)); } catch(e){}
+    renderRecipes(parsed);
+    _recipesLoaded = true;
   })
   .catch(err => {
-    container.innerHTML = '<div style="text-align:center;padding:40px 24px;color:#8a9490;font-size:13px;">' +
-      'Could not load — <button onclick="loadFuelPane('' + paneId + '','' + tabKey + '')" ' +
-      'style="color:#00c8a0;background:none;border:none;cursor:pointer;text-decoration:underline;">try again</button></div>';
+    document.getElementById('recipe-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--dk-3);font-size:13px;">Could not load recipes — <button onclick="loadRecipes()" style="color:var(--amber-food);background:none;border:none;cursor:pointer;text-decoration:underline;">try again</button></div>';
   });
 }
 
+function renderRecipes(data) {
+  const recipes = data.recipes || [];
+  document.getElementById('recipe-grid').innerHTML = recipes.map(r=>`
+    <div class="recipe-card">
+      <div class="rc-top">
+        <div class="rc-tag">${r.tag||'Meal'} · ${r.prepTime||'—'}</div>
+        <div class="rc-name">${r.name}</div>
+        <div class="rc-sub">${r.subtitle||''}</div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-macros">
+          <div class="rc-m"><div class="rc-m-val j">${r.protein}g</div><div class="rc-m-label">Protein</div></div>
+          <div class="rc-m"><div class="rc-m-val a">${r.carbs||0}g</div><div class="rc-m-label">Carbs</div></div>
+          <div class="rc-m"><div class="rc-m-val">${r.fat||0}g</div><div class="rc-m-label">Fat</div></div>
+          <div class="rc-m"><div class="rc-m-val">${r.calories||0}</div><div class="rc-m-label">kcal</div></div>
+        </div>
+        <div class="rc-items">${(r.ingredients||[]).join(' · ')}</div>
+        ${r.method?`<div style="margin-top:10px;font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.65;border-top:1px solid var(--bd);padding-top:10px;">${r.method}</div>`:''}
+      </div>
+    </div>`).join('');
+}
 
-// Auto-load the active tab on page load
-document.addEventListener('DOMContentLoaded', () => {
-  const profile = (() => {
-    try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); }
-    catch(e) { return null; }
-  })();
-  if (profile) {
-    // Auto-load the shopping list (first tab, shown by default)
-    loadFuelPane('pane-shop', 'shop');
+// ── PYRAMIDS ──────────────────────────────────────────
+const PYRAMIDS = {
+  recomp: { name:'Body Recomposition', subtitle:'Muscle grows. Fat drops. The hardest architecture to execute — and the most rewarding. High protein, moderate deficit, resistance training mandatory.',current:false,kcal:{train:2600,rest:2300},macros:[{label:'Protein',amount:'195–210g',pct:'34%',note:'Highest relative protein of any pyramid. Protects muscle during the deficit.',color:'#00c8a0'},{label:'Carbohydrates',amount:'200–240g train',pct:'33%',note:'Moderate carbs timed exclusively around training. Rest days near-zero starchy carbs.',color:'#c47c18'},{label:'Fat',amount:'70–75g',pct:'26%',note:'At the hormonal floor. Testosterone protection is non-negotiable.',color:'#4a6275'}],layers:[{label:'Very high protein',note:'195–210g · muscle + protect',width:38,color:'rgba(0,200,160,0.9)'},{label:'Training-timed carbs',note:'Training days only',width:52,color:'rgba(196,124,24,0.72)'},{label:'Fat at hormonal floor',note:'Never cut below',width:64,color:'rgba(74,98,117,0.65)'},{label:'Vegetables unlimited',note:'Volume eating for satiety',width:80,color:'rgba(0,168,114,0.6)'},{label:'Resistance training',note:'Non-negotiable',width:92,color:'rgba(200,148,30,0.12)'}],timing:[{title:'Protein every 3–4 hours',text:'During a deficit MPS is suppressed. Frequent protein doses maintain anabolic stimulus. Miss a protein meal during a cut and you lose muscle, not fat.'},{title:'Carbs exclusively around training',text:'Training days: carbs pre and post-session only. Rest days: near-zero starchy carbs.'},{title:'Resistance training is absolute',text:'Recomposition without resistance training is weight loss, not recomposition. The muscle component only occurs with progressive stimulus.'}],foodVolume:[{meal:'Breakfast',protein:'4 whole eggs',carb:'60g oats + ½ banana',fat:'1 tbsp olive oil',kcal:'~520',macros:'38P·58C·22F'},{meal:'Pre-training',protein:'30g whey',carb:'1 banana + 3 rice cakes',fat:'None',kcal:'~320',macros:'35P·45C·2F'},{meal:'Post-training',protein:'30g whey + 150g yoghurt',carb:'150g white rice',fat:'None',kcal:'~520',macros:'52P·58C·6F'},{meal:'Main meal',protein:'200g chicken',carb:'Training: 180g sweet potato / Rest: large salad',fat:'1 tbsp olive oil',kcal:'~480–580',macros:'50P·40–60C·18F'}]},
+  balanced:{name:'Balanced Precision',subtitle:'Optimised for lean muscle gain with full performance capacity, anti-inflammatory eating, and long-term adherence.',current:true,kcal:{train:2950,rest:2700},macros:[{label:'Protein',amount:'185–190g',pct:'26%',note:'Non-negotiable. Leucine threshold at every meal. Distributed across 4 meals.',color:'#00c8a0'},{label:'Carbohydrates',amount:'330g train / 265g rest',pct:'45%',note:'Front-loaded on training days. Reduced ~60g on rest days.',color:'#c47c18'},{label:'Fat',amount:'82–85g',pct:'26%',note:'Hormonal floor. Testosterone synthesis, fat-soluble vitamin delivery, joint lubrication.',color:'#4a6275'}],layers:[{label:'Protein',note:'4 × 45–48g servings',width:40,color:'rgba(0,200,160,0.85)'},{label:'Training-day carbs',note:'Front-loaded, fast/slow',width:55,color:'rgba(196,124,24,0.8)'},{label:'Dietary fat',note:'Every meal, hormonal role',width:68,color:'rgba(74,98,117,0.75)'},{label:'Vegetables & fibre',note:'Unlimited volume eating',width:80,color:'rgba(0,168,114,0.6)'},{label:'Supplements',note:'Creatine, collagen, omega-3',width:92,color:'rgba(255,255,255,0.1)'}],timing:[{title:'Protein at every meal',text:'Distributed across 4 meals. Each clears the 2–3g leucine threshold. Distribution matters as much as total.'},{title:'Training-day carbs front-loaded',text:'Higher-GI carbs before training for glycogen. Rest days: –60g carbs.'},{title:'Fat with fat-soluble vitamins',text:'D3+K2 and omega-3 taken with fat-containing meals for absorption.'}],foodVolume:[{meal:'Breakfast',protein:'80g oats + 30g whey',carb:'1 banana + 200ml oat milk',fat:'1 tbsp peanut butter',kcal:'~620',macros:'52P·82C·16F'},{meal:'Pre-training',protein:'3 eggs',carb:'2 slices sourdough',fat:'Olive oil',kcal:'~430',macros:'28P·42C·16F'},{meal:'Post-training',protein:'30g whey + 150g yoghurt',carb:'1 banana + 2 rice cakes',fat:'None',kcal:'~430',macros:'48P·60C·6F'},{meal:'Main meal',protein:'200g chicken',carb:'200g basmati + 100g spinach',fat:'1 tbsp olive oil',kcal:'~680',macros:'52P·72C·14F'}]},
+  muscle:{name:'Lean Muscle Gain',subtitle:'Maximised for hypertrophy. Higher protein, more carbs, the most calorie-dense performance pyramid.',current:false,kcal:{train:3200,rest:2900},macros:[{label:'Protein',amount:'200–220g',pct:'27%',note:'Higher protein ceiling. Marginal but real benefit above 190g for maximally trained athletes.',color:'#00c8a0'},{label:'Carbohydrates',amount:'390–420g train',pct:'52%',note:'Maximum glycogen loading. Higher carb is the biggest lever for compound lift performance.',color:'#c47c18'},{label:'Fat',amount:'75–80g',pct:'21%',note:'Slightly reduced — protein and carbs take caloric priority.',color:'#4a6275'}],layers:[{label:'High protein',note:'200g+ daily, 5 meals',width:40,color:'rgba(0,200,160,0.9)'},{label:'High carbohydrates',note:'Performance fuel priority',width:58,color:'rgba(196,124,24,0.85)'},{label:'Moderate fat',note:'At hormonal floor',width:70,color:'rgba(74,98,117,0.65)'},{label:'Volume vegetables',note:'Unlimited',width:80,color:'rgba(0,168,114,0.6)'},{label:'Performance supplements',note:'Creatine, beta-alanine',width:92,color:'rgba(255,255,255,0.1)'}],timing:[{title:'5 protein meals if possible',text:'200–220g across 5 meals keeps MPS elevated more continuously than 4.'},{title:'Maximum pre-training carb loading',text:'Dates + banana + whey = highest-performance combination. Goal: maximum glycogen.'},{title:'Post-workout window is critical',text:'40g fast protein + 80g fast carbs within 20 minutes. Insulin spike + leucine = peak anabolic environment.'}],foodVolume:[{meal:'Breakfast',protein:'100g oats + 40g whey',carb:'1 large banana + 250ml whole milk',fat:'2 tbsp peanut butter',kcal:'~780',macros:'58P·96C·22F'},{meal:'Pre-training',protein:'4 eggs',carb:'3 slices sourdough + 3 dates',fat:'Olive oil',kcal:'~580',macros:'36P·85C·16F'},{meal:'Post-training',protein:'40g whey + 200g yoghurt',carb:'1 banana + 150g white rice',fat:'None',kcal:'~580',macros:'58P·82C·6F'},{meal:'Main meal',protein:'250g chicken or steak',carb:'250g basmati + 150g sweet potato',fat:'1.5 tbsp olive oil',kcal:'~820',macros:'62P·90C·18F'}]},
+  cut:{name:'Active Fat Loss',subtitle:'Cuts calories while protecting muscle. Protein maximised, carbs reduced and timed tightly.',current:false,kcal:{train:2400,rest:2100},macros:[{label:'Protein',amount:'200–210g',pct:'36%',note:'Protein increases during a cut — protects against muscle loss when calories are low.',color:'#00c8a0'},{label:'Carbohydrates',amount:'190–220g train',pct:'34%',note:'Significantly reduced. Timed exclusively around training — eliminated on rest days.',color:'#c47c18'},{label:'Fat',amount:'65–70g',pct:'27%',note:'At the hormonal floor (0.7g/kg). Do not cut below — testosterone suppression undermines the goal.',color:'#4a6275'}],layers:[{label:'High protein — muscle protection',note:'Increase not decrease during cut',width:42,color:'rgba(0,200,160,0.9)'},{label:'Training-timed carbs only',note:'Eliminated on rest days',width:54,color:'rgba(196,124,24,0.7)'},{label:'Minimum fat floor',note:'0.7g/kg · testosterone protection',width:64,color:'rgba(74,98,117,0.65)'},{label:'Maximum vegetable volume',note:'Satiety tool — unlimited',width:80,color:'rgba(0,168,114,0.7)'},{label:'Anti-hunger tools',note:'Fibre, volume, casein',width:92,color:'rgba(255,255,255,0.08)'}],timing:[{title:'Protein maximised — counterintuitive',text:'Reducing protein during a cut causes muscle loss. Increase to 200–210g to protect lean mass.'},{title:'Carbs only around training',text:'Rest days: near-zero starchy carbs. Training days: carbs only pre and post session.'},{title:'Re-feed every 10–14 days',text:'One day at maintenance maintains leptin and prevents metabolic adaptation. Not a cheat day — a protocol.'}],foodVolume:[{meal:'Breakfast',protein:'5 egg whites + 2 whole eggs',carb:'Training: 60g oats / Rest: spinach',fat:'Olive oil',kcal:'~380–480',macros:'42P·0–48C·14F'},{meal:'Pre-training',protein:'30g whey',carb:'1 banana + 2 rice cakes',fat:'None',kcal:'~280',macros:'32P·40C·2F'},{meal:'Post-training',protein:'30g whey + 200g 0% yoghurt',carb:'Training: 100g white rice / Rest: cucumber',fat:'None',kcal:'~360–480',macros:'46P·10–38C·2F'},{meal:'Main meal',protein:'200g chicken or white fish',carb:'Training: 150g sweet potato / Rest: large salad',fat:'1 tbsp olive oil',kcal:'~380–500',macros:'46P·10–42C·14F'}]},
+  maintain:{name:'Maintenance / Longevity',subtitle:'The endgame. Lean mass maintained, longevity markers prioritised: VO₂max, hormonal health, joint integrity.',current:false,kcal:{train:2700,rest:2700},macros:[{label:'Protein',amount:'160–175g',pct:'26%',note:'Slightly reduced from building phase. Defends lean mass rather than building it.',color:'#00c8a0'},{label:'Carbohydrates',amount:'290–310g',pct:'45%',note:'Stable across training and rest days. No cycling needed at maintenance.',color:'#c47c18'},{label:'Fat',amount:'90–100g',pct:'30%',note:'Higher allocation — supports testosterone and longevity markers.',color:'#4a6275'}],layers:[{label:'Moderate protein',note:'Muscle defence, not building',width:38,color:'rgba(0,200,160,0.8)'},{label:'Balanced carbohydrates',note:'Consistent — no cycling',width:54,color:'rgba(196,124,24,0.75)'},{label:'Higher fat for hormones',note:'Testosterone + longevity',width:70,color:'rgba(74,98,117,0.8)'},{label:'Anti-inflammatory foods',note:'Joint, gut, brain longevity',width:82,color:'rgba(0,168,114,0.65)'},{label:'Longevity supplements',note:'Omega-3, D3, Mg, collagen',width:92,color:'rgba(255,255,255,0.1)'}],timing:[{title:'Protein still distributed — just lower total',text:'160g across 4 meals still clears the leucine threshold. Distribution rule unchanged.'},{title:'No training/rest day cycling required',text:'At maintenance, carb cycling complexity is unnecessary. Consistent eating is more adherence-friendly.'},{title:'Prioritise anti-inflammatory pattern',text:'Mediterranean diet is the longevity benchmark — olive oil, fatty fish, legumes, whole grains.'}],foodVolume:[{meal:'Breakfast',protein:'3 eggs + 100g smoked salmon',carb:'2 slices sourdough',fat:'½ avocado',kcal:'~580',macros:'44P·36C·28F'},{meal:'Lunch',protein:'150g mackerel or tuna',carb:'120g quinoa + large salad',fat:'1 tbsp olive oil + walnuts',kcal:'~520',macros:'38P·48C·22F'},{meal:'Dinner',protein:'180g salmon',carb:'150g sweet potato + broccoli',fat:'1 tbsp olive oil',kcal:'~520',macros:'40P·44C·20F'},{meal:'Pre-sleep',protein:'200g cottage cheese',carb:'None',fat:'15g walnuts',kcal:'~280',macros:'26P·6C·14F'}]}
+};
+
+function initPyramids() {
+  // Auto-select based on goal
+  const goal = (_p.goal||'').toLowerCase();
+  const pyrId = goal.includes('recomp') ? 'recomp'
+    : goal.includes('muscle')||goal.includes('build') ? 'muscle'
+    : goal.includes('fat')||goal.includes('cut')||goal.includes('los') ? 'cut'
+    : goal.includes('maintain') ? 'maintain' : 'balanced';
+
+  // Mark "yours"
+  document.querySelectorAll('.pyr-btn').forEach(btn => {
+    if (btn.dataset.pyr === pyrId) {
+      btn.innerHTML += ' <span class="yours-tag">← yours</span>';
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  renderPyramid(pyrId, document.querySelector(`[data-pyr="${pyrId}"]`));
+}
+
+function renderPyramid(id, btn) {
+  const p = PYRAMIDS[id];
+  if (!p) return;
+  document.querySelectorAll('.pyr-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  document.getElementById('pyr-main').innerHTML = `
+    <div class="pyr-name">${p.name}</div>
+    <div class="pyr-sub">${p.subtitle}</div>
+    <div class="pyr-bar-wrap">
+      ${p.layers.map(l=>`
+        <div class="pyr-layer">
+          <div class="pyr-bar-note">${l.note}</div>
+          <div class="pyr-bar" style="width:${l.width}%;background:${l.color};">
+            <span class="pyr-bar-label">${l.label}</span>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="pyr-macros-grid">
+      ${p.macros.map(m=>`
+        <div class="pyr-mac">
+          <div class="pyr-mac-label" style="color:${m.color};">${m.label}</div>
+          <div class="pyr-mac-amount">${m.amount}</div>
+          <div class="pyr-mac-note">${m.note}</div>
+        </div>`).join('')}
+    </div>
+    <div class="sec-hdr amber">Timing rules</div>
+    <div class="pyr-timing">
+      ${p.timing.map(t=>`
+        <div class="pt-item">
+          <div class="pt-title">${t.title}</div>
+          <div class="pt-text">${t.text}</div>
+        </div>`).join('')}
+    </div>`;
+
+  document.getElementById('pyr-sidebar').innerHTML = `
+    <div class="pyr-kcal-strip">
+      <div class="pks-label">Calorie targets</div>
+      <div class="pks-day">
+        <div><div class="pks-day-name">Training day</div></div>
+        <div><div class="pks-kcal">${p.kcal.train}</div><div class="pks-sub">kcal</div></div>
+      </div>
+      <div class="pks-day">
+        <div><div class="pks-day-name">Rest day</div></div>
+        <div><div class="pks-kcal">${p.kcal.rest}</div><div class="pks-sub">kcal</div></div>
+      </div>
+    </div>
+    <div class="pyr-food-vol">
+      <div class="fv-head">Example day — what this looks like on a plate</div>
+      ${p.foodVolume.map(m=>`
+        <div class="fv-meal">
+          <div class="fv-meal-name">${m.meal}</div>
+          <div class="fv-meal-detail">${m.protein} · ${m.carb} · ${m.fat}</div>
+          <div class="fv-meal-macro">${m.macros} · ${m.kcal} kcal</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── SHOPPING ──────────────────────────────────────────
+const SHOP_TEMPLATE = {
+  'Protein': [
+    {name:'Chicken breast',qty:'1.2kg'},
+    {name:'Greek yoghurt (0%)',qty:'1kg'},
+    {name:'Eggs',qty:'18'},
+    {name:'Salmon fillet',qty:'600g'},
+    {name:'Cottage cheese',qty:'500g'},
+    {name:'Whey protein',qty:'as needed'},
+  ],
+  'Carbohydrates': [
+    {name:'Basmati rice',qty:'1kg bag'},
+    {name:'Oats',qty:'1kg bag'},
+    {name:'Sweet potato',qty:'1kg'},
+    {name:'Sourdough bread',qty:'1 loaf'},
+    {name:'Bananas',qty:'6-8'},
+    {name:'Rice cakes',qty:'1 pack'},
+  ],
+  'Vegetables': [
+    {name:'Spinach',qty:'400g bag'},
+    {name:'Broccoli',qty:'500g'},
+    {name:'Cherry tomatoes',qty:'400g'},
+    {name:'Cucumber',qty:'2'},
+    {name:'Mixed salad leaves',qty:'200g'},
+  ],
+  'Healthy fats': [
+    {name:'Extra virgin olive oil',qty:'1 bottle'},
+    {name:'Walnuts',qty:'200g'},
+    {name:'Avocado',qty:'4'},
+    {name:'Peanut butter (natural)',qty:'1 jar'},
+  ],
+  'Dairy & other': [
+    {name:'Oat milk',qty:'1L'},
+    {name:'Blueberries',qty:'400g'},
+    {name:'Lemons',qty:'4'},
+  ],
+  'Supplements': [
+    {name:'Creatine monohydrate',qty:'5g/day'},
+    {name:'Omega-3 (EPA/DHA)',qty:'2-3g/day'},
+    {name:'Magnesium glycinate',qty:'300mg/night'},
+  ],
+};
+
+function renderShopping() {
+  const grid = document.getElementById('shop-grid');
+  if (!grid) return;
+
+  // Apply exclusions
+  const excluded = (_p.foodExclusions||[]).map(e=>e.toLowerCase());
+  const triggers  = (_p.triggerFoods||'').toLowerCase().split(/[,/]/).map(t=>t.trim());
+
+  grid.innerHTML = Object.entries(SHOP_TEMPLATE).map(([cat, items]) => {
+    const filtered = items.filter(item => {
+      const n = item.name.toLowerCase();
+      return !excluded.some(e => n.includes(e)) && !triggers.some(t => t && n.includes(t));
+    });
+    if (!filtered.length) return '';
+    return `<div class="shop-cat">
+      <div class="shop-cat-label">${cat}</div>
+      ${filtered.map(item => {
+        const key = item.name.toLowerCase().replace(/\s+/g,'-');
+        const checked = _shopChecks[key];
+        return `<div class="shop-item ${checked?'checked':''}" onclick="toggleShopItem('${key}', this)">
+          <div class="shop-check">${checked?'✓':''}</div>
+          <div class="shop-name">${item.name}</div>
+          <div class="shop-qty">${item.qty}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function toggleShopItem(key, el) {
+  el.classList.toggle('checked');
+  const check = el.querySelector('.shop-check');
+  if (el.classList.contains('checked')) {
+    _shopChecks[key] = true;
+    check.textContent = '✓';
+  } else {
+    delete _shopChecks[key];
+    check.textContent = '';
   }
-});
+  try { localStorage.setItem('bl_shop_checks', JSON.stringify(_shopChecks)); } catch(e){}
+}
+
+function clearShopChecks() {
+  _shopChecks = {};
+  try { localStorage.removeItem('bl_shop_checks'); } catch(e){}
+  renderShopping();
+}
+
+// ── INTELLIGENCE ──────────────────────────────────────
+function renderIntelligence() {
+  const isFemale = _isFemale;
+  const injuries = _p.injuryAssessments || _p.injuries || [];
+  const hasKnee  = injuries.some(i=>(i.location||i||'').toLowerCase().includes('knee'));
+  const hasOmega = (_p.supplements||[]).some(s=>(s.name||'').toLowerCase().includes('omega'));
+  const trigger  = _p.triggerFoods||'none';
+
+  const cards = [
+    {
+      label:'Nutrient timing', title:'When you eat matters as much as what',
+      body:`<strong>Pre-training (90-120 min before):</strong> High protein, moderate fast carbs, low fat. Fat slows glucose delivery — keep it under 15g.<br><br>
+<strong>Post-training (within 30 min):</strong> Fast protein (${Math.round((_p.protein||140)*0.28)}g) + fast carbs (30-40g). mTOR peaks here — the leucine threshold triggers protein synthesis. Don't skip this window.<br><br>
+<strong>Pre-sleep:</strong> Casein-rich foods (cottage cheese, Greek yoghurt) digest over 6-8h — covering the overnight GH repair window.`
+    },
+    {
+      label:'Food synergies', title:'Combinations that outperform the sum',
+      body:`<strong>Protein + vitamin C:</strong> Vitamin C is required for collagen synthesis. ${hasKnee?'Your knee protocol depends on this — collagen + VitC 45 min before training.':'Collagen + VitC 45 min before training amplifies connective tissue repair.'}<br><br>
+<strong>Fat-soluble vitamins + fat:</strong> D3, K2, and omega-3 require dietary fat for absorption. Always take with a fat-containing meal.<br><br>
+<strong>Protein + leucine-rich foods:</strong> Eggs, chicken, dairy, and whey all clear the 2.5g leucine threshold that triggers mTOR. Plant proteins often require combination to reach threshold.`
+    },
+    {
+      label:'Trigger management', title: trigger !== 'none' ? 'Managing ' + trigger : 'Food noise protocol',
+      body: trigger !== 'none'
+        ? `Your trigger food is <strong>${trigger}</strong>. The dopamine anticipation loop for this food is established — restriction amplifies craving, it doesn't eliminate it.<br><br>
+<strong>The strategy:</strong> Environmental design first — don't keep it accessible. Cravings peak at 15-20 minutes and subside without action. Have a high-protein alternative ready (the satiety response from protein partially interrupts the dopaminergic craving signal).<br><br>
+If you do eat it: plan it, don't react to it. A planned portion is not a failure — an unplanned binge is a structural problem.`
+        : `Food noise — persistent background thinking about food — is hormonal, not a willpower failure.<br><br>
+<strong>The primary driver:</strong> Ghrelin (hunger hormone) is entrained to expected meal times. Inconsistent meal timing creates unpredictable peaks. Consistent timing trains ghrelin to arrive predictably — and suppresses more completely after meals.<br><br>
+<strong>The fix:</strong> High protein at every meal (your ${_p.protein||140}g target distributed across ${_p.mealCount||4} meals suppresses ghrelin most effectively). Consistent meal windows. Adequate sleep — one bad night raises ghrelin measurably.`
+    },
+    {
+      label:'Anti-inflammatory eating', title:'Food as inflammation management',
+      body:`${hasOmega ? `Your omega-3 supplementation (EPA/DHA) is the primary anti-inflammatory intervention. It works by competing with arachidonic acid for COX enzymes — reducing pro-inflammatory prostaglandin production. Alcohol directly counteracts this for 24-48h after drinking.` : `Omega-3 (EPA/DHA, 2-3g daily) is the most evidence-backed anti-inflammatory supplement available. It competes with arachidonic acid for COX enzymes, reducing prostaglandin production. Worth adding to your stack.`}<br><br>
+<strong>Dietary anti-inflammatory sources:</strong> Fatty fish (salmon, mackerel) · Extra virgin olive oil (oleocanthal mechanism similar to ibuprofen at therapeutic doses) · Berries (anthocyanins) · Turmeric with black pepper (curcumin + piperine) · Walnuts (ALA conversion to EPA).<br><br>
+${isFemale ? '<strong>Female note:</strong> Oestrogen has anti-inflammatory properties — as oestrogen shifts in perimenopause, dietary anti-inflammatory support becomes progressively more important.' : ''}`
+    },
+    {
+      label:'Gut & absorption', title:'Gut health is performance health',
+      body:`95% of serotonin is produced in the gut. Microbiome diversity directly affects mood, recovery, and cognitive function — not as a metaphor, through measurable inflammatory pathways.<br><br>
+<strong>30 plants per week</strong> is the diversity target from the American Gut Project — the single most impactful dietary intervention for microbiome health. Count each variety separately: 3 types of lettuce = 3 plants.<br><br>
+<strong>Fermented foods</strong> (kefir, Greek yoghurt, kimchi, sauerkraut) provide direct microbiome supplementation — more bioavailable than most probiotic supplements.<br><br>
+Your ${((_p.cuisinePrefs||[]).join(', '))||'current food choices'} ${((_p.cuisinePrefs||[]).some(c=>c.toLowerCase().includes('mediterranean')))||true ? 'naturally include polyphenol-rich foods — olive oil, tomatoes, and legumes all support microbiome diversity.' : 'should include diverse plant sources for microbiome support.'}`
+    },
+    {
+      label:'Eating window', title:`Your window: ${_p.actualEatingWindow||_p.eatingWindow||'flexible'}`,
+      body:`${_p.actualEatingWindow || _p.eatingWindow
+        ? `Your eating window is <strong>${_p.actualEatingWindow||_p.eatingWindow}</strong>. The metabolic benefits of time-restricted eating operate through multiple pathways: extended overnight fast allows autophagy, reduces insulin exposure time, and improves insulin sensitivity over time.<br><br>
+<strong>The first meal:</strong> High protein — this sets ghrelin suppression for the day. The leucine spike at meal 1 is disproportionately important for ghrelin management across the whole window.<br><br>
+<strong>The last meal:</strong> Close the window at a consistent time. Ghrelin is entrained to expected meal times — consistent window closing trains appetite to quieten earlier, making the fast easier with each week.`
+        : `No fasting window is set. If you want to explore time-restricted eating: start with a 12-hour window (8pm last food, 8am first meal) and adjust from there. The main benefit is not the restriction per se — it's the structure and reduced late-night eating that tends to follow.`}`
+    }
+  ];
+
+  document.getElementById('intel-grid').innerHTML = cards.map(c=>`
+    <div class="intel-card">
+      <div class="ic-head">
+        <div class="ic-label">${c.label}</div>
+        <div class="ic-title">${c.title}</div>
+      </div>
+      <div class="ic-body">${c.body}</div>
+    </div>`).join('');
+}
+
+// ── INIT PYRAMIDS ON PAGE LOAD ────────────────────────
+initPyramids();
+
+} // end profile check
 </script>
 
 <script src="coach.js"></script>
