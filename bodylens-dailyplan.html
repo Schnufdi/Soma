@@ -279,23 +279,25 @@
 
 
 /* ── COACH NARRATIVE + TWO-COL ──────────────────── */
-.day-layout{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;}
+.day-layout{display:grid;grid-template-columns:1fr 300px;gap:32px;align-items:start;}
 .day-col-left{}
-.day-col-right{position:sticky;top:60px;}
-.coach-box{background:var(--ink-2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:16px;}
-.coach-box-hd{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;}
-.coach-avatar{width:28px;height:28px;border-radius:50%;background:var(--jade-dim);border:1px solid var(--jade-br);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-.coach-hd-name{font-size:11px;font-weight:600;color:var(--dk-1);}
-.coach-hd-sub{font-size:9px;font-weight:300;color:var(--dk-3);}
-.coach-body{padding:14px 16px;}
-.coach-narrative{font-family:var(--serif);font-size:16px;font-weight:300;color:var(--dk-1);line-height:1.85;margin-bottom:14px;font-style:italic;}
-.coach-bullets{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;}
-.coach-bullet{display:flex;gap:8px;align-items:flex-start;}
-.coach-bullet-dot{width:5px;height:5px;border-radius:50%;background:var(--jade);flex-shrink:0;margin-top:6px;}
-.coach-bullet-txt{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;}
-.coach-bullet-txt strong{color:var(--dk-1);font-weight:500;}
-.coach-spin{padding:20px;text-align:center;}
-.coach-refresh{background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;font-family:var(--sans);padding:0;text-decoration:underline;margin-top:4px;}
+.day-col-right{position:sticky;top:60px;padding-top:4px;}
+.coach-prose-wrap{padding:0;}
+.coach-prose-spin{padding:16px 0;text-align:center;}
+.coach-prose{font-family:var(--serif);font-size:15px;font-weight:300;color:var(--dk-2);line-height:2.0;}
+.coach-prose p{margin:0 0 16px;}
+.coach-prose p:last-child{margin:0;}
+.coach-refresh{display:block;margin-top:14px;background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;font-family:var(--sans);padding:0;text-decoration:underline;}
+
+/* ── INLINE COACH VOICE ──────────────────────────── */
+.coach-note{font-size:11px;font-weight:300;color:var(--jade);line-height:1.65;padding:6px 14px 8px 54px;font-style:italic;border-top:1px solid rgba(0,200,160,0.08);}
+.coach-note::before{content:'Coach: ';font-weight:600;font-style:normal;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--jade);opacity:0.7;}
+.tl-block.t-training .coach-note{color:var(--jade);}
+.tl-block.t-meal .coach-note{color:var(--amber);}
+.tl-block.t-meal .coach-note::before{color:var(--amber);}
+.tl-block.t-supp .coach-note{color:var(--gold);}
+.tl-block.t-supp .coach-note::before{color:var(--gold);}
+
 
 /* Top input field */
 .day-top-input{margin-bottom:20px;}
@@ -572,6 +574,7 @@ function buildPlan(profile, today) {
     time: wake, type: 'wake', tag: 'Wake', tagColor: 'jade',
     title: 'Morning ignition',
     subtitle: 'Cortisol peak · Circadian set',
+    coachNote: 'No caffeine for 90 minutes. Your cortisol is already peaking — it\'s doing the stimulant\'s job. The water and sunlight aren\'t optional extras, they reset your clock for the whole day.',
     detail: 'No phone for 5 minutes. 500ml water immediately — you\'ve been fasting 7-8 hours.\n\nOutside for 10 minutes: morning light sets your circadian clock and determines tonight\'s melatonin timing.' + (isTraining && trainMins - wMins <= 90 ? '\n\nCollagen + Vit C at ' + fmt(trainMins - 45) + ' — 45 min before training.' : ''),
     science: 'Cortisol peaks 30-45 min post-wake. It\'s doing caffeine\'s job — don\'t double up.',
     items: [{ name:'Water', meta:'500ml immediately' }, { name:'Sunlight', meta:'10 min outside' }]
@@ -582,6 +585,7 @@ function buildPlan(profile, today) {
     time: coffeeTime, type: 'supp', tag: 'Supps', tagColor: 'gold',
     title: 'Coffee & morning supplements',
     subtitle: '90 min post-wake — after cortisol peak',
+    coachNote: 'Now the cortisol is clearing — this is when caffeine actually works. Creatine at this time is purely for habit consistency. It doesn\'t matter when you take it as long as you take it daily.',
     detail: 'Coffee now. The cortisol that was doing caffeine\'s job has peaked and is clearing.\n\n' +
       (mornSupps.length
         ? mornSupps.map(s => s.name + ' ' + s.dose + ' — ' + (s.timing||'')).join('\n')
@@ -599,6 +603,7 @@ function buildPlan(profile, today) {
       time: fmt(preMins), type: 'meal', tag: 'Eat', tagColor: 'amber',
       title: 'Pre-training meal',
       subtitle: '90-120 min before session',
+      coachNote: 'This meal is timed to be digested before you train — not sitting in your stomach. High carbs because you need glycogen available, not stored. Low fat because fat slows gastric emptying and blunts the glucose delivery your muscles need.',
       mealSlot: 'pre-training',
       detail: 'High protein, moderate fast carbs, low fat.\nExclude: ' + ((p.foodExclusions||[]).join(', ')||'none') + '.\n' +
         ((p.cuisinePrefs||[]).length ? (p.cuisinePrefs[0] + ' style.') : '') + '\nKeep fat under 15g — slows gastric emptying and glucose delivery.',
@@ -611,6 +616,8 @@ function buildPlan(profile, today) {
     });
 
     // TRAINING
+    const trainCoachNote = 'Every working set should be 1-3 reps from failure — that\'s where the adaptation lives. The warm-up sets aren\'t optional, they\'re how you avoid injury and prime the pattern. Track every load. Progressive overload is the only mechanism that drives change.'
+      + (injuries.length ? ' ' + injuries.map(i => i.location||i).join(', ') + ' modifications are active — don\'t ignore them, the injury is the constraint you\'re working inside.' : '');
     const injNote = injuries.length
       ? ' Modifications active: ' + injuries.map(i => i.location||i).join(', ') + '.'
       : '';
@@ -619,6 +626,7 @@ function buildPlan(profile, today) {
       title: plan.type + ': ' + (plan.focus || ''),
       subtitle: 'Main session',
       detail: 'Warm up 10 min. Working sets at RPE 7-9 — 1-3 reps from failure. Track every load.' + injNote + '\nCool down 5-10 min.',
+      coachNote: trainCoachNote,
       science: 'The last 5 reps drive adaptation. Everything before is preparation.',
       items: ((plan.keyExercises||[]).slice(0,5).map(e => ({ name:e, meta:'' }))
               .concat([{ name:'Track loads', meta:'progressive overload' }])).slice(0,5)
@@ -629,6 +637,7 @@ function buildPlan(profile, today) {
       time: fmt(trainMins + 75), type: 'meal', tag: 'Eat', tagColor: 'amber',
       title: 'Post-training nutrition',
       subtitle: 'Within 30 min of finishing',
+      coachNote: 'mTOR is elevated right now — your muscles are primed to absorb protein. This window closes. Fast protein and fast carbs here, not a slow meal. The 30-minute window isn\'t a myth, it\'s the mechanism.',
       mealSlot: 'post-training',
       detail: 'Fast protein + fast carbs. mTOR is elevated — this window matters.\nTarget ' + Math.round(prot * 0.28) + 'g protein here.\n' +
         ((p.dietType||'').toLowerCase().includes('vegan')
@@ -650,6 +659,7 @@ function buildPlan(profile, today) {
     time: fmt(middayMins), type: 'meal', tag: 'Eat', tagColor: 'amber',
     title: isTraining ? 'Midday meal' : 'First meal',
     subtitle: isTraining ? 'Protein anchor' : window_str,
+    coachNote: isTraining ? 'Protein every 3-4 hours keeps muscle protein synthesis running between the post-training spike and the next meal. This isn\'t just fuel — it\'s the signal that repair should continue.' : 'First meal of your eating window. Protein first, every time. It sets satiety hormones for the rest of the day and starts the MPS clock.',
     mealSlot: 'midday',
     detail: 'Build around protein. ' +
       ((p.cuisinePrefs||[]).length ? p.cuisinePrefs[0] + ' inspired. ' : '') +
@@ -669,6 +679,7 @@ function buildPlan(profile, today) {
       type:'meal', tag:'Eat', tagColor:'amber',
       title: 'Afternoon meal',
       subtitle: 'Protein maintained',
+      coachNote: 'Lighter carbs here — glycogen is replenished from the morning meal and training. Protein stays consistent. This meal exists to keep MPS elevated and prevent the cortisol-driven hunger that leads to poor evening choices.',
       mealSlot: 'afternoon',
       detail: 'Lighter than midday. Protein anchor, lower carbs.\n' +
         ((p.cuisinePrefs||[]).length ? p.cuisinePrefs[0] + ' style.' : ''),
@@ -689,6 +700,7 @@ function buildPlan(profile, today) {
     time: fmt(eveningMins), type: 'meal', tag: 'Eat', tagColor: 'amber',
     title: 'Evening meal',
     subtitle: 'Final protein hit · close the window',
+    coachNote: 'Last protein hit of the day. Casein-rich foods like cottage cheese or Greek yoghurt release amino acids slowly through the overnight fast — they extend MPS while you sleep. Close the eating window after this.',
     mealSlot: 'evening',
     detail: 'Lean protein priority. ' +
       (isTraining ? 'Lower carbs than midday — glycogen already replenished.' : 'Moderate carbs fine on rest day.') +
@@ -706,6 +718,7 @@ function buildPlan(profile, today) {
     time: fmt(bedMins - 45), type: 'recovery', tag: 'Wind down', tagColor: 'slate',
     title: 'Evening wind-down',
     subtitle: 'Protect tonight\'s adaptation',
+    coachNote: 'Tonight\'s sleep is where today\'s training becomes actual muscle. GH pulses in the first 90 minutes of slow-wave sleep. Screens kill melatonin onset and delay that first cycle. The magnesium isn\'t a placebo — it activates GABA and physically lowers your nervous system\'s arousal state.',
     detail: 'Screens dim or off.\n' +
       (nightSupps.length
         ? nightSupps.map(s => s.name + ' ' + s.dose).join('. ') + '.'
@@ -725,6 +738,7 @@ function buildPlan(profile, today) {
     time: fmt(bedMins), type: 'sleep', tag: 'Sleep', tagColor: 'slate',
     title: 'Sleep',
     subtitle: p.sleep || '7-8 hours',
+    coachNote: isTraining ? 'This is where the session pays off. Growth hormone peaks in the first slow-wave cycle. One week of sub-6 hour sleep reduces testosterone 10-15% and cuts the anabolic response to training in half. Nothing overrides this.' : 'Rest day recovery happens here. Satellite cells divide, myofibrils remodel, cortisol clears. The adaptation from your last session compounds overnight.',
     detail: isTraining
       ? 'Training day: sleep is where adaptation happens. GH pulses in the first slow-wave cycle — this is when today&#39;s session becomes actual muscle. Nothing else drives recovery like this.'
       : 'Rest day: sleep extends the repair from previous sessions. Satellite cells divide, myofibrils remodel, cortisol clears.',
@@ -1325,6 +1339,7 @@ function renderPlan(plan){
         +'<div class="tl-main"><div class="tl-title">'+b.title+'</div>'+(b.subtitle?'<div class="tl-sub">'+b.subtitle+'</div>':'')+'</div>'
         +(b.tag?'<span class="tl-tag '+(b.tagColor||'s')+'">'+b.tag+'</span>':'')
         +'<span class="tl-chev">\u25be</span></div>'
+        +(b.coachNote?'<div class="coach-note">'+b.coachNote+'</div>':'')
         +'<div class="tl-body">'+(det?'<div class="tl-detail">'+det+'</div>':'')+(b.science?'<div class="tl-science">'+b.science+'</div>':'')+(its?'<div class="tl-items">'+its+'</div>':'')+'</div>'
         +'</div>';
     }
@@ -1359,6 +1374,7 @@ function renderPlan(plan){
         +'<span class="tl-tag a" id="mtag-'+slot+'">'+(eaten?'\u2713 Eaten':'Eat')+'</span>'
         +'<span class="tl-chev">\u25be</span>'
         +'</div></div>'
+        +(b.coachNote?'<div class="coach-note">'+b.coachNote+'</div>':'')
         +'<div class="meal-inline">'
         +'<div class="meal-actions">'
         +'<button class="meal-btn con" onclick="quickTick(\''+slot+'\','+i+')">\u2713 Ate this</button>'
@@ -1381,7 +1397,8 @@ function renderPlan(plan){
         +'<div class="tl-time">'+(b.time||'')+'</div>'
         +'<div class="tl-main"><div class="tl-title">'+b.title+'</div><div class="tl-sub">'+lvlLabel+'</div></div>'
         +'<span class="tl-tag j">'+(hasLevel?'Session \u2192':'Assess \u2192')+'</span>'
-        +'</div></div>';
+        +'</div></div>'
+        +(b.coachNote?'<div class="coach-note">'+b.coachNote+'</div>':'');
     }
     return '';
   }).join('');
@@ -1397,7 +1414,7 @@ function renderPlan(plan){
     // ── Top: hero + week tabs + macros (full width) ──
     '<div class="day-hero">'    +'<div class="day-kicker">'+dateStr+'</div>'    +'<div class="day-title">'+plan.dayTitle+'</div>'    +'<div class="day-brief">'+plan.dayBrief+'</div>'    +(plan.priority?'<div class="day-priority">'+plan.priority+'</div>':'')    +'</div>'    +weekTabsHtml    +'<div class="macro-tiles">'    +'<div class="mt"><div class="mt-val">'+plan.macros.kcal+'</div><div class="mt-label">Calories</div></div>'    +'<div class="mt"><div class="mt-val j">'+plan.macros.prot+'g</div><div class="mt-label">Protein</div></div>'    +'<div class="mt"><div class="mt-val a">'+plan.macros.carbs+'g</div><div class="mt-label">Carbs</div></div>'    +'<div class="mt"><div class="mt-val">'+plan.macros.fat+'g</div><div class="mt-label">Fat</div></div>'    +'</div>'    +'<div class="water-bar">\uD83D\uDCA7 '+plan.macros.water+' \u2014 spread across the day</div>'    +'<div id="day-macro-progress"></div>'    // ── SOS strip ──
     +'<div style="margin:16px 0;background:rgba(200,148,30,0.05);border:1px solid rgba(200,148,30,0.2);border-radius:10px;padding:14px 16px;">'    +'<div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">&#9889; Something getting in the way?</div>'    +'<div class="dti-row" style="margin-bottom:10px;">'    +'<input class="dti-inp" id="sos-top-inp" placeholder="e.g. I\u2019m starving, I slept terribly, want to skip gym\u2026" onkeydown="if(event.key===\'Enter\'){openSOSFromInput();}">'    +'<button class="dti-send" onclick="openSOSFromInput()">Fix it \u2192</button>'    +'</div>'    +'<div class="sos-trigger-row" style="margin:0;">'    +'<button class="sos-t-btn primary" onclick="openSOS(null)">All situations</button>'    +'<button class="sos-t-btn" onclick="openSOS(\'starving\')">Starving</button>'    +'<button class="sos-t-btn" onclick="openSOS(\'bad-sleep\')">Bad sleep</button>'    +'<button class="sos-t-btn" onclick="openSOS(\'skip-gym\')">Skip gym</button>'    +'</div></div>'    // ── Two-column layout: left = timeline, right = coach ──
-    +'<div class="day-layout">'    +'<div class="day-col-left">'    +'<div id="prog-strip-slot"></div>'    +'<div class="sec-label">Your day</div>'    +blocksHtml    +'<button class="regen-btn" onclick="regen()">\u8635 Rebuild today</button>'    +'</div>'    +'<div class="day-col-right">'    +'<div class="coach-box" id="coach-narrative-box">'    +'<div class="coach-box-hd">'    +'<div class="coach-avatar">\uD83C\uDFC3</div>'    +'<div><div class="coach-hd-name">Coach</div><div class="coach-hd-sub">Your day, read</div></div>'    +'</div>'    +'<div class="coach-body" id="coach-narrative-body">'    +'<div class="coach-spin"><div class="spin" style="width:18px;height:18px;margin:0 auto 8px;"></div><div style="font-size:11px;color:var(--dk-3);">Reading your day\u2026</div></div>'    +'</div></div>'    +'</div>'    +'</div>';  // end day-layout
+    +'<div class="day-layout">'    +'<div class="day-col-left">'    +'<div id="prog-strip-slot"></div>'    +'<div class="sec-label">Your day</div>'    +blocksHtml    +'<button class="regen-btn" onclick="regen()">\u8635 Rebuild today</button>'    +'</div>'    +'<div class="day-col-right">'+'<div id="coach-narrative-body" class="coach-prose-wrap">'+'<div class="coach-prose-spin"><div class="spin" style="width:16px;height:16px;margin:0 auto 8px;"></div>'+'<div style="font-size:11px;color:var(--dk-3);">Coach is reading your day…</div></div>'+'</div>'+'</div>'    +'</div>';  // end day-layout
 
     // Programme strip
   var ps=document.getElementById('prog-strip-slot');
@@ -1524,26 +1541,31 @@ function openSOSFromInput() {
   }
 }
 
-// ── COACH NARRATIVE ───────────────────────────────
+// ── COACH NARRATIVE ─────────────────────────────
 async function generateCoachNarrative(p, t, plan) {
   var box = document.getElementById('coach-narrative-body');
   if (!box) return;
 
-  var injuries = (p.injuryAssessments || p.injuries || []).map(function(x){ return x.location || x; }).join(', ');
   var isFemale = (p.sex||'').toLowerCase() === 'female';
   var age = p.age || 35;
   var isTraining = t.isTraining;
   var progCtx = getProgCtx(p);
+  var injuries = (p.injuryAssessments || p.injuries || []).map(function(x){ return x.location || x; }).join(', ');
+  var trainType = t.plan && t.plan.type ? t.plan.type : 'session';
+  var mealCount = p.mealCount || 4;
 
-  var prompt = 'You are writing the opening coach note for ' + p.name + '\'s daily plan in BodyLens.'
-    + ' Today is ' + t.name + (isTraining ? ', a ' + (t.plan&&t.plan.type||'training') + ' day' : ', a rest day') + '.'
-    + ' Week ' + progCtx.weekNum + ' of 4, phase: ' + progCtx.phase + '.'
-    + ' Profile: ' + age + 'yo ' + (isFemale?'female':'male') + ', ' + p.weight + 'kg, goal: ' + (p.goal||'fat loss') + '.'
-    + ' Targets: ' + p.calories + ' kcal, ' + p.protein + 'g protein.'
-    + (injuries ? ' Active injuries: ' + injuries + '.' : '')
-    + '\n\nWrite a SHORT coach note in this exact JSON format:'
-    + '\n{"opening":"1-2 sentences. Direct, personal, like a coach who actually knows them. Mention something specific — the day type, the week, their goal. NO clichés like \"let\'s do this\" or \"crush it\". Sound human.","bullets":["specific thing to nail today (under 12 words)","second priority (under 12 words)","one honest callout or watch-point (under 12 words)"]}'
-    + '\n\nVoice: straight-talking, warm, specific. Like a PT who has trained them for 3 months and knows their patterns. No motivational poster language. Return ONLY valid JSON.';
+  var prompt = 'You are the coach for ' + p.name + '. Write a SHORT, flowing narrative talking them through today.'
+    + ' Today: ' + t.name + (isTraining ? ', ' + trainType + ' day' : ', rest day') + '.'
+    + ' Week ' + progCtx.weekNum + ' of 4 (' + progCtx.phase + ' phase).'
+    + ' ' + age + 'yo ' + (isFemale?'female':'male') + ', ' + (p.weight||80) + 'kg, goal: ' + (p.goal||'fat loss') + '.'
+    + ' Targets: ' + (p.calories||2000) + ' kcal, ' + (p.protein||140) + 'g protein, ' + mealCount + ' meals.'
+    + (injuries ? ' Injuries: ' + injuries + '.' : '')
+    + (p.wakeTime ? ' Wakes at ' + p.wakeTime + '.' : '')
+    + '\n\nWrite 3-4 short paragraphs. Talk through the day naturally — why training is timed this way, why nutrition is structured like this, what matters most today, what they should watch out for.'
+    + ' Be direct and personal. Use their name once. Reference specific numbers (protein target, training type, week number).'
+    + ' Do NOT use bullet points, headers, or any formatting. Pure flowing prose only.'
+    + ' Sound like a coach who trained them for months — warm but no-nonsense. No motivational clichés.'
+    + ' Keep it under 180 words total.';
 
   try {
     var res = await fetch('/api/chat', {
@@ -1551,27 +1573,24 @@ async function generateCoachNarrative(p, t, plan) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 250,
-        system: 'You are a direct, warm performance coach. Return ONLY valid JSON. No markdown.',
+        max_tokens: 280,
+        system: 'You are a direct, warm performance coach. Write flowing prose only — no bullet points, no headers, no markdown.',
         messages: [{ role: 'user', content: prompt }]
       })
     });
     var data = await res.json();
     var text = (data.content||[]).map(function(b){ return b.text||''; }).join('').trim();
-    var match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('no json');
-    var note = JSON.parse(match[0]);
 
-    var bullets = (note.bullets||[]).map(function(b) {
-      return '<div class="coach-bullet"><div class="coach-bullet-dot"></div><div class="coach-bullet-txt">' + b + '</div></div>';
+    // Split into paragraphs and wrap
+    var paras = text.split('\n').filter(function(p){ return p.trim(); }).map(function(p){
+      return '<p>' + p.trim() + '</p>';
     }).join('');
 
-    box.innerHTML = '<div class="coach-narrative">' + (note.opening||'') + '</div>'
-      + '<div class="coach-bullets">' + bullets + '</div>'
-      + '<button class="coach-refresh" onclick="generateCoachNarrative(P,TODAY,null)">&#8635; Refresh</button>';
+    box.innerHTML = '<div class="coach-prose">' + paras + '</div>'
+      + '<button class="coach-refresh" onclick="generateCoachNarrative(P,TODAY,null)">↺ Refresh</button>';
 
   } catch(e) {
-    box.innerHTML = '<div style="font-size:12px;font-weight:300;color:var(--dk-3);padding:4px 0;">Could not load — <button class="coach-refresh" onclick="generateCoachNarrative(P,TODAY,null)">try again</button></div>';
+    box.innerHTML = '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">Could not load — <button class="coach-refresh" onclick="generateCoachNarrative(P,TODAY,null)">try again</button></div>';
   }
 }
 
