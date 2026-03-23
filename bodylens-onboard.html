@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0c1010">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BodyLens">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BodyLens — Get Started</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -970,7 +978,10 @@
     <div class="ob2-bottom">
       <div class="ob2-bottom-inner">
         <div class="ob2-progress-text" id="form-progress-text">Fill in your details above</div>
-        <button class="ob2-next-btn" id="form-next-btn" onclick="submitForm()">Continue →</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="fillDemo()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:10px 16px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);white-space:nowrap;">⚡ Demo profile</button>
+          <button class="ob2-next-btn" id="form-next-btn" onclick="submitForm()">Continue →</button>
+        </div>
       </div>
     </div>
   </div><!-- /phase-form -->
@@ -1483,7 +1494,26 @@ If "Already fasting" — respect their existing window exactly.
 If "Not interested" — standard meal timing, no window restriction.
 
 Activity level outside training: ${formData.activity||'not specified'}
-Factor this into the activity multiplier for TDEE calculation.
+
+CALORIE CALCULATION — USE THESE EXACT ANCHORS (do not guess or approximate):
+${(()=>{
+  const w=formData.weight||80, age=formData.age||35, sex=formData.sex||'Male', h=formData.height||175;
+  const bmr = sex==='Male' ? Math.round(10*w+6.25*h-5*age+5) : Math.round(10*w+6.25*(h||165)-5*age-161);
+  const actStr=(formData.activity||'').toLowerCase();
+  const mult = actStr.includes('sedentary')||actStr.includes('desk') ? 1.25
+              : actStr.includes('lightly')||actStr.includes('some walking') ? 1.375
+              : actStr.includes('very active')||actStr.includes('physical job') ? 1.80
+              : actStr.includes('highly') ? 1.90 : 1.55;
+  const tdee=Math.round(bmr*mult);
+  const goal=(formData.goal||'').toLowerCase();
+  const deficit = goal.includes('los')||goal.includes('fat') ? 350 : goal.includes('muscle')||goal.includes('build') ? -200 : 0;
+  const target=tdee-deficit;
+  return `BMR (Mifflin-St Jeor): \${bmr} kcal
+Activity multiplier: \${mult}x (\${actStr||'moderate'})
+TDEE (maintenance): \${tdee} kcal — this is what they burn at current activity
+Calorie TARGET: \${target} kcal (\${deficit>0?'-'+deficit+' kcal deficit vs TDEE':deficit<0?'+'+(Math.abs(deficit))+' kcal surplus vs TDEE':'maintenance'})
+CRITICAL: The calorie target (\${target}) must be BELOW TDEE (\${tdee}) for fat loss. State this explicitly in calorieReasoning.`;
+})()}
 
 SLEEP PROFILE:
 Hours: ${formData.sleep||'not specified'}
@@ -1671,9 +1701,18 @@ ${formData.sex==='Female' ? 'Menstrual cycle: '+(formData.cycle||'not specified'
 function buildFallback() {
   const w = formData.weight||80, age = formData.age||35, sex = formData.sex||'Male';
   const bmr = sex==='Male' ? 10*w+6.25*(formData.height||175)-5*age+5 : 10*w+6.25*(formData.height||165)-5*age-161;
-  const tdee = Math.round(bmr*1.65);
+  // Activity-aware multiplier — map user's reported activity level to correct factor
+  const actStr = (formData.activity||'').toLowerCase();
+  const actMult = actStr.includes('sedentary') || actStr.includes('desk') ? 1.25
+                : actStr.includes('lightly')   || actStr.includes('some walking') ? 1.375
+                : actStr.includes('very active') || actStr.includes('physical job') ? 1.80
+                : actStr.includes('highly active') || actStr.includes('athlete') ? 1.90
+                : 1.55; // default: moderately active
+  const tdee = Math.round(bmr * actMult);
   const goal = (formData.goal||'').toLowerCase();
-  const cal = goal.includes('los')||goal.includes('fat') ? tdee-350 : tdee+150;
+  // Deficit/surplus is RELATIVE to TDEE — make this explicit
+  const deficit = goal.includes('los')||goal.includes('fat') ? 350 : goal.includes('muscle')||goal.includes('build') ? -200 : 0;
+  const cal = tdee - deficit;
   const prot = Math.round(w*2.0), fat = Math.round(w*1.0);
   const carbs = Math.max(80, Math.round((cal-prot*4-fat*9)/4));
   const k=cal, r=Math.round(k*0.9);
@@ -1708,6 +1747,54 @@ document.getElementById('chat-input').addEventListener('keydown', e => {
 
 // Init progress
 updateProgress();
+
+function fillDemo() {
+  // Fill a realistic 44yo male profile for quick testing
+  // Numeric fields
+  var nums = {age:44, height:181, weight:87};
+  Object.keys(nums).forEach(function(k){
+    var el = document.querySelector('input[placeholder*="'+k+'"], input[id*="'+k+'"], input[data-field*="'+k+'"]');
+    if(!el) el = document.querySelector('.ob2-number-input[id*="'+k+'"], #q-'+k);
+    if(el){ el.value = nums[k]; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); }
+  });
+
+  // Click chip/option buttons matching these values
+  var targets = ['Male','18–22%','18-22%','Belly','Morning','7–8 hours','7-8 hours','10–11pm','Moderate','Flexible / no restrictions','None','4'];
+  document.querySelectorAll('.ob2-chip, .ob2-option-btn, .ob2-select-btn, button[data-value]').forEach(function(btn){
+    var t = btn.textContent.trim();
+    targets.forEach(function(v){ if(t === v || t.startsWith(v)) btn.click(); });
+  });
+
+  // Progress label
+  var pt = document.getElementById('form-progress-text');
+  if(pt) pt.textContent = 'Demo profile loaded — tap Continue →';
+
+  // Visual feedback on the button
+  var self = document.querySelector('button[onclick="fillDemo()"]');
+  if(self){ self.textContent = '✓ Done'; self.style.color='var(--jade)'; self.style.borderColor='var(--jade)'; }
+}
+
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(reg => {
+        window.__SW_REG = reg;
+        // Check for updates silently
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[BodyLens] SW registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>
