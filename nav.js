@@ -458,4 +458,19 @@ document.addEventListener('DOMContentLoaded', () => {
     pm.src = '/profile-manager.js';
     document.head.appendChild(pm);
   }
+  // Load Supabase auth
+  if (!window._sbLoaded) {
+    window._sbLoaded = true;
+    const sb = document.createElement('script');
+    sb.src = '/supabase-auth.js';
+    document.head.appendChild(sb);
+  }
+
+  // Load Supabase auth
+  if (!window._sbLoaded) {
+    window._sbLoaded = true;
+    const sb = document.createElement('script');
+    sb.src = '/supabase-auth.js';
+    document.head.appendChild(sb);
+  }
 });
