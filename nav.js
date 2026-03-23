@@ -15,6 +15,8 @@
     <a class="nav-right" href="/bodylens-guide.html">Guide</a>
     <a class="nav-right" href="/bodylens-howitworks.html">How it works</a>
     <a class="nav-right" href="/bodylens-bodyscan.html">Body scan</a>
+    <button id="bl-theme-toggle" class="nav-icon-btn" onclick="window.BL&&window.BL.toggleTheme()" title="Switch theme">🌸</button>
+    <button id="bl-profile-btn" class="nav-icon-btn nav-profile-btn" onclick="window.BL&&window.BL.buildProfilePanel()" title="Profile & settings">👤</button>
     <div class="nav-meta" id="nav-meta"></div>
   </div>
 </nav>`;
@@ -419,5 +421,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (brand) {
       brand.setAttribute('title', `Logged in as ${profile.name}`);
     }
+  }
+
+  // Inject nav icon button styles
+  if (!document.getElementById('nav-icon-styles')) {
+    const s = document.createElement('style');
+    s.id = 'nav-icon-styles';
+    s.textContent = `
+      .nav-icon-btn {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--bd, rgba(255,255,255,0.08));
+        border-radius: 7px;
+        width: 32px; height: 32px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 14px; cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        padding: 0; margin-left: 4px;
+      }
+      .nav-icon-btn:hover {
+        background: rgba(255,255,255,0.09);
+        border-color: var(--jade-br, rgba(0,196,160,0.2));
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  // Load profile manager
+  if (!window._pmLoaded) {
+    window._pmLoaded = true;
+    const pm = document.createElement('script');
+    pm.src = '/profile-manager.js';
+    document.head.appendChild(pm);
   }
 });
