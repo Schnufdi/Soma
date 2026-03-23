@@ -585,10 +585,19 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
     }
 
     // Toggle panel open/close
+    // Restore open state from localStorage
+    const wasOpen = localStorage.getItem('bl_coach_open') === '1';
+    if (wasOpen) {
+      panel.classList.add('open');
+      btn.classList.add('open');
+      btn.innerHTML = '✕';
+    }
+
     btn.addEventListener('click', () => {
       const isOpen = panel.classList.toggle('open');
       btn.classList.toggle('open', isOpen);
       btn.innerHTML = isOpen ? '✕' : '💬';
+      localStorage.setItem('bl_coach_open', isOpen ? '1' : '0');
       if (isOpen && input && !input.disabled) setTimeout(() => input.focus(), 250);
     });
 
@@ -649,7 +658,7 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
     window._blCoach = {
       send: (t) => send_msg(t),
       open: () => { panel.classList.add('open'); btn.classList.add('open'); btn.innerHTML = '✕'; },
-      close: () => { panel.classList.remove('open'); btn.classList.remove('open'); btn.innerHTML = '💬'; },
+      close: () => { panel.classList.remove('open'); btn.classList.remove('open'); btn.innerHTML = '💬'; localStorage.setItem('bl_coach_open','0'); },
       clear: () => {
         clearHistory();
         const c = document.getElementById('bl-coach-messages');
