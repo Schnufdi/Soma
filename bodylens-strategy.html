@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — The Business Case</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #080b0a;
+  --ink-1: #0e1412;
+  --ink-2: #141c1a;
+  --ink-3: #1c2622;
+  --jade: #00c4a0;
+  --jade-dim: rgba(0,196,160,0.08);
+  --jade-br: rgba(0,196,160,0.2);
+  --amber: #c8791a;
+  --amber-dim: rgba(200,121,26,0.08);
+  --gold: #d4a832;
+  --red: #c94040;
+  --dk-1: #e8e2d8;
+  --dk-2: #a8a098;
+  --dk-3: #5a5650;
+  --bd: rgba(255,255,255,0.06);
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--dk-1);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.4;
+}
+
+/* ── TYPOGRAPHY ── */
+.serif { font-family: var(--serif); }
+.mono  { font-family: var(--mono); }
+
+h1, h2, h3 { font-family: var(--serif); font-weight: 700; letter-spacing: -0.02em; }
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 18px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(8,11,10,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--bd);
+}
+
+.nav-brand {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dk-1);
+}
+.nav-brand em { color: var(--jade); font-style: normal; }
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+}
+.nav-links a {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.nav-links a:hover { color: var(--jade); }
+
+/* ── SECTIONS ── */
+section { padding: 120px 0; position: relative; }
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+.container-narrow {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 50%, rgba(0,196,160,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 80%, rgba(200,121,26,0.04) 0%, transparent 60%);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.hero-kicker {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-kicker::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--jade);
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(42px, 5vw, 68px);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  color: var(--dk-1);
+  margin-bottom: 24px;
+}
+
+.hero-title .accent {
+  font-style: italic;
+  color: var(--jade);
+}
+
+.hero-body {
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.85;
+  margin-bottom: 40px;
+  max-width: 480px;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--bd);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--bd);
+}
+
+.hero-stat {
+  background: var(--ink-1);
+  padding: 20px 24px;
+}
+
+.hero-stat-val {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--jade);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.hero-stat-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+}
+
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hero-card {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 20px 24px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  animation: slideIn 0.6s ease both;
+}
+
+.hero-card:nth-child(1) { border-left-color: var(--jade); animation-delay: 0.1s; }
+.hero-card:nth-child(2) { border-left-color: var(--amber); animation-delay: 0.2s; }
+.hero-card:nth-child(3) { border-left-color: var(--gold); animation-delay: 0.3s; }
+.hero-card:nth-child(4) { border-left-color: var(--dk-3); animation-delay: 0.4s; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.hero-card-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  margin-bottom: 6px;
+}
+
+.hero-card-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dk-1);
+  margin-bottom: 4px;
+}
+
+.hero-card-body {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.6;
+}
+
+/* ── SECTION HEADERS ── */
+.section-kicker {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-kicker::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--jade);
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--dk-1);
+  margin-bottom: 20px;
+}
+
+.section-title em { font-style: italic; color: var(--jade); }
+
+.section-body {
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.85;
+  max-width: 640px;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: var(--bd);
+  margin: 0;
+}
+
+/* ── STATE OF PLAY ── */
+#state { background: var(--ink-1); }
+
+.state-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin-top: 56px;
+}
+
+.state-col-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--bd);
+}
+
+.state-col-title.good { color: var(--jade); border-bottom-color: var(--jade-br); }
+.state-col-title.needs { color: var(--amber); border-bottom-color: rgba(200,121,26,0.2); }
+
+.state-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.state-item:last-child { border-bottom: none; }
+
+.state-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 7px;
+}
+
+.state-dot.good  { background: var(--jade); }
+.state-dot.needs { background: var(--amber); }
+
+.state-item-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dk-1);
+  margin-bottom: 3px;
+}
+
+.state-item-body {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.65;
+}
+
+/* ── PRICING ── */
+#pricing { background: var(--ink); }
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--bd);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--bd);
+  margin-top: 56px;
+}
+
+.price-card {
+  background: var(--ink-1);
+  padding: 32px 28px;
+  position: relative;
+}
+
+.price-card.featured {
+  background: var(--ink-2);
+  border-top: 3px solid var(--jade);
+}
+
+.price-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  margin-bottom: 16px;
+}
+
+.price-name {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--dk-1);
+  margin-bottom: 4px;
+}
+
+.price-amount {
+  font-family: var(--mono);
+  font-size: 42px;
+  font-weight: 400;
+  color: var(--jade);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.price-amount span {
+  font-size: 16px;
+  color: var(--dk-3);
+}
+
+.price-annual {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  margin-bottom: 24px;
+}
+
+.price-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.7;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--bd);
+}
+
+.price-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.price-feature {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-2);
+}
+
+.price-feature::before {
+  content: '→';
+  color: var(--jade);
+  flex-shrink: 0;
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+.price-arr {
+  margin-top: 24px;
+  padding: 10px 14px;
+  background: var(--jade-dim);
+  border: 1px solid var(--jade-br);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--jade);
+  font-family: var(--mono);
+}
+
+/* ── ARR PATHS ── */
+#arr { background: var(--ink-1); }
+
+.arr-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 56px;
+}
+
+.arr-path {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.arr-path-hd {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--bd);
+}
+
+.arr-path.two { border-top: 3px solid var(--jade); }
+.arr-path.ten { border-top: 3px solid var(--gold); }
+
+.arr-path-target {
+  font-family: var(--mono);
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.arr-path.two  .arr-path-target { color: var(--jade); }
+.arr-path.ten  .arr-path-target { color: var(--gold); }
+
+.arr-path-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  margin-bottom: 8px;
+}
+
+.arr-path-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.7;
+}
+
+.arr-path-body { padding: 24px 28px; }
+
+.arr-layer {
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.arr-layer:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.arr-layer-hd {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.arr-layer-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dk-1);
+}
+
+.arr-layer-val {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--jade);
+}
+
+.arr-path.ten .arr-layer-val { color: var(--gold); }
+
+.arr-layer-body {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  line-height: 1.6;
+}
+
+.arr-total {
+  margin-top: 20px;
+  padding: 14px 16px;
+  background: var(--jade-dim);
+  border: 1px solid var(--jade-br);
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.arr-path.ten .arr-total {
+  background: rgba(212,168,50,0.06);
+  border-color: rgba(212,168,50,0.2);
+}
+
+.arr-total-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+}
+
+.arr-total-val {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--jade);
+}
+
+.arr-path.ten .arr-total-val { color: var(--gold); }
+
+/* ── STAGING ── */
+#staging { background: var(--ink); }
+
+.timeline {
+  margin-top: 56px;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--bd);
+}
+
+.tl-phase {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 32px;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.tl-phase:last-child { margin-bottom: 0; }
+
+.tl-num {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dk-3);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.tl-phase.p1 .tl-num { border-color: var(--jade-br); color: var(--jade); }
+.tl-phase.p2 .tl-num { border-color: var(--amber); color: var(--amber); }
+.tl-phase.p3 .tl-num { border-color: var(--gold); color: var(--gold); }
+.tl-phase.p4 .tl-num { border-color: rgba(255,255,255,0.2); color: var(--dk-1); }
+
+.tl-content {
+  padding-top: 12px;
+}
+
+.tl-period {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  margin-bottom: 6px;
+}
+
+.tl-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dk-1);
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.tl-body {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.8;
+  margin-bottom: 16px;
+  max-width: 600px;
+}
+
+.tl-tasks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.tl-task {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 10px 13px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--dk-2);
+  display: flex;
+  gap: 8px;
+}
+
+.tl-task::before {
+  content: '›';
+  color: var(--jade);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.tl-milestone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--jade-dim);
+  border: 1px solid var(--jade-br);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--jade);
+  margin-top: 12px;
+  font-family: var(--mono);
+}
+
+.tl-phase.p2 .tl-milestone {
+  background: rgba(200,121,26,0.06);
+  border-color: rgba(200,121,26,0.2);
+  color: var(--amber);
+}
+
+.tl-phase.p3 .tl-milestone {
+  background: rgba(212,168,50,0.06);
+  border-color: rgba(212,168,50,0.2);
+  color: var(--gold);
+}
+
+.tl-phase.p4 .tl-milestone {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.1);
+  color: var(--dk-1);
+}
+
+/* ── BUSINESS MODELS ── */
+#models { background: var(--ink-1); }
+
+.models-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 56px;
+}
+
+.model-card {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.model-card:hover { border-color: rgba(255,255,255,0.12); }
+
+.model-card.primary { grid-column: span 2; }
+
+.model-num {
+  font-family: var(--serif);
+  font-size: 72px;
+  font-weight: 900;
+  position: absolute;
+  right: 24px;
+  top: 12px;
+  line-height: 1;
+  color: rgba(255,255,255,0.03);
+  pointer-events: none;
+}
+
+.model-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-bottom: 12px;
+}
+
+.model-name {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--dk-1);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.model-body {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+
+.model-economics {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.model-econ {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.model-econ-val {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--jade);
+}
+
+.model-econ-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+}
+
+.model-timeline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.badge-now    { background: rgba(0,196,160,0.1);   color: var(--jade);  border: 1px solid var(--jade-br); }
+.badge-y2     { background: rgba(200,121,26,0.1);  color: var(--amber); border: 1px solid rgba(200,121,26,0.2); }
+.badge-y3     { background: rgba(212,168,50,0.1);  color: var(--gold);  border: 1px solid rgba(212,168,50,0.2); }
+.badge-future { background: rgba(255,255,255,0.04); color: var(--dk-3); border: 1px solid var(--bd); }
+
+/* ── STICKINESS ── */
+#sticky { background: var(--ink); }
+
+.sticky-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 56px;
+}
+
+.sticky-card {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.sticky-icon {
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+
+.sticky-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dk-1);
+  margin-bottom: 8px;
+}
+
+.sticky-body {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.75;
+}
+
+.sticky-impact {
+  margin-top: 14px;
+  padding: 8px 12px;
+  background: var(--jade-dim);
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--jade);
+  font-family: var(--mono);
+}
+
+/* ── MOAT ── */
+#moat { background: var(--ink-1); }
+
+.moat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--bd);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--bd);
+  margin-top: 56px;
+}
+
+.moat-item {
+  background: var(--ink-2);
+  padding: 32px 28px;
+}
+
+.moat-rank {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dk-3);
+  margin-bottom: 12px;
+}
+
+.moat-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dk-1);
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.moat-body {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.75;
+}
+
+/* ── KILL LIST ── */
+#kill { background: var(--ink); }
+
+.kill-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 56px;
+}
+
+.kill-card {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 24px;
+  border-left: 3px solid var(--red);
+}
+
+.kill-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dk-1);
+  margin-bottom: 8px;
+}
+
+.kill-body {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.75;
+}
+
+/* ── VERDICT ── */
+#verdict {
+  background: var(--ink-1);
+  text-align: center;
+}
+
+.verdict-title {
+  font-family: var(--serif);
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 900;
+  color: var(--dk-1);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+}
+
+.verdict-title em { color: var(--jade); font-style: italic; }
+
+.verdict-body {
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.9;
+  max-width: 640px;
+  margin: 0 auto 48px;
+}
+
+.verdict-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.verdict-step {
+  background: var(--ink-2);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.verdict-step-n {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--jade);
+  opacity: 0.3;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.verdict-step-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dk-1);
+  margin-bottom: 6px;
+}
+
+.verdict-step-body {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  line-height: 1.65;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--ink);
+  border-top: 1px solid var(--bd);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-brand {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dk-3);
+}
+
+.footer-brand em { color: var(--jade); font-style: normal; }
+
+.footer-note {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  font-family: var(--mono);
+}
+
+/* ── SCROLL ANIMATION ── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .container, .container-narrow { padding: 0 24px; }
+  section { padding: 80px 0; }
+  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+  .hero-right { display: none; }
+  .state-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .arr-split { grid-template-columns: 1fr; }
+  .models-grid { grid-template-columns: 1fr; }
+  .model-card.primary { grid-column: span 1; }
+  .sticky-grid { grid-template-columns: 1fr 1fr; }
+  .moat-grid { grid-template-columns: 1fr; }
+  .kill-grid { grid-template-columns: 1fr; }
+  .verdict-steps { grid-template-columns: 1fr; }
+  .tl-tasks { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-links">
+    <a href="#state">Current State</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#arr">£2M vs £10M</a>
+    <a href="#staging">Staging</a>
+    <a href="#models">Business Models</a>
+    <a href="#verdict">The Plan</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-kicker">The Business Case</div>
+        <h1 class="hero-title">
+          From product<br>to <em>platform.</em>
+        </h1>
+        <p class="hero-body">
+          BodyLens is not a fitness app. It's the first product that explains human biology to the person living it — and that distinction is the entire business. Here is how it becomes a £10M ARR company.
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-val">£2M</div>
+            <div class="hero-stat-label">Consumer ARR — Year 2</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">£10M</div>
+            <div class="hero-stat-label">Platform ARR — Year 4</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">3</div>
+            <div class="hero-stat-label">Revenue layers required</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">2</div>
+            <div class="hero-stat-label">Founders. No excuses.</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-card">
+          <div class="hero-card-tag">The core insight</div>
+          <div class="hero-card-title">Science is the moat</div>
+          <div class="hero-card-body">Competitors track what you do. BodyLens explains why your body works the way it does. That's a different category — and it's almost entirely empty.</div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-tag">The wedge</div>
+          <div class="hero-card-title">Consumer validates B2B</div>
+          <div class="hero-card-body">The consumer product proves the model and builds the brand. The enterprise product — white label, corporate wellness — is where the real unit economics live.</div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-tag">The constraint</div>
+          <div class="hero-card-title">Retention over acquisition</div>
+          <div class="hero-card-body">Churn kills subscription businesses silently. Every product decision should answer one question: does this make someone more likely to still be here in six months?</div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-tag">The ceiling</div>
+          <div class="hero-card-title">Platform, not product</div>
+          <div class="hero-card-body">At scale this is personalised health infrastructure — licensed to gyms, employers, insurers. The consumer app is the R&D that proves it works.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- STATE OF PLAY -->
+<section id="state">
+  <div class="container">
+    <div class="section-kicker">Current state</div>
+    <h2 class="section-title">What exists.<br>What's <em>missing.</em></h2>
+    <p class="section-body">An honest audit. The intellectual architecture is ahead of the competition. The technical foundations need shoring up before serious scaling begins.</p>
+
+    <div class="state-grid fade-up">
+      <div>
+        <div class="state-col-title good">What's genuinely strong</div>
+        <div class="state-item">
+          <div class="state-dot good"></div>
+          <div>
+            <div class="state-item-title">Science architecture</div>
+            <div class="state-item-body">The reasoning layer — why cortisol timing matters, why mTOR windows are real, why pre-training meal timing is specific — is better than anything at this price point. This is the moat.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="state-dot good"></div>
+          <div>
+            <div class="state-item-title">Coach voice</div>
+            <div class="state-item-body">When it works, it sounds like a real person who actually knows you. That's hard to build and rare to find in consumer health products.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="state-dot good"></div>
+          <div>
+            <div class="state-item-title">Deep onboarding</div>
+            <div class="state-item-body">33 questions generates real personalisation. Most apps ask five. The depth of input drives the quality of output — users feel the difference.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="state-dot good"></div>
+          <div>
+            <div class="state-item-title">Science content layer</div>
+            <div class="state-item-body">Every science page is linkable, searchable, genuinely better than what ranks for those terms. An untapped content marketing engine waiting to be deployed.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="state-dot good"></div>
+          <div>
+            <div class="state-item-title">AI build velocity</div>
+            <div class="state-item-body">Entire complex features — SOS panel, split timeline, coach narrative — shipped in hours. Competitive advantage that most funded teams can't match.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-col-title needs">What needs fixing first</div>
+        <div class="state-item">
+          <div class="state-dot needs"></div>
+          <div>
+            <div class="state-item-title">No persistent backend</div>
+            <div class="state-item-body">Everything lives in localStorage. Switch device, clear browser, use incognito — profile gone. You cannot build a subscription business on this. Priority one.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="state-dot needs"></div>
+          <div>
+            <div class="state-item-title">No progress arc</div>
+            <div class="state-item-body">A day-1 user and a month-6 user have the same experience. The product doesn't visibly compound. No trend graphs, no progression evidence, no "look how far you've come."</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="state-dot needs"></div>
+          <div>
+            <div class="state-item-title">Onboarding drop-off</div>
+            <div class="state-item-body">33 questions is the right depth for personalisation, wrong experience for conversion. Most people won't complete it. Needs restructuring to capture 10 critical variables first, deepen over time.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="state-dot needs"></div>
+          <div>
+            <div class="state-item-title">Deployment fragility</div>
+            <div class="state-item-body">Manual GitHub uploads, nav drift, file corruption risk. Acceptable for building fast. Unacceptable at 5,000 users. Needs a proper CI/CD pipeline before scale.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="state-dot needs"></div>
+          <div>
+            <div class="state-item-title">Content engine not deployed</div>
+            <div class="state-item-body">The best acquisition channel — organic search via science content — hasn't been switched on. Every week this isn't running is compounding interest left on the table.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-kicker">Pricing architecture</div>
+    <h2 class="section-title">Three tiers.<br><em>Intentionally</em> priced.</h2>
+    <p class="section-body">Price signals quality. Under-pricing to drive volume is the most common mistake in subscription health products. These tiers are set to filter for users who actually engage — and engaged users retain.</p>
+
+    <div class="pricing-grid fade-up">
+      <div class="price-card">
+        <div class="price-tag">Tier 01 — Acquisition</div>
+        <div class="price-name">Curious</div>
+        <div class="price-amount">Free</div>
+        <div class="price-annual">Forever. No credit card.</div>
+        <div class="price-desc">Full access to all science content. Every explanation, every research layer, every mechanism explained. No personalisation — nothing calibrated to you. This tier exists to be found, read, and shared.</div>
+        <div class="price-features">
+          <div class="price-feature">All science pages — alcohol, longevity, sleep, nutrition, hormones</div>
+          <div class="price-feature">Reference protocols and training guides</div>
+          <div class="price-feature">No daily plan, no coach, no personalisation</div>
+          <div class="price-feature">Top-of-funnel only — converts to Personal</div>
+        </div>
+        <div class="price-arr">Acquisition engine, not revenue</div>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-tag">Tier 02 — Core product</div>
+        <div class="price-name">Personal</div>
+        <div class="price-amount">£14<span>.99/mo</span></div>
+        <div class="price-annual">or £119/year — equivalent to £9.99/month</div>
+        <div class="price-desc">Full BodyLens. Your plan, your coach, your science — all calibrated to your body, your goal, your week. Annual subscribers have dramatically higher LTV and 40% lower churn. Push them hard toward annual from day one.</div>
+        <div class="price-features">
+          <div class="price-feature">Personalised daily plan built from your full profile</div>
+          <div class="price-feature">AI coach — always visible, always coaching</div>
+          <div class="price-feature">Macro tracking, meal logging, recipe generation</div>
+          <div class="price-feature">SOS emergency fixes for anything interrupting progress</div>
+          <div class="price-feature">Body scan integration — recalibrates from real measurements</div>
+          <div class="price-feature">Full science layer personalised to your biology</div>
+        </div>
+        <div class="price-arr">9,000 users = £1.6M ARR</div>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tag">Tier 03 — Serious users</div>
+        <div class="price-name">Performance</div>
+        <div class="price-amount">£39<span>.99/mo</span></div>
+        <div class="price-annual">or £320/year. Less than one PT session per month.</div>
+        <div class="price-desc">For the user whose performance is central to how they operate. This tier isn't aspirational pricing — it's a filter. The people who pay £40/month for health guidance are the people who actually use it.</div>
+        <div class="price-features">
+          <div class="price-feature">Everything in Personal</div>
+          <div class="price-feature">Weekly coach review — structured debrief every Sunday</div>
+          <div class="price-feature">Apple Health, Garmin, WHOOP integration</div>
+          <div class="price-feature">Advanced body composition recalculation</div>
+          <div class="price-feature">Priority coach responses and feature access</div>
+        </div>
+        <div class="price-arr">500 users = £240k ARR</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ARR PATHS -->
+<section id="arr">
+  <div class="container">
+    <div class="section-kicker">The revenue architecture</div>
+    <h2 class="section-title"><em>£2M</em> vs <em>£10M.</em><br>Same product. Different layers.</h2>
+    <p class="section-body">£2M ARR is achievable on consumer subscriptions alone. £10M requires B2B layers on top. The consumer product is not the end state — it's the proof of concept that opens every other door.</p>
+
+    <div class="arr-split fade-up">
+      <div class="arr-path two">
+        <div class="arr-path-hd">
+          <div class="arr-path-label">Path A — 24 months</div>
+          <div class="arr-path-target">£2M</div>
+          <div class="arr-path-desc">Consumer-only. Focused execution. Two founders, one contract developer for the backend, AI as co-builder. Achievable with discipline and the right priorities.</div>
+        </div>
+        <div class="arr-path-body">
+          <div class="arr-layer">
+            <div class="arr-layer-hd">
+              <div class="arr-layer-name">Personal subscribers — 9,000</div>
+              <div class="arr-layer-val">£1.6M</div>
+            </div>
+            <div class="arr-layer-body">Blended annual/monthly. Built through content engine, word of mouth, professional referrals. 9,000 is not a fantasy number — it's the result of a working retention model and a content strategy that compounds.</div>
+          </div>
+          <div class="arr-layer">
+            <div class="arr-layer-hd">
+              <div class="arr-layer-name">Performance subscribers — 500</div>
+              <div class="arr-layer-val">£240k</div>
+            </div>
+            <div class="arr-layer-body">The top 5% of engaged users who want the full stack. Self-selects naturally. Don't push hard — let the product earn the upgrade.</div>
+          </div>
+          <div class="arr-layer">
+            <div class="arr-layer-hd">
+              <div class="arr-layer-name">Annual plan uplift</div>
+              <div class="arr-layer-val">£160k</div>
+            </div>
+            <div class="arr-layer-body">Push hard toward annual from the moment someone subscribes. Cash flow, retention, and LTV all improve dramatically. Even 30% annual conversion materially changes the economics.</div>
+          </div>
+          <div class="arr-total">
+            <div class="arr-total-label">Total ARR — Month 24</div>
+            <div class="arr-total-val">£2.0M</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arr-path ten">
+        <div class="arr-path-hd">
+          <div class="arr-path-label">Path B — 48 months</div>
+          <div class="arr-path-target">£10M</div>
+          <div class="arr-path-desc">Consumer plus B2B. The consumer product proved the model. Now the same engine is licensed to organisations that already have the distribution — and just need the product.</div>
+        </div>
+        <div class="arr-path-body">
+          <div class="arr-layer">
+            <div class="arr-layer-hd">
+              <div class="arr-layer-name">Consumer subscriptions</div>
+              <div class="arr-layer-val">£2.5M</div>
+            </div>
+            <div class="arr-layer-body">Consumer base has grown to 15,000+ subscribers. Retention is proven. Brand is established. This layer funds operations while B2B scales.</div>
+          </div>
+          <div class="arr-layer">
+            <div class="arr-layer-hd">
+              <div class="arr-layer-name">White label — 4 gym/health partners</div>
+              <div class="arr-layer-val">£4M</div>
+            </div>
+            <div class="arr-layer-body">BodyLens branded as each partner's own digital offering. £3-5 per active member per month. One gym chain with 50k members is £1.8-3M ARR alone. You need four of these conversations — not four million customers.</div>
+          </div>
+          <div class="arr-layer">
+            <div class="arr-layer-hd">
+              <div class="arr-layer-name">Corporate wellness — 15 employers</div>
+              <div class="arr-layer-val">£2.5M</div>
+            </div>
+            <div class="arr-layer-body">£15-25 per employee per month at a 1,000-person firm is £15-25k/month per contract. Banks and law firms have this budget and you have the relationships to get in the room.</div>
+          </div>
+          <div class="arr-layer">
+            <div class="arr-layer-hd">
+              <div class="arr-layer-name">Data partnerships — early stage</div>
+              <div class="arr-layer-val">£1M</div>
+            </div>
+            <div class="arr-layer-body">Aggregate anonymised insights from 50k+ users. Research institutions, supplement brands, food companies. Architecture for this from day one, monetise year three or four.</div>
+          </div>
+          <div class="arr-total">
+            <div class="arr-total-label">Total ARR — Month 48</div>
+            <div class="arr-total-val">£10M</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- STAGING -->
+<section id="staging">
+  <div class="container">
+    <div class="section-kicker">Iterative staging</div>
+    <h2 class="section-title">Four phases.<br>Right order <em>matters.</em></h2>
+    <p class="section-body">The most expensive mistake in early-stage products is building features when the foundations are broken. Phase one is unglamorous. It's also the only thing that makes everything else work.</p>
+
+    <div class="timeline fade-up">
+      <div class="tl-phase p1">
+        <div class="tl-num">1</div>
+        <div class="tl-content">
+          <div class="tl-period">Months 1–3 — Foundation</div>
+          <div class="tl-title">Fix the foundations.<br>Don't acquire anyone yet.</div>
+          <div class="tl-body">The product loses data when someone changes device. There are no user accounts. No persistence. You cannot build a subscription business on localStorage. This phase is entirely about making the product technically capable of supporting a real business. No marketing spend. No new features. Get ten real non-friend users and watch them break it.</div>
+          <div class="tl-tasks">
+            <div class="tl-task">Supabase backend — user auth and data persistence</div>
+            <div class="tl-task">Contract developer — 6-8 weeks, £8-12k</div>
+            <div class="tl-task">10 real users, not friends. Watch them use it.</div>
+            <div class="tl-task">Fix every friction point before acquiring anyone</div>
+            <div class="tl-task">CI/CD pipeline — no more manual GitHub uploads</div>
+            <div class="tl-task">Onboarding reflow — 10 critical questions first</div>
+          </div>
+          <div class="tl-milestone">Target: technically sound product with real user feedback</div>
+        </div>
+      </div>
+
+      <div class="tl-phase p2">
+        <div class="tl-num">2</div>
+        <div class="tl-content">
+          <div class="tl-period">Months 4–9 — Traction</div>
+          <div class="tl-title">Content engine on.<br>First 500 paying users.</div>
+          <div class="tl-body">The only acquisition channel that works at your budget and builds an asset rather than burning cash is content. The science layer you've already built is better than almost anything ranking for those terms. Publish it. All of it. Clean URLs, proper meta, internal links. Seamus's job for the first year is making this engine run — not ads, not influencers, not PR. Content that earns its place. Meanwhile, the product gets its retention features: weekly review, progressive personalisation, visible progress.</div>
+          <div class="tl-tasks">
+            <div class="tl-task">20+ science pieces published with proper SEO</div>
+            <div class="tl-task">Weekly review feature — Sunday coach debrief</div>
+            <div class="tl-task">Progress visualisation — body comp trends, training</div>
+            <div class="tl-task">First professional referral programme — PTs, physios</div>
+            <div class="tl-task">Retention metric dashboard — know your churn number</div>
+            <div class="tl-task">Start charging. Paying users give honest feedback.</div>
+          </div>
+          <div class="tl-milestone">Target: 500 paying subscribers, churn below 7% monthly</div>
+        </div>
+      </div>
+
+      <div class="tl-phase p3">
+        <div class="tl-num">3</div>
+        <div class="tl-content">
+          <div class="tl-period">Months 10–24 — Scale</div>
+          <div class="tl-title">Compound what works.<br>First B2B conversations.</div>
+          <div class="tl-body">Content is compounding. Referrals are coming in. Retention is proven above 80% at 90 days. Now you scale the acquisition and start the B2B pipeline. The first white label client you probably discount heavily or give away — you need the case study more than the revenue. One respectable gym brand or corporate name transforms every subsequent conversation. The product is now visibly getting better the longer someone uses it, which is the condition required for word-of-mouth to work at scale.</div>
+          <div class="tl-tasks">
+            <div class="tl-task">Scale content — 50+ pieces, podcast, newsletter</div>
+            <div class="tl-task">First white label pilot — gym chain or corporate</div>
+            <div class="tl-task">Apple Health + Garmin integration</div>
+            <div class="tl-task">Performance tier launch</div>
+            <div class="tl-task">Ambassador programme — high-profile users</div>
+            <div class="tl-task">Fundraise conversation if needed for B2B sales</div>
+          </div>
+          <div class="tl-milestone">Target: 5,000 subscribers, 1 white label live, £900k ARR</div>
+        </div>
+      </div>
+
+      <div class="tl-phase p4">
+        <div class="tl-num">4</div>
+        <div class="tl-content">
+          <div class="tl-period">Months 25–48 — Platform</div>
+          <div class="tl-title">Consumer proves it.<br>Platform scales it.</div>
+          <div class="tl-body">Consumer product is profitable, brand is established, retention data is compelling. Now the same architecture — the science layer, the personalisation engine, the coach voice — is licensed to organisations that already have the distribution. Gyms, insurers, employers, healthcare providers. They don't need to build what you've already built. They need to give their members or employees something genuinely useful. The product you have is worth paying institutional-grade prices for because the alternative is building it themselves.</div>
+          <div class="tl-tasks">
+            <div class="tl-task">4 white label partnerships active</div>
+            <div class="tl-task">15 corporate wellness contracts</div>
+            <div class="tl-task">Data partnership architecture live</div>
+            <div class="tl-task">International expansion — US, Australia</div>
+            <div class="tl-task">Series A or profitable growth — choose deliberately</div>
+            <div class="tl-task">Category leadership established</div>
+          </div>
+          <div class="tl-milestone">Target: £10M ARR, category-defining position</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BUSINESS MODELS -->
+<section id="models">
+  <div class="container">
+    <div class="section-kicker">Business model architecture</div>
+    <h2 class="section-title">Four models.<br>One <em>platform.</em></h2>
+    <p class="section-body">Each model uses the same underlying product. The science layer, the personalisation engine, the coach voice — all of it is infrastructure that can be licenced, white-labelled, or sold as data. The consumer app is the smallest expression of what this actually is.</p>
+
+    <div class="models-grid fade-up">
+
+      <div class="model-card primary">
+        <div class="model-num">01</div>
+        <div class="model-timeline-badge badge-now">Active now</div>
+        <div class="model-tag">Model 01 — Foundation</div>
+        <div class="model-name">Direct-to-consumer subscription</div>
+        <div class="model-body">The core product. Individuals pay monthly or annually for a personalised health programme — daily plan, AI coach, science layer, body scan integration. This model proves the concept, generates the brand, builds the data, and funds everything else. It also creates the testimonials and retention metrics that make every B2B conversation possible.</div>
+        <div class="model-economics">
+          <div class="model-econ">
+            <div class="model-econ-val">£14.99/mo</div>
+            <div class="model-econ-label">Personal tier</div>
+          </div>
+          <div class="model-econ">
+            <div class="model-econ-val">£39.99/mo</div>
+            <div class="model-econ-label">Performance tier</div>
+          </div>
+          <div class="model-econ">
+            <div class="model-econ-val">9,000</div>
+            <div class="model-econ-label">Users for £2M ARR</div>
+          </div>
+          <div class="model-econ">
+            <div class="model-econ-val">&gt;80%</div>
+            <div class="model-econ-label">90-day retention target</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="model-card">
+        <div class="model-num">02</div>
+        <div class="model-timeline-badge badge-y2">Year 2–3</div>
+        <div class="model-tag">Model 02 — Distribution multiplier</div>
+        <div class="model-name">White label licensing</div>
+        <div class="model-body">BodyLens re-skinned as a partner's own digital offering. Gym chains, private healthcare groups, insurance providers — organisations with existing distribution that need a genuinely useful digital health product. They already have the members. They need the product. You need the distribution without the acquisition cost.</div>
+        <div class="model-economics">
+          <div class="model-econ">
+            <div class="model-econ-val">£3–5/mo</div>
+            <div class="model-econ-label">Per active member</div>
+          </div>
+          <div class="model-econ">
+            <div class="model-econ-val">£1.8M+</div>
+            <div class="model-econ-label">Per 50k-member chain</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="model-card">
+        <div class="model-num">03</div>
+        <div class="model-timeline-badge badge-y2">Year 2–3</div>
+        <div class="model-tag">Model 03 — Enterprise</div>
+        <div class="model-name">Corporate wellness</div>
+        <div class="model-body">Large employers have genuine wellness budgets post-COVID. Most spend it on EAP programmes nobody uses and gym discounts nobody values. BodyLens for enterprise: every employee gets a personalised health programme. The finance and professional services background opens these doors credibly — you are the person who understands both the ROI case and the culture.</div>
+        <div class="model-economics">
+          <div class="model-econ">
+            <div class="model-econ-val">£15–25/mo</div>
+            <div class="model-econ-label">Per employee</div>
+          </div>
+          <div class="model-econ">
+            <div class="model-econ-val">£180k/yr</div>
+            <div class="model-econ-label">1,000-person firm</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="model-card">
+        <div class="model-num">04</div>
+        <div class="model-timeline-badge badge-y3">Year 3–4</div>
+        <div class="model-tag">Model 04 — Data layer</div>
+        <div class="model-name">Aggregate insights</div>
+        <div class="model-body">At 50,000+ users generating daily data on sleep, nutrition, training, and body composition, the aggregate anonymised insights become genuinely valuable. Research institutions studying population health. Supplement brands wanting real-world efficacy data. Food companies understanding behavioural patterns at a granularity clinical studies cannot reach. Architecture for this from day one, monetise when scale justifies it.</div>
+        <div class="model-economics">
+          <div class="model-econ">
+            <div class="model-econ-val">50k+</div>
+            <div class="model-econ-label">Users needed</div>
+          </div>
+          <div class="model-econ">
+            <div class="model-econ-val">~£1M</div>
+            <div class="model-econ-label">ARR contribution yr 4</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- STICKINESS -->
+<section id="sticky">
+  <div class="container">
+    <div class="section-kicker">Retention engineering</div>
+    <h2 class="section-title">What makes people <em>stay.</em></h2>
+    <p class="section-body">The economics of subscription only work if people stay. At 8% monthly churn you need to acquire 8% just to stand still. These are the specific features that compound retention — not the flashy ones, the ones that make the product feel like it genuinely knows you.</p>
+
+    <div class="sticky-grid fade-up">
+      <div class="sticky-card">
+        <div class="sticky-icon">🧠</div>
+        <div class="sticky-title">Progressive personalisation</div>
+        <div class="sticky-body">The plan in month three must be visibly better than month one — because it actually knows you better. Sleep patterns, training response, food preferences, deviation tendencies. Users feel this. When something knows you that well, you don't leave it.</div>
+        <div class="sticky-impact">Drives months 2-6 retention</div>
+      </div>
+      <div class="sticky-card">
+        <div class="sticky-icon">📆</div>
+        <div class="sticky-title">Weekly coach review</div>
+        <div class="sticky-body">Every Sunday, a short AI-generated debrief. Not a stats dump — a narrative. "You hit protein five of seven days. The two you missed were both late evenings. That's a pattern, not a failure." A weekly touchpoint that creates the habit of opening the app even when nothing specific is pulling them in.</div>
+        <div class="sticky-impact">Most powerful single retention feature</div>
+      </div>
+      <div class="sticky-card">
+        <div class="sticky-icon">📊</div>
+        <div class="sticky-title">Visible progress arc</div>
+        <div class="sticky-body">Progress made invisible is progress that doesn't retain. Body composition trends, training progression, protein consistency, weight trajectory. Not just numbers — the coach's interpretation of what those numbers mean for the goal they told you about on day one.</div>
+        <div class="sticky-impact">Critical for months 3-12</div>
+      </div>
+      <div class="sticky-card">
+        <div class="sticky-icon">🔬</div>
+        <div class="sticky-title">Body scan loop</div>
+        <div class="sticky-body">Every time someone scans and their numbers change, targets recalculate and the plan shifts. A concrete demonstration that the product is responsive to reality, not static. Creates a reason to scan regularly — which creates a habit loop — which creates retention.</div>
+        <div class="sticky-impact">Drives quarterly re-engagement</div>
+      </div>
+      <div class="sticky-card">
+        <div class="sticky-icon">🤝</div>
+        <div class="sticky-title">Coach memory</div>
+        <div class="sticky-body">Every conversation, every SOS moment, every deviation logged accumulates into a picture the coach explicitly references. "You mentioned last week that evening meals were hardest — this week's plan adjusted for that." That's not a feature. That's a relationship. Relationships are sticky.</div>
+        <div class="sticky-impact">Locks in after month 2</div>
+      </div>
+      <div class="sticky-card">
+        <div class="sticky-icon">⚡</div>
+        <div class="sticky-title">SOS emergency fixes</div>
+        <div class="sticky-body">The moment you rescue someone from an off-plan spiral — starving, skipped gym, terrible sleep, ate the whole pizza — and they get a specific, personal, useful answer in 30 seconds, they tell someone. Crisis handling is a retention and acquisition mechanism simultaneously.</div>
+        <div class="sticky-impact">Word-of-mouth trigger</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MOAT -->
+<section id="moat">
+  <div class="container">
+    <div class="section-kicker">Competitive advantage</div>
+    <h2 class="section-title">The <em>moat.</em></h2>
+    <p class="section-body">In a saturated market, winning is about being categorically different — not marginally better. These are the three defensible advantages that get harder to replicate the longer the product runs.</p>
+
+    <div class="moat-grid fade-up">
+      <div class="moat-item">
+        <div class="moat-rank">01 — Primary moat</div>
+        <div class="moat-title">Science architecture</div>
+        <div class="moat-body">The reasoning layer — the actual explanations of why things work, grounded in real mechanisms — is not a feature, it's a category. Competitors can copy the interface in a week. They cannot copy 18 years of institutional knowledge about how performance actually works in the real world, at the level of a person who has lived it professionally.<br><br>This is the moat. Everything else is built on it.</div>
+      </div>
+      <div class="moat-item">
+        <div class="moat-rank">02 — Data moat</div>
+        <div class="moat-title">Accumulated personalisation</div>
+        <div class="moat-body">At 12 months of daily use, BodyLens knows more about how your body specifically responds to training, sleep, and nutrition than any other system. That knowledge is locked to the platform. Switching means starting from scratch.<br><br>This is the retention moat. It compounds invisibly for the first six months and becomes nearly unassailable by month twelve.</div>
+      </div>
+      <div class="moat-item">
+        <div class="moat-rank">03 — Trust moat</div>
+        <div class="moat-title">Credibility at scale</div>
+        <div class="moat-body">Health products live or die on trust. Being wrong in health has real consequences. The brand that builds a reputation for getting it right — consistently, verifiably, in high-stakes moments — becomes very hard to displace.<br><br>The coach voice, the science citations, the honest acknowledgment of what we don't know — these compound into institutional credibility that can't be manufactured quickly.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHAT KILLS IT -->
+<section id="kill">
+  <div class="container">
+    <div class="section-kicker">Risk register</div>
+    <h2 class="section-title">Three things that <em>kill it.</em></h2>
+    <p class="section-body">These are not speculative risks. They are the specific patterns that have killed every otherwise-good subscription health product. Know them. Build against them deliberately.</p>
+
+    <div class="kill-grid fade-up">
+      <div class="kill-card">
+        <div class="kill-title">Building features instead of fixing retention</div>
+        <div class="kill-body">Every hour spent on a new feature while monthly churn is above 8% is misdirected. The product is already good enough to retain people — if you understand why they leave. Find out why they leave before building anything new.<br><br>The data exists in cancellation surveys, in the sessions people don't open, in the onboarding questions they skip. Read it obsessively.</div>
+      </div>
+      <div class="kill-card">
+        <div class="kill-title">Trying to be everywhere on social</div>
+        <div class="kill-body">You don't have the bandwidth for five content channels and they're the wrong channels for this product. Fitness on social means before-and-after photos, transformation content, motivational copy. That's not BodyLens.<br><br>One focused channel — long-form science content that earns organic search placement — done exceptionally well, beats five channels done adequately every time.</div>
+      </div>
+      <div class="kill-card">
+        <div class="kill-title">Waiting until it's perfect to charge</div>
+        <div class="kill-body">Start charging now. Not because you need the money but because paying users give you honest feedback in a way free users never do. The person who paid £14.99 and is thinking about cancelling will tell you exactly what's wrong if you ask them directly.<br><br>That information is worth more than any amount of user research, product analytics, or founder intuition.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- VERDICT -->
+<section id="verdict">
+  <div class="container-narrow">
+    <div class="section-kicker" style="justify-content:center;">The verdict</div>
+    <div class="verdict-title">
+      £2M in 24 months.<br><em>Absolutely</em> yes.
+    </div>
+    <p class="verdict-body">
+      Not because the market is easy — it isn't. Because the product has real intellectual depth in a category full of shallow products, the founders have the exact background required to sell it credibly at every level, and the build velocity is genuinely competitive with funded teams. The constraint isn't ability. It's focus.
+    </p>
+
+    <div class="verdict-steps fade-up">
+      <div class="verdict-step">
+        <div class="verdict-step-n">1</div>
+        <div class="verdict-step-title">Fix the foundation first</div>
+        <div class="verdict-step-body">Backend. Persistence. One contract developer. Six weeks. £10k. Without this, every user you acquire is a rental.</div>
+      </div>
+      <div class="verdict-step">
+        <div class="verdict-step-n">2</div>
+        <div class="verdict-step-title">Content before paid acquisition</div>
+        <div class="verdict-step-body">The science layer is an untapped content engine. Publish everything. Let it compound. This is the only acquisition channel that builds an asset.</div>
+      </div>
+      <div class="verdict-step">
+        <div class="verdict-step-n">3</div>
+        <div class="verdict-step-title">Retention over everything</div>
+        <div class="verdict-step-body">Weekly review. Progressive personalisation. Coach memory. These compound invisibly for six months and become the reason nobody leaves.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">Body<em>Lens</em></div>
+  <div class="footer-note">Internal strategy document — commercial in confidence</div>
+</footer>
+
+<script>
+// Scroll animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Nav active state
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    if (window.scrollY >= section.offsetTop - 100) {
+      current = section.id;
+    }
+  });
+  navLinks.forEach(link => {
+    link.style.color = link.getAttribute('href') === '#' + current ? 'var(--jade)' : '';
+  });
+});
+</script>
+</body>
+</html>
