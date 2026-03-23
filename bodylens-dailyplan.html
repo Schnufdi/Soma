@@ -2,408 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#0c1010">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="BodyLens">
-  <link rel="apple-touch-icon" href="/icons/icon-180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="bl-page" content="day">
-<title>BodyLens — Today</title>
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BodyLens">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="manifest" href="/manifest.json">
+<title>BodyLens &mdash; Today</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<style>
-body { background:var(--ink); color:var(--dk-1); }
-
-/* ── TWO-COLUMN LAYOUT ─────────────────────────── */
-.day-outer { display:grid; grid-template-columns:1fr 380px; gap:0; min-height:100vh; }
-.day-main  { padding:0 32px 120px; max-width:700px; }
-.day-right { background:var(--ink-2); border-left:1px solid var(--bd); position:sticky; top:0; height:100vh; overflow-y:auto; display:flex; flex-direction:column; }
-.day-right::-webkit-scrollbar { width:3px; }
-.day-right::-webkit-scrollbar-thumb { background:var(--bd); }
-
-/* ── WEEK STRIP ────────────────────────────────── */
-.week-strip { background:var(--ink-1); border-bottom:1px solid var(--bd); padding:12px 32px; display:flex; gap:6px; align-items:stretch; overflow-x:auto; }
-.week-strip::-webkit-scrollbar { display:none; }
-.ws-day { display:flex; flex-direction:column; align-items:center; padding:7px 10px; border-radius:5px; border:1px solid transparent; cursor:pointer; transition:all 0.12s; min-width:52px; flex-shrink:0; }
-.ws-day:hover { background:var(--ink-2); }
-.ws-day.today { background:var(--ink-2); border-color:var(--bd); }
-.ws-day.train { border-top:2px solid var(--jade); }
-.ws-day.rest  { border-top:2px solid var(--dk-3); }
-.ws-day.selected { background:rgba(0,200,160,0.06); border-color:var(--jade-br); }
-.ws-day-name { font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); margin-bottom:3px; }
-.ws-day.today .ws-day-name { color:var(--jade); }
-.ws-day.selected .ws-day-name { color:var(--jade); }
-.ws-day-type { font-size:10px; font-weight:500; color:var(--dk-2); }
-.ws-day-dot  { width:5px; height:5px; border-radius:50%; margin-top:4px; background:var(--bd); }
-.ws-day.train .ws-day-dot { background:var(--jade); }
-
-/* ── HERO ──────────────────────────────────────── */
-.day-hero { padding:32px 0 20px; border-bottom:1px solid var(--bd); margin-bottom:20px; }
-.day-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:8px; }
-.day-title  { font-family:var(--serif); font-size:40px; font-weight:300; line-height:1; letter-spacing:-0.02em; color:var(--dk-1); margin-bottom:8px; }
-.day-brief  { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.7; margin-bottom:10px; }
-.day-priority { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:500; color:var(--jade); background:var(--jade-dim); border:1px solid var(--jade-br); padding:5px 12px; border-radius:20px; }
-
-/* ── MACRO STRIP ───────────────────────────────── */
-.day-macros { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--bd); border-radius:8px; overflow:hidden; margin-bottom:12px; }
-.dm { background:var(--ink-2); padding:12px 10px; text-align:center; }
-.dm-val { font-family:var(--mono); font-size:18px; font-weight:500; color:var(--dk-1); margin-bottom:3px; }
-.dm-val.jade  { color:var(--jade); }
-.dm-val.amber { color:var(--amber); }
-.dm-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
-
-/* ── LIVE MACRO CUP ────────────────────────────── */
-.macro-cup {
-  background:var(--ink-2); border:1px solid var(--bd); border-radius:8px;
-  padding:14px 16px; margin-bottom:14px;
-}
-.mc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-.mc-title { font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--dk-3); }
-.mc-remaining { font-size:10px; font-weight:300; color:var(--dk-3); }
-.mc-remaining .kcal-left { font-weight:600; color:var(--jade); }
-.mc-rows { display:flex; flex-direction:column; gap:8px; }
-.mc-row { display:grid; grid-template-columns:52px 1fr 48px; gap:8px; align-items:center; }
-.mc-name { font-size:10px; font-weight:500; color:var(--dk-2); }
-.mc-bar-wrap { position:relative; height:8px; background:var(--ink-1); border-radius:4px; overflow:visible; }
-.mc-bar-bg { position:absolute; inset:0; border-radius:4px; background:var(--ink-1); }
-.mc-bar-fill { position:absolute; left:0; top:0; height:100%; border-radius:4px; transition:width 0.4s ease; }
-.mc-bar-fill.prot { background:linear-gradient(90deg, rgba(0,200,160,0.5), var(--jade)); }
-.mc-bar-fill.carb { background:linear-gradient(90deg, rgba(196,124,24,0.5), var(--amber)); }
-.mc-bar-fill.fat  { background:linear-gradient(90deg, rgba(74,98,117,0.5), #5a7898); }
-.mc-bar-fill.kcal { background:linear-gradient(90deg, rgba(200,200,200,0.2), rgba(200,200,200,0.4)); }
-.mc-bar-fill.over { background:rgba(217,78,53,0.7) !important; }
-.mc-val { font-size:10px; font-family:var(--mono); color:var(--dk-3); text-align:right; }
-
-/* ── WATER STRIP ───────────────────────────────── */
-.water-strip { font-size:11px; font-weight:300; color:rgba(100,180,220,0.7); background:rgba(74,143,168,0.07); border:1px solid rgba(74,143,168,0.15); border-radius:4px; padding:7px 12px; margin-bottom:16px; }
-
-/* ── ACCELERATOR STRIP ─────────────────────────── */
-.acc-strip { background:linear-gradient(135deg,rgba(200,148,30,0.06),rgba(200,148,30,0.02)); border:1px solid rgba(200,148,30,0.22); border-radius:8px; padding:14px 18px; margin-bottom:16px; display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; }
-.as-eyebrow { font-size:8px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:4px; }
-.as-title { font-size:13px; font-weight:600; color:var(--dk-1); margin-bottom:3px; }
-.as-why { font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.6; }
-.as-btn { background:rgba(200,148,30,0.1); border:1px solid rgba(200,148,30,0.3); color:var(--gold); padding:6px 12px; border-radius:4px; font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; text-decoration:none; display:inline-block; }
-
-/* ── TIMELINE BLOCKS ───────────────────────────── */
-.tl-label { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
-.tl-label::after { content:''; flex:1; height:1px; background:var(--bd); }
-
-.tl-block { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; margin-bottom:8px; overflow:hidden; cursor:pointer; transition:border-color 0.15s; }
-.tl-block:hover { border-color:var(--bd-2,#2a3830); }
-
-.tl-block.type-wake     { border-left:3px solid var(--jade); }
-.tl-block.type-supp     { border-left:3px solid var(--gold); }
-.tl-block.type-meal     { border-left:3px solid var(--amber); }
-.tl-block.type-training { border-left:3px solid var(--jade); background:rgba(0,200,160,0.02); }
-.tl-block.type-recovery { border-left:3px solid var(--dk-3); }
-.tl-block.type-sleep    { border-left:3px solid #4a6070; }
-.tl-block.type-hydration{ border-left:3px solid rgba(74,143,168,0.6); }
-
-/* Eaten state */
-.tl-block.eaten { opacity:0.6; }
-.tl-block.eaten .tl-head { background:rgba(0,200,160,0.03); }
-
-.tl-head { display:flex; align-items:center; gap:10px; padding:13px 14px; }
-.tl-time { font-family:var(--mono); font-size:11px; font-weight:500; color:var(--dk-3); width:40px; flex-shrink:0; }
-.tl-main { flex:1; min-width:0; }
-.tl-title { font-size:13px; font-weight:500; color:var(--dk-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.tl-block.type-training .tl-title { color:var(--jade); }
-.tl-subtitle { font-size:11px; font-weight:300; color:var(--dk-3); margin-top:1px; }
-.tl-tag { font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:3px 9px; border-radius:10px; flex-shrink:0; }
-.tl-tag.jade  { color:var(--jade); background:var(--jade-dim); border:1px solid var(--jade-br); }
-.tl-tag.amber { color:var(--amber); background:rgba(196,124,24,0.08); border:1px solid var(--amber-br); }
-.tl-tag.gold  { color:var(--gold); background:rgba(200,148,30,0.08); border:1px solid rgba(200,148,30,0.2); }
-.tl-tag.slate { color:var(--dk-3); background:var(--ink-1); border:1px solid var(--bd); }
-.tl-chevron { font-size:10px; color:var(--dk-3); flex-shrink:0; transition:transform 0.18s; }
-.tl-block.open .tl-chevron { transform:rotate(180deg); }
-
-.tl-body { display:none; padding:0 14px 14px 54px; }
-.tl-block.open .tl-body { display:block; }
-.tl-detail { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; margin-bottom:10px; }
-.tl-detail p { margin-bottom:6px; }
-.tl-science { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.65; padding:8px 12px; background:var(--ink-1); border-radius:4px; border-left:2px solid var(--bd); margin-bottom:10px; }
-.tl-items { display:flex; flex-wrap:wrap; gap:6px; }
-.tl-item { background:var(--ink-1); border:1px solid var(--bd); border-radius:4px; padding:4px 9px; }
-.tl-item-name { font-size:11px; font-weight:500; color:var(--dk-1); }
-.tl-item-meta { font-size:10px; font-weight:300; color:var(--dk-3); margin-left:4px; }
-
-/* Meal action buttons */
-.meal-actions { display:flex; gap:7px; margin-top:12px; flex-wrap:wrap; }
-.meal-action-btn { padding:5px 14px; border-radius:14px; font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); border:1px solid var(--bd); background:transparent; color:var(--dk-3); transition:all 0.12s; }
-.meal-action-btn:hover { border-color:var(--amber-br); color:var(--amber); }
-.meal-action-btn.view-recipe { border-color:var(--amber-br); color:var(--amber); }
-.meal-action-btn.log-eaten { border-color:var(--jade-br); color:var(--jade); }
-.meal-action-btn.log-diff { border-color:var(--bd-2,#2a3830); color:var(--dk-2); }
-
-/* ── RIGHT PANEL ────────────────────────────────── */
-.right-panel-header { padding:16px 20px 12px; border-bottom:1px solid var(--bd); background:var(--ink-1); flex-shrink:0; }
-.rph-title { font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-2); margin-bottom:2px; }
-.rph-sub { font-size:11px; font-weight:300; color:var(--dk-3); }
-.right-panel-body { flex:1; padding:16px 20px; overflow-y:auto; }
-.right-panel-body::-webkit-scrollbar { width:3px; }
-.right-panel-body::-webkit-scrollbar-thumb { background:var(--bd); }
-.right-panel-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px; gap:10px; }
-.rpe-icon { font-size:32px; opacity:0.25; }
-.rpe-text { font-size:13px; font-weight:300; color:var(--dk-3); line-height:1.65; }
-
-/* Recipe card in right panel */
-.recipe-card { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; overflow:hidden; margin-bottom:12px; }
-.rc-header { padding:14px 16px; border-bottom:1px solid var(--bd); display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
-.rc-name { font-size:15px; font-weight:500; color:var(--dk-1); margin-bottom:2px; }
-.rc-desc { font-size:11px; font-weight:300; color:var(--dk-3); }
-.rc-shuffle-btn { background:transparent; border:1px solid var(--amber-br); color:var(--amber); border-radius:14px; padding:4px 12px; font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; transition:all 0.12s; flex-shrink:0; }
-.rc-shuffle-btn:hover { background:rgba(196,124,24,0.08); }
-.rc-shuffle-btn:disabled { opacity:0.4; cursor:not-allowed; }
-
-/* Macro fit bars */
-.macro-fit { padding:12px 16px; border-bottom:1px solid var(--bd); }
-.mf-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
-.mf-rows { display:flex; flex-direction:column; gap:6px; }
-.mf-row { display:grid; grid-template-columns:52px 1fr 36px; gap:8px; align-items:center; }
-.mf-name { font-size:10px; font-weight:500; color:var(--dk-2); }
-.mf-bar-wrap { height:6px; background:var(--ink-2); border-radius:3px; overflow:hidden; }
-.mf-bar { height:100%; border-radius:3px; transition:width 0.4s ease; }
-.mf-bar.p { background:var(--jade); }
-.mf-bar.c { background:var(--amber); }
-.mf-bar.f { background:#5a7898; }
-.mf-bar.k { background:rgba(200,200,200,0.35); }
-.mf-val { font-size:10px; font-family:var(--mono); color:var(--dk-3); text-align:right; }
-
-.rc-ingredients { padding:12px 16px; border-bottom:1px solid var(--bd); }
-.rc-ing-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:7px; }
-.rc-ing-row { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--bd); }
-.rc-ing-row:last-child { border-bottom:none; }
-.rc-ing-name { font-size:12px; font-weight:400; color:var(--dk-1); }
-.rc-ing-qty  { font-size:11px; font-family:var(--mono); color:var(--dk-3); }
-.rc-method { padding:12px 16px; font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.75; }
-.rc-method-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:6px; }
-
-/* Deviation logger */
-.dev-logger { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; padding:14px 16px; margin-bottom:12px; }
-.dev-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
-.dev-input { width:100%; background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:9px 12px; font-size:13px; font-family:var(--sans); color:var(--dk-1); outline:none; resize:none; transition:border-color 0.12s; line-height:1.4; }
-.dev-input:focus { border-color:rgba(0,200,160,0.35); }
-.dev-input::placeholder { color:var(--dk-3); }
-.dev-send { margin-top:8px; width:100%; background:var(--jade); border:none; color:var(--ink); border-radius:6px; padding:9px; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); transition:opacity 0.12s; }
-.dev-send:hover { opacity:0.85; }
-.dev-send:disabled { opacity:0.35; cursor:not-allowed; }
-.dev-result { margin-top:8px; padding:10px 12px; background:var(--ink-2); border:1px solid var(--jade-br); border-radius:4px; font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.75; }
-.dev-result strong { color:var(--jade); font-weight:600; }
-
-/* Exercise cards (in right panel) */
-.session-panel { padding:4px 0; }
-.ex-card { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; margin-bottom:8px; overflow:hidden; }
-.ex-card-head { display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; padding:11px 14px; cursor:pointer; }
-.ex-card.open .ex-card-head { border-bottom:1px solid var(--bd); background:var(--ink-2); }
-.ex-name { font-size:13px; font-weight:500; color:var(--dk-1); }
-.ex-schema { font-family:var(--mono); font-size:12px; font-weight:600; color:var(--jade); }
-.ex-rpe { font-size:10px; font-weight:500; color:var(--dk-3); background:var(--ink-2); padding:2px 8px; border-radius:8px; border:1px solid var(--bd); }
-.ex-chevron { font-size:10px; color:var(--dk-3); transition:transform 0.15s; }
-.ex-card.open .ex-chevron { transform:rotate(180deg); }
-.ex-body { display:none; padding:12px 14px; }
-.ex-card.open .ex-body { display:block; }
-
-/* Benchmarks */
-.bench-strip { background:var(--ink-2); border:1px solid var(--bd); border-radius:5px; padding:12px; margin-bottom:10px; }
-.bench-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
-.bench-values { display:grid; grid-template-columns:1fr 1fr 1fr; font-family:var(--mono); font-size:13px; font-weight:600; color:var(--dk-1); margin-bottom:4px; }
-.bench-values .you { color:var(--jade); font-size:15px; }
-.bench-track { position:relative; height:7px; background:var(--bd); border-radius:4px; margin:10px 0 5px; }
-.bench-fill { position:absolute; left:0; top:0; height:100%; border-radius:4px; background:linear-gradient(90deg,rgba(0,200,160,0.4),rgba(0,200,160,0.85)); }
-.bench-marker { position:absolute; top:-4px; width:15px; height:15px; border-radius:50%; border:2px solid var(--jade); background:var(--ink); transform:translateX(-50%); }
-.bench-labels { display:grid; grid-template-columns:1fr 1fr 1fr; font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--dk-3); }
-.bench-age-note { font-size:10px; font-weight:300; color:var(--dk-3); line-height:1.6; margin-top:7px; }
-.sets-guide { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
-.set-row { display:grid; grid-template-columns:36px 1fr; gap:8px; align-items:baseline; }
-.set-num { font-family:var(--mono); font-size:10px; font-weight:600; color:var(--jade); }
-.set-detail { font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.55; }
-.ex-injury-note { padding:7px 10px; background:rgba(200,148,30,0.06); border:1px solid rgba(200,148,30,0.2); border-radius:4px; font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.6; margin-bottom:8px; }
-.ex-injury-note span { color:var(--gold); font-weight:600; }
-
-/* Loading */
-.loading-state { padding:50px 0; text-align:center; }
-.loading-spinner { width:28px; height:28px; border:2px solid var(--bd); border-top-color:var(--jade); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 14px; }
-@keyframes spin { to { transform:rotate(360deg); } }
-.loading-text { font-size:13px; font-weight:300; color:var(--dk-3); }
-.fp-spinner { width:20px; height:20px; border:2px solid var(--bd); border-top-color:var(--amber); border-radius:50%; animation:spin 0.8s linear infinite; margin:8px auto; }
-
-/* Ask bar */
-.ask-wrap { margin-top:24px; }
-.ask-sec { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; display:flex; align-items:center; gap:10px; }
-.ask-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
-.ask-chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
-.ask-chip { background:var(--ink-2); border:1px solid var(--bd); border-radius:20px; padding:5px 12px; font-size:11px; font-weight:400; color:var(--dk-3); cursor:pointer; transition:all 0.12s; }
-.ask-chip:hover { border-color:rgba(0,200,160,0.4); color:var(--jade); }
-.ask-input-row { display:flex; gap:8px; }
-.ask-input { flex:1; background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:9px 13px; font-size:13px; font-family:var(--sans); color:var(--dk-1); outline:none; transition:border-color 0.12s; }
-.ask-input:focus { border-color:rgba(0,200,160,0.35); }
-.ask-input::placeholder { color:var(--dk-3); }
-.ask-send { width:36px; height:36px; background:var(--jade); border:none; border-radius:8px; cursor:pointer; font-size:15px; font-weight:700; color:var(--ink); flex-shrink:0; transition:opacity 0.12s; }
-.ask-send:hover { opacity:0.85; }
-.ask-answer { margin-top:10px; padding:12px 14px; background:var(--ink-2); border:1px solid var(--bd); border-left:3px solid var(--jade); border-radius:0 6px 6px 0; font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; display:none; }
-.ask-answer p { margin:0 0 8px; }
-.ask-answer p:last-child { margin:0; }
-.regen-btn { background:transparent; border:1px solid var(--bd); color:var(--dk-3); padding:6px 14px; border-radius:16px; font-size:10px; font-weight:600; letter-spacing:0.04em; cursor:pointer; font-family:var(--sans); margin-top:16px; transition:all 0.12s; }
-.regen-btn:hover { border-color:var(--jade-br); color:var(--jade); }
-
-/* Week programme indicator */
-.week-prog-strip { background:rgba(200,148,30,0.04); border:1px solid rgba(200,148,30,0.18); border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
-.wps-label { font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); }
-.wps-week  { font-family:var(--mono); font-size:13px; font-weight:600; color:var(--dk-1); }
-.wps-phase { font-size:11px; font-weight:300; color:var(--dk-3); }
-.wps-dots { display:flex; gap:4px; margin-top:4px; }
-.wps-dot { width:8px; height:8px; border-radius:50%; background:var(--bd); }
-.wps-dot.done { background:var(--gold); }
-.wps-dot.current { background:var(--jade); }
-
-@media(max-width:900px) {
-  .day-outer { grid-template-columns:1fr; }
-  .day-right { position:fixed; right:0; top:0; bottom:0; width:90vw; max-width:400px; transform:translateX(100%); transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1); z-index:200; height:100vh; }
-  .day-right.open { transform:translateX(0); }
-  .day-main { padding:0 20px 100px; }
-  .week-strip { padding:10px 20px; }
-}
-
-/* ── STICKY MACRO BAR ─────────────────────────────── */
-.sticky-macros {
-  background:rgba(12,16,16,0.95); backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--bd); padding:8px 32px;
-  position:sticky; top:0; z-index:50;
-  display:flex; gap:16px; align-items:center;
-}
-.sm-bar-group { flex:1; display:flex; align-items:center; gap:8px; }
-.sm-label { font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); width:44px; flex-shrink:0; }
-.sm-bar-wrap { flex:1; height:5px; background:var(--ink-2); border-radius:3px; overflow:hidden; }
-.sm-bar { height:100%; border-radius:3px; transition:width 0.4s ease; }
-.sm-bar.p { background:var(--jade); }
-.sm-bar.c { background:var(--amber); }
-.sm-bar.f { background:#5a7898; }
-.sm-val { font-size:9px; font-family:var(--mono); color:var(--dk-3); width:30px; text-align:right; flex-shrink:0; }
-.sm-kcal { font-size:10px; font-weight:600; font-family:var(--mono); white-space:nowrap; flex-shrink:0; }
-.sm-kcal.good { color:var(--jade); }
-.sm-kcal.warn { color:var(--amber); }
-.sm-kcal.over  { color:var(--red,#d94e35); }
-
-/* ── WEEK TABS ────────────────────────────────────── */
-.week-tabs { display:flex; gap:6px; margin-bottom:16px; margin-top:4px; }
-.wt { flex:1; background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:10px 8px; text-align:center; cursor:pointer; transition:all 0.12s; }
-.wt:hover { border-color:var(--bd-2,#2a3830); }
-.wt.active { border-color:var(--jade-br); background:rgba(0,200,160,0.04); }
-.wt.done   { border-color:rgba(200,148,30,0.25); background:rgba(200,148,30,0.03); }
-.wt-num  { font-size:8px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:3px; }
-.wt.active .wt-num { color:var(--jade); }
-.wt.done   .wt-num { color:var(--gold); }
-.wt-phase { font-size:11px; font-weight:600; color:var(--dk-1); margin-bottom:2px; }
-.wt-note  { font-size:9px; font-weight:300; color:var(--dk-3); line-height:1.4; }
-
-.week-detail-panel { background:var(--ink-2); border:1px solid var(--jade-br); border-radius:6px; padding:14px 16px; margin-bottom:16px; animation:fadeIn 0.15s ease; display:none; }
-.week-detail-panel.visible { display:block; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
-.wdp-phase { font-size:9px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--jade); margin-bottom:4px; }
-.wdp-focus { font-size:13px; font-weight:500; color:var(--dk-1); margin-bottom:4px; }
-.wdp-note  { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.7; }
-
-/* ── INLINE MEAL EXPAND ───────────────────────────── */
-/* Remove right-panel only for meal — keep training in right panel */
-.meal-inline-body { display:none; border-top:1px solid var(--bd); background:var(--ink-1); padding:14px 16px 14px 54px; }
-.tl-block.meal-open .meal-inline-body { display:block; }
-.tl-block.meal-open .tl-chevron { transform:rotate(180deg); }
-
-/* Inline recipe card */
-.inline-recipe { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; overflow:hidden; margin-bottom:10px; }
-.ir-header { padding:12px 14px; border-bottom:1px solid var(--bd); display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-.ir-name { font-size:13px; font-weight:500; color:var(--dk-1); margin-bottom:1px; }
-.ir-desc { font-size:10px; font-weight:300; color:var(--dk-3); }
-.ir-shuffle { background:transparent; border:1px solid var(--amber-br); color:var(--amber); border-radius:12px; padding:3px 10px; font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; flex-shrink:0; }
-.ir-shuffle:hover { background:rgba(196,124,24,0.08); }
-.ir-macros { padding:10px 14px; border-bottom:1px solid var(--bd); display:flex; flex-direction:column; gap:5px; }
-.ir-mac-row { display:grid; grid-template-columns:48px 1fr 32px; gap:6px; align-items:center; }
-.ir-mac-label { font-size:9px; font-weight:500; color:var(--dk-3); }
-.ir-mac-bar-wrap { height:5px; background:var(--ink-1); border-radius:3px; overflow:hidden; }
-.ir-mac-bar { height:100%; border-radius:3px; }
-.ir-mac-bar.p { background:var(--jade); }
-.ir-mac-bar.c { background:var(--amber); }
-.ir-mac-bar.f { background:#5a7898; }
-.ir-mac-val { font-size:9px; font-family:var(--mono); color:var(--dk-3); text-align:right; }
-.ir-ingredients { padding:10px 14px; border-bottom:1px solid var(--bd); display:flex; flex-wrap:wrap; gap:5px; }
-.ir-ing { background:var(--ink-1); border:1px solid var(--bd); border-radius:4px; padding:3px 8px; font-size:10px; }
-.ir-ing-name { font-weight:400; color:var(--dk-1); }
-.ir-ing-qty { font-weight:300; color:var(--dk-3); margin-left:3px; }
-.ir-method { padding:10px 14px; font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.7; }
-
-/* Meal tick and log buttons */
-.meal-actions-row { display:flex; gap:7px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
-.meal-tick { width:28px; height:28px; border-radius:50%; border:1px solid var(--jade-br); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; flex-shrink:0; font-size:13px; color:var(--jade); background:transparent; }
-.meal-tick:hover { background:var(--jade-dim); }
-.meal-tick.ticked { background:var(--jade); color:var(--ink); border-color:var(--jade); }
-.meal-log-btn { background:transparent; border:1px solid var(--bd); border-radius:14px; padding:4px 12px; font-size:10px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--dk-3); cursor:pointer; font-family:var(--sans); transition:all 0.12s; }
-.meal-log-btn:hover { border-color:var(--amber-br); color:var(--amber); }
-.meal-log-btn.show-recipe { border-color:var(--amber-br); color:var(--amber); }
-
-/* Deviation inline logger */
-.dev-inline { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; padding:12px 14px; margin-bottom:10px; }
-.dev-inline-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:7px; }
-.dev-inline-input { width:100%; background:var(--ink-2); border:1px solid var(--bd); border-radius:5px; padding:8px 11px; font-size:12px; font-family:var(--sans); color:var(--dk-1); outline:none; resize:none; line-height:1.4; transition:border-color 0.12s; }
-.dev-inline-input:focus { border-color:rgba(0,200,160,0.35); }
-.dev-inline-input::placeholder { color:var(--dk-3); }
-.dev-inline-send { margin-top:6px; background:var(--jade); border:none; color:var(--ink); border-radius:5px; padding:7px 14px; font-size:10px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); transition:opacity 0.12s; }
-.dev-inline-send:hover { opacity:0.85; }
-.dev-inline-result { margin-top:8px; padding:8px 10px; background:var(--ink-2); border:1px solid var(--jade-br); border-radius:4px; font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.65; }
-.dev-inline-result strong { color:var(--jade); font-weight:600; }
-
-/* ── LEVEL QUIZ (in right panel) ──────────────────── */
-.lq-header { padding:16px 20px; border-bottom:1px solid var(--bd); background:rgba(200,148,30,0.04); }
-.lq-kicker { font-size:8px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold); margin-bottom:4px; }
-.lq-title  { font-size:16px; font-weight:500; color:var(--dk-1); margin-bottom:2px; }
-.lq-sub    { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.5; }
-.lq-progress { display:flex; gap:4px; padding:10px 20px; border-bottom:1px solid var(--bd); }
-.lq-prog-dot { flex:1; height:3px; background:var(--bd); border-radius:2px; transition:background 0.2s; }
-.lq-prog-dot.done { background:var(--gold); }
-.lq-prog-dot.current { background:var(--jade); }
-.lq-body { padding:16px 20px; }
-.lq-q-text { font-size:14px; font-weight:500; color:var(--dk-1); margin-bottom:4px; line-height:1.4; }
-.lq-q-note { font-size:10px; font-weight:300; color:var(--dk-3); margin-bottom:12px; font-style:italic; }
-.lq-options { display:flex; flex-direction:column; gap:7px; }
-.lq-opt { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; padding:10px 14px; cursor:pointer; transition:all 0.12s; }
-.lq-opt:hover { border-color:rgba(200,148,30,0.35); }
-.lq-opt.selected { border-color:var(--gold); background:rgba(200,148,30,0.05); }
-.lq-opt-label { font-size:13px; font-weight:500; color:var(--dk-1); margin-bottom:1px; }
-.lq-opt-val   { font-size:10px; font-weight:300; color:var(--dk-3); }
-.lq-nav { display:flex; gap:8px; margin-top:14px; }
-.lq-next { flex:1; background:var(--gold); border:none; color:var(--ink); border-radius:6px; padding:9px; font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); opacity:0.4; transition:opacity 0.12s; }
-.lq-next.ready { opacity:1; }
-.lq-back { background:transparent; border:1px solid var(--bd); color:var(--dk-3); border-radius:6px; padding:9px 14px; font-size:11px; cursor:pointer; font-family:var(--sans); }
-
-/* Level result */
-.lq-result { padding:16px 20px; }
-.lr-level-bar { margin:12px 0; }
-.lr-track { height:8px; background:var(--bd); border-radius:4px; position:relative; margin-bottom:6px; }
-.lr-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,rgba(200,148,30,0.3),var(--gold)); }
-.lr-marker { position:absolute; top:-5px; width:18px; height:18px; border-radius:50%; border:2px solid var(--gold); background:var(--ink); transform:translateX(-50%); }
-.lr-scale { display:flex; justify-content:space-between; font-size:9px; color:var(--dk-3); }
-.lr-title { font-family:var(--serif); font-size:24px; font-weight:300; color:var(--dk-1); margin-bottom:4px; }
-.lr-desc  { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.75; margin-bottom:14px; }
-.lr-actions { display:flex; gap:8px; }
-.lr-save { flex:1; background:var(--jade); border:none; color:var(--ink); border-radius:6px; padding:10px; font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); }
-.lr-redo { background:transparent; border:1px solid var(--bd); color:var(--dk-3); border-radius:6px; padding:10px 14px; font-size:11px; cursor:pointer; font-family:var(--sans); }
-
-/* Level tabs in session panel */
-.session-level-tabs { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0; border-bottom:1px solid var(--bd); }
-.slt { padding:10px 8px; text-align:center; cursor:pointer; transition:background 0.1s; border-right:1px solid var(--bd); }
-.slt:last-child { border-right:none; }
-.slt.active { background:rgba(200,148,30,0.06); }
-.slt.yours  { background:rgba(0,200,160,0.04); }
-.slt-name { font-size:9px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--dk-3); margin-bottom:2px; }
-.slt.active .slt-name { color:var(--gold); }
-.slt.yours .slt-name { color:var(--jade); }
-.slt-desc { font-size:9px; font-weight:300; color:var(--dk-3); }
-
-</style>
 </head>
 <body>
 
@@ -413,8 +23,8 @@ body { background:var(--ink); color:var(--dk-1); }
     <a class="nav-link nav-daily active" href="bodylens-dailyplan.html">Today</a>
     <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
-    <a class="nav-link" href="bodylens-instructions.html">Report</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
+    <a class="nav-link" href="bodylens-instructions.html">Report</a>
   </div>
   <div class="nav-right-group">
     <a class="nav-right" href="bodylens-guide.html">Guide</a>
@@ -423,65 +33,364 @@ body { background:var(--ink); color:var(--dk-1); }
   </div>
 </nav>
 
-<!-- Week strip -->
 <div class="week-strip" id="week-strip"></div>
-
-<div class="day-outer">
-  <!-- LEFT: timeline -->
-  <div class="day-main">
-    <div id="day-root">
-      <div class="loading-state">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Building your day…</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RIGHT: recipe / session panel -->
-  <div class="day-right" id="day-right">
-    <div class="right-panel-header" id="rph">
-      <div class="rph-title" id="rph-title">Detail</div>
-      <div class="rph-sub" id="rph-sub">Tap a meal or training block</div>
-    </div>
-    <div class="right-panel-body" id="rpb">
-      <div class="right-panel-empty">
-        <div class="rpe-icon">👈</div>
-        <div class="rpe-text">Tap any meal to view the recipe and log what you ate.<br>Tap the training block to see your session.</div>
-      </div>
-    </div>
+<div class="macro-bar"  id="macro-bar" style="display:none"></div>
+<div class="day-page"   id="day-root">
+  <div style="padding:80px 0;text-align:center;">
+    <div style="width:26px;height:26px;border:2px solid #1e2e28;border-top-color:#00c8a0;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;"></div>
+    <div style="font-size:13px;font-weight:300;color:#5a7060;">Building your day&hellip;</div>
   </div>
 </div>
 
+<div class="sp-overlay" id="sp-overlay" onclick="closeSession()"></div>
+<div class="sp-panel"   id="sp-panel">
+  <div class="sp-hd">
+    <div class="sp-title" id="sp-title">Session</div>
+    <button class="sp-close" onclick="closeSession()">&#10005;</button>
+  </div>
+  <div class="sp-body" id="sp-body"></div>
+</div>
+
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+.week-strip{background:var(--ink-1);border-bottom:1px solid var(--bd);padding:10px 28px;display:flex;gap:5px;overflow-x:auto;}
+.week-strip::-webkit-scrollbar{display:none;}
+.ws-day{display:flex;flex-direction:column;align-items:center;padding:7px 11px;border-radius:5px;border:1px solid transparent;cursor:pointer;min-width:50px;flex-shrink:0;transition:all .1s;}
+.ws-day:hover{background:var(--ink-2);}
+.ws-day.today{background:var(--ink-2);border-color:var(--bd);}
+.ws-day.train{border-top:2px solid var(--jade);}
+.ws-day.rest{border-top:2px solid var(--bd);}
+.ws-day-name{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dk-3);margin-bottom:2px;}
+.ws-day.today .ws-day-name{color:var(--jade);}
+.ws-day-type{font-size:10px;font-weight:500;color:var(--dk-2);}
+.macro-bar{position:sticky;top:0;z-index:40;background:rgba(12,16,16,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:8px 28px;display:flex;gap:12px;align-items:center;}
+.mb-group{flex:1;display:flex;align-items:center;gap:7px;min-width:0;}
+.mb-label{font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--dk-3);width:38px;flex-shrink:0;}
+.mb-track{flex:1;height:4px;background:var(--ink-2);border-radius:2px;overflow:hidden;}
+.mb-fill{height:100%;border-radius:2px;transition:width .4s;}
+.mb-fill.p{background:var(--jade);}
+.mb-fill.c{background:var(--amber);}
+.mb-fill.f{background:#5a7898;}
+.mb-val{font-size:9px;font-family:var(--mono);color:var(--dk-3);width:28px;text-align:right;flex-shrink:0;}
+.mb-kcal{font-size:10px;font-weight:600;font-family:var(--mono);white-space:nowrap;flex-shrink:0;}
+.day-page{max-width:760px;margin:0 auto;padding:0 28px 120px;}
+.day-hero{padding:28px 0 20px;border-bottom:1px solid var(--bd);margin-bottom:20px;}
+.day-kicker{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;}
+.day-title{font-family:var(--serif);font-size:38px;font-weight:300;line-height:1.05;letter-spacing:-.02em;color:var(--dk-1);margin-bottom:8px;}
+.day-brief{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.7;}
+.day-priority{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:500;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);padding:4px 12px;border-radius:18px;margin-top:8px;}
+.macro-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border-radius:7px;overflow:hidden;margin-bottom:14px;}
+.mt{background:var(--ink-2);padding:11px 8px;text-align:center;}
+.mt-val{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--dk-1);margin-bottom:2px;}
+.mt-val.j{color:var(--jade);}
+.mt-val.a{color:var(--amber);}
+.mt-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);}
+.week-tabs{display:flex;gap:5px;margin-bottom:14px;}
+.wt{flex:1;background:var(--ink-2);border:1px solid var(--bd);border-radius:5px;padding:9px 5px;text-align:center;cursor:pointer;transition:all .12s;}
+.wt.active{border-color:var(--jade-br);background:rgba(0,200,160,.04);}
+.wt.done{border-color:rgba(200,148,30,.22);background:rgba(200,148,30,.03);}
+.wt-num{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:2px;}
+.wt.active .wt-num{color:var(--jade);}
+.wt.done .wt-num{color:var(--gold);}
+.wt-phase{font-size:11px;font-weight:600;color:var(--dk-1);margin-bottom:1px;}
+.wt-note{font-size:9px;font-weight:300;color:var(--dk-3);line-height:1.3;}
+.week-detail{background:var(--ink-2);border:1px solid var(--jade-br);border-radius:5px;padding:12px 14px;margin-bottom:14px;display:none;animation:fadeIn .15s ease;}
+.week-detail.open{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.wd-phase{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:3px;}
+.wd-focus{font-size:13px;font-weight:500;color:var(--dk-1);margin-bottom:3px;}
+.wd-note{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;}
+.acc-strip{background:linear-gradient(135deg,rgba(200,148,30,.06),rgba(200,148,30,.02));border:1px solid rgba(200,148,30,.22);border-radius:7px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.acc-body{flex:1;}
+.acc-kicker{font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:2px;}
+.acc-title{font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:2px;}
+.acc-why{font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.55;}
+.acc-link{background:rgba(200,148,30,.1);border:1px solid rgba(200,148,30,.3);color:var(--gold);padding:5px 12px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;text-decoration:none;white-space:nowrap;}
+.water-bar{font-size:11px;font-weight:300;color:rgba(100,180,220,.75);background:rgba(74,143,168,.06);border:1px solid rgba(74,143,168,.14);border-radius:4px;padding:7px 12px;margin-bottom:14px;}
+.prog-strip{background:rgba(200,148,30,.04);border:1px solid rgba(200,148,30,.18);border-radius:6px;padding:9px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+.ps-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.ps-dots{display:flex;gap:3px;}
+.ps-dot{width:7px;height:7px;border-radius:50%;background:var(--bd);}
+.ps-dot.done{background:var(--gold);}
+.ps-dot.curr{background:var(--jade);}
+.ps-week{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--dk-1);}
+.ps-phase{font-size:11px;font-weight:300;color:var(--dk-3);}
+.sec-label{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--bd);}
+.tl-block{background:var(--ink-2);border:1px solid var(--bd);border-radius:7px;margin-bottom:7px;overflow:hidden;transition:border-color .12s;}
+.tl-block:hover{border-color:rgba(0,200,160,.18);}
+.tl-block.t-wake{border-left:3px solid var(--jade);}
+.tl-block.t-supp{border-left:3px solid var(--gold);}
+.tl-block.t-meal{border-left:3px solid var(--amber);}
+.tl-block.t-training{border-left:3px solid var(--jade);background:rgba(0,200,160,.015);}
+.tl-block.t-recovery{border-left:3px solid var(--dk-3);}
+.tl-block.t-sleep{border-left:3px solid #4a6070;}
+.tl-block.t-hydration{border-left:3px solid rgba(74,143,168,.6);}
+.tl-block.eaten{opacity:.5;}
+.tl-head{display:flex;align-items:center;gap:9px;padding:12px 14px;cursor:pointer;}
+.tl-time{font-family:var(--mono);font-size:11px;color:var(--dk-3);width:40px;flex-shrink:0;}
+.tl-main{flex:1;min-width:0;}
+.tl-title{font-size:13px;font-weight:500;color:var(--dk-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tl-block.t-training .tl-title{color:var(--jade);}
+.tl-sub{font-size:11px;font-weight:300;color:var(--dk-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tl-tag{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:9px;flex-shrink:0;}
+.tl-tag.j{color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);}
+.tl-tag.a{color:var(--amber);background:rgba(196,124,24,.08);border:1px solid rgba(196,124,24,.25);}
+.tl-tag.g{color:var(--gold);background:rgba(200,148,30,.08);border:1px solid rgba(200,148,30,.25);}
+.tl-tag.s{color:var(--dk-3);background:var(--ink-1);border:1px solid var(--bd);}
+.tl-chev{font-size:10px;color:var(--dk-3);transition:transform .18s;flex-shrink:0;}
+.tl-block.open .tl-chev{transform:rotate(180deg);}
+.tl-tick{width:26px;height:26px;border-radius:50%;border:1px solid var(--jade-br);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--jade);cursor:pointer;flex-shrink:0;transition:all .15s;}
+.tl-tick:hover{background:var(--jade-dim);}
+.tl-tick.done{background:var(--jade);color:var(--ink);border-color:var(--jade);}
+.tl-body{display:none;padding:0 14px 14px 54px;}
+.tl-block.open .tl-body{display:block;}
+.tl-detail{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:8px;}
+.tl-detail p{margin:0 0 5px;}
+.tl-science{font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.65;padding:7px 11px;background:var(--ink-1);border-radius:4px;border-left:2px solid var(--bd);margin-bottom:8px;}
+.tl-items{display:flex;flex-wrap:wrap;gap:5px;}
+.tl-item{background:var(--ink-1);border:1px solid var(--bd);border-radius:4px;padding:3px 9px;font-size:11px;font-weight:500;color:var(--dk-1);}
+.meal-inline{display:none;padding:10px 14px 14px 54px;background:var(--ink-1);border-top:1px solid var(--bd);}
+.tl-block.meal-open .meal-inline{display:block;}
+.tl-block.meal-open .tl-chev{transform:rotate(180deg);}
+.meal-actions{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
+.meal-btn{background:transparent;border:1px solid var(--bd);border-radius:14px;padding:4px 12px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all .1s;}
+.meal-btn:hover{border-color:var(--amber-br);color:var(--amber);}
+.meal-btn.pri{border-color:var(--amber-br);color:var(--amber);}
+.meal-btn.con{border-color:var(--jade-br);color:var(--jade);}
+.dev-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
+.dev-input{width:100%;background:var(--ink-2);border:1px solid var(--bd);border-radius:5px;padding:8px 11px;font-size:12px;font-family:var(--sans);color:var(--dk-1);outline:none;resize:none;line-height:1.4;transition:border-color .12s;}
+.dev-input:focus{border-color:rgba(0,200,160,.35);}
+.dev-input::placeholder{color:var(--dk-3);}
+.dev-send{margin-top:6px;background:var(--jade);border:none;color:var(--ink);border-radius:5px;padding:7px 14px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);}
+.dev-result{margin-top:7px;padding:8px 10px;background:var(--ink-2);border:1px solid var(--jade-br);border-radius:4px;font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.65;}
+.ri{background:var(--ink-2);border:1px solid var(--bd);border-radius:5px;overflow:hidden;margin-top:10px;}
+.ri-head{padding:10px 13px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.ri-name{font-size:13px;font-weight:500;color:var(--dk-1);}
+.ri-desc{font-size:10px;font-weight:300;color:var(--dk-3);}
+.ri-shuf{background:transparent;border:1px solid var(--amber-br);color:var(--amber);border-radius:12px;padding:3px 10px;font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);}
+.ri-macs{padding:9px 13px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:4px;}
+.ri-mr{display:grid;grid-template-columns:44px 1fr 30px;gap:6px;align-items:center;}
+.ri-ml{font-size:9px;font-weight:500;color:var(--dk-3);}
+.ri-mb{height:5px;background:var(--ink-1);border-radius:2px;overflow:hidden;}
+.ri-mf{height:100%;border-radius:2px;}
+.ri-mf.p{background:var(--jade);}
+.ri-mf.c{background:var(--amber);}
+.ri-mf.f{background:#5a7898;}
+.ri-mv{font-size:9px;font-family:var(--mono);color:var(--dk-3);text-align:right;}
+.ri-ings{padding:9px 13px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;gap:5px;}
+.ri-ing{background:var(--ink-1);border:1px solid var(--bd);border-radius:3px;padding:3px 8px;font-size:10px;}
+.ri-in{font-weight:400;color:var(--dk-1);}
+.ri-iq{font-weight:300;color:var(--dk-3);margin-left:3px;}
+.ri-meth{padding:9px 13px;font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.7;}
+.sp-overlay{display:none;position:fixed;inset:0;background:rgba(8,14,13,.7);z-index:200;}
+.sp-panel{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:96vw;background:var(--ink-1);border-left:1px solid var(--bd);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s cubic-bezier(.34,1.2,.64,1);}
+.sp-panel.open{transform:translateX(0);}
+.sp-hd{padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--ink-2);}
+.sp-title{font-size:13px;font-weight:600;color:var(--dk-1);}
+.sp-close{background:none;border:1px solid var(--bd);color:var(--dk-3);width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:14px;font-family:var(--sans);}
+.sp-body{flex:1;overflow-y:auto;padding:14px 18px;}
+.sp-body::-webkit-scrollbar{width:3px;}
+.sp-body::-webkit-scrollbar-thumb{background:var(--bd);}
+.lv-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--bd);}
+.lvt{padding:9px 6px;text-align:center;cursor:pointer;transition:background .1s;border-right:1px solid var(--bd);}
+.lvt:last-child{border-right:none;}
+.lvt.active{background:rgba(200,148,30,.05);}
+.lvt.yours{background:rgba(0,200,160,.04);}
+.lvt-name{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);margin-bottom:1px;}
+.lvt.active .lvt-name{color:var(--gold);}
+.lvt.yours .lvt-name{color:var(--jade);}
+.lvt-desc{font-size:9px;font-weight:300;color:var(--dk-3);}
+.ex-card{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;margin-bottom:7px;overflow:hidden;}
+.ex-hd{display:flex;align-items:center;gap:8px;padding:11px 13px;cursor:pointer;}
+.ex-card.open .ex-hd{border-bottom:1px solid var(--bd);background:var(--ink-1);}
+.ex-nm{flex:1;font-size:13px;font-weight:500;color:var(--dk-1);}
+.ex-sc{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--jade);}
+.ex-rpe{font-size:10px;color:var(--dk-3);background:var(--ink-1);padding:2px 7px;border-radius:7px;border:1px solid var(--bd);}
+.ex-cv{font-size:10px;color:var(--dk-3);transition:transform .15s;}
+.ex-card.open .ex-cv{transform:rotate(180deg);}
+.ex-bd{display:none;padding:11px 13px;}
+.ex-card.open .ex-bd{display:block;}
+.bench{background:var(--ink-1);border-radius:5px;padding:10px 12px;margin-bottom:9px;}
+.bench-lbl{font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
+.bench-vs{display:grid;grid-template-columns:1fr 1fr 1fr;font-family:var(--mono);font-size:12px;font-weight:600;margin-bottom:4px;}
+.bench-vs .you{color:var(--gold);font-size:14px;text-align:center;}
+.bench-tr{height:6px;background:var(--bd);border-radius:3px;position:relative;margin:7px 0 4px;}
+.bench-fi{height:100%;border-radius:3px;background:linear-gradient(90deg,rgba(200,148,30,.3),var(--gold));}
+.bench-mk{position:absolute;top:-5px;width:16px;height:16px;border-radius:50%;border:2px solid var(--gold);background:var(--ink);transform:translateX(-50%);}
+.bench-sc{display:grid;grid-template-columns:1fr 1fr 1fr;font-size:8px;color:var(--dk-3);}
+.bench-sc div:nth-child(2){text-align:center;}
+.bench-sc div:last-child{text-align:right;}
+.bench-nt{font-size:10px;font-weight:300;color:var(--dk-3);margin-top:5px;line-height:1.55;}
+.sets-g{display:flex;flex-direction:column;gap:4px;margin-bottom:9px;}
+.set-row{display:grid;grid-template-columns:32px 1fr;gap:7px;align-items:baseline;}
+.set-num{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--jade);}
+.set-det{font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.5;}
+.ex-rest{font-size:11px;font-weight:300;color:var(--dk-3);padding-top:6px;border-top:1px solid var(--bd);}
+.inj-nt{padding:6px 9px;background:rgba(200,148,30,.06);border:1px solid rgba(200,148,30,.2);border-radius:4px;font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.55;margin-bottom:7px;}
+.inj-nt span{color:var(--gold);font-weight:600;}
+.qz-hdr{padding:14px 18px;border-bottom:1px solid var(--bd);background:rgba(200,148,30,.04);}
+.qz-kick{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.qz-ttl{font-size:15px;font-weight:500;color:var(--dk-1);margin-bottom:2px;}
+.qz-sub{font-size:11px;font-weight:300;color:var(--dk-3);}
+.qz-prg{display:flex;gap:4px;padding:10px 18px;border-bottom:1px solid var(--bd);}
+.qp-d{flex:1;height:3px;background:var(--bd);border-radius:2px;transition:background .2s;}
+.qp-d.done{background:var(--gold);}
+.qp-d.curr{background:var(--jade);}
+.qz-body{padding:16px 18px;}
+.qz-q{font-size:14px;font-weight:500;color:var(--dk-1);margin-bottom:4px;line-height:1.4;}
+.qz-n{font-size:10px;font-weight:300;color:var(--dk-3);margin-bottom:12px;font-style:italic;}
+.qz-opts{display:flex;flex-direction:column;gap:7px;}
+.qz-opt{background:var(--ink-1);border:1px solid var(--bd);border-radius:6px;padding:10px 13px;cursor:pointer;transition:all .12s;}
+.qz-opt:hover{border-color:rgba(200,148,30,.35);}
+.qz-opt.sel{border-color:var(--gold);background:rgba(200,148,30,.05);}
+.qz-ol{font-size:13px;font-weight:500;color:var(--dk-1);margin-bottom:1px;}
+.qz-on{font-size:10px;font-weight:300;color:var(--dk-3);}
+.qz-nav{display:flex;gap:8px;margin-top:14px;}
+.qz-nxt{flex:1;background:var(--gold);border:none;color:var(--ink);border-radius:6px;padding:9px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);opacity:.4;transition:opacity .12s;}
+.qz-nxt.ready{opacity:1;}
+.qz-bk{background:transparent;border:1px solid var(--bd);color:var(--dk-3);border-radius:6px;padding:9px 13px;font-size:11px;cursor:pointer;font-family:var(--sans);}
+.rb-tr{height:8px;background:var(--bd);border-radius:4px;position:relative;margin:10px 0 5px;}
+.rb-fi{height:100%;border-radius:4px;background:linear-gradient(90deg,rgba(200,148,30,.3),var(--gold));}
+.rb-mk{position:absolute;top:-5px;width:17px;height:17px;border-radius:50%;border:2px solid var(--gold);background:var(--ink);transform:translateX(-50%);}
+.rb-sc{display:flex;justify-content:space-between;font-size:9px;color:var(--dk-3);}
+.ra-sv{flex:1;background:var(--jade);border:none;color:var(--ink);border-radius:6px;padding:10px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);}
+.ra-rd{background:transparent;border:1px solid var(--bd);color:var(--dk-3);border-radius:6px;padding:10px 13px;font-size:11px;cursor:pointer;font-family:var(--sans);}
+.ask-bar{margin-top:28px;}
+.ask-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.ask-chip{background:var(--ink-2);border:1px solid var(--bd);border-radius:18px;padding:5px 12px;font-size:11px;color:var(--dk-3);cursor:pointer;transition:all .1s;}
+.ask-chip:hover{border-color:var(--jade-br);color:var(--jade);}
+.ask-row{display:flex;gap:7px;}
+.ask-inp{flex:1;background:var(--ink-2);border:1px solid var(--bd);border-radius:7px;padding:9px 12px;font-size:13px;font-family:var(--sans);color:var(--dk-1);outline:none;transition:border-color .12s;}
+.ask-inp:focus{border-color:var(--jade-br);}
+.ask-inp::placeholder{color:var(--dk-3);}
+.ask-snd{width:36px;height:36px;background:var(--jade);border:none;border-radius:7px;cursor:pointer;color:var(--ink);font-size:16px;font-weight:700;flex-shrink:0;}
+.ask-ans{display:none;margin-top:10px;padding:12px 14px;background:var(--ink-2);border:1px solid var(--bd);border-left:3px solid var(--jade);border-radius:0 6px 6px 0;font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;}
+.ask-ans p{margin:0 0 7px;}
+.ask-ans p:last-child{margin:0;}
+.regen-btn{background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:6px 14px;border-radius:14px;font-size:10px;font-weight:600;letter-spacing:.04em;cursor:pointer;font-family:var(--sans);margin-top:16px;transition:all .12s;}
+.regen-btn:hover{border-color:var(--jade-br);color:var(--jade);}
+@media(max-width:600px){
+  .day-page,.week-strip,.macro-bar{padding-left:16px;padding-right:16px;}
+  .sp-panel{width:100vw;}
+  .macro-tiles{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+
 <script src="nav.js"></script>
 <script>
-// ════════════════════════════════════════════════════════
-//  bodylens-dailyplan.html  v4
-//  Right-side panel · Macro cup · Deviation logging
-//  Week strip · Programme week indicator
-// ════════════════════════════════════════════════════════
+'use strict';
+// BodyLens Daily Plan v5 — clean rebuild
+var API   = '/api/chat';
+var MODEL = 'claude-sonnet-4-20250514';
+var P=null, TODAY=null, MACROS=null;
+var _recipes={}, _rDate=new Date().toISOString().slice(0,10);
 
-const API   = '/api/chat';
-const MODEL = 'claude-sonnet-4-20250514';
+function _rKey(s){return 'bl_recipe_'+s+'_'+_rDate;}
+function _rLoad(){['pre-training','post-training','midday','afternoon','evening'].forEach(function(s){try{var r=localStorage.getItem(_rKey(s));if(r)_recipes[s]=JSON.parse(r);}catch(e){}});}
+function _rSave(s,r){_recipes[s]=r;try{localStorage.setItem(_rKey(s),JSON.stringify(r));}catch(e){}}
+function _rBust(s){delete _recipes[s];try{localStorage.removeItem(_rKey(s));}catch(e){}}
 
-// ── 1. LOAD PROFILE ───────────────────────────────────
-function loadProfile() {
-  try { return JSON.parse(localStorage.getItem('bl_profile') || 'null'); }
-  catch(e) { return null; }
+function loadProfile(){try{return JSON.parse(localStorage.getItem('bl_profile')||'null');}catch(e){return null;}}
+
+function getTodayCtx(p){
+  var N=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var M={0:6,1:0,2:1,3:2,4:3,5:4,6:5};
+  var i=M[new Date().getDay()];
+  var plan=(p.weekPlan||[])[i]||{type:'Rest',focus:'Recovery',priority:'rest'};
+  return {idx:i,name:N[i],plan:plan,isTraining:plan.priority==='training',
+    cacheKey:'dayplan_v5_'+_rDate,DAY_NAMES:N};
 }
 
-// ── 2. TODAY CONTEXT ──────────────────────────────────
-function getTodayContext(profile) {
-  const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const DAY_MAP   = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
-  const idx       = DAY_MAP[new Date().getDay()];
-  const name      = DAY_NAMES[idx];
-  const plan      = (profile.weekPlan || [])[idx] || { type:'Rest', focus:'Recovery', priority:'rest' };
-  const isTraining = plan.priority === 'training';
-  const cacheKey  = 'dayplan_v4_' + new Date().toISOString().slice(0, 10);
-  return { idx, name, plan, isTraining, cacheKey, DAY_NAMES };
+function initMacros(p,t){
+  var k='bl_macros_'+_rDate;
+  try{var r=localStorage.getItem(k);if(r){MACROS=JSON.parse(r);return;}}catch(e){}
+  var kcal=t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91);
+  MACROS={target:{kcal:kcal,prot:p.protein||140,carbs:p.carbs||160,fat:p.fat||60},eaten:{kcal:0,prot:0,carbs:0,fat:0},meals:{}};
+  saveMacros();
+}
+function saveMacros(){try{localStorage.setItem('bl_macros_'+_rDate,JSON.stringify(MACROS));}catch(e){}}
+function logMealMacros(slot,m){
+  MACROS.meals[slot]=m;
+  MACROS.eaten={kcal:0,prot:0,carbs:0,fat:0};
+  Object.values(MACROS.meals).forEach(function(x){if(x&&x.logged){MACROS.eaten.kcal+=x.kcal||0;MACROS.eaten.prot+=x.prot||0;MACROS.eaten.carbs+=x.carbs||0;MACROS.eaten.fat+=x.fat||0;}});
+  saveMacros();updateMacroBar();adjustRemaining();
+}
+function updateMacroBar(){
+  var bar=document.getElementById('macro-bar');
+  if(!bar||!MACROS)return;
+  bar.style.display='flex';
+  var t=MACROS.target,e=MACROS.eaten;
+  function pct(v,mx){return Math.min(100,Math.round(v/Math.max(1,mx)*100));}
+  var left=t.kcal-e.kcal;
+  var cls=left>150?'j':left<-100?'':' ';
+  bar.innerHTML='<div class="mb-group"><div class="mb-label">Protein</div><div class="mb-track"><div class="mb-fill p" style="width:'+pct(e.prot,t.prot)+'%"></div></div><div class="mb-val">'+e.prot+'g</div></div>'
+    +'<div class="mb-group"><div class="mb-label">Carbs</div><div class="mb-track"><div class="mb-fill c" style="width:'+pct(e.carbs,t.carbs)+'%"></div></div><div class="mb-val">'+e.carbs+'g</div></div>'
+    +'<div class="mb-group"><div class="mb-label">Fat</div><div class="mb-track"><div class="mb-fill f" style="width:'+pct(e.fat,t.fat)+'%"></div></div><div class="mb-val">'+e.fat+'g</div></div>'
+    +'<div class="mb-kcal tl-tag '+cls+'">'+(left>0?left+' left':Math.abs(left)+' over')+'</div>';
+}
+function adjustRemaining(){
+  if(!MACROS||!window._blocks)return;
+  var t=MACROS.target,e=MACROS.eaten;
+  var rem={prot:t.prot-e.prot,kcal:t.kcal-e.kcal};
+  var ul=window._blocks.filter(function(b){return b.mealSlot&&!(MACROS.meals[b.mealSlot]&&MACROS.meals[b.mealSlot].logged);});
+  if(!ul.length)return;
+  var pp=Math.round(Math.max(0,rem.prot)/ul.length);
+  var kk=Math.round(Math.max(0,rem.kcal)/ul.length);
+  ul.forEach(function(b){var el=document.getElementById('sub-'+b.mealSlot);if(el&&pp>0){el.textContent='Adjusted: '+pp+'g P \u00b7 '+kk+' kcal';el.style.color='var(--amber)';}});
 }
 
-// ── 3. BUILD PLAN FROM PROFILE ────────────────────────
+
+const STRENGTH_STANDARDS = {
+  'bench press':    { m:[0.5,1.0,1.5],   f:[0.25,0.6,1.0] },
+  'squat':          { m:[0.75,1.25,1.75], f:[0.5,1.0,1.5] },
+  'deadlift':       { m:[1.0,1.5,2.0],   f:[0.75,1.25,1.75] },
+  'overhead press': { m:[0.3,0.65,1.0],  f:[0.15,0.4,0.65] },
+  'ohp':            { m:[0.3,0.65,1.0],  f:[0.15,0.4,0.65] },
+  'row':            { m:[0.5,0.9,1.3],   f:[0.3,0.6,0.9] },
+  'barbell row':    { m:[0.5,0.9,1.3],   f:[0.3,0.6,0.9] },
+  'pull-up':        { m:[0,0.2,0.5],     f:[0,0.1,0.35] },
+  'pull up':        { m:[0,0.2,0.5],     f:[0,0.1,0.35] },
+  'romanian deadlift':{ m:[0.7,1.1,1.6], f:[0.5,0.8,1.2] },
+  'rdl':            { m:[0.7,1.1,1.6],   f:[0.5,0.8,1.2] },
+  'hip thrust':     { m:[0.9,1.4,1.9],   f:[0.7,1.2,1.7] },
+  'lateral raise':  { m:[0.06,0.12,0.2], f:[0.04,0.08,0.14] },
+  'bicep curl':     { m:[0.2,0.4,0.6],   f:[0.1,0.2,0.4] },
+  'tricep':         { m:[0.15,0.35,0.55],f:[0.08,0.2,0.35] },
+  'leg press':      { m:[1.5,2.5,3.5],   f:[1.0,1.8,2.6] },
+  'leg curl':       { m:[0.3,0.55,0.8],  f:[0.2,0.4,0.65] },
+  'calf raise':     { m:[0.8,1.4,2.0],   f:[0.6,1.0,1.5] },
+};
+
+function getStandard(name, weight, isFemale, age) {
+  const n = name.toLowerCase();
+  let std = null;
+  for (const [key, val] of Object.entries(STRENGTH_STANDARDS)) {
+    if (n.includes(key)) { std = val; break; }
+  }
+  if (!std) return null;
+  const ageFactor = age < 30 ? 0.95 : age < 40 ? 1.0 : age < 50 ? 0.93 : age < 60 ? 0.85 : 0.78;
+  const m = isFemale ? std.f : std.m;
+  return {
+    beginner:     Math.round(m[0] * weight * ageFactor),
+    intermediate: Math.round(m[1] * weight * ageFactor),
+    advanced:     Math.round(m[2] * weight * ageFactor),
+  };
+}
+function getAgeNote(age, isFemale) {
+  if (age < 35) return 'Prime neurological adaptation phase. Technique investment now compounds.';
+  if (age < 45) return `At ${age}, recovery takes 72h for heavy sessions. Strength response unchanged — the timeline isn't.`;
+  if (age < 55) return `At ${age}, progressive overload works identically. Deloads matter more. Sleep is the primary recovery lever.`;
+  return `At ${age}, the training stimulus is as effective as ever. ${isFemale ? 'Resistance training is protecting bone density as oestrogen shifts.' : 'GH pulses are smaller — sleep quality is the biggest lever.'}`;
+}
+function parseExercise(str) {
+  const m = str.match(/(\d+)\s*[xX×]\s*([\d\-]+)/);
+  const name = str.replace(/\d+\s*[xX×]\s*[\d\-]+.*/, '').trim();
+  return { name, raw:str, sets: m ? parseInt(m[1]) : 3, reps: m ? m[2] : '8-12', schema: m ? m[0] : '3×8-12' };
+}
+
+
+
 function buildPlan(profile, today) {
   const p = profile;
   const { name, plan, isTraining } = today;
@@ -715,1264 +624,628 @@ function buildPlan(profile, today) {
   };
 }
 
-
-// ── STRENGTH BENCHMARKS ───────────────────────────────
-const STRENGTH_STANDARDS = {
-  'bench press':    { m:[0.5,1.0,1.5],   f:[0.25,0.6,1.0] },
-  'squat':          { m:[0.75,1.25,1.75], f:[0.5,1.0,1.5] },
-  'deadlift':       { m:[1.0,1.5,2.0],   f:[0.75,1.25,1.75] },
-  'overhead press': { m:[0.3,0.65,1.0],  f:[0.15,0.4,0.65] },
-  'ohp':            { m:[0.3,0.65,1.0],  f:[0.15,0.4,0.65] },
-  'row':            { m:[0.5,0.9,1.3],   f:[0.3,0.6,0.9] },
-  'barbell row':    { m:[0.5,0.9,1.3],   f:[0.3,0.6,0.9] },
-  'pull-up':        { m:[0,0.2,0.5],     f:[0,0.1,0.35] },
-  'pull up':        { m:[0,0.2,0.5],     f:[0,0.1,0.35] },
-  'romanian deadlift':{ m:[0.7,1.1,1.6], f:[0.5,0.8,1.2] },
-  'rdl':            { m:[0.7,1.1,1.6],   f:[0.5,0.8,1.2] },
-  'hip thrust':     { m:[0.9,1.4,1.9],   f:[0.7,1.2,1.7] },
-  'lateral raise':  { m:[0.06,0.12,0.2], f:[0.04,0.08,0.14] },
-  'bicep curl':     { m:[0.2,0.4,0.6],   f:[0.1,0.2,0.4] },
-  'tricep':         { m:[0.15,0.35,0.55],f:[0.08,0.2,0.35] },
-  'leg press':      { m:[1.5,2.5,3.5],   f:[1.0,1.8,2.6] },
-  'leg curl':       { m:[0.3,0.55,0.8],  f:[0.2,0.4,0.65] },
-  'calf raise':     { m:[0.8,1.4,2.0],   f:[0.6,1.0,1.5] },
-};
-
-function getStandard(name, weight, isFemale, age) {
-  const n = name.toLowerCase();
-  let std = null;
-  for (const [key, val] of Object.entries(STRENGTH_STANDARDS)) {
-    if (n.includes(key)) { std = val; break; }
-  }
-  if (!std) return null;
-  const ageFactor = age < 30 ? 0.95 : age < 40 ? 1.0 : age < 50 ? 0.93 : age < 60 ? 0.85 : 0.78;
-  const m = isFemale ? std.f : std.m;
-  return {
-    beginner:     Math.round(m[0] * weight * ageFactor),
-    intermediate: Math.round(m[1] * weight * ageFactor),
-    advanced:     Math.round(m[2] * weight * ageFactor),
-  };
-}
-function getAgeNote(age, isFemale) {
-  if (age < 35) return 'Prime neurological adaptation phase. Technique investment now compounds.';
-  if (age < 45) return `At ${age}, recovery takes 72h for heavy sessions. Strength response unchanged — the timeline isn't.`;
-  if (age < 55) return `At ${age}, progressive overload works identically. Deloads matter more. Sleep is the primary recovery lever.`;
-  return `At ${age}, the training stimulus is as effective as ever. ${isFemale ? 'Resistance training is protecting bone density as oestrogen shifts.' : 'GH pulses are smaller — sleep quality is the biggest lever.'}`;
-}
-function parseExercise(str) {
-  const m = str.match(/(\d+)\s*[xX×]\s*([\d\-]+)/);
-  const name = str.replace(/\d+\s*[xX×]\s*[\d\-]+.*/, '').trim();
-  return { name, raw:str, sets: m ? parseInt(m[1]) : 3, reps: m ? m[2] : '8-12', schema: m ? m[0] : '3×8-12' };
-}
-
-// ── MACRO TRACKING STATE ──────────────────────────────
-const MACRO_KEY = 'bl_macros_' + new Date().toISOString().slice(0,10);
-let _macroState = (() => {
-  try { return JSON.parse(localStorage.getItem(MACRO_KEY) || 'null'); }
-  catch(e) { return null; }
-})();
-
-function saveMacroState() {
-  try { localStorage.setItem(MACRO_KEY, JSON.stringify(_macroState)); } catch(e) {}
-}
-
-function initMacroState(profile, today) {
-  if (_macroState) return; // already exists for today
-  const kcal  = today.isTraining ? (today.plan.kcal || profile.calories || 2000) : Math.round((profile.calories||2000)*0.91);
-  _macroState = {
-    target: { kcal, prot: profile.protein||140, carbs: profile.carbs||160, fat: profile.fat||60 },
-    eaten:  { kcal:0, prot:0, carbs:0, fat:0 },
-    meals:  {} // mealSlot -> { eaten:bool, prot, carbs, fat, kcal }
-  };
-  saveMacroState();
-}
-
-function getMacroCupHTML() {
-  if (!_macroState) return '';
-  const { target, eaten } = _macroState;
-  const remaining = {
-    kcal:  target.kcal  - eaten.kcal,
-    prot:  target.prot  - eaten.prot,
-    carbs: target.carbs - eaten.carbs,
-    fat:   target.fat   - eaten.fat,
-  };
-  function pct(val, max) { return Math.min(100, Math.round((val/Math.max(1,max))*100)); }
-  function rowHTML(name, val, max, cls) {
-    const p = pct(val, max);
-    const over = val > max;
-    return `<div class="mc-row">
-      <div class="mc-name">${name}</div>
-      <div class="mc-bar-wrap">
-        <div class="mc-bar-bg"></div>
-        <div class="mc-bar-fill ${cls} ${over?'over':''}" style="width:${p}%"></div>
-      </div>
-      <div class="mc-val">${val}${name==='Calories'?'':'g'}</div>
-    </div>`;
-  }
-  const kcalLeft = remaining.kcal;
-  return `<div class="macro-cup">
-    <div class="mc-header">
-      <div class="mc-title">Macro cup — today</div>
-      <div class="mc-remaining"><span class="kcal-left">${kcalLeft > 0 ? kcalLeft + ' kcal left' : Math.abs(kcalLeft) + ' kcal over'}</span></div>
-    </div>
-    <div class="mc-rows">
-      ${rowHTML('Calories', eaten.kcal, target.kcal, 'kcal')}
-      ${rowHTML('Protein',  eaten.prot,  target.prot,  'prot')}
-      ${rowHTML('Carbs',    eaten.carbs, target.carbs, 'carb')}
-      ${rowHTML('Fat',      eaten.fat,   target.fat,   'fat')}
-    </div>
-  </div>`;
-}
-
-function refreshMacroCup() {
-  const cup = document.getElementById('macro-cup');
-  if (cup) cup.outerHTML = getMacroCupHTML();
-  // Re-attach id
-  const newCup = document.querySelector('.macro-cup');
-  if (newCup) newCup.id = 'macro-cup';
-}
-
-// ── WEEK PROGRAMME CONTEXT ────────────────────────────
-function getWeekProgrammeContext(profile) {
-  const startDate = profile.generatedAt ? new Date(profile.generatedAt) : new Date();
-  const now = new Date();
-  const daysDiff = Math.floor((now - startDate) / (1000*60*60*24));
-  const weekNum = Math.min(4, Math.floor(daysDiff / 7) + 1);
-  const phases = ['Foundation', 'Build', 'Peak', 'Deload'];
-  const phase = phases[Math.min(3, weekNum-1)];
-  return { weekNum, phase, totalWeeks: 4 };
-}
-
-// ── WEEK STRIP ────────────────────────────────────────
-function renderWeekStrip(profile, today) {
-  const strip = document.getElementById('week-strip');
-  if (!strip) return;
-  const { DAY_NAMES } = today;
-  strip.innerHTML = DAY_NAMES.map((name, i) => {
-    const plan = (profile.weekPlan||[])[i] || {type:'Rest',priority:'rest'};
-    const isTrain = plan.priority === 'training';
-    const isToday = i === today.idx;
-    return `<div class="ws-day ${isTrain?'train':'rest'} ${isToday?'today':''}" onclick="jumpToDay(${i})">
-      <div class="ws-day-name">${name.slice(0,3)}</div>
-      <div class="ws-day-type">${plan.type||'Rest'}</div>
-      <div class="ws-day-dot"></div>
-    </div>`;
+// ── Week strip ────────────────────────────────────
+function renderWeekStrip(p,t){
+  var el=document.getElementById('week-strip');
+  if(!el)return;
+  el.innerHTML=t.DAY_NAMES.map(function(n,i){
+    var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
+    var isTr=dp.priority==='training';
+    var isToday=i===t.idx;
+    return '<div class="ws-day '+(isTr?'train':'rest')+' '+(isToday?'today':'')+'" onclick="jumpDay('+i+')">'
+      +'<div class="ws-day-name">'+n.slice(0,3)+'</div>'
+      +'<div class="ws-day-type">'+(dp.type||'Rest')+'</div>'
+      +'</div>';
   }).join('');
 }
+function jumpDay(i){
+  var p=P,t=TODAY;
+  if(!p||!t)return;
+  var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
+  openSession(t.DAY_NAMES[i]+' \u2014 '+dp.type,
+    '<div style="padding:8px 0;">'
+    +'<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:10px;">'+(dp.coachNote||'')+'</div>'
+    +(dp.keyExercises&&dp.keyExercises.length?'<div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Key exercises</div>'
+      +dp.keyExercises.map(function(e){return '<div style="padding:5px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--dk-1);">'+e+'</div>';}).join(''):'')
+    +'</div>');
+  document.querySelectorAll('.ws-day').forEach(function(el,j){el.classList.toggle('active',j===i);});
+}
 
-function jumpToDay(idx) {
-  // For non-today days just show a tooltip — full nav would reload the page
-  const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const plan = (_profile.weekPlan||[])[idx] || {type:'Rest',focus:'Recovery',priority:'rest'};
-  showRightPanel(
-    DAY_NAMES[idx] + ' — ' + (plan.type||'Rest'),
-    plan.focus || 'Recovery',
-    `<div style="padding:8px 0;">
-      <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:12px;">
-        ${plan.coachNote || ('A ' + (plan.priority==='training'?'training':'rest') + ' day in your programme.')}
-      </div>
-      ${(plan.keyExercises||[]).length ? `
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Key exercises</div>
-        ${(plan.keyExercises||[]).map(e=>`<div style="padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--dk-1);">${e}</div>`).join('')}` : ''}
-    </div>`
+// ── Week tabs ─────────────────────────────────────
+function renderWeekTabs(p,prog){
+  var wp=p.weeklyProgression;
+  if(!wp)return '';
+  var tabs=['week1','week2','week3','week4'].map(function(wk,i){
+    var w=wp[wk]; if(!w)return '';
+    var n=i+1,isDone=n<prog.weekNum,isCur=n===prog.weekNum;
+    return '<div class="wt '+(isCur?'active':isDone?'done':'')+'" onclick="showWeekDetail(\''+wk+'\')">'
+      +'<div class="wt-num">W'+n+(isDone?' &#10003;':'')+'</div>'
+      +'<div class="wt-phase">'+w.phase+'</div>'
+      +'<div class="wt-note">'+(w.keyFocus||w.volumeNote||'').slice(0,40)+'</div>'
+      +'</div>';
+  }).join('');
+  return '<div class="week-tabs">'+tabs+'</div><div class="week-detail" id="week-detail"></div>';
+}
+function showWeekDetail(wk){
+  var wp=P&&P.weeklyProgression; if(!wp||!wp[wk])return;
+  var w=wp[wk];
+  var el=document.getElementById('week-detail'); if(!el)return;
+  var isOpen=el.classList.contains('open')&&el.dataset.wk===wk;
+  el.classList.toggle('open',!isOpen);
+  if(!isOpen){
+    el.dataset.wk=wk;
+    el.innerHTML='<div class="wd-phase">'+w.phase+'</div>'
+      +'<div class="wd-focus">'+w.focus+'</div>'
+      +'<div class="wd-note">'+w.volumeNote+(w.keyFocus?'<br><em style="color:var(--dk-3);">'+w.keyFocus+'</em>':'')+'</div>';
+  }
+}
+
+// ── Programme week context ────────────────────────
+function getProgCtx(p){
+  var start=p.generatedAt?new Date(p.generatedAt):new Date();
+  var days=Math.floor((new Date()-start)/(1000*60*60*24));
+  var wk=Math.min(4,Math.floor(days/7)+1);
+  var phases=['Foundation','Build','Peak','Deload'];
+  return {weekNum:wk,phase:phases[wk-1],totalWeeks:4};
+}
+
+// ── Accelerator ───────────────────────────────────
+function pickAcc(p,t){
+  var g=(p.goal||'').toLowerCase(),age=p.age||35;
+  if(!t.isTraining)return{name:'NSDR — 20 minutes today',why:'Rest day. 20 min yoga nidra raises dopamine 65% and restores focus as well as 90 min of sleep.',url:'bodylens-accelerators.html'};
+  if(g.includes('fat')||g.includes('los'))return{name:'NEAT target: +3,000 steps',why:'Easiest caloric deficit available. 3,000 extra steps \u2248 150 kcal without touching food or training.',url:'bodylens-accelerators.html'};
+  if(age>=40)return{name:'Zone 2 cardio \u2014 20 min today',why:'At '+age+', VO\u2082max is the primary longevity lever. 20 min at conversational pace.',url:'bodylens-accelerators.html'};
+  return{name:'Post-training walk \u2014 10 minutes',why:'10 min after your session drops glucose 20-30% and keeps GLP-1 elevated.',url:'bodylens-accelerators.html'};
+}
+
+// ── Session panel ─────────────────────────────────
+function openSession(title, bodyHtml){
+  document.getElementById('sp-title').textContent=title;
+  document.getElementById('sp-body').innerHTML=bodyHtml;
+  document.getElementById('sp-overlay').style.display='block';
+  document.getElementById('sp-panel').classList.add('open');
+}
+function closeSession(){
+  document.getElementById('sp-overlay').style.display='none';
+  document.getElementById('sp-panel').classList.remove('open');
+}
+
+// ── Session view with level tabs ──────────────────
+var LEVEL_SCHEMES={
+  beginner:    {label:'Beginner',     rpeTarget:'RPE 6-7', rpeNote:'Leave 3+ reps in the tank. Technique is the priority.',  rest:'2-3 min'},
+  intermediate:{label:'Intermediate', rpeTarget:'RPE 7-8', rpeNote:'1-2 reps in the tank. Challenged but in control.',        rest:'90 sec-2 min'},
+  advanced:    {label:'Advanced',     rpeTarget:'RPE 8-9', rpeNote:'1 rep from failure on top sets. Full warm-up essential.',  rest:'60-90 sec'},
+};
+
+function showSession(blockIdx, block){
+  var p=P;
+  var isFemale=(p.sex||'').toLowerCase()==='female';
+  var age=p.age||35,weight=p.weight||75;
+  var injuries=p.injuryAssessments||p.injuries||[];
+  var tier=p.fitnessLevelTier||'intermediate';
+  var level=p.fitnessLevel!==undefined?Math.round(p.fitnessLevel*100):50;
+  var progCtx=getProgCtx(p);
+  var wp=p.weeklyProgression;
+  var wkKey='week'+progCtx.weekNum;
+  var weekNote=wp&&wp[wkKey]?wp[wkKey].focus:'';
+  var exercises=(block.items||[]).filter(function(e){return e.name!=='Track loads';});
+
+  function buildExCards(tier){
+    var scheme=LEVEL_SCHEMES[tier]||LEVEL_SCHEMES.intermediate;
+    return exercises.map(function(ex,i){
+      var parsed=parseExercise(ex.name);
+      var std=getStandard(parsed.name,weight,isFemale,age);
+      var injMatch=injuries.find(function(inj){
+        return ['knee','back','shoulder','hip','elbow'].some(function(j){
+          return (inj.location||'').toLowerCase().includes(j)&&parsed.name.toLowerCase().includes(j.slice(0,4));
+        });
+      });
+      var reps=parseInt((parsed.reps||'10').split('-')[0]);
+      var rpe=tier==='beginner'?'6-7':tier==='advanced'?'8-9':'7-8';
+      var setsCount=tier==='beginner'?3:tier==='advanced'?parsed.sets+1:parsed.sets;
+      var markerPct=Math.min(95,Math.max(5,level));
+
+      var benchHtml='';
+      if(std){
+        benchHtml='<div class="bench">'
+          +'<div class="bench-lbl">'+age+'yr '+(isFemale?'female':'male')+' \u00b7 '+weight+'kg \u00b7 age-adjusted</div>'
+          +'<div class="bench-vs"><div>'+std.beginner+'kg</div><div class="you">'+std.intermediate+'kg</div><div style="text-align:right">'+std.advanced+'kg</div></div>'
+          +'<div class="bench-tr"><div class="bench-fi" style="width:'+markerPct+'%"></div><div class="bench-mk" style="left:'+markerPct+'%"></div></div>'
+          +'<div class="bench-sc"><div>Beginner</div><div>You ('+(p.fitnessLevelLabel||'est.')+')</div><div>Advanced</div></div>'
+          +'<div class="bench-nt">'+getAgeNote(age,isFemale)+'</div>'
+          +'</div>';
+      }
+      var sets=[];
+      for(var s=1;s<=setsCount;s++){
+        var isLast=s===setsCount;
+        var det=s===1?'Warm-up: \u221220% load, lock in technique':isLast?('Working set: '+rpe+' \u2014 '+parsed.reps+' reps'):'Build set: increase load';
+        sets.push('<div class="set-row"><div class="set-num">S'+s+'</div><div class="set-det">'+det+'</div></div>');
+      }
+      return '<div class="ex-card" id="exc-'+i+'">'
+        +'<div class="ex-hd" onclick="document.getElementById(\'exc-'+i+'\').classList.toggle(\'open\')">'
+        +'<div class="ex-nm">'+parsed.name+'</div>'
+        +'<div class="ex-sc">'+setsCount+'\u00d7'+parsed.reps+'</div>'
+        +'<div class="ex-rpe">'+scheme.rpeTarget+'</div>'
+        +'<span class="ex-cv">\u25be</span></div>'
+        +'<div class="ex-bd">'
+        +(injMatch?'<div class="inj-nt"><span>\u26a0 '+injMatch.location+':</span> '+(injMatch.safeAlternatives||[]).slice(0,2).join(', ')||'Reduced ROM only'+'</div>':'')
+        +benchHtml
+        +'<div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;">Set guide</div>'
+        +'<div class="sets-g">'+sets.join('')+'</div>'
+        +'<div class="ex-rest">Rest: '+scheme.rest+' \u00b7 '+scheme.rpeNote+'</div>'
+        +'</div></div>';
+    }).join('');
+  }
+
+  var hasLevel=p.fitnessLevel!==undefined;
+  if(!hasLevel){showQuiz(blockIdx,block);return;}
+
+  window._buildExCards=buildExCards;
+  window._sessionBlockIdx=blockIdx;
+
+  var tierOrder=['beginner','intermediate','advanced'];
+  var levelTabs=tierOrder.map(function(t){
+    var s=LEVEL_SCHEMES[t];
+    var isYours=t===tier;
+    return '<div class="lvt '+(t===tier?'active':'')+' '+(isYours?'yours':'')+'" onclick="switchLevel(\''+t+'\')">'
+      +'<div class="lvt-name">'+(isYours?'\u25b8 ':'')+s.label+'</div>'
+      +'<div class="lvt-desc">'+s.rpeTarget+'</div>'
+      +'</div>';
+  }).join('');
+
+  var progHtml=weekNote?'<div style="font-size:11px;font-weight:300;color:var(--dk-2);padding:9px 18px;border-bottom:1px solid var(--bd);background:rgba(0,200,160,0.03);"><strong style="color:var(--jade);">Week '+progCtx.weekNum+' \u2014 '+progCtx.phase+':</strong> '+weekNote+'</div>':'';
+  var retakeHtml='<div style="padding:7px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;">'
+    +'<div style="font-size:10px;font-weight:300;color:var(--dk-3);">Level: <strong style="color:var(--gold);">'+(p.fitnessLevelLabel||'Intermediate')+'</strong></div>'
+    +'<button style="background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;text-decoration:underline;" onclick="showQuiz('+blockIdx+',window._blocks['+blockIdx+'])">Retake assessment</button>'
+    +'</div>';
+
+  openSession(block.title,
+    '<div class="lv-tabs">'+levelTabs+'</div>'
+    +progHtml+retakeHtml
+    +'<div id="session-ex-cards" style="padding:14px 0;">'+buildExCards(tier)+'</div>'
   );
-  document.querySelectorAll('.ws-day').forEach((el,i) => el.classList.toggle('selected', i===idx));
+}
+function switchLevel(tier){
+  var cards=document.getElementById('session-ex-cards');
+  if(cards&&window._buildExCards)cards.innerHTML=window._buildExCards(tier);
+  document.querySelectorAll('.lvt').forEach(function(el,i){
+    var t=['beginner','intermediate','advanced'][i];
+    el.classList.toggle('active',t===tier);
+    el.classList.toggle('yours',t===(P.fitnessLevelTier||'intermediate'));
+  });
 }
 
-// ── RIGHT PANEL CONTROL ───────────────────────────────
-function showRightPanel(title, sub, html) {
-  document.getElementById('rph-title').textContent = title;
-  document.getElementById('rph-sub').textContent   = sub;
-  document.getElementById('rpb').innerHTML = html;
-  // Mobile: open
-  document.getElementById('day-right').classList.add('open');
+// ── Quiz ──────────────────────────────────────────
+var QQ=[
+  {q:'How many full press-ups can you do?',n:'Chest to floor, full extension.',opts:[
+    {l:'0-5',  n:'Just getting started',score:0.10},
+    {l:'6-15', n:'Building a solid base',score:0.30},
+    {l:'16-25',n:'Good upper body endurance',score:0.55},
+    {l:'25+',  n:'Strong relative bodyweight',score:0.75}]},
+  {q:'Pull-ups with full range?',n:'Dead hang to chin over bar. Zero is normal.',opts:[
+    {l:'None', n:'Very common',score:0.10},
+    {l:'1-4',  n:'Building pulling strength',score:0.30},
+    {l:'5-10', n:'Solid pulling foundation',score:0.55},
+    {l:'10+',  n:'Strong relative bodyweight',score:0.78}]},
+  {q:'Squat or leg press working weight?',n:'Working sets, not max. Machine totals count.',opts:[
+    {l:'Never / machines only',n:'Completely fine',score:0.15},
+    {l:'Under bodyweight',     n:'Building leg strength',score:0.28},
+    {l:'Bodyweight to 1.5x',   n:'Solid lower body',score:0.52},
+    {l:'1.5x BW and beyond',   n:'Strong leg pattern',score:0.78}]},
+  {q:'How do you feel the day after a hard session?',n:'Recovery speed reflects your training age.',opts:[
+    {l:'Very sore for 2-3 days',           n:'Normal early on',score:-0.05},
+    {l:'Sore next day, fine by day 2',     n:'Typical intermediate',score:0.00},
+    {l:'Mildly sore, back next session',   n:'Well adapted',score:0.07},
+    {l:'Rarely very sore',                 n:'High training age',score:0.12}]},
+  {q:'Training consistency last 3 months?',n:'Honest answer calibrates difficulty.',opts:[
+    {l:'Just getting back into it',     n:'Starting fresh',score:0.00},
+    {l:'1-2 sessions a week, sporadic', n:'Building the habit',score:0.05},
+    {l:'3+ sessions, fairly consistent',n:'Established routine',score:0.12},
+    {l:'4+ sessions, rarely miss',      n:'High training age',score:0.18}]}
+];
+var _qA=[],_qI=0,_qBI=0;
+function getLevelResult(score){
+  if(score<0.25)return{label:'Beginner',           tier:'beginner',   desc:'Programme focuses on patterns and capacity. Loads conservative \u2014 technique first.'};
+  if(score<0.42)return{label:'Low-intermediate',   tier:'intermediate',desc:'You have the basics. Lifts established, loads building.'};
+  if(score<0.60)return{label:'Intermediate',       tier:'intermediate',desc:'Solid base. Proper periodisation applied.'};
+  if(score<0.75)return{label:'Upper-intermediate', tier:'advanced',    desc:'Strong foundation with real training history.'};
+  return            {label:'Advanced',             tier:'advanced',    desc:"You've been doing this a while. High intensity, good technique."};
+}
+function showQuiz(blockIdx,block){
+  _qA=[];_qI=0;_qBI=blockIdx;
+  renderQuiz();
+}
+function renderQuiz(){
+  var q=QQ[_qI],total=QQ.length,hasAns=!!_qA[_qI],isLast=_qI===total-1;
+  var dots=QQ.map(function(_,i){return '<div class="qp-d '+(i<_qI?'done':i===_qI?'curr':'')+'"></div>';}).join('');
+  var opts=q.opts.map(function(o,i){
+    return '<div class="qz-opt '+(_qA[_qI]===o?'sel':'')+'" onclick="qzSel('+i+')">'
+      +'<div class="qz-ol">'+o.l+'</div><div class="qz-on">'+o.n+'</div></div>';
+  }).join('');
+  openSession('Strength assessment',
+    '<div class="qz-hdr"><div class="qz-kick">One-time \u00b7 Q'+(_qI+1)+' of '+total+'</div>'
+    +'<div class="qz-ttl">Where are you right now?</div>'
+    +'<div class="qz-sub">5 questions. Sets your benchmark marker on every exercise.</div></div>'
+    +'<div class="qz-prg">'+dots+'</div>'
+    +'<div class="qz-body"><div class="qz-q">'+q.q+'</div><div class="qz-n">'+q.n+'</div>'
+    +'<div class="qz-opts">'+opts+'</div>'
+    +'<div class="qz-nav">'
+    +(_qI>0?'<button class="qz-bk" onclick="qzBack()">\u2190 Back</button>':'')
+    +'<button class="qz-nxt'+(hasAns?' ready':'')+'" id="qz-nxt" onclick="'+(hasAns?(isLast?'qzFinish()':'qzNext()'):'')+'">'+( isLast?'See my level \u2192':'Next \u2192')+'</button>'
+    +'</div></div>');
+}
+function qzSel(i){
+  _qA[_qI]=QQ[_qI].opts[i];
+  document.querySelectorAll('.qz-opt').forEach(function(el,j){el.classList.toggle('sel',j===i);});
+  var btn=document.getElementById('qz-nxt');
+  if(btn){btn.classList.add('ready');btn.setAttribute('onclick',_qI===QQ.length-1?'qzFinish()':'qzNext()');}
+}
+function qzNext(){if(!_qA[_qI])return;_qI++;renderQuiz();}
+function qzBack(){if(_qI>0){_qI--;renderQuiz();}}
+function qzFinish(){
+  if(!_qA[_qI])return;
+  var base=_qA.slice(0,3).reduce(function(s,a){return s+(a?a.score:0);},0)/3;
+  var mod=_qA.slice(3).reduce(function(s,a){return s+(a?a.score:0);},0);
+  var score=Math.min(1,Math.max(0,base+mod));
+  var res=getLevelResult(score);
+  var pct=Math.round(score*100);
+  try{
+    var raw=localStorage.getItem('bl_profile');
+    if(raw){var p=JSON.parse(raw);
+      p.fitnessLevel=score;p.fitnessLevelLabel=res.label;p.fitnessLevelTier=res.tier;
+      localStorage.setItem('bl_profile',JSON.stringify(p));
+      P.fitnessLevel=score;P.fitnessLevelLabel=res.label;P.fitnessLevelTier=res.tier;
+    }
+  }catch(e){}
+  openSession('Your level',
+    '<div style="padding:16px 18px;">'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Your level</div>'
+    +'<div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--dk-1);margin-bottom:6px;">'+res.label+'</div>'
+    +'<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:14px;">'+res.desc+'</div>'
+    +'<div class="rb-tr"><div class="rb-fi" style="width:'+pct+'%"></div><div class="rb-mk" style="left:'+pct+'%"></div></div>'
+    +'<div class="rb-sc"><span>Beginner</span><span>Intermediate</span><span>Advanced</span></div>'
+    +'<div style="display:flex;gap:8px;margin-top:16px;">'
+    +'<button class="ra-sv" onclick="showSession('+_qBI+',window._blocks['+_qBI+'])">See my session \u2192</button>'
+    +'<button class="ra-rd" onclick="showQuiz('+_qBI+',window._blocks['+_qBI+'])">Retake</button>'
+    +'</div></div>');
 }
 
-// ── RECIPE FETCH ──────────────────────────────────────
-// Recipe cache — persisted to localStorage, keyed by slot+date
-const _RECIPE_DATE = new Date().toISOString().slice(0,10);
-function _rcKey(slot) { return 'bl_recipe_' + slot + '_' + _RECIPE_DATE; }
-const _recipeCache = {};
-// Pre-load today's cached recipes on startup
-(function() {
-  ['pre-training','post-training','midday','afternoon','evening'].forEach(slot => {
-    try {
-      const raw = localStorage.getItem(_rcKey(slot));
-      if (raw) _recipeCache[slot] = JSON.parse(raw);
-    } catch(e) {}
-  });
-})();
+// ── Meal inline expand ────────────────────────────
+function toggleMeal(i){
+  var block=document.getElementById('meal-'+i);
+  if(block)block.classList.toggle('meal-open');
+}
+function quickTick(slot,i){
+  var recipe=_recipes[slot];
+  var p=P,t=TODAY;
+  var prot=Math.round((p.protein||140)/(p.mealCount||4));
+  var kcal=Math.round((t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4));
+  var m={prot:recipe?recipe.protein:prot,carbs:recipe?(recipe.carbs||0):Math.round((p.carbs||160)*0.25),fat:recipe?(recipe.fat||0):Math.round((p.fat||60)*0.25),kcal:recipe?recipe.calories:kcal,logged:true,note:'Ate as planned'};
+  logMealMacros(slot,m);
+  document.querySelectorAll('[data-slot="'+slot+'"] .tl-tick').forEach(function(el){el.classList.add('done');el.textContent='\u2713';});
+  document.querySelectorAll('[data-slot="'+slot+'"] .tl-tag.a').forEach(function(el){el.textContent='\u2713 Eaten';});
+  document.getElementById('meal-'+i)&&document.getElementById('meal-'+i).classList.add('eaten');
+}
 
-async function fetchRecipe(slot, mealTitle, mealTarget, forceNew) {
-  const cacheKey = 'recipe_' + (slot||mealTitle) + '_' + new Date().toISOString().slice(0,10) + (forceNew?'_'+Date.now():'');
-  if (!forceNew && _recipeCache[slot]) return _recipeCache[slot];
+// ── Deviation logger ──────────────────────────────
+function showDevLogger(slot,i){
+  var zone=document.getElementById('dev-'+i);
+  if(!zone)return;
+  if(zone.innerHTML.trim()){zone.innerHTML='';return;}
+  zone.innerHTML='<div class="dev-label">What did you actually have?</div>'
+    +'<textarea class="dev-input" id="di-'+i+'" rows="2" placeholder="e.g. chicken wrap, bowl of pasta, just skipped it\u2026"></textarea>'
+    +'<button class="dev-send" onclick="submitDev(\''+slot+'\','+i+')">Estimate macros \u2191</button>'
+    +'<div id="dr-'+i+'"></div>';
+}
+async function submitDev(slot,i){
+  var inp=document.getElementById('di-'+i);
+  var res=document.getElementById('dr-'+i);
+  var btn=inp&&inp.parentElement.querySelector('.dev-send');
+  var txt=inp?inp.value.trim():'';
+  if(!txt)return;
+  if(btn){btn.disabled=true;btn.textContent='Estimating\u2026';}
+  if(/as planned|the meal|all of it|had it/i.test(txt)){quickTick(slot,i);if(res)res.innerHTML='<div class="dev-result"><strong>On plan</strong> \u2014 nice.</div>';return;}
+  try{
+    var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MODEL,max_tokens:100,system:'Nutrition estimator. Return only valid JSON.',
+        messages:[{role:'user',content:'Estimate macros: "'+txt+'". Person: '+(P.weight||80)+'kg '+(P.sex||'male')+'. Return: {"protein":0,"carbs":0,"fat":0,"calories":0,"note":"brief"}'}]})});
+    var d=await r.json();
+    var raw=(d.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var match=raw.match(/\{[\s\S]*\}/);
+    if(!match)throw new Error('no json');
+    var est=JSON.parse(match[0]);
+    logMealMacros(slot,{prot:est.protein||0,carbs:est.carbs||0,fat:est.fat||0,kcal:est.calories||0,logged:true,note:est.note||''});
+    if(res)res.innerHTML='<div class="dev-result"><strong>'+(est.protein||0)+'g P \u00b7 '+(est.carbs||0)+'g C \u00b7 '+(est.fat||0)+'g F \u00b7 '+(est.calories||0)+' kcal</strong><br>'+(est.note||'')+'</div>';
+    if(btn)btn.style.display='none';
+    document.getElementById('meal-'+i)&&document.getElementById('meal-'+i).classList.add('eaten');
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='Estimate macros \u2191';}if(res)res.innerHTML='<div class="dev-result">Could not estimate \u2014 try again</div>';}
+}
 
-  const p = _profile;
-  const exclusions = (p.foodExclusions||[]).join(', ')||'none';
-  const cuisines   = (p.cuisinePrefs||[]).join(', ')||'neutral';
-  const shuffleNote = forceNew
-    ? `IMPORTANT: Return a completely different meal from what you might have given before. Different cuisine direction (${cuisines}), different protein source, different cooking method. Same macro targets.`
-    : '';
-
-  const res = await fetch(API, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ model:MODEL, max_tokens:400,
-      system:'Return only valid JSON. No markdown.',
-      messages:[{role:'user', content:`Performance nutritionist. Recipe for "${mealTitle}" slot.
-${shuffleNote}
-Target: ${mealTarget.calories} kcal, ${mealTarget.protein}g protein, ${mealTarget.carbs}g carbs, ${mealTarget.fat}g fat.
-Diet: ${p.dietType||'flexible'} | Exclude: ${exclusions} | Cuisine: ${cuisines}
-Complexity: ${p.recipeComplexity||'standard'}
-${p.recipeComplexity&&p.recipeComplexity.includes('5')?'MAX 5 ingredients.':''}
-Return JSON: {"name":"dish name","description":"one line","calories":0,"protein":0,"carbs":0,"fat":0,"prepTime":"10 min","ingredients":[{"name":"item","quantity":"200g"}],"method":"2-3 sentences"}`
-    }]})
-  });
-  const data = await res.json();
-  const text = (data.content||[]).map(b=>b.text||'').join('').trim();
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('No JSON');
-  const recipe = JSON.parse(match[0]);
-  _recipeCache[slot] = recipe;
-  // Persist to localStorage
-  try { localStorage.setItem(_rcKey(slot), JSON.stringify(recipe)); } catch(e) {}
+// ── Recipe fetch + display ────────────────────────
+async function loadRecipe(slot,blockIdx,btnEl){
+  if(btnEl){btnEl.disabled=true;btnEl.textContent='Loading\u2026';}
+  var p=P,t=TODAY;
+  var prot=Math.round((p.protein||140)/(p.mealCount||4));
+  var kcal=Math.round((t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4));
+  var mt={calories:kcal,protein:prot,carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25)};
+  try{
+    var recipe=_recipes[slot]||await fetchRecipe(slot,(window._blocks[blockIdx]||{}).title||slot,mt,false);
+    var zone=document.getElementById('ri-'+blockIdx);
+    if(zone)zone.innerHTML=buildRecipeHtml(recipe,mt,slot,blockIdx);
+  }catch(e){if(btnEl){btnEl.disabled=false;btnEl.textContent='Load recipe';}}
+}
+async function fetchRecipe(slot,title,mt,forceNew){
+  if(!forceNew&&_recipes[slot])return _recipes[slot];
+  var p=P;
+  var excl=(p.foodExclusions||[]).join(',')||'none';
+  var cuis=(p.cuisinePrefs||[]).join(',')||'neutral';
+  var shuffleNote=forceNew?'IMPORTANT: Return a completely different meal. Different cuisine, different protein source, different cooking method. Same macro targets.':'';
+  var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:MODEL,max_tokens:400,system:'Return only valid JSON. No markdown.',
+      messages:[{role:'user',content:'Performance nutritionist. Recipe for "'+title+'".\n'+shuffleNote+'\nTarget: '+mt.calories+' kcal, '+mt.protein+'g P, '+mt.carbs+'g C, '+mt.fat+'g F.\nDiet: '+(p.dietType||'flexible')+' | Exclude: '+excl+' | Cuisine: '+cuis+'\nReturn JSON: {"name":"","description":"","calories":0,"protein":0,"carbs":0,"fat":0,"prepTime":"","ingredients":[{"name":"","quantity":""}],"method":""}'}]})});
+  var data=await res.json();
+  var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+  var match=text.match(/\{[\s\S]*\}/);
+  if(!match)throw new Error('no json');
+  var recipe=JSON.parse(match[0]);
+  _rSave(slot,recipe);
   return recipe;
 }
-
-function recipeCardHTML(recipe, mealTarget, slot, blockIdx) {
-  function pct(v,m) { return Math.min(100, Math.round(v/Math.max(1,m)*100)); }
-  const ings = (recipe.ingredients||[]).map(i=>
-    `<div class="rc-ing-row"><div class="rc-ing-name">${i.name}</div><div class="rc-ing-qty">${i.quantity||''}</div></div>`
-  ).join('');
-  return `
-    <div class="recipe-card">
-      <div class="rc-header">
-        <div>
-          <div class="rc-name">${recipe.name}</div>
-          <div class="rc-desc">${recipe.description||''} · ${recipe.prepTime||''}</div>
-        </div>
-        <button class="rc-shuffle-btn" id="shuf-${blockIdx}" onclick="shuffleMeal('${slot}',${blockIdx})">↺ Shuffle</button>
-      </div>
-      <div class="macro-fit">
-        <div class="mf-label">Macro contribution</div>
-        <div class="mf-rows">
-          <div class="mf-row"><div class="mf-name">Protein</div><div class="mf-bar-wrap"><div class="mf-bar p" style="width:${pct(recipe.protein,mealTarget.protein)}%"></div></div><div class="mf-val">${recipe.protein}g</div></div>
-          <div class="mf-row"><div class="mf-name">Carbs</div><div class="mf-bar-wrap"><div class="mf-bar c" style="width:${pct(recipe.carbs||0,mealTarget.carbs)}%"></div></div><div class="mf-val">${recipe.carbs||0}g</div></div>
-          <div class="mf-row"><div class="mf-name">Fat</div><div class="mf-bar-wrap"><div class="mf-bar f" style="width:${pct(recipe.fat||0,mealTarget.fat)}%"></div></div><div class="mf-val">${recipe.fat||0}g</div></div>
-          <div class="mf-row"><div class="mf-name">Calories</div><div class="mf-bar-wrap"><div class="mf-bar k" style="width:${pct(recipe.calories,mealTarget.calories)}%"></div></div><div class="mf-val">${recipe.calories}</div></div>
-        </div>
-      </div>
-      <div class="rc-ingredients">
-        <div class="rc-ing-label">Ingredients</div>
-        ${ings}
-      </div>
-      <div class="rc-method">
-        <div class="rc-method-label">Method</div>
-        ${recipe.method||'Prepare as per your usual approach.'}
-      </div>
-    </div>
-    ${deviationLoggerHTML(slot, blockIdx, recipe)}`;
-}
-
-function deviationLoggerHTML(slot, blockIdx, recipe) {
-  const eaten = _macroState && _macroState.meals[slot];
-  if (eaten && eaten.logged) {
-    return `<div class="dev-logger">
-      <div class="dev-label">Logged ✓</div>
-      <div class="dev-result">
-        <strong>${eaten.prot}g P · ${eaten.carbs}g C · ${eaten.fat}g F · ${eaten.kcal} kcal</strong><br>
-        ${eaten.note||''}
-      </div>
-      <button class="meal-action-btn" style="margin-top:8px;" onclick="clearMealLog('${slot}')">Clear log</button>
-    </div>`;
-  }
-  return `<div class="dev-logger">
-    <div class="dev-label">Log what you ate</div>
-    <textarea class="dev-input" id="dev-input-${blockIdx}" rows="2"
-      placeholder="e.g. 'Had the meal as planned' or 'Skipped — had a chicken wrap instead' or 'Ate half of it'"></textarea>
-    <button class="dev-send" id="dev-send-${blockIdx}"
-      onclick="logMeal('${slot}', ${blockIdx}, ${JSON.stringify({p:recipe.protein,c:recipe.carbs||0,f:recipe.fat||0,k:recipe.calories}).replace(/"/g,'&quot;')})">
-      Estimate macros →
-    </button>
-    <div id="dev-result-${blockIdx}" style="display:none;" class="dev-result"></div>
-  </div>`;
-}
-
-async function logMeal(slot, blockIdx, planMacros) {
-  const input = document.getElementById('dev-input-'+blockIdx);
-  const btn   = document.getElementById('dev-send-'+blockIdx);
-  const result= document.getElementById('dev-result-'+blockIdx);
-  const text  = input ? input.value.trim() : '';
-  if (!text || !btn) return;
-
-  btn.disabled = true;
-  btn.textContent = 'Estimating…';
-
-  const p = _profile;
-  // If they say "as planned" or "the meal" just use the plan macros
-  const isOnPlan = /as planned|the meal|as above|had it|ate it|all of it/i.test(text);
-  if (isOnPlan) {
-    const macros = { prot: planMacros.p, carbs: planMacros.c, fat: planMacros.f, kcal: planMacros.k, logged:true, note:'On plan' };
-    saveMealLog(slot, macros);
-    if (result) { result.style.display='block'; result.innerHTML = `<strong>${macros.prot}g P · ${macros.carbs}g C · ${macros.fat}g F · ${macros.kcal} kcal</strong><br>On plan — nice.`; }
-    btn.style.display='none';
-    updateRemainingMeals();
-    return;
-  }
-
-  try {
-    const res = await fetch(API, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:MODEL, max_tokens:120,
-        system:'You are a nutrition estimator. Return only valid JSON.',
-        messages:[{role:'user',content:`Estimate macros for: "${text}"
-Person: ${p.weight||80}kg, ${p.sex||'male'}.
-Return JSON only: {"protein":0,"carbs":0,"fat":0,"calories":0,"note":"one sentence on your estimate"}`}]})
-    });
-    const data = await res.json();
-    const raw  = (data.content||[]).map(b=>b.text||'').join('').trim();
-    const match= raw.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('No JSON');
-    const est  = JSON.parse(match[0]);
-    const macros = { prot:est.protein||0, carbs:est.carbs||0, fat:est.fat||0, kcal:est.calories||0, logged:true, note:est.note||'' };
-    saveMealLog(slot, macros);
-    if (result) {
-      result.style.display='block';
-      result.innerHTML = `<strong>${macros.prot}g P · ${macros.carbs}g C · ${macros.fat}g F · ${macros.kcal} kcal</strong><br>${macros.note}`;
-    }
-    btn.style.display='none';
-    updateRemainingMeals();
-  } catch(e) {
-    if (btn) { btn.disabled=false; btn.textContent='Estimate macros →'; }
-    if (result) { result.style.display='block'; result.innerHTML='Could not estimate — try again.'; }
-  }
-}
-
-function saveMealLog(slot, macros) {
-  if (!_macroState) return;
-  _macroState.meals[slot] = macros;
-  // Recompute eaten totals
-  _macroState.eaten = { kcal:0, prot:0, carbs:0, fat:0 };
-  Object.values(_macroState.meals).forEach(m => {
-    if (m.logged) {
-      _macroState.eaten.kcal  += m.kcal  || 0;
-      _macroState.eaten.prot  += m.prot  || 0;
-      _macroState.eaten.carbs += m.carbs || 0;
-      _macroState.eaten.fat   += m.fat   || 0;
-    }
-  });
-  saveMacroState();
-  refreshMacroCup();
-  // Update meal block visual
-  const block = document.querySelector(`[data-slot="${slot}"]`);
-  if (block) block.classList.add('eaten');
-}
-
-function clearMealLog(slot) {
-  if (!_macroState || !_macroState.meals[slot]) return;
-  delete _macroState.meals[slot];
-  _macroState.eaten = { kcal:0, prot:0, carbs:0, fat:0 };
-  Object.values(_macroState.meals).forEach(m => {
-    if (m.logged) {
-      _macroState.eaten.kcal  += m.kcal  || 0;
-      _macroState.eaten.prot  += m.prot  || 0;
-      _macroState.eaten.carbs += m.carbs || 0;
-      _macroState.eaten.fat   += m.fat   || 0;
-    }
-  });
-  saveMacroState();
-  refreshMacroCup();
-}
-
-function updateRemainingMeals() {
-  // Called after each meal log — shows adjusted targets on remaining meals
-  if (!_macroState) return;
-  const remaining = {
-    prot:  _macroState.target.prot  - _macroState.eaten.prot,
-    carbs: _macroState.target.carbs - _macroState.eaten.carbs,
-    fat:   _macroState.target.fat   - _macroState.eaten.fat,
-    kcal:  _macroState.target.kcal  - _macroState.eaten.kcal,
-  };
-  // Count unlogged meal slots
-  const unloggedSlots = (window._blocks||[]).filter(b => b.mealSlot && !(_macroState.meals[b.mealSlot]&&_macroState.meals[b.mealSlot].logged));
-  if (unloggedSlots.length > 0) {
-    const perMeal = {
-      prot:  Math.round(Math.max(0,remaining.prot)  / unloggedSlots.length),
-      carbs: Math.round(Math.max(0,remaining.carbs) / unloggedSlots.length),
-      fat:   Math.round(Math.max(0,remaining.fat)   / unloggedSlots.length),
-      kcal:  Math.round(Math.max(0,remaining.kcal)  / unloggedSlots.length),
-    };
-    unloggedSlots.forEach(b => {
-      const el = document.querySelector(`[data-slot="${b.mealSlot}"] .tl-subtitle`);
-      if (el && perMeal.prot > 0) {
-        el.textContent = `Adjusted target: ${perMeal.prot}g P · ${perMeal.kcal} kcal`;
-        el.style.color = 'var(--amber)';
-      }
-    });
-  }
-}
-
-// ── OPEN MEAL IN RIGHT PANEL ──────────────────────────
-async function openMealPanel(blockIdx, block) {
-  const p      = _profile;
-  const prot   = Math.round((p.protein||140) / (p.mealCount||4));
-  const kcal   = Math.round((_today.isTraining ? (_today.plan.kcal||p.calories||2000) : Math.round((p.calories||2000)*0.91)) / (p.mealCount||4));
-  const mealTarget = { calories:kcal, protein:prot, carbs:Math.round((p.carbs||160)*0.25), fat:Math.round((p.fat||60)*0.25) };
-
-  showRightPanel(block.title, block.subtitle||'Recipe + macro log', `<div class="fp-loading"><div class="fp-spinner"></div></div>`);
-
-  try {
-    const recipe = await fetchRecipe(block.mealSlot||block.title, block.title, mealTarget, false);
-    const html   = recipeCardHTML(recipe, mealTarget, block.mealSlot||block.title, blockIdx);
-    document.getElementById('rpb').innerHTML = html;
-  } catch(e) {
-    document.getElementById('rpb').innerHTML = `<div style="padding:20px;color:var(--dk-3);font-size:13px;">Could not load recipe — <button onclick="openMealPanel(${blockIdx},window._blocks[${blockIdx}])" style="color:var(--amber);background:none;border:none;cursor:pointer;text-decoration:underline;">try again</button></div>`;
-  }
-}
-
-async function shuffleMeal(slot, blockIdx) {
-  const btn = document.getElementById('shuf-'+blockIdx);
-  if (btn) { btn.disabled=true; btn.textContent='Shuffling…'; }
-  delete _recipeCache[slot];
-  try { localStorage.removeItem(_rcKey(slot)); } catch(e) {}
-  const p = _profile;
-  const prot = Math.round((p.protein||140) / (p.mealCount||4));
-  const kcal = Math.round((_today.isTraining ? (_today.plan.kcal||p.calories||2000) : Math.round((p.calories||2000)*0.91)) / (p.mealCount||4));
-  const mealTarget = { calories:kcal, protein:prot, carbs:Math.round((p.carbs||160)*0.25), fat:Math.round((p.fat||60)*0.25) };
-  try {
-    const recipe = await fetchRecipe(slot, window._blocks[blockIdx].title, mealTarget, true);
-    // Update the inline recipe zone
-  const rzone = document.getElementById('recipe-zone-'+blockIdx);
-  if (rzone) rzone.innerHTML = inlineRecipeHTML(recipe, slot, blockIdx);
-  else document.getElementById('rpb') && (document.getElementById('rpb').innerHTML = inlineRecipeHTML(recipe, slot, blockIdx));
-  } catch(e) {
-    if (btn) { btn.disabled=false; btn.textContent='↺ Shuffle'; }
-  }
-}
-
-// ── SESSION IN RIGHT PANEL ────────────────────────────
-function openSessionPanel(blockIdx, block) {
-  const p = _profile;
-  const isFemale = (p.sex||'').toLowerCase() === 'female';
-  const age = p.age || 35;
-  const weight = p.weight || 75;
-  const injuries = p.injuryAssessments || p.injuries || [];
-  const exercises = (block.items||[]).filter(e => e.name !== 'Track loads');
-
-  // Current level tier
-  const tier  = p.fitnessLevelTier || 'intermediate';
-  const scheme = LEVEL_SCHEMES[tier] || LEVEL_SCHEMES.intermediate;
-  const levelScore = p.fitnessLevel !== undefined ? Math.round(p.fitnessLevel*100) : 50;
-
-  // Week progression note
-  const wp = p.weeklyProgression;
-  const progCtx = getWeekProgrammeContext(p);
-  const weekKey = 'week' + progCtx.weekNum;
-  const weekNote = wp && wp[weekKey] ? wp[weekKey].focus : '';
-
-  // Level tabs
-  const tierOrder = ['beginner','intermediate','advanced'];
-  const levelTabsHTML = tierOrder.map(t => {
-    const sc = LEVEL_SCHEMES[t];
-    const isYours = t === tier;
-    const isActive = t === tier;
-    return `<div class="slt ${isActive?'active':''} ${isYours?'yours':''}"
-      onclick="switchSessionLevel('${t}',${blockIdx},window._blocks[${blockIdx}])">
-      <div class="slt-name">${isYours?'▸ ':''}${sc.label}</div>
-      <div class="slt-desc">${sc.setsNote}</div>
-    </div>`;
-  }).join('');
-
-  function buildExCards(currentTier) {
-    const currentScheme = LEVEL_SCHEMES[currentTier] || LEVEL_SCHEMES.intermediate;
-    return exercises.map((ex, i) => {
-      const parsed = parseExercise(ex.name);
-      const std = getStandard(parsed.name, weight, isFemale, age);
-      const injMatch = injuries.find(inj =>
-        ['knee','back','shoulder','hip','elbow'].some(j =>
-          (inj.location||'').toLowerCase().includes(j) && parsed.name.toLowerCase().includes(j.slice(0,4))
-        )
-      );
-
-      const reps = parseInt((parsed.reps||'10').split('-')[0]);
-      const baseRpe = reps <= 5 ? 8 : reps <= 8 ? 7 : 7;
-      const tierRpe = currentTier === 'beginner' ? baseRpe - 1.5 : currentTier === 'advanced' ? baseRpe + 1 : baseRpe;
-      const rpeStr = currentTier === 'beginner' ? '6-7' : currentTier === 'advanced' ? '8-9' : (baseRpe + '-' + (baseRpe+1));
-
-      // Benchmark — marker at fitnessLevel position
-      const markerPct = Math.min(95, Math.max(5, levelScore));
-      const benchHTML = std ? `
-        <div class="bench-strip">
-          <div class="bench-label">${age}yr ${isFemale?'female':'male'} · ${weight}kg · age-adjusted</div>
-          <div class="bench-values">
-            <div class="beg">${std.beginner}kg</div>
-            <div class="you">${std.intermediate}kg</div>
-            <div style="text-align:right;color:var(--dk-2);">${std.advanced}kg</div>
-          </div>
-          <div class="bench-track">
-            <div class="bench-fill" style="width:${markerPct}%"></div>
-            <div class="bench-marker" style="left:${markerPct}%;border-color:var(--gold);"></div>
-          </div>
-          <div class="bench-labels"><div>Beginner</div><div style="text-align:center;">You (${p.fitnessLevelLabel||'est.'})</div><div style="text-align:right">Advanced</div></div>
-          <div class="bench-age-note">
-            Target working set: <strong style="color:var(--gold);">
-              ${Math.round(std.beginner + (std.intermediate-std.beginner)*Math.min(1,(levelScore/50)))}–${Math.round(std.intermediate * (currentTier==='beginner'?0.75:currentTier==='advanced'?1.15:0.9))}kg × ${parsed.reps} reps
-            </strong>. ${getAgeNote(age, isFemale)}
-          </div>
-        </div>` : '';
-
-      const setsCount = currentTier === 'beginner' ? 3 : currentTier === 'advanced' ? parsed.sets + 1 : parsed.sets;
-      const sets = [];
-      for (let s=1; s<=setsCount; s++) {
-        const isLast = s===setsCount;
-        const txt = s===1
-          ? 'Warm-up: −20% target load, technique focus'
-          : isLast
-            ? `Working set: ${currentScheme.rpeTarget} — ${parsed.reps} reps${currentTier==='advanced'?' to near failure':''}`
-            : `Build set: increase load, ${rpeStr.split('-')[0] - 0.5 < parseInt(rpeStr) ? rpeStr.split('-')[0] : rpeStr}`;
-        sets.push(`<div class="set-row"><div class="set-num">S${s}</div><div class="set-detail">${txt}</div></div>`);
-      }
-
-      return `<div class="ex-card" id="exc-${i}">
-        <div class="ex-card-head" onclick="document.getElementById('exc-${i}').classList.toggle('open')">
-          <div>
-            <div class="ex-name">${parsed.name}</div>
-          </div>
-          <div class="ex-schema">${setsCount}×${parsed.reps}</div>
-          <div class="ex-rpe">${currentScheme.rpeTarget}</div>
-          <span class="ex-chevron">▾</span>
-        </div>
-        <div class="ex-body">
-          ${injMatch ? `<div class="ex-injury-note"><span>⚠ ${injMatch.location}:</span> ${(injMatch.safeAlternatives||[]).length?'Use: '+(injMatch.safeAlternatives||[]).slice(0,2).join(', '):'Reduced ROM only.'}</div>` : ''}
-          ${benchHTML}
-          <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:7px;margin-top:10px;">Set guide</div>
-          <div class="sets-guide">${sets.join('')}</div>
-          <div style="font-size:11px;font-weight:300;color:var(--dk-3);padding-top:7px;border-top:1px solid var(--bd);">Rest: ${currentScheme.rest} between sets</div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  window._sessionBlockIdx = blockIdx;
-  window._buildExCards = buildExCards;
-
-  const progHTML = weekNote ? `<div style="font-size:11px;font-weight:300;color:var(--dk-2);padding:10px 20px;border-bottom:1px solid var(--bd);background:rgba(0,200,160,0.03);">
-    <strong style="color:var(--jade);">Week ${progCtx.weekNum} — ${progCtx.phase}:</strong> ${weekNote}
-  </div>` : '';
-
-  const reTakeHTML = `<div style="padding:8px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;">
-    <div style="font-size:10px;font-weight:300;color:var(--dk-3);">Level: <strong style="color:var(--gold);">${p.fitnessLevelLabel||'Intermediate'}</strong></div>
-    <button style="background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;text-decoration:underline;" onclick="startQuiz(${blockIdx},window._blocks[${blockIdx}])">Retake assessment</button>
-  </div>`;
-
-  showRightPanel(block.title, block.subtitle||"Today's session",
-    `<div class="session-level-tabs">${levelTabsHTML}</div>
-     ${progHTML}
-     ${reTakeHTML}
-     <div class="session-panel" id="session-ex-cards">${buildExCards(tier)}</div>
-     <div style="margin:10px 20px;padding:10px;background:rgba(0,200,160,0.04);border:1px solid var(--jade-br);border-radius:4px;font-size:11px;font-weight:300;color:var(--dk-2);">
-       ${scheme.rpeNote}
-     </div>`
-  );
-}
-
-window.switchSessionLevel = function(newTier, blockIdx, block) {
-  const cards = document.getElementById('session-ex-cards');
-  if (cards && window._buildExCards) cards.innerHTML = window._buildExCards(newTier);
-  document.querySelectorAll('.slt').forEach((el,i) => {
-    const t = ['beginner','intermediate','advanced'][i];
-    el.classList.toggle('active', t===newTier);
-  });
-};
-
-
-// ── FITNESS LEVEL QUIZ ────────────────────────────────
-const QUIZ_QUESTIONS = [
-  { q:'How many full press-ups can you do in one go?',
-    note:'Chest to floor, full extension. Stop when form breaks.',
-    opts:[
-      {label:'0-5',   note:'Just getting started',       score:0.10},
-      {label:'6-15',  note:'Building a solid base',      score:0.30},
-      {label:'16-25', note:'Good upper body endurance',  score:0.55},
-      {label:'25+',   note:'Strong relative bodyweight', score:0.75},
-    ]
-  },
-  { q:'Pull-ups — how many with full range?',
-    note:'Dead hang to chin over bar. Zero is totally normal.',
-    opts:[
-      {label:'None', note:'Very common starting point',  score:0.10},
-      {label:'1-4',  note:'Building pulling strength',   score:0.30},
-      {label:'5-10', note:'Solid pulling foundation',    score:0.55},
-      {label:'10+',  note:'Strong relative bodyweight',  score:0.78},
-    ]
-  },
-  { q:'Squat or leg press — roughly what weight?',
-    note:'Working sets, not max. Machine totals count.',
-    opts:[
-      {label:'Never squatted / machines only', note:'Completely fine',      score:0.15},
-      {label:'Under bodyweight',               note:'Building leg strength', score:0.28},
-      {label:'Bodyweight to 1.5x',             note:'Solid lower body',     score:0.52},
-      {label:'1.5x bodyweight and beyond',     note:'Strong leg pattern',   score:0.78},
-    ]
-  },
-  { q:'After a hard session, how do you feel the next day?',
-    note:'Recovery speed reflects your training age.',
-    opts:[
-      {label:'Very sore for 2-3 days',               note:'Normal early on',      score:-0.05},
-      {label:'Sore next day, fine by day 2',         note:'Typical intermediate', score:0.00},
-      {label:'Mildly sore, back at it next session', note:'Well adapted',         score:0.07},
-      {label:'Rarely very sore',                     note:'High training age',    score:0.12},
-    ]
-  },
-  { q:'Training consistency — last 3 months?',
-    note:'Honest answer. This calibrates programme difficulty.',
-    opts:[
-      {label:'Just getting back into it',       note:'Starting fresh',      score:0.00},
-      {label:'1-2 sessions a week, sporadic',   note:'Building the habit',  score:0.05},
-      {label:'3+ sessions, fairly consistent',  note:'Established routine', score:0.12},
-      {label:'4+ sessions, rarely miss',        note:'High training age',   score:0.18},
-    ]
-  },
-];
-
-let _quizAnswers = [], _currentQ = 0, _quizBlockIdx = 0;
-
-function getLevelResult(score) {
-  if (score < 0.25) return {label:'Beginner',           desc:'Programme focuses on patterns and capacity. Loads conservative — technique first. Rapid early gains ahead.',                                tier:'beginner'};
-  if (score < 0.42) return {label:'Low-intermediate',   desc:'You have the basics. Lifts established, loads building. Good gains with progressive overload.',                                              tier:'intermediate'};
-  if (score < 0.60) return {label:'Intermediate',       desc:'Solid base across main movements. Proper periodisation applied. Gains require deliberate effort from here.',                                 tier:'intermediate'};
-  if (score < 0.75) return {label:'Upper-intermediate', desc:'Strong foundation with real training history. High intensity with managed volume for recovery.',                                              tier:'advanced'};
-  return              {label:'Advanced',                desc:"You've been doing this a while. High intensity, assumes good technique, focuses on the details that matter.",                                tier:'advanced'};
-}
-
-function renderQuizPanel() {
-  const q = QUIZ_QUESTIONS[_currentQ];
-  const total = QUIZ_QUESTIONS.length;
-  const hasAns = !!_quizAnswers[_currentQ];
-  const isLast = _currentQ === total - 1;
-
-  const dots = QUIZ_QUESTIONS.map((_,i) =>
-    `<div class="lq-prog-dot ${i<_currentQ?'done':i===_currentQ?'current':''}"></div>`
-  ).join('');
-
-  const opts = q.opts.map((opt,i) => `
-    <div class="lq-opt ${hasAns && _quizAnswers[_currentQ]===opt?'selected':''}"
-      onclick="window.quizSelect(${i})">
-      <div class="lq-opt-label">${opt.label}</div>
-      <div class="lq-opt-val">${opt.note}</div>
-    </div>`).join('');
-
-  document.getElementById('rph-title').textContent = 'Strength assessment';
-  document.getElementById('rph-sub').textContent   = 'Q' + (_currentQ+1) + ' of ' + total + ' — takes 2 minutes';
-  document.getElementById('day-right').classList.add('open');
-  document.getElementById('rpb').innerHTML = `
-    <div class="lq-header">
-      <div class="lq-kicker">One-time · sets your benchmark accurately</div>
-      <div class="lq-title">Where are you right now?</div>
-      <div class="lq-sub">5 questions. Benchmark marker placed correctly on every exercise.</div>
-    </div>
-    <div class="lq-progress">${dots}</div>
-    <div class="lq-body">
-      <div class="lq-q-text">${q.q}</div>
-      <div class="lq-q-note">${q.note}</div>
-      <div class="lq-options">${opts}</div>
-      <div class="lq-nav">
-        ${_currentQ>0?'<button class="lq-back" onclick="window.quizBack()">&#8592; Back</button>':''}
-        <button class="lq-next${hasAns?' ready':''}" id="lq-next"
-          onclick="${hasAns?(isLast?'window.quizFinish()':'window.quizNext()'):''}">
-          ${isLast ? 'See my level &#8594;' : 'Next &#8594;'}
-        </button>
-      </div>
-    </div>`;
-}
-
-window.quizSelect = function(i) {
-  _quizAnswers[_currentQ] = QUIZ_QUESTIONS[_currentQ].opts[i];
-  document.querySelectorAll('.lq-opt').forEach((el,j) => el.classList.toggle('selected', j===i));
-  const btn = document.getElementById('lq-next');
-  if (btn) {
-    btn.classList.add('ready');
-    const isLast = _currentQ === QUIZ_QUESTIONS.length - 1;
-    btn.setAttribute('onclick', isLast ? 'window.quizFinish()' : 'window.quizNext()');
-  }
-};
-window.quizNext = function() {
-  if (!_quizAnswers[_currentQ]) return;
-  _currentQ++;
-  renderQuizPanel();
-};
-window.quizBack = function() {
-  if (_currentQ > 0) { _currentQ--; renderQuizPanel(); }
-};
-window.quizFinish = function() {
-  if (!_quizAnswers[_currentQ]) return;
-  const base = _quizAnswers.slice(0,3).reduce((s,a)=>s+(a?a.score:0),0)/3;
-  const mod  = _quizAnswers.slice(3).reduce((s,a)=>s+(a?a.score:0),0);
-  const score = Math.min(1, Math.max(0, base + mod));
-  const result = getLevelResult(score);
-  const pct = Math.round(score*100);
-  try {
-    const raw = localStorage.getItem('bl_profile');
-    if (raw) {
-      const p = JSON.parse(raw);
-      p.fitnessLevel=score; p.fitnessLevelLabel=result.label;
-      p.fitnessLevelTier=result.tier; p.fitnessLevelDate=new Date().toISOString().slice(0,10);
-      localStorage.setItem('bl_profile', JSON.stringify(p));
-      _profile.fitnessLevel=score; _profile.fitnessLevelLabel=result.label;
-      _profile.fitnessLevelTier=result.tier;
-    }
-  } catch(e){}
-  document.getElementById('rpb').innerHTML = `
-    <div class="lq-result">
-      <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Your level</div>
-      <div class="lr-title">${result.label}</div>
-      <div class="lr-desc">${result.desc}</div>
-      <div class="lr-level-bar">
-        <div class="lr-track"><div class="lr-fill" style="width:${pct}%"></div><div class="lr-marker" style="left:${pct}%"></div></div>
-        <div class="lr-scale"><span>Beginner</span><span style="text-align:center">Intermediate</span><span>Advanced</span></div>
-      </div>
-      <div class="lr-actions">
-        <button class="lr-save" onclick="openSessionPanel(${_quizBlockIdx},window._blocks[${_quizBlockIdx}])">See my session &#8594;</button>
-        <button class="lr-redo" onclick="window.startQuiz(${_quizBlockIdx},window._blocks[${_quizBlockIdx}])">Retake</button>
-      </div>
-    </div>`;
-};
-window.startQuiz = function(blockIdx, block) {
-  _quizAnswers=[]; _currentQ=0; _quizBlockIdx=blockIdx;
-  renderQuizPanel();
-};
-
-// ── RENDER PLAN ───────────────────────────────────────
-function renderPlan(plan) {
-  const root = document.getElementById('day-root');
-  window._blocks = plan.blocks;
-
-  const blocksHtml = plan.blocks.map((b, i) => {
-    const isMeal     = b.mealSlot;
-    const isTraining = b.type === 'training';
-
-    // Non-meal, non-training: expand inline
-    if (!isMeal && !isTraining) {
-      const det = (b.detail||'').split('\n').map(l=>l.trim()?`<p>${l}</p>`:'').join('');
-      const its = (b.items||[]).map(it=>`<div class="tl-item"><span class="tl-item-name">${it.name}</span>${it.meta?`<span class="tl-item-meta">${it.meta}</span>`:''}</div>`).join('');
-      return `<div class="tl-block type-${b.type||'supp'}" onclick="this.classList.toggle('open')">
-        <div class="tl-head">
-          <div class="tl-time">${b.time||''}</div>
-          <div class="tl-main"><div class="tl-title">${b.title}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
-          ${b.tag?`<span class="tl-tag ${b.tagColor||'slate'}">${b.tag}</span>`:''}
-          <span class="tl-chevron">&#9662;</span>
-        </div>
-        <div class="tl-body">${det?`<div class="tl-detail">${det}</div>`:''}${b.science?`<div class="tl-science">${b.science}</div>`:''}${its?`<div class="tl-items">${its}</div>`:''}</div>
-      </div>`;
-    }
-
-    // Meal blocks — inline expand with tick
-    if (isMeal) {
-      const slot = b.mealSlot;
-      const eaten = _macroState && _macroState.meals[slot] && _macroState.meals[slot].logged;
-      const cached = _recipeCache[slot];
-      const recipeSection = cached
-        ? inlineRecipeHTML(cached, slot, i)
-        : `<button class="meal-log-btn show-recipe" onclick="loadInlineRecipe('${slot}',${i},this)">&#127859; Load recipe</button>`;
-      return `<div class="tl-block type-meal ${eaten?'eaten':''}" data-slot="${slot}" id="meal-block-${i}">
-        <div class="tl-head" onclick="toggleMealInline(${i})">
-          <div class="tl-time">${b.time||''}</div>
-          <div class="tl-main">
-            <div class="tl-title">${b.title}</div>
-            <div class="tl-subtitle" id="sub-${slot}">${b.subtitle||''}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:7px;">
-            <div class="meal-tick${eaten?' ticked':''}" onclick="event.stopPropagation();quickTick('${slot}',${i})" title="Ate this">${eaten?'&#10003;':''}</div>
-            <span class="tl-tag amber">${eaten?'&#10003; Eaten':'Eat'}</span>
-            <span class="tl-chevron" id="meal-chev-${i}">&#9662;</span>
-          </div>
-        </div>
-        <div class="meal-inline-body" id="meal-inline-${i}">
-          <div class="meal-actions-row">
-            <div class="meal-tick${eaten?' ticked':''}" onclick="quickTick('${slot}',${i})" title="Ate this">${eaten?'&#10003;':''}</div>
-            <button class="meal-log-btn" onclick="showDeviationLogger('${slot}',${i})">I had something different</button>
-          </div>
-          <div id="dev-zone-${i}"></div>
-          <div id="recipe-zone-${i}">${recipeSection}</div>
-        </div>
-      </div>`;
-    }
-
-    // Training block — quiz first if no level, else session
-    if (isTraining) {
-      const hasLevel = _profile.fitnessLevel !== undefined;
-      const lvlLabel = hasLevel ? (_profile.fitnessLevelLabel||'Intermediate') : null;
-      return `<div class="tl-block type-training">
-        <div class="tl-head" onclick="${hasLevel?`openSessionPanel(${i},window._blocks[${i}])`:`window.startQuiz(${i},window._blocks[${i}])`}">
-          <div class="tl-time">${b.time||''}</div>
-          <div class="tl-main">
-            <div class="tl-title">${b.title}</div>
-            <div class="tl-subtitle">${hasLevel?lvlLabel+' prescription':'Tap to assess your level first'}</div>
-          </div>
-          <span class="tl-tag jade">${hasLevel?'Session &#8594;':'Assess &#8594;'}</span>
-        </div>
-      </div>`;
-    }
-  }).join('');
-
-  const d = new Date();
-  const dateStr = d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  const wp = _profile.weeklyProgression;
-  const progCtx = getWeekProgrammeContext(_profile);
-  const weekTabsHTML = wp ? (() => {
-    const tabs = ['week1','week2','week3','week4'].map((wk,i) => {
-      const w = wp[wk]; if (!w) return '';
-      const wNum = i+1;
-      const isDone = wNum < progCtx.weekNum;
-      const isCur  = wNum === progCtx.weekNum;
-      return `<div class="wt ${isCur?'active':isDone?'done':''}" onclick="showWeekDetail('${wk}')">
-        <div class="wt-num">W${wNum}${isDone?' &#10003;':''}</div>
-        <div class="wt-phase">${w.phase}</div>
-        <div class="wt-note">${(w.keyFocus||w.volumeNote||'').slice(0,50)}</div>
-      </div>`;
-    }).join('');
-    return `<div class="week-tabs">${tabs}</div><div class="week-detail-panel" id="week-detail"></div>`;
-  })() : '';
-
-  root.innerHTML = `
-    <div class="sticky-macros" id="sticky-macros">${getStickyMacrosHTML()}</div>
-    <div class="day-hero">
-      <div class="day-kicker">${dateStr}</div>
-      <div class="day-title">${plan.dayTitle}</div>
-      <div class="day-brief">${plan.dayBrief}</div>
-      ${plan.priority?`<div class="day-priority">${plan.priority}</div>`:''}
-    </div>
-    ${weekTabsHTML}
-    <div class="day-macros">
-      <div class="dm"><div class="dm-val">${plan.macros.kcal}</div><div class="dm-label">Calories</div></div>
-      <div class="dm"><div class="dm-val jade">${plan.macros.prot}g</div><div class="dm-label">Protein</div></div>
-      <div class="dm"><div class="dm-val amber">${plan.macros.carbs}g</div><div class="dm-label">Carbs</div></div>
-      <div class="dm"><div class="dm-val">${plan.macros.fat}g</div><div class="dm-label">Fat</div></div>
-    </div>
-    <div class="water-strip">&#128166; ${plan.macros.water} — spread across the day</div>
-    <div id="acc-strip-here"></div>
-    <div class="tl-label">Your day</div>
-    ${blocksHtml}
-    <button class="regen-btn" onclick="window.regenerate()">&#8635; Rebuild today</button>
-    <div class="ask-wrap">
-      <div class="ask-sec">Quick question</div>
-      <div class="ask-chips" id="ask-chips"></div>
-      <div class="ask-input-row">
-        <input class="ask-input" id="ask-input" type="text" placeholder="Ask anything about today&#8230;">
-        <button class="ask-send" id="ask-send">&#8593;</button>
-      </div>
-      <div class="ask-answer" id="ask-answer"></div>
-    </div>`;
-}
-
-function toggleMealInline(i) {
-  const block = document.getElementById('meal-block-'+i);
-  const chev  = document.getElementById('meal-chev-'+i);
-  if (!block) return;
-  const isOpen = block.classList.contains('meal-open');
-  block.classList.toggle('meal-open', !isOpen);
-  if (chev) chev.innerHTML = isOpen ? '&#9662;' : '&#9652;';
-}
-
-function inlineRecipeHTML(recipe, slot, blockIdx) {
+function buildRecipeHtml(r,mt,slot,i){
   function pct(v,m){return Math.min(100,Math.round(v/Math.max(1,m)*100));}
-  const p=_profile;
-  const prot=Math.round((p.protein||140)/(p.mealCount||4));
-  const carbs=Math.round((p.carbs||160)*0.25);
-  const fat=Math.round((p.fat||60)*0.25);
-  const kcal=Math.round((_today&&_today.isTraining?(_today.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4));
-  const ings=(recipe.ingredients||[]).map(i=>`<div class="ir-ing"><span class="ir-ing-name">${i.name}</span><span class="ir-ing-qty">${i.quantity||''}</span></div>`).join('');
-  return `<div class="inline-recipe">
-    <div class="ir-header">
-      <div><div class="ir-name">${recipe.name}</div><div class="ir-desc">${recipe.description||''} &middot; ${recipe.prepTime||''}</div></div>
-      <button class="ir-shuffle" id="shuf-${blockIdx}" onclick="shuffleMeal('${slot}',${blockIdx})">&#8635; Shuffle</button>
-    </div>
-    <div class="ir-macros">
-      <div class="ir-mac-row"><div class="ir-mac-label">Protein</div><div class="ir-mac-bar-wrap"><div class="ir-mac-bar p" style="width:${pct(recipe.protein,prot)}%"></div></div><div class="ir-mac-val">${recipe.protein}g</div></div>
-      <div class="ir-mac-row"><div class="ir-mac-label">Carbs</div><div class="ir-mac-bar-wrap"><div class="ir-mac-bar c" style="width:${pct(recipe.carbs||0,carbs)}%"></div></div><div class="ir-mac-val">${recipe.carbs||0}g</div></div>
-      <div class="ir-mac-row"><div class="ir-mac-label">Fat</div><div class="ir-mac-bar-wrap"><div class="ir-mac-bar f" style="width:${pct(recipe.fat||0,fat)}%"></div></div><div class="ir-mac-val">${recipe.fat||0}g</div></div>
-    </div>
-    <div class="ir-ingredients">${ings}</div>
-    <div class="ir-method">${recipe.method||''}</div>
-  </div>`;
+  var ings=(r.ingredients||[]).map(function(x){return '<div class="ri-ing"><span class="ri-in">'+x.name+'</span><span class="ri-iq">'+x.quantity+'</span></div>';}).join('');
+  return '<div class="ri">'
+    +'<div class="ri-head"><div><div class="ri-name">'+r.name+'</div><div class="ri-desc">'+(r.description||'')+' \u00b7 '+(r.prepTime||'')+'</div></div>'
+    +'<button class="ri-shuf" id="rshuf-'+i+'" onclick="shuffleRecipe(\''+slot+'\','+i+')">&#8635; Shuffle</button></div>'
+    +'<div class="ri-macs">'
+    +'<div class="ri-mr"><div class="ri-ml">Protein</div><div class="ri-mb"><div class="ri-mf p" style="width:'+pct(r.protein,mt.protein)+'%"></div></div><div class="ri-mv">'+r.protein+'g</div></div>'
+    +'<div class="ri-mr"><div class="ri-ml">Carbs</div><div class="ri-mb"><div class="ri-mf c" style="width:'+pct(r.carbs||0,mt.carbs)+'%"></div></div><div class="ri-mv">'+(r.carbs||0)+'g</div></div>'
+    +'<div class="ri-mr"><div class="ri-ml">Fat</div><div class="ri-mb"><div class="ri-mf f" style="width:'+pct(r.fat||0,mt.fat)+'%"></div></div><div class="ri-mv">'+(r.fat||0)+'g</div></div>'
+    +'</div>'
+    +'<div class="ri-ings">'+ings+'</div>'
+    +'<div class="ri-meth">'+(r.method||'')+'</div>'
+    +'</div>';
+}
+async function shuffleRecipe(slot,i){
+  var btn=document.getElementById('rshuf-'+i);
+  if(btn){btn.disabled=true;btn.textContent='Shuffling\u2026';}
+  _rBust(slot);
+  var p=P,t=TODAY;
+  var prot=Math.round((p.protein||140)/(p.mealCount||4));
+  var kcal=Math.round((t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4));
+  var mt={calories:kcal,protein:prot,carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25)};
+  try{
+    var recipe=await fetchRecipe(slot,(window._blocks[i]||{}).title||slot,mt,true);
+    var zone=document.getElementById('ri-'+i);
+    if(zone)zone.innerHTML=buildRecipeHtml(recipe,mt,slot,i);
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='&#8635; Shuffle';}}
 }
 
-
-
-async function loadInlineRecipe(slot, blockIdx, btn) {
-  if (btn) { btn.textContent='Loading…'; btn.disabled=true; }
-  const p=_profile;
-  const prot=Math.round((p.protein||140)/(p.mealCount||4));
-  const kcal=Math.round((_today.isTraining?(_today.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4));
-  try {
-    const recipe = await fetchRecipe(slot, (window._blocks[blockIdx]||{}).title||slot, {calories:kcal,protein:prot,carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25)}, false);
-    const zone = btn ? btn.parentElement : document.querySelector(`[data-slot="${slot}"] .meal-inline-body`);
-    if (zone) zone.innerHTML = inlineRecipeHTML(recipe, slot, blockIdx);
-  } catch(e) {
-    if (btn) { btn.textContent='Try again'; btn.disabled=false; }
-  }
-}
-
-function quickTick(slot, blockIdx) {
-  // One-tap "ate as planned" — uses recipe macros if cached, else plan macros
-  const recipe = _recipeCache[slot];
-  const p = _profile;
-  const prot = Math.round((p.protein||140)/(p.mealCount||4));
-  const kcal = Math.round((_today.isTraining?(_today.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4));
-  const macros = {
-    prot:  recipe ? recipe.protein  : prot,
-    carbs: recipe ? (recipe.carbs||0) : Math.round((p.carbs||160)*0.25),
-    fat:   recipe ? (recipe.fat||0)  : Math.round((p.fat||60)*0.25),
-    kcal:  recipe ? recipe.calories : kcal,
-    logged:true, note:'Ate as planned'
-  };
-  saveMealLog(slot, macros);
-  // Update tick visual
-  document.querySelectorAll(`[data-slot="${slot}"] .meal-tick`).forEach(el => {
-    el.classList.add('ticked'); el.textContent='✓';
-  });
-  document.querySelectorAll(`[data-slot="${slot}"] .tl-tag`).forEach(el => {
-    if (el.classList.contains('amber')) { el.textContent='✓ Eaten'; }
-  });
-  document.getElementById('meal-block-'+blockIdx)?.classList.add('eaten');
-  updateRemainingMeals();
-}
-
-function showDeviationLogger(slot, blockIdx) {
-  const zone = document.getElementById('dev-zone-'+blockIdx);
-  if (!zone) return;
-  const existing = zone.querySelector('.dev-inline');
-  if (existing) { zone.innerHTML=''; return; }
-  zone.innerHTML = `<div class="dev-inline">
-    <div class="dev-inline-label">What did you actually have?</div>
-    <textarea class="dev-inline-input" id="dvi-${blockIdx}" rows="2"
-      placeholder="e.g. chicken wrap from Pret, or bowl of pasta, or just skipped it…"></textarea>
-    <button class="dev-inline-send" onclick="submitDeviation('${slot}',${blockIdx})">Estimate macros ↑</button>
-    <div id="dvi-result-${blockIdx}"></div>
-  </div>`;
-}
-
-async function submitDeviation(slot, blockIdx) {
-  const input  = document.getElementById('dvi-'+blockIdx);
-  const result = document.getElementById('dvi-result-'+blockIdx);
-  const btn    = input ? input.parentElement.querySelector('.dev-inline-send') : null;
-  const text   = input ? input.value.trim() : '';
-  if (!text) return;
-  if (btn) { btn.disabled=true; btn.textContent='Estimating…'; }
-
-  const isOnPlan = /as planned|the meal|all of it|had it/i.test(text);
-  if (isOnPlan) {
-    quickTick(slot, blockIdx);
-    if (result) result.innerHTML=`<div class="dev-inline-result"><strong>On plan</strong> — nice.</div>`;
-    return;
-  }
-
-  try {
-    const p = _profile;
-    const res = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,
-        system:'Nutrition estimator. Return only valid JSON.',
-        messages:[{role:'user',content:`Estimate macros: "${text}". Person: ${p.weight||80}kg ${p.sex||'male'}.
-Return: {"protein":0,"carbs":0,"fat":0,"calories":0,"note":"brief"}`}]})});
-    const data = await res.json();
-    const raw  = (data.content||[]).map(b=>b.text||'').join('').trim();
-    const match= raw.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('No JSON');
-    const est = JSON.parse(match[0]);
-    const macros = {prot:est.protein||0,carbs:est.carbs||0,fat:est.fat||0,kcal:est.calories||0,logged:true,note:est.note||''};
-    saveMealLog(slot, macros);
-    if (result) result.innerHTML=`<div class="dev-inline-result"><strong>${macros.prot}g P · ${macros.carbs}g C · ${macros.fat}g F · ${macros.kcal} kcal</strong><br>${macros.note}</div>`;
-    if (btn) btn.style.display='none';
-    document.getElementById('meal-block-'+blockIdx)?.classList.add('eaten');
-    updateRemainingMeals();
-  } catch(e) {
-    if (btn) { btn.disabled=false; btn.textContent='Estimate macros ↑'; }
-    if (result) result.innerHTML=`<div class="dev-inline-result">Could not estimate — try again</div>`;
-  }
-}
-
-function getStickyMacrosHTML() {
-  if (!_macroState) return '<div style="font-size:10px;color:var(--dk-3);padding:2px 0;">Loading…</div>';
-  const {target,eaten} = _macroState;
-  function pct(v,m) { return Math.min(100,Math.round(v/Math.max(1,m)*100)); }
-  const kcalLeft = target.kcal - eaten.kcal;
-  const cls = kcalLeft > 200 ? 'good' : kcalLeft < -100 ? 'over' : 'warn';
-  return `
-    <div class="sm-bar-group"><div class="sm-label">Protein</div><div class="sm-bar-wrap"><div class="sm-bar p" style="width:${pct(eaten.prot,target.prot)}%"></div></div><div class="sm-val">${eaten.prot}g</div></div>
-    <div class="sm-bar-group"><div class="sm-label">Carbs</div><div class="sm-bar-wrap"><div class="sm-bar c" style="width:${pct(eaten.carbs,target.carbs)}%"></div></div><div class="sm-val">${eaten.carbs}g</div></div>
-    <div class="sm-bar-group"><div class="sm-label">Fat</div><div class="sm-bar-wrap"><div class="sm-bar f" style="width:${pct(eaten.fat,target.fat)}%"></div></div><div class="sm-val">${eaten.fat}g</div></div>
-    <div class="sm-kcal ${cls}">${kcalLeft > 0 ? kcalLeft+' left' : Math.abs(kcalLeft)+' over'}</div>`;
-}
-
-function refreshMacroCup() {
-  const sm = document.getElementById('sticky-macros');
-  if (sm) sm.innerHTML = getStickyMacrosHTML();
-}
-
-function showWeekDetail(wk) {
-  const wp = _profile.weeklyProgression;
-  if (!wp || !wp[wk]) return;
-  const w = wp[wk];
-  const panel = document.getElementById('week-detail');
-  if (!panel) return;
-  const isVisible = panel.classList.contains('visible') && panel.dataset.wk === wk;
-  if (isVisible) { panel.classList.remove('visible'); return; }
-  panel.dataset.wk = wk;
-  panel.innerHTML = `
-    <div class="wdp-phase">${w.phase}</div>
-    <div class="wdp-focus">${w.focus}</div>
-    <div class="wdp-note">${w.volumeNote}${w.keyFocus ? '<br><em style="color:var(--dk-3);">'+w.keyFocus+'</em>' : ''}</div>`;
-  panel.classList.add('visible');
-  // Update active tab
-  document.querySelectorAll('.wt').forEach(t => t.style.borderColor = '');
-}
-
-// Update openSessionPanel to show level tabs and use LEVEL_SCHEMES
-
-
-function setupChips(profile, today) {
-  const chipsEl = document.getElementById('ask-chips');
-  if (!chipsEl) return;
-  const injuries = profile.injuryAssessments || profile.injuries || [];
-  const isTraining = today.isTraining;
-  const chips = isTraining ? [
-    'How hard should I push today?',
-    injuries.length ? 'My '+( injuries[0].location||'injury')+' feels off' : 'Am I recovered enough?',
-    'What\'s the most important meal today?',
-    'Swap one of today\'s exercises?',
-  ] : [
-    'Rest day — active or completely off?',
-    'Same calories today?',
-    'How do I make today count?',
-    'Can I train anyway?',
-  ];
-  chipsEl.innerHTML = chips.map(c=>
-    `<div class="ask-chip" data-msg="${c.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${c}</div>`
-  ).join('');
-  chipsEl.querySelectorAll('.ask-chip').forEach(chip => {
-    chip.addEventListener('click', () => sendAsk(chip.dataset.msg));
-  });
-}
-
-// ── ASK HANDLER ───────────────────────────────────────
-let _askInFlight = false;
-
-function sendAsk(text) {
-  const input  = document.getElementById('ask-input');
-  const answer = document.getElementById('ask-answer');
-  const sendBtn= document.getElementById('ask-send');
-  const msg    = text || (input ? input.value.trim() : '');
-  if (!msg || _askInFlight) return;
-  if (input && !text) input.value = '';
-  _askInFlight = true;
-  if (sendBtn) sendBtn.disabled = true;
-
-  answer.style.display = 'block';
-  answer.innerHTML = '<div class="loading-spinner" style="width:18px;height:18px;margin:8px 0;border-top-color:var(--jade);"></div>';
-
-  const p = _profile;
-  const isFemale = (p.sex||'').toLowerCase() === 'female';
-  const injuries = p.injuryAssessments || p.injuries || [];
-
-  fetch(API, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ model:MODEL, max_tokens:280,
-      system:`You are the BodyLens coach. Speaking with ${p.name}. Today: ${_today.name} — ${_today.isTraining?'TRAINING ('+_today.plan.type+')':'REST DAY'}. Calories: ${p.calories}. Protein: ${p.protein}g. ${injuries.length?'Injuries: '+injuries.map(i=>i.location||i).join(', ')+'.':''} ${isFemale?'Female.':''} Be direct, personal, under 120 words. Flowing prose, no bullets.`,
-      messages:[{role:'user',content:msg}]
-    })
+// ── Ask bar ───────────────────────────────────────
+var _askBusy=false;
+function sendAsk(text){
+  var inp=document.getElementById('ask-inp');
+  var ans=document.getElementById('ask-ans');
+  var msg=text||(inp?inp.value.trim():'');
+  if(!msg||_askBusy)return;
+  if(inp&&!text)inp.value='';
+  _askBusy=true;
+  ans.style.display='block';
+  ans.innerHTML='<div class="spin" style="width:16px;height:16px;margin:6px 0;"></div>';
+  var p=P,t=TODAY;
+  var injuries=(p.injuryAssessments||p.injuries||[]).map(function(x){return x.location||x;}).join(', ');
+  fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:MODEL,max_tokens:250,
+      system:'You are the BodyLens coach. Speaking with '+p.name+'. Today: '+t.name+' ('+(t.isTraining?'TRAINING '+t.plan.type:'REST')+'). Calories: '+p.calories+'. Protein: '+p.protein+'g. '+(injuries?'Injuries: '+injuries+'.':'')+' Be direct, personal, under 100 words. Prose only.',
+      messages:[{role:'user',content:msg}]})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var text=(d.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    ans.innerHTML=text.split(/\n\n+/).map(function(p){return '<p>'+p.trim()+'</p>';}).join('');
   })
-  .then(r=>r.json())
-  .then(data => {
-    const text = (data.content||[]).map(b=>b.text||'').join('').trim();
-    answer.innerHTML = text.split(/\n\n+/).map(p=>`<p>${p.trim()}</p>`).join('');
-  })
-  .catch(() => { answer.innerHTML = '<p style="color:var(--dk-3)">Something went wrong — try again</p>'; })
-  .finally(() => {
-    _askInFlight = false;
-    if (sendBtn) sendBtn.disabled = false;
-  });
+  .catch(function(){ans.innerHTML='<p style="color:var(--dk-3)">Something went wrong \u2014 try again</p>';})
+  .finally(function(){_askBusy=false;});
 }
 
-// ── MEAL ENRICHMENT ───────────────────────────────────
-function enrichMeals(profile, today) {
-  const mealSlots = document.querySelectorAll('[data-slot]');
-  if (!mealSlots.length) return;
-  const p = profile;
-  const prompt = `Meal names for ${p.name}. Return JSON only.
-Diet: ${p.dietType||'flexible'} | Exclude: ${(p.foodExclusions||[]).join(',')||'none'} | Cuisine: ${(p.cuisinePrefs||[]).join(',')||'neutral'}
-Today: ${today.isTraining ? 'training ('+today.plan.type+')' : 'rest day'}
-Return: {"pre-training":"name","post-training":"name","midday":"name","afternoon":"name","evening":"name"}
-Short names only. Only include applicable slots.`;
+// ── Enrich meal names ─────────────────────────────
+function enrichMeals(p,t){
+  var slots=document.querySelectorAll('[data-slot]');
+  if(!slots.length)return;
+  var excl=(p.foodExclusions||[]).join(',')||'none';
+  var cuis=(p.cuisinePrefs||[]).join(',')||'neutral';
+  var prompt='Meal names for '+p.name+'. Return JSON only.\nDiet: '+(p.dietType||'flexible')+' | Exclude: '+excl+' | Cuisine: '+cuis+'\nToday: '+(t.isTraining?'training ('+t.plan.type+')':'rest day')+'\nReturn: {"pre-training":"name","post-training":"name","midday":"name","afternoon":"name","evening":"name"}\nShort names only.';
   fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:100,system:'Return only valid JSON.',messages:[{role:'user',content:prompt}]})})
-  .then(r=>r.json()).then(data=>{
-    const text=(data.content||[]).map(b=>b.text||'').join('').trim();
-    const m=text.match(/\{[\s\S]*\}/);
-    if(!m)return;
-    const meals=JSON.parse(m[0]);
-    Object.entries(meals).forEach(([slot,name])=>{
-      const block=document.querySelector(`[data-slot="${slot}"] .tl-title`);
-      if(block&&name)block.textContent=name;
+  .then(function(r){return r.json();}).then(function(d){
+    var text=(d.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var m=text.match(/\{[\s\S]*\}/);if(!m)return;
+    var meals=JSON.parse(m[0]);
+    Object.keys(meals).forEach(function(slot){
+      var el=document.querySelector('[data-slot="'+slot+'"] .tl-title');
+      if(el&&meals[slot])el.textContent=meals[slot];
     });
-  }).catch(()=>{});
+  }).catch(function(){});
 }
 
-// ── ACCELERATOR ───────────────────────────────────────
-function pickAccelerator(profile, today) {
-  const goal = (profile.goal||'').toLowerCase();
-  const age  = profile.age||35;
-  const cands = [];
-  if (!today.isTraining) {
-    cands.push({name:'Extended overnight fast',why:'Rest day — ideal window. No performance cost. Fat oxidation elevated all morning.',url:'bodylens-accelerators.html'});
-    cands.push({name:'NSDR session today',why:'20 minutes of yoga nidra raises dopamine 65% and restores focus as well as 90 min of sleep.',url:'bodylens-accelerators.html'});
-  } else {
-    cands.push({name:'Post-training walk',why:'10 min after your post-session meal drops glucose 20-30% and keeps GLP-1 elevated.',url:'bodylens-accelerators.html'});
-    cands.push({name:'Dopamine scheduling',why:'No social media before training. The contrast makes the session dopamine hit land harder.',url:'bodylens-accelerators.html'});
+// ── Render plan ───────────────────────────────────
+function renderPlan(plan){
+  var root=document.getElementById('day-root');
+  window._blocks=plan.blocks;
+  var p=P,t=TODAY;
+  var progCtx=getProgCtx(p);
+  var prog={weekNum:progCtx.weekNum,phase:progCtx.phase};
+
+  var blocksHtml=plan.blocks.map(function(b,i){
+    var isMeal=!!b.mealSlot;
+    var isTrain=b.type==='training';
+
+    // Simple blocks
+    if(!isMeal&&!isTrain){
+      var det=(b.detail||'').split('\n').map(function(l){return l.trim()?'<p>'+l+'</p>':'';}).join('');
+      var its=(b.items||[]).map(function(x){return '<div class="tl-item">'+x.name+(x.meta?' <span style="color:var(--dk-3);">'+x.meta+'</span>':'')+'</div>';}).join('');
+      return '<div class="tl-block t-'+(b.type||'supp')+'" onclick="this.classList.toggle(\'open\')">'
+        +'<div class="tl-head">'
+        +'<div class="tl-time">'+(b.time||'')+'</div>'
+        +'<div class="tl-main"><div class="tl-title">'+b.title+'</div>'+(b.subtitle?'<div class="tl-sub">'+b.subtitle+'</div>':'')+'</div>'
+        +(b.tag?'<span class="tl-tag '+(b.tagColor||'s')+'">'+b.tag+'</span>':'')
+        +'<span class="tl-chev">\u25be</span></div>'
+        +'<div class="tl-body">'+(det?'<div class="tl-detail">'+det+'</div>':'')+(b.science?'<div class="tl-science">'+b.science+'</div>':'')+(its?'<div class="tl-items">'+its+'</div>':'')+'</div>'
+        +'</div>';
+    }
+
+    // Meal blocks
+    if(isMeal){
+      var slot=b.mealSlot;
+      var eaten=MACROS&&MACROS.meals[slot]&&MACROS.meals[slot].logged;
+      var cachedRecipe=_recipes[slot];
+      var riSection=cachedRecipe?buildRecipeHtml(cachedRecipe,{protein:Math.round((p.protein||140)/(p.mealCount||4)),carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25),calories:Math.round((t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4))},slot,i)
+        :'<button class="meal-btn pri" onclick="loadRecipe(\''+slot+'\','+i+',this)">\uD83C\uDF73 Load recipe</button>';
+      return '<div class="tl-block t-meal'+(eaten?' eaten':'')+'" data-slot="'+slot+'" id="meal-'+i+'">'
+        +'<div class="tl-head" onclick="toggleMeal('+i+')">'
+        +'<div class="tl-time">'+(b.time||'')+'</div>'
+        +'<div class="tl-main"><div class="tl-title">'+b.title+'</div><div class="tl-sub" id="sub-'+slot+'">'+( b.subtitle||'')+'</div></div>'
+        +'<div style="display:flex;align-items:center;gap:6px;">'
+        +'<div class="tl-tick'+(eaten?' done':'')+'" onclick="event.stopPropagation();quickTick(\''+slot+'\','+i+')">'+(eaten?'\u2713':'')+'</div>'
+        +'<span class="tl-tag a">'+(eaten?'\u2713 Eaten':'Eat')+'</span>'
+        +'<span class="tl-chev">\u25be</span>'
+        +'</div></div>'
+        +'<div class="meal-inline">'
+        +'<div class="meal-actions">'
+        +'<button class="meal-btn con" onclick="quickTick(\''+slot+'\','+i+')">\u2713 Ate this</button>'
+        +'<button class="meal-btn" onclick="showDevLogger(\''+slot+'\','+i+')">Something different</button>'
+        +'</div>'
+        +'<div id="dev-'+i+'"></div>'
+        +'<div id="ri-'+i+'">'+riSection+'</div>'
+        +'</div>'
+        +'</div>';
+    }
+
+    // Training block
+    if(isTrain){
+      var hasLevel=p.fitnessLevel!==undefined;
+      var lvlLabel=hasLevel?(p.fitnessLevelLabel||'Intermediate')+' prescription':'Tap to assess your level';
+      return '<div class="tl-block t-training">'
+        +'<div class="tl-head" onclick="'+(hasLevel?'showSession('+i+',window._blocks['+i+'])':'showQuiz('+i+',window._blocks['+i+'])')+'">'
+        +'<div class="tl-time">'+(b.time||'')+'</div>'
+        +'<div class="tl-main"><div class="tl-title">'+b.title+'</div><div class="tl-sub">'+lvlLabel+'</div></div>'
+        +'<span class="tl-tag j">'+(hasLevel?'Session \u2192':'Assess \u2192')+'</span>'
+        +'</div></div>';
+    }
+    return '';
+  }).join('');
+
+  // Week tabs
+  var weekTabsHtml=renderWeekTabs(p,progCtx);
+
+  // Date
+  var d=new Date();
+  var dateStr=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+
+  root.innerHTML=
+    '<div class="day-hero">'
+    +'<div class="day-kicker">'+dateStr+'</div>'
+    +'<div class="day-title">'+plan.dayTitle+'</div>'
+    +'<div class="day-brief">'+plan.dayBrief+'</div>'
+    +(plan.priority?'<div class="day-priority">'+plan.priority+'</div>':'')
+    +'</div>'
+    +weekTabsHtml
+    +'<div class="macro-tiles">'
+    +'<div class="mt"><div class="mt-val">'+plan.macros.kcal+'</div><div class="mt-label">Calories</div></div>'
+    +'<div class="mt"><div class="mt-val j">'+plan.macros.prot+'g</div><div class="mt-label">Protein</div></div>'
+    +'<div class="mt"><div class="mt-val a">'+plan.macros.carbs+'g</div><div class="mt-label">Carbs</div></div>'
+    +'<div class="mt"><div class="mt-val">'+plan.macros.fat+'g</div><div class="mt-label">Fat</div></div>'
+    +'</div>'
+    +'<div class="water-bar">\uD83D\uDCA7 '+plan.macros.water+' \u2014 spread across the day</div>'
+    +'<div id="prog-strip-slot"></div>'
+    +'<div class="sec-label">Your day</div>'
+    +blocksHtml
+    +'<button class="regen-btn" onclick="regen()">\u8635 Rebuild today</button>'
+    +'<div class="ask-bar">'
+    +'<div class="ask-chips" id="ask-chips"></div>'
+    +'<div class="ask-row"><input class="ask-inp" id="ask-inp" type="text" placeholder="Ask anything about today\u2026"><button class="ask-snd" onclick="sendAsk()">\u2191</button></div>'
+    +'<div class="ask-ans" id="ask-ans"></div>'
+    +'</div>';
+
+  // Programme strip
+  var ps=document.getElementById('prog-strip-slot');
+  if(ps){
+    var dots=[1,2,3,4].map(function(w){return '<div class="ps-dot'+(w<progCtx.weekNum?' done':w===progCtx.weekNum?' curr':'')+'"></div>';}).join('');
+    var acc=pickAcc(p,t);
+    ps.innerHTML='<div class="prog-strip"><div class="ps-left"><div class="ps-label">Programme</div><div class="ps-dots">'+dots+'</div></div><div class="ps-right"><div class="ps-week">Week '+progCtx.weekNum+' of 4</div><div class="ps-phase">'+progCtx.phase+'</div></div></div>'
+      +(acc?'<div class="acc-strip"><div class="acc-body"><div class="acc-kicker">\uD83D\uDCA1 Accelerator</div><div class="acc-title">'+acc.name+'</div><div class="acc-why">'+acc.why+'</div></div><a href="'+acc.url+'" class="acc-link">More \u2192</a></div>':'');
   }
-  if (goal.includes('fat')||goal.includes('los')) cands.unshift({name:'NEAT target: +3,000 steps',why:'Easiest caloric deficit available. 3,000 extra steps = ~150 kcal without touching food or training.',url:'bodylens-accelerators.html'});
-  if (age >= 40) cands.push({name:'Zone 2 cardio — 20 min today',why:`At ${age}, VO₂max is the primary longevity lever. 20 min at conversational pace today.`,url:'bodylens-accelerators.html'});
-  return cands[0];
+
+  // Chips
+  var chips=t.isTraining?['How hard should I push today?','Most important meal today?','Am I recovered enough?']:['Rest day: active or off?','Same calories today?','How to make rest day count?'];
+  var chipEl=document.getElementById('ask-chips');
+  if(chipEl){
+    chipEl.innerHTML=chips.map(function(c){return '<div class="ask-chip" data-msg="'+c.replace(/"/g,'&quot;')+'">'+c+'</div>';}).join('');
+    chipEl.querySelectorAll('.ask-chip').forEach(function(el){el.addEventListener('click',function(){sendAsk(el.dataset.msg);});});
+  }
+  var askInp=document.getElementById('ask-inp');
+  if(askInp)askInp.addEventListener('keydown',function(e){if(e.key==='Enter')sendAsk();});
 }
 
-// ── REGENERATE ────────────────────────────────────────
-window.regenerate = function() {
-  try { localStorage.removeItem(_today.cacheKey); } catch(e){}
-  location.reload();
-};
+function regen(){try{localStorage.removeItem(TODAY.cacheKey);}catch(e){}location.reload();}
 
-window.sendAsk = sendAsk;
+// ── MAIN ──────────────────────────────────────────
+(function init(){
+  P=loadProfile();
+  var root=document.getElementById('day-root');
 
-// ── MAIN ──────────────────────────────────────────────
-const _profile = loadProfile();
-
-if (!_profile) {
-  document.getElementById('day-root').innerHTML = `
-    <div style="text-align:center;padding:80px 24px;">
-      <div style="font-size:44px;margin-bottom:16px;">💪</div>
-      <div style="font-family:var(--serif);font-size:28px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">Let's build your programme</div>
-      <div style="font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:28px;">Answer a few questions and your personalised daily plan will be ready in minutes.</div>
-      <a href="bodylens-onboard.html" style="display:inline-block;background:var(--jade);color:var(--ink);padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;">Get started →</a>
-    </div>`;
-  document.getElementById('week-strip').style.display = 'none';
-} else {
-  // Nav
-  const nm = document.getElementById('nav-meta');
-  if (nm) nm.innerHTML = `<span class="nav-tag nt-jade">${_profile.name}</span>`;
-
-  // Today context — declared BEFORE anything uses it
-  const _today = getTodayContext(_profile);
-  window._today = _today;
-
-  // Programme week indicator
-  const progCtx = getWeekProgrammeContext(_profile);
-
-  // Init macro state
-  initMacroState(_profile, _today);
-
-  // Week strip
-  renderWeekStrip(_profile, _today);
-
-  // Profile validation — if re-done profile has 0 calories, show a useful message
-  const hasValidProfile = _profile.calories > 0 && _profile.weekPlan && _profile.weekPlan.length === 7;
-  if (!hasValidProfile) {
-    document.getElementById('day-root').innerHTML = `
-      <div style="text-align:center;padding:60px 24px;max-width:500px;margin:0 auto;">
-        <div style="font-size:36px;margin-bottom:14px;">⚙️</div>
-        <div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">Profile incomplete</div>
-        <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:24px;">
-          Your profile was found but the programme data is missing — the onboarding may not have completed fully. You can re-run it (takes 5 minutes) or go to the Report page to rebuild from what was saved.
-        </div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a href="bodylens-onboard.html" style="display:inline-block;background:var(--jade);color:var(--ink);padding:11px 24px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;letter-spacing:0.04em;">Re-do onboarding</a>
-          <a href="bodylens-instructions.html" style="display:inline-block;background:transparent;border:1px solid var(--bd);color:var(--dk-2);padding:11px 24px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;letter-spacing:0.04em;">Rebuild report →</a>
-        </div>
-      </div>`;
-    document.getElementById('week-strip').style.display = 'none';
-    const nm = document.getElementById('nav-meta');
-    if (nm) nm.innerHTML = `<span class="nav-tag nt-jade">${_profile.name}</span>`;
+  if(!P){
+    root.innerHTML='<div style="text-align:center;padding:80px 24px;">'
+      +'<div style="font-size:44px;margin-bottom:14px;">\uD83D\uDCAA</div>'
+      +'<div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">Let\'s build your programme</div>'
+      +'<div style="font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:24px;">Answer a few questions and your personalised daily plan will be ready in minutes.</div>'
+      +'<a href="bodylens-onboard.html" style="display:inline-block;background:var(--jade);color:var(--ink);padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;">Get started \u2192</a>'
+      +'</div>';
+    document.getElementById('week-strip').style.display='none';
     return;
   }
 
-  // Cache check
-  let plan = null;
-  try {
-    const cached = localStorage.getItem(_today.cacheKey);
-    if (cached) plan = JSON.parse(cached);
-  } catch(e) {}
+  var nm=document.getElementById('nav-meta');
+  if(nm)nm.innerHTML='<span class="nav-tag nt-jade">'+P.name+'</span>';
 
-  if (!plan || !plan.blocks || plan.blocks.length < 3) {
-    try {
-      plan = buildPlan(_profile, _today);
-      try { localStorage.setItem(_today.cacheKey, JSON.stringify(plan)); } catch(e){}
-    } catch(buildErr) {
-      console.error('buildPlan error:', buildErr);
-      document.getElementById('day-root').innerHTML = `
-        <div style="text-align:center;padding:60px 24px;">
-          <div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:16px;">Something went wrong building today's plan.</div>
-          <button onclick="location.reload()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-2);padding:8px 18px;border-radius:4px;font-size:12px;cursor:pointer;font-family:var(--sans);">Try again</button>
-        </div>`;
+  TODAY=getTodayCtx(P);
+  _rLoad();
+  initMacros(P,TODAY);
+  updateMacroBar();
+  renderWeekStrip(P,TODAY);
+
+  // Validate
+  var ok=P.calories>0&&P.weekPlan&&P.weekPlan.length===7;
+  if(!ok){
+    root.innerHTML='<div style="text-align:center;padding:60px 24px;max-width:480px;margin:0 auto;">'
+      +'<div style="font-size:32px;margin-bottom:12px;">\u2699\uFE0F</div>'
+      +'<div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">Profile incomplete</div>'
+      +'<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:20px;">Your profile was found but the programme data is missing. Go to the Report page to rebuild it from your saved questionnaire data.</div>'
+      +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">'
+      +'<a href="bodylens-instructions.html" style="background:var(--jade);color:var(--ink);padding:11px 22px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;letter-spacing:0.04em;">Rebuild report \u2192</a>'
+      +'<a href="bodylens-onboard.html" style="background:transparent;border:1px solid var(--bd);color:var(--dk-2);padding:11px 22px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;letter-spacing:0.04em;">Re-do onboarding</a>'
+      +'</div></div>';
+    return;
+  }
+
+  // Cache
+  var plan=null;
+  try{var c=localStorage.getItem(TODAY.cacheKey);if(c)plan=JSON.parse(c);}catch(e){}
+  if(!plan||!plan.blocks||plan.blocks.length<3){
+    try{plan=buildPlan(P,TODAY);localStorage.setItem(TODAY.cacheKey,JSON.stringify(plan));}catch(e){
+      root.innerHTML='<div style="text-align:center;padding:60px;"><div style="font-size:13px;color:var(--dk-3);margin-bottom:14px;">Could not build plan: '+e.message+'</div><button onclick="regen()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-2);padding:8px 18px;border-radius:4px;font-size:12px;cursor:pointer;font-family:var(--sans);">Try again</button></div>';
       return;
     }
   }
 
-  // Render
   renderPlan(plan);
-
-  // Programme week strip (inject after render)
-  const accSlot = document.getElementById('acc-strip-here');
-  if (accSlot) {
-    const dots = [1,2,3,4].map(w=>`<div class="wps-dot ${w<progCtx.weekNum?'done':w===progCtx.weekNum?'current':''}"></div>`).join('');
-    accSlot.innerHTML = `
-      <div class="week-prog-strip">
-        <div>
-          <div class="wps-label">Programme progress</div>
-          <div class="wps-dots">${dots}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="wps-week">Week ${progCtx.weekNum} of 4</div>
-          <div class="wps-phase">${progCtx.phase} phase</div>
-        </div>
-      </div>`;
-    // Accelerator
-    const acc = pickAccelerator(_profile, _today);
-    if (acc) {
-      accSlot.innerHTML += `<div class="acc-strip">
-        <div><div class="as-eyebrow">💡 Accelerator — optional</div><div class="as-title">${acc.name}</div><div class="as-why">${acc.why}</div></div>
-        <a href="${acc.url}" class="as-btn">More →</a>
-      </div>`;
-    }
-  }
-
-  // Chips + ask bar
-  setupChips(_profile, _today);
-  const askInput = document.getElementById('ask-input');
-  const askSend  = document.getElementById('ask-send');
-  if (askSend) askSend.addEventListener('click', () => sendAsk());
-  if (askInput) askInput.addEventListener('keydown', e => { if (e.key==='Enter') sendAsk(); });
-
-  // Meal name enrichment (background)
-  enrichMeals(_profile, _today);
-}
+  enrichMeals(P,TODAY);
+})();
 </script>
-
 <script src="pwa.js"></script>
 <script src="coach.js"></script>
-
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js', { scope: '/' })
-      .then(reg => {
-        window.__SW_REG = reg;
-        // Check for updates silently
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              newWorker.postMessage({ type: 'SKIP_WAITING' });
-            }
-          });
-        });
-      })
-      .catch(err => console.warn('[BodyLens] SW registration failed:', err));
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(function(){});
   });
 }
 </script>
