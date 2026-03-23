@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0c1010">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BodyLens">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="bl-page" content="day">
 <title>BodyLens — Today</title>
@@ -403,7 +411,7 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily active" href="bodylens-dailyplan.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-magazine-food.html">Food</a>
+    <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-instructions.html">Report</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
@@ -1256,7 +1264,7 @@ function openSessionPanel(blockIdx, block) {
     <button style="background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;text-decoration:underline;" onclick="startQuiz(${blockIdx},window._blocks[${blockIdx}])">Retake assessment</button>
   </div>`;
 
-  showRightPanel(block.title, block.subtitle||'Today's session',
+  showRightPanel(block.title, block.subtitle||"Today's session",
     `<div class="session-level-tabs">${levelTabsHTML}</div>
      ${progHTML}
      ${reTakeHTML}
@@ -1945,6 +1953,28 @@ if (!_profile) {
 }
 </script>
 
+<script src="pwa.js"></script>
 <script src="coach.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(reg => {
+        window.__SW_REG = reg;
+        // Check for updates silently
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[BodyLens] SW registration failed:', err));
+  });
+}
+</script>
 </body>
 </html>
