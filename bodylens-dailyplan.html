@@ -260,6 +260,141 @@ body { background:var(--ink); color:var(--dk-1); }
   .day-main { padding:0 20px 100px; }
   .week-strip { padding:10px 20px; }
 }
+
+/* ── STICKY MACRO BAR ─────────────────────────────── */
+.sticky-macros {
+  background:rgba(12,16,16,0.95); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--bd); padding:8px 32px;
+  position:sticky; top:0; z-index:50;
+  display:flex; gap:16px; align-items:center;
+}
+.sm-bar-group { flex:1; display:flex; align-items:center; gap:8px; }
+.sm-label { font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); width:44px; flex-shrink:0; }
+.sm-bar-wrap { flex:1; height:5px; background:var(--ink-2); border-radius:3px; overflow:hidden; }
+.sm-bar { height:100%; border-radius:3px; transition:width 0.4s ease; }
+.sm-bar.p { background:var(--jade); }
+.sm-bar.c { background:var(--amber); }
+.sm-bar.f { background:#5a7898; }
+.sm-val { font-size:9px; font-family:var(--mono); color:var(--dk-3); width:30px; text-align:right; flex-shrink:0; }
+.sm-kcal { font-size:10px; font-weight:600; font-family:var(--mono); white-space:nowrap; flex-shrink:0; }
+.sm-kcal.good { color:var(--jade); }
+.sm-kcal.warn { color:var(--amber); }
+.sm-kcal.over  { color:var(--red,#d94e35); }
+
+/* ── WEEK TABS ────────────────────────────────────── */
+.week-tabs { display:flex; gap:6px; margin-bottom:16px; margin-top:4px; }
+.wt { flex:1; background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:10px 8px; text-align:center; cursor:pointer; transition:all 0.12s; }
+.wt:hover { border-color:var(--bd-2,#2a3830); }
+.wt.active { border-color:var(--jade-br); background:rgba(0,200,160,0.04); }
+.wt.done   { border-color:rgba(200,148,30,0.25); background:rgba(200,148,30,0.03); }
+.wt-num  { font-size:8px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:3px; }
+.wt.active .wt-num { color:var(--jade); }
+.wt.done   .wt-num { color:var(--gold); }
+.wt-phase { font-size:11px; font-weight:600; color:var(--dk-1); margin-bottom:2px; }
+.wt-note  { font-size:9px; font-weight:300; color:var(--dk-3); line-height:1.4; }
+
+.week-detail-panel { background:var(--ink-2); border:1px solid var(--jade-br); border-radius:6px; padding:14px 16px; margin-bottom:16px; animation:fadeIn 0.15s ease; display:none; }
+.week-detail-panel.visible { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+.wdp-phase { font-size:9px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--jade); margin-bottom:4px; }
+.wdp-focus { font-size:13px; font-weight:500; color:var(--dk-1); margin-bottom:4px; }
+.wdp-note  { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.7; }
+
+/* ── INLINE MEAL EXPAND ───────────────────────────── */
+/* Remove right-panel only for meal — keep training in right panel */
+.meal-inline-body { display:none; border-top:1px solid var(--bd); background:var(--ink-1); padding:14px 16px 14px 54px; }
+.tl-block.meal-open .meal-inline-body { display:block; }
+.tl-block.meal-open .tl-chevron { transform:rotate(180deg); }
+
+/* Inline recipe card */
+.inline-recipe { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; overflow:hidden; margin-bottom:10px; }
+.ir-header { padding:12px 14px; border-bottom:1px solid var(--bd); display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.ir-name { font-size:13px; font-weight:500; color:var(--dk-1); margin-bottom:1px; }
+.ir-desc { font-size:10px; font-weight:300; color:var(--dk-3); }
+.ir-shuffle { background:transparent; border:1px solid var(--amber-br); color:var(--amber); border-radius:12px; padding:3px 10px; font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; flex-shrink:0; }
+.ir-shuffle:hover { background:rgba(196,124,24,0.08); }
+.ir-macros { padding:10px 14px; border-bottom:1px solid var(--bd); display:flex; flex-direction:column; gap:5px; }
+.ir-mac-row { display:grid; grid-template-columns:48px 1fr 32px; gap:6px; align-items:center; }
+.ir-mac-label { font-size:9px; font-weight:500; color:var(--dk-3); }
+.ir-mac-bar-wrap { height:5px; background:var(--ink-1); border-radius:3px; overflow:hidden; }
+.ir-mac-bar { height:100%; border-radius:3px; }
+.ir-mac-bar.p { background:var(--jade); }
+.ir-mac-bar.c { background:var(--amber); }
+.ir-mac-bar.f { background:#5a7898; }
+.ir-mac-val { font-size:9px; font-family:var(--mono); color:var(--dk-3); text-align:right; }
+.ir-ingredients { padding:10px 14px; border-bottom:1px solid var(--bd); display:flex; flex-wrap:wrap; gap:5px; }
+.ir-ing { background:var(--ink-1); border:1px solid var(--bd); border-radius:4px; padding:3px 8px; font-size:10px; }
+.ir-ing-name { font-weight:400; color:var(--dk-1); }
+.ir-ing-qty { font-weight:300; color:var(--dk-3); margin-left:3px; }
+.ir-method { padding:10px 14px; font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.7; }
+
+/* Meal tick and log buttons */
+.meal-actions-row { display:flex; gap:7px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+.meal-tick { width:28px; height:28px; border-radius:50%; border:1px solid var(--jade-br); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; flex-shrink:0; font-size:13px; color:var(--jade); background:transparent; }
+.meal-tick:hover { background:var(--jade-dim); }
+.meal-tick.ticked { background:var(--jade); color:var(--ink); border-color:var(--jade); }
+.meal-log-btn { background:transparent; border:1px solid var(--bd); border-radius:14px; padding:4px 12px; font-size:10px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--dk-3); cursor:pointer; font-family:var(--sans); transition:all 0.12s; }
+.meal-log-btn:hover { border-color:var(--amber-br); color:var(--amber); }
+.meal-log-btn.show-recipe { border-color:var(--amber-br); color:var(--amber); }
+
+/* Deviation inline logger */
+.dev-inline { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; padding:12px 14px; margin-bottom:10px; }
+.dev-inline-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:7px; }
+.dev-inline-input { width:100%; background:var(--ink-2); border:1px solid var(--bd); border-radius:5px; padding:8px 11px; font-size:12px; font-family:var(--sans); color:var(--dk-1); outline:none; resize:none; line-height:1.4; transition:border-color 0.12s; }
+.dev-inline-input:focus { border-color:rgba(0,200,160,0.35); }
+.dev-inline-input::placeholder { color:var(--dk-3); }
+.dev-inline-send { margin-top:6px; background:var(--jade); border:none; color:var(--ink); border-radius:5px; padding:7px 14px; font-size:10px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); transition:opacity 0.12s; }
+.dev-inline-send:hover { opacity:0.85; }
+.dev-inline-result { margin-top:8px; padding:8px 10px; background:var(--ink-2); border:1px solid var(--jade-br); border-radius:4px; font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.65; }
+.dev-inline-result strong { color:var(--jade); font-weight:600; }
+
+/* ── LEVEL QUIZ (in right panel) ──────────────────── */
+.lq-header { padding:16px 20px; border-bottom:1px solid var(--bd); background:rgba(200,148,30,0.04); }
+.lq-kicker { font-size:8px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold); margin-bottom:4px; }
+.lq-title  { font-size:16px; font-weight:500; color:var(--dk-1); margin-bottom:2px; }
+.lq-sub    { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.5; }
+.lq-progress { display:flex; gap:4px; padding:10px 20px; border-bottom:1px solid var(--bd); }
+.lq-prog-dot { flex:1; height:3px; background:var(--bd); border-radius:2px; transition:background 0.2s; }
+.lq-prog-dot.done { background:var(--gold); }
+.lq-prog-dot.current { background:var(--jade); }
+.lq-body { padding:16px 20px; }
+.lq-q-text { font-size:14px; font-weight:500; color:var(--dk-1); margin-bottom:4px; line-height:1.4; }
+.lq-q-note { font-size:10px; font-weight:300; color:var(--dk-3); margin-bottom:12px; font-style:italic; }
+.lq-options { display:flex; flex-direction:column; gap:7px; }
+.lq-opt { background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; padding:10px 14px; cursor:pointer; transition:all 0.12s; }
+.lq-opt:hover { border-color:rgba(200,148,30,0.35); }
+.lq-opt.selected { border-color:var(--gold); background:rgba(200,148,30,0.05); }
+.lq-opt-label { font-size:13px; font-weight:500; color:var(--dk-1); margin-bottom:1px; }
+.lq-opt-val   { font-size:10px; font-weight:300; color:var(--dk-3); }
+.lq-nav { display:flex; gap:8px; margin-top:14px; }
+.lq-next { flex:1; background:var(--gold); border:none; color:var(--ink); border-radius:6px; padding:9px; font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); opacity:0.4; transition:opacity 0.12s; }
+.lq-next.ready { opacity:1; }
+.lq-back { background:transparent; border:1px solid var(--bd); color:var(--dk-3); border-radius:6px; padding:9px 14px; font-size:11px; cursor:pointer; font-family:var(--sans); }
+
+/* Level result */
+.lq-result { padding:16px 20px; }
+.lr-level-bar { margin:12px 0; }
+.lr-track { height:8px; background:var(--bd); border-radius:4px; position:relative; margin-bottom:6px; }
+.lr-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,rgba(200,148,30,0.3),var(--gold)); }
+.lr-marker { position:absolute; top:-5px; width:18px; height:18px; border-radius:50%; border:2px solid var(--gold); background:var(--ink); transform:translateX(-50%); }
+.lr-scale { display:flex; justify-content:space-between; font-size:9px; color:var(--dk-3); }
+.lr-title { font-family:var(--serif); font-size:24px; font-weight:300; color:var(--dk-1); margin-bottom:4px; }
+.lr-desc  { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.75; margin-bottom:14px; }
+.lr-actions { display:flex; gap:8px; }
+.lr-save { flex:1; background:var(--jade); border:none; color:var(--ink); border-radius:6px; padding:10px; font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); }
+.lr-redo { background:transparent; border:1px solid var(--bd); color:var(--dk-3); border-radius:6px; padding:10px 14px; font-size:11px; cursor:pointer; font-family:var(--sans); }
+
+/* Level tabs in session panel */
+.session-level-tabs { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0; border-bottom:1px solid var(--bd); }
+.slt { padding:10px 8px; text-align:center; cursor:pointer; transition:background 0.1s; border-right:1px solid var(--bd); }
+.slt:last-child { border-right:none; }
+.slt.active { background:rgba(200,148,30,0.06); }
+.slt.yours  { background:rgba(0,200,160,0.04); }
+.slt-name { font-size:9px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--dk-3); margin-bottom:2px; }
+.slt.active .slt-name { color:var(--gold); }
+.slt.yours .slt-name { color:var(--jade); }
+.slt-desc { font-size:9px; font-weight:300; color:var(--dk-3); }
+
 </style>
 </head>
 <body>
@@ -273,6 +408,7 @@ body { background:var(--ink); color:var(--dk-1); }
     <a class="nav-link" href="bodylens-science.html">Science</a>
   </div>
   <div class="nav-right-group">
+    <a class="nav-right" href="bodylens-guide.html">Guide</a>
     <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
     <div class="nav-meta" id="nav-meta"></div>
   </div>
@@ -744,7 +880,19 @@ function showRightPanel(title, sub, html) {
 }
 
 // ── RECIPE FETCH ──────────────────────────────────────
+// Recipe cache — persisted to localStorage, keyed by slot+date
+const _RECIPE_DATE = new Date().toISOString().slice(0,10);
+function _rcKey(slot) { return 'bl_recipe_' + slot + '_' + _RECIPE_DATE; }
 const _recipeCache = {};
+// Pre-load today's cached recipes on startup
+(function() {
+  ['pre-training','post-training','midday','afternoon','evening'].forEach(slot => {
+    try {
+      const raw = localStorage.getItem(_rcKey(slot));
+      if (raw) _recipeCache[slot] = JSON.parse(raw);
+    } catch(e) {}
+  });
+})();
 
 async function fetchRecipe(slot, mealTitle, mealTarget, forceNew) {
   const cacheKey = 'recipe_' + (slot||mealTitle) + '_' + new Date().toISOString().slice(0,10) + (forceNew?'_'+Date.now():'');
@@ -776,6 +924,8 @@ Return JSON: {"name":"dish name","description":"one line","calories":0,"protein"
   if (!match) throw new Error('No JSON');
   const recipe = JSON.parse(match[0]);
   _recipeCache[slot] = recipe;
+  // Persist to localStorage
+  try { localStorage.setItem(_rcKey(slot), JSON.stringify(recipe)); } catch(e) {}
   return recipe;
 }
 
@@ -974,13 +1124,17 @@ async function shuffleMeal(slot, blockIdx) {
   const btn = document.getElementById('shuf-'+blockIdx);
   if (btn) { btn.disabled=true; btn.textContent='Shuffling…'; }
   delete _recipeCache[slot];
+  try { localStorage.removeItem(_rcKey(slot)); } catch(e) {}
   const p = _profile;
   const prot = Math.round((p.protein||140) / (p.mealCount||4));
   const kcal = Math.round((_today.isTraining ? (_today.plan.kcal||p.calories||2000) : Math.round((p.calories||2000)*0.91)) / (p.mealCount||4));
   const mealTarget = { calories:kcal, protein:prot, carbs:Math.round((p.carbs||160)*0.25), fat:Math.round((p.fat||60)*0.25) };
   try {
     const recipe = await fetchRecipe(slot, window._blocks[blockIdx].title, mealTarget, true);
-    document.getElementById('rpb').innerHTML = recipeCardHTML(recipe, mealTarget, slot, blockIdx);
+    // Update the inline recipe zone
+  const rzone = document.getElementById('recipe-zone-'+blockIdx);
+  if (rzone) rzone.innerHTML = inlineRecipeHTML(recipe, slot, blockIdx);
+  else document.getElementById('rpb') && (document.getElementById('rpb').innerHTML = inlineRecipeHTML(recipe, slot, blockIdx));
   } catch(e) {
     if (btn) { btn.disabled=false; btn.textContent='↺ Shuffle'; }
   }
@@ -995,61 +1149,288 @@ function openSessionPanel(blockIdx, block) {
   const injuries = p.injuryAssessments || p.injuries || [];
   const exercises = (block.items||[]).filter(e => e.name !== 'Track loads');
 
-  const exHTML = exercises.map((ex, i) => {
-    const parsed = parseExercise(ex.name);
-    const std = getStandard(parsed.name, weight, isFemale, age);
-    const injMatch = injuries.find(inj =>
-      ['knee','back','shoulder','hip','elbow'].some(j =>
-        (inj.location||'').toLowerCase().includes(j) && parsed.name.toLowerCase().includes(j.slice(0,4))
-      )
-    );
-    const reps = parseInt((parsed.reps||'10').split('-')[0]);
-    const rpe = reps <= 5 ? '8-9' : reps <= 8 ? '7-9' : '7-8';
+  // Current level tier
+  const tier  = p.fitnessLevelTier || 'intermediate';
+  const scheme = LEVEL_SCHEMES[tier] || LEVEL_SCHEMES.intermediate;
+  const levelScore = p.fitnessLevel !== undefined ? Math.round(p.fitnessLevel*100) : 50;
 
-    const benchHTML = std ? `
-      <div class="bench-strip">
-        <div class="bench-label">${age}yr ${isFemale?'female':'male'} · ${weight}kg · age-adjusted</div>
-        <div class="bench-values">
-          <div>${std.beginner}kg</div>
-          <div class="you">${std.intermediate}kg</div>
-          <div>${std.advanced}kg</div>
-        </div>
-        <div class="bench-track">
-          <div class="bench-fill" style="width:66%"></div>
-          <div class="bench-marker" style="left:66%"></div>
-        </div>
-        <div class="bench-labels"><div>Beginner</div><div style="text-align:center">You</div><div style="text-align:right">Advanced</div></div>
-        <div class="bench-age-note">${getAgeNote(age, isFemale)}</div>
-      </div>` : '';
+  // Week progression note
+  const wp = p.weeklyProgression;
+  const progCtx = getWeekProgrammeContext(p);
+  const weekKey = 'week' + progCtx.weekNum;
+  const weekNote = wp && wp[weekKey] ? wp[weekKey].focus : '';
 
-    const sets = [];
-    for (let s=1; s<=parsed.sets; s++) {
-      const isLast = s===parsed.sets;
-      const txt = s===1 ? 'Warm-up: −20% load, lock in technique' : isLast ? `Working set: RPE ${rpe} — ${parsed.reps} reps, 1-3 from failure` : `Build set: increase load, RPE ${parseInt(rpe)-1}`;
-      sets.push(`<div class="set-row"><div class="set-num">S${s}</div><div class="set-detail">${txt}</div></div>`);
-    }
-
-    return `<div class="ex-card" id="exc-${i}">
-      <div class="ex-card-head" onclick="document.getElementById('exc-${i}').classList.toggle('open')">
-        <div>
-          <div class="ex-name">${parsed.name}</div>
-        </div>
-        <div class="ex-schema">${parsed.schema}</div>
-        <div class="ex-rpe">RPE ${rpe}</div>
-        <span class="ex-chevron">▾</span>
-      </div>
-      <div class="ex-body">
-        ${injMatch ? `<div class="ex-injury-note"><span>⚠ ${injMatch.location}:</span> ${(injMatch.safeAlternatives||[]).length?'Safe alternatives: '+(injMatch.safeAlternatives||[]).slice(0,2).join(', '):'Perform with reduced range of motion.'}</div>` : ''}
-        ${benchHTML}
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:7px;">Set guide</div>
-        <div class="sets-guide">${sets.join('')}</div>
-        <div style="font-size:11px;font-weight:300;color:var(--dk-3);padding-top:7px;border-top:1px solid var(--bd);">Rest: ${reps<=5?'3-4 min':reps<=8?'2-3 min':'90 sec'} between sets</div>
-      </div>
+  // Level tabs
+  const tierOrder = ['beginner','intermediate','advanced'];
+  const levelTabsHTML = tierOrder.map(t => {
+    const sc = LEVEL_SCHEMES[t];
+    const isYours = t === tier;
+    const isActive = t === tier;
+    return `<div class="slt ${isActive?'active':''} ${isYours?'yours':''}"
+      onclick="switchSessionLevel('${t}',${blockIdx},window._blocks[${blockIdx}])">
+      <div class="slt-name">${isYours?'▸ ':''}${sc.label}</div>
+      <div class="slt-desc">${sc.setsNote}</div>
     </div>`;
   }).join('');
 
-  showRightPanel(block.title, block.subtitle||'Today\'s session', `<div class="session-panel">${exHTML}</div>`);
+  function buildExCards(currentTier) {
+    const currentScheme = LEVEL_SCHEMES[currentTier] || LEVEL_SCHEMES.intermediate;
+    return exercises.map((ex, i) => {
+      const parsed = parseExercise(ex.name);
+      const std = getStandard(parsed.name, weight, isFemale, age);
+      const injMatch = injuries.find(inj =>
+        ['knee','back','shoulder','hip','elbow'].some(j =>
+          (inj.location||'').toLowerCase().includes(j) && parsed.name.toLowerCase().includes(j.slice(0,4))
+        )
+      );
+
+      const reps = parseInt((parsed.reps||'10').split('-')[0]);
+      const baseRpe = reps <= 5 ? 8 : reps <= 8 ? 7 : 7;
+      const tierRpe = currentTier === 'beginner' ? baseRpe - 1.5 : currentTier === 'advanced' ? baseRpe + 1 : baseRpe;
+      const rpeStr = currentTier === 'beginner' ? '6-7' : currentTier === 'advanced' ? '8-9' : (baseRpe + '-' + (baseRpe+1));
+
+      // Benchmark — marker at fitnessLevel position
+      const markerPct = Math.min(95, Math.max(5, levelScore));
+      const benchHTML = std ? `
+        <div class="bench-strip">
+          <div class="bench-label">${age}yr ${isFemale?'female':'male'} · ${weight}kg · age-adjusted</div>
+          <div class="bench-values">
+            <div class="beg">${std.beginner}kg</div>
+            <div class="you">${std.intermediate}kg</div>
+            <div style="text-align:right;color:var(--dk-2);">${std.advanced}kg</div>
+          </div>
+          <div class="bench-track">
+            <div class="bench-fill" style="width:${markerPct}%"></div>
+            <div class="bench-marker" style="left:${markerPct}%;border-color:var(--gold);"></div>
+          </div>
+          <div class="bench-labels"><div>Beginner</div><div style="text-align:center;">You (${p.fitnessLevelLabel||'est.'})</div><div style="text-align:right">Advanced</div></div>
+          <div class="bench-age-note">
+            Target working set: <strong style="color:var(--gold);">
+              ${Math.round(std.beginner + (std.intermediate-std.beginner)*Math.min(1,(levelScore/50)))}–${Math.round(std.intermediate * (currentTier==='beginner'?0.75:currentTier==='advanced'?1.15:0.9))}kg × ${parsed.reps} reps
+            </strong>. ${getAgeNote(age, isFemale)}
+          </div>
+        </div>` : '';
+
+      const setsCount = currentTier === 'beginner' ? 3 : currentTier === 'advanced' ? parsed.sets + 1 : parsed.sets;
+      const sets = [];
+      for (let s=1; s<=setsCount; s++) {
+        const isLast = s===setsCount;
+        const txt = s===1
+          ? 'Warm-up: −20% target load, technique focus'
+          : isLast
+            ? `Working set: ${currentScheme.rpeTarget} — ${parsed.reps} reps${currentTier==='advanced'?' to near failure':''}`
+            : `Build set: increase load, ${rpeStr.split('-')[0] - 0.5 < parseInt(rpeStr) ? rpeStr.split('-')[0] : rpeStr}`;
+        sets.push(`<div class="set-row"><div class="set-num">S${s}</div><div class="set-detail">${txt}</div></div>`);
+      }
+
+      return `<div class="ex-card" id="exc-${i}">
+        <div class="ex-card-head" onclick="document.getElementById('exc-${i}').classList.toggle('open')">
+          <div>
+            <div class="ex-name">${parsed.name}</div>
+          </div>
+          <div class="ex-schema">${setsCount}×${parsed.reps}</div>
+          <div class="ex-rpe">${currentScheme.rpeTarget}</div>
+          <span class="ex-chevron">▾</span>
+        </div>
+        <div class="ex-body">
+          ${injMatch ? `<div class="ex-injury-note"><span>⚠ ${injMatch.location}:</span> ${(injMatch.safeAlternatives||[]).length?'Use: '+(injMatch.safeAlternatives||[]).slice(0,2).join(', '):'Reduced ROM only.'}</div>` : ''}
+          ${benchHTML}
+          <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:7px;margin-top:10px;">Set guide</div>
+          <div class="sets-guide">${sets.join('')}</div>
+          <div style="font-size:11px;font-weight:300;color:var(--dk-3);padding-top:7px;border-top:1px solid var(--bd);">Rest: ${currentScheme.rest} between sets</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window._sessionBlockIdx = blockIdx;
+  window._buildExCards = buildExCards;
+
+  const progHTML = weekNote ? `<div style="font-size:11px;font-weight:300;color:var(--dk-2);padding:10px 20px;border-bottom:1px solid var(--bd);background:rgba(0,200,160,0.03);">
+    <strong style="color:var(--jade);">Week ${progCtx.weekNum} — ${progCtx.phase}:</strong> ${weekNote}
+  </div>` : '';
+
+  const reTakeHTML = `<div style="padding:8px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:10px;font-weight:300;color:var(--dk-3);">Level: <strong style="color:var(--gold);">${p.fitnessLevelLabel||'Intermediate'}</strong></div>
+    <button style="background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;text-decoration:underline;" onclick="startQuiz(${blockIdx},window._blocks[${blockIdx}])">Retake assessment</button>
+  </div>`;
+
+  showRightPanel(block.title, block.subtitle||'Today's session',
+    `<div class="session-level-tabs">${levelTabsHTML}</div>
+     ${progHTML}
+     ${reTakeHTML}
+     <div class="session-panel" id="session-ex-cards">${buildExCards(tier)}</div>
+     <div style="margin:10px 20px;padding:10px;background:rgba(0,200,160,0.04);border:1px solid var(--jade-br);border-radius:4px;font-size:11px;font-weight:300;color:var(--dk-2);">
+       ${scheme.rpeNote}
+     </div>`
+  );
 }
+
+window.switchSessionLevel = function(newTier, blockIdx, block) {
+  const cards = document.getElementById('session-ex-cards');
+  if (cards && window._buildExCards) cards.innerHTML = window._buildExCards(newTier);
+  document.querySelectorAll('.slt').forEach((el,i) => {
+    const t = ['beginner','intermediate','advanced'][i];
+    el.classList.toggle('active', t===newTier);
+  });
+};
+
+
+// ── FITNESS LEVEL QUIZ ────────────────────────────────
+const QUIZ_QUESTIONS = [
+  { q:'How many full press-ups can you do in one go?',
+    note:'Chest to floor, full extension. Stop when form breaks.',
+    opts:[
+      {label:'0-5',   note:'Just getting started',       score:0.10},
+      {label:'6-15',  note:'Building a solid base',      score:0.30},
+      {label:'16-25', note:'Good upper body endurance',  score:0.55},
+      {label:'25+',   note:'Strong relative bodyweight', score:0.75},
+    ]
+  },
+  { q:'Pull-ups — how many with full range?',
+    note:'Dead hang to chin over bar. Zero is totally normal.',
+    opts:[
+      {label:'None', note:'Very common starting point',  score:0.10},
+      {label:'1-4',  note:'Building pulling strength',   score:0.30},
+      {label:'5-10', note:'Solid pulling foundation',    score:0.55},
+      {label:'10+',  note:'Strong relative bodyweight',  score:0.78},
+    ]
+  },
+  { q:'Squat or leg press — roughly what weight?',
+    note:'Working sets, not max. Machine totals count.',
+    opts:[
+      {label:'Never squatted / machines only', note:'Completely fine',      score:0.15},
+      {label:'Under bodyweight',               note:'Building leg strength', score:0.28},
+      {label:'Bodyweight to 1.5x',             note:'Solid lower body',     score:0.52},
+      {label:'1.5x bodyweight and beyond',     note:'Strong leg pattern',   score:0.78},
+    ]
+  },
+  { q:'After a hard session, how do you feel the next day?',
+    note:'Recovery speed reflects your training age.',
+    opts:[
+      {label:'Very sore for 2-3 days',               note:'Normal early on',      score:-0.05},
+      {label:'Sore next day, fine by day 2',         note:'Typical intermediate', score:0.00},
+      {label:'Mildly sore, back at it next session', note:'Well adapted',         score:0.07},
+      {label:'Rarely very sore',                     note:'High training age',    score:0.12},
+    ]
+  },
+  { q:'Training consistency — last 3 months?',
+    note:'Honest answer. This calibrates programme difficulty.',
+    opts:[
+      {label:'Just getting back into it',       note:'Starting fresh',      score:0.00},
+      {label:'1-2 sessions a week, sporadic',   note:'Building the habit',  score:0.05},
+      {label:'3+ sessions, fairly consistent',  note:'Established routine', score:0.12},
+      {label:'4+ sessions, rarely miss',        note:'High training age',   score:0.18},
+    ]
+  },
+];
+
+let _quizAnswers = [], _currentQ = 0, _quizBlockIdx = 0;
+
+function getLevelResult(score) {
+  if (score < 0.25) return {label:'Beginner',           desc:'Programme focuses on patterns and capacity. Loads conservative — technique first. Rapid early gains ahead.',                                tier:'beginner'};
+  if (score < 0.42) return {label:'Low-intermediate',   desc:'You have the basics. Lifts established, loads building. Good gains with progressive overload.',                                              tier:'intermediate'};
+  if (score < 0.60) return {label:'Intermediate',       desc:'Solid base across main movements. Proper periodisation applied. Gains require deliberate effort from here.',                                 tier:'intermediate'};
+  if (score < 0.75) return {label:'Upper-intermediate', desc:'Strong foundation with real training history. High intensity with managed volume for recovery.',                                              tier:'advanced'};
+  return              {label:'Advanced',                desc:"You've been doing this a while. High intensity, assumes good technique, focuses on the details that matter.",                                tier:'advanced'};
+}
+
+function renderQuizPanel() {
+  const q = QUIZ_QUESTIONS[_currentQ];
+  const total = QUIZ_QUESTIONS.length;
+  const hasAns = !!_quizAnswers[_currentQ];
+  const isLast = _currentQ === total - 1;
+
+  const dots = QUIZ_QUESTIONS.map((_,i) =>
+    `<div class="lq-prog-dot ${i<_currentQ?'done':i===_currentQ?'current':''}"></div>`
+  ).join('');
+
+  const opts = q.opts.map((opt,i) => `
+    <div class="lq-opt ${hasAns && _quizAnswers[_currentQ]===opt?'selected':''}"
+      onclick="window.quizSelect(${i})">
+      <div class="lq-opt-label">${opt.label}</div>
+      <div class="lq-opt-val">${opt.note}</div>
+    </div>`).join('');
+
+  document.getElementById('rph-title').textContent = 'Strength assessment';
+  document.getElementById('rph-sub').textContent   = 'Q' + (_currentQ+1) + ' of ' + total + ' — takes 2 minutes';
+  document.getElementById('day-right').classList.add('open');
+  document.getElementById('rpb').innerHTML = `
+    <div class="lq-header">
+      <div class="lq-kicker">One-time · sets your benchmark accurately</div>
+      <div class="lq-title">Where are you right now?</div>
+      <div class="lq-sub">5 questions. Benchmark marker placed correctly on every exercise.</div>
+    </div>
+    <div class="lq-progress">${dots}</div>
+    <div class="lq-body">
+      <div class="lq-q-text">${q.q}</div>
+      <div class="lq-q-note">${q.note}</div>
+      <div class="lq-options">${opts}</div>
+      <div class="lq-nav">
+        ${_currentQ>0?'<button class="lq-back" onclick="window.quizBack()">&#8592; Back</button>':''}
+        <button class="lq-next${hasAns?' ready':''}" id="lq-next"
+          onclick="${hasAns?(isLast?'window.quizFinish()':'window.quizNext()'):''}">
+          ${isLast ? 'See my level &#8594;' : 'Next &#8594;'}
+        </button>
+      </div>
+    </div>`;
+}
+
+window.quizSelect = function(i) {
+  _quizAnswers[_currentQ] = QUIZ_QUESTIONS[_currentQ].opts[i];
+  document.querySelectorAll('.lq-opt').forEach((el,j) => el.classList.toggle('selected', j===i));
+  const btn = document.getElementById('lq-next');
+  if (btn) {
+    btn.classList.add('ready');
+    const isLast = _currentQ === QUIZ_QUESTIONS.length - 1;
+    btn.setAttribute('onclick', isLast ? 'window.quizFinish()' : 'window.quizNext()');
+  }
+};
+window.quizNext = function() {
+  if (!_quizAnswers[_currentQ]) return;
+  _currentQ++;
+  renderQuizPanel();
+};
+window.quizBack = function() {
+  if (_currentQ > 0) { _currentQ--; renderQuizPanel(); }
+};
+window.quizFinish = function() {
+  if (!_quizAnswers[_currentQ]) return;
+  const base = _quizAnswers.slice(0,3).reduce((s,a)=>s+(a?a.score:0),0)/3;
+  const mod  = _quizAnswers.slice(3).reduce((s,a)=>s+(a?a.score:0),0);
+  const score = Math.min(1, Math.max(0, base + mod));
+  const result = getLevelResult(score);
+  const pct = Math.round(score*100);
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (raw) {
+      const p = JSON.parse(raw);
+      p.fitnessLevel=score; p.fitnessLevelLabel=result.label;
+      p.fitnessLevelTier=result.tier; p.fitnessLevelDate=new Date().toISOString().slice(0,10);
+      localStorage.setItem('bl_profile', JSON.stringify(p));
+      _profile.fitnessLevel=score; _profile.fitnessLevelLabel=result.label;
+      _profile.fitnessLevelTier=result.tier;
+    }
+  } catch(e){}
+  document.getElementById('rpb').innerHTML = `
+    <div class="lq-result">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Your level</div>
+      <div class="lr-title">${result.label}</div>
+      <div class="lr-desc">${result.desc}</div>
+      <div class="lr-level-bar">
+        <div class="lr-track"><div class="lr-fill" style="width:${pct}%"></div><div class="lr-marker" style="left:${pct}%"></div></div>
+        <div class="lr-scale"><span>Beginner</span><span style="text-align:center">Intermediate</span><span>Advanced</span></div>
+      </div>
+      <div class="lr-actions">
+        <button class="lr-save" onclick="openSessionPanel(${_quizBlockIdx},window._blocks[${_quizBlockIdx}])">See my session &#8594;</button>
+        <button class="lr-redo" onclick="window.startQuiz(${_quizBlockIdx},window._blocks[${_quizBlockIdx}])">Retake</button>
+      </div>
+    </div>`;
+};
+window.startQuiz = function(blockIdx, block) {
+  _quizAnswers=[]; _currentQ=0; _quizBlockIdx=blockIdx;
+  renderQuizPanel();
+};
 
 // ── RENDER PLAN ───────────────────────────────────────
 function renderPlan(plan) {
@@ -1060,6 +1441,7 @@ function renderPlan(plan) {
     const isMeal     = b.mealSlot;
     const isTraining = b.type === 'training';
 
+    // Non-meal, non-training: expand inline
     if (!isMeal && !isTraining) {
       const det = (b.detail||'').split('\n').map(l=>l.trim()?`<p>${l}</p>`:'').join('');
       const its = (b.items||[]).map(it=>`<div class="tl-item"><span class="tl-item-name">${it.name}</span>${it.meta?`<span class="tl-item-meta">${it.meta}</span>`:''}</div>`).join('');
@@ -1068,74 +1450,276 @@ function renderPlan(plan) {
           <div class="tl-time">${b.time||''}</div>
           <div class="tl-main"><div class="tl-title">${b.title}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
           ${b.tag?`<span class="tl-tag ${b.tagColor||'slate'}">${b.tag}</span>`:''}
-          <span class="tl-chevron">▾</span>
+          <span class="tl-chevron">&#9662;</span>
         </div>
         <div class="tl-body">${det?`<div class="tl-detail">${det}</div>`:''}${b.science?`<div class="tl-science">${b.science}</div>`:''}${its?`<div class="tl-items">${its}</div>`:''}</div>
       </div>`;
     }
 
+    // Meal blocks — inline expand with tick
     if (isMeal) {
-      const eaten = _macroState && _macroState.meals[b.mealSlot] && _macroState.meals[b.mealSlot].logged;
-      return `<div class="tl-block type-meal ${eaten?'eaten':''}" data-slot="${b.mealSlot}">
-        <div class="tl-head" onclick="openMealPanel(${i},window._blocks[${i}])">
+      const slot = b.mealSlot;
+      const eaten = _macroState && _macroState.meals[slot] && _macroState.meals[slot].logged;
+      const cached = _recipeCache[slot];
+      const recipeSection = cached
+        ? inlineRecipeHTML(cached, slot, i)
+        : `<button class="meal-log-btn show-recipe" onclick="loadInlineRecipe('${slot}',${i},this)">&#127859; Load recipe</button>`;
+      return `<div class="tl-block type-meal ${eaten?'eaten':''}" data-slot="${slot}" id="meal-block-${i}">
+        <div class="tl-head" onclick="toggleMealInline(${i})">
           <div class="tl-time">${b.time||''}</div>
           <div class="tl-main">
             <div class="tl-title">${b.title}</div>
-            <div class="tl-subtitle" id="sub-${b.mealSlot}">${b.subtitle||''}</div>
+            <div class="tl-subtitle" id="sub-${slot}">${b.subtitle||''}</div>
           </div>
-          <span class="tl-tag amber">${eaten?'✓ Eaten':'Eat'}</span>
-          <span class="tl-chevron">→</span>
+          <div style="display:flex;align-items:center;gap:7px;">
+            <div class="meal-tick${eaten?' ticked':''}" onclick="event.stopPropagation();quickTick('${slot}',${i})" title="Ate this">${eaten?'&#10003;':''}</div>
+            <span class="tl-tag amber">${eaten?'&#10003; Eaten':'Eat'}</span>
+            <span class="tl-chevron" id="meal-chev-${i}">&#9662;</span>
+          </div>
+        </div>
+        <div class="meal-inline-body" id="meal-inline-${i}">
+          <div class="meal-actions-row">
+            <div class="meal-tick${eaten?' ticked':''}" onclick="quickTick('${slot}',${i})" title="Ate this">${eaten?'&#10003;':''}</div>
+            <button class="meal-log-btn" onclick="showDeviationLogger('${slot}',${i})">I had something different</button>
+          </div>
+          <div id="dev-zone-${i}"></div>
+          <div id="recipe-zone-${i}">${recipeSection}</div>
         </div>
       </div>`;
     }
 
+    // Training block — quiz first if no level, else session
     if (isTraining) {
+      const hasLevel = _profile.fitnessLevel !== undefined;
+      const lvlLabel = hasLevel ? (_profile.fitnessLevelLabel||'Intermediate') : null;
       return `<div class="tl-block type-training">
-        <div class="tl-head" onclick="openSessionPanel(${i},window._blocks[${i}])">
+        <div class="tl-head" onclick="${hasLevel?`openSessionPanel(${i},window._blocks[${i}])`:`window.startQuiz(${i},window._blocks[${i}])`}">
           <div class="tl-time">${b.time||''}</div>
-          <div class="tl-main"><div class="tl-title">${b.title}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
-          <span class="tl-tag jade">Train</span>
-          <span class="tl-chevron">→</span>
+          <div class="tl-main">
+            <div class="tl-title">${b.title}</div>
+            <div class="tl-subtitle">${hasLevel?lvlLabel+' prescription':'Tap to assess your level first'}</div>
+          </div>
+          <span class="tl-tag jade">${hasLevel?'Session &#8594;':'Assess &#8594;'}</span>
         </div>
       </div>`;
     }
   }).join('');
 
   const d = new Date();
-  const dateStr = d.toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long'});
+  const dateStr = d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const wp = _profile.weeklyProgression;
+  const progCtx = getWeekProgrammeContext(_profile);
+  const weekTabsHTML = wp ? (() => {
+    const tabs = ['week1','week2','week3','week4'].map((wk,i) => {
+      const w = wp[wk]; if (!w) return '';
+      const wNum = i+1;
+      const isDone = wNum < progCtx.weekNum;
+      const isCur  = wNum === progCtx.weekNum;
+      return `<div class="wt ${isCur?'active':isDone?'done':''}" onclick="showWeekDetail('${wk}')">
+        <div class="wt-num">W${wNum}${isDone?' &#10003;':''}</div>
+        <div class="wt-phase">${w.phase}</div>
+        <div class="wt-note">${(w.keyFocus||w.volumeNote||'').slice(0,50)}</div>
+      </div>`;
+    }).join('');
+    return `<div class="week-tabs">${tabs}</div><div class="week-detail-panel" id="week-detail"></div>`;
+  })() : '';
 
   root.innerHTML = `
+    <div class="sticky-macros" id="sticky-macros">${getStickyMacrosHTML()}</div>
     <div class="day-hero">
       <div class="day-kicker">${dateStr}</div>
       <div class="day-title">${plan.dayTitle}</div>
       <div class="day-brief">${plan.dayBrief}</div>
       ${plan.priority?`<div class="day-priority">${plan.priority}</div>`:''}
     </div>
+    ${weekTabsHTML}
     <div class="day-macros">
       <div class="dm"><div class="dm-val">${plan.macros.kcal}</div><div class="dm-label">Calories</div></div>
       <div class="dm"><div class="dm-val jade">${plan.macros.prot}g</div><div class="dm-label">Protein</div></div>
       <div class="dm"><div class="dm-val amber">${plan.macros.carbs}g</div><div class="dm-label">Carbs</div></div>
       <div class="dm"><div class="dm-val">${plan.macros.fat}g</div><div class="dm-label">Fat</div></div>
     </div>
-    <div id="macro-cup">${getMacroCupHTML()}</div>
-    <div class="water-strip">💧 ${plan.macros.water} — spread across the day. Post-meal walks amplify every kcal burned.</div>
+    <div class="water-strip">&#128166; ${plan.macros.water} — spread across the day</div>
     <div id="acc-strip-here"></div>
     <div class="tl-label">Your day</div>
     ${blocksHtml}
-    <button class="regen-btn" onclick="window.regenerate()">↺ Rebuild today</button>
+    <button class="regen-btn" onclick="window.regenerate()">&#8635; Rebuild today</button>
     <div class="ask-wrap">
       <div class="ask-sec">Quick question</div>
       <div class="ask-chips" id="ask-chips"></div>
       <div class="ask-input-row">
-        <input class="ask-input" id="ask-input" type="text" placeholder="Ask anything about today…">
-        <button class="ask-send" id="ask-send">↑</button>
+        <input class="ask-input" id="ask-input" type="text" placeholder="Ask anything about today&#8230;">
+        <button class="ask-send" id="ask-send">&#8593;</button>
       </div>
       <div class="ask-answer" id="ask-answer"></div>
     </div>`;
 }
 
+function toggleMealInline(i) {
+  const block = document.getElementById('meal-block-'+i);
+  const chev  = document.getElementById('meal-chev-'+i);
+  if (!block) return;
+  const isOpen = block.classList.contains('meal-open');
+  block.classList.toggle('meal-open', !isOpen);
+  if (chev) chev.innerHTML = isOpen ? '&#9662;' : '&#9652;';
+}
 
-// ── ASK CHIPS ─────────────────────────────────────────
+function inlineRecipeHTML(recipe, slot, blockIdx) {
+  function pct(v,m){return Math.min(100,Math.round(v/Math.max(1,m)*100));}
+  const p=_profile;
+  const prot=Math.round((p.protein||140)/(p.mealCount||4));
+  const carbs=Math.round((p.carbs||160)*0.25);
+  const fat=Math.round((p.fat||60)*0.25);
+  const kcal=Math.round((_today&&_today.isTraining?(_today.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4));
+  const ings=(recipe.ingredients||[]).map(i=>`<div class="ir-ing"><span class="ir-ing-name">${i.name}</span><span class="ir-ing-qty">${i.quantity||''}</span></div>`).join('');
+  return `<div class="inline-recipe">
+    <div class="ir-header">
+      <div><div class="ir-name">${recipe.name}</div><div class="ir-desc">${recipe.description||''} &middot; ${recipe.prepTime||''}</div></div>
+      <button class="ir-shuffle" id="shuf-${blockIdx}" onclick="shuffleMeal('${slot}',${blockIdx})">&#8635; Shuffle</button>
+    </div>
+    <div class="ir-macros">
+      <div class="ir-mac-row"><div class="ir-mac-label">Protein</div><div class="ir-mac-bar-wrap"><div class="ir-mac-bar p" style="width:${pct(recipe.protein,prot)}%"></div></div><div class="ir-mac-val">${recipe.protein}g</div></div>
+      <div class="ir-mac-row"><div class="ir-mac-label">Carbs</div><div class="ir-mac-bar-wrap"><div class="ir-mac-bar c" style="width:${pct(recipe.carbs||0,carbs)}%"></div></div><div class="ir-mac-val">${recipe.carbs||0}g</div></div>
+      <div class="ir-mac-row"><div class="ir-mac-label">Fat</div><div class="ir-mac-bar-wrap"><div class="ir-mac-bar f" style="width:${pct(recipe.fat||0,fat)}%"></div></div><div class="ir-mac-val">${recipe.fat||0}g</div></div>
+    </div>
+    <div class="ir-ingredients">${ings}</div>
+    <div class="ir-method">${recipe.method||''}</div>
+  </div>`;
+}
+
+
+
+async function loadInlineRecipe(slot, blockIdx, btn) {
+  if (btn) { btn.textContent='Loading…'; btn.disabled=true; }
+  const p=_profile;
+  const prot=Math.round((p.protein||140)/(p.mealCount||4));
+  const kcal=Math.round((_today.isTraining?(_today.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4));
+  try {
+    const recipe = await fetchRecipe(slot, (window._blocks[blockIdx]||{}).title||slot, {calories:kcal,protein:prot,carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25)}, false);
+    const zone = btn ? btn.parentElement : document.querySelector(`[data-slot="${slot}"] .meal-inline-body`);
+    if (zone) zone.innerHTML = inlineRecipeHTML(recipe, slot, blockIdx);
+  } catch(e) {
+    if (btn) { btn.textContent='Try again'; btn.disabled=false; }
+  }
+}
+
+function quickTick(slot, blockIdx) {
+  // One-tap "ate as planned" — uses recipe macros if cached, else plan macros
+  const recipe = _recipeCache[slot];
+  const p = _profile;
+  const prot = Math.round((p.protein||140)/(p.mealCount||4));
+  const kcal = Math.round((_today.isTraining?(_today.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4));
+  const macros = {
+    prot:  recipe ? recipe.protein  : prot,
+    carbs: recipe ? (recipe.carbs||0) : Math.round((p.carbs||160)*0.25),
+    fat:   recipe ? (recipe.fat||0)  : Math.round((p.fat||60)*0.25),
+    kcal:  recipe ? recipe.calories : kcal,
+    logged:true, note:'Ate as planned'
+  };
+  saveMealLog(slot, macros);
+  // Update tick visual
+  document.querySelectorAll(`[data-slot="${slot}"] .meal-tick`).forEach(el => {
+    el.classList.add('ticked'); el.textContent='✓';
+  });
+  document.querySelectorAll(`[data-slot="${slot}"] .tl-tag`).forEach(el => {
+    if (el.classList.contains('amber')) { el.textContent='✓ Eaten'; }
+  });
+  document.getElementById('meal-block-'+blockIdx)?.classList.add('eaten');
+  updateRemainingMeals();
+}
+
+function showDeviationLogger(slot, blockIdx) {
+  const zone = document.getElementById('dev-zone-'+blockIdx);
+  if (!zone) return;
+  const existing = zone.querySelector('.dev-inline');
+  if (existing) { zone.innerHTML=''; return; }
+  zone.innerHTML = `<div class="dev-inline">
+    <div class="dev-inline-label">What did you actually have?</div>
+    <textarea class="dev-inline-input" id="dvi-${blockIdx}" rows="2"
+      placeholder="e.g. chicken wrap from Pret, or bowl of pasta, or just skipped it…"></textarea>
+    <button class="dev-inline-send" onclick="submitDeviation('${slot}',${blockIdx})">Estimate macros ↑</button>
+    <div id="dvi-result-${blockIdx}"></div>
+  </div>`;
+}
+
+async function submitDeviation(slot, blockIdx) {
+  const input  = document.getElementById('dvi-'+blockIdx);
+  const result = document.getElementById('dvi-result-'+blockIdx);
+  const btn    = input ? input.parentElement.querySelector('.dev-inline-send') : null;
+  const text   = input ? input.value.trim() : '';
+  if (!text) return;
+  if (btn) { btn.disabled=true; btn.textContent='Estimating…'; }
+
+  const isOnPlan = /as planned|the meal|all of it|had it/i.test(text);
+  if (isOnPlan) {
+    quickTick(slot, blockIdx);
+    if (result) result.innerHTML=`<div class="dev-inline-result"><strong>On plan</strong> — nice.</div>`;
+    return;
+  }
+
+  try {
+    const p = _profile;
+    const res = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,
+        system:'Nutrition estimator. Return only valid JSON.',
+        messages:[{role:'user',content:`Estimate macros: "${text}". Person: ${p.weight||80}kg ${p.sex||'male'}.
+Return: {"protein":0,"carbs":0,"fat":0,"calories":0,"note":"brief"}`}]})});
+    const data = await res.json();
+    const raw  = (data.content||[]).map(b=>b.text||'').join('').trim();
+    const match= raw.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    const est = JSON.parse(match[0]);
+    const macros = {prot:est.protein||0,carbs:est.carbs||0,fat:est.fat||0,kcal:est.calories||0,logged:true,note:est.note||''};
+    saveMealLog(slot, macros);
+    if (result) result.innerHTML=`<div class="dev-inline-result"><strong>${macros.prot}g P · ${macros.carbs}g C · ${macros.fat}g F · ${macros.kcal} kcal</strong><br>${macros.note}</div>`;
+    if (btn) btn.style.display='none';
+    document.getElementById('meal-block-'+blockIdx)?.classList.add('eaten');
+    updateRemainingMeals();
+  } catch(e) {
+    if (btn) { btn.disabled=false; btn.textContent='Estimate macros ↑'; }
+    if (result) result.innerHTML=`<div class="dev-inline-result">Could not estimate — try again</div>`;
+  }
+}
+
+function getStickyMacrosHTML() {
+  if (!_macroState) return '<div style="font-size:10px;color:var(--dk-3);padding:2px 0;">Loading…</div>';
+  const {target,eaten} = _macroState;
+  function pct(v,m) { return Math.min(100,Math.round(v/Math.max(1,m)*100)); }
+  const kcalLeft = target.kcal - eaten.kcal;
+  const cls = kcalLeft > 200 ? 'good' : kcalLeft < -100 ? 'over' : 'warn';
+  return `
+    <div class="sm-bar-group"><div class="sm-label">Protein</div><div class="sm-bar-wrap"><div class="sm-bar p" style="width:${pct(eaten.prot,target.prot)}%"></div></div><div class="sm-val">${eaten.prot}g</div></div>
+    <div class="sm-bar-group"><div class="sm-label">Carbs</div><div class="sm-bar-wrap"><div class="sm-bar c" style="width:${pct(eaten.carbs,target.carbs)}%"></div></div><div class="sm-val">${eaten.carbs}g</div></div>
+    <div class="sm-bar-group"><div class="sm-label">Fat</div><div class="sm-bar-wrap"><div class="sm-bar f" style="width:${pct(eaten.fat,target.fat)}%"></div></div><div class="sm-val">${eaten.fat}g</div></div>
+    <div class="sm-kcal ${cls}">${kcalLeft > 0 ? kcalLeft+' left' : Math.abs(kcalLeft)+' over'}</div>`;
+}
+
+function refreshMacroCup() {
+  const sm = document.getElementById('sticky-macros');
+  if (sm) sm.innerHTML = getStickyMacrosHTML();
+}
+
+function showWeekDetail(wk) {
+  const wp = _profile.weeklyProgression;
+  if (!wp || !wp[wk]) return;
+  const w = wp[wk];
+  const panel = document.getElementById('week-detail');
+  if (!panel) return;
+  const isVisible = panel.classList.contains('visible') && panel.dataset.wk === wk;
+  if (isVisible) { panel.classList.remove('visible'); return; }
+  panel.dataset.wk = wk;
+  panel.innerHTML = `
+    <div class="wdp-phase">${w.phase}</div>
+    <div class="wdp-focus">${w.focus}</div>
+    <div class="wdp-note">${w.volumeNote}${w.keyFocus ? '<br><em style="color:var(--dk-3);">'+w.keyFocus+'</em>' : ''}</div>`;
+  panel.classList.add('visible');
+  // Update active tab
+  document.querySelectorAll('.wt').forEach(t => t.style.borderColor = '');
+}
+
+// Update openSessionPanel to show level tabs and use LEVEL_SCHEMES
+
+
 function setupChips(profile, today) {
   const chipsEl = document.getElementById('ask-chips');
   if (!chipsEl) return;
