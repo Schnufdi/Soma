@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="bl-page" content="day">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BodyLens — Today</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -235,86 +236,282 @@ async function init() {
 
 // ── GENERATE ───────────────────────────────────────────
 async function generateDayPlan() {
-  const p    = profile;
+  // Build the day entirely from profile data — no API, instant
+  const plan = buildDayFromProfile();
+
+  // Then fire a small API call just for personalised meal names
+  // This runs in the background and slots in when ready
+  enrichMealsAsync(plan);
+
+  return plan;
+}
+
+// ── BUILD DAY FROM PROFILE (pure JS, instant) ─────────
+function buildDayFromProfile() {
+  const p = profile;
   const wake = p.wakeTime || '07:00';
-  const [wH] = wake.split(':').map(Number);
-  const addMins = (h, m, mins) => {
-    const tot = h*60 + m + mins;
-    return String(Math.floor(tot/60)%24).padStart(2,'0') + ':' + String(tot%60).padStart(2,'0');
+  const [wH, wM] = wake.split(':').map(Number);
+  const t = (totalMins) => {
+    const h = Math.floor(totalMins / 60) % 24;
+    const m = totalMins % 60;
+    return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
   };
-  const coffeeTime  = addMins(wH, 0, 90);
-  const isFemale    = (p.sex||'').toLowerCase() === 'female';
-  const injuries    = p.injuryAssessments || p.injuries || [];
-  const supps       = p.supplements || [];
-  const trainingTime = p.trainingTime || 'Morning';
-  const trainHour   = trainingTime.includes('Early') ? wH+1
-    : trainingTime.includes('Lunch') ? 12
-    : trainingTime.includes('Afternoon') ? 15
-    : trainingTime.includes('Evening') ? 18 : wH+2;
-  const mealCount   = p.mealCount || 3;
-  const window      = p.fastingWindow || p.eatingWindow || 'flexible';
+  const wMins = wH * 60 + wM;
+  const coffeeMins = wMins + 90;
 
-  const prompt = `Build a daily schedule for ${p.name}. Return ONLY valid JSON, no markdown.
+  const isFemale = (p.sex||'').toLowerCase() === 'female';
+  const injuries = p.injuryAssessments || p.injuries || [];
+  const supps    = p.supplements || [];
+  const trainTime = (p.trainingTime||'Morning').toLowerCase();
+  const trainMins = trainTime.includes('early')    ? wMins + 60
+    : trainTime.includes('morning')                ? wMins + 120
+    : trainTime.includes('lunch')                  ? 12 * 60
+    : trainTime.includes('afternoon')              ? 15 * 60
+    : trainTime.includes('evening')                ? 18 * 60
+    :                                                wMins + 120;
 
-TODAY: ${todayName} — ${isTraining ? 'TRAINING ('+todayPlan.type+': '+todayPlan.focus+')' : 'REST DAY'}
-TARGET: ${todayPlan.kcal||p.calories||2000} kcal | ${p.protein||140}g protein | ${p.carbs||160}g carbs | ${p.fat||60}g fat
-EATING WINDOW: ${window}
-WAKE: ${wake} | COFFEE: ${coffeeTime} (after cortisol peak)
-DIET: ${p.dietType||'flexible'} | EXCLUDE: ${(p.foodExclusions||[]).join(', ')||'none'}
-AVOID: ${p.triggerFoods||'none'}
-CUISINE: ${(p.cuisinePrefs||[]).join(', ')||'neutral'} | COMPLEXITY: ${p.recipeComplexity||'standard'}
-${isTraining ? 'EXERCISES: '+(todayPlan.keyExercises||[]).join(', ') : ''}
-${injuries.length ? 'INJURIES: '+injuries.map(i=>i.location||i).join(', ') : ''}
-SUPPLEMENTS: ${supps.length ? supps.map(s=>s.name+' '+s.dose).join(', ') : 'none'}
+  const kcal    = todayPlan.kcal || p.calories || 2000;
+  const prot    = p.protein || 140;
+  const carbs   = p.carbs   || 160;
+  const fat     = p.fat     || 60;
+  const water   = Math.round((p.weight || 75) * 35 + (isTraining ? 500 : 0));
+  const window  = p.actualEatingWindow || p.fastingWindow || p.eatingWindow || 'flexible';
+  const mealP   = Math.round(prot * 0.28);
 
-Return this JSON:
-{
-  "dayTitle": "${todayName} — ${todayPlan.type||'Rest'}",
-  "dayBrief": "one sentence: what today is about",
-  "priority": "the single most important thing today",
-  "macroTargets": { "calories": ${todayPlan.kcal||p.calories||2000}, "protein": ${p.protein||140}, "carbs": ${p.carbs||160}, "fat": ${p.fat||60}, "water": "${Math.round((p.weight||75)*0.035 + (isTraining?0.5:0))}L" },
-  "blocks": [
-    { "time": "${wake}", "type": "wake", "title": "Morning start", "subtitle": "Water, light, movement", "tag": "Wake", "tagColor": "jade", "detail": "500ml water immediately. Natural light within 30min. ${isTraining ? 'Collagen+VitC at '+addMins(wH,0,trainHour*60-wH*60-45)+' — 45min before training.' : 'Easy morning movement.'}", "science": "Cortisol peaks 30-45min after wake — use it.", "items": [{"name":"Water","meta":"500ml"},{"name":"Natural light","meta":"10-15 min"}] },
-    { "time": "${coffeeTime}", "type": "supp", "title": "Supplement cascade", "subtitle": "After cortisol peak", "tag": "Supps", "tagColor": "gold", "detail": "Coffee now — after cortisol has peaked. ${supps.slice(0,3).map(s=>s.name+' '+s.dose).join('. ')}${supps.length===0?'Creatine 5g, Magnesium 300mg evening.':''}", "science": "Cortisol suppresses adenosine — coffee before 90min post-wake adds nothing.", "items": ${JSON.stringify(supps.slice(0,4).map(s=>({name:s.name,meta:s.dose})))||'[]'} },
-    ${isTraining ? `{ "time": "${String(Math.max(trainHour-2,wH+1)).padStart(2,'0')}:00", "type": "meal", "title": "Pre-training meal", "subtitle": "90-120min before session", "tag": "Eat", "tagColor": "amber", "detail": "High protein, moderate fast carbs, low fat. Respect: ${p.dietType||'no restrictions'}. Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}. Match ${(p.cuisinePrefs||['neutral'])[0]} style, ${p.recipeComplexity||'standard'} complexity.", "science": "Glycogen priming and pre-session amino acid availability.", "items": [{"name":"Protein source","meta":"${Math.round((p.protein||140)*0.25)}g protein"},{"name":"Fast carbs","meta":"40-60g"}] },
-    { "time": "${String(trainHour).padStart(2,'0')}:00", "type": "training", "title": "${todayPlan.type}: ${todayPlan.focus}", "subtitle": "Main session", "tag": "Train", "tagColor": "jade", "detail": "${(todayPlan.keyExercises||[]).join(', ')||'Full session'}${injuries.length?' — modifications for: '+injuries.map(i=>i.location||i).join(', '):''}. Warm up 10min. Working sets. Cool down 5-10min.", "science": "Progressive overload drives adaptation — track loads.", "items": ${JSON.stringify((todayPlan.keyExercises||[]).slice(0,5).map(e=>({name:e,meta:''})))||'[]'} },
-    { "time": "${addMins(trainHour,0,75)}", "type": "meal", "title": "Post-training nutrition", "subtitle": "Within 30min of finishing", "tag": "Eat", "tagColor": "amber", "detail": "Fast protein + fast carbs. This window matters — MPS is elevated. ${p.protein||140}g total daily protein: aim for ${Math.round((p.protein||140)*0.28)}g here.", "science": "mTOR activation peaks post-training. Leucine threshold 2.5g per meal.", "items": [{"name":"Fast protein","meta":"${Math.round((p.protein||140)*0.28)}g"},{"name":"Fast carbs","meta":"30-40g"}] },` : `{ "time": "${addMins(wH,0,180)}", "type": "meal", "title": "First meal", "subtitle": "${window}", "tag": "Eat", "tagColor": "amber", "detail": "Full protein meal. Eating window: ${window}. Style: ${(p.cuisinePrefs||['neutral'])[0]}, ${p.recipeComplexity||'standard'} complexity. Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}.", "science": "Leucine threshold — minimum 25g complete protein per meal to trigger MPS.", "items": [{"name":"Protein source","meta":"${Math.round((p.protein||140)*0.3)}g protein"}] },`}
-    { "time": "12:30", "type": "meal", "title": "Midday meal", "subtitle": "Protein anchor", "tag": "Eat", "tagColor": "amber", "detail": "Build around protein. ${(p.cuisinePrefs||[]).length ? (p.cuisinePrefs[0]+' inspired.') : ''} Include vegetables. Avoid trigger foods: ${p.triggerFoods||'none'}.", "science": "Protein every 3-4 hours sustains MPS throughout the day.", "items": [{"name":"Protein","meta":"${Math.round((p.protein||140)*0.28)}g"},{"name":"Vegetables","meta":"200g+"}] },
-    { "time": "19:00", "type": "meal", "title": "Evening meal", "subtitle": "Final protein hit", "tag": "Eat", "tagColor": "amber", "detail": "Lean protein priority. ${isTraining?'Lower carbs than training day midday.':'Moderate carbs OK on rest day.'} Close eating window by ${window.includes('20')?'20:00':window.includes('19')?'19:00':'21:00'}.", "science": "Casein-rich foods (cottage cheese, Greek yoghurt) extend overnight MPS.", "items": [{"name":"Lean protein","meta":"${Math.round((p.protein||140)*0.27)}g"}] },
-    { "time": "21:00", "type": "recovery", "title": "Evening wind-down", "subtitle": "Protect tonight's adaptation", "tag": "Wind down", "tagColor": "slate", "detail": "Screens dim or off. Magnesium 300mg now. Room 17-19C for sleep. ${(p.recoveryTools||[]).length ? 'Recovery: '+(p.recoveryTools||[]).slice(0,2).join(', ')+' if available.' : ''}", "science": "Core temperature drop signals sleep onset. Magnesium activates GABA.", "items": [{"name":"Magnesium","meta":"300mg"},{"name":"No screens","meta":"from 21:00"}] },
-    { "time": "22:30", "type": "sleep", "title": "Sleep", "subtitle": "${p.sleep||'7-8 hours'}", "tag": "Sleep", "tagColor": "slate", "detail": "${isTraining?'Training day: sleep is the adaptation. GH pulses in first slow-wave cycle — nothing else drives recovery like this.':'Rest day: sleep extends the repair from previous sessions. Muscle rebuilds while you sleep.'}", "science": "GH peaks in first 90min of sleep. ${isFemale?'Progesterone is a natural sleep aid — disrupting sleep disrupts hormonal recovery.':'One week sub-6h reduces testosterone 10-15%.'}", "items": [{"name":"Target","meta":"${p.sleep||'7-8h'}"}] }
-  ]
-}`;
-
-  const res = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 2500,
-      system: 'You are a performance coach. Return only valid JSON. No markdown. No preamble.',
-      messages: [{ role: 'user', content: prompt }],
-    }),
+  // Morning supps for display
+  const mornSupps = supps.filter(s => {
+    const tim = (s.timing||'').toLowerCase();
+    return tim.includes('morning') || tim.includes('wake') || tim.includes('before training');
+  });
+  const nightSupps = supps.filter(s => {
+    const tim = (s.timing||'').toLowerCase();
+    return tim.includes('night') || tim.includes('sleep') || tim.includes('evening') || tim.includes('bed');
   });
 
-  if (!res.ok) throw new Error('API ' + res.status);
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-  const text = (data.content||[]).map(b=>b.text||'').join('');
-  if (!text) throw new Error('Empty response');
+  const blocks = [];
 
-  // Try to extract JSON
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('No JSON in response');
+  // 1. WAKE
+  blocks.push({
+    time: wake, type: 'wake', title: 'Morning ignition',
+    subtitle: 'Cortisol peak · Circadian set',
+    tag: 'Wake', tagColor: 'jade',
+    detail: `No phone for 5 minutes. 500ml water — you've been fasting 7-8 hours. Outside for 10 minutes: morning sunlight sets your circadian clock and determines tonight's sleep quality. ${isTraining && trainMins - wMins <= 90 ? 'Collagen+VitC ' + t(trainMins - 45) + ' — 45min before training.' : ''}`,
+    science: 'Cortisol awakening response peaks 30-45min post-wake. Work with it — not against it.',
+    items: [{name:'Water',meta:'500ml immediately'},{name:'Sunlight',meta:'10 min outside'}]
+  });
 
-  let parsed;
-  try {
-    parsed = JSON.parse(match[0]);
-  } catch(e) {
-    const cleaned = match[0].replace(/,\s*}/g,'}').replace(/,\s*]/g,']');
-    parsed = JSON.parse(cleaned);
+  // 2. COFFEE + MORNING SUPPS
+  const suppItems = mornSupps.length
+    ? mornSupps.map(s => ({name: s.name, meta: s.dose + ' — ' + s.timing}))
+    : [{name:'Coffee',meta:'after cortisol peak'},{name:'Creatine',meta:'5g with water'}];
+  blocks.push({
+    time: t(coffeeMins), type: 'supp', title: 'Coffee & morning supplements',
+    subtitle: '90min post-wake — after cortisol peak',
+    tag: 'Supps', tagColor: 'gold',
+    detail: `Coffee now — the cortisol that was doing caffeine's job has peaked and started clearing. ${mornSupps.map(s => s.name + ' ' + s.dose).join('. ') || 'Creatine 5g with water.'}`,
+    science: 'Taking caffeine before the cortisol peak adds nothing and sets up a larger afternoon crash.',
+    items: suppItems
+  });
+
+  // 3. PRE-TRAINING MEAL (training days only)
+  if (isTraining) {
+    const preMealMins = Math.max(trainMins - 105, coffeeMins + 30);
+    blocks.push({
+      time: t(preMealMins), type: 'meal', title: 'Pre-training meal',
+      subtitle: '90-120 min before session',
+      tag: 'Eat', tagColor: 'amber',
+      detail: `High protein, moderate fast carbs, low fat. Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}. ${(p.cuisinePrefs||[]).length ? (p.cuisinePrefs[0] + ' inspired.') : ''} Keep fat low — slows gastric emptying and glucose availability.`,
+      science: 'Glycogen priming + pre-session amino acid availability. Fat before training slows performance fuel.',
+      items: [
+        {name:'Protein source', meta: Math.round(prot * 0.25) + 'g protein'},
+        {name:'Fast carbs', meta:'40-60g'},
+        {name:'Low fat', meta:'under 15g'}
+      ],
+      mealSlot: 'pre-training'
+    });
+
+    // 4. TRAINING SESSION
+    const exerciseItems = (todayPlan.keyExercises||[]).slice(0,5).map(e => ({name:e, meta:''}));
+    const injNote = injuries.length ? ' Modifications: ' + injuries.map(i=>i.location||i).join(', ') + '.' : '';
+    blocks.push({
+      time: t(trainMins), type: 'training', title: todayPlan.type + ': ' + todayPlan.focus,
+      subtitle: 'Main session',
+      tag: 'Train', tagColor: 'jade',
+      detail: `Warm-up 10 min. Working sets: RPE 7-9, 1-3 reps from failure. Track every load — progressive overload is non-negotiable.${injNote} Cool down 5-10 min.`,
+      science: 'The last 5 reps drive adaptation. Everything before is preparation.',
+      items: exerciseItems.length ? exerciseItems : [{name:'Full session',meta:'as programmed'}]
+    });
+
+    // 5. POST-TRAINING
+    const postMins = trainMins + 75;
+    blocks.push({
+      time: t(postMins), type: 'meal', title: 'Post-training nutrition',
+      subtitle: 'Within 30 min of finishing',
+      tag: 'Eat', tagColor: 'amber',
+      detail: `Fast protein + fast carbs. MPS is elevated — this window matters. Aim for ${mealP}g protein here. ${(p.dietType||'').toLowerCase().includes('vegan') ? 'Plant-based: combine sources to hit leucine threshold.' : 'Whey or egg white is fastest if convenience matters.'}`,
+      science: 'mTOR peaks post-training. Leucine threshold 2.5g per meal triggers protein synthesis.',
+      items: [{name:'Fast protein',meta:mealP+'g'},{name:'Fast carbs',meta:'30-40g'},{name:'Low fat',meta:'keep it fast'}],
+      mealSlot: 'post-training'
+    });
   }
-  return parsed;
+
+  // 6. MIDDAY MEAL
+  const middayMins = isTraining ? Math.max(trainMins + 180, 12*60) : wMins + 240;
+  blocks.push({
+    time: t(middayMins), type: 'meal', title: isTraining ? 'Midday meal' : 'First meal',
+    subtitle: isTraining ? 'Protein anchor' : window,
+    tag: 'Eat', tagColor: 'amber',
+    detail: `Build around protein. ${(p.cuisinePrefs||[]).length ? p.cuisinePrefs[0] + ' inspired.' : ''} Include vegetables. Avoid: ${p.triggerFoods||'none'}.`,
+    science: 'Protein every 3-4 hours sustains MPS throughout the day.',
+    items: [
+      {name:'Protein', meta: Math.round(prot * 0.28) + 'g'},
+      {name:'Vegetables', meta:'200g+'},
+      {name:'Complex carbs', meta: isTraining ? '40-60g' : '30-50g'}
+    ],
+    mealSlot: 'midday'
+  });
+
+  // 7. AFTERNOON MEAL (if 4+ meals)
+  const mealCount = p.mealCount || 3;
+  if (mealCount >= 4) {
+    blocks.push({
+      time: t(Math.max(middayMins + 180, 15*60)), type: 'meal', title: 'Afternoon meal',
+      subtitle: 'Protein maintained',
+      tag: 'Eat', tagColor: 'amber',
+      detail: `Lighter than midday. Protein anchor with lower carbs. ${(p.cuisinePrefs||[]).length ? p.cuisinePrefs[0] + ' style.' : ''}`,
+      science: 'Consistent protein timing sustains elevated MPS across the day.',
+      items: [{name:'Protein', meta: Math.round(prot * 0.22) + 'g'}, {name:'Vegetables or fruit', meta:'200g'}],
+      mealSlot: 'afternoon'
+    });
+  }
+
+  // 8. EVENING MEAL
+  const eveningMins = Math.max(middayMins + 210, 18*60);
+  const windowClose = window.includes('20:') ? 20*60 : window.includes('19:') ? 19*60 : 21*60;
+  blocks.push({
+    time: t(eveningMins), type: 'meal', title: 'Evening meal',
+    subtitle: 'Final protein hit · close the window',
+    tag: 'Eat', tagColor: 'amber',
+    detail: `Lean protein priority. ${isTraining ? 'Lower carbs than midday — glycogen replenished.' : 'Moderate carbs fine on rest day.'} Close eating window by ${t(windowClose)}.`,
+    science: 'Casein-rich foods (cottage cheese, Greek yoghurt) extend overnight MPS during the fast.',
+    items: [
+      {name:'Lean protein', meta: Math.round(prot * 0.25) + 'g'},
+      {name:'Vegetables', meta:'200g'},
+      {name:'Close window by', meta: t(windowClose)}
+    ],
+    mealSlot: 'evening'
+  });
+
+  // 9. WIND DOWN
+  const bedMins = (() => {
+    const bed = p.bedtime || '';
+    if (bed.includes('Before 10')) return 21*60+30;
+    if (bed.includes('10–11') || bed.includes('10-11')) return 22*60;
+    if (bed.includes('11')) return 22*60+30;
+    if (bed.includes('midnight') || bed.includes('After')) return 23*60+30;
+    return 22*60;
+  })();
+  const windDownMins = bedMins - 45;
+  const nightSuppStr = nightSupps.map(s=>s.name+' '+s.dose).join('. ') || 'Magnesium glycinate 300mg.';
+  blocks.push({
+    time: t(windDownMins), type: 'recovery', title: 'Evening wind-down',
+    subtitle: 'Protect tonight's adaptation',
+    tag: 'Wind down', tagColor: 'slate',
+    detail: `Screens dim or off. ${nightSuppStr} Room 17-19°C. ${(p.recoveryTools||[]).length ? 'Recovery tools: ' + (p.recoveryTools||[]).slice(0,2).join(', ') + ' if available.' : ''}`,
+    science: 'Core temperature drop signals sleep onset. Magnesium activates GABA and reduces cortisol.',
+    items: [
+      ...nightSupps.map(s=>({name:s.name, meta:s.dose})),
+      {name:'Screen dimming', meta:'45min before sleep'},
+      {name:'Room temp', meta:'17-19°C'}
+    ]
+  });
+
+  // 10. SLEEP
+  blocks.push({
+    time: t(bedMins), type: 'sleep', title: 'Sleep',
+    subtitle: p.sleep || '7-8 hours',
+    tag: 'Sleep', tagColor: 'slate',
+    detail: isTraining
+      ? 'Training day: sleep is where adaptation happens. GH pulses in the first slow-wave cycle — this is when today's session becomes actual muscle. Nothing else drives recovery like this.'
+      : 'Rest day: sleep extends the repair from previous sessions. Satellite cells divide, myofibrils remodel, cortisol clears.',
+    science: isFemale
+      ? 'GH peaks in first 90min. Progesterone is a natural GABA agonist — protect sleep to protect hormonal recovery.'
+      : 'GH peaks in first 90min. One week sub-6h reduces testosterone 10-15%. Protect it.',
+    items: [{name:'Target', meta:p.sleep||'7-8h'},{name:'Wake', meta:wake}]
+  });
+
+  // Assemble plan
+  const waterLitres = (water / 1000).toFixed(1) + 'L';
+  const brief = isTraining
+    ? `${todayPlan.type} day — signal, feed, recover. Progressive overload + ${prot}g protein today.`
+    : `Recovery day — the adaptation from your last session completes today. Protein, sleep, movement.`;
+
+  return {
+    dayTitle:  todayName + ' — ' + (todayPlan.type || 'Rest'),
+    dayBrief:  brief,
+    priority:  isTraining
+      ? 'Hit ' + mealP + 'g protein within 30 min post-training. This window matters most.'
+      : 'Protein target (' + prot + 'g) every day — including rest days. MPS runs 24-48h post-session.',
+    macroTargets: { calories: kcal, protein: prot, carbs, fat, water: waterLitres },
+    blocks,
+  };
+}
+
+// ── ENRICH MEALS ASYNC (small API call for meal names) ─
+async function enrichMealsAsync(plan) {
+  try {
+    const p = profile;
+    const mealSlots = plan.blocks.filter(b => b.mealSlot);
+    if (!mealSlots.length) return;
+
+    const prompt = `Give me specific meal names for ${p.name}. Return ONLY a JSON object.
+Diet: ${p.dietType||'flexible'} | Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}
+Cuisine style: ${(p.cuisinePrefs||[]).join(', ')||'neutral'} | Complexity: ${p.recipeComplexity||'standard'}
+Triggers to avoid: ${p.triggerFoods||'none'}
+Today: ${isTraining ? 'training day ('+todayPlan.type+')' : 'rest day'}
+Calories: ${plan.macroTargets.calories} | Protein: ${plan.macroTargets.protein}g
+
+Return: {"pre-training":"meal name + 1 line what it is","post-training":"","midday":"","afternoon":"","evening":""}
+Only include slots that apply. One meal name each. No explanation.`;
+
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 200,
+        system: 'Return only valid JSON. No markdown.',
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!res.ok) return;
+    const data = await res.json();
+    const text = (data.content||[]).map(b=>b.text||'').join('');
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return;
+    const meals = JSON.parse(match[0]);
+
+    // Slot meal names into existing blocks
+    plan.blocks.forEach(b => {
+      if (b.mealSlot && meals[b.mealSlot]) {
+        const parts = meals[b.mealSlot].split(/[—\-]/);
+        b.title    = parts[0].trim();
+        b.subtitle = parts[1] ? parts[1].trim() : b.subtitle;
+        // Update rendered DOM
+        const el = document.querySelector('[data-slot="' + b.mealSlot + '"]');
+        if (el) {
+          const titleEl = el.querySelector('.tl-title');
+          const subEl   = el.querySelector('.tl-subtitle');
+          if (titleEl) titleEl.textContent = b.title;
+          if (subEl && parts[1]) subEl.textContent = b.subtitle;
+        }
+      }
+    });
+  } catch(e) {
+    // Fail silently — the day is already rendered with generic meals
+    console.log('Meal enrichment skipped:', e.message);
+  }
 }
 
 
@@ -394,6 +591,7 @@ function renderBlock(b, open) {
 
   return `
     <div class="tl-block type-${b.type||'hack'}${open?' open':''}"
+      ${b.mealSlot ? 'data-slot="'+b.mealSlot+'"' : ''}
       onclick="this.classList.toggle('open')">
       <div class="tl-head">
         <div class="tl-time">${b.time||''}</div>

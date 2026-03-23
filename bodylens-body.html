@@ -3,6 +3,7 @@
 <head>
 <meta name="bl-inject" content="body">
 <meta charset="UTF-8">
+<meta name="bl-page" content="body">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BodyLens — Body Explorer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -219,7 +220,7 @@ body { background: var(--ink); color: var(--dk-1); }
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
+    <a class="nav-link nav-food" href="bodylens-fuel.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
   </div>
@@ -312,11 +313,9 @@ body { background: var(--ink); color: var(--dk-1); }
       <div class="mn-group-label">Wellness &amp; recovery</div>
       <button class="mn-btn" onclick="showMuscle('sleep')"><div class="mn-priority-dot"></div><span class="mn-label">Sleep optimisation</span></button>
       <button class="mn-btn" onclick="showMuscle('mobility')"><div class="mn-priority-dot"></div><span class="mn-label">Mobility &amp; flexibility</span></button>
-      <button class="mn-btn has-flag" onclick="showMuscle('knee-wellness')">
-        <div class="mn-priority-dot" style="background:var(--gold)"></div>
-        <span class="mn-label">Knee — non-surgical</span>
-        <span class="mn-tag mn-tag-medical">Medical</span>
-      </button>
+      <div id="injury-nav-buttons">
+        <!-- Populated dynamically from profile injuries -->
+      </div>
     </div>
 
   </nav>
@@ -524,35 +523,14 @@ const MUSCLES = {
   ]
 },
 
-'knee-wellness': {
-  title: 'Knee — non-surgical options',
-  subtitle: 'Complete menu of conservative, non-surgical interventions for your specific MRI findings: horizontal medial meniscus tear (body + posterior horn), parameniscal cyst, mild chondromalacia, MCL irritation. Ordered by evidence quality and relevance to your profile.',
-  tags: ['Medical reference','Non-surgical','Your MRI findings'],
-  tagClasses: ['pill-gold','pill-gold','pill-amber'],
-  exercises: [
-    { rank:1, name:'Progressive posterior chain loading', meta:'The programme itself — your primary intervention', jade:true,
-      why:'Strong glutes reduce medial compartment load by 30–40%. This is the most powerful conservative intervention available for degenerative medial meniscal tears. No injection or therapy produces this result. The programme is the medicine.',
-      how:'Follow the posterior chain protocol. Monitor swelling as the primary gate. Hip thrust strength improving week-over-week = the intervention is working.',
-      hack:'Track hip thrust weight weekly. If it stalls, something in the recovery stack is failing — sleep, protein, or overreach. The number going up is the health marker.'},
-  ],
-  cardio: [],
-  medical: [
-    { tier:'tier-1st', title:'Posterior chain progressive loading (strength training)', body:'Already covered above. First-line treatment in orthopaedic guidelines for degenerative meniscal tears. The programme you are on is the evidence-based recommendation.' },
-    { tier:'tier-1st', title:'PRP — Platelet-Rich Plasma injection', body:'<strong>Strongest injectable evidence for degenerative meniscal tears.</strong> Blood drawn, spun to concentrate growth factors (PDGF, TGF-β, IGF-1), injected at the tear site. 2–3 injections 4–6 weeks apart. Average response: 40–60% pain reduction, improved function at 6 months. Best responders: tears with some tissue vascularity. Cost: £400–800/injection in the UK. Seek a sports medicine specialist, not a GP referral.' },
-    { tier:'tier-2nd', title:'Hyaluronic acid injection (Ostenil, Synvisc)', body:'Synthetic synovial fluid injection reduces joint friction and has direct anti-inflammatory signalling. 3–5 weekly injections. Better evidence for chondromalacia and early OA than for meniscal tears specifically, but the chondromalacia noted in your MRI is a valid target. Consider if knee discomfort increases at weeks 5–8 when load intensifies.' },
-    { tier:'tier-2nd', title:'Prolotherapy (dextrose injection)', body:'Hypertonic dextrose injected at tendon and ligament insertions stimulates local inflammatory response → healing cascade. Relevant for your MCL irritation specifically. Evidence is moderate but cost is low (£150–250/session) and risk is negligible.' },
-    { tier:'tier-2nd', title:'Acupuncture / dry needling', body:'Moderate evidence for reducing chronic joint pain. The mechanism for meniscal pathology is not structural — it is pain modulation via gate control and endorphin release. Useful as an adjunct if stiffness or chronic ache is limiting training quality. Not a primary intervention.' },
-    { tier:'tier-2nd', title:'TENS / electrical stimulation', body:'Transcutaneous electrical nerve stimulation reduces pain perception and may reduce swelling via lymphatic drainage stimulation. Relevant for post-training management. Purchase a consumer TENS unit (£30–60) for home use after Friday sessions if swelling is a recurring issue.' },
-    { tier:'tier-last', title:'NSAIDs (ibuprofen, naproxen) — use cautiously', body:'<strong>Chronic NSAID use suppresses prostaglandin synthesis broadly — including the prostaglandins required for connective tissue healing.</strong> Short-term use for acute flare-ups is acceptable. Regular use around training sessions is counterproductive — it blunts the inflammatory signal that drives adaptation. Omega-3 supplementation is a superior daily anti-inflammatory with no healing suppression.' },
-    { tier:'tier-last', title:'Cortisone injection — last conservative resort', body:'Corticosteroid injection provides 4–12 weeks of significant pain reduction. However, <strong>evidence shows cortisone injections are associated with accelerated cartilage degradation at 2-year follow-up</strong>. Use only for an acute flare that prevents training — not as a regular management tool. If you need more than one cortisone injection per year, surgical consultation is appropriate.' },
-    { tier:'tier-last', title:'Partial meniscectomy (surgical reference)', body:'Removes the torn portion of the meniscus. Fast recovery (6–8 weeks), high short-term satisfaction. However, removing meniscal tissue accelerates the development of osteoarthritis in the medial compartment — the very compartment your programme is protecting. <strong>Reserve for failure of all conservative options at 6–12 months, not as first-line.</strong>' },
-  ],
-  hacks: [
-    { icon:'🧊', title:'Ice is for acute swelling, not routine maintenance', body:'Ice constricts blood vessels and reduces the inflammatory cascade — appropriate after acute swelling. <strong>Routine icing after every session may blunt the adaptation signals you need.</strong> Use ice only when there is actual swelling. Use heat (hot shower, heat pack) for chronic stiffness and tight tissue before training.' },
-    { icon:'🩺', title:'The two tests to do at 6 weeks and 12 weeks', body:'6-week test: can you do 3 single-leg squats to 70° without pain or instability? 12-week test: can you jog 400m at a comfortable pace without swelling in the 24 hours following? These are the functional milestones for Phase 2 and tennis return respectively. If either fails, do not progress depth or intensity — return to the previous level for two weeks.' },
-    { icon:'⚡', title:'Sleep is the most powerful knee medicine that does not cost money', body:'GH pulses during slow-wave sleep drive connective tissue remodelling. <strong>Magnesium glycinate before bed, no screens for 30 minutes prior, blackout curtains — these produce measurably better connective tissue repair outcomes than any OTC supplement.</strong> Sleep quality directly determines how fast the meniscal environment heals.' },
-  ]
+'injury-protocol': {
+  title: 'Injury protocol',
+  subtitle: 'Your specific injury management protocol — built from your profile.',
+  tags: ['Medical reference','Your injuries'],
+  tagClasses: ['pill-gold','pill-amber'],
+  exercises: []
 },
+
 
 'cardio-general': {
   title: 'Cardio',
@@ -1219,6 +1197,42 @@ function personalisePageContent(p) {
       </div>`;
     focusEl.style.display = 'block';
   }
+
+
+  // Build dynamic injury nav buttons from profile
+  const injNavContainer = document.getElementById('injury-nav-buttons');
+  if (injNavContainer) {
+    if (injuries.length) {
+      injNavContainer.innerHTML = injuries.map((inj, i) => {
+        const loc = inj.location || (typeof inj === 'string' ? inj : 'Injury');
+        const key = 'profile-injury-' + i;
+        // Register dynamic injury data in MUSCLES object
+        MUSCLES[key] = {
+          title: loc + ' — Your Protocol',
+          subtitle: inj.assessment || ('Management protocol for ' + loc + '.'),
+          tags: ['Your injuries', 'Medical reference'],
+          tagClasses: ['pill-amber', 'pill-gold'],
+          exercises: [
+            ...(inj.safeAlternatives || []).slice(0, 6).map((ex, j) => ({
+              rank: j + 1, name: ex, meta: 'Safe movement', jade: true,
+              desc: 'Cleared for use with ' + loc + ' injury. Perform with controlled tempo.'
+            })),
+            ...(inj.avoidMovements || []).slice(0, 4).map(ex => ({
+              rank: 99, name: ex, meta: 'Avoid', red: true,
+              desc: 'Contraindicated for ' + loc + '. Substitute with safe alternatives.'
+            }))
+          ].filter(e => e.name)
+        };
+        return '<button class="mn-btn has-flag" onclick="showMuscle(\'' + key + '\')">' +
+          '<div class="mn-priority-dot" style="background:var(--gold)"></div>' +
+          '<span class="mn-label">' + loc + ' — protocol</span>' +
+          '<span class="mn-tag mn-tag-medical">Medical</span>' +
+          '</button>';
+      }).join('');
+    } else {
+      injNavContainer.style.display = 'none';
+    }
+  }
 }
 
 function replaceInContent(replacements) {
@@ -1270,5 +1284,6 @@ function buildPersonalCallout(p) {
   return callouts[decade] || callouts[40];
 }
 </script>
+<script src="coach.js"></script>
 </body>
 </html>

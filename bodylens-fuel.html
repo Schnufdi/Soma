@@ -3,6 +3,7 @@
 <head>
 <meta name="bl-inject" content="fuel">
 <meta charset="UTF-8">
+<meta name="bl-page" content="fuel">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BodyLens — Fuel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -442,6 +443,7 @@
     const raw = localStorage.getItem('bl_profile');
     if (!raw) return;
     const p = JSON.parse(raw);
+    window._fuelProfile = p; // expose for data structures
     if (!p || !p.name) return;
 
     // Update nav meta
@@ -788,7 +790,7 @@ const PYRAMIDS = {
       { label:'Supplements', note:'Creatine, collagen, omega-3, D3, Mg', width:92, color:'rgba(255,255,255,0.1)' },
     ],
     timing: [
-      { title:'Protein at every meal', text:'185g distributed across 4 meals. Each clears the 2–3g leucine threshold. <strong>Distribution matters as much as total.</strong>' },
+      { title:'Protein at every meal', text:(window._fuelProfile?window._fuelProfile.protein:'—')+'g distributed across '+(window._fuelProfile?window._fuelProfile.mealCount||4:'4')+' meals. Each clears the 2–3g leucine threshold. <strong>Distribution matters as much as total.</strong>' },
       { title:'Training-day carbs front-loaded', text:'Higher-GI carbs before training for glycogen. Slow carbs for breakfast and post-training meals. Rest days: –60g carbs, protein and fat unchanged.' },
       { title:'Fat with fat-soluble vitamins', text:'D3+K2 and omega-3 taken with fat-containing meals for absorption. Fat never removed from any meal.' },
       { title:'Pre-sleep casein optional but valuable', text:'250g cottage cheese or Greek yoghurt. 6–8h casein digestion covers the overnight GH repair window.' },
@@ -1531,7 +1533,7 @@ function personalisePageContent(p) {
 
   // Patch "you are here" callout text
   document.querySelectorAll('.you-are-here-text, .hc-body').forEach(el => {
-    if (el.textContent.includes('44') || el.textContent.includes('Sven') || el.textContent.includes('tennis')) {
+    if (el.textContent.includes('Sven') || el.textContent.includes('tennis')) {
       el.innerHTML = buildPersonalCallout(p);
     }
   });
@@ -1604,28 +1606,102 @@ function loadFuelPane(paneId, tabKey) {
   }
 
   const pane = document.getElementById(paneId);
-  if (pane.dataset.generated === 'true') return; // already loaded
+  if (pane && pane.dataset.generated === 'true') return;
 
   const container = document.getElementById(paneId + '-content');
+  if (!container) return;
 
-  BL_GENERATOR.generate(
-    'fuel_' + tabKey,
-    profile,
-    (loading) => { container.innerHTML = loading; },
-    (html) => {
-      container.innerHTML = html;
-      pane.dataset.generated = 'true';
-    },
-    (err) => {
-      console.error('Fuel pane error:', tabKey, err);
-      container.innerHTML =
-        '<div style="text-align:center;padding:40px 24px;color:#8a9490;font-size:13px;">' +
-        'Could not generate: ' + (err||'unknown') +
-        ' <button onclick="loadFuelPane('' + paneId + '','' + tabKey + '')" ' +
-        'style="color:#00c8a0;background:none;border:none;cursor:pointer;text-decoration:underline;">Try again</button></div>';
+  // Cache key
+  const hash = (profile.name||'') + (profile.goal||'') + (profile.weight||'');
+  const cacheKey = 'bl_fuel_v1_' + tabKey + '_' + btoa(hash).slice(0,8);
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      container.innerHTML = cached;
+      if (pane) pane.dataset.generated = 'true';
+      return;
     }
-  );
+  } catch(e) {}
+
+  // Show loading
+  container.innerHTML = '<div style="padding:40px 24px;text-align:center;">' +
+    '<div style="width:24px;height:24px;border:2px solid #1e2e28;border-top-color:#00c8a0;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>' +
+    '<div style="font-size:12px;color:#3e504a;">Building your ' + tabKey + ' guide…</div></div>';
+
+  // Build prompt per tab
+  const p = profile;
+  const isFemale = (p.sex||'').toLowerCase() === 'female';
+  const injuries = (p.injuryAssessments||p.injuries||[]).map(i=>i.location||i).join(', ');
+  const baseContext = `User: ${p.name}, ${p.age}yo ${p.sex}, ${p.weight}kg, goal: ${p.goal}.
+Calories: ${p.calories} kcal | Protein: ${p.protein}g | Carbs: ${p.carbs}g | Fat: ${p.fat}g
+Diet: ${p.dietType||'flexible'} | Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}
+Cuisine: ${(p.cuisinePrefs||[]).join(', ')||'neutral'} | Complexity: ${p.recipeComplexity||'standard'}
+Triggers: ${p.triggerFoods||'none'} | Eating window: ${p.actualEatingWindow||p.eatingWindow||'flexible'}
+${injuries ? 'Injuries: '+injuries : ''}
+${isFemale ? 'Female — include hormonal context where relevant.' : ''}`;
+
+  const prompts = {
+    shop: `${baseContext}
+
+Write a personalised weekly shopping list for this person. 
+Organise by category: Protein Sources, Produce, Dairy & Eggs, Grains & Carbs, Pantry, Supplements.
+Be specific — actual food names, quantities for one week. Match their cuisine style and complexity preferences.
+Format as HTML with category headers and item lists. Keep it practical and immediately usable.`,
+
+    syn: `${baseContext}
+
+Explain the 5 most powerful food synergies for this person's specific goal (${p.goal}).
+For each: name the combination, explain the mechanism in 2-3 sentences, give a practical example fitting their cuisine (${(p.cuisinePrefs||[]).join(', ')||'neutral'}).
+Format as HTML — each synergy as a card with a title, mechanism, and example.`,
+
+    timing: `${baseContext}
+
+Create a personalised nutrient timing guide for this person.
+Eating window: ${p.actualEatingWindow||p.eatingWindow||'flexible'}. Training time: ${p.trainingTime||'morning'}.
+Cover: pre-training, post-training, meal spacing, evening window.
+Format as HTML — a timeline with time markers and what to eat/avoid at each point.`,
+
+    hacks: `${baseContext}
+
+Give 6 practical hunger management and satiety strategies for this person.
+Reference their specific trigger foods (${p.triggerFoods||'none'}), energy pattern (${p.energyPattern||'—'}), and eating window.
+Format as HTML — each hack with a title, the science in one sentence, and the practical action.`,
+
+    avoid: `${baseContext}
+
+List the 8 foods or eating patterns this person should specifically avoid this week, given their goal (${p.goal}) and profile.
+For each: name it, explain why it's counterproductive for them specifically (not generically), suggest a replacement.
+Format as HTML — avoid/replace pairs with brief reasoning.`
+  };
+
+  const prompt = prompts[tabKey] || prompts.syn;
+
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 700,
+      system: 'You are a performance nutrition coach. Return HTML content only — no markdown, no preamble. Use inline styles matching a dark theme (background #131918, text #c8c0b4, accent #00c8a0). Keep it concise and specific to this person.',
+      messages: [{ role: 'user', content: prompt }]
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) throw new Error(data.error.message);
+    const html = (data.content||[]).map(b=>b.text||'').join('').trim();
+    if (!html) throw new Error('Empty');
+    container.innerHTML = '<div style="padding:8px 0;">' + html + '</div>';
+    if (pane) pane.dataset.generated = 'true';
+    try { localStorage.setItem(cacheKey, container.innerHTML); } catch(e) {}
+  })
+  .catch(err => {
+    container.innerHTML = '<div style="text-align:center;padding:40px 24px;color:#8a9490;font-size:13px;">' +
+      'Could not load — <button onclick="loadFuelPane('' + paneId + '','' + tabKey + '')" ' +
+      'style="color:#00c8a0;background:none;border:none;cursor:pointer;text-decoration:underline;">try again</button></div>';
+  });
 }
+
 
 // Auto-load the active tab on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -1640,5 +1716,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<script src="coach.js"></script>
 </body>
 </html>

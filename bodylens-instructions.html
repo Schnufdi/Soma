@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="bl-page" content="instructions">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BodyLens — Instructions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -180,7 +181,7 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
+    <a class="nav-link nav-food" href="bodylens-fuel.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
   </div>
@@ -381,56 +382,177 @@ function switchTab(id, btn) {
   document.getElementById('pane-' + id).classList.add('active');
 }
 
-async function generateReport(force) {
+function generateReport(force) {
   const container = document.getElementById('report-content');
   if (!container) return;
 
-  // Check cache
-  const cacheKey = 'bl_gen_v4_coachreport_' + profile.name + '_' + (profile.generatedAt||'').slice(0,10);
+  // Check cache first
+  const cacheKey = 'bl_report_v2_' + profile.name + '_' + (profile.generatedAt||'').slice(0,10);
   if (!force) {
     try {
       const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        renderReport(cached);
-        return;
-      }
+      if (cached) { renderReport(cached); return; }
     } catch(e) {}
   }
 
-  // Show loading
-  container.innerHTML = `
-    <div style="padding:40px 0;display:flex;flex-direction:column;align-items:center;gap:12px;">
-      <div style="width:32px;height:32px;border:2px solid var(--bd-2);border-top-color:var(--jade);
-        border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-      <div style="font-size:13px;font-weight:300;color:var(--dk-3);">Writing your coaching report…</div>
-      <div style="font-size:11px;font-weight:300;color:var(--dk-3);opacity:0.7;">This takes about 20 seconds.</div>
-    </div>
-    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+  // Build report instantly from profile — no API call needed
+  const html = buildReportHTML(profile);
+  try { localStorage.setItem(cacheKey, html); } catch(e) {}
+  renderReport(html);
 
-  const btn = document.getElementById('regen-report-btn');
-  if (btn) { btn.textContent = 'Generating…'; btn.disabled = true; }
-
-  BL_GENERATOR.generate(
-    'coachreport',
-    profile,
-    null, // no separate loading state needed
-    (html) => {
-      // Cache it
-      try { localStorage.setItem(cacheKey, html); } catch(e) {}
-      renderReport(html);
-      if (btn) { btn.textContent = '↺ Regenerate report'; btn.disabled = false; }
-    },
-    (err) => {
-      console.error('Report error:', err);
-      container.innerHTML = `
-        <div style="padding:40px 0;text-align:center;color:var(--dk-3);font-size:13px;">
-          Could not generate report: ${err||'unknown error'}<br><br>
-          <button onclick="generateReport(true)" style="color:var(--jade);background:none;border:none;cursor:pointer;text-decoration:underline;font-size:13px;">Try again</button>
-        </div>`;
-      if (btn) { btn.textContent = '↺ Regenerate report'; btn.disabled = false; }
-    }
-  );
+  // Then optionally enrich with a tiny AI call for the coach voice paragraph
+  enrichReportAsync(profile, cacheKey);
 }
+
+function buildReportHTML(p) {
+  const isFemale = (p.sex||'').toLowerCase() === 'female';
+  const age = p.age || 35;
+  const injuries = p.injuryAssessments || p.injuries || [];
+  const supps = p.supplements || [];
+  const weekPlan = p.weekPlan || [];
+  const trainDays = weekPlan.filter(d=>d.priority==='training');
+  const restDays  = weekPlan.filter(d=>d.priority!=='training');
+  const bmr = isFemale
+    ? 10*(p.weight||70)+6.25*(p.height||165)-5*age-161
+    : 10*(p.weight||80)+6.25*(p.height||175)-5*age+5;
+  const actBonus = (p.activityLevel||'').includes('physical')?0.1:(p.activityLevel||'').includes('feet')?0.05:0;
+  const tdee = Math.round(bmr*((( p.trainingDays||4)<=3?1.55:(p.trainingDays||4)<=5?1.65:1.725)+actBonus));
+  const deficit = tdee - (p.calories||tdee);
+
+  const injSection = injuries.length ? injuries.map(inj => `
+    <div style="margin-bottom:16px;padding:14px 16px;background:rgba(200,148,30,0.05);border-left:3px solid var(--gold-br,rgba(200,148,30,0.3));border-radius:0 4px 4px 0;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">${inj.location||'Injury'}</div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;">${inj.assessment||''}</div>
+      ${inj.avoidMovements&&inj.avoidMovements.length?`<div style="font-size:12px;font-weight:300;color:var(--dk-3);margin-top:6px;">Avoid: ${inj.avoidMovements.join(', ')}</div>`:''}
+      ${inj.safeAlternatives&&inj.safeAlternatives.length?`<div style="font-size:12px;font-weight:300;color:var(--jade);margin-top:4px;">Safe: ${inj.safeAlternatives.join(', ')}</div>`:''}
+    </div>`).join('') : '<p style="font-size:13px;color:var(--dk-3);">No current injuries — full range of motion available.</p>';
+
+  const suppSection = supps.map(s => `
+    <div style="display:grid;grid-template-columns:160px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid var(--bd);">
+      <div style="font-size:13px;font-weight:500;color:var(--dk-1);">${s.name} <span style="font-weight:300;color:var(--dk-3);">${s.dose}</span></div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);">${s.timing||''} — ${s.reason||''}</div>
+    </div>`).join('') || '<p style="font-size:13px;color:var(--dk-3);">Supplement stack to be confirmed.</p>';
+
+  const weekGrid = weekPlan.map(day => {
+    const isTrain = day.priority==='training';
+    return `<div style="background:var(--ink-2);border:1px solid var(--bd);${isTrain?'border-top:3px solid var(--jade);':''}border-radius:4px;padding:10px 8px;text-align:center;">
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:${isTrain?'var(--jade)':'var(--dk-3)'};">${day.day.slice(0,3)}</div>
+      <div style="font-size:11px;font-weight:500;color:var(--dk-1);margin-top:3px;">${day.type||'Rest'}</div>
+      ${day.focus?`<div style="font-size:9px;font-weight:300;color:var(--dk-3);margin-top:2px;">${day.focus}</div>`:''}
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="report-shell">
+      <div style="font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Coach's assessment</div>
+      <div id="coach-voice-text" style="font-family:var(--serif);font-size:20px;font-weight:300;color:var(--dk-1);line-height:1.6;margin-bottom:28px;max-width:620px;">
+        ${p.coachSummary || 'Programme built and calibrated to your specific profile.'}
+      </div>
+
+      <div style="height:1px;background:var(--bd);margin-bottom:28px;"></div>
+
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--jade);margin-bottom:12px;">Your week</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:28px;">${weekGrid}</div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border-radius:6px;overflow:hidden;margin-bottom:28px;">
+        <div style="background:var(--ink-2);padding:14px 12px;text-align:center;">
+          <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--jade);">${p.calories||'—'}</div>
+          <div style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--dk-3);margin-top:3px;">kcal / day</div>
+        </div>
+        <div style="background:var(--ink-2);padding:14px 12px;text-align:center;">
+          <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--jade);">${p.protein||'—'}g</div>
+          <div style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--dk-3);margin-top:3px;">Protein</div>
+        </div>
+        <div style="background:var(--ink-2);padding:14px 12px;text-align:center;">
+          <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--amber);">${p.carbs||'—'}g</div>
+          <div style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--dk-3);margin-top:3px;">Carbs</div>
+        </div>
+        <div style="background:var(--ink-2);padding:14px 12px;text-align:center;">
+          <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--dk-2);">${Math.abs(deficit)}</div>
+          <div style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--dk-3);margin-top:3px;">${deficit>0?'Deficit':'Surplus'} kcal</div>
+        </div>
+      </div>
+
+      ${p.calorieReasoning?`
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;">The logic</div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:8px;">${p.calorieReasoning}</div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:24px;">${p.proteinReasoning||''}</div>`:''}
+
+      <div style="height:1px;background:var(--bd);margin-bottom:24px;"></div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--amber);margin-bottom:14px;">Supplement stack</div>
+      <div style="margin-bottom:28px;">${suppSection}</div>
+
+      ${injuries.length?`
+      <div style="height:1px;background:var(--bd);margin-bottom:24px;"></div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Injury protocol</div>
+      <div style="margin-bottom:28px;">${injSection}</div>`:''}
+
+      ${isFemale&&p.menstrualCycle?`
+      <div style="height:1px;background:var(--bd);margin-bottom:24px;"></div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;">Hormonal context</div>
+      <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:24px;">Cycle: ${p.menstrualCycle}. Follicular phase (days 1-14): heavier loads, more aggressive nutrition targets. Luteal phase (days 15-28): maintain volume, allow up to +200 kcal, prioritise recovery.</div>`:''}
+
+      ${(p.keyFoodPrinciples||[]).length?`
+      <div style="height:1px;background:var(--bd);margin-bottom:24px;"></div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;">Food philosophy</div>
+      <div style="margin-bottom:24px;">${(p.keyFoodPrinciples||[]).map(k=>`<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--bd);font-size:13px;font-weight:300;color:var(--dk-2);">
+        <span style="color:var(--jade);font-weight:600;flex-shrink:0;">→</span>${k}</div>`).join('')}</div>`:''}
+
+      <div style="height:1px;background:var(--bd);margin-bottom:24px;"></div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;">The efficiency rule</div>
+      <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--dk-1);line-height:1.6;font-style:italic;">
+        Hit your protein target every day — including rest days. Everything else compounds from this single habit.
+      </div>
+
+      <div style="margin-top:28px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button id="regen-report-btn" onclick="generateReport(true)"
+          style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:7px 16px;border-radius:20px;font-size:10px;cursor:pointer;font-family:var(--sans);letter-spacing:0.04em;">
+          ↺ Refresh with AI voice
+        </button>
+      </div>
+    </div>`;
+}
+
+async function enrichReportAsync(p, cacheKey) {
+  // Small API call just to get a personalised coach opening paragraph
+  try {
+    const isFemale = (p.sex||'').toLowerCase() === 'female';
+    const injuries = p.injuryAssessments || p.injuries || [];
+    const prompt = `You are a senior performance coach. Write ONE paragraph (3-4 sentences) as a personal opening for ${p.name}'s coaching report. 
+Profile: ${age||p.age}yo ${p.sex}, ${p.weight}kg, goal: ${p.goal}. Training: ${p.trainingDays} days/week. ${injuries.length ? 'Injuries: '+injuries.map(i=>i.location||i).join(', ')+'. ' : ''}Calories: ${p.calories}, protein: ${p.protein}g.
+${p.coachSummary ? 'Expand on: '+p.coachSummary : ''}
+Be direct and specific. Reference their actual numbers. No hollow affirmations. Serif coaching voice.`;
+
+    const res = await fetch('/api/chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:180,
+        system:'You are a performance coach. Write exactly one paragraph, no headers, no bullets.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const text = (data.content||[]).map(b=>b.text||'').join('').trim();
+    if (!text) return;
+
+    // Slot into the existing rendered report
+    const voiceEl = document.getElementById('coach-voice-text');
+    if (voiceEl) voiceEl.textContent = text;
+
+    // Update cache with enriched version
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const updated = cached.replace(p.coachSummary||'Programme built and calibrated to your specific profile.', text);
+        localStorage.setItem(cacheKey, updated);
+      }
+    } catch(e) {}
+  } catch(e) {
+    // Fail silently — report already rendered with coachSummary
+  }
+}
+
 
 function renderReport(html) {
   const container = document.getElementById('report-content');
@@ -498,5 +620,6 @@ Write sections: Workout Objective, Goals, Approach, Current Baseline, Injuries, 
   }
 }
 </script>
+<script src="coach.js"></script>
 </body>
 </html>
