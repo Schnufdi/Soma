@@ -1223,6 +1223,17 @@ async function sendChat() {
   const val = inp.value.trim();
   if (!val || generating) return;
 
+  // ABORT — skip straight to daily plan using current formData
+  if (val.toUpperCase() === 'ABORT') {
+    inp.value = '';
+    addChatBubble('user', 'ABORT');
+    addChatBubble('ai', "Got it — skipping straight to your plan. Building now...");
+    // Set a name if we don't have one
+    if (!formData.name) formData.name = 'You';
+    await triggerGeneration();
+    return;
+  }
+
   inp.value = '';
   document.getElementById('chat-send').disabled = true;
   addChatBubble('user', val);
@@ -1749,29 +1760,144 @@ document.getElementById('chat-input').addEventListener('keydown', e => {
 updateProgress();
 
 function fillDemo() {
-  // Fill a realistic 44yo male profile for quick testing
-  // Numeric fields
-  var nums = {age:44, height:181, weight:87};
-  Object.keys(nums).forEach(function(k){
-    var el = document.querySelector('input[placeholder*="'+k+'"], input[id*="'+k+'"], input[data-field*="'+k+'"]');
-    if(!el) el = document.querySelector('.ob2-number-input[id*="'+k+'"], #q-'+k);
-    if(el){ el.value = nums[k]; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); }
+  // Complete demo profile — Sven, 44yo male, training 4x/week, fat loss + muscle
+  // Fills EVERY field so no manual input needed
+
+  // ── Numeric inputs ────────────────────────────────────────────────
+  var numFields = [
+    { selectors: ['#q-age','input[placeholder="43"]','input[id*="age"]'], value: 44 },
+    { selectors: ['#q-height','input[placeholder="181"]','input[id*="height"]'], value: 181 },
+    { selectors: ['#q-weight','input[placeholder="85"]','input[id*="weight"]'], value: 87 }
+  ];
+  numFields.forEach(function(f) {
+    var el = null;
+    f.selectors.forEach(function(sel) { if(!el) el = document.querySelector(sel); });
+    if(!el) el = document.querySelector('.ob2-num-input, input[type="number"]');
+    if(el) {
+      el.value = f.value;
+      el.dispatchEvent(new Event('input', {bubbles:true}));
+      el.dispatchEvent(new Event('change', {bubbles:true}));
+    }
   });
 
-  // Click chip/option buttons matching these values
-  var targets = ['Male','18–22%','18-22%','Belly','Morning','7–8 hours','7-8 hours','10–11pm','Moderate','Flexible / no restrictions','None','4'];
-  document.querySelectorAll('.ob2-chip, .ob2-option-btn, .ob2-select-btn, button[data-value]').forEach(function(btn){
-    var t = btn.textContent.trim();
-    targets.forEach(function(v){ if(t === v || t.startsWith(v)) btn.click(); });
+  // ── All data-val chips — click by exact match ─────────────────────
+  var targets = [
+    // Body
+    'Male', '18-22%', 'Belly',
+    // Goal
+    'Body recomposition',
+    // Training
+    '5+ years advanced', '4', '07:00',
+    // Equipment
+    'Full commercial gym', 'Barbells', 'Dumbbells', 'Machines & cables',
+    // Free weights comfort
+    'Comfortable loading my own barbell lifts',
+    // Train time
+    'Morning — 8 to 11am',
+    // Recovery
+    'Sauna',
+    // Energy
+    'Pretty stable',
+    // First meal
+    'Mid-morning around 9-10am',
+    // Food style
+    'Home cooking — I cook most meals and want variety',
+    // Cuisines
+    'Mediterranean', 'Asian',
+    // Complexity
+    'Standard home cooking — happy with 8-10 ingredients',
+    // Diet
+    'No restrictions',
+    // Triggers
+    'Alcohol', 'Chocolate / sweets',
+    // Injuries
+    'None',
+    // Sleep
+    '7-8 hours', '10–11pm',
+    // Sleep quality
+    'I sleep well — rarely wake, feel rested',
+    // Alcohol
+    'Social weekends — 1 to 4 units',
+    // Stress
+    'Moderate — some pressure but coping well',
+    // Caffeine
+    '1-2 coffees before noon',
+    // Activity
+    'Moderately active — on my feet a lot',
+    // Schedule
+    'Morning coffee', 'Social drinks'
+  ];
+
+  // Click all buttons with data-val matching targets
+  document.querySelectorAll('button[data-val]').forEach(function(btn) {
+    var v = btn.dataset.val || '';
+    // Normalise — remove HTML entities
+    var vn = v.replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').trim();
+    targets.forEach(function(t) {
+      if (vn === t || v === t) {
+        if (!btn.classList.contains('selected') && !btn.classList.contains('active')) {
+          btn.click();
+        }
+      }
+    });
   });
 
-  // Progress label
+  // Also click goal cards
+  document.querySelectorAll('.ob2-goal-card').forEach(function(card) {
+    var v = card.dataset.val || '';
+    if (v === 'Body recomposition') card.click();
+  });
+
+  // ── Set formData directly as safety net ───────────────────────────
+  if (typeof formData !== 'undefined') {
+    formData.name = 'Sven';
+    formData.age = 44;
+    formData.height = 181;
+    formData.weight = 87;
+    formData.sex = 'Male';
+    formData.bf = '18-22%';
+    formData.fat = 'Belly';
+    formData.goal = 'Body recomposition';
+    formData.exp = '5+ years advanced';
+    formData.days = '4';
+    formData.wake = '07:00';
+    formData.gym = 'Full commercial gym';
+    formData.equipment = 'Barbells, Dumbbells, Machines & cables';
+    formData.fwcomfort = 'Comfortable loading my own barbell lifts';
+    formData.traintime = 'Morning — 8 to 11am';
+    formData.recovery = 'Sauna';
+    formData.energy = 'Pretty stable';
+    formData.firstmeal = 'Mid-morning around 9-10am';
+    formData.cooking = 'Home cooking — I cook most meals and want variety';
+    formData.cuisines = 'Mediterranean, Asian';
+    formData.complexity = 'Standard home cooking — happy with 8-10 ingredients';
+    formData.diet = 'No restrictions';
+    formData.triggers = 'Alcohol, Chocolate / sweets';
+    formData.injuries = 'None';
+    formData.sleep = '7-8 hours';
+    formData.bedtime = '10–11pm';
+    formData.sleepquality = 'I sleep well — rarely wake, feel rested';
+    formData.alcohol = 'Social weekends — 1 to 4 units';
+    formData.stress = 'Moderate — some pressure but coping well';
+    formData.caffeine = '1-2 coffees before noon';
+    formData.activity = 'Moderately active — on my feet a lot';
+    formData.nonneg = 'Morning coffee, Social drinks';
+    if (typeof updateProgress === 'function') updateProgress();
+  }
+
+  // ── Progress label + button feedback ─────────────────────────────
   var pt = document.getElementById('form-progress-text');
-  if(pt) pt.textContent = 'Demo profile loaded — tap Continue →';
+  if (pt) pt.textContent = 'Demo profile loaded — tap Continue →';
 
-  // Visual feedback on the button
   var self = document.querySelector('button[onclick="fillDemo()"]');
-  if(self){ self.textContent = '✓ Done'; self.style.color='var(--jade)'; self.style.borderColor='var(--jade)'; }
+  if (self) {
+    self.textContent = '✓ Sven loaded';
+    self.style.color = 'var(--jade)';
+    self.style.borderColor = 'var(--jade)';
+  }
+
+  // Scroll to top so user can see the filled form
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 </script>
