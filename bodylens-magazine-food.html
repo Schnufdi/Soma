@@ -197,9 +197,11 @@ body { background:var(--ink); color:var(--dk-1); }
     <a class="nav-link nav-daily" href="bodylens-dailyplan.html">Today</a>
     <a class="nav-link nav-food active" href="bodylens-magazine-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
+    <a class="nav-link" href="bodylens-instructions.html">Report</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
   </div>
   <div class="nav-right-group">
+    <a class="nav-right" href="bodylens-guide.html">Guide</a>
     <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
     <div class="nav-meta" id="nav-meta"></div>
   </div>
@@ -565,202 +567,315 @@ function regenToday() {
 // ── WEEK ──────────────────────────────────────────
 let _selectedWeekDay = _todayIdx;
 
+// ── MODULAR WEEK MEAL PLAN ─────────────────────────
+// One ingredient pool generated per week. Each day draws from it.
+// Shopping list = the pool. Mix and match across the week.
+
+const _WEEK_POOL_KEY = 'bl_week_pool_' + new Date().toISOString().slice(0,7); // monthly cache
+let _weekPool = null;  // { proteins:[], carbs:[], veg:[], fats:[], extras:[] }
+let _weekPlan_meals = {}; // { dayIdx: { meals:[] } }
+
+// The 7-day template — which pool categories go where
+const DAY_MEAL_TEMPLATE = {
+  training: [
+    { time:'08:00', slot:'breakfast',    label:'Breakfast',          prot:0, carb:1, veg:0, fat:1 },
+    { time:'pre',   slot:'pre-train',    label:'Pre-training',       prot:0, carb:1, veg:0, fat:0 },
+    { time:'post',  slot:'post-train',   label:'Post-training',      prot:1, carb:0, veg:0, fat:0 },
+    { time:'19:00', slot:'dinner',       label:'Dinner',             prot:0, carb:1, veg:1, fat:1 },
+  ],
+  rest: [
+    { time:'08:00', slot:'breakfast',    label:'Breakfast',          prot:0, carb:1, veg:0, fat:1 },
+    { time:'12:30', slot:'lunch',        label:'Lunch',              prot:0, carb:0, veg:1, fat:1 },
+    { time:'19:00', slot:'dinner',       label:'Dinner',             prot:0, carb:0, veg:1, fat:1 },
+  ],
+};
+// prot/carb/veg/fat are indices into the pool arrays (cycled)
+
 function initWeek() {
   _weekInited = true;
+  const cached = (() => { try { return JSON.parse(localStorage.getItem(_WEEK_POOL_KEY)||'null'); } catch(e){return null;} })();
+  if (cached) { _weekPool = cached; buildWeekFromPool(); }
+  else generateWeekPool();
+}
+
+async function generateWeekPool() {
+  const grid = document.getElementById('week-grid');
+  if (grid) grid.innerHTML = '<div style="grid-column:1/-1;padding:20px 0;text-align:center;"><div class="fp-spinner"></div><div style="font-size:12px;color:var(--dk-3);margin-top:8px;">Building your week plan…</div></div>';
+  
+  const p = _p;
+  const exclusions = (p.foodExclusions||[]).join(', ')||'none';
+  const cuisines   = (p.cuisinePrefs||[]).join(', ')||'flexible';
+  const isFemale   = _isFemale;
+
+  const prompt = `Performance nutritionist. Build a modular ingredient pool for a week of meals for ${p.name}.
+
+Profile: ${p.age}yo ${p.sex}, ${p.weight}kg, goal: ${p.goal}
+Calories: ${_trainKcal} training / ${_restKcal} rest | Protein: ${_prot}g/day
+Diet: ${p.dietType||'flexible'} | Exclude: ${exclusions} | Cuisine: ${cuisines}
+Complexity: ${p.recipeComplexity||'standard'}
+${isFemale?'Female — consider hormonal context.':''}
+
+The pool will be mixed across 7 days. Design for variety and flexibility — ingredients that work in multiple combinations.
+
+Return ONLY valid JSON:
+{
+  "proteins": [
+    {"name":"Chicken breast","cook":"grill/bake/pan","protein":31,"per":"100g","note":"works breakfast lunch dinner"},
+    {"name":"Salmon fillet","cook":"pan-fry/oven","protein":25,"per":"100g","note":"omega-3, dinner or lunch"},
+    {"name":"Eggs","cook":"scramble/boil/fry","protein":13,"per":"2 eggs","note":"breakfast anchor"},
+    {"name":"Greek yoghurt","cook":"ready","protein":17,"per":"200g","note":"breakfast or snack"},
+    {"name":"Whey protein","cook":"shake","protein":25,"per":"30g scoop","note":"post-training"}
+  ],
+  "carbs": [
+    {"name":"Basmati rice","cook":"boil","carbs":45,"per":"180g cooked","note":"training days"},
+    {"name":"Sweet potato","cook":"roast/microwave","carbs":35,"per":"200g","note":"training days"},
+    {"name":"Oats","cook":"overnight/cook","carbs":40,"per":"80g dry","note":"breakfast"},
+    {"name":"Sourdough","cook":"toast","carbs":30,"per":"2 slices","note":"breakfast or pre-train"}
+  ],
+  "veg": [
+    {"name":"Spinach","prep":"wilt/raw","note":"add to anything"},
+    {"name":"Broccoli","prep":"steam/roast","note":"dinner staple"},
+    {"name":"Cherry tomatoes","prep":"raw/roast","note":"salads and sides"},
+    {"name":"Cucumber","prep":"raw","note":"salads"}
+  ],
+  "fats": [
+    {"name":"Extra virgin olive oil","use":"cooking/dressing","note":"every meal"},
+    {"name":"Avocado","use":"raw","note":"breakfast and lunch"},
+    {"name":"Walnuts","use":"raw","note":"snack or topping"}
+  ],
+  "extras": [
+    {"name":"Lemons","use":"dressing/seasoning"},
+    {"name":"Garlic","use":"cooking"},
+    {"name":"Dijon mustard","use":"dressing"}
+  ],
+  "mealIdeas": {
+    "breakfast": ["Scrambled eggs on sourdough with avocado", "Greek yoghurt with oats and banana", "Oat porridge with whey protein"],
+    "lunch": ["Chicken and rice bowl with spinach", "Salmon with sweet potato and broccoli", "Egg salad with sourdough"],
+    "dinner": ["Pan-fried salmon with rice and broccoli", "Chicken breast with sweet potato and spinach", "Baked salmon with roasted veg"],
+    "preTrain": ["Oats with banana", "Sourdough with eggs", "Rice cakes with honey"],
+    "postTrain": ["Whey shake with banana", "Greek yoghurt with oats", "Eggs with rice"]
+  },
+  "shoppingQuantities": {
+    "Chicken breast": "1.2kg", "Salmon fillet": "600g", "Eggs": "18",
+    "Greek yoghurt": "1kg", "Whey protein": "as needed",
+    "Basmati rice": "1kg", "Sweet potato": "1kg", "Oats": "1kg",
+    "Sourdough": "1 loaf", "Spinach": "400g bag", "Broccoli": "500g",
+    "Cherry tomatoes": "400g", "Cucumber": "2", "Extra virgin olive oil": "1 bottle",
+    "Avocado": "4", "Walnuts": "200g", "Lemons": "4", "Garlic": "1 bulb"
+  }
+}`;
+
+  try {
+    const res = await fetch('/api/chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200,
+        system:'Return only valid JSON. No markdown. No preamble.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content||[]).map(b=>b.text||'').join('').trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    _weekPool = JSON.parse(match[0]);
+    try { localStorage.setItem(_WEEK_POOL_KEY, JSON.stringify(_weekPool)); } catch(e){}
+    buildWeekFromPool();
+  } catch(e) {
+    console.error('Week pool error:', e);
+    // Fallback: use hardcoded pool
+    _weekPool = {
+      proteins:[{name:'Chicken breast',protein:31,per:'100g'},{name:'Salmon',protein:25,per:'100g'},{name:'Eggs',protein:13,per:'2 eggs'},{name:'Greek yoghurt',protein:17,per:'200g'},{name:'Whey protein',protein:25,per:'30g scoop'}],
+      carbs:[{name:'Basmati rice',carbs:45,per:'180g cooked'},{name:'Sweet potato',carbs:35,per:'200g'},{name:'Oats',carbs:40,per:'80g dry'},{name:'Sourdough',carbs:30,per:'2 slices'}],
+      veg:[{name:'Spinach'},{name:'Broccoli'},{name:'Cherry tomatoes'},{name:'Cucumber'}],
+      fats:[{name:'Olive oil'},{name:'Avocado'},{name:'Walnuts'}],
+      extras:[{name:'Lemons'},{name:'Garlic'}],
+      mealIdeas:{breakfast:['Eggs with oats and avocado','Greek yoghurt with oats'],lunch:['Chicken rice bowl','Salmon with sweet potato'],dinner:['Pan-fried salmon with broccoli','Chicken with rice and spinach'],preTrain:['Oats with banana','Sourdough with eggs'],postTrain:['Whey shake','Greek yoghurt']},
+      shoppingQuantities:{'Chicken breast':'1.2kg','Salmon':'600g','Eggs':'18','Greek yoghurt':'1kg','Basmati rice':'1kg','Sweet potato':'1kg','Oats':'1kg','Sourdough':'1 loaf','Spinach':'400g','Broccoli':'500g','Olive oil':'1 bottle','Avocado':'4','Walnuts':'200g'}
+    };
+    buildWeekFromPool();
+  }
+}
+
+function buildWeekFromPool() {
+  if (!_weekPool) return;
+  const pool = _weekPool;
+  // Assign meals to each day by cycling pool items
+  DAY_NAMES.forEach((name, i) => {
+    const dayPlan = _weekPlan[i] || {type:'Rest',priority:'rest'};
+    const isTraining = dayPlan.priority === 'training';
+    const template = isTraining ? DAY_MEAL_TEMPLATE.training : DAY_MEAL_TEMPLATE.rest;
+    const ideas = pool.mealIdeas || {};
+    
+    // Rotate through ideas based on day index to vary the week
+    const pickIdea = (arr, offset) => arr && arr.length ? arr[(i + offset) % arr.length] : null;
+    
+    _weekPlan_meals[i] = {
+      isTraining,
+      kcal: isTraining ? _trainKcal : _restKcal,
+      prot: _prot,
+      meals: template.map((slot, si) => {
+        let mealName = '';
+        if (slot.slot === 'breakfast') mealName = pickIdea(ideas.breakfast, si) || 'Breakfast';
+        else if (slot.slot === 'pre-train') mealName = pickIdea(ideas.preTrain, si) || 'Pre-training meal';
+        else if (slot.slot === 'post-train') mealName = pickIdea(ideas.postTrain, si) || 'Post-training meal';
+        else if (slot.slot === 'lunch') mealName = pickIdea(ideas.lunch, si+1) || 'Lunch';
+        else if (slot.slot === 'dinner') mealName = pickIdea(ideas.dinner, i) || 'Dinner';
+        
+        // Pick protein for this meal (cycle through pool)
+        const protItem = pool.proteins ? pool.proteins[(i + si) % pool.proteins.length] : null;
+        const carbItem = pool.carbs && slot.carb ? pool.carbs[(i + si) % pool.carbs.length] : null;
+        const vegItem  = pool.veg && slot.veg  ? pool.veg[(i + si) % pool.veg.length] : null;
+        const fatItem  = pool.fats ? pool.fats[si % (pool.fats.length||1)] : null;
+        
+        const protG = Math.round(_prot / template.length);
+        const kcalEach = Math.round((isTraining?_trainKcal:_restKcal) / template.length);
+        
+        return {
+          time: slot.time,
+          slot: slot.slot,
+          label: slot.label,
+          name: mealName,
+          protein: protG,
+          kcal: kcalEach,
+          components: [
+            protItem && `${protItem.name} (${protItem.per})`,
+            carbItem && `${carbItem.name} (${carbItem.per})`,
+            vegItem  && vegItem.name,
+            fatItem  && fatItem.name,
+          ].filter(Boolean),
+        };
+      }),
+    };
+  });
+  
+  renderWeekGrid();
+}
+
+function renderWeekGrid() {
   const grid = document.getElementById('week-grid');
   if (!grid) return;
-
   grid.innerHTML = DAY_NAMES.map((name, i) => {
-    const plan = _weekPlan[i] || {type:'Rest',priority:'rest'};
-    const isTr = plan.priority === 'training';
-    const kcal = isTr ? _trainKcal : _restKcal;
-    return `<div class="wg-day ${isTr?'train':''} ${i===_todayIdx?'today-day':''} ${i===_selectedWeekDay?'selected':''}"
+    const dayData = _weekPlan_meals[i] || {};
+    const isT = dayData.isTraining;
+    return `<div class="wg-day ${isT?'train':''} ${i===_todayIdx?'today-day':''} ${i===_selectedWeekDay?'selected':''}"
       onclick="selectWeekDay(${i})">
-      <div class="wg-name ${isTr?'t':''}">${name.slice(0,3)}</div>
-      <div class="wg-type">${plan.type||'Rest'}</div>
-      <div class="wg-kcal">${kcal}</div>
+      <div class="wg-name ${isT?'t':''}">${name.slice(0,3)}</div>
+      <div class="wg-type">${(_weekPlan[i]||{}).type||'Rest'}</div>
+      <div class="wg-kcal">${dayData.kcal||''}</div>
     </div>`;
   }).join('');
-
   selectWeekDay(_todayIdx);
 }
 
 function selectWeekDay(idx) {
   _selectedWeekDay = idx;
   document.querySelectorAll('.wg-day').forEach((el,i) => el.classList.toggle('selected', i===idx));
-  const plan = _weekPlan[idx] || {type:'Rest',priority:'rest'};
-  const isTr = plan.priority === 'training';
-  const kcal = isTr ? _trainKcal : _restKcal;
-
-  const prot = _prot, pp = Math.round(prot / (_p.mealCount||4));
-  const kk = Math.round(kcal / (_p.mealCount||4));
-
-  // Build template meals from profile for this day type
-  const meals = isTr ? [
-    {time:'08:00',name:'Breakfast',protein:pp,kcal:kk},
-    {time:'~30 min pre-train',name:'Pre-training meal',protein:Math.round(pp*0.8),kcal:Math.round(kk*0.8)},
-    {time:'~30 min post-train',name:'Post-training meal',protein:Math.round(pp*1.1),kcal:Math.round(kk*0.9)},
-    {time:'19:00',name:'Evening meal',protein:pp,kcal:kk},
-  ].slice(0, _p.mealCount||4) : [
-    {time:'08:00',name:'Breakfast',protein:pp,kcal:kk},
-    {time:'12:30',name:'Midday meal',protein:pp,kcal:Math.round(kk*0.9)},
-    {time:'19:00',name:'Evening meal',protein:pp,kcal:kk},
-  ].slice(0, _p.mealCount||4);
-
+  const dayData = _weekPlan_meals[idx];
+  if (!dayData || !dayData.meals) {
+    document.getElementById('week-day-content').innerHTML = '<div style="color:var(--dk-3);font-size:13px;padding:12px 0;">Select a day above</div>';
+    return;
+  }
+  const label = `${DAY_NAMES[idx]} — ${(_weekPlan[idx]||{}).type||'Rest'} · ${dayData.kcal} kcal · ${dayData.prot}g protein`;
+  
   document.getElementById('week-day-content').innerHTML = `
-    <div style="font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;">
-      ${DAY_NAMES[idx]} — ${plan.type||'Rest'} · ${kcal} kcal · ${prot}g protein
-    </div>
-    ${meals.map(m=>`
-      <div style="display:grid;grid-template-columns:140px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd);">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--amber);">${m.time}</div>
-        <div style="font-size:13px;font-weight:400;color:var(--dk-1);">${m.name}</div>
-        <div style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--jade);">${m.protein}g P</div>
-      </div>`).join('')}`;
+    <div style="font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);margin-bottom:14px;">${label}</div>
+    ${dayData.meals.map(m => `
+      <div style="padding:12px 0;border-bottom:1px solid var(--bd);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+          <div style="font-size:13px;font-weight:500;color:var(--dk-1);">${m.name}</div>
+          <div style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--jade);">${m.protein}g P · ${m.kcal} kcal</div>
+        </div>
+        <div style="font-size:10px;font-weight:300;color:var(--dk-3);">${m.time !== '08:00' && m.time !== '19:00' && m.time !== '12:30' ? m.time + ' · ' : ''}${m.components.join(' + ')}</div>
+      </div>`).join('')}
+    <div style="margin-top:12px;">
+      <button class="regen-btn" onclick="regenWeek()">↺ New week plan</button>
+    </div>`;
 }
 
-// ── SHOPPING ──────────────────────────────────────
+function regenWeek() {
+  try { localStorage.removeItem(_WEEK_POOL_KEY); } catch(e){}
+  _weekPool = null; _weekPlan_meals = {};
+  generateWeekPool();
+}
+
+// ── SHOPPING ─────────────────────────────────────────
+// Shopping list now derives from the generated ingredient pool
 function renderShopping() {
+  const shopEl = document.getElementById('shop-cols');
+  if (!shopEl) return;
+
+  // Use pool if available, otherwise static template
+  if (_weekPool && _weekPool.shoppingQuantities) {
+    renderShoppingFromPool();
+    return;
+  }
+  // Trigger week pool load if not yet done
+  if (!_weekPool) { generateWeekPool().then(renderShoppingFromPool); return; }
+  renderShoppingFromPool();
+}
+
+function renderShoppingFromPool() {
+  const shopEl = document.getElementById('shop-cols');
+  const subEl  = document.getElementById('shop-sub');
+  if (!shopEl) return;
+  
+  const pool = _weekPool || {};
   const excluded = (_p.foodExclusions||[]).map(e=>e.toLowerCase());
   const triggers = (_p.triggerFoods||'').toLowerCase().split(/[,/]/).map(t=>t.trim()).filter(Boolean);
-  const isDairy  = (_p.dietType||'').toLowerCase().includes('vegan') || (_p.dietType||'').toLowerCase().includes('dairy');
 
-  const SHOP = {
-    'Protein': [
-      {n:'Chicken breast',q:'1.2kg'}, {n:'Greek yoghurt (0%)',q:'1kg'}, {n:'Eggs',q:'18'},
-      {n:'Salmon fillet',q:'600g'}, {n:'Cottage cheese',q:'500g'}, {n:'Whey protein',q:'as needed'},
-    ],
-    'Carbohydrates': [
-      {n:'Basmati rice',q:'1kg'}, {n:'Oats',q:'1kg'}, {n:'Sweet potato',q:'1kg'},
-      {n:'Sourdough bread',q:'1 loaf'}, {n:'Bananas',q:'6-8'}, {n:'Rice cakes',q:'1 pack'},
-    ],
-    'Vegetables': [
-      {n:'Spinach',q:'400g'}, {n:'Broccoli',q:'500g'}, {n:'Cherry tomatoes',q:'400g'},
-      {n:'Cucumber',q:'2'}, {n:'Mixed salad',q:'200g'}, {n:'Blueberries',q:'400g'},
-    ],
-    'Healthy fats': [
-      {n:'Extra virgin olive oil',q:'1 bottle'}, {n:'Walnuts',q:'200g'},
-      {n:'Avocado',q:'4'}, {n:'Peanut butter',q:'1 jar'},
-    ],
-    'Supplements': [
-      {n:'Creatine monohydrate',q:'5g/day'}, {n:'Omega-3 (EPA/DHA)',q:'2-3g/day'},
+  function isExcluded(name) {
+    const n = name.toLowerCase();
+    return excluded.some(e=>n.includes(e)) || triggers.some(t=>t&&n.includes(t));
+  }
+
+  // Build categorised list from pool
+  const quantities = pool.shoppingQuantities || {};
+  
+  const sections = [
+    { label:'Proteins', items: (pool.proteins||[]).map(i=>({n:i.name,q:quantities[i.name]||'as needed'})) },
+    { label:'Carbohydrates', items: (pool.carbs||[]).map(i=>({n:i.name,q:quantities[i.name]||'as needed'})) },
+    { label:'Vegetables & fruit', items: [
+      ...(pool.veg||[]).map(i=>({n:i.name,q:quantities[i.name]||'1 pack'})),
+      {n:'Bananas',q:'6-8'}, {n:'Blueberries',q:'400g'},
+    ]},
+    { label:'Fats & oils', items: (pool.fats||[]).map(i=>({n:i.name,q:quantities[i.name]||'as needed'})) },
+    { label:'Extras & flavour', items: (pool.extras||[]).map(i=>({n:i.name,q:quantities[i.name]||'1'})) },
+    { label:'Supplements', items: [
+      {n:'Creatine monohydrate',q:'5g/day'},
+      {n:'Omega-3 EPA/DHA',q:'2-3g/day'},
       {n:'Magnesium glycinate',q:'300mg/night'},
-    ],
-  };
+    ]},
+  ];
 
-  document.getElementById('shop-sub').textContent = `Filtered for your profile — ${(_p.dietType||'flexible')} · excluding ${excluded.join(', ')||'nothing'}`;
-
-  const cats = Object.entries(SHOP).filter(([,items]) =>
-    items.some(item => {
-      const n = item.n.toLowerCase();
-      return !excluded.some(e => n.includes(e)) && !triggers.some(t => t && n.includes(t));
-    })
-  );
-
-  // Split into two columns
-  const half = Math.ceil(cats.length / 2);
-  const renderCat = ([cat, items]) => {
-    const filtered = items.filter(item => {
-      const n = item.n.toLowerCase();
-      return !excluded.some(e => n.includes(e)) && !triggers.some(t => t && n.includes(t));
-    });
+  const half = Math.ceil(sections.length / 2);
+  
+  function renderSection(section) {
+    const filtered = section.items.filter(item => !isExcluded(item.n));
     if (!filtered.length) return '';
-    return `<div>
-      <div class="shop-cat-label">${cat}</div>
+    return `<div style="margin-bottom:20px;">
+      <div class="shop-cat-label">${section.label}</div>
       ${filtered.map(item => {
         const key = item.n.toLowerCase().replace(/\s+/g,'-');
         const checked = _shopChecks[key];
         return `<div class="shop-item ${checked?'checked':''}" onclick="toggleShop('${key}',this)">
           <div class="shop-cb">${checked?'✓':''}</div>
           <div class="shop-name">${item.n}</div>
-          <div class="shop-qty">${item.q}</div>
+          <div class="shop-qty">${item.q||''}</div>
         </div>`;
       }).join('')}
     </div>`;
-  };
+  }
 
-  document.getElementById('shop-cols').innerHTML =
-    `<div>${cats.slice(0,half).map(renderCat).join('')}</div>
-     <div>${cats.slice(half).map(renderCat).join('')}</div>`;
+  shopEl.innerHTML = `
+    <div>${sections.slice(0,half).map(renderSection).join('')}</div>
+    <div>${sections.slice(half).map(renderSection).join('')}</div>`;
+
+  if (subEl) {
+    const poolNote = pool.proteins ? `Ingredients for your ${(_p.cuisinePrefs||[]).join('/')||'flexible'} week plan — all mix-and-match.` : 'Your weekly essentials.';
+    subEl.textContent = poolNote;
+  }
 }
 
-function toggleShop(key, el) {
-  el.classList.toggle('checked');
-  const cb = el.querySelector('.shop-cb');
-  if (el.classList.contains('checked')) { _shopChecks[key]=true; cb.textContent='✓'; }
-  else { delete _shopChecks[key]; cb.textContent=''; }
-  try { localStorage.setItem('bl_shop_checks', JSON.stringify(_shopChecks)); } catch(e){}
-}
-
-function clearShopChecks() {
-  _shopChecks = {};
-  try { localStorage.removeItem('bl_shop_checks'); } catch(e){}
-  renderShopping();
-}
-
-// ── PYRAMIDS ──────────────────────────────────────
-const PYRAMIDS = {
-  recomp:{name:'Body Recomposition',sub:'Muscle grows. Fat drops. High protein, moderate deficit, resistance training mandatory.',kcal:{train:2600,rest:2300},macros:[{l:'Protein',a:'195–210g',p:'34%',n:'Highest relative protein. Protects muscle during deficit.',c:'#00c8a0'},{l:'Carbohydrates',a:'200–240g train',p:'33%',n:'Timed exclusively around training. Rest days near-zero starchy carbs.',c:'#c47c18'},{l:'Fat',a:'70–75g',p:'26%',n:'At the hormonal floor. Never drop below 0.7g/kg.',c:'#4a6275'}],layers:[{l:'Very high protein',n:'195–210g · muscle + protect',w:38,c:'rgba(0,200,160,0.9)'},{l:'Training-timed carbs',n:'Training days only',w:52,c:'rgba(196,124,24,0.72)'},{l:'Fat floor',n:'Never cut below',w:64,c:'rgba(74,98,117,0.65)'},{l:'Vegetables unlimited',n:'Volume + satiety',w:80,c:'rgba(0,168,114,0.6)'},{l:'Resistance training',n:'Non-negotiable',w:92,c:'rgba(200,148,30,0.12)'}],timing:[{t:'Protein every 3–4 hours',b:'During a deficit MPS is suppressed. Miss a protein meal and you lose muscle, not fat.'},{t:'Carbs around training only',b:'Training days: pre and post-session. Rest days: near-zero starchy carbs.'},{t:'Track waist, not scale',b:'The scale barely moves during recomposition — muscle offsets fat loss. Waist measurement is the real metric.'}],fv:[{m:'Breakfast',p:'4 eggs',c:'60g oats + banana',f:'1 tbsp olive oil',k:'~520',mm:'38P·58C·22F'},{m:'Pre-training',p:'30g whey',c:'1 banana + rice cakes',f:'None',k:'~320',mm:'35P·45C·2F'},{m:'Post-training',p:'30g whey + yoghurt',c:'150g white rice',f:'None',k:'~520',mm:'52P·58C·6F'},{m:'Main meal',p:'200g chicken',c:'Sweet potato/salad',f:'1 tbsp olive oil',k:'~480–580',mm:'50P·40–60C·18F'}]},
-  balanced:{name:'Balanced Precision',sub:'Lean muscle gain with full performance capacity, anti-inflammatory eating, and long-term adherence.',kcal:{train:2950,rest:2700},macros:[{l:'Protein',a:'185–190g',p:'26%',n:'Leucine threshold at every meal. Distributed across 4 meals.',c:'#00c8a0'},{l:'Carbohydrates',a:'330g train / 265g rest',p:'45%',n:'Front-loaded on training days. Reduced ~60g on rest days.',c:'#c47c18'},{l:'Fat',a:'82–85g',p:'26%',n:'Hormonal floor. Testosterone, fat-soluble vitamins, joint lubrication.',c:'#4a6275'}],layers:[{l:'Protein',n:'4 × 45–48g servings',w:40,c:'rgba(0,200,160,0.85)'},{l:'Training-day carbs',n:'Front-loaded',w:55,c:'rgba(196,124,24,0.8)'},{l:'Dietary fat',n:'Every meal',w:68,c:'rgba(74,98,117,0.75)'},{l:'Vegetables',n:'Unlimited volume',w:80,c:'rgba(0,168,114,0.6)'},{l:'Supplements',n:'Creatine, collagen, omega-3',w:92,c:'rgba(255,255,255,0.1)'}],timing:[{t:'Protein at every meal',b:'Distributed across 4 meals. Each clears the 2–3g leucine threshold. Distribution matters as much as total.'},{t:'Training-day carbs front-loaded',b:'Higher-GI before training for glycogen. Rest days: −60g carbs.'},{t:'Fat with fat-soluble vitamins',b:'D3+K2 and omega-3 taken with fat-containing meals for absorption.'}],fv:[{m:'Breakfast',p:'80g oats + 30g whey',c:'Banana + oat milk',f:'1 tbsp peanut butter',k:'~620',mm:'52P·82C·16F'},{m:'Pre-training',p:'3 eggs',c:'2 slices sourdough',f:'Olive oil',k:'~430',mm:'28P·42C·16F'},{m:'Post-training',p:'30g whey + yoghurt',c:'Banana + rice cakes',f:'None',k:'~430',mm:'48P·60C·6F'},{m:'Main meal',p:'200g chicken',c:'200g basmati + spinach',f:'1 tbsp olive oil',k:'~680',mm:'52P·72C·14F'}]},
-  muscle:{name:'Lean Muscle Gain',sub:'Maximised for hypertrophy. Higher protein, more carbs, most calorie-dense performance pyramid.',kcal:{train:3200,rest:2900},macros:[{l:'Protein',a:'200–220g',p:'27%',n:'Higher ceiling. Real benefit above 190g for advanced athletes in hard blocks.',c:'#00c8a0'},{l:'Carbohydrates',a:'390–420g train',p:'52%',n:'Maximum glycogen loading. Highest lever for compound lift performance.',c:'#c47c18'},{l:'Fat',a:'75–80g',p:'21%',n:'Protein and carbs take caloric priority. Still at hormonal floor.',c:'#4a6275'}],layers:[{l:'High protein',n:'200g+ daily, 5 meals',w:40,c:'rgba(0,200,160,0.9)'},{l:'High carbohydrates',n:'Performance fuel priority',w:58,c:'rgba(196,124,24,0.85)'},{l:'Moderate fat',n:'At hormonal floor',w:70,c:'rgba(74,98,117,0.65)'},{l:'Volume vegetables',n:'Unlimited',w:80,c:'rgba(0,168,114,0.6)'},{l:'Performance supplements',n:'Creatine, beta-alanine',w:92,c:'rgba(255,255,255,0.1)'}],timing:[{t:'5 protein meals if possible',b:'200–220g across 5 meals keeps MPS elevated more continuously than 4.'},{t:'Maximum pre-training carb loading',b:'Dates + banana + whey = highest-performance combination.'},{t:'Post-workout window critical',b:'40g fast protein + 80g fast carbs within 20 minutes. Insulin + leucine = peak anabolic environment.'}],fv:[{m:'Breakfast',p:'100g oats + 40g whey',c:'Banana + whole milk',f:'2 tbsp peanut butter',k:'~780',mm:'58P·96C·22F'},{m:'Pre-training',p:'4 eggs',c:'Sourdough + 3 dates',f:'Olive oil',k:'~580',mm:'36P·85C·16F'},{m:'Post-training',p:'40g whey + yoghurt',c:'Banana + white rice',f:'None',k:'~580',mm:'58P·82C·6F'},{m:'Main meal',p:'250g chicken/steak',c:'Basmati + sweet potato',f:'1.5 tbsp olive oil',k:'~820',mm:'62P·90C·18F'}]},
-  cut:{name:'Active Fat Loss',sub:'Calories cut while protecting muscle. Protein maximised, carbs timed tightly, fat at minimum hormonal floor.',kcal:{train:2400,rest:2100},macros:[{l:'Protein',a:'200–210g',p:'36%',n:'Increases during a cut — protects muscle when calories are low.',c:'#00c8a0'},{l:'Carbohydrates',a:'190–220g train',p:'34%',n:'Reduced significantly. Training days only. Rest days near-zero starchy carbs.',c:'#c47c18'},{l:'Fat',a:'65–70g',p:'27%',n:'At hormonal floor (0.7g/kg). Do not cut below — testosterone undermines the goal.',c:'#4a6275'}],layers:[{l:'High protein — muscle protection',n:'Increase not decrease during cut',w:42,c:'rgba(0,200,160,0.9)'},{l:'Training-timed carbs only',n:'Eliminated on rest days',w:54,c:'rgba(196,124,24,0.7)'},{l:'Minimum fat floor',n:'0.7g/kg · testosterone',w:64,c:'rgba(74,98,117,0.65)'},{l:'Maximum veg volume',n:'Satiety tool — unlimited',w:80,c:'rgba(0,168,114,0.7)'},{l:'Anti-hunger tools',n:'Fibre, volume, casein',w:92,c:'rgba(255,255,255,0.08)'}],timing:[{t:'Protein maximised — counterintuitive',b:'Reducing protein during a cut causes muscle loss. Increase to 200–210g to protect lean mass.'},{t:'Carbs only around training',b:'Rest days: near-zero starchy carbs. Training days: pre and post session only.'},{t:'Re-feed every 10–14 days',b:'One day at maintenance maintains leptin and prevents metabolic adaptation.'}],fv:[{m:'Breakfast',p:'5 egg whites + 2 eggs',c:'Training: 60g oats / Rest: spinach',f:'Olive oil',k:'~380–480',mm:'42P·0–48C·14F'},{m:'Pre-training',p:'30g whey',c:'Banana + rice cakes',f:'None',k:'~280',mm:'32P·40C·2F'},{m:'Post-training',p:'30g whey + 0% yoghurt',c:'White rice / cucumber',f:'None',k:'~360–480',mm:'46P·10–38C·2F'},{m:'Main meal',p:'200g chicken/fish',c:'Sweet potato / large salad',f:'1 tbsp olive oil',k:'~380–500',mm:'46P·10–42C·14F'}]},
-  maintain:{name:'Maintenance / Longevity',sub:'The endgame. Lean mass maintained. Longevity markers prioritised: VO₂max, hormonal health, joint integrity.',kcal:{train:2700,rest:2700},macros:[{l:'Protein',a:'160–175g',p:'26%',n:'Defends lean mass rather than building it. Still above RDA by 3×.',c:'#00c8a0'},{l:'Carbohydrates',a:'290–310g',p:'45%',n:'Stable across training and rest days. No cycling needed.',c:'#c47c18'},{l:'Fat',a:'90–100g',p:'30%',n:'Higher allocation. Testosterone and longevity markers.',c:'#4a6275'}],layers:[{l:'Moderate protein',n:'Muscle defence',w:38,c:'rgba(0,200,160,0.8)'},{l:'Balanced carbs',n:'Consistent — no cycling',w:54,c:'rgba(196,124,24,0.75)'},{l:'Higher fat for hormones',n:'Testosterone + longevity',w:70,c:'rgba(74,98,117,0.8)'},{l:'Anti-inflammatory foods',n:'Joint, gut, brain',w:82,c:'rgba(0,168,114,0.65)'},{l:'Longevity supplements',n:'Omega-3, D3, Mg, collagen',w:92,c:'rgba(255,255,255,0.1)'}],timing:[{t:'Protein still distributed — just lower',b:'160g across 4 meals still clears the leucine threshold. Distribution rule unchanged.'},{t:'No training/rest day cycling',b:'At maintenance, carb cycling complexity is unnecessary.'},{t:'Anti-inflammatory pattern priority',b:'Mediterranean diet is the longevity benchmark — olive oil, fatty fish, legumes, whole grains.'}],fv:[{m:'Breakfast',p:'3 eggs + 100g smoked salmon',c:'2 slices sourdough',f:'½ avocado',k:'~580',mm:'44P·36C·28F'},{m:'Lunch',p:'150g mackerel/tuna',c:'Quinoa + large salad',f:'Olive oil + walnuts',k:'~520',mm:'38P·48C·22F'},{m:'Dinner',p:'180g salmon',c:'Sweet potato + broccoli',f:'1 tbsp olive oil',k:'~520',mm:'40P·44C·20F'},{m:'Pre-sleep',p:'200g cottage cheese',c:'None',f:'15g walnuts',k:'~280',mm:'26P·6C·14F'}]}
-};
-
-function initPyramids() {
-  _pyramidInited = true;
-  const goal = (_p.goal||'').toLowerCase();
-  const yourPyr = goal.includes('recomp') ? 'recomp' : goal.includes('muscle')||goal.includes('build') ? 'muscle' : goal.includes('fat')||goal.includes('cut')||goal.includes('los') ? 'cut' : goal.includes('maintain') ? 'maintain' : 'balanced';
-
-  document.getElementById('pyr-tabs').innerHTML = Object.entries(PYRAMIDS).map(([id,pyr]) =>
-    `<button class="pyr-tab ${id===yourPyr?'active':''}" data-pyr="${id}" onclick="showPyramid('${id}',this)">
-      ${pyr.name}${id===yourPyr?' ← yours':''}
-    </button>`
-  ).join('');
-
-  showPyramid(yourPyr, document.querySelector(`[data-pyr="${yourPyr}"]`));
-}
-
-function showPyramid(id, btn) {
-  const pyr = PYRAMIDS[id];
-  if (!pyr) return;
-  document.querySelectorAll('.pyr-tab').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-
-  document.getElementById('pyr-main').innerHTML = `
-    <div style="font-family:var(--serif);font-size:28px;font-weight:300;color:var(--dk-1);margin-bottom:6px;">${pyr.name}</div>
-    <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;margin-bottom:20px;max-width:480px;">${pyr.sub}</div>
-    <div class="pyr-bar-wrap">
-      ${pyr.layers.map(l=>`<div class="pyr-layer">
-        <div class="pyr-bar-note">${l.n}</div>
-        <div class="pyr-bar" style="width:${l.w}%;background:${l.c};"><span class="pyr-bar-label">${l.l}</span></div>
-      </div>`).join('')}
-    </div>
-    <div class="pyr-mac-grid">
-      ${pyr.macros.map(m=>`<div class="pyr-mac">
-        <div class="pyr-mac-label" style="color:${m.c};">${m.l}</div>
-        <div class="pyr-mac-amount">${m.a}</div>
-        <div class="pyr-mac-note">${m.n}</div>
-      </div>`).join('')}
-    </div>
-    <div style="font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;">Timing rules</div>
-    <div class="pyr-timing">
-      ${pyr.timing.map(t=>`<div class="pt-row"><div class="pt-title">${t.t}</div><div class="pt-text">${t.b}</div></div>`).join('')}
-    </div>`;
-
-  document.getElementById('pyr-side').innerHTML = `
-    <div class="pyr-kcal-box">
-      <div class="pkb-label">Calorie targets</div>
-      <div class="pkb-row"><div class="pkb-name">Training day</div><div class="pkb-val">${pyr.kcal.train} kcal</div></div>
-      <div class="pkb-row"><div class="pkb-name">Rest day</div><div class="pkb-val">${pyr.kcal.rest} kcal</div></div>
-    </div>
-    <div style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:8px;">Example day — on a plate</div>
-    ${pyr.fv.map(m=>`<div style="padding:10px 0;border-bottom:1px solid var(--bd);">
-      <div style="font-size:10px;font-weight:600;color:var(--amber);margin-bottom:3px;">${m.m}</div>
-      <div style="font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.5;">${m.p} · ${m.c} · ${m.f}</div>
-      <div style="font-size:9px;font-family:var(--mono);color:var(--dk-3);margin-top:2px;">${m.mm} · ${m.k} kcal</div>
-    </div>`).join('')}`;
-}
 
 // ── INTELLIGENCE ──────────────────────────────────
 function renderIntelligence() {

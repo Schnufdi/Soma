@@ -180,9 +180,10 @@ body { background:var(--ink); color:var(--dk-1); }
 <nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
-    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-fuel.html">Food</a>
+    <a class="nav-link nav-daily" href="bodylens-dailyplan.html">Today</a>
+    <a class="nav-link nav-food" href="bodylens-magazine-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
+    <a class="nav-link active" href="bodylens-instructions.html">Report</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
   </div>
 
@@ -192,6 +193,7 @@ body { background:var(--ink); color:var(--dk-1); }
     <span class="nav-bc-current">Report</span>
   </div>
   <div class="nav-right-group">
+    <a class="nav-link nav-right" href="bodylens-guide.html">Guide</a>
     <a class="nav-link nav-right" href="bodylens-howitworks.html">How it works</a>
     <div class="nav-meta" id="nav-meta"></div>
   </div>
@@ -503,6 +505,17 @@ function buildReportHTML(p) {
       <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--dk-1);line-height:1.6;font-style:italic;">
         Hit your protein target every day — including rest days. Everything else compounds from this single habit.
       </div>
+
+      ${(p.trainingModifications && p.trainingModifications.length) ? `
+      <div style="height:1px;background:var(--bd);margin-bottom:24px;"></div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--jade);margin-bottom:14px;">Ongoing training modifications</div>
+      <div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-bottom:10px;line-height:1.6;">Added via coach chat — appended to the base programme, not replacing it.</div>
+      ${(p.trainingModifications||[]).map(mod => `
+        <div style="padding:10px 14px;background:var(--ink-2);border:1px solid var(--bd);border-left:3px solid var(--jade);border-radius:0 4px 4px 0;margin-bottom:7px;">
+          <div style="font-size:12px;font-weight:400;color:var(--dk-1);">${mod.note}</div>
+          <div style="font-size:10px;font-weight:300;color:var(--dk-3);margin-top:3px;">${mod.date||''}</div>
+        </div>`).join('')}
+      ` : ''}
 
       <div style="margin-top:28px;display:flex;gap:8px;flex-wrap:wrap;">
         <button id="regen-report-btn" onclick="generateReport(true)"

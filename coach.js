@@ -95,7 +95,9 @@ When suggesting an accelerator: name it, explain the mechanism in 2-3 sentences 
 Safety: Never suggest extended fasting to someone with disordered eating history, very low current calories, or health conditions that contraindicate it. Never suggest BFR to someone with cardiovascular issues. Use the injuries and health conditions in the profile to filter.
 
 NEW INFORMATION DETECTION — important:
-If the user mentions something that would update their profile — a new injury, a change in sleep, a new supplement they have started, a goal shift, a change in training schedule — acknowledge it specifically and end your response with exactly this on its own line: [NEW_INFO: brief description of the update]
+If the user mentions something that would update their profile — a new injury, a change in sleep, a new supplement they have started, a goal shift, or a change to their training — acknowledge it and end your response with: [NEW_INFO: brief description]
+
+CRITICALLY: If the user says anything like "add this to my training plan", "can you add this", "include this in my programme", "I want to add X to my sessions" — treat it as a training modification. Add [NEW_INFO: training modification: X] and explain it will be saved as an ongoing modification at the bottom of their coaching report, separate from the core programme structure.
 
 Examples:
 - "I've started taking ashwagandha" → [NEW_INFO: started taking ashwagandha]
@@ -179,6 +181,17 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
         p.coachNotes = (p.coachNotes || '') + '\n• Supplement update: ' + newInfo;
       } else if (lower.includes('goal') || lower.includes('fat loss') || lower.includes('muscle')) {
         p.coachNotes = (p.coachNotes || '') + '\n• Goal note: ' + newInfo;
+      } else if (lower.includes('training') || lower.includes('exercise') || 
+                 lower.includes('add this') || lower.includes('add to') ||
+                 lower.includes('include') || lower.includes('programme') ||
+                 lower.includes('workout') || lower.includes('session')) {
+        // Training plan modification — goes to dedicated array, not coachNotes
+        if (!p.trainingModifications) p.trainingModifications = [];
+        p.trainingModifications.push({
+          note: newInfo,
+          date: new Date().toISOString().slice(0,10),
+          addedViaCoach: true
+        });
       } else {
         p.coachNotes = (p.coachNotes || '') + '\n• ' + newInfo;
       }
@@ -497,61 +510,121 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
 
     /* ── FULL SCREEN OVERLAY ── */
     #bl-coach-overlay {
-      display:none; position:fixed; inset:0; background:rgba(8,13,13,0.96);
-      backdrop-filter:blur(16px); z-index:10000;
-      flex-direction:column; animation:overlayIn 0.22s ease;
+      display:none; position:fixed; inset:0;
+      background:rgba(8,14,13,0.97); backdrop-filter:blur(20px);
+      z-index:10000; flex-direction:column;
+      animation:overlayIn 0.2s ease;
     }
     #bl-coach-overlay.open { display:flex; }
-    @keyframes overlayIn { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
+    @keyframes overlayIn { from{opacity:0;transform:scale(0.98)} to{opacity:1;transform:scale(1)} }
 
+    /* Header */
     #blo-header {
-      padding:18px 28px 14px; border-bottom:1px solid #1a2820;
+      padding:14px 24px 12px; border-bottom:1px solid #1a2820;
       display:flex; align-items:center; justify-content:space-between;
       background:#0d1512; flex-shrink:0;
     }
     .blo-brand { font-size:13px; font-weight:300; color:#e8e3da; }
     .blo-brand em { font-style:italic; color:#3e6050; }
     .blo-title { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#00c8a0; }
-    .blo-close { background:none; border:1px solid #1e2e28; color:#8a9490; width:32px; height:32px; border-radius:6px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:all 0.12s; font-family:inherit; }
+    .blo-close { background:none; border:1px solid #1e2e28; color:#8a9490; width:30px; height:30px; border-radius:6px; cursor:pointer; font-size:15px; font-family:inherit; }
     .blo-close:hover { border-color:#3e6050; color:#e8e3da; }
 
-    #blo-body { flex:1; display:grid; grid-template-columns:280px 1fr; overflow:hidden; }
+    /* Main area: conversation takes 80% height */
+    #blo-main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
 
-    /* Category sidebar */
-    #blo-cats { border-right:1px solid #1a2820; overflow-y:auto; padding:16px 0; }
-    .blo-cat-btn {
-      display:flex; align-items:center; gap:10px; width:100%;
-      padding:11px 20px; background:transparent; border:none;
-      text-align:left; cursor:pointer; transition:background 0.1s;
-      font-family:inherit;
+    /* Chat messages — the primary real estate */
+    #blo-messages {
+      flex:1; overflow-y:auto; padding:20px 24px;
+      display:flex; flex-direction:column; gap:14px;
     }
-    .blo-cat-btn:hover { background:#0d1512; }
-    .blo-cat-btn.active { background:rgba(0,200,160,0.06); border-right:2px solid #00c8a0; }
-    .blo-cat-icon { font-size:16px; flex-shrink:0; }
-    .blo-cat-label { font-size:12px; font-weight:500; color:#8a9490; }
-    .blo-cat-btn.active .blo-cat-label { color:#e8e3da; }
-    .blo-cat-count { margin-left:auto; font-size:9px; font-family:'Courier New',monospace; color:#3e504a; }
+    #blo-messages::-webkit-scrollbar { width:3px; }
+    #blo-messages::-webkit-scrollbar-thumb { background:#1e2e28; }
 
-    /* Questions pane */
-    #blo-questions { overflow-y:auto; padding:20px 24px; }
-    .blo-q-header { font-size:9px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:#3e504a; margin-bottom:14px; }
-    .blo-q-list { display:flex; flex-direction:column; gap:8px; }
-    .blo-q-item {
-      background:#111917; border:1px solid #1e2e28; border-radius:6px;
-      padding:13px 16px; cursor:pointer; transition:all 0.12s;
-      font-size:13px; font-weight:300; color:#8a9490; line-height:1.5;
-      text-align:left; font-family:inherit;
+    .blo-msg { display:flex; flex-direction:column; animation:msgIn 0.16s ease; }
+    @keyframes msgIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+    .blo-msg-bubble { font-size:14px; font-weight:300; line-height:1.75; max-width:85%; }
+    .blo-msg-bubble p { margin:0 0 10px; }
+    .blo-msg-bubble p:last-child { margin:0; }
+    .blo-msg.user .blo-msg-bubble {
+      background:#1a2820; color:#e8e3da; padding:10px 14px;
+      border-radius:12px 12px 2px 12px; align-self:flex-end;
     }
-    .blo-q-item:hover { border-color:rgba(0,200,160,0.3); color:#e8e3da; background:#141f1a; }
+    .blo-msg.coach .blo-msg-bubble {
+      color:#c0b8b0; align-self:flex-start;
+      border-left:2px solid rgba(0,200,160,0.25); padding-left:13px;
+    }
+    .blo-typing { display:flex; gap:5px; align-items:center; padding:8px 0 0 13px; border-left:2px solid rgba(0,200,160,0.18); }
+    .blo-typing span { width:5px; height:5px; background:#3e504a; border-radius:50%; animation:td 1.2s infinite; }
+    .blo-typing span:nth-child(2){animation-delay:0.2s;}
+    .blo-typing span:nth-child(3){animation-delay:0.4s;}
 
-    /* Chat pane */
-    #blo-chat { border-left:1px solid #1a2820; display:flex; flex-direction:column; }
-    #blo-messages { flex:1; overflow-y:auto; padding:16px 20px; display:flex; flex-direction:column; gap:12px; }
-    #blo-input-wrap { padding:12px 16px; border-top:1px solid #1a2820; display:flex; gap:8px; background:#0d1512; flex-shrink:0; }
-    #blo-input { flex:1; background:#1a2820; border:1px solid #1e2e28; border-radius:8px; padding:10px 13px; font-size:13px; font-family:'Space Grotesk',sans-serif; color:#e8e3da; outline:none; }
+    /* Input row */
+    #blo-input-wrap {
+      padding:12px 20px; border-top:1px solid #1a2820;
+      display:flex; gap:8px; background:#0d1512; flex-shrink:0;
+    }
+    #blo-input {
+      flex:1; background:#1a2820; border:1px solid #1e2e28; border-radius:10px;
+      padding:11px 15px; font-size:14px; font-family:'Space Grotesk',sans-serif;
+      color:#e8e3da; outline:none; resize:none; line-height:1.4; max-height:120px;
+    }
     #blo-input:focus { border-color:rgba(0,200,160,0.35); }
     #blo-input::placeholder { color:#2a4038; }
-    #blo-send { width:34px; height:34px; border-radius:8px; background:#00c8a0; border:none; cursor:pointer; color:#0c1010; font-size:16px; font-weight:700; flex-shrink:0; }
+    #blo-send {
+      width:40px; height:40px; border-radius:10px; background:#00c8a0;
+      border:none; cursor:pointer; color:#0c1010; font-size:18px;
+      font-weight:700; align-self:flex-end; flex-shrink:0;
+    }
+
+    /* Category tab strip — compact, at the bottom */
+    #blo-cats {
+      border-top:1px solid #1a2820; background:#0a1210;
+      display:flex; overflow-x:auto; flex-shrink:0;
+      padding:0; gap:0;
+    }
+    #blo-cats::-webkit-scrollbar { display:none; }
+    .blo-cat-btn {
+      display:flex; flex-direction:column; align-items:center; gap:2px;
+      padding:10px 16px 8px; border:none; background:transparent;
+      cursor:pointer; font-family:inherit; white-space:nowrap;
+      border-top:2px solid transparent; transition:all 0.1s; flex-shrink:0;
+    }
+    .blo-cat-btn:hover { background:rgba(255,255,255,0.02); }
+    .blo-cat-btn.active { border-top-color:#00c8a0; background:rgba(0,200,160,0.04); }
+    .blo-cat-icon { font-size:16px; line-height:1; }
+    .blo-cat-label { font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#3e504a; }
+    .blo-cat-btn.active .blo-cat-label { color:#00c8a0; }
+
+    /* Question pills — slide up above input when category tapped */
+    #blo-q-panel {
+      background:#0d1512; border-top:1px solid #1a2820;
+      padding:12px 20px; display:none; flex-shrink:0;
+      max-height:200px; overflow-y:auto;
+    }
+    #blo-q-panel.open { display:block; }
+    .blo-q-label { font-size:8px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#3e504a; margin-bottom:8px; }
+    .blo-q-grid { display:flex; flex-direction:column; gap:6px; }
+    .blo-q-pill {
+      background:#111917; border:1px solid #1e2e28; border-radius:6px;
+      padding:9px 14px; font-size:13px; font-weight:300; color:#8a9490;
+      cursor:pointer; text-align:left; font-family:inherit;
+      transition:all 0.1s; line-height:1.4;
+    }
+    .blo-q-pill:hover { border-color:rgba(0,200,160,0.3); color:#e8e3da; background:#141f1a; }
+
+    /* Profile update prompt in overlay */
+    .blo-update-prompt {
+      background:rgba(0,200,160,0.05); border:1px solid rgba(0,200,160,0.18);
+      border-radius:8px; padding:12px 14px; margin:4px 0;
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .bup-text { font-size:12px; font-weight:300; color:#8a9490; flex:1; line-height:1.4; }
+    .bup-text em { color:#00c8a0; font-style:normal; }
+    .bup-yes { background:rgba(0,200,160,0.1); border:1px solid rgba(0,200,160,0.28); color:#00c8a0; padding:4px 12px; border-radius:10px; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit; }
+    .bup-no  { background:transparent; border:1px solid #1e2e28; color:#3e504a; padding:4px 10px; border-radius:10px; font-size:11px; cursor:pointer; font-family:inherit; }
+    .bup-saved { font-size:11px; color:#00c8a0; }
+
 
     /* Expand button on main panel */
     #bl-coach-expand {
@@ -611,15 +684,24 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
       <div id="bl-coach-overlay">
         <div id="blo-header">
           <div class="blo-brand">Body<em>Lens</em></div>
-          <div class="blo-title" id="blo-title">Ask your coach</div>
-          <button class="blo-close" onclick="window._blCoach.collapse()">✕</button>
+          <div class="blo-title" id="blo-title">Your coach</div>
+          <button class="blo-close" onclick="window._blCoach.collapse()">&#10005;</button>
         </div>
-        <div id="blo-body">
-          <div id="blo-cats"></div>
-          <div id="blo-questions">
-            <div class="blo-q-header" id="blo-q-header">Select a category</div>
-            <div class="blo-q-list" id="blo-q-list"></div>
+        <div id="blo-main">
+          <div id="blo-messages">
+            <div class="blo-msg coach">
+              <div class="blo-msg-bubble"><p>Ask me anything. I know your programme, your goals, and what you&#8217;re working on right now.</p></div>
+            </div>
           </div>
+          <div id="blo-q-panel">
+            <div class="blo-q-label" id="blo-q-label">Questions</div>
+            <div class="blo-q-grid" id="blo-q-grid"></div>
+          </div>
+          <div id="blo-input-wrap">
+            <textarea id="blo-input" placeholder="Ask anything&#8230;" rows="1"></textarea>
+            <button id="blo-send">&#8593;</button>
+          </div>
+          <div id="blo-cats"></div>
         </div>
       </div>`;
     document.body.appendChild(wrap);
@@ -851,41 +933,61 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
       },
     ];
 
+    let _overlayInFlight = false;
+
     function buildOverlayCats(profile, todayCtx) {
       const catsEl = document.getElementById('blo-cats');
       if (!catsEl) return;
+      // Bottom strip — icon + short label only
       catsEl.innerHTML = QUESTION_CATS.map((cat, i) =>
-        `<button class="blo-cat-btn ${i===0?'active':''}" data-cat="${cat.id}" onclick="selectOverlayCat('${cat.id}', this, ${JSON.stringify(cat.label)})">
+        `<button class="blo-cat-btn" data-cat="${cat.id}"
+          data-msg-container="${cat.id}">
           <span class="blo-cat-icon">${cat.icon}</span>
           <span class="blo-cat-label">${cat.label}</span>
-          <span class="blo-cat-count">5</span>
         </button>`
       ).join('');
-      // Show first category by default
-      selectOverlayCat(QUESTION_CATS[0].id, catsEl.querySelector('.blo-cat-btn'), QUESTION_CATS[0].label, profile, todayCtx);
+      // Wire up clicks
+      catsEl.querySelectorAll('.blo-cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const catId = btn.dataset.cat;
+          const isActive = btn.classList.contains('active');
+          // Toggle — click active category to close panel
+          document.querySelectorAll('.blo-cat-btn').forEach(b => b.classList.remove('active'));
+          const qPanel = document.getElementById('blo-q-panel');
+          if (isActive) { if (qPanel) qPanel.classList.remove('open'); return; }
+          btn.classList.add('active');
+          selectOverlayCat(catId, profile, todayCtx);
+        });
+      });
     }
 
-    window.selectOverlayCat = function(catId, btn, label, p, todayCtx) {
-      document.querySelectorAll('.blo-cat-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-
+    window.selectOverlayCat = function(catId, p, todayCtx) {
       const cat = QUESTION_CATS.find(c => c.id === catId);
       if (!cat) return;
-
       const profileToUse = p || profile;
       const todayToUse   = todayCtx || window._todayCtx || null;
       const questions    = cat.questions(profileToUse, todayToUse);
-
-      document.getElementById('blo-q-header').textContent = cat.label + ' — tap to ask';
-      document.getElementById('blo-q-list').innerHTML = questions.map(q =>
-        `<button class="blo-q-item" data-msg="${q.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${q}</button>`
-      ).join('');
-      document.querySelectorAll('.blo-q-item').forEach(item => {
-        item.addEventListener('click', () => {
-          window._blCoach.collapse();
-          window._blCoach.send(item.dataset.msg);
+      const qPanel  = document.getElementById('blo-q-panel');
+      const qLabel  = document.getElementById('blo-q-label');
+      const qGrid   = document.getElementById('blo-q-grid');
+      if (!qPanel) return;
+      if (qLabel) qLabel.textContent = cat.label;
+      if (qGrid) {
+        qGrid.innerHTML = questions.map(q =>
+          `<button class="blo-q-pill" data-msg="${q.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${q}</button>`
+        ).join('');
+        qGrid.querySelectorAll('.blo-q-pill').forEach(pill => {
+          pill.addEventListener('click', () => {
+            qPanel.classList.remove('open');
+            document.querySelectorAll('.blo-cat-btn').forEach(b => b.classList.remove('active'));
+            bloSend(pill.dataset.msg);
+          });
         });
-      });
+      }
+      qPanel.classList.add('open');
+      // Scroll messages to bottom
+      const msgs = document.getElementById('blo-messages');
+      if (msgs) msgs.scrollTop = msgs.scrollHeight;
     };
 
     window._blCoach = {
@@ -897,10 +999,35 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
         if (!overlay) return;
         overlay.classList.add('open');
         buildOverlayCats(profile, window._todayCtx || null);
-        const pageType = getPageType();
-        const pageLabel = getPageLabel();
         const titleEl = document.getElementById('blo-title');
-        if (titleEl) titleEl.textContent = 'Coach · ' + pageLabel;
+        if (titleEl) titleEl.textContent = 'Coach · ' + getPageLabel();
+        // Wire up overlay input
+        const bloInput = document.getElementById('blo-input');
+        const bloSendBtn = document.getElementById('blo-send');
+        if (bloSendBtn && !bloSendBtn._wired) {
+          bloSendBtn._wired = true;
+          bloSendBtn.addEventListener('click', () => bloSend());
+        }
+        if (bloInput && !bloInput._wired) {
+          bloInput._wired = true;
+          bloInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); bloSend(); }
+          });
+          bloInput.addEventListener('input', () => {
+            bloInput.style.height = 'auto';
+            bloInput.style.height = Math.min(bloInput.scrollHeight, 120) + 'px';
+          });
+        }
+        // Sync existing conversation from panel history
+        const msgs = document.getElementById('blo-messages');
+        if (msgs && msgs.children.length <= 1) {
+          // Load history into overlay messages
+          const hist = loadHistory();
+          hist.slice(-10).forEach(m => {
+            bloAddMessage(m.role === 'user' ? 'user' : 'coach', m.content);
+          });
+        }
+        if (msgs) msgs.scrollTop = msgs.scrollHeight;
       },
       collapse: () => {
         const overlay = document.getElementById('bl-coach-overlay');
@@ -919,6 +1046,87 @@ Example: ["How long until I see results", "Does timing matter for this", "What i
         setTimeout(() => { if (el) el.remove(); }, 2000);
       },
     };
+
+    // ── Overlay send + messages ──────────────────────────
+    async function bloSend(textArg) {
+      if (!profile) return;
+      const bloInput = document.getElementById('blo-input');
+      const msg = textArg || (bloInput ? bloInput.value.trim() : '');
+      if (!msg || _overlayInFlight) return;
+      if (bloInput && !textArg) { bloInput.value = ''; bloInput.style.height = 'auto'; }
+      _overlayInFlight = true;
+      bloAddMessage('user', msg);
+      // Typing indicator
+      const msgs = document.getElementById('blo-messages');
+      const typing = document.createElement('div');
+      typing.id = 'blo-typing'; typing.className = 'blo-typing';
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      if (msgs) { msgs.appendChild(typing); msgs.scrollTop = msgs.scrollHeight; }
+      try {
+        const reply = await askCoach(msg, profile);
+        if (typing.parentNode) typing.remove();
+        bloAddMessage('coach', reply);
+        // Also add to floating panel history
+        addMessage('coach', reply);
+        // Check for new info
+        const newInfo = extractNewInfo(reply);
+        if (newInfo) bloPromptUpdate(newInfo);
+        // Generate follow-up questions
+        generateFollowUps(msg, reply, profile).then(fups => {
+          if (!fups || !fups.length) return;
+          // Show as follow-up pills above the input
+          const qPanel = document.getElementById('blo-q-panel');
+          const qLabel = document.getElementById('blo-q-label');
+          const qGrid  = document.getElementById('blo-q-grid');
+          if (qLabel) qLabel.textContent = 'Follow-up';
+          if (qGrid) {
+            qGrid.innerHTML = fups.map(q =>
+              `<button class="blo-q-pill" data-msg="${q.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">${q}</button>`
+            ).join('');
+            qGrid.querySelectorAll('.blo-q-pill').forEach(pill => {
+              pill.addEventListener('click', () => {
+                if (qPanel) qPanel.classList.remove('open');
+                bloSend(pill.dataset.msg);
+              });
+            });
+            if (qPanel) qPanel.classList.add('open');
+          }
+        });
+      } catch(e) {
+        if (typing.parentNode) typing.remove();
+        bloAddMessage('coach', 'Something went wrong — try again.');
+      }
+      _overlayInFlight = false;
+    }
+
+    function bloAddMessage(role, text) {
+      const msgs = document.getElementById('blo-messages');
+      if (!msgs) return;
+      const msg = document.createElement('div');
+      msg.className = 'blo-msg ' + role;
+      const bubble = document.createElement('div');
+      bubble.className = 'blo-msg-bubble';
+      bubble.innerHTML = role === 'coach' ? formatResponse(text) : `<p>${text}</p>`;
+      msg.appendChild(bubble);
+      msgs.appendChild(msg);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function bloPromptUpdate(newInfo) {
+      const msgs = document.getElementById('blo-messages');
+      if (!msgs) return;
+      const el = document.createElement('div');
+      el.className = 'blo-update-prompt';
+      el.innerHTML = `<div class="bup-text">Add <em>${newInfo}</em> to your profile?</div>
+        <div style="display:flex;gap:6px;">
+          <button class="bup-yes" onclick="window._blCoach.saveInfo(${JSON.stringify(newInfo)}, this.closest('.blo-update-prompt'))">Save it</button>
+          <button class="bup-no" onclick="this.closest('.blo-update-prompt').remove()">Skip</button>
+        </div>`;
+      msgs.appendChild(el);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+
   }
 
   function renderInitialChips(profile) {
