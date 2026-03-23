@@ -101,6 +101,10 @@ body { background:var(--ink); color:var(--dk-1); }
 .loading-text { font-size:13px; font-weight:300; color:var(--dk-3); }
 
 /* Regen */
+.fp-spinner { width:24px; height:24px; border:2px solid var(--bd); border-top-color:var(--amber); border-radius:50%; animation:spin 0.8s linear infinite; margin:8px auto; }
+.fp-loading { padding:24px 0; text-align:center; }
+.fp-load-text { font-size:11px; font-weight:300; color:var(--dk-3); margin-top:8px; }
+
 .regen-btn { background:transparent; border:1px solid var(--bd); color:var(--dk-3); padding:7px 16px; border-radius:20px; font-size:10px; font-weight:500; letter-spacing:0.04em; cursor:pointer; font-family:var(--sans); margin-top:20px; transition:all 0.12s; }
 .regen-btn:hover { border-color:var(--bd-2); color:var(--dk-2); }
 
@@ -110,6 +114,123 @@ body { background:var(--ink); color:var(--dk-1); }
   .day-macros { grid-template-columns:1fr 1fr; }
   .tl-body { padding-left:16px; }
 }
+
+/* ── RECIPE CARD ──────────────────────────────── */
+.recipe-expanded {
+  background: var(--ink-1); border-top: 1px solid var(--bd);
+  padding: 16px 16px 16px 72px; animation: slideIn 0.18s ease;
+}
+@keyframes slideIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+
+.recipe-card {
+  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 8px;
+  overflow: hidden; margin-bottom: 10px;
+}
+.rc-head {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: 12px; padding: 14px 16px;
+  background: var(--ink-1); border-bottom: 1px solid var(--bd);
+}
+.rc-meal-name { font-size: 15px; font-weight: 500; color: var(--dk-1); margin-bottom: 2px; }
+.rc-meal-desc { font-size: 11px; font-weight: 300; color: var(--dk-3); }
+.rc-shuffle-btn {
+  background: transparent; border: 1px solid var(--amber-br, rgba(196,124,24,0.25));
+  color: var(--amber); border-radius: 16px; padding: 5px 12px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer; font-family: var(--sans); transition: all 0.12s; white-space: nowrap;
+}
+.rc-shuffle-btn:hover { background: rgba(196,124,24,0.08); }
+.rc-shuffle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Macro fit bar */
+.macro-fit { padding: 12px 16px; border-bottom: 1px solid var(--bd); }
+.mf-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 8px; }
+.mf-bars { display: flex; flex-direction: column; gap: 5px; }
+.mf-row { display: grid; grid-template-columns: 60px 1fr 40px; align-items: center; gap: 8px; }
+.mf-name { font-size: 10px; font-weight: 500; color: var(--dk-2); }
+.mf-bar-wrap { background: var(--ink-3, var(--ink-1)); border-radius: 3px; height: 5px; overflow: hidden; }
+.mf-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.mf-bar-fill.prot { background: var(--jade); }
+.mf-bar-fill.carb { background: var(--amber); }
+.mf-bar-fill.fat  { background: rgba(74,98,117,0.8); }
+.mf-val { font-size: 10px; font-family: var(--mono); color: var(--dk-3); text-align: right; }
+
+/* Ingredients list */
+.rc-ingredients { padding: 12px 16px; border-bottom: 1px solid var(--bd); }
+.rc-ing-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 8px; }
+.rc-ing-list { display: flex; flex-direction: column; gap: 5px; }
+.rc-ing-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--bd); }
+.rc-ing-row:last-child { border-bottom: none; }
+.rc-ing-name { font-size: 12px; font-weight: 400; color: var(--dk-1); }
+.rc-ing-qty  { font-size: 11px; font-family: var(--mono); color: var(--dk-3); }
+
+/* Method */
+.rc-method { padding: 12px 16px; font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.75; }
+.rc-method-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 6px; }
+
+/* ── EXERCISE CARDS ──────────────────────────── */
+.session-expanded {
+  background: var(--ink-1); border-top: 1px solid var(--bd);
+  padding: 16px; animation: slideIn 0.18s ease;
+}
+.session-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.session-title { font-size: 14px; font-weight: 600; color: var(--jade); }
+.session-meta  { font-size: 11px; font-weight: 300; color: var(--dk-3); }
+
+.ex-card {
+  background: var(--ink-2); border: 1px solid var(--bd); border-radius: 6px;
+  margin-bottom: 8px; overflow: hidden;
+}
+.ex-card-head {
+  display: grid; grid-template-columns: 1fr auto auto;
+  align-items: center; gap: 12px; padding: 12px 16px;
+  cursor: pointer;
+}
+.ex-card.open .ex-card-head { border-bottom: 1px solid var(--bd); background: var(--ink-1); }
+.ex-name { font-size: 13px; font-weight: 500; color: var(--dk-1); }
+.ex-schema { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--jade); }
+.ex-rpe { font-size: 10px; font-weight: 500; color: var(--dk-3); background: var(--ink-1); padding: 2px 8px; border-radius: 8px; border: 1px solid var(--bd); }
+.ex-chevron { font-size: 10px; color: var(--dk-3); transition: transform 0.15s; }
+.ex-card.open .ex-chevron { transform: rotate(180deg); }
+
+.ex-body { display: none; padding: 14px 16px; }
+.ex-card.open .ex-body { display: block; }
+
+/* Age benchmarks */
+.bench-strip {
+  background: var(--ink-3, var(--ink-1)); border: 1px solid var(--bd);
+  border-radius: 6px; padding: 14px; margin-bottom: 12px;
+}
+.bench-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 10px; }
+.bench-track { position: relative; height: 8px; background: var(--bd); border-radius: 4px; margin: 12px 0 6px; }
+.bench-fill  { position: absolute; left: 0; top: 0; height: 100%; border-radius: 4px; background: linear-gradient(90deg, rgba(0,200,160,0.4), rgba(0,200,160,0.85)); }
+.bench-marker { position: absolute; top: -4px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--jade); background: var(--ink); transform: translateX(-50%); }
+.bench-labels { display: grid; grid-template-columns: 1fr 1fr 1fr; font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dk-3); }
+.bench-values { display: grid; grid-template-columns: 1fr 1fr 1fr; font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--dk-1); margin-bottom: 4px; }
+.bench-values .you { color: var(--jade); font-size: 15px; }
+.bench-age-note { font-size: 10px; font-weight: 300; color: var(--dk-3); line-height: 1.6; margin-top: 8px; }
+
+/* Sets guide */
+.sets-guide { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.set-row { display: grid; grid-template-columns: 36px 1fr; gap: 8px; align-items: center; }
+.set-num { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--jade); }
+.set-detail { font-size: 12px; font-weight: 300; color: var(--dk-2); }
+
+/* Injury note on exercise */
+.ex-injury-note {
+  padding: 8px 12px; background: rgba(200,148,30,0.06);
+  border: 1px solid rgba(200,148,30,0.2); border-radius: 4px;
+  font-size: 11px; font-weight: 300; color: var(--dk-2); line-height: 1.6;
+  margin-bottom: 10px;
+}
+.ex-injury-note span { color: var(--gold); font-weight: 600; }
+
+/* Loading spinner for shuffle */
+.shuffle-loading { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(196,124,24,0.3); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 4px; }
+
 </style>
 </head>
 <body>
@@ -118,7 +239,7 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link nav-daily active" href="bodylens-dailyplan.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-fuel.html">Food</a>
+    <a class="nav-link nav-food" href="bodylens-magazine-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
   </div>
@@ -401,40 +522,354 @@ function buildPlan(profile, today) {
 }
 
 // ── 4. RENDER ─────────────────────────────────────────
+
+// ── STRENGTH BENCHMARKS ──────────────────────────────
+// Based on Symmetric Strength / ExRx standards
+// Returns { beginner, intermediate, advanced } as % of bodyweight
+const STRENGTH_STANDARDS = {
+  // { m: [beg, int, adv], f: [beg, int, adv] } as bodyweight multipliers
+  'bench press':    { m:[0.5,1.0,1.5], f:[0.25,0.6,1.0] },
+  'squat':          { m:[0.75,1.25,1.75], f:[0.5,1.0,1.5] },
+  'deadlift':       { m:[1.0,1.5,2.0], f:[0.75,1.25,1.75] },
+  'overhead press': { m:[0.3,0.65,1.0], f:[0.15,0.4,0.65] },
+  'ohp':            { m:[0.3,0.65,1.0], f:[0.15,0.4,0.65] },
+  'row':            { m:[0.5,0.9,1.3], f:[0.3,0.6,0.9] },
+  'barbell row':    { m:[0.5,0.9,1.3], f:[0.3,0.6,0.9] },
+  'pull-up':        { m:[0,0.2,0.5],   f:[0,0.1,0.35] }, // extra plates as fraction
+  'pull up':        { m:[0,0.2,0.5],   f:[0,0.1,0.35] },
+  'romanian deadlift':{ m:[0.7,1.1,1.6], f:[0.5,0.8,1.2] },
+  'rdl':            { m:[0.7,1.1,1.6], f:[0.5,0.8,1.2] },
+  'hip thrust':     { m:[0.9,1.4,1.9], f:[0.7,1.2,1.7] },
+  'lateral raise':  { m:[0.06,0.12,0.2], f:[0.04,0.08,0.14] },
+  'bicep curl':     { m:[0.2,0.4,0.6], f:[0.1,0.2,0.4] },
+  'tricep':         { m:[0.15,0.35,0.55], f:[0.08,0.2,0.35] },
+  'leg press':      { m:[1.5,2.5,3.5], f:[1.0,1.8,2.6] },
+  'leg curl':       { m:[0.3,0.55,0.8], f:[0.2,0.4,0.65] },
+  'calf raise':     { m:[0.8,1.4,2.0], f:[0.6,1.0,1.5] },
+};
+
+function getStandard(exerciseName, weight, isFemale, age) {
+  const name = exerciseName.toLowerCase();
+  let std = null;
+  for (const [key, val] of Object.entries(STRENGTH_STANDARDS)) {
+    if (name.includes(key)) { std = val; break; }
+  }
+  if (!std) return null;
+
+  // Age adjustment factor (Wilks-inspired) — strength peaks ~28-35
+  const ageFactor = age < 30 ? 0.95 : age < 40 ? 1.0 : age < 50 ? 0.93 : age < 60 ? 0.85 : 0.78;
+
+  const mults = isFemale ? std.f : std.m;
+  return {
+    beginner:     Math.round(mults[0] * weight * ageFactor),
+    intermediate: Math.round(mults[1] * weight * ageFactor),
+    advanced:     Math.round(mults[2] * weight * ageFactor),
+  };
+}
+
+// Age-specific performance note
+function getAgeNote(age, isFemale) {
+  if (age < 35) return 'Prime neurological adaptation. Focus on technique now — it compounds.';
+  if (age < 45) return `At ${age}, recovery takes 72h for heavy sessions. The strength response is unchanged — the timeline isn't.`;
+  if (age < 55) return `At ${age}, progressive overload works identically. Deloads matter more. Sleep is the primary recovery lever.`;
+  return `At ${age}, the training stimulus is as effective as ever. ${isFemale ? 'Resistance training is protecting bone density and insulin sensitivity as oestrogen shifts.' : 'GH pulses are smaller — sleep quality is the biggest performance lever available.'}`;
+}
+
+// Parse exercise string like "Bench press 4x8-10" or "OHP 3x10"
+function parseExercise(str) {
+  const schemaMatch = str.match(/(\d+)\s*[xX×]\s*([\d\-]+)/);
+  const name = str.replace(/\d+\s*[xX×]\s*[\d\-]+.*/, '').trim();
+  return {
+    name,
+    raw: str,
+    sets: schemaMatch ? parseInt(schemaMatch[1]) : 3,
+    reps: schemaMatch ? schemaMatch[2] : '8-12',
+    schema: schemaMatch ? schemaMatch[0] : '3×8-12',
+  };
+}
+
+// ── RECIPE DATA (cached per slot+day) ─────────────────
+const _recipeCache = {};
+
+async function fetchRecipe(slot, mealName, mealTarget) {
+  const cacheKey = slot + '_' + new Date().toISOString().slice(0,10);
+  if (_recipeCache[cacheKey]) return _recipeCache[cacheKey];
+
+  const p = _profile;
+  const exclusions = (p.foodExclusions||[]).join(', ')||'none';
+  const cuisines   = (p.cuisinePrefs||[]).join(', ')||'neutral';
+
+  const prompt = `Give a specific recipe for "${mealName}" for ${p.name}.
+Target: ${mealTarget.calories} kcal, ${mealTarget.protein}g protein, ${mealTarget.carbs}g carbs, ${mealTarget.fat}g fat.
+Diet: ${p.dietType||'flexible'} | Exclude: ${exclusions} | Cuisine: ${cuisines}
+Complexity: ${p.recipeComplexity||'standard'}
+${p.recipeComplexity&&p.recipeComplexity.includes('5')?'MAX 5 ingredients.':''}
+
+Return ONLY JSON:
+{"name":"exact dish name","description":"one line","calories":0,"protein":0,"carbs":0,"fat":0,
+"prepTime":"10 min","servings":1,
+"ingredients":[{"name":"ingredient","quantity":"200g"}],
+"method":"2-3 sentences, practical prep instructions"}`;
+
+  const res = await fetch('/api/chat', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:400,
+      system:'Return only valid JSON. No markdown. No preamble.',
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  const data = await res.json();
+  const text = (data.content||[]).map(b=>b.text||'').join('').trim();
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('No JSON');
+  const recipe = JSON.parse(match[0]);
+  _recipeCache[cacheKey] = recipe;
+  return recipe;
+}
+
+function renderRecipeCard(recipe, mealTarget, slot, blockIdx) {
+  const pPct = Math.min(100, Math.round((recipe.protein / mealTarget.protein) * 100));
+  const cPct = Math.min(100, Math.round((recipe.carbs   / mealTarget.carbs) * 100));
+  const fPct = Math.min(100, Math.round((recipe.fat     / mealTarget.fat) * 100));
+
+  return `<div class="recipe-card">
+    <div class="rc-head">
+      <div>
+        <div class="rc-meal-name">${recipe.name}</div>
+        <div class="rc-meal-desc">${recipe.description||''} · ${recipe.prepTime||''}</div>
+      </div>
+      <button class="rc-shuffle-btn" id="shuffle-${blockIdx}" onclick="shuffleMeal('${slot}',${blockIdx},this)">↺ Shuffle</button>
+    </div>
+    <div class="macro-fit">
+      <div class="mf-label">How this meal fits your day</div>
+      <div class="mf-bars">
+        <div class="mf-row">
+          <div class="mf-name">Protein</div>
+          <div class="mf-bar-wrap"><div class="mf-bar-fill prot" style="width:${pPct}%"></div></div>
+          <div class="mf-val">${recipe.protein}g</div>
+        </div>
+        <div class="mf-row">
+          <div class="mf-name">Carbs</div>
+          <div class="mf-bar-wrap"><div class="mf-bar-fill carb" style="width:${cPct}%"></div></div>
+          <div class="mf-val">${recipe.carbs||0}g</div>
+        </div>
+        <div class="mf-row">
+          <div class="mf-name">Fat</div>
+          <div class="mf-bar-wrap"><div class="mf-bar-fill fat" style="width:${fPct}%"></div></div>
+          <div class="mf-val">${recipe.fat||0}g</div>
+        </div>
+        <div class="mf-row">
+          <div class="mf-name">Calories</div>
+          <div class="mf-bar-wrap"><div class="mf-bar-fill" style="width:${Math.min(100,Math.round(recipe.calories/mealTarget.calories*100))}%;background:rgba(200,200,200,0.3)"></div></div>
+          <div class="mf-val">${recipe.calories}</div>
+        </div>
+      </div>
+    </div>
+    <div class="rc-ingredients">
+      <div class="rc-ing-label">Ingredients</div>
+      <div class="rc-ing-list">
+        ${(recipe.ingredients||[]).map(ing=>`
+          <div class="rc-ing-row">
+            <div class="rc-ing-name">${ing.name}</div>
+            <div class="rc-ing-qty">${ing.quantity||''}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="rc-method">
+      <div class="rc-method-label">Method</div>
+      ${recipe.method||'Prepare as per your usual approach.'}
+    </div>
+  </div>`;
+}
+
+async function expandMealBlock(blockIdx, block) {
+  const expandEl = document.getElementById('meal-expand-'+blockIdx);
+  if (!expandEl) return;
+
+  if (expandEl.dataset.loaded === 'true') {
+    expandEl.style.display = expandEl.style.display === 'none' ? 'block' : 'none';
+    return;
+  }
+
+  expandEl.style.display = 'block';
+  expandEl.innerHTML = '<div class="fp-loading" style="padding:20px 0;"><div class="fp-spinner" style="border-top-color:var(--amber);"></div><div class="fp-load-text">Building recipe…</div></div>';
+
+  try {
+    const p = _profile;
+    const pPerMeal = Math.round((p.protein||140) / (p.mealCount||4));
+    const kPerMeal = Math.round(((window._todayCtx&&window._todayCtx.isTraining ? (window._todayCtx.plan.kcal||p.calories||2000) : Math.round((p.calories||2000)*0.91))) / (p.mealCount||4));
+    const mealTarget = { calories: kPerMeal, protein: pPerMeal, carbs: Math.round((p.carbs||160)*0.25), fat: Math.round((p.fat||60)*0.25) };
+
+    const recipe = await fetchRecipe(block.mealSlot||block.title, block.title, mealTarget);
+    expandEl.innerHTML = renderRecipeCard(recipe, mealTarget, block.mealSlot||block.title, blockIdx);
+    expandEl.dataset.loaded = 'true';
+  } catch(e) {
+    expandEl.innerHTML = '<div style="padding:16px;color:var(--dk-3);font-size:12px;">Could not load recipe — <button onclick="expandMealBlock('+blockIdx+',window._blocks['+blockIdx+'])" style="color:var(--amber);background:none;border:none;cursor:pointer;">try again</button></div>';
+  }
+}
+
+async function shuffleMeal(slot, blockIdx, btn) {
+  btn.disabled = true;
+  btn.innerHTML = '<span class="shuffle-loading"></span>Shuffling…';
+  const expandEl = document.getElementById('meal-expand-'+blockIdx);
+  if (expandEl) {
+    const cacheKey = slot + '_' + new Date().toISOString().slice(0,10);
+    delete _recipeCache[cacheKey];
+    expandEl.dataset.loaded = 'false';
+    await expandMealBlock(blockIdx, window._blocks[blockIdx]);
+  }
+  btn.disabled = false;
+  btn.textContent = '↺ Shuffle';
+}
+
+// ── EXERCISE SESSION RENDERER ─────────────────────────
+function renderSessionBlock(block) {
+  const p = _profile;
+  const isFemale = (p.sex||'').toLowerCase() === 'female';
+  const age = p.age || 35;
+  const weight = p.weight || 75;
+  const injuries = p.injuryAssessments || p.injuries || [];
+  const exercises = (block.items||[]).filter(e => e.name !== 'Track loads');
+
+  const exCards = exercises.map((ex, i) => {
+    const parsed = parseExercise(ex.name);
+    const std = getStandard(parsed.name, weight, isFemale, age);
+    const injuryMatch = injuries.find(inj =>
+      ['knee','back','shoulder','hip','elbow'].some(j =>
+        (inj.location||'').toLowerCase().includes(j) &&
+        parsed.name.toLowerCase().match(new RegExp(j.slice(0,4)))
+      )
+    );
+
+    // Determine RPE from schema
+    const reps = parseInt((parsed.reps||'10').split('-')[0]);
+    const rpe = reps <= 5 ? '8-9' : reps <= 8 ? '7-9' : '7-8';
+
+    const benchHTML = std ? `
+      <div class="bench-strip">
+        <div class="bench-label">Age-adjusted strength standard — ${age}yr ${isFemale?'female':'male'} · ${weight}kg</div>
+        <div class="bench-values">
+          <div>${std.beginner}kg</div>
+          <div class="you">${std.intermediate}kg ← you</div>
+          <div>${std.advanced}kg</div>
+        </div>
+        <div class="bench-track">
+          <div class="bench-fill" style="width:66%"></div>
+          <div class="bench-marker" style="left:66%"></div>
+        </div>
+        <div class="bench-labels">
+          <div>Beginner</div>
+          <div style="text-align:center">Intermediate</div>
+          <div style="text-align:right">Advanced</div>
+        </div>
+        <div class="bench-age-note">${getAgeNote(age, isFemale)}</div>
+      </div>` : '';
+
+    const setsHTML = (() => {
+      const rows = [];
+      for (let s = 1; s <= parsed.sets; s++) {
+        const isLast = s === parsed.sets;
+        const intensity = s === 1 ? 'Warm-up: −20% load, focus technique' : isLast ? `Working set: RPE ${rpe} — ${parsed.reps} reps, 1-3 reps from failure` : `Build set: increase load, RPE ${parseInt(rpe)-1}`;
+        rows.push(`<div class="set-row"><div class="set-num">Set ${s}</div><div class="set-detail">${intensity}</div></div>`);
+      }
+      return rows.join('');
+    })();
+
+    return `<div class="ex-card" id="ex-${i}">
+      <div class="ex-card-head" onclick="document.getElementById('ex-${i}').classList.toggle('open')">
+        <div>
+          <div class="ex-name">${parsed.name}</div>
+        </div>
+        <div class="ex-schema">${parsed.schema}</div>
+        <div class="ex-rpe">RPE ${rpe}</div>
+        <span class="ex-chevron">▾</span>
+      </div>
+      <div class="ex-body">
+        ${injuryMatch ? `<div class="ex-injury-note"><span>⚠ Injury note:</span> ${injuryMatch.location} — ${(injuryMatch.avoidMovements||[]).some(m=>parsed.name.toLowerCase().includes(m.toLowerCase())) ? 'Substitute with: '+(injuryMatch.safeAlternatives||[]).slice(0,2).join(', ') : 'Perform with caution and reduced range of motion.'}</div>` : ''}
+        ${benchHTML}
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Set guide</div>
+        <div class="sets-guide">${setsHTML}</div>
+        <div style="font-size:11px;font-weight:300;color:var(--dk-3);padding-top:8px;border-top:1px solid var(--bd);">Rest: ${reps<=5?'3-4 min':reps<=8?'2-3 min':'90 sec-2 min'} between sets</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="session-expanded">
+    <div class="session-header">
+      <div>
+        <div class="session-title">${block.title}</div>
+        <div class="session-meta">${exercises.length} exercises · ${((window._todayCtx&&window._todayCtx.plan.focus)||'')}</div>
+      </div>
+    </div>
+    ${exCards}
+    <div style="margin-top:12px;padding:10px 14px;background:rgba(0,200,160,0.04);border:1px solid var(--jade-br);border-radius:4px;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;">
+      ${block.science||'Track every set. Progressive overload — adding load, reps, or density week to week — is the mechanism.'}
+    </div>
+  </div>`;
+}
+
+// ── MAIN RENDER ───────────────────────────────────────
 function renderPlan(plan, todayName) {
   const root = document.getElementById('day-root');
+  window._blocks = plan.blocks; // expose for shuffle callbacks
 
   const blocksHtml = plan.blocks.map((b, i) => {
-    const itemsHtml = (b.items||[]).map(item =>
-      `<div class="tl-item">
-        <span class="tl-item-name">${item.name}</span>
-        ${item.meta ? `<span class="tl-item-meta">${item.meta}</span>` : ''}
-      </div>`
-    ).join('');
+    const isMeal     = ['meal','wake'].includes(b.type) && b.mealSlot;
+    const isTraining = b.type === 'training';
 
-    const detailHtml = (b.detail||'').split('\n')
-      .map(line => line.trim() ? `<p>${line}</p>` : '')
-      .join('');
-
-    return `
-      <div class="tl-block type-${b.type||'meal'}"
-           ${b.mealSlot ? `data-slot="${b.mealSlot}"` : ''}
-           onclick="this.classList.toggle('open')">
+    // Simpler blocks (supp, recovery, sleep) — same as before
+    if (!isMeal && !isTraining) {
+      const detailHtml = (b.detail||'').split('\n').map(l=>l.trim()?`<p>${l}</p>`:'').join('');
+      const itemsHtml = (b.items||[]).map(it=>`<div class="tl-item"><span class="tl-item-name">${it.name}</span>${it.meta?`<span class="tl-item-meta">${it.meta}</span>`:''}</div>`).join('');
+      return `<div class="tl-block type-${b.type||'meal'}" onclick="this.classList.toggle('open')">
         <div class="tl-head">
           <div class="tl-time">${b.time||''}</div>
-          <div class="tl-main">
-            <div class="tl-title">${b.title||''}</div>
-            ${b.subtitle ? `<div class="tl-subtitle">${b.subtitle}</div>` : ''}
-          </div>
-          ${b.tag ? `<span class="tl-tag ${b.tagColor||'slate'}">${b.tag}</span>` : ''}
+          <div class="tl-main"><div class="tl-title">${b.title||''}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
+          ${b.tag?`<span class="tl-tag ${b.tagColor||'slate'}">${b.tag}</span>`:''}
           <span class="tl-chevron">▾</span>
         </div>
         <div class="tl-body">
-          ${b.detail ? `<div class="tl-detail">${detailHtml}</div>` : ''}
-          ${b.science ? `<div class="tl-science">${b.science}</div>` : ''}
-          ${itemsHtml ? `<div class="tl-items">${itemsHtml}</div>` : ''}
+          ${b.detail?`<div class="tl-detail">${detailHtml}</div>`:''}
+          ${b.science?`<div class="tl-science">${b.science}</div>`:''}
+          ${itemsHtml?`<div class="tl-items">${itemsHtml}</div>`:''}
         </div>
       </div>`;
+    }
+
+    // Meal blocks — tap header to toggle, has recipe expansion below
+    if (isMeal) {
+      const itemsHtml = (b.items||[]).map(it=>`<div class="tl-item"><span class="tl-item-name">${it.name}</span>${it.meta?`<span class="tl-item-meta">${it.meta}</span>`:''}</div>`).join('');
+      return `<div class="tl-block type-meal">
+        <div class="tl-head" onclick="toggleMealExpand(${i})">
+          <div class="tl-time">${b.time||''}</div>
+          <div class="tl-main"><div class="tl-title">${b.title||''}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
+          <span class="tl-tag amber">Eat</span>
+          <span class="tl-chevron" id="meal-chev-${i}">▾</span>
+        </div>
+        <div class="tl-body" id="meal-body-${i}" style="display:none;">
+          <div class="tl-detail"><p>${b.detail||''}</p></div>
+          ${itemsHtml?`<div class="tl-items">${itemsHtml}</div>`:''}
+          <button style="margin-top:12px;background:transparent;border:1px solid var(--amber-br,rgba(196,124,24,0.3));color:var(--amber);padding:5px 14px;border-radius:14px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);"
+            onclick="expandMealBlock(${i},window._blocks[${i}])">🍳 View recipe & macros</button>
+        </div>
+        <div class="recipe-expanded" id="meal-expand-${i}" style="display:none;"></div>
+      </div>`;
+    }
+
+    // Training block
+    if (isTraining) {
+      return `<div class="tl-block type-training">
+        <div class="tl-head" onclick="toggleSessionExpand(${i})">
+          <div class="tl-time">${b.time||''}</div>
+          <div class="tl-main"><div class="tl-title">${b.title||''}</div>${b.subtitle?`<div class="tl-subtitle">${b.subtitle}</div>`:''}</div>
+          <span class="tl-tag jade">Train</span>
+          <span class="tl-chevron" id="sess-chev-${i}">▾</span>
+        </div>
+        <div class="session-expanded" id="sess-expand-${i}" style="display:none;">
+          ${renderSessionBlock(b)}
+        </div>
+      </div>`;
+    }
   }).join('');
 
   const d = new Date();
@@ -447,21 +882,16 @@ function renderPlan(plan, todayName) {
       <div class="day-brief">${plan.dayBrief}</div>
       ${plan.priority ? `<div class="day-priority">${plan.priority}</div>` : ''}
     </div>
-
     <div class="day-macros">
       <div class="dm"><div class="dm-val">${plan.macros.kcal}</div><div class="dm-label">Calories</div></div>
       <div class="dm"><div class="dm-val jade">${plan.macros.prot}g</div><div class="dm-label">Protein</div></div>
       <div class="dm"><div class="dm-val amber">${plan.macros.carbs}g</div><div class="dm-label">Carbs</div></div>
       <div class="dm"><div class="dm-val">${plan.macros.fat}g</div><div class="dm-label">Fat</div></div>
     </div>
-
     <div class="water-strip">💧 Water target: ${plan.macros.water} — spread across the day</div>
-
     <div class="tl-label">Your day</div>
     ${blocksHtml}
-
     <button class="regen-btn" onclick="regenerate()">↺ Regenerate today</button>
-
     <div class="ask-wrap">
       <div class="ask-sec">Ask your coach</div>
       <div class="ask-chips" id="ask-chips"></div>
@@ -470,9 +900,27 @@ function renderPlan(plan, todayName) {
         <button class="ask-send" id="ask-send">↑</button>
       </div>
       <div class="ask-answer" id="ask-answer"></div>
-    </div>
-  `;
+    </div>`;
 }
+
+function toggleMealExpand(i) {
+  const body = document.getElementById('meal-body-'+i);
+  const chev = document.getElementById('meal-chev-'+i);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (chev) chev.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+function toggleSessionExpand(i) {
+  const el  = document.getElementById('sess-expand-'+i);
+  const chev = document.getElementById('sess-chev-'+i);
+  if (!el) return;
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  if (chev) chev.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
 
 // ── 5. ASK CHIPS ─────────────────────────────────────
 function setupChips(profile, today) {
@@ -627,6 +1075,7 @@ if (!_profile) {
 
   // Get today context — AFTER profile is loaded
   const _today = getTodayContext(_profile);
+  window._todayCtx = _today; // expose for render functions
 
   // Check cache
   let plan = null;
