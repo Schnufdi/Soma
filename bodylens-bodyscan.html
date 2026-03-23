@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icons/icon-180.png">
-<title>BodyLens — Body Scan</title>
+<title>BodyLens &mdash; Body Scan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -15,60 +15,72 @@
 .bs-page { max-width:680px; margin:0 auto; padding:40px 28px 120px; }
 .bs-hero { padding-bottom:24px; border-bottom:1px solid var(--bd); margin-bottom:32px; }
 .bs-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; }
-.bs-title { font-family:var(--serif); font-size:38px; font-weight:300; letter-spacing:-0.02em; color:var(--dk-1); margin-bottom:8px; line-height:1.05; }
-.bs-desc { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; max-width:520px; }
+.bs-title { font-family:var(--serif); font-size:40px; font-weight:300; letter-spacing:-0.02em; color:var(--dk-1); margin-bottom:10px; line-height:1.05; }
+.bs-desc { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.85; max-width:560px; }
 
-.bs-source-row { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
-.bs-src-chip { background:var(--ink-2); border:1px solid var(--bd); border-radius:18px; padding:5px 14px; font-size:11px; font-weight:500; color:var(--dk-3); cursor:pointer; transition:all 0.1s; }
+.bs-how { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:16px 20px; margin-bottom:28px; }
+.bs-how-title { font-size:10px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; }
+.bs-steps { display:flex; flex-direction:column; gap:8px; }
+.bs-step { display:flex; gap:12px; align-items:flex-start; }
+.bs-step-num { width:22px; height:22px; border-radius:50%; background:var(--jade-dim); border:1px solid var(--jade-br); font-size:10px; font-weight:700; color:var(--jade); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.bs-step-text { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65; }
+.bs-step-text strong { color:var(--dk-1); font-weight:500; }
+
+.bs-textarea-wrap { position:relative; margin-bottom:16px; }
+.bs-textarea { width:100%; min-height:320px; background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:18px 20px; font-size:13px; font-family:var(--sans); font-weight:300; color:var(--dk-1); line-height:1.8; outline:none; resize:vertical; transition:border-color 0.15s; }
+.bs-textarea:focus { border-color:var(--jade-br); }
+.bs-textarea::placeholder { color:var(--dk-3); line-height:1.8; }
+
+.bs-source-row { display:flex; gap:7px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
+.bs-source-label { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-right:4px; }
+.bs-src-chip { background:var(--ink-2); border:1px solid var(--bd); border-radius:14px; padding:4px 12px; font-size:10px; font-weight:500; color:var(--dk-3); cursor:pointer; transition:all 0.1s; }
 .bs-src-chip.active { border-color:var(--jade-br); color:var(--jade); background:var(--jade-dim); }
 
-.bs-section { margin-bottom:28px; }
-.bs-sec-label { font-size:9px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
-.bs-sec-label::after { content:''; flex:1; height:1px; background:var(--bd); }
-
-.bs-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.bs-field { display:flex; flex-direction:column; gap:4px; }
-.bs-field.wide { grid-column:1/-1; }
-.bs-label { font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); }
-.bs-label span { font-weight:300; text-transform:none; letter-spacing:0; color:var(--dk-3); margin-left:4px; }
-.bs-input { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:10px 12px; font-size:14px; font-family:var(--mono); color:var(--dk-1); outline:none; transition:border-color 0.12s; width:100%; }
-.bs-input:focus { border-color:var(--jade-br); }
-.bs-input::placeholder { color:var(--dk-3); font-size:12px; font-family:var(--sans); font-weight:300; }
-.bs-unit { font-size:10px; color:var(--dk-3); margin-top:2px; }
-
-.bs-impact { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; overflow:hidden; margin-bottom:24px; display:none; }
-.bs-impact.show { display:block; }
-.bs-impact-head { padding:12px 16px; border-bottom:1px solid var(--bd); background:rgba(0,200,160,0.03); }
-.bs-impact-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--jade); }
-.bs-impact-rows { display:flex; flex-direction:column; }
-.bs-impact-row { display:grid; grid-template-columns:1fr 100px 100px; gap:10px; padding:10px 16px; border-bottom:1px solid var(--bd); align-items:center; }
-.bs-impact-row:last-child { border-bottom:none; }
-.bs-impact-key { font-size:12px; font-weight:500; color:var(--dk-1); }
-.bs-impact-old { font-size:12px; font-family:var(--mono); color:var(--dk-3); text-decoration:line-through; text-align:center; }
-.bs-impact-new { font-size:13px; font-family:var(--mono); font-weight:600; color:var(--jade); text-align:center; }
-.bs-impact-note { padding:10px 16px; font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.65; border-top:1px solid var(--bd); background:rgba(0,200,160,0.02); }
-
-.bs-save-btn { width:100%; background:var(--jade); border:none; color:var(--ink); border-radius:8px; padding:14px; font-size:13px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); transition:opacity 0.12s; }
+.bs-save-btn { width:100%; background:var(--jade); border:none; color:var(--ink); border-radius:8px; padding:15px; font-size:13px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); transition:opacity 0.12s; }
 .bs-save-btn:hover { opacity:0.88; }
 .bs-save-btn:disabled { opacity:0.4; cursor:default; }
 
-.bs-saved { display:none; padding:14px 16px; background:rgba(0,200,160,0.06); border:1px solid var(--jade-br); border-radius:8px; text-align:center; }
-.bs-saved.show { display:block; }
-.bs-saved-title { font-size:14px; font-weight:600; color:var(--jade); margin-bottom:4px; }
-.bs-saved-sub { font-size:12px; font-weight:300; color:var(--dk-2); }
+.bs-thinking { display:none; padding:14px 16px; background:rgba(0,200,160,0.04); border:1px solid var(--jade-br); border-radius:8px; margin-bottom:16px; text-align:center; }
+.bs-thinking.show { display:block; }
+.bs-thinking-text { font-size:12px; font-weight:300; color:var(--jade); }
+.bs-spin { width:16px; height:16px; border:2px solid var(--jade-dim); border-top-color:var(--jade); border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block; margin-right:8px; vertical-align:middle; }
+@keyframes spin { to{transform:rotate(360deg)} }
 
-.bs-history { margin-top:32px; }
+.bs-result { display:none; margin-bottom:20px; }
+.bs-result.show { display:block; }
+.bs-result-head { font-size:10px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--jade); margin-bottom:12px; }
+.bs-metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--bd); border-radius:8px; overflow:hidden; margin-bottom:12px; }
+.bs-metric { background:var(--ink-2); padding:10px 14px; }
+.bs-metric-key { font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); margin-bottom:3px; }
+.bs-metric-val { font-family:var(--mono); font-size:14px; font-weight:500; color:var(--dk-1); }
+.bs-metric-val.flag { color:var(--amber); }
+.bs-metric-val.good { color:var(--jade); }
+
+.bs-changes { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; overflow:hidden; margin-bottom:12px; }
+.bs-changes-head { padding:9px 14px; border-bottom:1px solid var(--bd); font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--jade); }
+.bs-change-row { display:grid; grid-template-columns:1fr 90px 90px; gap:8px; padding:9px 14px; border-bottom:1px solid var(--bd); align-items:center; }
+.bs-change-row:last-child { border-bottom:none; }
+.bs-change-key { font-size:12px; font-weight:400; color:var(--dk-1); }
+.bs-change-old { font-family:var(--mono); font-size:11px; color:var(--dk-3); text-decoration:line-through; text-align:center; }
+.bs-change-new { font-family:var(--mono); font-size:13px; font-weight:600; color:var(--jade); text-align:center; }
+
+.bs-narrative { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; padding:12px 14px; background:rgba(0,200,160,0.03); border:1px solid rgba(0,200,160,0.12); border-radius:6px; margin-bottom:12px; font-style:italic; }
+
+.bs-confirm-btn { width:100%; background:var(--jade); border:none; color:var(--ink); border-radius:8px; padding:13px; font-size:13px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); }
+
+.bs-history { margin-top:40px; }
+.bs-history-label { font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.bs-history-label::after { content:''; flex:1; height:1px; background:var(--bd); }
 .bs-hist-entry { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:12px 14px; margin-bottom:8px; }
 .bs-hist-date { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:6px; }
-.bs-hist-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
-.bs-hist-val { font-size:11px; color:var(--dk-2); }
-.bs-hist-val strong { color:var(--dk-1); font-weight:500; }
+.bs-hist-metrics { display:flex; flex-wrap:wrap; gap:10px; }
+.bs-hist-m { font-size:11px; color:var(--dk-2); }
+.bs-hist-m strong { color:var(--dk-1); font-weight:500; }
 
 @media(max-width:600px) {
-  .bs-page { padding:28px 16px 100px; }
-  .bs-grid { grid-template-columns:1fr; }
-  .bs-field.wide { grid-column:1; }
-  .bs-impact-row { grid-template-columns:1fr 80px 80px; }
+  .bs-page { padding:24px 16px 100px; }
+  .bs-metrics-grid { grid-template-columns:1fr; }
+  .bs-change-row { grid-template-columns:1fr 70px 70px; }
 }
 </style>
 </head>
@@ -77,15 +89,16 @@
 <nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
-    <a class="nav-link" href="bodylens-dailyplan.html">Today</a>
+    <a class="nav-link nav-daily" href="bodylens-dailyplan.html">Today</a>
     <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
-    <a class="nav-link active" href="bodylens-instructions.html">Report</a>
+    <a class="nav-link" href="bodylens-instructions.html">Report</a>
   </div>
   <div class="nav-right-group">
     <a class="nav-right" href="bodylens-guide.html">Guide</a>
     <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
+    <a class="nav-right active" href="bodylens-bodyscan.html">Body scan</a>
     <div class="nav-meta" id="nav-meta"></div>
   </div>
 </nav>
@@ -94,116 +107,51 @@
 
   <div class="bs-hero">
     <div class="bs-kicker">Body composition</div>
-    <div class="bs-title">Update from body scan</div>
-    <div class="bs-desc">Enter data from any body composition device — InBody, DEXA, Hume Body Pod, Tanita, or similar. Real measurements replace formula estimates throughout your programme. The more accurate your inputs, the more accurate your targets.</div>
+    <div class="bs-title">Body scan</div>
+    <div class="bs-desc">Paste any body composition data here &mdash; an AI summary of your scan results, raw numbers from the app, or whatever your device shows you. BodyLens reads it, extracts what&rsquo;s useful, updates your programme targets, and flags it in your coaching report.</div>
   </div>
 
-  <div class="bs-source-row" id="source-row">
-    <div class="bs-src-chip active" onclick="setSource('Hume Body Pod',this)">Hume Body Pod</div>
+  <div class="bs-how">
+    <div class="bs-how-title">How to use this</div>
+    <div class="bs-steps">
+      <div class="bs-step">
+        <div class="bs-step-num">1</div>
+        <div class="bs-step-text">Open your scale app (Hume, InBody, Tanita, DEXA report) and take a screenshot or copy the numbers. <strong>Ask ChatGPT or Claude to summarise it</strong> &mdash; paste the screenshot and say &ldquo;summarise my body composition results.&rdquo;</div>
+      </div>
+      <div class="bs-step">
+        <div class="bs-step-num">2</div>
+        <div class="bs-step-text">Paste the summary below. Or just type the key numbers directly &mdash; weight, body fat %, lean mass, BMR if you have it. No special format needed.</div>
+      </div>
+      <div class="bs-step">
+        <div class="bs-step-num">3</div>
+        <div class="bs-step-text">BodyLens extracts the data, recalculates your targets from real measurements, and updates your coaching report.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bs-source-row">
+    <div class="bs-source-label">Device</div>
+    <div class="bs-src-chip active" onclick="setSource('Hume Body Pod',this)">Hume / Body Pod</div>
     <div class="bs-src-chip" onclick="setSource('InBody',this)">InBody</div>
     <div class="bs-src-chip" onclick="setSource('DEXA',this)">DEXA</div>
     <div class="bs-src-chip" onclick="setSource('Tanita',this)">Tanita</div>
-    <div class="bs-src-chip" onclick="setSource('Other scale',this)">Other</div>
+    <div class="bs-src-chip" onclick="setSource('Other',this)">Other</div>
   </div>
 
-  <form id="scan-form" onsubmit="return false;">
+  <div class="bs-textarea-wrap">
+    <textarea class="bs-textarea" id="scan-text" placeholder="Paste your body composition data here&#10;&#10;Examples of what works:&#10;&bull; AI summary: &quot;Weight 86kg, body fat 22%, lean mass 67kg, BMR 1,920 kcal, visceral fat index 8&quot;&#10;&bull; Raw numbers copied from the app&#10;&bull; Just the key metrics: &quot;86kg, 22% BF, BMR 1920&quot;&#10;&#10;The more you include, the more accurate your programme becomes."></textarea>
+  </div>
 
-    <div class="bs-section">
-      <div class="bs-sec-label">Core measurements</div>
-      <div class="bs-grid">
-        <div class="bs-field">
-          <div class="bs-label">Weight <span>kg</span></div>
-          <input class="bs-input" id="f-weight" type="number" step="0.1" placeholder="e.g. 86.0" oninput="recalc()">
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Body fat <span>%</span></div>
-          <input class="bs-input" id="f-bf" type="number" step="0.1" placeholder="e.g. 22.5" oninput="recalc()">
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Lean mass <span>kg</span></div>
-          <input class="bs-input" id="f-lean" type="number" step="0.1" placeholder="auto-calc or enter" oninput="recalc()">
-          <div class="bs-unit" id="lean-auto"></div>
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Skeletal muscle mass <span>kg</span></div>
-          <input class="bs-input" id="f-smm" type="number" step="0.1" placeholder="e.g. 35.0" oninput="recalc()">
-        </div>
-      </div>
-    </div>
+  <div class="bs-thinking" id="thinking-box">
+    <div class="bs-thinking-text"><span class="bs-spin"></span>Reading your scan data&hellip;</div>
+  </div>
 
-    <div class="bs-section">
-      <div class="bs-sec-label">Metabolic data <span style="font-size:9px;font-weight:300;text-transform:none;letter-spacing:0;color:var(--dk-3);margin-left:6px;">(most impactful — overrides formula BMR)</span></div>
-      <div class="bs-grid">
-        <div class="bs-field">
-          <div class="bs-label">Basal metabolic rate <span>kcal/day</span></div>
-          <input class="bs-input" id="f-bmr" type="number" step="1" placeholder="e.g. 1,850" oninput="recalc()">
-          <div class="bs-unit">Measured at rest — the most accurate TDEE input</div>
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Metabolic age <span>years</span></div>
-          <input class="bs-input" id="f-metage" type="number" step="1" placeholder="e.g. 38" oninput="recalc()">
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Resting heart rate <span>BPM</span></div>
-          <input class="bs-input" id="f-rhr" type="number" step="1" placeholder="e.g. 58" oninput="recalc()">
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Visceral fat index</div>
-          <input class="bs-input" id="f-visceral" type="number" step="1" placeholder="e.g. 7" oninput="recalc()">
-          <div class="bs-unit">1–12 standard, 13+ elevated, 17+ high risk</div>
-        </div>
-      </div>
-    </div>
+  <div class="bs-result" id="result-box"></div>
 
-    <div class="bs-section">
-      <div class="bs-sec-label">Body composition detail <span style="font-size:9px;font-weight:300;text-transform:none;letter-spacing:0;color:var(--dk-3);margin-left:6px;">optional</span></div>
-      <div class="bs-grid">
-        <div class="bs-field">
-          <div class="bs-label">Fat mass <span>kg</span></div>
-          <input class="bs-input" id="f-fatmass" type="number" step="0.1" placeholder="e.g. 18.0" oninput="recalc()">
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Bone mineral content <span>kg</span></div>
-          <input class="bs-input" id="f-bone" type="number" step="0.1" placeholder="e.g. 3.2" oninput="recalc()">
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Body water <span>%</span></div>
-          <input class="bs-input" id="f-water" type="number" step="0.1" placeholder="e.g. 55.0" oninput="recalc()">
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Subcutaneous fat <span>%</span></div>
-          <input class="bs-input" id="f-subq" type="number" step="0.1" placeholder="e.g. 18.0" oninput="recalc()">
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Health score</div>
-          <input class="bs-input" id="f-health" type="number" step="1" placeholder="device score" oninput="recalc()">
-        </div>
-        <div class="bs-field">
-          <div class="bs-label">Device / scan date</div>
-          <input class="bs-input" type="date" id="f-date" oninput="recalc()">
-        </div>
-      </div>
-    </div>
-
-    <!-- Impact preview -->
-    <div class="bs-impact" id="impact-box">
-      <div class="bs-impact-head">
-        <div class="bs-impact-title">&#127919; What this changes in your programme</div>
-      </div>
-      <div class="bs-impact-rows" id="impact-rows"></div>
-      <div class="bs-impact-note" id="impact-note"></div>
-    </div>
-
-    <button class="bs-save-btn" id="save-btn" onclick="saveScan()">Save body scan &#8594;</button>
-    <div class="bs-saved" id="saved-box">
-      <div class="bs-saved-title">&#10003; Saved</div>
-      <div class="bs-saved-sub" id="saved-sub"></div>
-    </div>
-
-  </form>
+  <button class="bs-save-btn" id="analyse-btn" onclick="analyseScan()">Read my scan data &rarr;</button>
 
   <div class="bs-history" id="hist-section" style="display:none;">
-    <div class="bs-sec-label">Scan history</div>
+    <div class="bs-history-label">Previous scans</div>
     <div id="hist-list"></div>
   </div>
 
@@ -213,276 +161,255 @@
 <script>
 'use strict';
 
-var _source = 'Hume Body Pod';
+var _source  = 'Hume Body Pod';
 var _profile = null;
+var _extracted = null;
 
-function setSource(name, el) {
-  _source = name;
-  document.querySelectorAll('.bs-src-chip').forEach(function(c){ c.classList.remove('active'); });
-  if (el) el.classList.add('active');
-}
-
-// ── Load profile on init ──────────────────────────
-(function init(){
-  try { _profile = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e){}
-  if (!_profile) return;
+(function init() {
+  try { _profile = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) {}
   var nm = document.getElementById('nav-meta');
-  if (nm) nm.innerHTML = '<span class="nav-tag nt-jade">' + _profile.name + '</span>';
+  if (_profile && nm) nm.innerHTML = '<span class="nav-tag nt-jade">' + _profile.name + '</span>';
 
-  // Pre-fill from existing scan if present
-  var scan = _profile.bodyScan;
-  if (scan) {
-    setField('f-weight',  scan.weight);
-    setField('f-bf',      scan.bodyFatPct);
-    setField('f-lean',    scan.leanMass);
-    setField('f-smm',     scan.skeletalMuscleMass);
-    setField('f-bmr',     scan.bmr);
-    setField('f-metage',  scan.metabolicAge);
-    setField('f-rhr',     scan.restingHeartRate);
-    setField('f-visceral',scan.visceralFatIndex);
-    setField('f-fatmass', scan.fatMass);
-    setField('f-bone',    scan.boneMineralContent);
-    setField('f-water',   scan.bodyWaterPct);
-    setField('f-subq',    scan.subcutaneousFatPct);
-    setField('f-health',  scan.healthScore);
-    if (scan.scanDate) setField('f-date', scan.scanDate);
-    if (scan.source)   setSource(scan.source, null);
-    recalc();
-  } else {
-    // Pre-fill today's date
-    setField('f-date', new Date().toISOString().slice(0,10));
+  // Pre-fill from existing scan text if stored
+  var prevText = localStorage.getItem('bl_scan_raw_text');
+  if (prevText) {
+    var ta = document.getElementById('scan-text');
+    if (ta) ta.placeholder = 'Previous scan on file. Paste a new one to update.';
   }
 
   renderHistory();
 })();
 
-function setField(id, val) {
-  var el = document.getElementById(id);
-  if (el && val !== undefined && val !== null) el.value = val;
+function setSource(name, el) {
+  _source = name;
+  document.querySelectorAll('.bs-src-chip').forEach(function(c) { c.classList.remove('active'); });
+  if (el) el.classList.add('active');
 }
 
-// ── Real-time impact calculation ──────────────────
-function recalc() {
-  if (!_profile) return;
-
-  var weight  = parseFloat(document.getElementById('f-weight').value)  || null;
-  var bf      = parseFloat(document.getElementById('f-bf').value)       || null;
-  var lean    = parseFloat(document.getElementById('f-lean').value)     || null;
-  var bmr     = parseFloat(document.getElementById('f-bmr').value)      || null;
-
-  // Auto-calculate lean mass
-  if (weight && bf && !lean) {
-    lean = Math.round((weight * (1 - bf/100)) * 10) / 10;
-    document.getElementById('lean-auto').textContent = 'Auto: ' + lean + 'kg';
-  } else {
-    document.getElementById('lean-auto').textContent = '';
+async function analyseScan() {
+  var text = (document.getElementById('scan-text').value || '').trim();
+  if (!text) {
+    document.getElementById('scan-text').focus();
+    return;
   }
 
-  var impact = [];
-  var notes  = [];
+  var btn = document.getElementById('analyse-btn');
+  var thinking = document.getElementById('thinking-box');
+  btn.disabled = true;
+  thinking.classList.add('show');
+  document.getElementById('result-box').classList.remove('show');
 
-  // Protein impact
-  if (lean) {
-    var oldProt = _profile.protein || 0;
-    var newProt = Math.round(lean * 2.2);
-    if (Math.abs(newProt - oldProt) > 2) {
-      impact.push({
-        key: 'Protein target',
-        old: oldProt + 'g/day',
-        new: newProt + 'g/day',
-      });
-      notes.push('Protein calculated from lean mass (' + lean + 'kg \u00d7 2.2g/kg) — more accurate than weight-based estimate.');
+  try {
+    var p = _profile || {};
+    var prompt = [
+      'Extract body composition metrics from this text.',
+      'Person: ' + (p.name||'user') + ', ' + (p.age||35) + 'yo ' + (p.sex||'male') + ', ' + (p.weight||80) + 'kg.',
+      '',
+      'Text: "' + text + '"',
+      '',
+      'Return ONLY valid JSON with these fields (null if not found):',
+      '{"weight":null,"bodyFatPct":null,"leanMass":null,"fatMass":null,',
+      '"skeletalMuscleMass":null,"bmr":null,"tdee":null,"metabolicAge":null,',
+      '"visceralFatIndex":null,"restingHeartRate":null,"bodyWaterPct":null,',
+      '"boneMineralContent":null,"subcutaneousFatPct":null,"healthScore":null,',
+      '"scanDate":null,"coachNarrative":"2-3 sentences on what this means for their training and nutrition."}'
+    ].join('\n');
+
+    var res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        system: 'You extract body composition data from text. Return ONLY valid JSON with the specified fields. No markdown, no code fences, no explanation.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) throw new Error('API error');
+    var data = await res.json();
+    var raw  = (data.content||[]).map(function(b){ return b.text||''; }).join('').trim();
+    var match = raw.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON in response');
+
+    _extracted = JSON.parse(match[0]);
+    _extracted.source   = _source;
+    _extracted.scanDate = _extracted.scanDate || new Date().toISOString().slice(0,10);
+
+    showResult(_extracted);
+
+  } catch(e) {
+    document.getElementById('result-box').innerHTML = '<div style="padding:14px;background:rgba(217,78,53,0.06);border:1px solid rgba(217,78,53,0.2);border-radius:6px;font-size:13px;font-weight:300;color:var(--dk-2);">Could not read the scan data. Try adding more context or specific numbers.</div>';
+    document.getElementById('result-box').classList.add('show');
+    btn.disabled = false;
+  }
+  thinking.classList.remove('show');
+}
+
+function showResult(d) {
+  var p = _profile || {};
+
+  // Build metrics display
+  function metric(key, label, val, unit, goodIf) {
+    if (val === null || val === undefined) return '';
+    var cls = '';
+    if (goodIf === 'low'  && val > 15)  cls = 'flag';
+    if (goodIf === 'high' && val < 50)  cls = 'flag';
+    return '<div class="bs-metric"><div class="bs-metric-key">' + label + '</div>'
+      + '<div class="bs-metric-val ' + cls + '">' + val + (unit||'') + '</div></div>';
+  }
+
+  var metrics = [
+    metric('weight',           'Weight',          d.weight,          'kg'),
+    metric('bodyFatPct',       'Body fat',         d.bodyFatPct,      '%', 'low'),
+    metric('leanMass',         'Lean mass',        d.leanMass,        'kg'),
+    metric('skeletalMuscleMass','Skeletal muscle', d.skeletalMuscleMass, 'kg'),
+    metric('bmr',              'BMR (measured)',   d.bmr,             ' kcal'),
+    metric('metabolicAge',     'Metabolic age',    d.metabolicAge,    ' yrs'),
+    metric('visceralFatIndex', 'Visceral fat',     d.visceralFatIndex, ' index'),
+    metric('restingHeartRate', 'Resting HR',       d.restingHeartRate, ' BPM'),
+    metric('bodyWaterPct',     'Body water',       d.bodyWaterPct,    '%'),
+    metric('healthScore',      'Health score',     d.healthScore,     ''),
+  ].filter(Boolean);
+
+  // Calculate programme changes
+  var changes = [];
+  if (d.leanMass && p.protein) {
+    var newProt = Math.round(d.leanMass * 2.2);
+    if (Math.abs(newProt - p.protein) > 3) {
+      changes.push({ key: 'Protein target', old: p.protein + 'g', new: newProt + 'g' });
+    }
+  }
+  if (d.bmr && p.calories) {
+    var actStr = (p.activityLevel||'').toLowerCase();
+    var mult   = actStr.includes('sedentary')||actStr.includes('desk') ? 1.25
+               : actStr.includes('lightly')||actStr.includes('walk') ? 1.375
+               : actStr.includes('very') ? 1.80 : 1.55;
+    var newTDEE = Math.round(d.bmr * mult);
+    var goal    = (p.goal||'').toLowerCase();
+    var adj     = goal.includes('los')||goal.includes('fat') ? -350 : goal.includes('muscle') ? 200 : 0;
+    var newCal  = newTDEE + adj;
+    if (Math.abs(newCal - p.calories) > 30) {
+      changes.push({ key: 'Calorie target', old: p.calories + ' kcal', new: newCal + ' kcal' });
+      changes.push({ key: 'TDEE',           old: (p.tdee||'?') + ' kcal', new: newTDEE + ' kcal' });
     }
   }
 
-  // Calorie impact from BMR
-  if (bmr) {
-    var actStr = (_profile.activityLevel || '').toLowerCase();
-    var mult   = actStr.includes('sedentary') || actStr.includes('desk') ? 1.25
-               : actStr.includes('lightly') || actStr.includes('some walk') ? 1.375
-               : actStr.includes('very active') ? 1.80 : 1.55;
-    var newTDEE = Math.round(bmr * mult);
-    var goal    = (_profile.goal || '').toLowerCase();
-    var deficit = goal.includes('los') || goal.includes('fat') ? 350 : goal.includes('muscle') ? -200 : 0;
-    var newCal  = newTDEE - deficit;
-    var oldCal  = _profile.calories || 0;
-    var oldTDEE = _profile.tdee || 0;
+  var changesHtml = changes.length
+    ? '<div class="bs-changes">'
+      + '<div class="bs-changes-head">Programme updates</div>'
+      + changes.map(function(c) {
+          return '<div class="bs-change-row"><div class="bs-change-key">' + c.key + '</div>'
+            + '<div class="bs-change-old">' + c.old + '</div>'
+            + '<div class="bs-change-new">' + c.new + '</div></div>';
+        }).join('')
+      + '</div>'
+    : '';
 
-    if (Math.abs(newCal - oldCal) > 20) {
-      impact.push({
-        key: 'Calorie target',
-        old: oldCal + ' kcal',
-        new: newCal + ' kcal',
-      });
-      if (oldTDEE && Math.abs(newTDEE - oldTDEE) > 30) {
-        impact.push({
-          key: 'TDEE (maintenance)',
-          old: oldTDEE + ' kcal',
-          new: newTDEE + ' kcal',
-        });
-      }
-      notes.push('TDEE calculated from measured BMR (' + bmr + ' kcal \u00d7 ' + mult + ' activity multiplier = ' + newTDEE + ' kcal). This replaces the Mifflin-St Jeor formula estimate.');
-    }
-  }
+  var narrativeHtml = d.coachNarrative
+    ? '<div class="bs-narrative">' + d.coachNarrative + '</div>'
+    : '';
 
-  var box = document.getElementById('impact-box');
-  var rows = document.getElementById('impact-rows');
-  var noteEl = document.getElementById('impact-note');
+  var html = '<div class="bs-result-head">Extracted from your ' + _source + ' data</div>'
+    + (metrics.length ? '<div class="bs-metrics-grid">' + metrics.join('') + '</div>' : '')
+    + changesHtml
+    + narrativeHtml
+    + '<button class="bs-confirm-btn" onclick="saveScan()">Save to my programme &rarr;</button>';
 
-  if (impact.length > 0) {
-    rows.innerHTML = impact.map(function(r) {
-      return '<div class="bs-impact-row">'
-        + '<div class="bs-impact-key">' + r.key + '</div>'
-        + '<div class="bs-impact-old">' + r.old + '</div>'
-        + '<div class="bs-impact-new">' + r.new + '</div>'
-        + '</div>';
-    }).join('');
-    noteEl.textContent = notes.join(' ');
-    box.classList.add('show');
-  } else {
-    box.classList.remove('show');
-  }
+  var box = document.getElementById('result-box');
+  box.innerHTML = html;
+  box.classList.add('show');
+  document.getElementById('analyse-btn').disabled = false;
 }
 
-// ── Save ──────────────────────────────────────────
 function saveScan() {
-  if (!_profile) return;
-
-  var weight   = parseFloat(document.getElementById('f-weight').value)   || null;
-  var bf       = parseFloat(document.getElementById('f-bf').value)        || null;
-  var lean     = parseFloat(document.getElementById('f-lean').value)      || null;
-  var smm      = parseFloat(document.getElementById('f-smm').value)       || null;
-  var bmr      = parseFloat(document.getElementById('f-bmr').value)       || null;
-  var metage   = parseFloat(document.getElementById('f-metage').value)    || null;
-  var rhr      = parseFloat(document.getElementById('f-rhr').value)       || null;
-  var visceral = parseFloat(document.getElementById('f-visceral').value)  || null;
-  var fatmass  = parseFloat(document.getElementById('f-fatmass').value)   || null;
-  var bone     = parseFloat(document.getElementById('f-bone').value)      || null;
-  var water    = parseFloat(document.getElementById('f-water').value)     || null;
-  var subq     = parseFloat(document.getElementById('f-subq').value)      || null;
-  var health   = parseFloat(document.getElementById('f-health').value)    || null;
-  var scanDate = document.getElementById('f-date').value || new Date().toISOString().slice(0,10);
-
-  // Auto-calc lean if possible
-  if (weight && bf && !lean) lean = Math.round((weight * (1 - bf/100)) * 10) / 10;
-
-  // Build scan object
-  var scan = {
-    source:               _source,
-    scanDate:             scanDate,
-    weight:               weight,
-    bodyFatPct:           bf,
-    leanMass:             lean,
-    skeletalMuscleMass:   smm,
-    fatMass:              fatmass,
-    boneMineralContent:   bone,
-    bodyWaterPct:         water,
-    subcutaneousFatPct:   subq,
-    visceralFatIndex:     visceral,
-    bmr:                  bmr,
-    metabolicAge:         metage,
-    restingHeartRate:     rhr,
-    healthScore:          health,
-    savedAt:              new Date().toISOString(),
-  };
-  // Remove nulls
-  Object.keys(scan).forEach(function(k){ if (scan[k] === null) delete scan[k]; });
+  if (!_extracted) return;
+  var p = _profile || {};
+  var d = _extracted;
 
   // Update profile
-  _profile.bodyScan = scan;
-  _profile.lastUpdated = new Date().toISOString();
-
-  // Override weight and body fat in main profile fields
-  if (weight)    _profile.weight  = weight;
-  if (bf)        _profile.bodyFat = bf;
+  p.bodyScan     = d;
+  p.lastUpdated  = new Date().toISOString();
+  if (d.weight)    p.weight  = d.weight;
+  if (d.bodyFatPct) p.bodyFat = d.bodyFatPct;
+  if (d.leanMass)  p.scanLeanMass = d.leanMass;
+  if (d.bmr)       p.scanBmr = d.bmr;
 
   // Recalculate protein from lean mass
-  var changes = [];
-  if (lean) {
-    var newProt = Math.round(lean * 2.2);
-    var oldProt = _profile.protein;
-    if (Math.abs(newProt - oldProt) > 2) {
-      _profile.protein = newProt;
-      // Adjust macros proportionally (keep cals roughly the same)
-      var protCals = newProt * 4;
-      var remaining = (_profile.calories || 2000) - protCals - ((_profile.fat || 60) * 9);
-      _profile.carbs = Math.max(50, Math.round(remaining / 4));
-      changes.push('Protein: ' + oldProt + 'g → ' + newProt + 'g (from lean mass ' + lean + 'kg \u00d7 2.2)');
-    }
+  if (d.leanMass) {
+    p.protein = Math.round(d.leanMass * 2.2);
+    var remaining = (p.calories||2000) - p.protein*4 - (p.fat||60)*9;
+    p.carbs = Math.max(50, Math.round(remaining/4));
   }
 
   // Recalculate calories from measured BMR
-  if (bmr) {
-    var actStr = (_profile.activityLevel || '').toLowerCase();
-    var mult   = actStr.includes('sedentary') || actStr.includes('desk') ? 1.25
-               : actStr.includes('lightly') || actStr.includes('some walk') ? 1.375
-               : actStr.includes('very active') ? 1.80 : 1.55;
-    var newTDEE = Math.round(bmr * mult);
-    var goal    = (_profile.goal || '').toLowerCase();
-    var deficit = goal.includes('los') || goal.includes('fat') ? 350 : goal.includes('muscle') ? -200 : 0;
-    var newCal  = newTDEE - deficit;
-    var oldCal  = _profile.calories;
-    _profile.tdee = newTDEE;
-    _profile.calories = newCal;
-    _profile.scanBmr = bmr;
-    // Rebalance carbs if cals changed
-    var protCals2 = (_profile.protein || 140) * 4;
-    var fatCals   = (_profile.fat || 60) * 9;
-    _profile.carbs = Math.max(50, Math.round((newCal - protCals2 - fatCals) / 4));
-    changes.push('Calories: ' + oldCal + ' → ' + newCal + ' kcal (TDEE ' + newTDEE + ' from measured BMR ' + bmr + ')');
+  if (d.bmr) {
+    var actStr = (p.activityLevel||'').toLowerCase();
+    var mult   = actStr.includes('sedentary')||actStr.includes('desk') ? 1.25
+               : actStr.includes('lightly')||actStr.includes('walk') ? 1.375
+               : actStr.includes('very') ? 1.80 : 1.55;
+    var newTDEE = Math.round(d.bmr * mult);
+    var goal    = (p.goal||'').toLowerCase();
+    var adj     = goal.includes('los')||goal.includes('fat') ? -350 : goal.includes('muscle') ? 200 : 0;
+    p.tdee     = newTDEE;
+    p.calories = newTDEE + adj;
+    var pCals  = p.protein*4, fCals = (p.fat||60)*9;
+    p.carbs    = Math.max(50, Math.round((p.calories - pCals - fCals)/4));
   }
 
-  // Save scan history
+  // Add coach narrative to scan notes
+  if (d.coachNarrative) p.scanNarrative = d.coachNarrative;
+
+  // Save raw text for reference
+  var rawText = document.getElementById('scan-text').value;
+  try { localStorage.setItem('bl_scan_raw_text', rawText); } catch(e) {}
+
+  // Save history
   var history = [];
-  try { history = JSON.parse(localStorage.getItem('bl_scan_history') || '[]'); } catch(e){}
-  history.unshift(scan);
+  try { history = JSON.parse(localStorage.getItem('bl_scan_history') || '[]'); } catch(e) {}
+  history.unshift(d);
   if (history.length > 10) history = history.slice(0,10);
-  try { localStorage.setItem('bl_scan_history', JSON.stringify(history)); } catch(e){}
+  try { localStorage.setItem('bl_scan_history', JSON.stringify(history)); } catch(e) {}
+
+  // Clear today caches so plan rebuilds with new numbers
+  var today = new Date().toISOString().slice(0,10);
+  try { localStorage.removeItem('dayplan_v5_' + today); } catch(e) {}
+  try { localStorage.removeItem('bl_macros_' + today);  } catch(e) {}
+  try { localStorage.removeItem('bl_report_v2_' + p.name + '_' + (p.generatedAt||'').slice(0,10)); } catch(e) {}
 
   // Save profile
-  try { localStorage.setItem('bl_profile', JSON.stringify(_profile)); } catch(e){}
+  _profile = p;
+  try { localStorage.setItem('bl_profile', JSON.stringify(p)); } catch(e) {}
 
-  // Clear today's plan cache so it rebuilds with new macros
-  var today = new Date().toISOString().slice(0,10);
-  try { localStorage.removeItem('dayplan_v5_' + today); } catch(e){}
-  try { localStorage.removeItem('bl_macros_' + today);  } catch(e){}
-
-  // Show success
-  var savedBox = document.getElementById('saved-box');
-  var savedSub = document.getElementById('saved-sub');
-  var sub = 'Body scan data saved from ' + _source + '. ';
-  if (changes.length) sub += changes.join(' · ');
-  sub += ' Today\u2019s plan will rebuild with updated numbers.';
-  savedSub.textContent = sub;
-  savedBox.classList.add('show');
-  document.getElementById('save-btn').disabled = true;
-  document.getElementById('save-btn').textContent = '✓ Saved';
-
-  renderHistory();
+  // Show success, redirect to report
+  var btn = document.querySelector('.bs-confirm-btn');
+  if (btn) {
+    btn.textContent = '&#10003; Saved — updating your report…';
+    btn.style.background = 'var(--jade)';
+  }
+  setTimeout(function() { location.href = 'bodylens-instructions.html'; }, 1200);
 }
 
-// ── History ───────────────────────────────────────
 function renderHistory() {
   var history = [];
-  try { history = JSON.parse(localStorage.getItem('bl_scan_history') || '[]'); } catch(e){}
+  try { history = JSON.parse(localStorage.getItem('bl_scan_history') || '[]'); } catch(e) {}
   var section = document.getElementById('hist-section');
   var list    = document.getElementById('hist-list');
-  if (!history.length) { section.style.display = 'none'; return; }
+  if (!history.length || !section) return;
   section.style.display = 'block';
   list.innerHTML = history.map(function(s) {
-    var d = s.scanDate || s.savedAt && s.savedAt.slice(0,10) || '—';
-    var items = [
-      s.weight   ? { k:'Weight',   v:s.weight+'kg' }   : null,
-      s.bodyFatPct ? { k:'Body fat', v:s.bodyFatPct+'%' } : null,
-      s.leanMass ? { k:'Lean mass', v:s.leanMass+'kg' } : null,
-      s.bmr      ? { k:'BMR',      v:s.bmr+' kcal' }   : null,
-      s.metabolicAge ? { k:'Met. age', v:s.metabolicAge+'y' } : null,
-      s.visceralFatIndex ? { k:'Visceral', v:'Index '+s.visceralFatIndex } : null,
+    var label = (s.source||'Scan') + ' · ' + (s.scanDate||'');
+    var metrics = [
+      s.weight       ? { k:'Weight',    v:s.weight+'kg' }   : null,
+      s.bodyFatPct   ? { k:'Body fat',  v:s.bodyFatPct+'%' } : null,
+      s.leanMass     ? { k:'Lean mass', v:s.leanMass+'kg' } : null,
+      s.bmr          ? { k:'BMR',       v:s.bmr+' kcal' }   : null,
+      s.metabolicAge ? { k:'Met. age',  v:s.metabolicAge+'y'} : null,
     ].filter(Boolean);
     return '<div class="bs-hist-entry">'
-      + '<div class="bs-hist-date">' + (s.source||'Scan') + ' \u00b7 ' + d + '</div>'
-      + '<div class="bs-hist-grid">'
-      + items.map(function(x){ return '<div class="bs-hist-val"><strong>'+x.k+'</strong> '+x.v+'</div>'; }).join('')
+      + '<div class="bs-hist-date">' + label + '</div>'
+      + '<div class="bs-hist-metrics">'
+      + metrics.map(function(m){ return '<div class="bs-hist-m"><strong>'+m.k+'</strong> '+m.v+'</div>'; }).join('')
       + '</div></div>';
   }).join('');
 }
