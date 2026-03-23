@@ -18,6 +18,7 @@
     <button id="bl-theme-toggle" class="nav-icon-btn" onclick="window.BL&&window.BL.toggleTheme()" title="Switch theme">🌸</button>
     <button id="bl-profile-btn" class="nav-icon-btn nav-profile-btn" onclick="window.BL&&window.BL.buildProfilePanel()" title="Profile & settings">👤</button>
     <div class="nav-meta" id="nav-meta"></div>
+  <a class="nav-link nav-profiles" href="/bodylens-profiles.html" title="Profile Vault" style="margin-left:8px;opacity:0.6;font-size:11px;">⬡ Vault</a>
   </div>
 </nav>`;
 
