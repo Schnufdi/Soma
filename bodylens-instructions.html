@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0c1010">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BodyLens">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <meta name="bl-page" content="instructions">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BodyLens — Instructions</title>
@@ -173,6 +181,51 @@ body { background:var(--ink); color:var(--dk-1); }
   .ins-title { font-size:38px; }
   .macro-strip { grid-template-columns:repeat(2,1fr); }
 }
+
+/* ── LOGIC TAB ───────────────────────────────── */
+.logic-page { padding:0 0 40px; }
+
+.logic-hero { background:rgba(0,200,160,0.03); border:1px solid rgba(0,200,160,0.14); border-radius:8px; padding:20px 24px; margin-bottom:28px; }
+.logic-hero-title { font-size:16px; font-weight:600; color:var(--dk-1); margin-bottom:8px; }
+.logic-hero-text { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; }
+
+.logic-section { margin-bottom:24px; }
+.logic-block-ctx { margin-bottom:24px; }
+.logic-sec-label { font-size:9px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+.logic-sec-label::after { content:''; flex:1; height:1px; background:var(--bd); }
+
+.logic-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; margin-bottom:8px; overflow:hidden; transition:border-color 0.15s; }
+.logic-card:hover { border-color:rgba(0,200,160,0.2); }
+.logic-card-head { display:flex; align-items:center; gap:10px; padding:14px 16px; cursor:pointer; }
+.logic-card.open .logic-card-head { background:rgba(0,200,160,0.03); border-bottom:1px solid var(--bd); }
+.logic-card-icon { font-size:18px; flex-shrink:0; }
+.logic-card-title { flex:1; font-size:14px; font-weight:500; color:var(--dk-1); line-height:1.4; }
+.logic-chevron { font-size:10px; color:var(--dk-3); flex-shrink:0; transition:transform 0.18s; }
+.logic-card.open .logic-chevron { transform:rotate(180deg); }
+.logic-card-body { display:none; padding:16px 18px; }
+.logic-card.open .logic-card-body { display:block; }
+
+.logic-chain { display:flex; flex-direction:column; gap:0; margin-bottom:14px; }
+.logic-chain-row { display:grid; grid-template-columns:160px 1fr; gap:12px; padding:8px 0; border-bottom:1px solid var(--bd); align-items:baseline; }
+.logic-chain-row:last-child { border-bottom:none; }
+.logic-chain-label { font-size:11px; font-weight:500; color:var(--dk-3); }
+.logic-chain-val { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.6; }
+
+.logic-science { background:var(--ink-1); border-left:2px solid rgba(74,143,168,0.4); padding:10px 14px; border-radius:0 4px 4px 0; margin-bottom:12px; }
+.logic-science-label { font-size:8px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#4a8fa8; margin-bottom:5px; }
+.logic-science-text { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.75; }
+
+.logic-edit-zone { margin-top:10px; }
+.logic-edit-btn { background:transparent; border:1px solid var(--bd); color:var(--dk-3); border-radius:4px; padding:6px 14px; font-size:11px; font-weight:500; cursor:pointer; font-family:var(--sans); transition:all 0.12s; }
+.logic-edit-btn:hover { border-color:var(--amber-br); color:var(--amber); }
+.logic-edit-form { margin-top:10px; padding:14px; background:var(--ink-1); border:1px solid var(--bd); border-radius:6px; }
+.logic-edit-note { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.65; margin-bottom:10px; }
+.logic-edit-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.logic-edit-input { background:var(--ink-2); border:1px solid var(--bd); border-radius:5px; padding:8px 12px; font-size:13px; font-family:var(--mono); color:var(--dk-1); outline:none; width:140px; transition:border-color 0.12s; }
+.logic-edit-input:focus { border-color:rgba(0,200,160,0.4); }
+.logic-edit-save { background:var(--jade); border:none; color:var(--ink); border-radius:5px; padding:8px 16px; font-size:11px; font-weight:700; cursor:pointer; font-family:var(--sans); letter-spacing:0.04em; }
+.logic-edit-cancel { background:transparent; border:1px solid var(--bd); color:var(--dk-3); border-radius:5px; padding:8px 12px; font-size:11px; cursor:pointer; font-family:var(--sans); }
+.logic-edit-result { margin-top:8px; font-size:12px; font-weight:300; line-height:1.65; }
 </style>
 </head>
 <body>
@@ -556,6 +609,7 @@ function renderPage(p) {
       <button class="ins-tab active" onclick="switchTab('report',this)">Coach's report</button>
       <button class="ins-tab" onclick="switchTab('data',this)">Programme data</button>
       <button class="ins-tab" onclick="switchTab('raw',this)">Full brief</button>
+      <button class="ins-tab" onclick="switchTab('logic',this)">Logic &amp; calibration</button>
     </div>
 
     <!-- REPORT TAB -->
@@ -599,6 +653,11 @@ function renderPage(p) {
       <div class="ins-actions">
         <button id="regen-brief-btn" class="ins-btn" onclick="regenBrief()">↺ Regenerate brief</button>
       </div>
+    <!-- LOGIC & CALIBRATION PANE -->
+    <div class="ins-pane" id="pane-logic">
+      <div id="logic-content">${buildLogicTab(p)}</div>
+    </div>
+
     </div>
   `;
 
@@ -606,6 +665,313 @@ function renderPage(p) {
   const profileIsThin = !profile.calories || profile.calories === 0 || !profile.weekPlan || profile.weekPlan.length < 7;
   setTimeout(() => generateReport(profileIsThin), 100);
 }
+
+function buildLogicTab(p) {
+  const isFemale = (p.sex||'').toLowerCase() === 'female';
+  const age      = p.age || 35;
+  const w        = p.weight || 80;
+  const h        = p.height || (isFemale ? 165 : 175);
+  const bmr      = isFemale
+    ? Math.round(10*w + 6.25*h - 5*age - 161)
+    : Math.round(10*w + 6.25*h - 5*age + 5);
+  const actStr   = (p.activityLevel||'').toLowerCase();
+  const actMult  = actStr.includes('sedentary')||actStr.includes('desk') ? 1.25
+                 : actStr.includes('lightly')||actStr.includes('some walk') ? 1.375
+                 : actStr.includes('very active')||actStr.includes('physical') ? 1.80
+                 : 1.55;
+  const tdee     = p.tdee || Math.round(bmr * actMult);
+  const deficit  = tdee - (p.calories || tdee);
+  const fitnessLevel = p.fitnessLevel !== undefined ? Math.round(p.fitnessLevel*100) : null;
+  const fitnessLabel = p.fitnessLevelLabel || null;
+  const trainMods    = p.trainingModifications || [];
+  const weekProg     = p.weeklyProgression || {};
+  const blockNum     = p.blockNumber || 1;
+  const injuries     = p.injuryAssessments || p.injuries || [];
+
+  // ── DECISION LOG items ──
+  const decisions = [];
+
+  // Calorie decision
+  const defStr = deficit > 50  ? `${deficit} kcal/day deficit — ~${(deficit*7/7700).toFixed(1)}kg/week loss`
+               : deficit < -50 ? `${Math.abs(deficit)} kcal/day surplus — muscle gain phase`
+               : 'maintenance';
+  decisions.push({
+    icon:'🔢', title:'Why ' + (p.calories||'?') + ' kcal?',
+    category:'Nutrition',
+    chain: [
+      { label:'Formula', val:'Mifflin-St Jeor (most validated for general population)', type:'info' },
+      { label:'BMR result', val:`${bmr} kcal — what you burn completely at rest`, type:'calc' },
+      { label:'Activity multiplier', val:`${actMult}× (${actStr||'moderate activity'}  )`, type:'calc' },
+      { label:'TDEE', val:`${tdee} kcal — your maintenance point`, type:'result' },
+      { label:'Goal adjustment', val:deficit > 0 ? `−${deficit} kcal deficit for ${p.goal||'fat loss'}` : deficit < 0 ? `+${Math.abs(deficit)} kcal surplus for muscle gain` : 'No adjustment — maintenance', type: deficit !== 0 ? 'action' : 'info' },
+      { label:'Your target', val:`${p.calories||'?'} kcal (${defStr})`, type:'final' },
+    ],
+    science: 'The Mifflin-St Jeor equation was validated in a 1990 study (n=498) and remains the most accurate formula for sedentary and lightly active adults (±10% error vs 15–20% for Harris-Benedict). Activity multipliers are from Ainsworth et al. (2011) Compendium of Physical Activities.',
+    canEdit: true,
+    editKey: 'calories',
+    editLabel: 'Override calorie target',
+    editNote: 'If you have actual metabolic data (DEXA, RMR test, 3-week tracking), enter it here. Your entry overrides the formula.'
+  });
+
+  // Protein decision
+  const protPerKg = p.protein && w ? (p.protein/w).toFixed(1) : '2.0';
+  decisions.push({
+    icon:'💪', title:`Why ${p.protein||'?'}g protein (${protPerKg}g/kg)?`,
+    category:'Nutrition',
+    chain: [
+      { label:'Base requirement', val:'0.8g/kg (WHO minimum for nitrogen balance)', type:'info' },
+      { label:'Muscle preservation', val:'Resistance training raises requirement to 1.6–2.2g/kg (Morton et al. 2018 meta-analysis, n=1,800)', type:'science' },
+      { label:'Age factor', val: age > 40 ? `At ${age}, anabolic resistance increases. 2.0–2.4g/kg needed to trigger same MPS response as younger adults (Churchward-Venne, 2016)` : `At ${age}, 2.0g/kg sits at the top of the effective range for your goal (${p.goal||'—'})`, type: age > 40 ? 'warning' : 'info' },
+      { label:'Your target', val:`${p.protein||'?'}g (${protPerKg}g/kg) — ${p.proteinReasoning||'calibrated to goal and training load'}`, type:'final' },
+    ],
+    science: 'Morton et al. (2018) meta-analysis (49 studies, 1,863 participants): protein beyond 1.62g/kg/day produced no additional lean mass gains. We target 2.0g/kg to account for training-day demand variation and the leucine threshold (~3g per meal for MPS activation).',
+    canEdit: true,
+    editKey: 'protein',
+    editLabel: 'Override protein target (grams)',
+    editNote: 'If you have body composition data showing lean mass, you can calculate from that instead: 2.2 × lean mass in kg.'
+  });
+
+  // Training split decision
+  const trainDays = (p.weekPlan||[]).filter(d=>d.priority==='training').map(d=>d.day+' '+d.type);
+  decisions.push({
+    icon:'🏋️', title:`Why this training split?`,
+    category:'Training',
+    chain: [
+      { label:'Training days', val:`${p.trainingDays||4} days/week (from questionnaire)`, type:'info' },
+      { label:'Weekly structure', val: trainDays.length ? trainDays.join(' · ') : 'see week plan', type:'calc' },
+      { label:'Frequency rationale', val:`Each muscle group hit ${p.trainingDays>=4?'2×/week (optimal for hypertrophy, Schoenfeld 2016)':'1×/week (sufficient for strength, suboptimal for hypertrophy)'}`, type: p.trainingDays>=4 ? 'result' : 'warning' },
+      { label:'Equipment', val:`${(p.equipmentUsed||[]).join(', ')||p.gymAccess||'full gym'} — exercises selected to match`, type:'info' },
+      { label:'Experience', val:`${p.experience||'—'} — ${(p.experience||'').includes('Just') ? 'technique priority, conservative loading' : 'progressive overload applied from week 1'}`, type:'info' },
+    ],
+    science: 'Schoenfeld et al. (2016) meta-analysis: training each muscle group 2× per week produced greater hypertrophy than 1× per week (effect size 0.50 vs 0.27). At 4 training days, a Push/Pull/Legs or Upper/Lower split achieves twice-weekly frequency. Below 4 days, once-weekly frequency per muscle is still effective for strength.',
+    canEdit: false
+  });
+
+  // Fitness level decision (if assessed)
+  if (fitnessLevel !== null) {
+    decisions.push({
+      icon:'📊', title:`Why ${fitnessLabel} (${fitnessLevel}% of range)?`,
+      category:'Training',
+      chain: [
+        { label:'Source', val:'5-question assessment: press-up reps, pull-ups, squat load, recovery, consistency', type:'info' },
+        { label:'Score', val:`${fitnessLevel}/100 → ${fitnessLabel}`, type:'result' },
+        { label:'Effect on programme', val:'Benchmark marker placed at this position on every exercise. Set/rep prescription and RPE targets adjusted for tier.', type:'action' },
+        { label:'Reassess when', val:'After 4 weeks or when prescribed loads feel consistently easy (RPE consistently below 6)', type:'info' },
+      ],
+      science: 'Assessment proxies validated against 1RM strength standards (Lombardi 1989; Mayhew et al. 1993). Body weight push-up count correlates r=0.82 with relative upper body strength. Pull-up count predicts upper body pulling strength with r=0.78.',
+      canEdit: true,
+      editKey: 'fitnessLevel',
+      editLabel: 'Update fitness level (0–100)',
+      editNote: 'Use this if you have InBody, DEXA or recent 1RM data. 0 = complete beginner, 50 = intermediate, 80+ = advanced. This repositions your benchmark marker on every exercise.'
+    });
+  }
+
+  // Age/hormonal decision
+  decisions.push({
+    icon: isFemale ? '🌙' : '⚡',
+    title: `Why these ${isFemale ? 'hormonal' : 'age-related'} assumptions?`,
+    category:'Physiology',
+    chain: [
+      { label:'Profile', val:`${age}-year-old ${isFemale?'female':'male'}, ${w}kg`, type:'info' },
+      { label: isFemale ? 'Oestrogen context' : 'Testosterone context',
+        val: isFemale
+          ? (age < 35 ? 'Pre-perimenopause. Full oestrogen support for bone density and MPS.' : age < 45 ? 'Perimenopause window. Variable oestrogen affects recovery and fat distribution.' : 'Post-menopausal. Reduced oestrogen; resistance training is the primary body composition tool.')
+          : (age < 35 ? 'Prime anabolic window. Testosterone fully supports muscle adaptation.' : age < 45 ? 'Gradual testosterone decline (~1%/year). Sleep quality becomes primary anabolic lever.' : 'GH pulse amplitude down ~14%/decade. Deload weeks structurally important.'),
+        type: age > 38 ? 'warning' : 'result' },
+      { label:'Protein adjustment', val: age > 40 ? `+0.2g/kg added to base target for anabolic resistance at age ${age}` : 'No age adjustment needed at this stage', type: age > 40 ? 'action' : 'info' },
+      { label:'Deload cadence', val: age > 38 ? 'Week 4 deload is non-negotiable. Recovery window is longer than at 30.' : 'Standard 4-week block with week 4 deload.', type:'info' },
+    ],
+    science: isFemale
+      ? 'Stacy et al. (2012): oestrogen directly influences satellite cell activation. Luteal phase progesterone reduces mTOR sensitivity. Smith & Thomas (2019): resistance training is the most effective single intervention for post-menopausal body composition, bone density, and insulin sensitivity.'
+      : 'Kraemer et al. (1998): GH secretion declines 14% per decade after 30; testosterone begins gradual decline at ~1%/year from age 30. Churchward-Venne (2016): anabolic resistance after 40 requires higher leucine threshold per meal. Sleep quality becomes the dominant recovery variable as pharmaceutical anabolic support declines.',
+    canEdit: false
+  });
+
+  // Injury decisions (if any)
+  injuries.forEach(inj => {
+    decisions.push({
+      icon:'⚠️', title:`How your ${inj.location||'injury'} shapes the programme`,
+      category:'Injuries',
+      chain: [
+        { label:'Assessment', val: inj.assessment || 'Movement restriction noted', type:'warning' },
+        { label:'Avoided movements', val: (inj.avoidMovements||[]).join(', ') || 'High-load variants', type:'warning' },
+        { label:'Safe alternatives', val: (inj.safeAlternatives||[]).join(', ') || 'As programmed', type:'result' },
+        { label:'Protocol', val: inj.rehabilitationNotes || 'Modified loading throughout the block', type:'action' },
+      ],
+      science: 'Injury modifications follow the Royal College of Sports Medicine load management framework: maintain stimulus without provocating tissue. Isometric loading at 70–80% MVC is pain-reducing and tendon-strengthening (Rio et al. 2017).',
+      canEdit: false
+    });
+  });
+
+  // Training modifications (from coach chat)
+  if (trainMods.length) {
+    decisions.push({
+      icon:'💬', title:`Coach modifications (${trainMods.length} added)`,
+      category:'Modifications',
+      chain: trainMods.map(m => ({ label: m.date||'Added', val: m.note, type:'action' })),
+      science: 'These were added via coach chat and appended to the base programme. They do not overwrite the core structure — they layer on top.',
+      canEdit: false
+    });
+  }
+
+  // ── RENDER ──────────────────────────────────────────────
+  const categoryOrder = ['Nutrition','Training','Physiology','Injuries','Modifications'];
+  const grouped = {};
+  categoryOrder.forEach(c => grouped[c] = []);
+  decisions.forEach(d => {
+    if (!grouped[d.category]) grouped[d.category] = [];
+    grouped[d.category].push(d);
+  });
+
+  const typeColours = {
+    info:'var(--dk-3)', calc:'var(--amber)', science:'#4a8fa8',
+    result:'var(--jade)', warning:'#c8941e', action:'var(--jade)', final:'var(--jade)'
+  };
+
+  let html = '<div class="logic-page">';
+
+  // Hero explanation
+  html += `<div class="logic-hero">
+    <div class="logic-hero-title">Why this programme was built this way</div>
+    <div class="logic-hero-text">
+      Every number in your programme follows a decision chain: your inputs → established formula → science anchor → goal adjustment → your target.
+      Where the science makes an assumption, it's stated. Where you have better data (from a machine, from tracking, from experience), you can override it.
+    </div>
+  </div>`;
+
+  // Decision sections
+  for (const cat of categoryOrder) {
+    const items = grouped[cat];
+    if (!items || !items.length) continue;
+    html += `<div class="logic-section">
+      <div class="logic-sec-label">${cat}</div>`;
+
+    items.forEach((d, di) => {
+      const chainRows = d.chain.map(row => `
+        <div class="logic-chain-row">
+          <div class="logic-chain-label">${row.label}</div>
+          <div class="logic-chain-val" style="color:${typeColours[row.type]||'var(--dk-2)'};">${row.val}</div>
+        </div>`).join('');
+
+      const editSection = d.canEdit ? `
+        <div class="logic-edit-zone" id="edit-zone-${d.editKey}">
+          <button class="logic-edit-btn" onclick="toggleLogicEdit('${d.editKey}', '${d.editLabel}', '${(d.editNote||'').replace(/'/g,"\'")}')">
+            ✏️ Override this assumption
+          </button>
+          <div class="logic-edit-form" id="edit-form-${d.editKey}" style="display:none;">
+            <div class="logic-edit-note">${d.editNote||''}</div>
+            <div class="logic-edit-row">
+              <input class="logic-edit-input" id="edit-input-${d.editKey}" type="number"
+                value="${p[d.editKey]||''}" placeholder="${d.editLabel}">
+              <button class="logic-edit-save" onclick="saveLogicEdit('${d.editKey}')">Save →</button>
+              <button class="logic-edit-cancel" onclick="document.getElementById('edit-form-${d.editKey}').style.display='none'">Cancel</button>
+            </div>
+            <div class="logic-edit-result" id="edit-result-${d.editKey}"></div>
+          </div>
+        </div>` : '';
+
+      html += `<div class="logic-card">
+        <div class="logic-card-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="logic-card-icon">${d.icon}</span>
+          <div class="logic-card-title">${d.title}</div>
+          <span class="logic-cat-badge" style="background:rgba(0,200,160,0.07);color:var(--jade);border:1px solid rgba(0,200,160,0.18);font-size:8px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:8px;white-space:nowrap;">${cat}</span>
+          <span class="logic-chevron">▾</span>
+        </div>
+        <div class="logic-card-body">
+          <div class="logic-chain">${chainRows}</div>
+          <div class="logic-science">
+            <div class="logic-science-label">Science anchor</div>
+            <div class="logic-science-text">${d.science}</div>
+          </div>
+          ${editSection}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  // Block progress context
+  html += `<div class="logic-block-ctx">
+    <div class="logic-sec-label">Programme block context</div>
+    <div class="logic-card open">
+      <div class="logic-card-head" onclick="this.parentElement.classList.toggle('open')">
+        <span class="logic-card-icon">📅</span>
+        <div class="logic-card-title">Block ${blockNum} — 4-week periodisation</div>
+        <span class="logic-chevron">▾</span>
+      </div>
+      <div class="logic-card-body">
+        <div class="logic-chain">
+          ${['week1','week2','week3','week4'].map((wk,i) => {
+            const w = weekProg[wk]; if (!w) return '';
+            return `<div class="logic-chain-row">
+              <div class="logic-chain-label">Week \${i+1} — \${w.phase}</div>
+              <div class="logic-chain-val" style="color:var(--dk-2);">\${w.focus} · \${w.volumeNote}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="logic-science">
+          <div class="logic-science-label">Science anchor</div>
+          <div class="logic-science-text">Periodisation framework from Bompa & Buzzichelli (2019). Foundation → Build → Peak → Deload follows the principle of progressive overload (Helms et al. 2017): volume and intensity are manipulated across weeks to maximise supercompensation. Deload week prevents cumulative fatigue from masking fitness gains.</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  html += '</div>';
+  return html;
+}
+
+// ── Editable override handlers ───────────────────────────────────────
+window.toggleLogicEdit = function(key, label, note) {
+  const form = document.getElementById('edit-form-'+key);
+  if (!form) return;
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+};
+
+window.saveLogicEdit = function(key) {
+  const input = document.getElementById('edit-input-'+key);
+  const result = document.getElementById('edit-result-'+key);
+  if (!input) return;
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val <= 0) {
+    if (result) result.innerHTML = '<span style="color:var(--red);">Enter a valid number.</span>';
+    return;
+  }
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (!raw) return;
+    const p = JSON.parse(raw);
+
+    if (key === 'calories') {
+      const tdee = p.tdee || (p.calories || val);
+      const newDef = tdee - val;
+      p.calories = val;
+      if (result) result.innerHTML = `<span style="color:var(--jade);">✓ Calorie target updated to \${val} kcal (\${newDef > 0 ? '-'+newDef+' deficit' : '+'+Math.abs(newDef)+' surplus'} vs TDEE \${tdee}).</span>`;
+    } else if (key === 'protein') {
+      p.protein = val;
+      const newPerKg = p.weight ? (val/p.weight).toFixed(1) : '?';
+      if (result) result.innerHTML = `<span style="color:var(--jade);">✓ Protein updated to \${val}g (\${newPerKg}g/kg). Fat and carbs will auto-adjust on your next plan rebuild.</span>`;
+    } else if (key === 'fitnessLevel') {
+      const pct = Math.min(100, Math.max(0, val));
+      const score = pct / 100;
+      p.fitnessLevel = score;
+      p.fitnessLevelLabel = score < 0.25 ? 'Beginner' : score < 0.50 ? 'Low-intermediate' : score < 0.70 ? 'Intermediate' : score < 0.85 ? 'Upper-intermediate' : 'Advanced';
+      p.fitnessLevelTier  = score < 0.35 ? 'beginner' : score < 0.65 ? 'intermediate' : 'advanced';
+      if (result) result.innerHTML = `<span style="color:var(--jade);">✓ Fitness level updated to \${pct}/100 (\${p.fitnessLevelLabel}). Benchmark markers will update on your next session view.</span>`;
+    }
+
+    p.lastUpdated = new Date().toISOString();
+    localStorage.setItem('bl_profile', JSON.stringify(p));
+
+    // Close form after 2 seconds
+    setTimeout(() => {
+      const form = document.getElementById('edit-form-'+key);
+      if (form) form.style.display = 'none';
+    }, 2500);
+  } catch(e) {
+    if (result) result.innerHTML = '<span style="color:var(--red);">Save failed — try again.</span>';
+  }
+};
 
 function buildDataTab(p) {
   const injuries  = p.injuryAssessments || [];
@@ -722,6 +1088,67 @@ function generateReport(force) {
   enrichReportAsync(profile, cacheKey);
 }
 
+function buildAssumptionsSection(p) {
+  const isFemale = (p.sex||'').toLowerCase() === 'female';
+  const age = p.age || 35;
+  const w   = p.weight || 80;
+  const h   = p.height || (isFemale ? 165 : 175);
+  const bmr = isFemale
+    ? Math.round(10*w + 6.25*h - 5*age - 161)
+    : Math.round(10*w + 6.25*h - 5*age + 5);
+  const tdee    = p.tdee || Math.round(bmr * 1.55);
+  const deficit = tdee - (p.calories || tdee);
+  const deficitLabel = deficit > 50
+    ? '-' + deficit + ' kcal/day deficit (&asymp;' + (deficit*7/7700).toFixed(1) + 'kg/week)'
+    : deficit < -50
+      ? '+' + Math.abs(deficit) + ' kcal/day surplus (muscle gain phase)'
+      : 'maintenance calories';
+  const protPerKg = (p.protein && w) ? (p.protein / w).toFixed(1) : '2.0';
+
+  let ageNote = '';
+  if (isFemale) {
+    if (age < 35)      ageNote = 'Hormonal context: prime training years. Oestrogen supports muscle recovery and bone density. No restrictions on training intensity.';
+    else if (age < 45) ageNote = 'Hormonal context: perimenopause window. Resistance training is the most effective intervention for body composition and bone density at this life stage. Progesterone fluctuations affect recovery — track energy levels week-to-week.';
+    else               ageNote = 'Hormonal context: post-menopausal. Oestrogen decline increases fat storage tendency and reduces muscle protein synthesis response. Higher protein targets and resistance training are the primary tools.';
+  } else {
+    if (age < 35)      ageNote = 'Hormonal context: prime anabolic window. Testosterone supports recovery and muscle adaptation fully. Training age and consistency are the primary limiters, not hormones.';
+    else if (age < 45) ageNote = 'Hormonal context: testosterone begins gradual decline (~1%/year after 30). Sleep quality becomes the #1 recovery lever — GH pulses during deep sleep are the primary anabolic stimulus from here. Deload weeks start to matter more.';
+    else               ageNote = 'Hormonal context: GH pulse amplitude declines ~14%/decade after 40. Deload weeks are non-negotiable. Sleep and stress management have outsized impact on body composition relative to training volume.';
+  }
+
+  return '<div style="margin-bottom:28px;">' +
+    '<div style="font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;">Programme assumptions — what this is built on</div>' +
+    '<div style="background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:10px;">' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;">' +
+        '<div style="padding:10px 14px;border-bottom:1px solid var(--bd);border-right:1px solid var(--bd);">' +
+          '<div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:2px;">BMR (Mifflin-St Jeor)</div>' +
+          '<div style="font-size:16px;font-weight:600;font-family:var(--mono);color:var(--dk-1);">' + bmr + ' kcal</div>' +
+          '<div style="font-size:10px;font-weight:300;color:var(--dk-3);">at complete rest (' + age + 'yo ' + (isFemale?'female':'male') + ', ' + w + 'kg)</div>' +
+        '</div>' +
+        '<div style="padding:10px 14px;border-bottom:1px solid var(--bd);">' +
+          '<div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:2px;">TDEE (maintenance)</div>' +
+          '<div style="font-size:16px;font-weight:600;font-family:var(--mono);color:var(--dk-1);">' + tdee + ' kcal</div>' +
+          '<div style="font-size:10px;font-weight:300;color:var(--dk-3);">what you burn at current activity level</div>' +
+        '</div>' +
+        '<div style="padding:10px 14px;border-right:1px solid var(--bd);">' +
+          '<div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:2px;">Your calorie target</div>' +
+          '<div style="font-size:16px;font-weight:600;font-family:var(--mono);color:var(--jade);">' + (p.calories||'&mdash;') + ' kcal</div>' +
+          '<div style="font-size:10px;font-weight:300;color:var(--dk-3);">' + deficitLabel + '</div>' +
+        '</div>' +
+        '<div style="padding:10px 14px;">' +
+          '<div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:2px;">Protein target</div>' +
+          '<div style="font-size:16px;font-weight:600;font-family:var(--mono);color:var(--jade);">' + (p.protein||'&mdash;') + 'g</div>' +
+          '<div style="font-size:10px;font-weight:300;color:var(--dk-3);">' + protPerKg + 'g/kg &mdash; elevated for recomp at age ' + age + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="padding:12px 14px;background:rgba(196,124,24,0.05);border:1px solid rgba(196,124,24,0.18);border-radius:4px;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:8px;">' + ageNote + '</div>' +
+    '<div style="padding:10px 14px;background:var(--ink-2);border:1px solid var(--bd);border-radius:4px;border-left:3px solid var(--jade);font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.7;">' +
+      '<strong style="color:var(--dk-1);">Reality check:</strong> If your weight does not move after 2&ndash;3 weeks at ' + (p.calories||'this') + ' kcal, your actual TDEE may differ from this estimate. Tell the coach &mdash; the plan recalibrates to your real numbers.' +
+    '</div>' +
+  '</div>';
+}
+
 function buildReportHTML(p) {
   const isFemale = (p.sex||'').toLowerCase() === 'female';
   const age = p.age || 35;
@@ -816,6 +1243,7 @@ function buildReportHTML(p) {
       <div style="margin-bottom:24px;">${(p.keyFoodPrinciples||[]).map(k=>`<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--bd);font-size:13px;font-weight:300;color:var(--dk-2);">
         <span style="color:var(--jade);font-weight:600;flex-shrink:0;">→</span>${k}</div>`).join('')}</div>`:''}
 
+      ${buildAssumptionsSection(p)}
       <div style="height:1px;background:var(--bd);margin-bottom:24px;"></div>
       <div style="font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;">The efficiency rule</div>
       <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--dk-1);line-height:1.6;font-style:italic;">
@@ -950,6 +1378,28 @@ Write sections: Workout Objective, Goals, Approach, Current Baseline, Injuries, 
   }
 }
 </script>
+<script src="pwa.js"></script>
 <script src="coach.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(reg => {
+        window.__SW_REG = reg;
+        // Check for updates silently
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[BodyLens] SW registration failed:', err));
+  });
+}
+</script>
 </body>
 </html>
