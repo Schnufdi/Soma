@@ -18,7 +18,7 @@ const SHELL_FILES = [
   '/profile-inject.js',
   '/bodylens-dailyplan.html',
   '/bodylens-instructions.html',
-  '/bodylens-magazine-food.html',
+  '/bodylens-food.html',
   '/bodylens-programme.html',
   '/bodylens-science.html',
   '/bodylens-guide.html',

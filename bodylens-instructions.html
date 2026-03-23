@@ -233,21 +233,16 @@ body { background:var(--ink); color:var(--dk-1); }
 <nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
-    <a class="nav-link nav-daily" href="bodylens-dailyplan.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
+    <a class="nav-link" href="bodylens-dailyplan.html">Today</a>
+    <a class="nav-link" href="bodylens-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
-    <a class="nav-link active" href="bodylens-instructions.html">Report</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
-  </div>
-
-  <div class="nav-breadcrumb">
-    <a href="bodylens-programme.html" class="nav-bc-parent">Programme</a>
-    <span class="nav-bc-sep">›</span>
-    <span class="nav-bc-current">Report</span>
+    <a class="nav-link" href="bodylens-instructions.html">Report</a>
   </div>
   <div class="nav-right-group">
-    <a class="nav-link nav-right" href="bodylens-guide.html">Guide</a>
-    <a class="nav-link nav-right" href="bodylens-howitworks.html">How it works</a>
+    <a class="nav-right" href="bodylens-guide.html">Guide</a>
+    <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
+    <a class="nav-right" href="bodylens-bodyscan.html">Body scan</a>
     <div class="nav-meta" id="nav-meta"></div>
   </div>
 </nav>
@@ -1301,43 +1296,153 @@ function buildReportHTML(p) {
 }
 
 async function enrichReportAsync(p, cacheKey) {
-  // Small API call just to get a personalised coach opening paragraph
+  // Generate a fully written coaching report from profile data
+  // This is the core of the product - it must be comprehensive
   try {
-    const isFemale = (p.sex||'').toLowerCase() === 'female';
-    const age = p.age || 35;
-    const injuries = p.injuryAssessments || p.injuries || [];
-    const prompt = `You are a senior performance coach. Write ONE paragraph (3-4 sentences) as a personal opening for ${p.name}'s coaching report. 
-Profile: ${age||p.age}yo ${p.sex}, ${p.weight}kg, goal: ${p.goal}. Training: ${p.trainingDays} days/week. ${injuries.length ? 'Injuries: '+injuries.map(i=>i.location||i).join(', ')+'. ' : ''}Calories: ${p.calories}, protein: ${p.protein}g.
-${p.coachSummary ? 'Expand on: '+p.coachSummary : ''}
-Be direct and specific. Reference their actual numbers. No hollow affirmations. Serif coaching voice.`;
+    const isFemale  = (p.sex||'').toLowerCase() === 'female';
+    const age       = p.age || 35;
+    const injuries  = (p.injuryAssessments||p.injuries||[]).map(i=>(i.location||i)+(i.assessment?' — '+i.assessment:'')).join('; ') || 'none';
+    const supps     = (p.supplements||[]).map(s=>s.name+' '+s.dose+' ('+s.timing+')').join(', ') || 'none';
+    const trainDays = (p.weekPlan||[]).filter(d=>d.priority==='training').map(d=>d.day+' '+d.type).join(', ') || 'not set';
+    const bmr       = p.scanBmr || (isFemale ? Math.round(10*(p.weight||70)+6.25*(p.height||165)-5*age-161) : Math.round(10*(p.weight||80)+6.25*(p.height||175)-5*age+5));
+    const tdee      = p.tdee || Math.round(bmr*1.55);
+    const deficit   = tdee - (p.calories||tdee);
+    const scan      = p.bodyScan;
+
+    const prompt = `You are writing a comprehensive coaching report for ${p.name}. This is a real performance document — not a template. Write it as a senior coach would: direct, specific, personal, science-grounded.
+
+PROFILE:
+Name: ${p.name} | Age: ${age} | Sex: ${p.sex} | Weight: ${p.weight}kg | Height: ${p.height}cm
+Goal: ${p.goal}${p.target?' — target: '+p.target:''}
+Experience: ${p.experience||'—'} | Training: ${p.trainingDays} days/week
+Training days: ${trainDays}
+Calories: ${p.calories} kcal | Protein: ${p.protein}g | Carbs: ${p.carbs}g | Fat: ${p.fat}g
+TDEE: ${tdee} kcal | Deficit: ${deficit > 0 ? deficit+' kcal' : 'surplus '+Math.abs(deficit)+' kcal'}
+BMR: ${bmr} kcal${p.scanBmr?' (measured)':' (estimated)'}
+Sleep: ${p.sleep||'—'} hours | Quality: ${p.sleepQuality||'—'} | Bedtime: ${p.bedtime||'—'}
+Stress: ${p.stressLevel||'—'} | Activity outside training: ${p.activityLevel||'—'}
+Diet: ${p.dietType||'flexible'} | Exclude: ${(p.foodExclusions||[]).join(', ')||'none'}
+Trigger foods: ${p.triggerFoods||'none'}
+Injuries: ${injuries}
+Supplements: ${supps}
+${scan?`Body scan (${scan.source||'device'}, ${scan.scanDate||'recent'}): weight ${scan.weight||'?'}kg, body fat ${scan.bodyFatPct||'?'}%, lean mass ${scan.leanMass||'?'}kg, BMR ${scan.bmr||'?'} kcal, visceral fat index ${scan.visceralFatIndex||'?'}, metabolic age ${scan.metabolicAge||'?'}y`:''}
+${p.coachSummary?'Previous coach notes: '+p.coachSummary:''}
+
+Write the following sections as flowing prose — no bullet points, no headers within sections, no markdown. Paragraphs only.
+
+SECTION 1 — COACH'S ASSESSMENT (4-5 sentences): 
+Your direct read of this person. What is their biggest lever? What will make or break their progress? What does the data tell you about where they actually are vs where they think they are? Be honest. Reference their specific numbers.
+
+SECTION 2 — THE TRAINING LOGIC (3-4 sentences):
+Why this specific split and frequency for this person. How the exercise selection accounts for their experience level, any injuries, and equipment. What the progression logic is across the 4-week block.
+
+SECTION 3 — THE NUTRITION LOGIC (3-4 sentences):
+Why these specific calorie and macro targets. The deficit/surplus rationale. Why protein is set where it is. How the eating window and meal timing work for their lifestyle and fasting preference.
+
+SECTION 4 — THE PRIORITY STACK (2-3 sentences):
+The single most important habit for this person. The second. The third. What they must not compromise on.
+
+SECTION 5 — WHAT TO WATCH (2-3 sentences):
+The risks specific to this person — what could derail progress. How to catch it early. What the early warning signs look like.
+
+Return ONLY a JSON object with these exact keys:
+{
+  "coachAssessment": "...",
+  "trainingLogic": "...",
+  "nutritionLogic": "...",
+  "priorityStack": "...",
+  "watchPoints": "..."
+}`;
 
     const res = await fetch('/api/chat', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:180,
-        system:'You are a performance coach. Write exactly one paragraph, no headers, no bullets.',
-        messages:[{role:'user',content:prompt}]
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        system: 'You are a senior performance coach writing a personalised coaching report. Return ONLY valid JSON with the specified keys. No markdown, no code fences.',
+        messages: [{ role: 'user', content: prompt }]
       })
     });
     if (!res.ok) return;
     const data = await res.json();
     const text = (data.content||[]).map(b=>b.text||'').join('').trim();
-    if (!text) return;
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return;
+    const report = JSON.parse(match[0]);
 
-    // Slot into the existing rendered report
+    // Update the rendered page sections
     const voiceEl = document.getElementById('coach-voice-text');
-    if (voiceEl) voiceEl.textContent = text;
+    if (voiceEl && report.coachAssessment) voiceEl.textContent = report.coachAssessment;
 
-    // Update cache with enriched version
+    // Build the full brief text for the "Full brief" tab
+    const fullBrief = [
+      'COACHING REPORT — ' + p.name.toUpperCase(),
+      'Generated: ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
+      '',
+      "COACH'S ASSESSMENT",
+      report.coachAssessment || '',
+      '',
+      'THE TRAINING LOGIC',
+      report.trainingLogic || '',
+      '',
+      'THE NUTRITION LOGIC',
+      report.nutritionLogic || '',
+      '',
+      'THE PRIORITY STACK',
+      report.priorityStack || '',
+      '',
+      'WHAT TO WATCH',
+      report.watchPoints || '',
+      '',
+      'BASELINE',
+      p.name+' | '+age+'yo '+p.sex+' | '+p.weight+'kg | '+p.height+'cm | Body fat: '+(p.bodyFat||'est.')+' | TDEE: '+tdee+' kcal | Deficit: '+deficit+' kcal',
+      '',
+      'TARGETS',
+      p.calories+' kcal | '+p.protein+'g protein | '+p.carbs+'g carbs | '+p.fat+'g fat',
+      '',
+      'TRAINING',
+      trainDays,
+      '',
+      'SUPPLEMENTS',
+      supps,
+      '',
+      'INJURIES',
+      injuries,
+    ].join('\n');
+
+    // Save everything back to profile
+    try {
+      const raw = localStorage.getItem('bl_profile');
+      if (raw) {
+        const prof = JSON.parse(raw);
+        prof.coachSummary  = report.coachAssessment;
+        prof.trainingLogic = report.trainingLogic;
+        prof.nutritionLogic= report.nutritionLogic;
+        prof.priorityStack = report.priorityStack;
+        prof.watchPoints   = report.watchPoints;
+        prof.instructions  = fullBrief;
+        prof.reportGeneratedAt = new Date().toISOString();
+        localStorage.setItem('bl_profile', JSON.stringify(prof));
+      }
+    } catch(e) {}
+
+    // Update the brief tab if it's showing
+    const briefEl = document.getElementById('brief-text');
+    if (briefEl) briefEl.textContent = fullBrief;
+
+    // Update the cache
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
-        const updated = cached.replace(p.coachSummary||'Programme built and calibrated to your specific profile.', text);
+        const updated = buildReportHTML(p);
         localStorage.setItem(cacheKey, updated);
+        renderReport(updated);
       }
     } catch(e) {}
+
   } catch(e) {
-    // Fail silently — report already rendered with coachSummary
+    console.warn('Report enrichment failed:', e);
   }
 }
 
