@@ -1,35 +1,36 @@
 // ════════════════════════════════════════════════════════
-//  coach.js — BodyLens floating AI coach
-//  Persistent across all pages. Context-aware per page.
+//  coach.js — BodyLens floating AI coach  v3
+//  Fixes: async bug on chips, prose format, follow-up
+//  probing, new info detection + profile update
 // ════════════════════════════════════════════════════════
 
-(function() {
+(function () {
 
   const API   = '/api/chat';
   const MODEL = 'claude-sonnet-4-20250514';
   const HISTORY_KEY = 'bl_coach_history';
-  const MAX_HISTORY = 14;
+  const MAX_HISTORY = 16;
 
-  // ── PAGE CONTEXT MAP ──────────────────────────────────
+  // ── PAGE CONTEXTS ─────────────────────────────────────
   const PAGE_CONTEXTS = {
-    'day':          'The user is looking at their daily plan — today\'s schedule, training session, meals, supplement timing, and recovery blocks. They may ask about adjusting today, what to prioritise, or how to handle curveballs.',
-    'food':         'The user is on the Food hub — meal ideas, shopping list, weekly plan, macro targets. They may ask about specific foods, swaps, hitting protein, or what to eat around training.',
-    'fuel':         'The user is on the Food hub — meal timing, synergies, shopping, what to eat and when. They may ask about pre/post-training meals, nutrient timing, or specific foods.',
-    'training':     'The user is reading training science — frequency, volume, splits, periodisation, proximity to failure. They may ask how the research applies to their programme specifically.',
-    'alcohol':      'The user is reading about alcohol\'s effects on muscle building, sleep, hormones, and recovery. They may ask about their specific habits — which nights are safest, whether a specific occasion will cost them, or damage mitigation.',
-    'weightloss':   'The user is reading fat loss science — CICO, TDEE, hormones, why diets fail. They may ask about their numbers, why progress has stalled, or what to do differently.',
-    'hunger':       'The user is reading hunger management science — ghrelin, leptin, food noise, emotional eating. They may ask about specific cravings, hunger between meals, or why they overeat in the evening.',
-    'optimal':      'The user is reading about whole-body systems — gut health, energy, brain function, anxiety, mood, hormones. They may ask about symptoms, optimisation, or specific supplements.',
-    'synthesis':    'The user is reading the systems synthesis — how every body system connects. They may ask how their specific biology fits the framework.',
-    'story':        'The user is reading a narrative of how their programme works across a full training day. They may ask about timing decisions or the reasoning behind the structure.',
-    'mentalhealth': 'The user is reading about mental health — cortisol, gut-brain axis, sleep-mood connection, training as medicine, and goal psychology. They may ask about stress, motivation, or the psychological dimension of their goal.',
-    'longevity':    'The user is reading longevity science — decade-by-decade biological shifts, biomarkers, what to prioritise. They may ask about their specific decade or which interventions matter most now.',
-    'attia':        'The user is reading about Attia and Huberman protocols — Zone 2, VO₂max, biomarkers, NSDR, cold and heat. They may ask about implementing specific protocols or how they apply to them.',
-    'programme':    'The user is viewing their programme — week plan, macros, supplements, injuries. They may ask about any element or how it was built.',
-    'instructions': 'The user is reading their coaching report — their full personalised assessment. They may want to discuss or challenge specific recommendations.',
-    'science':      'The user is on the Science hub browsing topics. They may ask about any area of health, training, or nutrition.',
-    'body':         'The user is exploring the muscle guide. They may ask about specific muscles, exercises, or how to train around weaknesses.',
-    'howitworks':   'The user is reading about how BodyLens built their programme — the calculations and logic behind it. They may ask about specific numbers or methodology.',
+    'day':          'The user is looking at their daily plan — schedule, training session, meals, supplement timing.',
+    'food':         'The user is on the food hub — meals, week plan, recipes, pyramids, shopping, food intelligence.',
+    'fuel':         'The user is on the food system — meal timing, synergies, shopping, what to eat and when.',
+    'training':     'The user is reading training science — frequency, volume, splits, periodisation, proximity to failure.',
+    'alcohol':      'The user is reading about alcohol\'s effects on muscle building, sleep, hormones, and recovery.',
+    'weightloss':   'The user is reading fat loss science — CICO, TDEE, hormones, why diets fail.',
+    'hunger':       'The user is reading hunger management science — ghrelin, leptin, food noise, emotional eating.',
+    'optimal':      'The user is reading about whole-body systems — gut health, energy, brain, anxiety, mood, hormones.',
+    'synthesis':    'The user is reading the systems synthesis — how every body system connects.',
+    'story':        'The user is reading a narrative of how their programme works across a full training day.',
+    'mentalhealth': 'The user is reading about mental health — cortisol, gut-brain axis, sleep-mood, training as medicine.',
+    'longevity':    'The user is reading longevity science — decade-by-decade shifts, biomarkers, what to prioritise.',
+    'attia':        'The user is reading Attia and Huberman protocols — Zone 2, VO₂max, biomarkers, NSDR, cold, heat.',
+    'programme':    'The user is viewing their programme — week plan, macros, supplements, injuries.',
+    'instructions': 'The user is reading their coaching report — personalised assessment of their programme.',
+    'science':      'The user is on the Science hub browsing topics.',
+    'body':         'The user is exploring the muscle guide — anatomy, how muscles work, how to train them.',
+    'howitworks':   'The user is reading how BodyLens built their programme — the logic behind it.',
     'default':      'The user is using BodyLens. They may ask about any aspect of their programme, nutrition, training, or health.',
   };
 
@@ -41,49 +42,64 @@
     const weekPlan = profile.weekPlan || [];
     const trainDays = weekPlan.filter(d => d.priority === 'training').map(d => d.day).join(', ');
 
-    return `You are the BodyLens coach — a senior performance coach embedded in a personalised fitness and nutrition platform. You are speaking directly with ${profile.name}.
+    return `You are the BodyLens coach — a senior performance coach and applied sport scientist. You are speaking directly with ${profile.name}.
 
 CLIENT PROFILE:
 Name: ${profile.name} | Age: ${profile.age} | Sex: ${profile.sex}
 Weight: ${profile.weight}kg | Height: ${profile.height}cm${profile.bodyFat ? ' | Body fat: ' + profile.bodyFat + '%' : ''}
 Goal: ${profile.goal}${profile.target ? ' — ' + profile.target : ''}
 Experience: ${profile.experience || '—'} | Training: ${profile.trainingDays} days/week (${trainDays})
-Wake: ${profile.wakeTime || '07:00'} | Bedtime: ${profile.bedtime || 'not set'} | Sleep: ${profile.sleep || '—'} | Quality: ${profile.sleepQuality || '—'}
+Wake: ${profile.wakeTime || '07:00'} | Bedtime: ${profile.bedtime || '—'} | Sleep: ${profile.sleep || '—'} | Quality: ${profile.sleepQuality || '—'}
 Training time: ${profile.trainingTime || '—'}
 Calories: ${profile.calories} kcal | Protein: ${profile.protein}g | Carbs: ${profile.carbs}g | Fat: ${profile.fat}g
 Eating window: ${profile.actualEatingWindow || profile.fastingWindow || profile.eatingWindow || 'flexible'}
-Stress: ${profile.stressLevel || '—'} | Caffeine: ${profile.caffeineHabits || '—'}
+Stress: ${profile.stressLevel || '—'} | Caffeine: ${profile.caffeineHabits || '—'} | Diet history: ${profile.dietHistory || '—'}
 Diet: ${profile.dietType || 'no restrictions'} | Exclude: ${(profile.foodExclusions || []).join(', ') || 'none'}
 Trigger foods: ${profile.triggerFoods || 'none'}
 Alcohol: ${profile.alcoholHabit || '—'}
 Recovery tools: ${(profile.recoveryTools || []).join(', ') || 'none'}
-Supplements: ${supps.map(s => s.name + ' ' + s.dose + ' (' + s.timing + ')').join(', ') || 'none'}
-Diet history: ${profile.dietHistory || '—'}
-Health conditions: ${profile.healthConditions || 'none reported'}
-${injuries.length ? 'INJURIES: ' + injuries.map(i => (i.location || i) + ': ' + (i.assessment || i.detail || '')).join('; ') : 'No current injuries'}
+Supplements: ${supps.map(s => s.name + ' ' + s.dose + ' (' + (s.timing || '') + ')').join(', ') || 'none'}
+Health conditions: ${profile.healthConditions || 'none'}
+${injuries.length ? 'INJURIES: ' + injuries.map(i => (i.location || i) + ': ' + (i.assessment || i.detail || '')).join('; ') : 'No injuries'}
 ${profile.activityLevel ? 'Activity outside training: ' + profile.activityLevel : ''}
-${profile.cookingApproach ? 'Food: ' + profile.cookingApproach + (profile.cuisinePrefs && profile.cuisinePrefs.length ? ' | ' + profile.cuisinePrefs.join(', ') : '') + (profile.recipeComplexity ? ' | ' + profile.recipeComplexity : '') : ''}
+${profile.cookingApproach ? 'Food approach: ' + profile.cookingApproach + (profile.cuisinePrefs && profile.cuisinePrefs.length ? ' | ' + profile.cuisinePrefs.join(', ') : '') : ''}
 ${isFemale && profile.menstrualCycle ? 'Cycle: ' + profile.menstrualCycle : ''}
 
 CURRENT PAGE: ${pageContext}
 
-YOUR COACHING VOICE AND FORMAT RULES:
-- Direct, warm, senior coach in a real consultation — not a chatbot, not a wellness app.
-- Use ${profile.name}'s name occasionally. Reference their actual numbers, training days, injuries.
-- Never start with "Great question!" or hollow affirmations.
+YOUR VOICE:
+You speak like a senior coach with a science background having a real consultation — not a chatbot, not a generic fitness app. You are warm, direct, and specific. You reference ${profile.name}'s actual numbers, their actual training days, their injuries, their food preferences. You don't hedge unless there is genuine scientific uncertainty, and when you do hedge you say why.
 
-RESPONSE FORMAT — ALWAYS follow this:
-- For short factual answers (e.g. "how much protein after training?"): 2-3 sentences, no bullets needed.
-- For explanations or multi-part answers: use this structure:
-  • Lead with the direct answer in **bold** on the first line.
-  • Then bullet points for supporting detail — each bullet substantive, not padding.
-  • End with a bold **Bottom line:** sentence if the point needs driving home.
-- For protocols or step-by-step: numbered list, each step actionable.
-- Use **bold** for the single most important word or phrase per section.
-- Never use more than 5 bullets. Never pad with filler sentences.
-- Keep total response under 200 words unless genuinely complex.
-- ${isFemale ? 'Frame all advice through female physiology where relevant — hormonal cycle, oestrogen effects, female-specific considerations.' : 'Frame advice through male physiology where relevant — testosterone, GH, male-specific recovery and nutrition.'}
-- If they ask something medical, give the science clearly but flag GP consultation for clinical decisions.`;
+RESPONSE FORMAT — this is critical:
+Write in flowing prose, the way a coach actually talks. No bullet points. No bold text. No headers. No markdown formatting of any kind. Just clear, well-constructed sentences in paragraphs. A short answer is one or two sentences. A longer answer is two or three paragraphs. Never more than that unless they explicitly ask for a comprehensive explanation.
+
+The science lives in the explanation — you weave it into the answer naturally, not as bullet points. If the answer has a mechanism behind it, explain the mechanism in plain language as part of the flow.
+
+Always make the answer personal. Reference their specific situation — their ${profile.trainingDays} training days, their ${profile.protein}g protein target, their injuries if relevant. Generic advice is not coaching.
+
+${isFemale ? 'Frame all advice through female physiology where relevant — hormonal cycle, oestrogen effects, female-specific training and nutrition.' : 'Frame advice through male physiology where relevant — testosterone, GH, male-specific recovery and nutrition.'}
+
+NEW INFORMATION DETECTION — important:
+If the user mentions something that would update their profile — a new injury, a change in sleep, a new supplement they have started, a goal shift, a change in training schedule — acknowledge it specifically and end your response with exactly this on its own line: [NEW_INFO: brief description of the update]
+
+Examples:
+- "I've started taking ashwagandha" → [NEW_INFO: started taking ashwagandha]
+- "My knee has been hurting again" → [NEW_INFO: knee pain recurring]
+- "I'm now sleeping 6 hours instead of 8" → [NEW_INFO: sleep reduced to 6 hours]
+- "I'm thinking of changing my goal to fat loss" → [NEW_INFO: considering goal change to fat loss]
+
+Only add this tag if there is genuinely new information that would change the profile. Do not add it for questions or general discussion.`;
+  }
+
+  // ── FOLLOW-UP PROMPT ──────────────────────────────────
+  function buildFollowUpPrompt(lastUserMsg, lastCoachReply, profile) {
+    return `Based on this exchange, generate 2-3 short follow-up questions that ${profile.name} might naturally want to ask next. Make them specific to what was just discussed and to their profile.
+
+Their question: "${lastUserMsg}"
+Your answer: "${lastCoachReply.slice(0, 300)}..."
+
+Return ONLY a JSON array of 2-3 short strings. Each under 8 words. No punctuation at end. No explanation.
+Example: ["How long until I see results", "Does timing matter for this", "What if I miss a session"]`;
   }
 
   // ── PAGE DETECTION ────────────────────────────────────
@@ -93,14 +109,7 @@ RESPONSE FORMAT — ALWAYS follow this:
   }
 
   function getPageLabel() {
-    const labels = {
-      'day':'Today','food':'Food','fuel':'Food','training':'Training',
-      'alcohol':'Alcohol','weightloss':'Weight Loss','hunger':'Hunger & Balance',
-      'optimal':'The Machine','synthesis':'How It Runs','story':'The Story',
-      'mentalhealth':'Mental Health','longevity':'Longevity','attia':'Protocols',
-      'programme':'Programme','instructions':'Coaching Report','science':'Science',
-      'body':'Muscle Guide','howitworks':'How It Works',
-    };
+    const labels = { 'day':'Today','food':'Food','fuel':'Food','training':'Training','alcohol':'Alcohol','weightloss':'Weight Loss','hunger':'Hunger','optimal':'The Machine','synthesis':'How It Runs','story':'The Story','mentalhealth':'Mental Health','longevity':'Longevity','attia':'Protocols','programme':'Programme','instructions':'Coaching Report','science':'Science','body':'Muscle Guide','howitworks':'How It Works' };
     return labels[getPageType()] || 'BodyLens';
   }
 
@@ -115,17 +124,71 @@ RESPONSE FORMAT — ALWAYS follow this:
   }
   function clearHistory() { localStorage.removeItem(HISTORY_KEY); }
 
-  // ── API ───────────────────────────────────────────────
+  // ── PROFILE UPDATE ────────────────────────────────────
+  function extractNewInfo(text) {
+    const match = text.match(/\[NEW_INFO:\s*([^\]]+)\]/);
+    return match ? match[1].trim() : null;
+  }
+
+  function promptProfileUpdate(newInfo, profile) {
+    const container = document.getElementById('bl-coach-messages');
+    if (!container) return;
+
+    const updateEl = document.createElement('div');
+    updateEl.className = 'coach-update-prompt';
+    updateEl.innerHTML = `
+      <div class="cup-icon">📋</div>
+      <div class="cup-text">Add "<em>${newInfo}</em>" to your profile?</div>
+      <div class="cup-actions">
+        <button class="cup-yes" onclick="window._blCoach.saveInfo(${JSON.stringify(newInfo)}, this.closest('.coach-update-prompt'))">Yes, save it</button>
+        <button class="cup-no" onclick="this.closest('.coach-update-prompt').remove()">No thanks</button>
+      </div>`;
+    container.appendChild(updateEl);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function saveNewInfo(newInfo, profile) {
+    try {
+      const raw = localStorage.getItem('bl_profile');
+      if (!raw) return false;
+      const p = JSON.parse(raw);
+
+      // Classify what kind of update this is
+      const lower = newInfo.toLowerCase();
+      if (lower.includes('sleep') || lower.includes('hours')) {
+        p.coachNotes = (p.coachNotes || '') + '\n• Sleep update: ' + newInfo;
+      } else if (lower.includes('injury') || lower.includes('pain') || lower.includes('knee') || lower.includes('back') || lower.includes('shoulder')) {
+        if (!p.injuries) p.injuries = [];
+        p.injuries.push({ location: newInfo, addedByCoach: true, date: new Date().toISOString().slice(0,10) });
+      } else if (lower.includes('supplement') || lower.includes('taking') || lower.includes('started')) {
+        p.coachNotes = (p.coachNotes || '') + '\n• Supplement update: ' + newInfo;
+      } else if (lower.includes('goal') || lower.includes('fat loss') || lower.includes('muscle')) {
+        p.coachNotes = (p.coachNotes || '') + '\n• Goal note: ' + newInfo;
+      } else {
+        p.coachNotes = (p.coachNotes || '') + '\n• ' + newInfo;
+      }
+
+      p.lastUpdated = new Date().toISOString();
+      localStorage.setItem('bl_profile', JSON.stringify(p));
+      return true;
+    } catch(e) {
+      console.error('Profile save error:', e);
+      return false;
+    }
+  }
+
+  // ── API CALL ──────────────────────────────────────────
   async function askCoach(userMessage, profile) {
     const history = loadHistory();
     const systemPrompt = buildSystemPrompt(profile, PAGE_CONTEXTS[getPageType()] || PAGE_CONTEXTS.default);
     history.push({ role: 'user', content: userMessage });
+
     const res = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 500,
+        max_tokens: 450,
         system: systemPrompt,
         messages: history.slice(-MAX_HISTORY),
       }),
@@ -140,8 +203,32 @@ RESPONSE FORMAT — ALWAYS follow this:
     return text;
   }
 
-  // ── CHIPS — clever, motivational, context-aware ───────
-  function getChips(profile, pageType) {
+  // Generate follow-up chips after a reply
+  async function generateFollowUps(lastUser, lastCoach, profile) {
+    try {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 120,
+          system: 'You generate follow-up questions. Return only a JSON array. No explanation.',
+          messages: [{ role: 'user', content: buildFollowUpPrompt(lastUser, lastCoach, profile) }],
+        }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const text = (data.content || []).map(b => b.text || '').join('').trim();
+      const match = text.match(/\[[\s\S]*\]/);
+      if (!match) return null;
+      return JSON.parse(match[0]).slice(0, 3);
+    } catch(e) {
+      return null;
+    }
+  }
+
+  // ── INITIAL CHIPS — clever, motivational ──────────────
+  function getInitialChips(profile, pageType) {
     const isFemale = (profile.sex || '').toLowerCase() === 'female';
     const age = profile.age || 35;
     const DAY_MAP = {0:6,1:0,2:1,3:2,4:3,5:4,6:5};
@@ -154,14 +241,26 @@ RESPONSE FORMAT — ALWAYS follow this:
     const sets = {
       'day': isTraining ? [
         `What's the most important thing to nail today?`,
-        `How hard should I push on ${todayPlan.type || 'today\'s session'}?`,
-        injuries.length ? `My ${injuries[0].location || 'injury'} is niggly today` : `What should I eat before training?`,
-        `Am I recovered enough to train hard?`,
+        `How hard should I push on ${todayPlan.type || 'today'}?`,
+        injuries.length ? `My ${injuries[0].location || 'injury'} is niggly today` : `Am I recovered enough to go hard?`,
+        `What should I eat before training?`,
       ] : [
         `Rest day — should I do anything or literally nothing?`,
         `How do I make the most of a rest day?`,
-        `Is it okay to eat the same calories on rest days?`,
         `Can I train if I feel fine?`,
+        `Same calories on rest days?`,
+      ],
+      'food': [
+        `What should I eat today to hit my targets?`,
+        `Give me a quick high-protein dinner`,
+        `Am I eating at the right times?`,
+        hasTrigger ? `I'm craving ${trigger} — help` : `How do I cut food noise?`,
+      ],
+      'fuel': [
+        `What's the best thing to eat before my session?`,
+        `Post-training — how fast does the window really close?`,
+        `I'm always under on protein by dinner`,
+        `Training vs rest day — what actually changes?`,
       ],
       'alcohol': [
         `Be honest — how much does the weekend actually cost me?`,
@@ -176,43 +275,31 @@ RESPONSE FORMAT — ALWAYS follow this:
         `Is ${profile.calories} the right target for me?`,
       ],
       'hunger': [
-        hasTrigger ? `I'm craving ${trigger} — what do I do?` : `I'm always hungry at 4pm. Normal?`,
-        `Why am I hungrier on rest days than training days?`,
+        hasTrigger ? `I'm craving ${trigger} — what do I do?` : `I'm always hungry at 4pm`,
+        `Why am I hungrier on rest days?`,
         `What kills cravings fastest?`,
-        isFemale ? `My hunger went crazy this week — hormones?` : `I ate my target and still feel empty`,
+        isFemale ? `My hunger went mad this week — hormones?` : `I ate my target and still feel empty`,
       ],
       'optimal': [
-        `My energy crashes at 3pm every day — what's causing it?`,
+        `My energy crashes at 3pm every day`,
         `How do I get sharper focus in the mornings?`,
-        `I've been anxious lately — what can I actually do?`,
+        `I've been anxious lately — what can actually help?`,
         isFemale ? `My mood is all over the place this week` : `How do I boost testosterone naturally at ${age}?`,
       ],
       'training': [
-        `Am I leaving gains on the table with my current split?`,
+        `Am I leaving gains on the table with my split?`,
         `How close to failure should I actually train?`,
-        injuries.length ? `Can I still build muscle training around my ${injuries[0].location || 'injury'}?` : `Is my volume too high, too low, or right?`,
+        injuries.length ? `Can I still build muscle around my ${injuries[0].location || 'injury'}?` : `Is my volume right?`,
         `When should I deload?`,
       ],
       'mentalhealth': [
         `I've been stressed lately — is it affecting my progress?`,
         `How do I stay motivated when results are slow?`,
-        isFemale ? `My relationship with food isn't great right now` : `I keep skipping sessions. What's actually going on?`,
+        isFemale ? `My relationship with food isn't great right now` : `I keep skipping sessions`,
         `Does training actually help with anxiety?`,
       ],
-      'fuel': [
-        `What's the best thing to eat before my session?`,
-        `Post-training — how fast does the window really close?`,
-        `I'm always under on protein by dinner — fix?`,
-        `What should I eat on rest days vs training days?`,
-      ],
-      'food': [
-        `What should I eat today to hit my targets?`,
-        `Give me a quick high-protein dinner that's actually good`,
-        `Am I eating at the right times?`,
-        `Can I eat X and still hit my goals?`,
-      ],
       'longevity': [
-        `What's the single most important thing I can do right now at ${age}?`,
+        `What's the single most important thing I can do at ${age}?`,
         `Should I get any bloodwork done?`,
         `How much Zone 2 do I actually need?`,
         isFemale && age >= 38 ? `What should I know about perimenopause and training?` : `What changes most after ${age + 5}?`,
@@ -228,262 +315,169 @@ RESPONSE FORMAT — ALWAYS follow this:
     return sets[pageType] || [
       `What's the one thing I should focus on right now?`,
       `Am I doing enough, or should I push harder?`,
-      isFemale ? `How does my cycle affect this week's training?` : `What's my highest-leverage habit to add?`,
+      isFemale ? `How does my cycle affect this week?` : `What's my highest-leverage habit to add?`,
       `Coach me on where I'm leaving the most on the table`,
     ];
   }
 
-  // ── RENDER HELPERS ────────────────────────────────────
+  // ── FORMAT RESPONSE — prose only, no markdown ─────────
   function formatResponse(text) {
-    return text
-      // Bold
-      .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
-      // Italic
-      .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
-      // Bullet lines starting with • or -
-      .replace(/^[•\-] (.+)$/gm, '<li>$1</li>')
-      // Wrap consecutive <li> in <ul>
-      .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
-      // Numbered list lines
-      .replace(/^(\d+)\. (.+)$/gm, '<li class="num"><span>$1</span>$2</li>')
-      .replace(/((?:<li class="num">.*<\/li>\n?)+)/g, '<ol>$1</ol>')
-      // Paragraphs
+    // Strip any [NEW_INFO:...] tags from the displayed text
+    const clean = text.replace(/\[NEW_INFO:[^\]]*\]/g, '').trim();
+
+    // Split into paragraphs, wrap each in <p>
+    return clean
       .split(/\n\n+/)
-      .map(p => p.trim())
-      .filter(p => p && !p.startsWith('<ul') && !p.startsWith('<ol'))
-      .reduce((acc, p) => {
-        if (p.startsWith('<li') || p.startsWith('<ul') || p.startsWith('<ol')) return acc + p;
-        return acc + `<p>${p}</p>`;
-      }, '')
-      // Clean double-wrapped tags
-      .replace(/<p>(<[uo]l>)/g, '$1')
-      .replace(/(<\/[uo]l>)<\/p>/g, '$1')
-      || `<p>${text}</p>`;
+      .map(para => {
+        const t = para.trim();
+        if (!t) return '';
+        // Strip any stray markdown bold/italic that slipped through
+        const stripped = t
+          .replace(/\*\*([^*]+)\*\*/g, '$1')
+          .replace(/\*([^*]+)\*/g, '$1')
+          .replace(/^[•\-] /gm, '');
+        return `<p>${stripped}</p>`;
+      })
+      .filter(Boolean)
+      .join('');
   }
 
-  function addMessage(role, text) {
-    const container = document.getElementById('bl-coach-messages');
-    if (!container) return;
-    const empty = container.querySelector('.coach-empty');
-    if (empty) empty.remove();
-    const msg = document.createElement('div');
-    msg.className = `coach-msg ${role}`;
-    const bubble = document.createElement('div');
-    bubble.className = 'coach-msg-bubble';
-    bubble.innerHTML = role === 'coach' ? formatResponse(text) : `<p>${text}</p>`;
-    msg.appendChild(bubble);
-    container.appendChild(msg);
-    container.scrollTop = container.scrollHeight;
-  }
-
-  function showTyping() {
-    const c = document.getElementById('bl-coach-messages');
-    if (!c) return;
-    const t = document.createElement('div');
-    t.id = 'coach-typing';
-    t.className = 'coach-typing';
-    t.innerHTML = '<span></span><span></span><span></span>';
-    c.appendChild(t);
-    c.scrollTop = c.scrollHeight;
-  }
-  function hideTyping() {
-    const el = document.getElementById('coach-typing');
-    if (el) el.remove();
-  }
-  function setStatus(text, thinking) {
-    const el = document.getElementById('coach-status');
-    if (el) { el.textContent = text; el.className = 'coach-status' + (thinking ? ' thinking' : ''); }
-  }
-
-  // ── BUILD UI ──────────────────────────────────────────
+  // ── UI RENDER ─────────────────────────────────────────
   function buildUI() {
     const css = `
     #bl-coach-btn {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: var(--jade, #00c8a0);
-      border: none;
-      cursor: pointer;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: fixed; bottom: 28px; right: 28px;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--jade, #00c8a0); border: none; cursor: pointer;
+      z-index: 9999; display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 20px rgba(0,200,160,0.4);
       transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
       font-size: 20px;
-      flex-shrink: 0;
     }
     #bl-coach-btn:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(0,200,160,0.55); }
     #bl-coach-btn.open { background: #2a3830; box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
 
     #bl-coach-panel {
-      position: fixed;
-      bottom: 92px;
-      right: 28px;
-      width: 380px;
-      max-width: calc(100vw - 40px);
-      height: 530px;
-      max-height: calc(100vh - 110px);
-      background: #111917;
-      border: 1px solid #1e2e28;
-      border-radius: 14px;
-      display: flex;
-      flex-direction: column;
-      z-index: 9998;
+      position: fixed; bottom: 92px; right: 28px;
+      width: 380px; max-width: calc(100vw - 40px);
+      height: 530px; max-height: calc(100vh - 110px);
+      background: #111917; border: 1px solid #1e2e28; border-radius: 14px;
+      display: flex; flex-direction: column; z-index: 9998;
       box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,200,160,0.06);
-      transform: translateY(16px) scale(0.96);
-      opacity: 0;
-      pointer-events: none;
+      transform: translateY(16px) scale(0.96); opacity: 0; pointer-events: none;
       transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s ease;
       overflow: hidden;
     }
-    #bl-coach-panel.open {
-      transform: translateY(0) scale(1);
-      opacity: 1;
-      pointer-events: all;
-    }
+    #bl-coach-panel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: all; }
 
-    /* Header */
     #bl-coach-header {
-      padding: 14px 16px 12px;
-      border-bottom: 1px solid #1a2820;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      background: #0d1512;
+      padding: 14px 16px 12px; border-bottom: 1px solid #1a2820;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0; background: #0d1512;
     }
     .ch-left { display: flex; align-items: center; gap: 10px; }
-    .ch-avatar {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: rgba(0,200,160,0.12); border: 1px solid rgba(0,200,160,0.25);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; flex-shrink: 0;
-    }
-    .ch-title-wrap {}
+    .ch-avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(0,200,160,0.12); border: 1px solid rgba(0,200,160,0.25); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
     .ch-name { font-size: 12px; font-weight: 700; color: #e8e3da; letter-spacing: 0.02em; }
     .ch-ask { font-size: 10px; font-weight: 400; color: #00c8a0; margin-top: 1px; letter-spacing: 0.03em; }
     .coach-status { font-size: 9px; color: #3e504a; }
     .coach-status.thinking { color: #00c8a0; animation: blink 1s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .ch-right { display: flex; gap: 4px; }
-    .ch-btn { background:none; border:none; color:#3e504a; cursor:pointer; font-size:13px; padding:4px 7px; border-radius:5px; transition:color 0.1s; }
+    .ch-right { display: flex; gap: 4px; align-items: center; }
+    .ch-btn { background:none; border:none; color:#3e504a; cursor:pointer; font-size:13px; padding:4px 7px; border-radius:5px; transition:color 0.1s; font-family:inherit; }
     .ch-btn:hover { color:#8a9490; }
 
-    /* Page pill */
-    #bl-coach-page {
-      padding: 5px 16px;
-      font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-      color: #2a4038;
-      background: #0d1512;
-      border-bottom: 1px solid #1a2820;
-      flex-shrink: 0;
-    }
+    #bl-coach-page { padding: 5px 16px; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #2a4038; background: #0d1512; border-bottom: 1px solid #1a2820; flex-shrink: 0; }
     #bl-coach-page span { color: #3e6050; }
 
-    /* Messages */
     #bl-coach-messages {
       flex: 1; overflow-y: auto; padding: 14px 16px;
-      display: flex; flex-direction: column; gap: 12px;
-      scroll-behavior: smooth;
+      display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth;
     }
     #bl-coach-messages::-webkit-scrollbar { width: 3px; }
     #bl-coach-messages::-webkit-scrollbar-thumb { background: #1e2e28; border-radius: 2px; }
 
-    .coach-empty {
-      display:flex; flex-direction:column; align-items:center;
-      justify-content:center; height:100%; text-align:center; padding:20px; gap:8px;
-    }
+    .coach-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px; gap:8px; }
     .coach-empty-icon { font-size:28px; opacity:0.3; }
-    .coach-empty-title { font-size:16px; font-weight:300; color:#8a9490; font-family:'Cormorant Garamond',serif; }
+    .coach-empty-title { font-size:16px; font-weight:300; color:#8a9490; font-family:'Cormorant Garamond',Georgia,serif; }
     .coach-empty-sub { font-size:11px; color:#2a4038; line-height:1.6; max-width:220px; }
 
     .coach-msg { display:flex; flex-direction:column; animation: msgIn 0.16s ease; }
     @keyframes msgIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
 
-    .coach-msg-bubble {
-      font-size: 13px; font-weight: 300; line-height: 1.65;
-      max-width: 90%;
-    }
-    .coach-msg-bubble p { margin: 0 0 8px; }
+    .coach-msg-bubble { font-size: 13px; font-weight: 300; line-height: 1.7; max-width: 92%; }
+    .coach-msg-bubble p { margin: 0 0 10px; }
     .coach-msg-bubble p:last-child { margin-bottom: 0; }
-    .coach-msg-bubble ul, .coach-msg-bubble ol { margin: 6px 0; padding-left: 18px; }
-    .coach-msg-bubble li { margin-bottom: 5px; color: #b0aa9e; }
-    .coach-msg-bubble li.num { list-style: none; padding-left: 4px; }
-    .coach-msg-bubble li.num span { color: #00c8a0; font-weight: 600; margin-right: 6px; }
-    .coach-msg-bubble strong { color: #e8e3da; font-weight: 600; }
-    .coach-msg-bubble em { color: #00c8a0; font-style: normal; font-weight: 500; }
 
     .coach-msg.user .coach-msg-bubble {
       background: #1a2820; color: #e8e3da;
-      padding: 9px 13px; border-radius: 10px 10px 2px 10px;
-      align-self: flex-end;
+      padding: 9px 13px; border-radius: 10px 10px 2px 10px; align-self: flex-end;
     }
     .coach-msg.coach .coach-msg-bubble {
-      color: #b0aa9e; align-self: flex-start;
-      border-left: 2px solid rgba(0,200,160,0.25); padding-left: 11px;
+      color: #c0b8b0; align-self: flex-start;
+      border-left: 2px solid rgba(0,200,160,0.22); padding-left: 11px;
     }
 
-    /* Typing */
-    .coach-typing {
-      display: flex; gap: 5px; align-items: center;
-      padding: 8px 0 0 13px; border-left: 2px solid rgba(0,200,160,0.2);
-    }
-    .coach-typing span {
-      width: 5px; height: 5px; background: #3e504a; border-radius: 50%;
-      animation: td 1.2s infinite;
-    }
-    .coach-typing span:nth-child(2) { animation-delay: 0.2s; }
-    .coach-typing span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes td { 0%,60%,100%{transform:translateY(0);opacity:0.3} 30%{transform:translateY(-4px);opacity:1} }
+    .coach-typing { display:flex; gap:5px; align-items:center; padding:8px 0 0 13px; border-left:2px solid rgba(0,200,160,0.18); }
+    .coach-typing span { width:5px; height:5px; background:#3e504a; border-radius:50%; animation:td 1.2s infinite; }
+    .coach-typing span:nth-child(2){animation-delay:0.2s;}
+    .coach-typing span:nth-child(3){animation-delay:0.4s;}
+    @keyframes td{0%,60%,100%{transform:translateY(0);opacity:0.3}30%{transform:translateY(-4px);opacity:1}}
 
-    /* Chips */
+    /* Chips — initial and follow-up */
     #bl-coach-chips {
-      padding: 8px 16px 4px;
-      display: flex; flex-wrap: wrap; gap: 6px;
-      flex-shrink: 0;
+      padding: 8px 16px 4px; display: flex; flex-wrap: wrap; gap: 6px; flex-shrink: 0;
     }
     .coach-chip {
-      background: #141f1a; border: 1px solid #1e2e28;
-      border-radius: 20px; padding: 5px 13px;
-      font-size: 11px; font-weight: 400; color: #5a7060;
+      background: #141f1a; border: 1px solid #1e2e28; border-radius: 20px;
+      padding: 5px 13px; font-size: 11px; font-weight: 400; color: #5a7060;
       cursor: pointer; transition: all 0.12s; white-space: nowrap;
+      font-family: inherit;
     }
-    .coach-chip:hover { border-color: rgba(0,200,160,0.35); color: #00c8a0; background: rgba(0,200,160,0.05); }
+    .coach-chip:hover { border-color:rgba(0,200,160,0.35); color:#00c8a0; background:rgba(0,200,160,0.05); }
+    .coach-chip.followup { border-color: rgba(0,200,160,0.15); color: #4a6858; }
+    .coach-chip.followup:hover { border-color: rgba(0,200,160,0.4); color: #00c8a0; }
+
+    /* Profile update prompt */
+    .coach-update-prompt {
+      background: rgba(0,200,160,0.06); border: 1px solid rgba(0,200,160,0.2);
+      border-radius: 8px; padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      animation: msgIn 0.2s ease;
+    }
+    .cup-icon { font-size: 14px; flex-shrink: 0; }
+    .cup-text { font-size: 12px; font-weight: 300; color: #8a9490; flex: 1; min-width: 120px; line-height: 1.4; }
+    .cup-text em { color: #00c8a0; font-style: normal; }
+    .cup-actions { display: flex; gap: 6px; }
+    .cup-yes { background: rgba(0,200,160,0.12); border: 1px solid rgba(0,200,160,0.3); color: #00c8a0; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.12s; }
+    .cup-yes:hover { background: rgba(0,200,160,0.2); }
+    .cup-no { background: transparent; border: 1px solid #1e2e28; color: #3e504a; padding: 4px 10px; border-radius: 12px; font-size: 11px; cursor: pointer; font-family: inherit; }
+    .cup-saved { font-size: 11px; color: #00c8a0; padding: 4px 0; }
 
     /* Input */
     #bl-coach-input-wrap {
-      padding: 10px 14px 14px;
-      border-top: 1px solid #1a2820;
-      display: flex; gap: 8px; flex-shrink: 0;
-      background: #0d1512;
+      padding: 10px 14px 14px; border-top: 1px solid #1a2820;
+      display: flex; gap: 8px; flex-shrink: 0; background: #0d1512;
     }
     #bl-coach-input {
-      flex: 1; background: #1a2820; border: 1px solid #1e2e28;
-      border-radius: 10px; padding: 9px 13px;
-      font-size: 13px; font-family: 'Space Grotesk',sans-serif;
-      color: #e8e3da; outline: none; resize: none;
-      line-height: 1.4; max-height: 90px; transition: border-color 0.12s;
+      flex: 1; background: #1a2820; border: 1px solid #1e2e28; border-radius: 10px;
+      padding: 9px 13px; font-size: 13px; font-family: 'Space Grotesk', sans-serif;
+      color: #e8e3da; outline: none; resize: none; line-height: 1.4; max-height: 90px;
+      transition: border-color 0.12s;
     }
     #bl-coach-input:focus { border-color: rgba(0,200,160,0.35); }
     #bl-coach-input::placeholder { color: #2a4038; }
     #bl-coach-send {
-      width: 34px; height: 34px; border-radius: 8px;
-      background: #00c8a0; border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; align-self: flex-end;
-      transition: opacity 0.12s; color: #0c1010; font-size: 15px; font-weight: 700;
+      width: 34px; height: 34px; border-radius: 8px; background: #00c8a0;
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; align-self: flex-end; transition: opacity 0.12s;
+      color: #0c1010; font-size: 16px; font-weight: 700;
     }
     #bl-coach-send:hover { opacity: 0.85; }
     #bl-coach-send:disabled { opacity: 0.25; cursor: not-allowed; }
 
-    @media(max-width: 480px) {
-      #bl-coach-panel { right: 10px; bottom: 82px; width: calc(100vw - 20px); }
-      #bl-coach-btn { right: 14px; bottom: 18px; }
+    @media(max-width:480px) {
+      #bl-coach-panel { right:10px; bottom:82px; width:calc(100vw - 20px); }
+      #bl-coach-btn { right:14px; bottom:18px; }
     }
     `;
 
@@ -498,7 +492,7 @@ RESPONSE FORMAT — ALWAYS follow this:
         <div id="bl-coach-header">
           <div class="ch-left">
             <div class="ch-avatar">⚡</div>
-            <div class="ch-title-wrap">
+            <div>
               <div class="ch-name">Your Coach</div>
               <div class="ch-ask">Ask me anything</div>
             </div>
@@ -522,9 +516,48 @@ RESPONSE FORMAT — ALWAYS follow this:
           <textarea id="bl-coach-input" placeholder="Ask your coach…" rows="1"></textarea>
           <button id="bl-coach-send">↑</button>
         </div>
-      </div>
-    `;
+      </div>`;
     document.body.appendChild(wrap);
+  }
+
+  // ── HELPERS ───────────────────────────────────────────
+  function addMessage(role, text) {
+    const container = document.getElementById('bl-coach-messages');
+    if (!container) return;
+    const empty = container.querySelector('.coach-empty');
+    if (empty) empty.remove();
+    const msg = document.createElement('div');
+    msg.className = `coach-msg ${role}`;
+    const bubble = document.createElement('div');
+    bubble.className = 'coach-msg-bubble';
+    bubble.innerHTML = role === 'coach' ? formatResponse(text) : `<p>${text}</p>`;
+    msg.appendChild(bubble);
+    container.appendChild(msg);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function showTyping() {
+    const c = document.getElementById('bl-coach-messages');
+    if (!c) return;
+    const t = document.createElement('div');
+    t.id = 'coach-typing'; t.className = 'coach-typing';
+    t.innerHTML = '<span></span><span></span><span></span>';
+    c.appendChild(t); c.scrollTop = c.scrollHeight;
+  }
+  function hideTyping() { const el = document.getElementById('coach-typing'); if (el) el.remove(); }
+
+  function setStatus(text, thinking) {
+    const el = document.getElementById('coach-status');
+    if (el) { el.textContent = text; el.className = 'coach-status' + (thinking ? ' thinking' : ''); }
+  }
+
+  function showFollowUpChips(chips) {
+    const container = document.getElementById('bl-coach-chips');
+    if (!container || !chips || !chips.length) return;
+    container.style.display = 'flex';
+    container.innerHTML = chips.map(c =>
+      `<div class="coach-chip followup" onclick="window._blCoach.send(${JSON.stringify(c)})">${c}</div>`
+    ).join('');
   }
 
   // ── INIT ──────────────────────────────────────────────
@@ -544,22 +577,20 @@ RESPONSE FORMAT — ALWAYS follow this:
       if (send) send.disabled = true;
       if (input) { input.placeholder = 'Complete onboarding to chat with your coach'; input.disabled = true; }
     } else {
-      // Render chips
-      renderChips(profile);
-      // Restore history
+      renderInitialChips(profile);
       loadHistory().forEach(m => addMessage(m.role === 'user' ? 'user' : 'coach', m.content));
     }
 
-    // Toggle
+    // Toggle panel open/close
     btn.addEventListener('click', () => {
-      const open = panel.classList.toggle('open');
-      btn.classList.toggle('open', open);
-      btn.innerHTML = open ? '✕' : '💬';
-      if (open && input && !input.disabled) setTimeout(() => input.focus(), 250);
+      const isOpen = panel.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+      btn.innerHTML = isOpen ? '✕' : '💬';
+      if (isOpen && input && !input.disabled) setTimeout(() => input.focus(), 250);
     });
 
-    // Send
-    async function send_msg(text) {
+    // The send function — MUST be async
+    const send_msg = async (text) => {
       if (!profile) return;
       const msg = text || input?.value?.trim();
       if (!msg) return;
@@ -568,22 +599,38 @@ RESPONSE FORMAT — ALWAYS follow this:
       setStatus('Thinking…', true);
       addMessage('user', msg);
       showTyping();
-      // Hide chips after first message
-      const chips = document.getElementById('bl-coach-chips');
-      if (chips) chips.style.display = 'none';
+
+      // Hide initial chips on first message
+      const chipsEl = document.getElementById('bl-coach-chips');
+      if (chipsEl) chipsEl.style.display = 'none';
+
       try {
         const reply = await askCoach(msg, profile);
         hideTyping();
         addMessage('coach', reply);
         setStatus('Ready');
+
+        // Check for new info tag
+        const newInfo = extractNewInfo(reply);
+        if (newInfo) {
+          promptProfileUpdate(newInfo, profile);
+        }
+
+        // Generate follow-up chips asynchronously
+        generateFollowUps(msg, reply, profile).then(followUps => {
+          if (followUps && followUps.length) showFollowUpChips(followUps);
+        });
+
       } catch(e) {
         hideTyping();
-        addMessage('coach', 'Something went wrong — ' + (e.message || 'try again'));
+        addMessage('coach', 'Something went wrong — try again.');
         setStatus('Error');
+        console.error('Coach error:', e);
       }
+
       if (send) send.disabled = false;
       if (input && !text) input.focus();
-    }
+    };
 
     if (send) send.addEventListener('click', () => send_msg());
     if (input) {
@@ -597,24 +644,29 @@ RESPONSE FORMAT — ALWAYS follow this:
     }
 
     window._blCoach = {
-      send: t => send_msg(t),
-      open: () => { panel.classList.add('open'); btn.classList.add('open'); btn.innerHTML='✕'; },
-      close: () => { panel.classList.remove('open'); btn.classList.remove('open'); btn.innerHTML='💬'; },
+      send: (t) => send_msg(t),
+      open: () => { panel.classList.add('open'); btn.classList.add('open'); btn.innerHTML = '✕'; },
+      close: () => { panel.classList.remove('open'); btn.classList.remove('open'); btn.innerHTML = '💬'; },
       clear: () => {
         clearHistory();
         const c = document.getElementById('bl-coach-messages');
         if (c) c.innerHTML = `<div class="coach-empty"><div class="coach-empty-icon">⚡</div><div class="coach-empty-title">Ask me anything</div><div class="coach-empty-sub">I know your programme, your goals, and what you're reading right now.</div></div>`;
-        const chips = document.getElementById('bl-coach-chips');
-        if (chips && profile) { chips.style.display = 'flex'; renderChips(profile); }
+        if (profile) renderInitialChips(profile);
         setStatus('Ready');
+      },
+      saveInfo: (newInfo, el) => {
+        const ok = saveNewInfo(newInfo, profile);
+        if (el) el.innerHTML = `<div class="cup-saved">✓ Saved to your profile</div>`;
+        setTimeout(() => { if (el) el.remove(); }, 2000);
       },
     };
   }
 
-  function renderChips(profile) {
-    const chips = getChips(profile, getPageType());
+  function renderInitialChips(profile) {
+    const chips = getInitialChips(profile, getPageType());
     const el = document.getElementById('bl-coach-chips');
     if (!el) return;
+    el.style.display = 'flex';
     el.innerHTML = chips.map(c =>
       `<div class="coach-chip" onclick="window._blCoach.send(${JSON.stringify(c)})">${c}</div>`
     ).join('');
