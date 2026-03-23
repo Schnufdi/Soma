@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0c1010">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BodyLens">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="bl-page" content="mentalhealth">
 <title>BodyLens — Mental Health</title>
@@ -49,13 +57,18 @@ body{background:var(--ink);color:var(--dk-1);}
 <nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
-    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-fuel.html">Food</a>
+    <a class="nav-link" href="bodylens-dailyplan.html">Today</a>
+    <a class="nav-link" href="bodylens-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
-    <a class="nav-link active" href="bodylens-science.html">Science</a>
+    <a class="nav-link" href="bodylens-science.html">Science</a>
+    <a class="nav-link" href="bodylens-instructions.html">Report</a>
   </div>
-  <div class="nav-breadcrumb"><a href="bodylens-science.html" class="nav-bc-parent">Science</a><span class="nav-bc-sep">›</span><span class="nav-bc-current">Mental Health</span></div>
-  <div class="nav-right-group"><a class="nav-right" href="bodylens-howitworks.html">How it works</a><div class="nav-meta" id="nav-meta"></div></div>
+  <div class="nav-right-group">
+    <a class="nav-right" href="bodylens-guide.html">Guide</a>
+    <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
+    <a class="nav-right" href="bodylens-bodyscan.html">Body scan</a>
+    <div class="nav-meta" id="nav-meta"></div>
+  </div>
 </nav>
 
 <div class="hero"><div class="hi">
@@ -188,6 +201,7 @@ body{background:var(--ink);color:var(--dk-1);}
 </div>
 
 <script src="nav.js"></script>
+<script src="pwa.js"></script>
 <script src="coach.js"></script>
 <script>
 function showPane(id,btn){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.sn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');if(btn)btn.classList.add('active');}
@@ -246,6 +260,27 @@ function inject(id,text){const el=document.getElementById(id);const tx=document.
     }
   }catch(e){console.error(e);}
 })();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(reg => {
+        window.__SW_REG = reg;
+        // Check for updates silently
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[BodyLens] SW registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>

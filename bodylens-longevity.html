@@ -3,6 +3,14 @@
 <head>
 <meta name="bl-inject" content="longevity">
 <meta charset="UTF-8">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0c1010">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BodyLens">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <meta name="bl-page" content="longevity">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BodyLens — Longevity Map</title>
@@ -243,19 +251,16 @@ body { background: var(--ink); color: var(--dk-1); }
 <nav class="site-nav">
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
-    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-fuel.html">Food</a>
+    <a class="nav-link" href="bodylens-dailyplan.html">Today</a>
+    <a class="nav-link" href="bodylens-food.html">Food</a>
     <a class="nav-link" href="bodylens-programme.html">Programme</a>
     <a class="nav-link" href="bodylens-science.html">Science</a>
-  </div>
-
-  <div class="nav-breadcrumb">
-    <a href="bodylens-science.html" class="nav-bc-parent">Science</a>
-    <span class="nav-bc-sep">›</span>
-    <span class="nav-bc-current">Longevity</span>
+    <a class="nav-link" href="bodylens-instructions.html">Report</a>
   </div>
   <div class="nav-right-group">
-    <a class="nav-link nav-right" href="bodylens-howitworks.html">How it works</a>
+    <a class="nav-right" href="bodylens-guide.html">Guide</a>
+    <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
+    <a class="nav-right" href="bodylens-bodyscan.html">Body scan</a>
     <div class="nav-meta" id="nav-meta"></div>
   </div>
 </nav>
@@ -454,7 +459,7 @@ const DECADES = {
   ],
   prescription: {
     training: 'Twice-weekly frequency per muscle group. Non-negotiable Zone 2 cardio 2–3×/week. Posterior chain is the therapeutic priority. 72h recovery between heavy same-muscle sessions. Progressive overload every week.',
-    nutrition: 'Protein 1.8–2.2g/kg (185g at 85kg). Collagen + Vit C pre-training. Omega-3 3g+ EPA/DHA daily. D3 3,000+ IU. Magnesium glycinate for sleep. Anti-inflammatory eating pattern throughout.',
+    nutrition: 'Protein 1.8–2.2g/kg (calculated from your weight). Collagen + Vit C pre-training. Omega-3 3g+ EPA/DHA daily. D3 3,000+ IU. Magnesium glycinate for sleep. Anti-inflammatory eating pattern throughout.',
     lifestyle: '8 hours sleep is non-negotiable — GH, testosterone, and connective tissue repair all depend on it. Stress management through Ashwagandha and structural rest. HRV tracking if possible (Oura/Whoop).',
     monitoring: 'Annual: testosterone (free + total), SHBG, lipids, fasting insulin, HbA1c, D3, CRP, ferritin. DEXA scan every 2–3 years. Coronary calcium score by 45 (free NHS or private ~£150).',
   }
@@ -947,6 +952,28 @@ showDecade(activeDecade, targetBand);
   } catch(e){}
 })();
 </script>
+<script src="pwa.js"></script>
 <script src="coach.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(reg => {
+        window.__SW_REG = reg;
+        // Check for updates silently
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[BodyLens] SW registration failed:', err));
+  });
+}
+</script>
 </body>
 </html>
