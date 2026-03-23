@@ -1378,11 +1378,7 @@ function renderPlan(plan){
     +'<div class="sec-label">Your day</div>'
     +blocksHtml
     +'<div class="sos-trigger-row">'    +'<button class="sos-t-btn primary" onclick="openSOS(null)">&#9889; Fix a problem</button>'    +'<button class="sos-t-btn" onclick="openSOS(\"starving\")">&#128514; I\'m starving</button>'    +'<button class="sos-t-btn" onclick="openSOS(\"bad-sleep\")">&#128564; Bad sleep</button>'    +'<button class="sos-t-btn" onclick="openSOS(\"skip-gym\")">&#127947; Skipping gym</button>'    +'</div>'    +'<button class="regen-btn" onclick="regen()">\u8635 Rebuild today</button>'
-    +'<div class="ask-bar">'
-    +'<div class="ask-chips" id="ask-chips"></div>'
-    +'<div class="ask-row"><input class="ask-inp" id="ask-inp" type="text" placeholder="Ask anything about today\u2026"><button class="ask-snd" onclick="sendAsk()">\u2191</button></div>'
-    +'<div class="ask-ans" id="ask-ans"></div>'
-    +'</div>';
+    
 
   // Programme strip
   var ps=document.getElementById('prog-strip-slot');
@@ -1394,14 +1390,7 @@ function renderPlan(plan){
   }
 
   // Chips
-  var chips=t.isTraining?['How hard should I push today?','Most important meal today?','Am I recovered enough?']:['Rest day: active or off?','Same calories today?','How to make rest day count?'];
-  var chipEl=document.getElementById('ask-chips');
-  if(chipEl){
-    chipEl.innerHTML=chips.map(function(c){return '<div class="ask-chip" data-msg="'+c.replace(/"/g,'&quot;')+'">'+c+'</div>';}).join('');
-    chipEl.querySelectorAll('.ask-chip').forEach(function(el){el.addEventListener('click',function(){sendAsk(el.dataset.msg);});});
-  }
-  var askInp=document.getElementById('ask-inp');
-  if(askInp)askInp.addEventListener('keydown',function(e){if(e.key==='Enter')sendAsk();});
+  
 }
 
 function regen(){try{localStorage.removeItem(TODAY.cacheKey);}catch(e){}location.reload();}
