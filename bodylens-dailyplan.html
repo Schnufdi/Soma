@@ -423,105 +423,13 @@
 }
 </style>
 
-
-/* ── COACH NARRATIVE + TWO-COL ──────────────────── */
-.day-layout{display:grid;grid-template-columns:1fr 300px;gap:32px;align-items:start;}
-.day-col-left{}
-.day-col-right{position:sticky;top:60px;padding-top:4px;}
-.coach-prose-wrap{padding:0;}
-.coach-prose-spin{padding:16px 0;text-align:center;}
-.coach-prose{font-family:var(--serif);font-size:15px;font-weight:300;color:var(--dk-2);line-height:2.0;}
-.coach-prose p{margin:0 0 16px;}
-.coach-prose p:last-child{margin:0;}
-.coach-refresh{display:block;margin-top:14px;background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;font-family:var(--sans);padding:0;text-decoration:underline;}
-
-/* ── INLINE COACH VOICE ──────────────────────────── */
-.coach-note{font-size:11px;font-weight:300;color:var(--jade);line-height:1.65;padding:6px 14px 8px 54px;font-style:italic;border-top:1px solid rgba(0,200,160,0.08);}
-.coach-note::before{content:'Coach: ';font-weight:600;font-style:normal;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--jade);opacity:0.7;}
-.tl-block.t-training .coach-note{color:var(--jade);}
-.tl-block.t-meal .coach-note{color:var(--amber);}
-.tl-block.t-meal .coach-note::before{color:var(--amber);}
-.tl-block.t-supp .coach-note{color:var(--gold);}
-.tl-block.t-supp .coach-note::before{color:var(--gold);}
-
-
-/* Top input field */
-.day-top-input{margin-bottom:20px;}
-.dti-label{font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:7px;}
-.dti-row{display:flex;gap:7px;}
-.dti-inp{flex:1;background:var(--ink-2);border:1px solid var(--bd);border-radius:7px;padding:10px 13px;font-size:13px;font-family:var(--sans);color:var(--dk-1);outline:none;transition:border-color .12s;}
-.dti-inp:focus{border-color:rgba(200,148,30,0.4);}
-.dti-inp::placeholder{color:var(--dk-3);}
-.dti-send{background:var(--gold);border:none;color:var(--ink);border-radius:7px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;}
-
-@media(max-width:900px){
-  .day-layout{grid-template-columns:1fr;}
-  .day-col-right{position:static;}
-  .coach-box{margin-bottom:0;}
-}
-
-/* ── SOS PANEL ───────────────────────────────── */
-.sos-trigger-row{display:flex;gap:6px;margin-top:20px;margin-bottom:6px;}
-.sos-t-btn{flex:1;background:rgba(200,148,30,0.07);border:1px solid rgba(200,148,30,0.2);border-radius:18px;padding:7px 10px;font-size:10px;font-weight:600;letter-spacing:0.03em;color:var(--gold);cursor:pointer;font-family:var(--sans);text-align:center;transition:all .12s;}
-.sos-t-btn:hover{background:rgba(200,148,30,0.14);border-color:rgba(200,148,30,0.4);}
-.sos-t-btn.primary{background:rgba(200,148,30,0.12);border-color:rgba(200,148,30,0.35);}
-.sos-overlay{display:none;position:fixed;inset:0;background:rgba(8,14,13,0.75);z-index:300;align-items:flex-end;justify-content:center;}
-.sos-overlay.open{display:flex;}
-.sos-panel{background:var(--ink-1);border:1px solid var(--bd);border-radius:14px 14px 0 0;width:100%;max-width:580px;max-height:88vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,16px);}
-.sos-hd{padding:14px 18px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
-.sos-hd-left{}
-.sos-kicker{font-size:8px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
-.sos-hdtitle{font-size:15px;font-weight:500;color:var(--dk-1);}
-.sos-x{background:none;border:1px solid var(--bd);color:var(--dk-3);width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:14px;font-family:var(--sans);}
-.sos-scenarios{padding:14px 16px 8px;}
-.sos-sc-label{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;}
-.sos-sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-.sos-sc{background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .1s;text-align:left;}
-.sos-sc:hover{border-color:rgba(200,148,30,0.35);}
-.sos-sc.sel{border-color:var(--gold);background:rgba(200,148,30,0.06);}
-.sos-sc-icon{font-size:16px;margin-bottom:4px;}
-.sos-sc-lbl{font-size:12px;font-weight:500;color:var(--dk-1);line-height:1.35;}
-.sos-sc-sub{font-size:10px;font-weight:300;color:var(--dk-3);margin-top:1px;}
-.sos-or{display:flex;align-items:center;gap:8px;padding:6px 16px;}
-.sos-or-line{flex:1;height:1px;background:var(--bd);}
-.sos-or-txt{font-size:10px;color:var(--dk-3);font-weight:500;}
-.sos-free{display:block;margin:0 16px 14px;width:calc(100% - 32px);background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:9px 12px;font-size:13px;font-family:var(--sans);color:var(--dk-1);outline:none;resize:none;line-height:1.5;transition:border-color .12s;}
-.sos-free:focus{border-color:rgba(200,148,30,0.4);}
-.sos-free::placeholder{color:var(--dk-3);}
-.sos-go{display:block;margin:0 16px 14px;width:calc(100% - 32px);background:var(--gold);border:none;color:var(--ink);border-radius:8px;padding:12px;font-size:13px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);}
-.sos-go:disabled{opacity:.4;cursor:default;}
-.sos-spin-wrap{padding:20px;text-align:center;display:none;}
-.sos-spin-wrap.show{display:block;}
-.sos-result{display:none;margin:0 16px 16px;}
-.sos-result.show{display:block;}
-.sos-r-head{background:rgba(200,148,30,0.04);border:1px solid rgba(200,148,30,0.18);border-radius:8px 8px 0 0;padding:11px 14px;border-bottom:none;}
-.sos-r-kicker{font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
-.sos-r-title{font-size:14px;font-weight:500;color:var(--dk-1);}
-.sos-r-body{background:var(--ink-2);border:1px solid rgba(200,148,30,0.18);border-radius:0 0 8px 8px;padding:13px 14px;}
-.sos-r-text{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.85;margin-bottom:12px;}
-.sos-fixes{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;}
-.sos-fix{background:var(--ink-1);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;display:flex;gap:9px;align-items:flex-start;}
-.sos-fix-dot{width:6px;height:6px;border-radius:50%;background:var(--jade);margin-top:5px;flex-shrink:0;}
-.sos-fix-txt{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;}
-.sos-fix-txt strong{color:var(--dk-1);font-weight:500;}
-.sos-r-actions{display:flex;gap:7px;}
-.sos-done-btn{flex:1;background:var(--jade);border:none;color:var(--ink);border-radius:6px;padding:10px;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);}
-.sos-more-btn{background:transparent;border:1px solid var(--bd);color:var(--dk-3);border-radius:6px;padding:10px 14px;font-size:11px;cursor:pointer;font-family:var(--sans);}
-@media(min-width:600px){.sos-sc-grid{grid-template-columns:1fr 1fr 1fr;}}
-@media(max-width:600px){@media(max-width:600px){
-  .day-page,.week-strip,.macro-bar{padding-left:16px;padding-right:16px;}
-  .sp-panel{width:100vw;}
-  .macro-tiles{grid-template-columns:repeat(2,1fr);}
-}
-</style>
-
 <script src="nav.js"></script>
 <script>
 'use strict';
 // BodyLens Daily Plan v5 — clean rebuild
 // PLAN_VERSION: bump this whenever renderPlan or buildPlan changes
 // Old cache keys with a different version are automatically purged on load.
-var PLAN_VERSION = 'v5r9';
+var PLAN_VERSION = 'v6r1';
 var API   = '/api/chat';
 var MODEL = 'claude-sonnet-4-20250514';
 var P=null, TODAY=null, MACROS=null;
@@ -542,6 +450,91 @@ function _rKey(s){return 'bl_recipe_'+s+'_'+_rDate;}
 function _rLoad(){['pre-training','post-training','midday','afternoon','evening'].forEach(function(s){try{var r=localStorage.getItem(_rKey(s));if(r)_recipes[s]=JSON.parse(r);}catch(e){}});}
 function _rSave(s,r){_recipes[s]=r;try{localStorage.setItem(_rKey(s),JSON.stringify(r));}catch(e){}}
 function _rBust(s){delete _recipes[s];try{localStorage.removeItem(_rKey(s));}catch(e){}}
+
+// ── WEEKLY MEAL PLAN ───────────────────────────────
+// bl_weekly_meals_YYYY-Www = {
+//   weekKey, generatedAt,
+//   days: { "Monday": { slots: { "midday": {name, calories, protein, carbs, fat, ingredients, method}, ... } }, ... }
+// }
+// One generation per week. Daily plan reads from this — no per-day meal API calls.
+
+function _weekKey(){
+  var d=new Date();
+  var mon=new Date(d);
+  var day=d.getDay();
+  mon.setDate(d.getDate()-(day===0?6:day-1));
+  return 'bl_weekly_meals_'+mon.toISOString().slice(0,10);
+}
+
+function loadWeeklyMeals(){
+  try{var r=localStorage.getItem(_weekKey());return r?JSON.parse(r):null;}catch(e){return null;}
+}
+
+function saveWeeklyMeals(data){
+  try{localStorage.setItem(_weekKey(),JSON.stringify(data));}catch(e){}
+}
+
+function getMealForSlot(dayName, slot){
+  var wm=loadWeeklyMeals();
+  if(!wm||!wm.days||!wm.days[dayName])return null;
+  return wm.days[dayName][slot]||null;
+}
+
+// Today's meal for a given slot — reads from weekly plan then falls back to per-day recipe cache
+function getTodayMeal(slot){
+  var meal=getMealForSlot(TODAY && TODAY.name, slot);
+  if(meal) return meal;
+  return _recipes[slot]||null;
+}
+
+// Generate the full week of meals via API — called once per week
+async function buildWeeklyMealPlan(force){
+  var existing=loadWeeklyMeals();
+  if(existing && !force) return existing;
+
+  var p=P;
+  if(!p) return null;
+
+  var DAY_NAMES=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var weekPlan=p.weekPlan||[];
+  var exclusions=(p.foodExclusions||[]).join(', ')||'none';
+  var cuisines=(p.cuisinePrefs||[]).join(', ')||'flexible';
+  var trainingKcal=p.trainingKcal||(p.calories||2000);
+  var restKcal=p.restKcal||Math.round((p.calories||2000)*0.90);
+
+  var prompt='You are a performance nutritionist. Build a complete week of meals for '+p.name+'.\n\n'
+    +'Profile: '+p.age+'yo '+p.sex+', '+p.weight+'kg, goal: '+p.goal+'\n'
+    +'Protein: '+p.protein+'g/day | Training kcal: '+trainingKcal+' | Rest kcal: '+restKcal+'\n'
+    +'Diet: '+(p.dietType||'flexible')+' | Exclude: '+exclusions+' | Cuisine: '+cuisines+'\n'
+    +'Complexity: '+(p.recipeComplexity||'standard')+'\n\n'
+    +'Week schedule:\n'
+    +DAY_NAMES.map(function(name,i){
+      var dp=weekPlan[i]||{type:'Rest',priority:'rest'};
+      return name+': '+(dp.priority==='training'?dp.type+' training':'Rest day');
+    }).join('\n')
+    +'\n\nFor each day provide 2-3 meals. Training days: pre-train + post-train + evening. Rest days: midday + evening.\n'
+    +'Each meal: specific recipe name, accurate macros.\n\n'
+    +'Return ONLY valid JSON:\n'
+    +'{"days":{"Monday":{"midday":{"name":"Specific Recipe Name","calories":0,"protein":0,"carbs":0,"fat":0,"prepTime":"15 min","ingredients":[{"name":"","quantity":""}],"method":"One sentence."},"evening":{...}},"Tuesday":{...},...}}';
+
+  try{
+    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MODEL,max_tokens:3000,
+        system:'Return ONLY valid JSON. No markdown, no preamble.',
+        messages:[{role:'user',content:prompt}]})});
+    var data=await res.json();
+    var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var match=text.match(/\{[\s\S]*\}/);
+    if(!match)throw new Error('no json');
+    var parsed=JSON.parse(match[0]);
+    var wm={weekKey:_weekKey(),generatedAt:new Date().toISOString(),days:parsed.days||{}};
+    saveWeeklyMeals(wm);
+    return wm;
+  }catch(e){
+    console.warn('Weekly meal plan generation failed:',e);
+    return null;
+  }
+}
 
 function loadProfile(){try{return JSON.parse(localStorage.getItem('bl_profile')||'null');}catch(e){return null;}}
 
@@ -941,6 +934,21 @@ function buildPlan(profile, today) {
 
   // Apply any saved optimisations to the blocks
   applyOptimisations(blocks, p, today);
+
+  // Enrich meal titles from weekly meal plan (if available)
+  var wm = loadWeeklyMeals();
+  if (wm && wm.days && wm.days[name]) {
+    var dayMeals = wm.days[name];
+    blocks.forEach(function(b) {
+      if (b.mealSlot && dayMeals[b.mealSlot] && dayMeals[b.mealSlot].name) {
+        var meal = dayMeals[b.mealSlot];
+        b.title = meal.name;
+        b.subtitle = meal.protein + 'g P · ' + meal.calories + ' kcal' + (meal.prepTime ? ' · ' + meal.prepTime : '');
+        // Pre-populate recipe cache from weekly plan so no extra API call needed
+        _rSave(b.mealSlot, meal);
+      }
+    });
+  }
 
   return {
     dayTitle: name + (isTraining ? ' — ' + plan.type : ' — Rest'),
@@ -1596,6 +1604,35 @@ function toggleMeal(i){
   if(block)block.classList.toggle('meal-open');
 }
 function quickTick(slot,i){
+  // Toggle — if already logged, untick and wipe
+  if(MACROS && MACROS.meals[slot] && MACROS.meals[slot].logged){
+    // UNTICK
+    delete MACROS.meals[slot];
+    MACROS.eaten={kcal:0,prot:0,carbs:0,fat:0};
+    Object.values(MACROS.meals).forEach(function(x){if(x&&x.logged){MACROS.eaten.kcal+=x.kcal||0;MACROS.eaten.prot+=x.prot||0;MACROS.eaten.carbs+=x.carbs||0;MACROS.eaten.fat+=x.fat||0;}});
+    saveMacros();
+    updateMacroBar();
+    adjustRemaining();
+    if(typeof syncMacrosToLog==='function') setTimeout(syncMacrosToLog, 50);
+    // Reset block UI
+    var tick=document.querySelector('.ptl-tick[data-slot="'+slot+'"]');
+    if(tick){tick.classList.remove('done');tick.textContent='\u2713';}
+    // Find the block wrapper and remove eaten class
+    var blockEl=document.getElementById('block-'+slot);
+    if(blockEl) blockEl.classList.remove('eaten');
+    // Also check by index
+    var mealEl=document.getElementById('meal-'+i);
+    if(mealEl){
+      var blockWrap=mealEl.closest('.ptl-block');
+      if(blockWrap) blockWrap.classList.remove('eaten');
+    }
+    // Reset subtitle
+    var sub=document.getElementById('sub-'+slot);
+    if(sub){sub.style.color='';sub.textContent='';}
+    return;
+  }
+
+  // TICK — log the meal
   var recipe=_recipes[slot];
   var p=P,t=TODAY;
   var prot=Math.round((p.protein||140)/(p.mealCount||4));
@@ -1604,17 +1641,18 @@ function quickTick(slot,i){
   var actualKcal=recipe?recipe.calories:kcal;
   var m={prot:actualProt,carbs:recipe?(recipe.carbs||0):Math.round((p.carbs||160)*0.25),fat:recipe?(recipe.fat||0):Math.round((p.fat||60)*0.25),kcal:actualKcal,logged:true,note:'Ate as planned'};
   logMealMacros(slot,m);
-  // Update tick + tag
-  document.querySelectorAll('[data-slot="'+slot+'"] .tl-tick').forEach(function(el){el.classList.add('done');el.textContent='\u2713';});
-  var tag=document.getElementById('mtag-'+slot);
-  if(tag)tag.textContent='\u2713 Eaten';
-  // Update mini progress bar to 100%
-  var mbar=document.getElementById('mbar-'+slot);
-  if(mbar){mbar.style.width='100%';mbar.style.background='var(--jade)';}
-  // Update subtitle with actual macros
+  // Update tick
+  var tick=document.querySelector('.ptl-tick[data-slot="'+slot+'"]');
+  if(tick){tick.classList.add('done');tick.textContent='\u2713';}
+  // Update subtitle
   var sub=document.getElementById('sub-'+slot);
   if(sub){sub.textContent=actualProt+'g P \u00b7 '+actualKcal+' kcal \u2713';sub.style.color='var(--jade)';}
-  document.getElementById('meal-'+i)&&document.getElementById('meal-'+i).classList.add('eaten');
+  // Fade block
+  var mealEl=document.getElementById('meal-'+i);
+  if(mealEl){
+    var blockWrap=mealEl.closest('.ptl-block');
+    if(blockWrap) blockWrap.classList.add('eaten');
+  }
 }
 
 // ── Deviation logger ──────────────────────────────
@@ -1676,6 +1714,9 @@ async function loadRecipe(slot,blockIdx,btnEl){
   try{
     var recipe=await fetchRecipe(slot,(window._blocks[blockIdx]||{}).title||slot,mt,false);
     if(zone)zone.innerHTML=buildRecipeHtml(recipe,mt,slot,blockIdx);
+    // Promote recipe name to block title headline
+    var titleEl=document.getElementById('meal-title-'+slot);
+    if(titleEl && recipe.name) titleEl.textContent=recipe.name;
   }catch(e){
     if(zone)zone.innerHTML="<div style='padding:8px 13px;font-size:12px;color:var(--dk-3)'>Could not load &mdash; tap to retry</div>";
     if(btnEl){btnEl.style.display='';btnEl.disabled=false;}
@@ -1856,15 +1897,16 @@ function renderPlan(plan, browsing){
     var eaten=MACROS&&b.mealSlot&&MACROS.meals[b.mealSlot]&&MACROS.meals[b.mealSlot].logged;
 
     // Header
+    var titleId = isMeal ? 'meal-title-'+b.mealSlot : '';
     var hd='<div class="ptl-hd">'
       +'<div class="ptl-time">'+(b.time||'')+'</div>'
       +'<div class="ptl-main">'
-      +'<div class="ptl-title">'+b.title+'</div>'
-      +(b.subtitle?'<div class="ptl-sub">'+b.subtitle+'</div>':'')
+      +'<div class="ptl-title"'+(titleId?' id="'+titleId+'"':'')+'>'+b.title+'</div>'
+      +(b.subtitle?'<div class="ptl-sub" id="sub-'+(b.mealSlot||i)+'">'+b.subtitle+'</div>':'')
       +(b.durationMins&&b.durationMins>20?'<div class="ptl-dur">~'+b.durationMins+' min</div>':'')
       +'</div>'
       +(b.tag?'<span class="ptl-tag '+tagCls+'">'+b.tag+'</span>':'')
-      +(isMeal && !isBrowsing?'<div class="ptl-tick'+(eaten?' done':'')+'" onclick="event.stopPropagation();quickTick(\''+b.mealSlot+'\','+i+')" title="Mark eaten">&#10003;</div>':'')
+      +(isMeal && !isBrowsing?'<div class="ptl-tick'+(eaten?' done':'')+'" data-slot="'+b.mealSlot+'" onclick="event.stopPropagation();quickTick(\''+b.mealSlot+'\','+i+')" title="'+(eaten?'Tap to untick':'Mark eaten')+'">&#10003;</div>':'')
       +'</div>';
 
     // Body content
@@ -1939,7 +1981,7 @@ function renderPlan(plan, browsing){
     +(isBrowsing
       ? '<div style="display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:rgba(196,124,24,.07);border:1px solid rgba(196,124,24,.2);border-radius:14px;padding:4px 12px;margin-bottom:12px;">Browsing <span style="opacity:.4;">·</span> <button onclick="backToToday()" style="background:none;border:none;color:var(--jade);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);padding:0;">Back to today \u21a9</button></div>'
       : '')
-    +'<div class="day-title">'+plan.dayTitle.replace(' \u2014 ',' \u2014 <em>') + (plan.dayTitle.includes('\u2014') ? '</em>' : '')+'</div>'
+    +'<div class="day-title">'+plan.dayTitle+'</div>'
     +'<div class="day-brief">'+plan.dayBrief+'</div>'
     +(plan.priority?'<div class="day-priority">\u2022 '+plan.priority+'</div>':'')
     +'</div>'
@@ -2294,6 +2336,27 @@ function preloadRecipes(p, t){
   initMacros(P, TODAY);
   renderWeekStrip(P, TODAY);
 
+  // Start weekly meal plan build in background — silent, no blocking
+  // Runs once per week; subsequent loads use cache
+  if (!loadWeeklyMeals()) {
+    setTimeout(function() {
+      buildWeeklyMealPlan(false).then(function(wm) {
+        // If daily plan is already rendered, update meal titles from the new weekly plan
+        if (wm && window._blocks) {
+          window._blocks.forEach(function(b) {
+            if (b.mealSlot && wm.days && wm.days[TODAY.name] && wm.days[TODAY.name][b.mealSlot]) {
+              var meal = wm.days[TODAY.name][b.mealSlot];
+              var titleEl = document.getElementById('meal-title-' + b.mealSlot);
+              if (titleEl && meal.name) titleEl.textContent = meal.name;
+              b.title = meal.name;
+              _rSave(b.mealSlot, meal);
+            }
+          });
+        }
+      }).catch(function(){});
+    }, 2000); // 2s delay so page renders first
+  }
+
   // Check cache — if plan exists for today, load it instantly, no button
   var cached = null;
   try { var c = localStorage.getItem(TODAY.cacheKey); if(c) cached = JSON.parse(c); } catch(e){}
@@ -2516,6 +2579,11 @@ async function runSOS() {
   btn.disabled = false;
 }
 
+// Expose for Programme page "Rebuild week meals" button
+window.rebuildWeeklyMealPlan = function() {
+  return buildWeeklyMealPlan(true);
+};
+
 // Pre-fetch all meal recipes silently in background after plan renders
 function prefetchRecipes(p,t){
   if(!window._blocks)return;
@@ -2536,6 +2604,9 @@ function prefetchRecipes(p,t){
         if(zone&&zone.querySelector('.meal-btn')){
           zone.innerHTML=buildRecipeHtml(recipe,mt,b.mealSlot,blockIdx);
         }
+        // Promote recipe name to block title
+        var titleEl=document.getElementById('meal-title-'+b.mealSlot);
+        if(titleEl && recipe.name) titleEl.textContent=recipe.name;
       }).catch(function(){});
     }, i * 250);
   });
