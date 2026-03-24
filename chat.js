@@ -2,6 +2,9 @@
 // Vercel serverless function.
 // Proxies requests to the Anthropic API.
 // The API key lives server-side — never in the browser.
+// Prompt caching enabled: coach.js sends system as two blocks,
+// static block marked cache_control: ephemeral — saves ~75% on
+// repeat input token cost for the coach system prompt.
 
 export default async function handler(req, res) {
 
@@ -30,6 +33,7 @@ export default async function handler(req, res) {
         'Content-Type':      'application/json',
         'x-api-key':         apiKey,
         'anthropic-version': '2023-06-01',
+        'anthropic-beta':    'prompt-caching-2024-07-31',
       },
       body: JSON.stringify(req.body),
     });
