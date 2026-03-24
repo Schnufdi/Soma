@@ -8,6 +8,7 @@
     <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
     <a class="nav-link" href="/bodylens-plan.html">Plan</a>
     <a class="nav-link" href="/bodylens-food.html">Food</a>
+    <a class="nav-link" href="/bodylens-mealbuilder.html">Meals</a>
     <a class="nav-link" href="/bodylens-science.html">Science</a>
     <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>

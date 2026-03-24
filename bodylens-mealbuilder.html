@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BodyLens">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Meal Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.mb-page { max-width:860px; margin:0 auto; padding:0 28px 100px; }
+
+/* ── HERO ─────────────────────────────────────── */
+.mb-hero { padding:40px 0 32px; }
+.mb-kicker { font-size:10px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--dk-3); margin-bottom:10px; }
+.mb-title { font-family:var(--serif); font-size:52px; font-weight:300; line-height:.93; letter-spacing:-.025em; color:var(--dk-1); margin-bottom:12px; }
+.mb-title em { font-style:italic; color:var(--dk-3); }
+.mb-sub { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:480px; margin-bottom:0; }
+
+/* ── CONTEXT BAR ──────────────────────────────── */
+.mb-context {
+  display:flex; gap:6px; flex-wrap:wrap;
+  padding:12px 0 24px;
+  border-bottom:1px solid var(--bd);
+  margin-bottom:28px;
+}
+.mb-ctx-pill {
+  display:flex; align-items:center; gap:5px;
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:16px; padding:4px 12px;
+  font-size:10px; font-weight:500; color:var(--dk-3);
+}
+.mb-ctx-pill strong { color:var(--dk-1); font-weight:600; }
+.mb-ctx-pill.training { border-color:var(--jade-br); }
+.mb-ctx-pill.training strong { color:var(--jade); }
+.mb-ctx-pill.goal { border-color:rgba(200,148,30,.25); }
+.mb-ctx-pill.goal strong { color:var(--amber); }
+
+/* ── STEP FLOW ────────────────────────────────── */
+.mb-steps {
+  display:flex; align-items:center; gap:0;
+  margin-bottom:28px; overflow-x:auto;
+  padding-bottom:2px;
+}
+.mb-steps::-webkit-scrollbar { display:none; }
+.mb-step {
+  display:flex; align-items:center; gap:0;
+  flex-shrink:0;
+}
+.mb-step-pill {
+  display:flex; align-items:center; gap:7px;
+  padding:7px 14px; border-radius:20px;
+  font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--dk-3); background:transparent;
+  border:1px solid var(--bd); transition:all .15s;
+  white-space:nowrap;
+}
+.mb-step-pill.done {
+  background:var(--ink-1); border-color:var(--jade-br); color:var(--jade);
+}
+.mb-step-pill.active {
+  background:var(--jade); color:var(--ink); border-color:var(--jade);
+}
+.mb-step-num {
+  width:18px; height:18px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; font-weight:700;
+  background:rgba(255,255,255,.1);
+}
+.mb-step-pill.done .mb-step-num { background:rgba(0,200,160,.2); }
+.mb-step-pill.active .mb-step-num { background:rgba(0,0,0,.2); }
+.mb-step-arrow {
+  width:24px; height:1px; background:var(--bd); flex-shrink:0;
+}
+.mb-step-arrow.done { background:var(--jade-br); }
+
+/* ── SECTION LABEL ────────────────────────────── */
+.mb-sec {
+  font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--dk-3); margin:0 0 14px;
+  display:flex; align-items:center; gap:10px;
+}
+.mb-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
+.mb-sec.jade { color:var(--jade); }
+.mb-sec.amber { color:var(--amber); }
+
+/* ── CHOICE GRID ──────────────────────────────── */
+.mb-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));
+  gap:8px; margin-bottom:24px;
+}
+.mb-choice {
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:8px; padding:14px 12px;
+  cursor:pointer; transition:all .15s;
+  display:flex; flex-direction:column; align-items:center;
+  gap:6px; text-align:center;
+  animation:mbFadeIn .2s ease both;
+}
+.mb-choice:hover { border-color:rgba(255,255,255,.12); transform:translateY(-1px); }
+.mb-choice.selected {
+  border-color:var(--jade); background:rgba(0,200,160,.04);
+}
+.mb-choice.disabled { opacity:.35; cursor:not-allowed; pointer-events:none; }
+@keyframes mbFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.mb-choice-icon { font-size:22px; line-height:1; }
+.mb-choice-name { font-size:12px; font-weight:600; color:var(--dk-1); line-height:1.2; }
+.mb-choice-meta { font-size:9px; font-weight:400; color:var(--dk-3); }
+.mb-choice.selected .mb-choice-name { color:var(--jade); }
+
+/* ── MEAL CONTEXT TOGGLE ──────────────────────── */
+.mb-toggle-row {
+  display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;
+}
+.mb-toggle {
+  padding:6px 14px; border-radius:16px;
+  font-size:10px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+  border:1px solid var(--bd); background:transparent;
+  color:var(--dk-3); cursor:pointer; font-family:var(--sans);
+  transition:all .12s;
+}
+.mb-toggle.active { background:var(--amber); border-color:var(--amber); color:var(--ink); }
+
+/* ── SELECTED SUMMARY BAR ─────────────────────── */
+.mb-summary-bar {
+  display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+  padding:10px 14px; background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:8px; margin-bottom:20px;
+  font-size:11px; font-weight:300; color:var(--dk-3);
+}
+.mb-summary-item {
+  display:flex; align-items:center; gap:5px;
+  background:rgba(0,200,160,.06); border:1px solid var(--jade-br);
+  border-radius:12px; padding:3px 10px;
+  font-size:10px; font-weight:600; color:var(--jade);
+}
+.mb-summary-sep { color:var(--bd); font-size:14px; }
+.mb-summary-btn {
+  margin-left:auto; background:transparent; border:1px solid var(--bd);
+  border-radius:12px; padding:3px 10px; font-size:9px; font-weight:600;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--dk-3);
+  cursor:pointer; font-family:var(--sans); transition:all .1s;
+}
+.mb-summary-btn:hover { border-color:rgba(255,255,255,.1); color:var(--dk-2); }
+
+/* ── MEAL CARDS ───────────────────────────────── */
+.mb-meals { display:flex; flex-direction:column; gap:12px; }
+.mb-meal {
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:10px; overflow:hidden;
+  animation:mbFadeIn .25s ease both;
+  cursor:pointer; transition:border-color .12s;
+}
+.mb-meal:hover { border-color:rgba(255,255,255,.1); }
+.mb-meal.open { border-color:rgba(200,148,30,.3); }
+.mb-meal-hd {
+  display:flex; align-items:center; gap:12px;
+  padding:16px 18px;
+}
+.mb-meal-num {
+  font-family:var(--serif); font-size:32px; font-weight:300;
+  color:var(--dk-3); line-height:1; flex-shrink:0; width:32px;
+}
+.mb-meal.open .mb-meal-num { color:var(--amber); }
+.mb-meal-info { flex:1; min-width:0; }
+.mb-meal-title { font-size:15px; font-weight:600; color:var(--dk-1); margin-bottom:3px; }
+.mb-meal.open .mb-meal-title { color:var(--dk-1); }
+.mb-meal-style { font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--amber); margin-bottom:4px; }
+.mb-meal-preview { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.4; }
+.mb-meal-macros {
+  display:flex; gap:8px; align-items:center; flex-shrink:0;
+}
+.mb-macro-badge {
+  text-align:center;
+  background:var(--ink-2); border:1px solid var(--bd);
+  border-radius:5px; padding:5px 8px;
+  min-width:40px;
+}
+.mb-macro-badge-val { font-family:var(--mono); font-size:12px; font-weight:600; color:var(--dk-1); line-height:1; }
+.mb-macro-badge-val.p { color:var(--jade); }
+.mb-macro-badge-val.c { color:var(--amber); }
+.mb-macro-badge-label { font-size:7px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--dk-3); margin-top:2px; }
+.mb-meal-chevron { color:var(--dk-3); font-size:10px; transition:transform .15s; flex-shrink:0; }
+.mb-meal.open .mb-meal-chevron { transform:rotate(180deg); color:var(--amber); }
+
+/* Meal body */
+.mb-meal-body {
+  display:none; border-top:1px solid var(--bd);
+  background:var(--ink-2);
+}
+.mb-meal.open .mb-meal-body { display:block; }
+.mb-meal-section { padding:14px 18px; border-bottom:1px solid var(--bd); }
+.mb-meal-section:last-child { border-bottom:none; }
+.mb-meal-section-label {
+  font-size:8px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--dk-3); margin-bottom:8px;
+}
+.mb-ing-list { display:flex; flex-direction:column; gap:4px; }
+.mb-ing {
+  display:flex; align-items:baseline; justify-content:space-between;
+  font-size:12px; font-weight:300; color:var(--dk-2);
+  padding:3px 0; border-bottom:1px solid rgba(255,255,255,.04);
+}
+.mb-ing:last-child { border-bottom:none; }
+.mb-ing-portion { font-family:var(--mono); font-size:11px; color:var(--dk-3); }
+.mb-ing.free { color:var(--dk-3); font-style:italic; }
+.mb-ing.free .mb-ing-portion { color:rgba(100,180,100,.6); }
+.mb-why-text { font-family:var(--serif); font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.8; }
+.mb-swap-list { display:flex; flex-wrap:wrap; gap:6px; }
+.mb-swap {
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:12px; padding:4px 11px;
+  font-size:10px; font-weight:500; color:var(--dk-3);
+}
+
+/* Save button */
+.mb-meal-save {
+  display:block; width:calc(100% - 36px); margin:0 18px 14px;
+  background:var(--amber); border:none; color:var(--ink);
+  border-radius:7px; padding:10px; font-size:11px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; cursor:pointer;
+  font-family:var(--sans); transition:opacity .12s;
+}
+.mb-meal-save:hover { opacity:.9; }
+.mb-meal-save.saved { background:var(--jade); }
+
+/* ── REBUILD / GENERATE BAR ───────────────────── */
+.mb-gen-bar {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 16px; background:rgba(200,148,30,.04);
+  border:1px solid rgba(200,148,30,.2); border-radius:8px;
+  margin-bottom:20px;
+}
+.mb-gen-text { flex:1; font-size:12px; font-weight:300; color:var(--dk-2); }
+.mb-gen-btn {
+  flex-shrink:0; background:var(--amber); border:none; color:var(--ink);
+  padding:8px 16px; border-radius:6px; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; cursor:pointer;
+  font-family:var(--sans); white-space:nowrap;
+}
+
+/* Loading */
+.mb-loading {
+  display:flex; flex-direction:column; align-items:center;
+  padding:40px 0; gap:12px;
+}
+.mb-loading-text { font-size:12px; font-weight:300; color:var(--dk-3); }
+.mb-spin { width:20px; height:20px; border:2px solid rgba(255,255,255,.08); border-top-color:var(--amber); border-radius:50%; animation:mbSpin .7s linear infinite; }
+@keyframes mbSpin { to{transform:rotate(360deg)} }
+
+/* Empty state */
+.mb-empty { text-align:center; padding:48px 0; }
+.mb-empty-icon { font-size:32px; margin-bottom:12px; }
+.mb-empty-title { font-family:var(--serif); font-size:22px; font-weight:300; color:var(--dk-1); margin-bottom:6px; }
+.mb-empty-body { font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.7; }
+
+/* Responsive */
+@media(max-width:600px) {
+  .mb-page { padding:0 16px 80px; }
+  .mb-title { font-size:40px; }
+  .mb-grid { grid-template-columns:repeat(3,1fr); }
+  .mb-meal-macros { display:none; }
+}
+</style>
+</head>
+<body>
+<script src="nav.js"></script>
+
+<div class="mb-page">
+  <div id="mb-root"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  BodyLens Meal Builder
+//  Interactive branching meal flow with personalisation
+// ═══════════════════════════════════════════════════════
+
+var API   = '/api/chat';
+var MODEL = 'claude-sonnet-4-20250514';
+
+// ── Profile ───────────────────────────────────────────
+function getProfile() {
+  try { return JSON.parse(localStorage.getItem('bl_profile') || 'null'); }
+  catch(e) { return null; }
+}
+
+// ── State ─────────────────────────────────────────────
+var STATE = {
+  step: 1,               // 1=protein, 2=carb, 3=veg, 4=extras, 5=results
+  mealContext: 'training', // 'training' | 'rest' | 'postworkout' | 'light'
+  protein: null,
+  carb: null,
+  veg: [],
+  extra: null,
+  meals: [],
+  loading: false,
+  openMeal: null
+};
+
+// ── Data: Protein options ─────────────────────────────
+var PROTEINS = [
+  { id:'chicken', icon:'🍗', name:'Chicken', meta:'~35g P / 200g', protein:35, fat:4, base_kcal:200 },
+  { id:'salmon',  icon:'🐟', name:'Salmon',  meta:'~28g P / 200g', protein:28, fat:12, base_kcal:260 },
+  { id:'eggs',    icon:'🥚', name:'Eggs',    meta:'~18g P / 3 eggs', protein:18, fat:14, base_kcal:210 },
+  { id:'yogurt',  icon:'🥛', name:'Greek Yogurt', meta:'~20g P / 250g', protein:20, fat:4, base_kcal:150 },
+  { id:'turkey',  icon:'🦃', name:'Turkey Mince', meta:'~30g P / 200g', protein:30, fat:6, base_kcal:190 },
+  { id:'beef',    icon:'🥩', name:'Lean Beef', meta:'~34g P / 200g', protein:34, fat:10, base_kcal:230 },
+  { id:'prawns',  icon:'🍤', name:'Prawns',  meta:'~26g P / 200g', protein:26, fat:2, base_kcal:130 },
+  { id:'tuna',    icon:'🐠', name:'Tuna',    meta:'~30g P / 200g', protein:30, fat:2, base_kcal:140 },
+];
+
+// ── Data: Carb options per protein ────────────────────
+var CARBS_BY_PROTEIN = {
+  chicken: [
+    { id:'rice',      icon:'🍚', name:'White rice',    meta:'~45g carb / 150g cooked', carbs:45, kcal:195 },
+    { id:'potato',    icon:'🥔', name:'Potatoes',      meta:'~30g carb / 200g',        carbs:30, kcal:140 },
+    { id:'sweetpot',  icon:'🍠', name:'Sweet potato',  meta:'~28g carb / 200g',        carbs:28, kcal:130 },
+    { id:'pitta',     icon:'🫓', name:'Pitta / wrap',  meta:'~35g carb',               carbs:35, kcal:165 },
+    { id:'nocarb',    icon:'🥗', name:'No carb',       meta:'High-protein, low carb',  carbs:0,  kcal:0   },
+  ],
+  salmon: [
+    { id:'potato',    icon:'🥔', name:'Baby potatoes', meta:'~30g carb / 200g',        carbs:30, kcal:140 },
+    { id:'rice',      icon:'🍚', name:'Basmati rice',  meta:'~45g carb / 150g cooked', carbs:45, kcal:195 },
+    { id:'quinoa',    icon:'🌾', name:'Quinoa',        meta:'~30g carb / 100g cooked', carbs:30, kcal:150 },
+    { id:'nocarb',    icon:'🥗', name:'No carb',       meta:'Keto-friendly option',    carbs:0,  kcal:0   },
+  ],
+  eggs: [
+    { id:'sourdough', icon:'🍞', name:'Sourdough',     meta:'~30g carb / 2 slices',    carbs:30, kcal:140 },
+    { id:'oats',      icon:'🥣', name:'Oats',          meta:'~30g carb / 50g dry',     carbs:30, kcal:180 },
+    { id:'rice',      icon:'🍚', name:'Rice',          meta:'~45g carb / 150g cooked', carbs:45, kcal:195 },
+    { id:'nocarb',    icon:'🥗', name:'No carb',       meta:'Pure protein + fat meal', carbs:0,  kcal:0   },
+  ],
+  yogurt: [
+    { id:'oats',      icon:'🥣', name:'Oats / muesli', meta:'~30g carb / 50g',         carbs:30, kcal:180 },
+    { id:'berries',   icon:'🍓', name:'Berries',       meta:'~15g carb / 150g',        carbs:15, kcal:60  },
+    { id:'granola',   icon:'🌾', name:'Granola',       meta:'~35g carb / 50g',         carbs:35, kcal:210 },
+    { id:'nocarb',    icon:'🥗', name:'No carb',       meta:'Pure protein snack',      carbs:0,  kcal:0   },
+  ],
+  turkey: [
+    { id:'rice',      icon:'🍚', name:'Rice',          meta:'~45g carb / 150g cooked', carbs:45, kcal:195 },
+    { id:'pasta',     icon:'🍝', name:'Pasta',         meta:'~50g carb / 80g dry',     carbs:50, kcal:280 },
+    { id:'sweetpot',  icon:'🍠', name:'Sweet potato',  meta:'~28g carb / 200g',        carbs:28, kcal:130 },
+    { id:'nocarb',    icon:'🥗', name:'No carb',       meta:'Bowl-style without starch', carbs:0, kcal:0  },
+  ],
+  beef: [
+    { id:'potato',    icon:'🥔', name:'Potatoes',      meta:'~30g carb / 200g',        carbs:30, kcal:140 },
+    { id:'rice',      icon:'🍚', name:'Rice',          meta:'~45g carb / 150g cooked', carbs:45, kcal:195 },
+    { id:'nocarb',    icon:'🥗', name:'No carb',       meta:'Steak + salad',           carbs:0,  kcal:0   },
+  ],
+  prawns: [
+    { id:'rice',      icon:'🍚', name:'Rice',          meta:'~45g carb / 150g cooked', carbs:45, kcal:195 },
+    { id:'noodles',   icon:'🍜', name:'Noodles',       meta:'~50g carb / 80g dry',     carbs:50, kcal:260 },
+    { id:'nocarb',    icon:'🥗', name:'No carb',       meta:'Prawn salad',             carbs:0,  kcal:0   },
+  ],
+  tuna: [
+    { id:'rice',      icon:'🍚', name:'Rice',          meta:'~45g carb / 150g cooked', carbs:45, kcal:195 },
+    { id:'pasta',     icon:'🍝', name:'Pasta',         meta:'~50g carb / 80g dry',     carbs:50, kcal:280 },
+    { id:'nocarb',    icon:'🥗', name:'No carb',       meta:'Tuna salad',              carbs:0,  kcal:0   },
+  ],
+};
+
+// ── Data: Veg options ─────────────────────────────────
+var VEG_OPTIONS = [
+  { id:'broccoli',   icon:'🥦', name:'Broccoli',      meta:'Free veg · 6g carb / 200g' },
+  { id:'spinach',    icon:'🌿', name:'Spinach',       meta:'Free veg · 2g carb / 100g' },
+  { id:'peppers',    icon:'🫑', name:'Peppers',       meta:'Free veg · 6g carb / 100g' },
+  { id:'courgette',  icon:'🥒', name:'Courgette',     meta:'Free veg · 4g carb / 200g' },
+  { id:'mushrooms',  icon:'🍄', name:'Mushrooms',     meta:'Free veg · 2g carb / 100g' },
+  { id:'greenbeans', icon:'🫘', name:'Green beans',   meta:'Free veg · 5g carb / 100g' },
+  { id:'cucumber',   icon:'🥒', name:'Cucumber',      meta:'Free veg · 2g carb / 100g' },
+  { id:'cauliflower',icon:'🥬', name:'Cauliflower',   meta:'Free veg · 5g carb / 200g' },
+  { id:'asparagus',  icon:'🌾', name:'Asparagus',     meta:'Free veg · 4g carb / 150g' },
+  { id:'tomatoes',   icon:'🍅', name:'Tomatoes',      meta:'Free veg · 4g carb / 100g' },
+  { id:'mixedleaves',icon:'🥬', name:'Salad leaves',  meta:'Free veg · negligible'      },
+];
+
+// ── Data: Extras / flavour ────────────────────────────
+var EXTRAS_BY_CONTEXT = {
+  mediterranean: [
+    { id:'harissa',    icon:'🌶️', name:'Harissa',      meta:'Bold, spiced' },
+    { id:'tzatziki',   icon:'🥛', name:'Tzatziki / yogurt sauce', meta:'Cool, herbed' },
+    { id:'feta',       icon:'🧀', name:'Feta + olive oil', meta:'Salty, creamy' },
+    { id:'tahini',     icon:'🫙', name:'Tahini dressing', meta:'Rich, nutty' },
+    { id:'lemon_herb', icon:'🍋', name:'Lemon + herbs',   meta:'Light, fresh' },
+    { id:'avocado',    icon:'🥑', name:'Avocado',         meta:'Creamy, healthy fat' },
+  ],
+  asian: [
+    { id:'soy_ginger', icon:'🫙', name:'Soy + ginger',   meta:'Umami, clean' },
+    { id:'chilli_oil', icon:'🌶️', name:'Chilli oil',     meta:'Bold, spiced' },
+    { id:'sesame',     icon:'🌾', name:'Sesame + spring onion', meta:'Nutty, fresh' },
+    { id:'miso',       icon:'🍜', name:'Miso glaze',      meta:'Savoury, rich' },
+    { id:'sriracha',   icon:'🌶️', name:'Sriracha mayo',  meta:'Spicy, creamy' },
+  ],
+  simple: [
+    { id:'lemon_herb', icon:'🍋', name:'Lemon + herbs',   meta:'Light, fresh' },
+    { id:'olive_oil',  icon:'🫒', name:'Olive oil + salt', meta:'Clean, simple' },
+    { id:'avocado',    icon:'🥑', name:'Avocado',         meta:'Creamy, filling' },
+    { id:'hot_sauce',  icon:'🌶️', name:'Hot sauce',       meta:'Quick flavour hit' },
+    { id:'mustard',    icon:'🫙', name:'Dijon mustard',   meta:'Tangy, zero fat' },
+  ]
+};
+
+// ── Get extras based on profile cuisine prefs ─────────
+function getExtras(p) {
+  var prefs = (p && p.cuisinePrefs) || [];
+  var prefStr = prefs.join(' ').toLowerCase();
+  if (prefStr.includes('asian') || prefStr.includes('chinese') || prefStr.includes('japanese') || prefStr.includes('thai')) {
+    return EXTRAS_BY_CONTEXT.asian;
+  }
+  if (prefStr.includes('mediterr') || prefStr.includes('middle') || prefStr.includes('greek') || prefStr.includes('turkish') || prefStr.includes('lebanese')) {
+    return EXTRAS_BY_CONTEXT.mediterranean;
+  }
+  // Default: show all
+  var all = [];
+  var seen = {};
+  Object.values(EXTRAS_BY_CONTEXT).forEach(function(arr) {
+    arr.forEach(function(e) { if (!seen[e.id]) { all.push(e); seen[e.id]=1; } });
+  });
+  return all.slice(0, 8);
+}
+
+// ── Personalisation: infer cuisine from profile ───────
+function inferCuisine(p) {
+  if (!p) return 'versatile';
+  var prefs = (p.cuisinePrefs || []).join(' ').toLowerCase();
+  if (prefs.includes('mediterr') || prefs.includes('greek') || prefs.includes('middle')) return 'mediterranean';
+  if (prefs.includes('asian') || prefs.includes('japanese') || prefs.includes('thai')) return 'asian';
+  if (prefs.includes('british') || prefs.includes('simple')) return 'simple';
+  return 'versatile';
+}
+
+// ── Macro target per meal ─────────────────────────────
+function getMealTarget(p, context) {
+  if (!p) return { kcal:600, prot:40, carbs:60, fat:20 };
+  var dayKcal = context === 'rest' ? (p.restKcal||2400) : (p.trainingKcal||2700);
+  var meals = p.mealCount || 3;
+  return {
+    kcal:  Math.round(dayKcal / meals),
+    prot:  Math.round((p.protein||140) / meals),
+    carbs: Math.round((p.carbs||160) * (context === 'rest' ? 0.22 : 0.28)),
+    fat:   Math.round((p.fat||60) / meals),
+  };
+}
+
+// ── Generate meals via AI ─────────────────────────────
+async function generateMeals() {
+  var p = getProfile();
+  if (!p) return;
+
+  STATE.loading = true;
+  renderRoot();
+
+  var proteinItem = PROTEINS.find(function(x){ return x.id === STATE.protein; }) || {};
+  var carbItem    = (CARBS_BY_PROTEIN[STATE.protein] || []).find(function(x){ return x.id === STATE.carb; }) || {};
+  var vegItems    = VEG_OPTIONS.filter(function(v){ return STATE.veg.indexOf(v.id) >= 0; });
+  var allExtras   = getExtras(p);
+  var extraItem   = allExtras.find(function(x){ return x.id === STATE.extra; }) || {};
+  var target      = getMealTarget(p, STATE.mealContext);
+  var cuisine     = inferCuisine(p);
+
+  var exclusions  = (p.foodExclusions || []).join(', ') || 'none';
+  var goalStr     = p.goal || 'body recomposition';
+  var cuisinePrefs = (p.cuisinePrefs || []).join(', ') || 'no strong preference';
+  var complexity  = p.recipeComplexity || 'standard';
+  var context     = STATE.mealContext;
+
+  var prompt = `You are a performance nutrition coach. Create 5 personalised meal combinations.
+
+USER PROFILE:
+- Name: ${p.name||'User'}, Goal: ${goalStr}, Age: ${p.age||35}, Weight: ${p.weight||80}kg
+- Cuisine preferences: ${cuisinePrefs}
+- Foods to avoid/exclude: ${exclusions}
+- Cooking complexity: ${complexity}
+- Meal context: ${context} day
+
+MACRO TARGET PER MEAL:
+- Calories: ~${target.kcal} kcal
+- Protein: ~${target.prot}g
+- Carbs: ~${target.carbs}g  
+- Fat: ~${target.fat}g
+
+CHOSEN INGREDIENTS:
+- Protein: ${proteinItem.name||STATE.protein}
+- Carb: ${carbItem.name || (STATE.carb==='nocarb'?'None — low carb meal':STATE.carb)}
+- Vegetables: ${vegItems.map(function(v){return v.name;}).join(', ')||'flexible'}
+- Flavour/extra: ${extraItem.name||STATE.extra||'flexible'}
+
+INSTRUCTIONS:
+1. Create 5 distinct meal paths using these core ingredients
+2. Each must match the macro targets as closely as possible
+3. Style should vary across the 5 options — different cuisines, textures, cooking methods
+4. Keep recipes practical: 1–3 cooking steps, real portion sizes
+5. Each must feel personally suited to this user, not generic
+
+Return ONLY valid JSON (no markdown, no explanation):
+{
+  "meals": [
+    {
+      "title": "Meal Name",
+      "style": "Cuisine / Style",
+      "why": "One sentence: why this works for this person's goal and context",
+      "protein_g": 0,
+      "carbs_g": 0,
+      "fat_g": 0,
+      "kcal": 0,
+      "ingredients": [
+        {"name": "Ingredient", "portion": "200g", "note": "optional short note", "free": false}
+      ],
+      "method": "One sentence cooking instruction",
+      "swaps": ["Swap suggestion 1", "Swap suggestion 2"]
+    }
+  ]
+}`;
+
+  try {
+    var res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 2000,
+        system: 'Nutrition coach. Return ONLY valid compact JSON. No markdown, no preamble.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    var text = (data.content || []).map(function(b){ return b.text||''; }).join('').trim();
+    var match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('no json');
+    var parsed = JSON.parse(match[0]);
+    STATE.meals = parsed.meals || [];
+  } catch(e) {
+    STATE.meals = getFallbackMeals(proteinItem, carbItem, vegItems, target);
+  }
+
+  STATE.loading = false;
+  STATE.step = 5;
+  renderRoot();
+}
+
+// ── Fallback meals if API fails ───────────────────────
+function getFallbackMeals(prot, carb, veg, target) {
+  var vegNames = veg.map(function(v){ return v.name; }).slice(0, 3).join(', ') || 'mixed veg';
+  var carbName = carb.name || 'no carb';
+  var protName = prot.name || 'protein';
+  return [
+    {
+      title: 'Classic Performance Bowl',
+      style: 'Clean / High-protein',
+      why: 'Simple, reliable, and hits protein target reliably for any goal.',
+      protein_g: target.prot,
+      carbs_g: target.carbs,
+      fat_g: target.fat,
+      kcal: target.kcal,
+      ingredients: [
+        { name: protName, portion: '200g', note: 'Grilled or baked', free: false },
+        { name: carbName, portion: '150g cooked', note: '', free: false },
+        { name: vegNames, portion: '200g', note: 'Unlimited', free: true },
+        { name: 'Olive oil', portion: '1 tbsp', note: '', free: false },
+      ],
+      method: 'Grill the protein, cook the carb, steam or roast the veg, dress with olive oil.',
+      swaps: ['Swap carb for sweet potato', 'Add a yogurt-based sauce for more flavour']
+    }
+  ];
+}
+
+// ── RENDER ────────────────────────────────────────────
+function renderRoot() {
+  var p = getProfile();
+  var root = document.getElementById('mb-root');
+  if (!root) return;
+
+  if (!p) {
+    root.innerHTML = '<div class="mb-empty"><div class="mb-empty-icon">👤</div><div class="mb-empty-title">Profile needed</div><div class="mb-empty-body">Complete onboarding to use the meal builder — it needs your macro targets and food preferences.</div></div>';
+    return;
+  }
+
+  var target = getMealTarget(p, STATE.mealContext);
+  var todayCtx = STATE.mealContext === 'training' ? '🏋️ Training day' : STATE.mealContext === 'rest' ? '🛋 Rest day' : STATE.mealContext === 'postworkout' ? '💪 Post-workout' : '🌙 Light meal';
+
+  var html = '';
+
+  // Hero
+  html += '<div class="mb-hero">'
+    + '<div class="mb-kicker">Personalised for ' + p.name + '</div>'
+    + '<div class="mb-title">Build your<br><em>meal.</em></div>'
+    + '<div class="mb-sub">Start with a protein and the flow builds around your macros, preferences, and today\'s training context.</div>'
+    + '</div>';
+
+  // Context bar
+  html += '<div class="mb-context">'
+    + '<div class="mb-ctx-pill training"><strong>' + todayCtx + '</strong></div>'
+    + '<div class="mb-ctx-pill goal"><strong>' + target.kcal + ' kcal</strong> per meal</div>'
+    + '<div class="mb-ctx-pill"><strong>' + target.prot + 'g</strong> protein</div>'
+    + '<div class="mb-ctx-pill"><strong>' + target.carbs + 'g</strong> carbs</div>'
+    + '<div class="mb-ctx-pill"><strong>' + target.fat + 'g</strong> fat</div>'
+    + '</div>';
+
+  // Step flow
+  var steps = ['Protein','Carb','Veg','Flavour','Meals'];
+  html += '<div class="mb-steps">';
+  steps.forEach(function(s, i) {
+    var num = i + 1;
+    var cls = num < STATE.step ? 'done' : num === STATE.step ? 'active' : '';
+    var icon = num < STATE.step ? '✓' : num;
+    html += '<div class="mb-step">';
+    html += '<div class="mb-step-pill ' + cls + '" onclick="goToStep(' + num + ')">'
+      + '<div class="mb-step-num">' + icon + '</div>'
+      + s
+      + '</div>';
+    if (i < steps.length - 1) {
+      html += '<div class="mb-step-arrow ' + (num < STATE.step ? 'done' : '') + '"></div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Meal context toggle
+  if (STATE.step <= 4) {
+    html += '<div class="mb-toggle-row">'
+      + ['training','rest','postworkout','light'].map(function(c) {
+          var labels = { training:'Training day', rest:'Rest day', postworkout:'Post-workout', light:'Light meal' };
+          return '<button class="mb-toggle' + (STATE.mealContext===c?' active':'') + '" onclick="setContext(\'' + c + '\')">' + labels[c] + '</button>';
+        }).join('')
+      + '</div>';
+  }
+
+  // Selected summary bar
+  if (STATE.step >= 2) {
+    html += '<div class="mb-summary-bar">';
+    if (STATE.protein) html += '<div class="mb-summary-item">' + PROTEINS.find(function(x){return x.id===STATE.protein;})?.icon + ' ' + PROTEINS.find(function(x){return x.id===STATE.protein;})?.name + '</div>';
+    if (STATE.carb)    {
+      var carbPick = (CARBS_BY_PROTEIN[STATE.protein]||[]).find(function(x){return x.id===STATE.carb;});
+      if (carbPick) html += '<div class="mb-summary-sep">+</div><div class="mb-summary-item">' + carbPick.icon + ' ' + carbPick.name + '</div>';
+    }
+    if (STATE.veg.length) html += '<div class="mb-summary-sep">+</div><div class="mb-summary-item">🥦 ' + STATE.veg.length + ' veg</div>';
+    if (STATE.extra) {
+      var extPick = getExtras(p).find(function(x){return x.id===STATE.extra;});
+      if (extPick) html += '<div class="mb-summary-sep">+</div><div class="mb-summary-item">' + extPick.icon + ' ' + extPick.name + '</div>';
+    }
+    html += '<button class="mb-summary-btn" onclick="resetFlow()">↺ Start over</button>';
+    html += '</div>';
+  }
+
+  // Step content
+  if (STATE.loading) {
+    html += '<div class="mb-loading"><div class="mb-spin"></div><div class="mb-loading-text">Building your meal combinations…</div></div>';
+  } else if (STATE.step === 1) {
+    html += renderStep1(p);
+  } else if (STATE.step === 2) {
+    html += renderStep2(p);
+  } else if (STATE.step === 3) {
+    html += renderStep3(p);
+  } else if (STATE.step === 4) {
+    html += renderStep4(p);
+  } else if (STATE.step === 5) {
+    html += renderStep5(p);
+  }
+
+  root.innerHTML = html;
+}
+
+function renderStep1(p) {
+  var excl = (p.foodExclusions || []).map(function(e){ return e.toLowerCase(); });
+  var html = '<div class="mb-sec jade">Step 1 — Choose your protein</div>';
+  html += '<div class="mb-grid">';
+  PROTEINS.forEach(function(item, idx) {
+    var isExcluded = excl.some(function(e){ return e.includes(item.name.toLowerCase()); });
+    html += '<div class="mb-choice' + (isExcluded?' disabled':'') + '" onclick="selectProtein(\'' + item.id + '\')" style="animation-delay:' + (idx*0.04) + 's">'
+      + '<div class="mb-choice-icon">' + item.icon + '</div>'
+      + '<div class="mb-choice-name">' + item.name + '</div>'
+      + '<div class="mb-choice-meta">' + item.meta + '</div>'
+      + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderStep2(p) {
+  var options = CARBS_BY_PROTEIN[STATE.protein] || CARBS_BY_PROTEIN.chicken;
+  var proteinItem = PROTEINS.find(function(x){ return x.id===STATE.protein; }) || {};
+  var html = '<div class="mb-sec">Step 2 — Choose your carb base <span style="font-size:9px;color:var(--dk-3);font-weight:300;letter-spacing:.06em;text-transform:lowercase;">(pairs well with ' + (proteinItem.name||'') + ')</span></div>';
+  html += '<div class="mb-grid">';
+  options.forEach(function(item, idx) {
+    html += '<div class="mb-choice' + (STATE.carb===item.id?' selected':'') + '" onclick="selectCarb(\'' + item.id + '\')" style="animation-delay:' + (idx*0.05) + 's">'
+      + '<div class="mb-choice-icon">' + item.icon + '</div>'
+      + '<div class="mb-choice-name">' + item.name + '</div>'
+      + '<div class="mb-choice-meta">' + item.meta + '</div>'
+      + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderStep3(p) {
+  var html = '<div class="mb-sec">Step 3 — Pick your vegetables <span style="font-size:9px;color:var(--dk-3);font-weight:300;letter-spacing:.06em;text-transform:lowercase;">(select 2–4, or skip)</span></div>';
+  html += '<div class="mb-grid" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr));">';
+  VEG_OPTIONS.forEach(function(item, idx) {
+    var sel = STATE.veg.indexOf(item.id) >= 0;
+    html += '<div class="mb-choice' + (sel?' selected':'') + '" onclick="toggleVeg(\'' + item.id + '\')" style="animation-delay:' + (idx*0.03) + 's">'
+      + '<div class="mb-choice-icon">' + item.icon + '</div>'
+      + '<div class="mb-choice-name">' + item.name + '</div>'
+      + '<div class="mb-choice-meta">' + item.meta + '</div>'
+      + '</div>';
+  });
+  html += '</div>';
+  html += '<div style="display:flex;gap:8px;margin-top:8px;">'
+    + '<button onclick="skipVeg()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:9px 18px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);">Skip — flexible veg</button>'
+    + (STATE.veg.length ? '<button onclick="continueToStep4()" style="background:var(--jade);border:none;color:var(--ink);padding:9px 18px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);">Continue →</button>' : '')
+    + '</div>';
+  return html;
+}
+
+function renderStep4(p) {
+  var extras = getExtras(p);
+  var html = '<div class="mb-sec amber">Step 4 — Choose your flavour <span style="font-size:9px;color:var(--dk-3);font-weight:300;letter-spacing:.06em;text-transform:lowercase;">(or skip for chef-choose)</span></div>';
+  html += '<div class="mb-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">';
+  extras.forEach(function(item, idx) {
+    html += '<div class="mb-choice' + (STATE.extra===item.id?' selected':'') + '" onclick="selectExtra(\'' + item.id + '\')" style="animation-delay:' + (idx*0.04) + 's">'
+      + '<div class="mb-choice-icon">' + item.icon + '</div>'
+      + '<div class="mb-choice-name">' + item.name + '</div>'
+      + '<div class="mb-choice-meta">' + item.meta + '</div>'
+      + '</div>';
+  });
+  html += '</div>';
+  html += '<button onclick="skipExtra()" style="margin-top:8px;background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:9px 18px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);">Skip — flexible flavour</button>';
+  return html;
+}
+
+function renderStep5(p) {
+  if (!STATE.meals || !STATE.meals.length) {
+    return '<div class="mb-empty"><div class="mb-empty-icon">🍽️</div><div class="mb-empty-title">No meals generated</div><div class="mb-empty-body">Something went wrong. Try starting over.</div></div>'
+      + '<button onclick="resetFlow()" style="margin-top:16px;background:var(--jade);border:none;color:var(--ink);padding:10px 22px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);">Start over →</button>';
+  }
+
+  var html = '<div class="mb-sec amber">Your 5 meal combinations</div>';
+
+  // Regenerate bar
+  html += '<div class="mb-gen-bar">'
+    + '<div class="mb-gen-text">Showing 5 options built around your choices and macro targets. Not seeing what you want?</div>'
+    + '<button class="mb-gen-btn" onclick="generateMeals()">Regenerate →</button>'
+    + '</div>';
+
+  html += '<div class="mb-meals">';
+  STATE.meals.forEach(function(meal, i) {
+    var isOpen = STATE.openMeal === i;
+    var saved = isMealSaved(meal.title);
+
+    html += '<div class="mb-meal' + (isOpen?' open':'') + '" id="meal-' + i + '">';
+
+    // Header
+    html += '<div class="mb-meal-hd" onclick="toggleMeal(' + i + ')">'
+      + '<div class="mb-meal-num">' + (i+1) + '</div>'
+      + '<div class="mb-meal-info">'
+        + '<div class="mb-meal-style">' + (meal.style||'') + '</div>'
+        + '<div class="mb-meal-title">' + meal.title + '</div>'
+        + '<div class="mb-meal-preview">' + (meal.why||'') + '</div>'
+      + '</div>'
+      + '<div class="mb-meal-macros">'
+        + '<div class="mb-macro-badge"><div class="mb-macro-badge-val p">' + (meal.protein_g||'—') + 'g</div><div class="mb-macro-badge-label">Prot</div></div>'
+        + '<div class="mb-macro-badge"><div class="mb-macro-badge-val c">' + (meal.carbs_g||'—') + 'g</div><div class="mb-macro-badge-label">Carbs</div></div>'
+        + '<div class="mb-macro-badge"><div class="mb-macro-badge-val">' + (meal.kcal||'—') + '</div><div class="mb-macro-badge-label">Kcal</div></div>'
+      + '</div>'
+      + '<div class="mb-meal-chevron">▾</div>'
+      + '</div>';
+
+    // Body
+    html += '<div class="mb-meal-body">';
+
+    // Ingredients
+    html += '<div class="mb-meal-section">'
+      + '<div class="mb-meal-section-label">Ingredients & portions</div>'
+      + '<div class="mb-ing-list">';
+    (meal.ingredients || []).forEach(function(ing) {
+      html += '<div class="mb-ing' + (ing.free?' free':'') + '">'
+        + '<span>' + ing.name + (ing.note?' <span style="color:var(--dk-3);font-style:italic;">&nbsp;· ' + ing.note + '</span>':'') + (ing.free?' <span style="font-size:8px;color:rgba(100,180,100,.6);background:rgba(100,180,100,.08);border:1px solid rgba(100,180,100,.2);border-radius:8px;padding:1px 5px;margin-left:4px;">free veg</span>':'') + '</span>'
+        + '<span class="mb-ing-portion">' + ing.portion + '</span>'
+        + '</div>';
+    });
+    html += '</div></div>';
+
+    // Method
+    if (meal.method) {
+      html += '<div class="mb-meal-section">'
+        + '<div class="mb-meal-section-label">How to make it</div>'
+        + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;">' + meal.method + '</div>'
+        + '</div>';
+    }
+
+    // Macros full breakdown
+    html += '<div class="mb-meal-section">'
+      + '<div class="mb-meal-section-label">Full macros</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border-radius:6px;overflow:hidden;">'
+      + [
+          { val: meal.kcal+'', label:'Calories', color:'' },
+          { val: meal.protein_g+'g', label:'Protein', color:'var(--jade)' },
+          { val: meal.carbs_g+'g', label:'Carbs', color:'var(--amber)' },
+          { val: meal.fat_g+'g', label:'Fat', color:'' },
+        ].map(function(m){
+          return '<div style="background:var(--ink-1);padding:10px 8px;text-align:center;">'
+            + '<div style="font-family:var(--mono);font-size:14px;font-weight:600;color:' + (m.color||'var(--dk-1)') + ';margin-bottom:2px;">' + (m.val||'—') + '</div>'
+            + '<div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);">' + m.label + '</div>'
+            + '</div>';
+        }).join('')
+      + '</div>'
+      + '</div>';
+
+    // Swaps
+    if (meal.swaps && meal.swaps.length) {
+      html += '<div class="mb-meal-section">'
+        + '<div class="mb-meal-section-label">Easy swaps</div>'
+        + '<div class="mb-swap-list">'
+        + meal.swaps.map(function(s){ return '<div class="mb-swap">↔ ' + s + '</div>'; }).join('')
+        + '</div></div>';
+    }
+
+    // Save button
+    html += '<button class="mb-meal-save' + (saved?' saved':'') + '" onclick="saveMeal(' + i + ',this)">'
+      + (saved ? '✓ Saved to today' : '+ Save to today\'s plan')
+      + '</button>';
+
+    html += '</div>'; // end body
+    html += '</div>'; // end meal
+  });
+
+  html += '</div>';
+
+  // Start over button
+  html += '<button onclick="resetFlow()" style="margin-top:20px;display:block;width:100%;background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:10px;border-radius:7px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .12s;">↺ Build a different meal</button>';
+
+  return html;
+}
+
+// ── Interaction handlers ──────────────────────────────
+function setContext(ctx) {
+  STATE.mealContext = ctx;
+  renderRoot();
+}
+
+function selectProtein(id) {
+  STATE.protein = id;
+  STATE.carb = null;
+  STATE.veg = [];
+  STATE.extra = null;
+  STATE.meals = [];
+  STATE.step = 2;
+  renderRoot();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectCarb(id) {
+  STATE.carb = id;
+  STATE.step = 3;
+  renderRoot();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleVeg(id) {
+  var idx = STATE.veg.indexOf(id);
+  if (idx >= 0) STATE.veg.splice(idx, 1);
+  else STATE.veg.push(id);
+  renderRoot();
+}
+
+function skipVeg() {
+  STATE.step = 4;
+  renderRoot();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function continueToStep4() {
+  STATE.step = 4;
+  renderRoot();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectExtra(id) {
+  STATE.extra = id;
+  generateMeals();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function skipExtra() {
+  STATE.extra = null;
+  generateMeals();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleMeal(idx) {
+  STATE.openMeal = STATE.openMeal === idx ? null : idx;
+  renderRoot();
+  // Scroll to opened meal
+  if (STATE.openMeal === idx) {
+    setTimeout(function() {
+      var el = document.getElementById('meal-' + idx);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }, 50);
+  }
+}
+
+function goToStep(n) {
+  if (n >= STATE.step) return; // can only go back
+  STATE.step = n;
+  if (n <= 1) STATE.protein = null;
+  if (n <= 2) STATE.carb = null;
+  if (n <= 3) { STATE.veg = []; }
+  if (n <= 4) STATE.extra = null;
+  STATE.meals = [];
+  renderRoot();
+}
+
+function resetFlow() {
+  STATE.step = 1;
+  STATE.protein = null;
+  STATE.carb = null;
+  STATE.veg = [];
+  STATE.extra = null;
+  STATE.meals = [];
+  STATE.openMeal = null;
+  renderRoot();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Save meal to today's log ──────────────────────────
+function isMealSaved(title) {
+  try {
+    var today = new Date().toISOString().slice(0,10);
+    var saved = JSON.parse(localStorage.getItem('bl_saved_meals_'+today) || '[]');
+    return saved.some(function(m){ return m.title === title; });
+  } catch(e) { return false; }
+}
+
+function saveMeal(idx, btn) {
+  var meal = STATE.meals[idx];
+  if (!meal) return;
+  try {
+    var today = new Date().toISOString().slice(0,10);
+    var key = 'bl_saved_meals_' + today;
+    var saved = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!saved.some(function(m){ return m.title === meal.title; })) {
+      saved.push({ title: meal.title, kcal: meal.kcal, protein_g: meal.protein_g, carbs_g: meal.carbs_g, fat_g: meal.fat_g, savedAt: new Date().toISOString() });
+      localStorage.setItem(key, JSON.stringify(saved));
+    }
+    if (btn) { btn.textContent = '✓ Saved to today'; btn.classList.add('saved'); }
+  } catch(e) {}
+}
+
+// ── Init ──────────────────────────────────────────────
+var _p = getProfile();
+if (_p) {
+  var nm = document.getElementById('nav-meta');
+  if (nm) nm.innerHTML = '<span class="nav-tag nt-jade">' + _p.name + '</span>';
+}
+renderRoot();
+</script>
+</body>
+</html>
