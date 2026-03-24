@@ -379,6 +379,95 @@ function render(p) {
 
     <!-- WEEK -->
     <div class="prog-pane" id="pane-week">
+
+      <!-- WEEKLY COACH BLOCK -->
+      ${(() => {
+        const trainingDays = weekPlan.filter(d=>d.priority==='training');
+        const restDays     = weekPlan.filter(d=>d.priority!=='training');
+        const types        = trainingDays.map(d=>d.type).join(', ');
+        const wp           = p.weeklyProgression || {};
+        // Derive current week — days since generatedAt mod 28
+        const daysSince    = p.generatedAt ? Math.floor((Date.now()-new Date(p.generatedAt).getTime())/(1000*60*60*24)) : 0;
+        const weekNum      = Math.max(1, Math.min(4, Math.floor(daysSince/7) % 4 + 1));
+        const wk           = wp['week'+weekNum] || {};
+        const phase        = wk.phase || (weekNum===1?'Foundation':weekNum===2?'Build':weekNum===3?'Peak':'Deload');
+        const rpe          = wk.rpe  || (weekNum===1?'6–7':weekNum===2?'7–8':weekNum===3?'8–9':'5–6');
+        const vol          = wk.volumeNote || (weekNum===1?'3 working sets per lift — technique priority':weekNum===2?'4 working sets — load increases where form was solid':weekNum===3?'4–5 sets, top set AMRAP on main lifts':'2 working sets — 50% volume reduction');
+        const intensity    = weekNum===1?'Moderate — learn the patterns. Establish baseline loads.' :
+                             weekNum===2?'Moderate-to-hard — you should feel switched on and working, but not smashed' :
+                             weekNum===3?'High — this is the hardest week of the block. Push compound lifts with intent.' :
+                             'Low — deliberate recovery. Do not chase effort.';
+        const fatigue      = weekNum===1?'Mild to moderate. Some DOMS expected as you establish patterns.' :
+                             weekNum===2?'Building. Cumulative fatigue starts here — sleep and food matter more from this point.':
+                             weekNum===3?'High. Posterior chain volume is significant. Expect to feel it between sessions.':
+                             'Low by design. Let the adaptation consolidate.';
+        const nutritionMsg = weekNum===1?'Hit your protein target every day without exception. Carbs moderate, timed around training windows.' :
+                             weekNum===2?'Pre-train carbs elevated — the training is harder and fuel needs to match. Post-train window within 30 minutes is critical.' :
+                             weekNum===3?'Maximum carb availability on training days. This is the most demanding week — do not under-eat around sessions. Keep protein high.' :
+                             'Return toward maintenance. Anti-inflammatory foods priority this week — omega-3, fibre, leafy greens.';
+        const sleepMsg     = weekNum===3?'Non-negotiable this week. GH pulses in first 90 minutes of slow-wave sleep — this is when posterior chain recovery happens. Minimum 7.5 hours. Screens off by 10pm.' :
+                             weekNum===4?'Extended sleep if possible. This is the adaptation consolidation window. Prioritise sleep over everything else this week.' :
+                             'Consistent 7–8 hours. Don\'t sacrifice sleep for early training sessions — the recovery window matters.';
+        const coachNote    = weekNum===1?`This is the foundation week. The goal is not maximal effort — it is quality movement and establishing your working loads. Arrive at every session with intent, not chaos. The numbers you set this week become the baseline the rest of the block builds from.` :
+                             weekNum===2?`Volume increases from this point. You should feel the sessions — this is a working week. Push compound lifts with intent, but do not chase failure on every accessory. Keep protein high and carbs purposeful. Recovery matters now because cumulative fatigue will build if sleep and food are sloppy.` :
+                             weekNum===3?`This is the peak week. The highest stimulus of the block. Push compound lifts close to failure on your top sets. Record your loads. The fatigue will be real — that is the point. Sleep and food are non-negotiable. Everything else is secondary this week.` :
+                             `The block is done. The deload is not optional — it is when the adaptation you earned in weeks 1–3 actually locks in. Train at 50% volume. Keep the loads the same or close. Do not push. Let the body absorb the work.`;
+
+        const phaseColor = weekNum===1?'var(--jade)':weekNum===2?'var(--amber)':weekNum===3?'rgba(220,80,60,.75)':'var(--dk-3)';
+
+        return `
+        <div style="background:var(--ink-1);border:1px solid var(--bd);border-left:3px solid ${phaseColor};border-radius:0 8px 8px 0;padding:18px 22px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${phaseColor};margin-bottom:3px;">Week ${weekNum} of 4 — ${phase}</div>
+              <div style="font-family:var(--serif);font-size:20px;font-weight:300;color:var(--dk-1);line-height:1.1;">${intensity}</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+              <div style="text-align:center;background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:8px 14px;">
+                <div style="font-family:var(--mono);font-size:18px;font-weight:600;color:${phaseColor};line-height:1;">${rpe}</div>
+                <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-top:3px;">RPE target</div>
+              </div>
+              <div style="text-align:center;background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:8px 14px;">
+                <div style="font-family:var(--mono);font-size:18px;font-weight:600;color:var(--jade);line-height:1;">${trainingDays.length}</div>
+                <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-top:3px;">Train days</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RPE explanation -->
+          <div style="background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);flex-shrink:0;padding-top:2px;">RPE</div>
+            <div style="font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.65;"><strong style="color:var(--dk-2);font-weight:500;">Rate of Perceived Exertion</strong> — a 1–10 scale of how hard a set feels. RPE ${rpe} means ${weekNum===1?'you have 3–4 reps left in the tank at the end of each set. You should not approach failure.':weekNum===2?'you have 2–3 reps left in the tank. Sessions feel demanding but controlled.':weekNum===3?'you have 1–2 reps left, sometimes 0. Top sets should be max effort.':'you have 4+ reps left. Deliberate recovery — do not push.'}</div>
+          </div>
+
+          <!-- Coach rows -->
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+              <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);">Fatigue</div>
+              <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">${fatigue}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+              <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);">Nutrition</div>
+              <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">${nutritionMsg}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+              <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4a8090;">Sleep</div>
+              <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">${sleepMsg}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 0;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${phaseColor};">Volume</div>
+              <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">${vol}</div>
+            </div>
+          </div>
+
+          <!-- Coach note -->
+          <div style="margin-top:14px;padding:12px 16px;background:rgba(255,255,255,.02);border-radius:6px;border-left:2px solid ${phaseColor};">
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${phaseColor};margin-bottom:6px;opacity:.7;">Coach</div>
+            <div style="font-family:var(--serif);font-size:15px;font-weight:300;color:var(--dk-2);line-height:1.85;">${coachNote}</div>
+          </div>
+        </div>`;
+      })()}
+
       <div class="prog-card jade">
         <div class="prog-card-head">
           <div class="prog-card-title jade">Your ${p.trainingDays||4}-day split</div>
