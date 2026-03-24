@@ -13,6 +13,7 @@
     <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
     <a class="nav-link" href="/bodylens-checkin.html">Week</a>
+    <a class="nav-link" href="/bodylens-podcast.html">Podcast</a>
     <a class="nav-link" href="/bodylens-instructions.html">Report</a>
   </div>
   <div class="nav-right-group">
