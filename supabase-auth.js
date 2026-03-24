@@ -21,7 +21,7 @@ window.BL.signInWithGoogle = function() {
   loadSupabase(function(sb) {
     sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin + '/bodylens-dailyplan.html' }
+      options: { redirectTo: window.location.origin + '/bodylens-login.html' }
     });
   });
 };
