@@ -188,6 +188,10 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="acc-sec purple">Psychology & behaviour</div>
   <div class="acc-grid" id="grid-psychology"></div>
 
+  <!-- FOOD ACCELERATORS -->
+  <div class="acc-sec" style="color:var(--amber);">Food & nutrition tactics</div>
+  <div class="acc-grid" id="grid-food"></div>
+
 </div>
 
 <script src="nav.js"></script>
@@ -608,10 +612,6 @@ function renderAll(goalFilter) {
     if (!grid) return;
     let html = '';
     accs.forEach(acc => {
-      const visible = goalFilter === 'all'
-        || goalFilter === 'easy' ? acc.badge === 'easy'
-        : acc.goals.includes(goalFilter);
-      // For easy filter
       if (goalFilter === 'easy') {
         html += acc.badge === 'easy' ? renderCard(acc, profileGoal) : '';
       } else {
@@ -620,6 +620,171 @@ function renderAll(goalFilter) {
     });
     grid.innerHTML = html || '<div style="color:var(--dk-3);font-size:13px;padding:20px 0;">No accelerators match this filter.</div>';
   });
+
+  // Food accelerators always render (not goal-filtered, all apply broadly)
+  renderFoodAccelerators();
+}
+
+// ── FOOD ACCELERATORS ─────────────────────────────────────────────────────────
+const FOOD_ACCELERATORS = [
+  {
+    id: 'post-meal-walks',
+    icon: '🚶',
+    color: 'gold',
+    badge: 'easy',
+    name: 'Post-meal walks',
+    tagline: '10 minutes after eating drops glucose 20–30%. Compounds across 3 meals.',
+    mechanism: `After eating, skeletal muscle contractions during even light walking activate GLUT4 transporters independently of insulin — meaning glucose is cleared into muscle cells without requiring an insulin spike. A 10-minute walk after each meal can reduce post-meal glucose peaks by 20–30%, reduce the subsequent insulin response, and lower the total glucose area under the curve for the day. This directly improves nutrient partitioning: more glucose to muscle, less driving fat storage.`,
+    protocol: [
+      'Eat your meal as planned',
+      'Within 10–15 minutes, take a walk — outside or on the spot',
+      'Duration: 10 minutes minimum, 20 minutes is better',
+      'Pace: conversational — this is not cardio, it\'s glucose management',
+      'Do this after every meal where you can, especially the highest-carb meal of the day',
+    ],
+    readiness: 'No equipment, no gym, no schedule change needed. Easiest intervention on this page.',
+    warn: null,
+  },
+  {
+    id: 'food-ordering',
+    icon: '🥗',
+    color: 'gold',
+    badge: 'easy',
+    name: 'Protein-first food ordering',
+    tagline: 'Eat protein and veg before carbs. Flattens glucose spike 30–40%.',
+    mechanism: `Food order within a meal significantly affects post-meal glucose response. Eating protein and fibre (vegetables) first slows gastric emptying and stimulates GLP-1, a hormone that blunts the insulin response to subsequent carbohydrate. In controlled studies, eating carbohydrates last — rather than first — reduces post-meal glucose peaks by 30–40% and insulin response by 20–30%. The total calorie intake is identical. Only the sequence changes.`,
+    protocol: [
+      'Start every meal with your protein source (meat, fish, eggs, legumes)',
+      'Follow with vegetables — raw or cooked, any variety',
+      'Eat carbohydrates (rice, bread, pasta, potato) last',
+      'This applies even at restaurants — eat the salad, then the steak, then the chips',
+      'If eating a mixed dish (curry, stir-fry), front-load the protein and veg servings first',
+    ],
+    readiness: 'Zero cost, zero preparation. Works at every meal, including social situations.',
+    warn: null,
+  },
+  {
+    id: 'vinegar',
+    icon: '🥤',
+    color: 'amber',
+    badge: 'easy',
+    name: 'Vinegar before high-carb meals',
+    tagline: '1 tbsp ACV before carb-heavy meals slows absorption 20–30%.',
+    mechanism: `Acetic acid (the active compound in apple cider vinegar) inhibits alpha-amylase and alpha-glucosidase — enzymes responsible for breaking down starch into glucose. This slows the digestion and absorption of carbohydrates, producing a lower, flatter glucose response. Meta-analyses of clinical trials show consistent reductions in post-meal glucose of 15–35% when taken before high-glycaemic meals. The effect is most pronounced for high-starch meals (white rice, bread, pasta) and minimal for meals already dominated by protein and fat.`,
+    protocol: [
+      '1 tablespoon of apple cider vinegar (or any vinegar) in 200–250ml of water',
+      'Drink 10–15 minutes before your highest-carb meal',
+      'Use a straw or rinse your mouth after — acetic acid is mildly erosive to enamel',
+      'Start with 1 teaspoon if you\'re new to this — it can cause mild GI discomfort initially',
+      'Alternatively: use vinegar as a salad dressing before the main course',
+    ],
+    readiness: 'Apple cider vinegar costs under £3. Effect is measurable from day one.',
+    warn: 'Not recommended for anyone with acid reflux, gastritis, or on blood sugar medication — consult GP first.',
+  },
+  {
+    id: 'carb-backload',
+    icon: '⚡',
+    color: 'jade',
+    badge: 'mod',
+    name: 'Carb back-loading',
+    tagline: 'Hold carbs until post-training. Insulin peaks when muscle uptake is highest.',
+    mechanism: `Insulin sensitivity in skeletal muscle is highest immediately following resistance training — glucose uptake is dramatically elevated and GLUT4 transporters are maximally expressed for 30–120 minutes post-session. Consuming the majority of daily carbohydrates in this post-training window means the insulin response is anabolic (driving glucose into muscle) rather than lipogenic (driving excess glucose into fat). Throughout the rest of the day — especially in the fasted morning state and pre-training — insulin stays low, supporting fat oxidation. The total carbohydrate intake doesn't change. Only the timing does.`,
+    protocol: [
+      'Morning and pre-training meals: protein + fat dominant, minimal starchy carbs',
+      'Train in a moderate-deficit state (not depleted — protein is still present)',
+      'Post-training window (within 30 min): eat your highest-carb meal of the day',
+      'Target 50–80g fast carbs post-training: white rice, sweet potato, fruit are optimal',
+      'Evening meal can include moderate carbs — especially casein-rich + carb combinations for overnight recovery',
+      'Rest days: carbs reduced to 50% of training day intake, spread across meals',
+    ],
+    readiness: 'Works best with consistent training schedule. Requires meal planning discipline.',
+    warn: 'Do not apply on rest days — carb intake should be moderate and evenly spread rather than back-loaded when no training stimulus has occurred.',
+  },
+  {
+    id: 'fibre-30g',
+    icon: '🌿',
+    color: 'gold',
+    badge: 'easy',
+    name: '30g daily fibre target',
+    tagline: 'The single most impactful dietary change for gut health, glucose control, and satiety.',
+    mechanism: `The American Gut Project — the largest microbiome study to date — identified 30 different plant foods per week as the strongest predictor of microbiome diversity. Dietary fibre feeds Bifidobacterium and Lactobacillus species that produce short-chain fatty acids (particularly butyrate), which reduce intestinal permeability, lower systemic inflammation, and positively modulate mood via the gut-brain axis. Fibre also directly slows gastric emptying and glucose absorption, reducing post-meal insulin spikes. Most adults in the UK consume 15–18g per day — roughly half the target.`,
+    protocol: [
+      'Count plant variety, not just quantity — 30 different plants per week is the target',
+      'Each variety counts separately: garlic ≠ onion ≠ leek even though they\'re similar',
+      'Spices and herbs count — add variety freely',
+      'High-fibre priorities: legumes (15–20g per serving), oats (4g per 40g), vegetables, berries',
+      'Increase gradually — adding too much fibre too fast causes bloating',
+      'Aim for 30g total fibre per day distributed across meals',
+    ],
+    readiness: 'Start with one upgrade: add a portion of legumes (lentils, chickpeas, beans) to your evening meal.',
+    warn: null,
+  },
+  {
+    id: 'fasted-coffee',
+    icon: '☕',
+    color: 'amber',
+    badge: 'easy',
+    name: 'Fasted morning training',
+    tagline: 'Train before eating. Catecholamines peak. Fat oxidation measurably higher.',
+    mechanism: `In the fasted state (10–14h post last meal), glycogen stores are partially depleted, insulin is at its lowest, and catecholamine levels (adrenaline, noradrenaline) are elevated. This hormonal environment shifts substrate oxidation toward fat — studies consistently show 10–20% higher fat oxidation during fasted vs. fed exercise. Muscle protein synthesis is not meaningfully impaired by short-term fasting as long as protein intake is adequate across the full day. The key outcome is increased total fat oxidation without reducing performance or muscle protein synthesis — provided protein intake for the day remains at target.`,
+    protocol: [
+      'Wake, hydrate (500ml water immediately), and train within 30–60 minutes',
+      'Black coffee is permitted — caffeine 3–6mg/kg 45 minutes before is performance-enhancing',
+      'No food before the session — if you feel genuinely depleted, 5–10g BCAAs are acceptable',
+      'Post-training window is critical: protein + carbs within 30 minutes of finishing',
+      'Daily protein target must still be met — fasted training doesn\'t reduce the protein requirement',
+      'Do not attempt fasted HIIT or max-effort sessions on this protocol initially — adapt first',
+    ],
+    readiness: 'Best suited to morning trainers. Requires consistent wake/train schedule.',
+    warn: 'Not appropriate if you have a history of disordered eating, hypoglycaemia, or high-intensity competitive sport. Prioritise feeling well over protocol adherence.',
+  },
+];
+
+function renderFoodCard(acc) {
+  const saved = (() => {
+    try {
+      const p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
+      if (!p) return false;
+      const ids = new Set([...(p.accelerators||[]), ...(p.optimisations||[]).map(o => typeof o==='string'?o:o.id)]);
+      return ids.has(acc.id);
+    } catch(e){ return false; }
+  })();
+
+  const stepsHtml = acc.protocol.map((s,i) =>
+    `<div class="ab-step"><div class="ab-step-n">${i+1}</div><div class="ab-step-t">${s}</div></div>`
+  ).join('');
+  const warnHtml = acc.warn ? `<div class="ab-warn">${acc.warn}</div>` : '';
+
+  return `<div class="acc-card ${acc.color}"
+    data-id="${acc.id}"
+    onclick="toggleCard('${acc.id}',this)">
+
+    <div class="acc-badge ${acc.badge === 'easy' ? 'easy' : 'mod'}">${acc.badge === 'easy' ? 'Easy win' : 'Moderate'}</div>
+
+    <div class="acc-head">
+      <span class="acc-icon">${acc.icon}</span>
+      <div class="acc-name">${acc.name}</div>
+      <div class="acc-tagline">${acc.tagline}</div>
+    </div>
+
+    <div class="acc-body">
+      <div class="ab-label">The mechanism</div>
+      <div class="ab-text">${acc.mechanism}</div>
+      <div class="ab-label">The protocol</div>
+      <div class="ab-steps">${stepsHtml}</div>
+      <div class="ab-ready">${acc.readiness}</div>
+      ${warnHtml}
+      <button class="ab-add${saved?' saved':''}" onclick="event.stopPropagation();window.saveOpt('${acc.id}','${acc.name}','${acc.icon}',this)">
+        ${saved ? '✓ In your programme' : '+ Add to my programme'}
+      </button>
+    </div>
+  </div>`;
+}
+
+function renderFoodAccelerators() {
+  const grid = document.getElementById('grid-food');
+  if (!grid) return;
+  grid.innerHTML = FOOD_ACCELERATORS.map(renderFoodCard).join('');
 }
 
 function toggleCard(id, cardEl) {

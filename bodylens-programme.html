@@ -130,16 +130,28 @@ body { background:var(--ink); color:var(--dk-1); }
 
 /* Week plan */
 .prog-day {
-  display:grid; grid-template-columns:90px 1fr;
-  padding:13px 18px; border-bottom:1px solid var(--bd); gap:12px;
+  display:grid; grid-template-columns:100px 1fr;
+  padding:14px 18px; border-bottom:1px solid var(--bd); gap:16px;
+  align-items:start;
 }
 .prog-day:last-child { border-bottom:none; }
-.prog-day-name { font-size:12px; font-weight:600; color:var(--dk-3); }
+.prog-day.training-day { background:rgba(0,200,160,.015); }
+.prog-day-name { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--dk-3); padding-top:2px; }
 .prog-day-name.training { color:var(--jade); }
-.prog-day-type { font-size:12px; font-weight:500; color:var(--dk-1); margin-bottom:2px; }
-.prog-day-focus { font-size:11px; font-weight:300; color:var(--dk-3); }
-.prog-day-exs { font-size:10px; font-weight:300; color:var(--dk-3); margin-top:2px; }
-.prog-day-note { font-size:10px; font-style:italic; color:var(--dk-3); margin-top:2px; }
+.prog-day-type { font-size:13px; font-weight:600; color:var(--dk-1); margin-bottom:3px; line-height:1.2; }
+.prog-day-focus { font-size:11px; font-weight:300; color:var(--dk-3); margin-bottom:6px; }
+.prog-day-exs {
+  display:flex; flex-direction:column; gap:3px; margin-top:4px;
+}
+.prog-day-ex {
+  font-size:11px; font-weight:300; color:var(--dk-2);
+  display:flex; align-items:baseline; gap:6px;
+  padding:3px 0; border-bottom:1px solid rgba(255,255,255,.04);
+}
+.prog-day-ex:last-child { border-bottom:none; }
+.prog-day-ex::before { content:'·'; color:var(--jade); font-weight:700; flex-shrink:0; }
+.prog-day-note { font-size:10px; font-style:italic; color:var(--dk-3); margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,.04); line-height:1.5; }
+.prog-day-rest-label { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.6; }
 
 /* Injury */
 .prog-injury {
@@ -377,14 +389,16 @@ function render(p) {
           const todayIdx = DAY_MAP[new Date().getDay()];
           const isToday = i === todayIdx;
           return `
-          <div class="prog-day" style="${isToday?'background:rgba(0,200,160,0.03);':''}">
+          <div class="prog-day ${day.priority==='training'?'training-day':''}" style="${isToday?'background:rgba(0,200,160,0.03);':''}">
             <div>
-              <div class="prog-day-name ${day.priority==='training'?'training':''}">${day.day.slice(0,3)}${isToday?' <span style="font-size:8px;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);padding:1px 6px;border-radius:10px;letter-spacing:0.06em;">TODAY</span>':''}</div>
+              <div class="prog-day-name ${day.priority==='training'?'training':''}">${day.day.slice(0,3)}${isToday?' <span style="font-size:7px;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);padding:1px 5px;border-radius:8px;letter-spacing:0.06em;margin-left:4px;">TODAY</span>':''}</div>
             </div>
             <div>
               <div class="prog-day-type">${day.type}</div>
-              <div class="prog-day-focus">${day.focus||''}</div>
-              ${day.keyExercises&&day.keyExercises.length?`<div class="prog-day-exs">${day.keyExercises.slice(0,3).join(' · ')}</div>`:''}
+              ${day.focus?`<div class="prog-day-focus">${day.focus}</div>`:''}
+              ${day.priority==='training' && day.keyExercises && day.keyExercises.length
+                ? `<div class="prog-day-exs">${day.keyExercises.slice(0,4).map(ex=>`<div class="prog-day-ex">${ex}</div>`).join('')}</div>`
+                : day.priority!=='training' ? `<div class="prog-day-rest-label">Recovery · MPS from previous session peaks today · Hit ${p.protein||140}g protein</div>` : ''}
               ${day.coachNote?`<div class="prog-day-note">${day.coachNote}</div>`:''}
             </div>
           </div>`;
@@ -469,54 +483,74 @@ function render(p) {
     <div class="prog-pane" id="pane-notes">
       ${(function() {
 
-        // Master optimisation registry — covers all sources
         const OPT_MAP = {
-          // ACCELERATORS — nutrition
-          'fast-16-8':           { icon:'⏰', name:'Extended overnight fast',        cat:'Nutrition',  days:'all',      fires:'Every day — eating window note' },
-          'psmf':                { icon:'🧬', name:'Protein-sparing modified fast',  cat:'Nutrition',  days:'rest',     fires:'Rest days — PSMF day note' },
-          'carb-backload':       { icon:'⚡', name:'Carb back-loading',              cat:'Nutrition',  days:'training', fires:'Training days — meal timing override' },
-          'diet-break':          { icon:'🔄', name:'Diet break week',                cat:'Nutrition',  days:'all',      fires:'Every day — calorie note' },
-          'fasted-coffee':       { icon:'☕', name:'Fasted morning training',        cat:'Nutrition',  days:'training', fires:'Training days — wake + pre-training note' },
-          'monthly-36h':         { icon:'🌙', name:'Monthly 36-hour fast',           cat:'Nutrition',  days:'rest',     fires:'Designated rest day — fast note' },
-          // ACCELERATORS — training
-          'zone2':               { icon:'🫀', name:'Zone 2 cardio',                  cat:'Training',   days:'rest',     fires:'Rest days — Zone 2 block added' },
-          'vo2max-intervals':    { icon:'🔥', name:'VO₂max intervals',              cat:'Training',   days:'training', fires:'One training day/week — add-on note' },
-          'post-meal-walks':     { icon:'🚶', name:'Post-meal walks',                cat:'Training',   days:'all',      fires:'Every day — note on each meal' },
-          'neat':                { icon:'📈', name:'NEAT maximisation',              cat:'Training',   days:'all',      fires:'Every day — step target note' },
-          'loaded-stretch':      { icon:'🧘', name:'Loaded stretching',             cat:'Training',   days:'training', fires:'Training days — stretch block added' },
-          'bfr':                 { icon:'🩸', name:'BFR training',                  cat:'Training',   days:'training', fires:'Training days — training note' },
-          // ACCELERATORS — recovery
-          'sauna':               { icon:'🔥', name:'Sauna protocol',                 cat:'Recovery',  days:'rest',     fires:'Rest days — sauna block added' },
-          'contrast':            { icon:'🧊', name:'Cold–hot contrast cycling',      cat:'Recovery',  days:'rest',     fires:'Rest days — contrast block added' },
-          'nsdr':                { icon:'🌊', name:'NSDR / Yoga Nidra',             cat:'Recovery',  days:'rest',     fires:'Rest days — NSDR block added' },
-          'sleep-extension':     { icon:'😴', name:'Sleep extension',               cat:'Recovery',  days:'all',      fires:'Every day — sleep block note' },
-          'creatine-load':       { icon:'💊', name:'Creatine loading',              cat:'Recovery',  days:'all',      fires:'Every day — supplement note' },
-          'morning-protocol':    { icon:'☀️', name:'Morning light + cold finish',   cat:'Behaviour', days:'all',      fires:'Every day — wake block note' },
-          // ACCELERATORS — behaviour
-          'implementation-intent':{ icon:'🎯', name:'Implementation intentions',     cat:'Behaviour', days:'training', fires:'Training days — training note' },
-          'dopamine-scheduling': { icon:'🧠', name:'Dopamine scheduling',           cat:'Behaviour', days:'training', fires:'Training days — pre-session note' },
-          'two-minute-rule':     { icon:'👟', name:'Two-minute rule',               cat:'Behaviour', days:'training', fires:'Training days — training note' },
-          'training-log':        { icon:'📓', name:'Training log',                  cat:'Behaviour', days:'training', fires:'Training days — training note' },
-          'body-composition-check':{ icon:'📊', name:'Weekly body composition',     cat:'Behaviour', days:'monday',   fires:'Mondays only — check-in block added' },
-          'comfort-expansion':   { icon:'🌡️', name:'Deliberate discomfort',        cat:'Behaviour', days:'all',      fires:'Every day — daily note' },
-          // FOOD / SCIENCE — manual additions
-          'food-ordering':       { icon:'🥗', name:'Protein-first food ordering',   cat:'Nutrition',  days:'all',      fires:'Every day — note on each meal' },
-          'vinegar':             { icon:'🥤', name:'Vinegar before meals',          cat:'Nutrition',  days:'all',      fires:'Every day — note on each meal' },
-          'fibre-30g':           { icon:'🌿', name:'30g daily fibre target',        cat:'Nutrition',  days:'all',      fires:'Every day — meal notes' },
+          'fast-16-8':           { icon:'⏰', name:'Extended overnight fast',        cat:'Nutrition',  days:'all',      slot:'meal',     fires:'Eating window enforced' },
+          'psmf':                { icon:'🧬', name:'Protein-sparing modified fast',  cat:'Nutrition',  days:'rest',     slot:'meal',     fires:'PSMF day — meals' },
+          'carb-backload':       { icon:'⚡', name:'Carb back-loading',              cat:'Nutrition',  days:'training', slot:'meal',     fires:'Meal timing override' },
+          'diet-break':          { icon:'🔄', name:'Diet break week',                cat:'Nutrition',  days:'all',      slot:'meal',     fires:'Maintenance calories' },
+          'fasted-coffee':       { icon:'☕', name:'Fasted morning training',        cat:'Nutrition',  days:'training', slot:'wake',     fires:'Wake → fasted to gym' },
+          'monthly-36h':         { icon:'🌙', name:'Monthly 36-hour fast',           cat:'Nutrition',  days:'rest',     slot:'meal',     fires:'No food today' },
+          'zone2':               { icon:'🫀', name:'Zone 2 cardio',                  cat:'Training',   days:'rest',     slot:'new',      fires:'+45 min Zone 2 block' },
+          'vo2max-intervals':    { icon:'🔥', name:'VO₂max intervals',              cat:'Training',   days:'training', slot:'training', fires:'4×4 min add-on post session' },
+          'post-meal-walks':     { icon:'🚶', name:'Post-meal walks',                cat:'Training',   days:'all',      slot:'meal',     fires:'10 min walk after each meal' },
+          'neat':                { icon:'📈', name:'NEAT',                           cat:'Training',   days:'all',      slot:'wake',     fires:'+2–3k steps today' },
+          'loaded-stretch':      { icon:'🧘', name:'Loaded stretching',             cat:'Training',   days:'training', slot:'new',      fires:'+20 min stretch block' },
+          'bfr':                 { icon:'🩸', name:'BFR training',                  cat:'Training',   days:'training', slot:'training', fires:'BFR finisher sets' },
+          'sauna':               { icon:'🔥', name:'Sauna protocol',                 cat:'Recovery',  days:'rest',     slot:'new',      fires:'+20 min sauna block' },
+          'contrast':            { icon:'🧊', name:'Cold–hot contrast',              cat:'Recovery',  days:'rest',     slot:'new',      fires:'+60 min contrast block' },
+          'nsdr':                { icon:'🌊', name:'NSDR / Yoga Nidra',             cat:'Recovery',  days:'rest',     slot:'new',      fires:'+20 min NSDR block' },
+          'sleep-extension':     { icon:'😴', name:'Sleep extension',               cat:'Recovery',  days:'all',      slot:'sleep',    fires:'+30–60 min sleep target' },
+          'creatine-load':       { icon:'💊', name:'Creatine loading',              cat:'Recovery',  days:'all',      slot:'supp',     fires:'Supplement note' },
+          'morning-protocol':    { icon:'☀️', name:'Morning protocol',              cat:'Behaviour', days:'all',      slot:'wake',     fires:'Light + cold finish' },
+          'implementation-intent':{ icon:'🎯', name:'Implementation intentions',    cat:'Behaviour', days:'training', slot:'training', fires:'Pre-session if-then' },
+          'dopamine-scheduling': { icon:'🧠', name:'Dopamine scheduling',           cat:'Behaviour', days:'training', slot:'supp',     fires:'No screens pre-session' },
+          'two-minute-rule':     { icon:'👟', name:'Two-minute rule',               cat:'Behaviour', days:'training', slot:'training', fires:'Commit to start only' },
+          'training-log':        { icon:'📓', name:'Training log',                  cat:'Behaviour', days:'training', slot:'training', fires:'Log every set + load' },
+          'body-composition-check':{ icon:'📊', name:'Body composition check',      cat:'Behaviour', days:'monday',   slot:'wake',     fires:'Weigh + waist (Mondays)' },
+          'comfort-expansion':   { icon:'🌡️', name:'Deliberate discomfort',        cat:'Behaviour', days:'all',      slot:'wake',     fires:'One hard thing today' },
+          'food-ordering':       { icon:'🥗', name:'Protein-first ordering',        cat:'Nutrition', days:'all',      slot:'meal',     fires:'Protein + veg before carbs' },
+          'vinegar':             { icon:'🥤', name:'Vinegar before meals',          cat:'Nutrition', days:'all',      slot:'meal',     fires:'ACV before carb meals' },
+          'fibre-30g':           { icon:'🌿', name:'30g fibre target',              cat:'Nutrition', days:'all',      slot:'meal',     fires:'Fibre running total' },
         };
 
-        // Collect all saved IDs — merge legacy accelerators + optimisations
+        // Slot display labels
+        const SLOT_LABELS = {
+          wake: 'Morning', supp: 'Supplements', meal: 'Meals',
+          training: 'Training', new: 'New block', sleep: 'Sleep'
+        };
+        const SLOT_COLORS = {
+          wake: 'var(--jade)', supp: 'var(--gold)', meal: 'var(--amber)',
+          training: 'var(--jade)', new: 'rgba(0,200,160,.5)', sleep: '#4a8090'
+        };
+
         const savedIds = new Set([
           ...(p.accelerators || []),
           ...(p.optimisations || []).map(o => typeof o === 'string' ? o : o.id)
         ]);
 
         const weekPlan = p.weekPlan || [];
-        const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const DAY_NAMES_FULL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        const DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
-        // Build week grid data — for each day, what fires
-        const weekGrid = DAY_NAMES.map(function(dayName, i) {
-          const dp = weekPlan[i] || { type:'Rest', priority:'rest' };
+        if (!savedIds.size) return `
+          <div class="prog-card">
+            <div style="padding:32px 24px;text-align:center;">
+              <div style="font-size:36px;margin-bottom:14px;">⚡</div>
+              <div style="font-size:16px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">No optimisations active yet</div>
+              <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:420px;margin:0 auto 24px;">
+                Browse Accelerators, Science, or Food pages and add concepts to your programme. They appear in your daily timeline on the right days automatically.
+              </div>
+              <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+                <a href="bodylens-accelerators.html" class="prog-btn jade">Accelerators →</a>
+                <a href="bodylens-science.html" class="prog-btn">Science →</a>
+                <a href="bodylens-food.html" class="prog-btn">Food →</a>
+              </div>
+            </div>
+          </div>`;
+
+        // Build per-day data
+        const days = DAY_SHORT.map(function(dayName, i) {
+          const dp = weekPlan[i] || { type:'Rest', priority:'rest', keyExercises:[] };
           const isTraining = dp.priority === 'training';
           const isMonday = i === 0;
           const active = [];
@@ -527,93 +561,102 @@ function render(p) {
             else if (opt.days === 'rest' && !isTraining) active.push(id);
             else if (opt.days === 'monday' && isMonday) active.push(id);
           });
-          return { dayName, type: dp.type || 'Rest', isTraining, active };
+          // Group by slot
+          const bySlot = {};
+          active.forEach(function(id) {
+            const opt = OPT_MAP[id]; if (!opt) return;
+            if (!bySlot[opt.slot]) bySlot[opt.slot] = [];
+            bySlot[opt.slot].push(id);
+          });
+          return { dayName, fullName: DAY_NAMES_FULL[i], dp, isTraining, active, bySlot };
         });
 
-        if (!savedIds.size) return `
-          <div class="prog-card">
-            <div style="padding:32px 24px;text-align:center;">
-              <div style="font-size:36px;margin-bottom:14px;">⚡</div>
-              <div style="font-size:16px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">No optimisations active yet</div>
-              <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:420px;margin:0 auto 24px;">
-                Browse Accelerators, Science, or Food pages and add concepts to your programme. They'll appear in your daily timeline on the right days automatically.
-              </div>
-              <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-                <a href="bodylens-accelerators.html" class="prog-btn jade">Accelerators →</a>
-                <a href="bodylens-science.html" class="prog-btn">Science →</a>
-                <a href="bodylens-food.html" class="prog-btn">Food →</a>
-              </div>
+        // Render each day as a two-column row
+        const dayRows = days.map(function(day, i) {
+          const exercises = (day.dp.keyExercises || []).slice(0, 4);
+          const baseCol = day.isTraining
+            ? `<div style="font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--jade);margin-bottom:6px;">${day.dp.type||'Training'}</div>`
+              + (day.dp.focus ? `<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-bottom:6px;">${day.dp.focus}</div>` : '')
+              + exercises.map(function(ex){ return `<div style="font-size:11px;color:var(--dk-2);padding:2px 0;border-bottom:1px solid var(--bd);">· ${ex}</div>`; }).join('')
+            : `<div style="font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;">Rest</div>`
+              + `<div style="font-size:11px;font-weight:300;color:var(--dk-3);">Recovery · MPS runs 24–48h</div>`;
+
+          // Overlay column — group by slot with color coding
+          const overlaySlotOrder = ['wake','supp','meal','training','new','sleep'];
+          const overlayCol = day.active.length === 0
+            ? `<div style="font-size:11px;font-weight:300;color:var(--dk-3);font-style:italic;">Base plan only</div>`
+            : overlaySlotOrder.filter(function(slot){ return day.bySlot[slot]; }).map(function(slot) {
+                const ids = day.bySlot[slot];
+                const col = SLOT_COLORS[slot] || 'var(--dk-3)';
+                const label = SLOT_LABELS[slot] || slot;
+                return `<div style="margin-bottom:6px;">`
+                  + `<div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col};opacity:.8;margin-bottom:3px;">${label}</div>`
+                  + ids.map(function(id) {
+                      const opt = OPT_MAP[id] || {};
+                      return `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dk-2);margin-bottom:2px;">`
+                        + `<span style="flex-shrink:0;">${opt.icon||'⚡'}</span>`
+                        + `<span style="font-weight:300;">${opt.fires||opt.name}</span>`
+                        + `</div>`;
+                    }).join('')
+                  + `</div>`;
+              }).join('');
+
+          return `<div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:0;border-bottom:1px solid var(--bd);">
+            <!-- Day label -->
+            <div style="padding:12px 10px;border-right:1px solid var(--bd);background:${day.isTraining?'rgba(0,200,160,.03)':'var(--ink-1)'};">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${day.isTraining?'var(--jade)':'var(--dk-3)'};">${day.dayName}</div>
+              <div style="font-size:9px;font-weight:300;color:var(--dk-3);margin-top:2px;">${day.active.length > 0 ? day.active.length + ' overlays' : 'base'}</div>
             </div>
+            <!-- Base plan -->
+            <div style="padding:12px 12px;border-right:1px solid var(--bd);">${baseCol}</div>
+            <!-- Overlays -->
+            <div style="padding:12px 12px;">${overlayCol}</div>
           </div>`;
+        }).join('');
 
-        // Group saved optimisations by category
-        const byCategory = {};
-        savedIds.forEach(function(id) {
-          const opt = OPT_MAP[id] || { icon:'⚡', name:id, cat:'Other', days:'all', fires:'Daily' };
-          if (!byCategory[opt.cat]) byCategory[opt.cat] = [];
-          byCategory[opt.cat].push({ id, ...opt });
+        // Manage list — compact, below the grid
+        const allOpts = Array.from(savedIds).map(function(id) {
+          return OPT_MAP[id] ? { id, ...OPT_MAP[id] } : { id, icon:'⚡', name:id, cat:'Other', days:'all', fires:'Daily' };
         });
 
-        const catColors = { Nutrition:'amber', Training:'jade', Recovery:'slate', Behaviour:'gold', Other:'slate' };
+        const manageList = allOpts.map(function(opt) {
+          return `<div class="prog-note-row" id="note-${opt.id}" style="padding:8px 0;">
+            <div class="prog-note-icon" style="font-size:16px;">${opt.icon}</div>
+            <div class="prog-note-body">
+              <div class="prog-note-name" style="font-size:12px;">${opt.name}</div>
+            </div>
+            <button class="prog-note-remove" onclick="removeOpt('${opt.id}')">✕</button>
+          </div>`;
+        }).join('');
 
         return `
-          <!-- Week grid -->
-          <div class="prog-card" style="margin-bottom:14px;">
-            <div class="prog-card-head">
-              <div class="prog-card-title jade">Your optimised week</div>
-              <div style="font-size:11px;font-weight:300;color:var(--dk-3);">Every active optimisation mapped to the day it fires. This is what your daily plan includes.</div>
+          <!-- Header labels -->
+          <div class="prog-card" style="padding:0;overflow:hidden;margin-bottom:14px;">
+            <div style="display:grid;grid-template-columns:90px 1fr 1fr;background:var(--ink-1);border-bottom:1px solid var(--bd);">
+              <div style="padding:8px 10px;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);">Day</div>
+              <div style="padding:8px 12px;border-left:1px solid var(--bd);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);">Base plan</div>
+              <div style="padding:8px 12px;border-left:1px solid var(--bd);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);">Overlays</div>
             </div>
-            <div class="opt-week-grid">
-              ${weekGrid.map(function(day) {
-                return `<div class="owg-day ${day.isTraining ? 'training' : 'rest'}">
-                  <div class="owg-header">
-                    <div class="owg-dayname">${day.dayName}</div>
-                    <div class="owg-type">${day.type}</div>
-                  </div>
-                  <div class="owg-chips">
-                    ${day.active.length ? day.active.map(function(id) {
-                      const opt = OPT_MAP[id] || {};
-                      return `<div class="owg-chip" title="${opt.fires||id}">${opt.icon||'⚡'}</div>`;
-                    }).join('') : '<div class="owg-empty">—</div>'}
-                  </div>
-                  <div class="owg-count">${day.active.length ? day.active.length + ' active' : 'base plan'}</div>
-                </div>`;
-              }).join('')}
-            </div>
-            <div style="margin-top:8px;padding:10px 0 0;border-top:1px solid var(--bd);font-size:10px;font-weight:300;color:var(--dk-3);">
-              Hover or tap any icon to see what it does. Each fires automatically in your daily plan on the right days.
-            </div>
+            ${dayRows}
           </div>
 
-          <!-- Active optimisations by category -->
-          ${Object.keys(byCategory).map(function(cat) {
-            const items = byCategory[cat];
-            const col = catColors[cat] || 'slate';
-            return `<div class="prog-card" style="margin-bottom:10px;">
-              <div class="prog-card-head">
-                <div class="prog-card-title ${col}">${cat}</div>
-                <div style="font-size:10px;font-weight:300;color:var(--dk-3);">${items.length} active</div>
+          <!-- Manage — compact remove list -->
+          <div class="prog-card" style="margin-bottom:14px;">
+            <div class="prog-card-head">
+              <div class="prog-card-title" style="font-size:12px;">${savedIds.size} active optimisation${savedIds.size !== 1 ? 's' : ''}</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <a href="bodylens-accelerators.html" class="prog-btn jade" style="font-size:10px;padding:5px 12px;">+ Accelerators</a>
+                <a href="bodylens-science.html" class="prog-btn" style="font-size:10px;padding:5px 12px;">+ Science</a>
+                <a href="bodylens-food.html" class="prog-btn" style="font-size:10px;padding:5px 12px;">+ Food</a>
               </div>
-              ${items.map(function(opt) {
-                return `<div class="prog-note-row" id="note-${opt.id}">
-                  <div class="prog-note-icon">${opt.icon}</div>
-                  <div class="prog-note-body">
-                    <div class="prog-note-name">${opt.name}</div>
-                    <div class="prog-note-desc">${opt.fires}</div>
-                  </div>
-                  <button class="prog-note-remove" onclick="removeOpt('${opt.id}')">Remove</button>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;">
+              ${allOpts.map(function(opt) {
+                return `<div id="note-${opt.id}" style="display:inline-flex;align-items:center;gap:5px;background:var(--ink-1);border:1px solid var(--bd);border-radius:14px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--dk-2);">
+                  <span>${opt.icon}</span><span>${opt.name}</span>
+                  <button onclick="removeOpt('${opt.id}')" style="background:none;border:none;color:var(--dk-3);cursor:pointer;font-size:11px;padding:0 0 0 2px;line-height:1;">✕</button>
                 </div>`;
               }).join('')}
-            </div>`;
-          }).join('')}
-
-          <!-- Add more -->
-          <div style="padding:16px 0 4px;">
-            <div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:12px;">Add from</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <a href="bodylens-accelerators.html" class="prog-btn jade">Accelerators →</a>
-              <a href="bodylens-science.html" class="prog-btn">Science →</a>
-              <a href="bodylens-food.html" class="prog-btn">Food →</a>
             </div>
           </div>
         `;
@@ -627,7 +670,7 @@ function render(p) {
           <div class="prog-card-title jade">Export profile</div>
           <div style="font-size:11px;font-weight:300;color:var(--dk-3);">Download your full profile as a JSON file. Use this to back up your data or restore it in a new browser.</div>
         </div>
-        <div style="padding:4px 0 16px;">
+        <div style="padding:16px 18px;">
           <button onclick="exportProfile()" class="prog-btn jade">↓ Download profile.json</button>
         </div>
       </div>
@@ -637,27 +680,27 @@ function render(p) {
           <div class="prog-card-title amber">Import profile</div>
           <div style="font-size:11px;font-weight:300;color:var(--dk-3);">Restore a previously exported profile JSON. This will replace your current programme.</div>
         </div>
-        <div style="padding:4px 0 8px;">
-          <div style="margin-bottom:12px;">
-            <label style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);display:block;margin-bottom:8px;">Upload a JSON file</label>
+        <div style="padding:16px 18px;">
+          <div style="margin-bottom:16px;">
+            <label style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);display:block;margin-bottom:8px;">Upload a JSON file</label>
             <input type="file" id="import-file" accept=".json,application/json" onchange="handleImportFile(event)"
-              style="font-size:12px;color:var(--dk-2);background:var(--ink-1);border:1px solid var(--bd);border-radius:6px;padding:8px 12px;width:100%;cursor:pointer;">
+              style="display:block;font-size:12px;color:var(--dk-2);background:var(--ink-1);border:1px solid var(--bd);border-radius:6px;padding:8px 12px;width:100%;box-sizing:border-box;cursor:pointer;">
           </div>
-          <div style="display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--dk-3);">
+          <div style="display:flex;align-items:center;gap:12px;margin:16px 0;">
             <div style="flex:1;height:1px;background:var(--bd);"></div>
-            <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;">or paste JSON</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);">or paste JSON</div>
             <div style="flex:1;height:1px;background:var(--bd);"></div>
           </div>
           <textarea id="import-json" placeholder='Paste your profile JSON here…' rows="6"
-            style="width:100%;background:var(--ink-1);border:1px solid var(--bd);border-radius:6px;padding:12px;font-size:12px;font-family:var(--mono);color:var(--dk-2);resize:vertical;outline:none;transition:border-color .12s;"
+            style="display:block;width:100%;box-sizing:border-box;background:var(--ink-1);border:1px solid var(--bd);border-radius:6px;padding:12px;font-size:12px;font-family:var(--mono);color:var(--dk-2);resize:vertical;outline:none;transition:border-color .12s;"
             onfocus="this.style.borderColor='rgba(196,124,24,.4)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
-          <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
             <button onclick="importProfile()" class="prog-btn amber">↑ Import & restore</button>
             <div id="import-status" style="font-size:12px;font-weight:300;color:var(--dk-3);"></div>
           </div>
-        </div>
-        <div style="margin-top:16px;padding:12px 14px;background:rgba(220,80,60,0.04);border:1px solid rgba(220,80,60,0.15);border-radius:6px;">
-          <div style="font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.65;"><strong style="color:rgba(220,80,60,.7);font-weight:600;">⚠ Warning:</strong> Importing will overwrite your current programme. Export a backup first if you want to keep it.</div>
+          <div style="margin-top:16px;padding:12px 14px;background:rgba(220,80,60,0.04);border:1px solid rgba(220,80,60,0.15);border-radius:6px;">
+            <div style="font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.65;"><strong style="color:rgba(220,80,60,.7);font-weight:600;">⚠ Warning:</strong> Importing will overwrite your current programme. Export a backup first if you want to keep it.</div>
+          </div>
         </div>
       </div>
     </div>
