@@ -56,6 +56,8 @@
 .ws-day.today{background:var(--ink-2);border-color:var(--bd);}
 .ws-day.train{border-top:2px solid var(--jade);}
 .ws-day.rest{border-top:2px solid var(--bd);}
+.ws-day.viewing{background:var(--ink-2);border-color:rgba(196,124,24,.4);border-top-color:var(--amber);}
+.ws-day.viewing .ws-day-name{color:var(--amber);}
 .ws-day-name{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dk-3);margin-bottom:2px;}
 .ws-day.today .ws-day-name{color:var(--jade);}
 .ws-day-type{font-size:10px;font-weight:500;color:var(--dk-2);}
@@ -852,17 +854,76 @@ function renderWeekStrip(p,t){
       +'</div>';
   }).join('');
 }
-function jumpDay(i){
-  var p=P,t=TODAY;
-  if(!p||!t)return;
-  var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
-  openSession(t.DAY_NAMES[i]+' \u2014 '+dp.type,
-    '<div style="padding:8px 0;">'
-    +'<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:10px;">'+(dp.coachNote||'')+'</div>'
-    +(dp.keyExercises&&dp.keyExercises.length?'<div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Key exercises</div>'
-      +dp.keyExercises.map(function(e){return '<div style="padding:5px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--dk-1);">'+e+'</div>';}).join(''):'')
-    +'</div>');
-  document.querySelectorAll('.ws-day').forEach(function(el,j){el.classList.toggle('active',j===i);});
+// ── DAY BROWSING ──────────────────────────────────
+// VIEWING_DAY tracks which day index is being viewed (null = today)
+var VIEWING_DAY = null;
+
+function getDayCtx(p, i) {
+  var N = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var plan = (p.weekPlan||[])[i] || {type:'Rest',focus:'Recovery',priority:'rest'};
+  return {
+    idx: i, name: N[i], plan: plan,
+    isTraining: plan.priority === 'training',
+    cacheKey: 'dayplan_v5_browse_' + i,
+    DAY_NAMES: N,
+    isBrowsing: true
+  };
+}
+
+function jumpDay(i) {
+  var p = P, t = TODAY;
+  if (!p || !t) return;
+
+  // Tapping today resets to today view
+  if (i === t.idx) {
+    backToToday();
+    return;
+  }
+
+  VIEWING_DAY = i;
+
+  // Update week strip active state
+  document.querySelectorAll('.ws-day').forEach(function(el, j) {
+    el.classList.toggle('viewing', j === i);
+    el.classList.toggle('today', j === t.idx);
+  });
+
+  // Build the plan for the browsed day (no cache needed — instant from profile data)
+  var dayCtx = getDayCtx(p, i);
+  var plan = buildPlan(p, dayCtx);
+
+  // Render with browsing mode (suppresses coach prose, SOS, macro ticks)
+  renderPlan(plan, true);
+
+  // Scroll to top of content
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function backToToday() {
+  VIEWING_DAY = null;
+  var t = TODAY;
+
+  // Reset week strip
+  document.querySelectorAll('.ws-day').forEach(function(el, j) {
+    el.classList.remove('viewing');
+    el.classList.toggle('today', j === t.idx);
+  });
+
+  // Re-render today
+  var root = document.getElementById('day-root');
+  var cached = null;
+  try { var c = localStorage.getItem(t.cacheKey); if(c) cached = JSON.parse(c); } catch(e) {}
+  if (cached && cached.blocks && cached.blocks.length >= 3) {
+    renderPlan(cached, false);
+    updateMacroBar();
+    preloadRecipes(P, TODAY);
+    generateCoachNarrative(P, TODAY, cached);
+  } else {
+    root.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:60vh;">'
+      +'<button onclick="buildDay()" style="background:var(--jade);border:none;color:var(--ink);border-radius:8px;padding:18px 48px;font-size:15px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);">Build today\'s plan &#8594;</button>'
+      +'</div>';
+  }
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 // ── Week tabs ─────────────────────────────────────
@@ -1306,12 +1367,13 @@ function sendAsk(text){
 }
 
 // ── Enrich meal names ─────────────────────────────
-function renderPlan(plan){
+function renderPlan(plan, browsing){
   var root=document.getElementById('day-root');
   window._blocks=plan.blocks;
   var p=P,t=TODAY;
   var progCtx=getProgCtx(p);
   var prog={weekNum:progCtx.weekNum,phase:progCtx.phase};
+  var isBrowsing = !!browsing;
 
   // ── Proportional height calculation ──────────────
   // MIN_H=64px, PX_PER_MIN=1.4, sleep capped at 200px
@@ -1397,7 +1459,7 @@ function renderPlan(plan){
       +(b.durationMins&&b.durationMins>20?'<div class="ptl-dur">~'+b.durationMins+' min</div>':'')
       +'</div>'
       +(b.tag?'<span class="ptl-tag '+tagCls+'">'+b.tag+'</span>':'')
-      +(isMeal?'<div class="ptl-tick'+(eaten?' done':'')+'" onclick="event.stopPropagation();quickTick(\''+b.mealSlot+'\','+i+')" title="Mark eaten">&#10003;</div>':'')
+      +(isMeal && !isBrowsing?'<div class="ptl-tick'+(eaten?' done':'')+'" onclick="event.stopPropagation();quickTick(\''+b.mealSlot+'\','+i+')" title="Mark eaten">&#10003;</div>':'')
       +'</div>';
 
     // Body content
@@ -1456,6 +1518,7 @@ function renderPlan(plan){
   root.innerHTML=
     '<div class="day-hero">'
     +'<div class="day-kicker">'+dateStr+'</div>'
+    +(isBrowsing ? '<div style="display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:rgba(196,124,24,.08);border:1px solid rgba(196,124,24,.2);border-radius:14px;padding:4px 12px;margin-bottom:10px;">Viewing '+plan.dayTitle.split(' — ')[0]+' <span style="opacity:.5;">·</span> <button onclick="backToToday()" style="background:none;border:none;color:var(--jade);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);padding:0;">Back to today ↩</button></div><br>' : '')
     +'<div class="day-title">'+plan.dayTitle+'</div>'
     +'<div class="day-brief">'+plan.dayBrief+'</div>'
     +(plan.priority?'<div class="day-priority">'+plan.priority+'</div>':'')
@@ -1469,8 +1532,8 @@ function renderPlan(plan){
     +'</div>'
     +'<div class="water-bar">\uD83D\uDCA7 '+plan.macros.water+' \u2014 spread across the day</div>'
     +'<div id="day-macro-progress"></div>'
-    // SOS strip
-    +'<div style="margin:16px 0;background:rgba(200,148,30,0.05);border:1px solid rgba(200,148,30,0.2);border-radius:10px;padding:14px 16px;">'
+    // SOS strip — today only
+    +(!isBrowsing ? '<div style="margin:16px 0;background:rgba(200,148,30,0.05);border:1px solid rgba(200,148,30,0.2);border-radius:10px;padding:14px 16px;">'
     +'<div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">&#9889; Something getting in the way?</div>'
     +'<div class="dti-row" style="margin-bottom:10px;">'
     +'<input class="dti-inp" id="sos-top-inp" placeholder="e.g. I\u2019m starving, I slept terribly, want to skip gym\u2026" onkeydown="if(event.key===\'Enter\'){openSOSFromInput();}">'
@@ -1481,20 +1544,20 @@ function renderPlan(plan){
     +'<button class="sos-t-btn" onclick="openSOS(\'starving\')">Starving</button>'
     +'<button class="sos-t-btn" onclick="openSOS(\'bad-sleep\')">Bad sleep</button>'
     +'<button class="sos-t-btn" onclick="openSOS(\'skip-gym\')">Skip gym</button>'
-    +'</div></div>'
+    +'</div></div>' : '')
     // Two-column layout
     +'<div class="day-layout">'
     +'<div class="day-col-left">'
     +'<div id="prog-strip-slot"></div>'
     +'<div class="sec-label">Your day</div>'
     +'<div class="ptl"><div class="ptl-line"></div>'+blocksHtml+'</div>'
-    +'<button class="regen-btn" onclick="regen()">\u8635 Rebuild today</button>'
+    +'<button class="regen-btn" onclick="'+(isBrowsing ? 'backToToday()' : 'regen()')+'">'+( isBrowsing ? '↩ Back to today' : '\u8635 Rebuild today')+'</button>'
     +'</div>'
     +'<div class="day-col-right">'
-    +'<div id="coach-narrative-body" class="coach-prose-wrap">'
-    +'<div class="coach-prose-spin"><div class="spin" style="width:16px;height:16px;margin:0 auto 8px;"></div>'
-    +'<div style="font-size:11px;color:var(--dk-3);">Coach is reading your day…</div></div>'
-    +'</div>'
+    +(isBrowsing
+      ? '<div class="coach-prose-wrap" style="padding-top:8px;"><div style="font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.7;">Coach briefing is only available for today.</div></div>'
+      : '<div id="coach-narrative-body" class="coach-prose-wrap"><div class="coach-prose-spin"><div class="spin" style="width:16px;height:16px;margin:0 auto 8px;"></div><div style="font-size:11px;color:var(--dk-3);">Coach is reading your day…</div></div></div>'
+    )
     +'</div>'
     +'</div>';
 
