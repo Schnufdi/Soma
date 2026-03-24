@@ -341,7 +341,7 @@ function getSuggestedTopics(p) {
       base.unshift('The recomposition paradox — why it\'s harder after 40');
       base.unshift('Calorie cycling: training days vs rest days explained');
     }
-    if (p.supplements && p.supplements.some(function(s){ return s.toLowerCase().includes('creatine'); })) {
+    if (p.supplements && p.supplements.some(function(s){ return (s.name||s).toString().toLowerCase().includes('creatine'); })) {
       base.unshift('Creatine loading vs maintenance — what the research says');
     }
     if (p.age && p.age >= 40) {
@@ -515,63 +515,199 @@ function getFallbackEpisode(topic, p) {
 }
 
 // ── Playback: line-by-line auto-advance ───────────
+// ── ElevenLabs Audio Playback System ─────────────────
+// Replaces the text-timer system when EL is configured.
+// Falls back gracefully to text-highlighting if no key.
+
+var EL = {
+  apiUrl: '/api/tts',
+  enabled: false,          // toggled on when user adds key
+  audioCache: {},          // lineIndex -> blob URL
+  currentAudio: null,      // active Audio element
+  prefetchQueue: [],
+  prefetching: false,
+};
+
+// Check if EL is configured (key stored in localStorage)
+function elEnabled() {
+  return !!localStorage.getItem('bl_elevenlabs_key') || EL.enabled;
+}
+
+// Store key (user pastes it into the settings input)
+function saveElKey(key) {
+  if (key && key.trim()) {
+    localStorage.setItem('bl_elevenlabs_key', key.trim());
+    EL.enabled = true;
+    render();
+  }
+}
+
+function clearElKey() {
+  localStorage.removeItem('bl_elevenlabs_key');
+  EL.enabled = false;
+  render();
+}
+
+// Fetch audio for a single line from our /api/tts proxy
+async function fetchLineAudio(lineIdx) {
+  if (EL.audioCache[lineIdx]) return EL.audioCache[lineIdx];
+  var ep = POD.episode;
+  if (!ep || !ep.lines || !ep.lines[lineIdx]) return null;
+  var line = ep.lines[lineIdx];
+  var userKey = localStorage.getItem('bl_elevenlabs_key');
+
+  try {
+    var resp = await fetch(EL.apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: line.text,
+        speaker: line.speaker,
+        user_key: userKey  // passed to serverless fn if needed
+      })
+    });
+    if (!resp.ok) throw new Error('tts failed: ' + resp.status);
+    var blob = await resp.blob();
+    var url = URL.createObjectURL(blob);
+    EL.audioCache[lineIdx] = url;
+    return url;
+  } catch(e) {
+    console.warn('ElevenLabs TTS failed for line', lineIdx, e.message);
+    return null;
+  }
+}
+
+// Prefetch the next N lines silently in background
+function prefetchAhead(fromIdx, count) {
+  var ep = POD.episode;
+  if (!ep || !ep.lines) return;
+  var limit = Math.min(fromIdx + count, ep.lines.length);
+  for (var i = fromIdx; i < limit; i++) {
+    if (!EL.audioCache[i]) {
+      (function(idx) {
+        fetchLineAudio(idx).catch(function(){});
+      })(i);
+    }
+  }
+}
+
+// Stop any playing audio
+function stopAudio() {
+  if (EL.currentAudio) {
+    EL.currentAudio.pause();
+    EL.currentAudio.src = '';
+    EL.currentAudio = null;
+  }
+  if (POD.playInterval) { clearTimeout(POD.playInterval); POD.playInterval = null; }
+}
+
+// Play a line — with ElevenLabs if available, else text-timer
+async function playLine(idx) {
+  var lines = POD.episode && POD.episode.lines || [];
+  if (!POD.playing || idx >= lines.length) {
+    POD.playing = false;
+    stopAudio();
+    updatePlayBtn();
+    return;
+  }
+
+  POD.currentLine = idx;
+  updateLineHighlight(idx);
+  scrollToLine(idx);
+  updateNowSpeaking(idx);
+  updateProgress();
+
+  // Prefetch next 3 lines while this one plays
+  if (elEnabled()) prefetchAhead(idx + 1, 3);
+
+  if (elEnabled()) {
+    // Show loading indicator on play button
+    updatePlayBtn('⏳');
+
+    var audioUrl = await fetchLineAudio(idx);
+
+    if (!POD.playing) return; // was stopped while fetching
+
+    if (audioUrl) {
+      var audio = new Audio(audioUrl);
+      EL.currentAudio = audio;
+      updatePlayBtn('⏸');
+
+      audio.onended = function() {
+        if (!POD.playing) return;
+        playLine(idx + 1);
+      };
+      audio.onerror = function() {
+        // Fallback to text-timer for this line
+        textTimerLine(idx);
+      };
+      audio.play().catch(function() {
+        textTimerLine(idx);
+      });
+    } else {
+      // EL failed for this line — use text timer
+      textTimerLine(idx);
+    }
+  } else {
+    textTimerLine(idx);
+  }
+}
+
+// Text-timer fallback (word-count based timing)
+function textTimerLine(idx) {
+  var lines = POD.episode && POD.episode.lines || [];
+  var text = (lines[idx] && lines[idx].text) || '';
+  var words = text.split(' ').length;
+  var delay = Math.max(3500, Math.min(10000, words * 260));
+  updatePlayBtn('⏸');
+
+  POD.playInterval = setTimeout(function() {
+    if (!POD.playing) return;
+    playLine(idx + 1);
+  }, delay);
+}
+
+function updatePlayBtn(icon) {
+  var btn = document.querySelector('.pod-play-btn');
+  if (btn) btn.textContent = icon || (POD.playing ? '⏸' : '▶');
+}
+
 function togglePlay() {
   POD.playing = !POD.playing;
   if (POD.playing) {
     if (POD.currentLine >= (POD.episode.lines||[]).length) {
       POD.currentLine = 0;
     }
-    startPlayback();
+    // Prefetch first few lines immediately
+    if (elEnabled()) prefetchAhead(POD.currentLine, 3);
+    playLine(POD.currentLine);
   } else {
-    stopPlayback();
+    stopAudio();
+    updatePlayBtn('▶');
   }
-  render();
+  updatePlayBtn();
 }
 
 function startPlayback() {
-  stopPlayback();
-  advanceLine();
+  stopAudio();
+  playLine(POD.currentLine);
 }
 
 function stopPlayback() {
-  if (POD.playInterval) { clearInterval(POD.playInterval); POD.playInterval = null; }
+  stopAudio();
 }
 
 function advanceLine() {
-  var lines = POD.episode && POD.episode.lines || [];
-  if (!POD.playing || POD.currentLine >= lines.length) {
-    POD.playing = false;
-    render();
-    return;
-  }
-
-  // Time per line: roughly 15 words per second of reading, mapped to ~4s–12s
-  var text = lines[POD.currentLine].text || '';
-  var words = text.split(' ').length;
-  var delay = Math.max(3500, Math.min(10000, words * 280));
-
-  updateLineHighlight(POD.currentLine);
-  scrollToLine(POD.currentLine);
-  updateNowSpeaking(POD.currentLine);
-  updateProgress();
-
-  POD.playInterval = setTimeout(function() {
-    POD.currentLine++;
-    if (POD.currentLine >= lines.length) {
-      POD.playing = false;
-      render();
-    } else {
-      advanceLine();
-    }
-  }, delay);
+  // Not used directly anymore — playLine handles recursion
 }
 
 function jumpToLine(idx) {
-  stopPlayback();
+  stopAudio();
   POD.currentLine = idx;
   POD.playing = true;
-  render();
-  startPlayback();
+  if (elEnabled()) prefetchAhead(idx, 3);
+  playLine(idx);
+  updatePlayBtn();
 }
 
 function updateLineHighlight(idx) {
@@ -715,6 +851,24 @@ function renderBuilder(p) {
   });
   html += '</div>';
 
+  // ElevenLabs audio settings
+  var hasElKey = !!localStorage.getItem('bl_elevenlabs_key');
+  html += '<div style="margin-top:16px;padding:14px 16px;background:' + (hasElKey ? 'rgba(0,200,160,.04)' : 'rgba(255,255,255,.02)') + ';border:1px solid ' + (hasElKey ? 'var(--jade-br)' : 'var(--bd)') + ';border-radius:8px;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:' + (hasElKey ? '0' : '10px') + ';">'
+      + '<div>'
+        + '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:' + (hasElKey ? 'var(--jade)' : 'var(--dk-3)') + ';margin-bottom:2px;">🎙 ElevenLabs narration ' + (hasElKey ? '— Active' : '— Optional') + '</div>'
+        + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">' + (hasElKey ? 'Real AI voices will narrate your podcast.' : 'Add your API key to hear the podcast spoken aloud by two AI voices.') + '</div>'
+      + '</div>'
+      + (hasElKey ? '<button onclick="clearElKey()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);border-radius:6px;padding:4px 10px;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);">Remove key</button>' : '')
+    + '</div>'
+    + (!hasElKey ? '<div style="display:flex;gap:7px;">'
+      + '<input id="el-key-inp" type="password" placeholder="Paste ElevenLabs API key (sk_...)" style="flex:1;background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:8px 12px;font-size:12px;font-family:var(--mono);color:var(--dk-1);outline:none;">'
+      + '<button onclick="saveElKey(document.getElementById(\'el-key-inp\').value)" style="background:var(--jade);border:none;color:var(--ink);padding:8px 14px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);white-space:nowrap;">Save →</button>'
+      + '</div>'
+      + '<div style="margin-top:8px;font-size:10px;font-weight:300;color:var(--dk-3);">Your key is stored locally in your browser only. <a href="https://elevenlabs.io" target="_blank" style="color:var(--jade);">Get a free key at elevenlabs.io →</a></div>'
+      : '')
+    + '</div>';
+
   html += '</div></div>'; // close builder-body, builder
   return html;
 }
@@ -803,10 +957,14 @@ function renderPlayer(p) {
   }
 
   // Footer
+  var hasElKey = !!localStorage.getItem('bl_elevenlabs_key');
   html += '<div class="pod-footer">'
     + '<button class="pod-footer-btn" onclick="newEpisode()">← New topic</button>'
     + '<button class="pod-footer-btn" onclick="regenerate()">↺ Regenerate</button>'
     + '<button class="pod-footer-btn primary" onclick="copyTranscript()">Copy transcript</button>'
+    + (!hasElKey
+      ? '<button class="pod-footer-btn" onclick="showElSetup()" style="border-color:var(--jade-br);color:var(--jade);">🎙 Add voices</button>'
+      : '<span style="font-size:10px;font-weight:500;color:var(--jade);padding:0 8px;">🎙 ElevenLabs active</span>')
     + '<div class="pod-footer-ep-count">Episode ' + ep.epNum + ' of ' + POD.episodeNum + ' total</div>'
     + '</div>';
 
@@ -884,10 +1042,21 @@ function regenerate() {
 }
 
 function restartEp() {
-  stopPlayback();
+  stopAudio();
   POD.currentLine = 0;
   POD.playing = false;
+  EL.audioCache = {}; // clear cached audio when restarting
   render();
+}
+
+function showElSetup() {
+  // Show a quick modal / inline prompt for the EL key
+  var key = prompt('Paste your ElevenLabs API key (sk_...):\n\nGet a free key at elevenlabs.io — the free tier gives 10,000 characters/month.');
+  if (key && key.trim().startsWith('sk_')) {
+    saveElKey(key.trim());
+  } else if (key) {
+    alert('That doesn\'t look like an ElevenLabs API key (should start with sk_). Please check and try again.');
+  }
 }
 
 function scrubProgress(evt) {
