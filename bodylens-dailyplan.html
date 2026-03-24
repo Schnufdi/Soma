@@ -113,47 +113,95 @@
 .ps-phase{font-size:11px;font-weight:300;color:var(--dk-3);}
 .sec-label{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
 .sec-label::after{content:'';flex:1;height:1px;background:var(--bd);}
-.tl-block{background:var(--ink-2);border:1px solid var(--bd);border-radius:7px;margin-bottom:7px;overflow:hidden;transition:border-color .12s;}
-.tl-block:hover{border-color:rgba(0,200,160,.18);}
-.tl-block.t-wake{border-left:3px solid var(--jade);}
-.tl-block.t-supp{border-left:3px solid var(--gold);}
-.tl-block.t-meal{border-left:3px solid var(--amber);}
-.tl-block.t-training{border-left:3px solid var(--jade);background:rgba(0,200,160,.015);}
-.tl-block.t-recovery{border-left:3px solid var(--dk-3);}
-.tl-block.t-sleep{border-left:3px solid #4a6070;}
-.tl-block.t-hydration{border-left:3px solid rgba(74,143,168,.6);}
-.tl-block.eaten{opacity:.5;}
-.tl-head{display:flex;align-items:center;gap:9px;padding:12px 14px;cursor:pointer;}
-.tl-time{font-family:var(--mono);font-size:11px;color:var(--dk-3);width:40px;flex-shrink:0;}
-.tl-main{flex:1;min-width:0;}
-.tl-title{font-size:13px;font-weight:500;color:var(--dk-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tl-block.t-training .tl-title{color:var(--jade);}
-.tl-sub{font-size:11px;font-weight:300;color:var(--dk-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tl-tag{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:9px;flex-shrink:0;}
-.tl-tag.j{color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);}
-.tl-tag.a{color:var(--amber);background:rgba(196,124,24,.08);border:1px solid rgba(196,124,24,.25);}
-.tl-tag.g{color:var(--gold);background:rgba(200,148,30,.08);border:1px solid rgba(200,148,30,.25);}
-.tl-tag.s{color:var(--dk-3);background:var(--ink-1);border:1px solid var(--bd);}
-.tl-chev{font-size:10px;color:var(--dk-3);transition:transform .18s;flex-shrink:0;}
-.tl-block.open .tl-chev{transform:rotate(180deg);}
-.tl-tick{width:26px;height:26px;border-radius:50%;border:1px solid var(--jade-br);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--jade);cursor:pointer;flex-shrink:0;transition:all .15s;}
-.tl-tick:hover{background:var(--jade-dim);}
-.tl-tick.done{background:var(--jade);color:var(--ink);border-color:var(--jade);}
-.tl-body{display:none;padding:0 14px 14px 54px;}
-.tl-block.open .tl-body{display:block;}
-.tl-detail{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:8px;}
-.tl-detail p{margin:0 0 5px;}
-.tl-science{font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.65;padding:7px 11px;background:var(--ink-1);border-radius:4px;border-left:2px solid var(--bd);margin-bottom:8px;}
-.tl-items{display:flex;flex-wrap:wrap;gap:5px;}
-.tl-item{background:var(--ink-1);border:1px solid var(--bd);border-radius:4px;padding:3px 9px;font-size:11px;font-weight:500;color:var(--dk-1);}
-.meal-inline{display:none;padding:10px 14px 14px 54px;background:var(--ink-1);border-top:1px solid var(--bd);}
-.tl-block.meal-open .meal-inline{display:block;}
-.tl-block.meal-open .tl-chev{transform:rotate(180deg);}
-.meal-actions{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
+/* ── PROPORTIONAL TIMELINE ─────────────────────────
+   Each block height = max(MIN_H, durationMins * PX_PER_MIN)
+   MIN_H=64px baseline. PX_PER_MIN=1.4px.
+   A 120min training session = max(64, 168) = 168px.
+   A 15min meal = max(64, 21) = 64px (baseline).
+   A 7h sleep = max(64, 588) = 588px.
+   Sleep is capped at 220px visually but data preserved.
+──────────────────────────────────────────────────── */
+.ptl{position:relative;padding-left:52px;}
+.ptl-line{position:absolute;left:19px;top:0;bottom:0;width:1px;background:var(--bd);}
+.ptl-block{position:relative;margin-bottom:6px;}
+.ptl-dot{position:absolute;left:-39px;top:16px;width:9px;height:9px;border-radius:50%;border:2px solid var(--bd);background:var(--ink-1);z-index:1;transition:border-color .15s;}
+.ptl-block.t-training .ptl-dot{background:var(--jade);border-color:var(--jade);box-shadow:0 0 0 3px var(--jade-dim);}
+.ptl-block.t-meal .ptl-dot{border-color:var(--amber);}
+.ptl-block.t-supp .ptl-dot,.ptl-block.t-recovery .ptl-dot{border-color:var(--gold);}
+.ptl-block.t-wake .ptl-dot{border-color:var(--jade);}
+.ptl-block.t-sleep .ptl-dot{border-color:#4a6070;}
+.ptl-card{background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;overflow:hidden;transition:border-color .12s;min-height:64px;}
+.ptl-card:hover{border-color:rgba(255,255,255,.12);}
+.ptl-block.t-training .ptl-card{border-color:rgba(0,200,160,.2);background:rgba(0,200,160,.015);}
+.ptl-block.t-sleep .ptl-card{background:rgba(74,96,112,.08);border-color:rgba(74,96,112,.25);}
+.ptl-block.eaten .ptl-card{opacity:.55;}
+
+/* Card header — always visible */
+.ptl-hd{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;}
+.ptl-time{font-family:var(--mono);font-size:10px;color:var(--dk-3);width:36px;flex-shrink:0;padding-top:2px;}
+.ptl-main{flex:1;min-width:0;}
+.ptl-title{font-size:13px;font-weight:500;color:var(--dk-1);line-height:1.3;margin-bottom:2px;}
+.ptl-block.t-training .ptl-title{color:var(--jade);}
+.ptl-sub{font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.4;}
+.ptl-dur{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);margin-top:3px;}
+.ptl-block.t-training .ptl-dur{color:var(--jade);opacity:.7;}
+.ptl-tag{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:9px;flex-shrink:0;margin-top:1px;}
+.ptl-tag.j{color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);}
+.ptl-tag.a{color:var(--amber);background:rgba(196,124,24,.08);border:1px solid rgba(196,124,24,.25);}
+.ptl-tag.g{color:var(--gold);background:rgba(200,148,30,.08);border:1px solid rgba(200,148,30,.25);}
+.ptl-tag.s{color:var(--dk-3);background:var(--ink-1);border:1px solid var(--bd);}
+.ptl-tick{width:26px;height:26px;border-radius:50%;border:1px solid var(--jade-br);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--jade);cursor:pointer;flex-shrink:0;transition:all .15s;margin-top:1px;}
+.ptl-tick:hover{background:var(--jade-dim);}
+.ptl-tick.done{background:var(--jade);color:var(--ink);border-color:var(--jade);}
+
+/* Inline body — always visible, no expand needed */
+.ptl-body{padding:0 14px 12px 50px;}
+.ptl-coach{font-size:11px;font-weight:300;color:var(--jade);line-height:1.65;padding:6px 14px 8px 50px;font-style:italic;border-top:1px solid rgba(0,200,160,.08);}
+.ptl-coach::before{content:'Coach — ';font-weight:600;font-style:normal;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--jade);opacity:.7;}
+.ptl-block.t-meal .ptl-coach{color:var(--amber);}
+.ptl-block.t-meal .ptl-coach::before{color:var(--amber);}
+.ptl-block.t-supp .ptl-coach,.ptl-block.t-recovery .ptl-coach{color:var(--gold);}
+.ptl-block.t-supp .ptl-coach::before,.ptl-block.t-recovery .ptl-coach::before{color:var(--gold);}
+.ptl-block.t-sleep .ptl-coach,.ptl-block.t-sleep .ptl-coach::before{color:#4a8090;opacity:1;}
+
+/* Supplement rows */
+.supp-row{display:flex;align-items:baseline;gap:8px;padding:4px 0;border-bottom:1px solid var(--bd);}
+.supp-row:last-child{border-bottom:none;}
+.supp-name{font-size:12px;font-weight:500;color:var(--dk-1);flex:1;}
+.supp-dose{font-family:var(--mono);font-size:11px;color:var(--gold);}
+.supp-time{font-size:10px;font-weight:300;color:var(--dk-3);}
+
+/* Exercise rows */
+.ex-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--bd);}
+.ex-row:last-child{border-bottom:none;}
+.ex-row-name{font-size:12px;font-weight:400;color:var(--dk-1);flex:1;}
+.ex-row-schema{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--jade);}
+.ex-row-rpe{font-size:9px;color:var(--dk-3);background:var(--ink-1);padding:2px 6px;border-radius:6px;border:1px solid var(--bd);}
+
+/* Macro row under meal */
+.meal-macros{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.mm-pill{font-size:10px;font-family:var(--mono);background:var(--ink-1);border:1px solid var(--bd);border-radius:4px;padding:2px 8px;color:var(--dk-2);}
+.mm-pill.p{color:var(--jade);}
+.mm-pill.a{color:var(--amber);}
+
+/* Ingredient list */
+.ing-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.ing-pill{font-size:10px;font-weight:400;color:var(--dk-2);background:var(--ink-1);border:1px solid var(--bd);border-radius:4px;padding:2px 8px;}
+.ing-pill em{color:var(--dk-3);font-style:normal;}
+
+/* Recipe loading state */
+.recipe-loading{font-size:11px;font-weight:300;color:var(--dk-3);padding:4px 0;display:flex;align-items:center;gap:6px;}
+
+/* Meal actions */
+.meal-actions{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;}
 .meal-btn{background:transparent;border:1px solid var(--bd);border-radius:14px;padding:4px 12px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all .1s;}
 .meal-btn:hover{border-color:var(--amber-br);color:var(--amber);}
 .meal-btn.pri{border-color:var(--amber-br);color:var(--amber);}
 .meal-btn.con{border-color:var(--jade-br);color:var(--jade);}
+
+/* Legacy support for recipe panel */
+.tl-block{display:none;}
+.meal-inline{display:none;}
 .dev-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
 .dev-input{width:100%;background:var(--ink-2);border:1px solid var(--bd);border-radius:5px;padding:8px 11px;font-size:12px;font-family:var(--sans);color:var(--dk-1);outline:none;resize:none;line-height:1.4;transition:border-color .12s;}
 .dev-input:focus{border-color:rgba(0,200,160,.35);}
@@ -569,9 +617,18 @@ function buildPlan(profile, today) {
 
   const blocks = [];
 
+  // ── DURATION HELPER ──────────────────────────────
+  // Each block gets durationMins — used for proportional height rendering.
+  // MIN_BLOCK_HEIGHT = 60px, each minute = 1.2px above that baseline.
+
+  // Estimate training duration: 10 warm-up + (exercises × 12 min avg) + 10 cool-down
+  const exCount = (plan.keyExercises||[]).length || 4;
+  const trainDuration = 10 + (exCount * 12) + 10;
+
   // WAKE
   blocks.push({
     time: wake, type: 'wake', tag: 'Wake', tagColor: 'jade',
+    durationMins: 15,
     title: 'Morning ignition',
     subtitle: 'Cortisol peak · Circadian set',
     coachNote: 'No caffeine for 90 minutes. Your cortisol is already peaking — it\'s doing the stimulant\'s job. The water and sunlight aren\'t optional extras, they reset your clock for the whole day.',
@@ -583,6 +640,7 @@ function buildPlan(profile, today) {
   // COFFEE + MORNING SUPPS
   blocks.push({
     time: coffeeTime, type: 'supp', tag: 'Supps', tagColor: 'gold',
+    durationMins: 10,
     title: 'Coffee & morning supplements',
     subtitle: '90 min post-wake — after cortisol peak',
     coachNote: 'Now the cortisol is clearing — this is when caffeine actually works. Creatine at this time is purely for habit consistency. It doesn\'t matter when you take it as long as you take it daily.',
@@ -591,6 +649,9 @@ function buildPlan(profile, today) {
         ? mornSupps.map(s => s.name + ' ' + s.dose + ' — ' + (s.timing||'')).join('\n')
         : 'Creatine 5g with water. Omega-3 with food if not taken.'),
     science: 'Caffeine before the cortisol peak adds nothing and enlarges the afternoon crash.',
+    suppList: mornSupps.length
+      ? mornSupps
+      : [{ name:'Coffee', dose:'1 cup', timing:'90min post-wake' }, { name:'Creatine', dose:'5g', timing:'with water' }],
     items: mornSupps.length
       ? mornSupps.map(s => ({ name:s.name, meta:s.dose }))
       : [{ name:'Coffee', meta:'after cortisol peak' }, { name:'Creatine', meta:'5g' }]
@@ -601,6 +662,7 @@ function buildPlan(profile, today) {
     const preMins = Math.max(trainMins - 105, wMins + 60);
     blocks.push({
       time: fmt(preMins), type: 'meal', tag: 'Eat', tagColor: 'amber',
+      durationMins: 20,
       title: 'Pre-training meal',
       subtitle: '90-120 min before session',
       coachNote: 'This meal is timed to be digested before you train — not sitting in your stomach. High carbs because you need glycogen available, not stored. Low fat because fat slows gastric emptying and blunts the glucose delivery your muscles need.',
@@ -623,18 +685,22 @@ function buildPlan(profile, today) {
       : '';
     blocks.push({
       time: fmt(trainMins), type: 'training', tag: 'Train', tagColor: 'jade',
+      durationMins: trainDuration,
+      gymTimeEst: trainDuration + ' min',
       title: plan.type + ': ' + (plan.focus || ''),
-      subtitle: 'Main session',
+      subtitle: 'Main session · ~' + trainDuration + ' min',
       detail: 'Warm up 10 min. Working sets at RPE 7-9 — 1-3 reps from failure. Track every load.' + injNote + '\nCool down 5-10 min.',
       coachNote: trainCoachNote,
       science: 'The last 5 reps drive adaptation. Everything before is preparation.',
+      exercises: (plan.keyExercises||[]).slice(0,6),
       items: ((plan.keyExercises||[]).slice(0,5).map(e => ({ name:e, meta:'' }))
               .concat([{ name:'Track loads', meta:'progressive overload' }])).slice(0,5)
     });
 
     // POST-TRAINING
     blocks.push({
-      time: fmt(trainMins + 75), type: 'meal', tag: 'Eat', tagColor: 'amber',
+      time: fmt(trainMins + trainDuration + 5), type: 'meal', tag: 'Eat', tagColor: 'amber',
+      durationMins: 15,
       title: 'Post-training nutrition',
       subtitle: 'Within 30 min of finishing',
       coachNote: 'mTOR is elevated right now — your muscles are primed to absorb protein. This window closes. Fast protein and fast carbs here, not a slow meal. The 30-minute window isn\'t a myth, it\'s the mechanism.',
@@ -653,10 +719,11 @@ function buildPlan(profile, today) {
 
   // MIDDAY / FIRST MEAL
   const middayMins = isTraining
-    ? Math.max(trainMins + 180, 12*60)
+    ? Math.max(trainMins + trainDuration + 90, 12*60)
     : wMins + 210;
   blocks.push({
     time: fmt(middayMins), type: 'meal', tag: 'Eat', tagColor: 'amber',
+    durationMins: 25,
     title: isTraining ? 'Midday meal' : 'First meal',
     subtitle: isTraining ? 'Protein anchor' : window_str,
     coachNote: isTraining ? 'Protein every 3-4 hours keeps muscle protein synthesis running between the post-training spike and the next meal. This isn\'t just fuel — it\'s the signal that repair should continue.' : 'First meal of your eating window. Protein first, every time. It sets satiety hormones for the rest of the day and starts the MPS clock.',
@@ -677,6 +744,7 @@ function buildPlan(profile, today) {
     blocks.push({
       time: fmt(Math.max(middayMins + 180, 15*60)),
       type:'meal', tag:'Eat', tagColor:'amber',
+      durationMins: 20,
       title: 'Afternoon meal',
       subtitle: 'Protein maintained',
       coachNote: 'Lighter carbs here — glycogen is replenished from the morning meal and training. Protein stays consistent. This meal exists to keep MPS elevated and prevent the cortisol-driven hunger that leads to poor evening choices.',
@@ -698,6 +766,7 @@ function buildPlan(profile, today) {
     window_str.includes('19:') ? 19*60 : 21*60;
   blocks.push({
     time: fmt(eveningMins), type: 'meal', tag: 'Eat', tagColor: 'amber',
+    durationMins: 30,
     title: 'Evening meal',
     subtitle: 'Final protein hit · close the window',
     coachNote: 'Last protein hit of the day. Casein-rich foods like cottage cheese or Greek yoghurt release amino acids slowly through the overnight fast — they extend MPS while you sleep. Close the eating window after this.',
@@ -716,6 +785,7 @@ function buildPlan(profile, today) {
   // WIND-DOWN
   blocks.push({
     time: fmt(bedMins - 45), type: 'recovery', tag: 'Wind down', tagColor: 'slate',
+    durationMins: 45,
     title: 'Evening wind-down',
     subtitle: 'Protect tonight\'s adaptation',
     coachNote: 'Tonight\'s sleep is where today\'s training becomes actual muscle. GH pulses in the first 90 minutes of slow-wave sleep. Screens kill melatonin onset and delay that first cycle. The magnesium isn\'t a placebo — it activates GABA and physically lowers your nervous system\'s arousal state.',
@@ -726,6 +796,7 @@ function buildPlan(profile, today) {
       '\nRoom 17-19°C.' +
       ((p.recoveryTools||[]).length ? '\nRecovery: ' + (p.recoveryTools||[]).slice(0,2).join(', ') + ' if available.' : ''),
     science: 'Core temperature drop signals sleep onset. Magnesium activates GABA for sleep transition.',
+    suppList: nightSupps.length ? nightSupps : [{ name:'Magnesium glycinate', dose:'300mg', timing:'30 min before sleep' }],
     items: [
       ...nightSupps.map(s => ({ name:s.name, meta:s.dose })),
       { name:'Screens off', meta:'45 min before sleep' },
@@ -734,8 +805,11 @@ function buildPlan(profile, today) {
   });
 
   // SLEEP
+  const sleepHours = (p.sleep||'7-8h').replace(/[^0-9\-]/g,'').split('-')[0];
+  const sleepDuration = Math.round(parseFloat(sleepHours) * 60) || 450;
   blocks.push({
     time: fmt(bedMins), type: 'sleep', tag: 'Sleep', tagColor: 'slate',
+    durationMins: sleepDuration,
     title: 'Sleep',
     subtitle: p.sleep || '7-8 hours',
     coachNote: isTraining ? 'This is where the session pays off. Growth hormone peaks in the first slow-wave cycle. One week of sub-6 hour sleep reduces testosterone 10-15% and cuts the anabolic response to training in half. Nothing overrides this.' : 'Rest day recovery happens here. Satellite cells divide, myofibrils remodel, cortisol clears. The adaptation from your last session compounds overnight.',
@@ -1232,92 +1306,6 @@ function sendAsk(text){
 }
 
 // ── Enrich meal names ─────────────────────────────
-function preloadRecipes(p, t) {
-  // Fire-and-forget background fetch for all meal slots
-  // Shows skeleton → recipe when ready, doesn't block anything
-  var slots = ['pre-training','midday','post-training','afternoon','evening'];
-  var mealCount = p.mealCount || 4;
-  var dayKcal = t.isTraining ? (t.plan.kcal || p.calories || 2000) : Math.round((p.calories||2000)*0.91);
-  var mt = {
-    calories: Math.round(dayKcal / mealCount),
-    protein:  Math.round((p.protein||140) / mealCount),
-    carbs:    Math.round((p.carbs||160) * 0.25),
-    fat:      Math.round((p.fat||60) * 0.25)
-  };
-  // Find which meal slots are actually in today's blocks
-  var activeSlots = (window._blocks || [])
-    .filter(function(b){ return b.mealSlot && !_recipes[b.mealSlot]; })
-    .map(function(b){ return { slot: b.mealSlot, idx: window._blocks.indexOf(b), title: b.title }; });
-
-  activeSlots.forEach(function(item) {
-    // Show skeleton immediately
-    var zone = document.getElementById('ri-' + item.idx);
-    if (zone && !_recipes[item.slot]) {
-      zone.innerHTML = '<div style="padding:12px;background:var(--ink-2);border:1px solid var(--bd);border-radius:5px;">'
-        + '<div style="height:11px;background:var(--bd);border-radius:3px;margin-bottom:8px;width:60%;animation:pulse 1.2s ease infinite;"></div>'
-        + '<div style="height:9px;background:var(--bd);border-radius:3px;margin-bottom:5px;width:85%;animation:pulse 1.2s ease infinite 0.1s;"></div>'
-        + '<div style="height:9px;background:var(--bd);border-radius:3px;width:45%;animation:pulse 1.2s ease infinite 0.2s;"></div>'
-        + '</div>';
-    }
-    // Fetch in background
-    setTimeout(function() {
-      fetchRecipe(item.slot, item.title, mt, false)
-        .then(function(recipe) {
-          var zone2 = document.getElementById('ri-' + item.idx);
-          if (zone2) zone2.innerHTML = buildRecipeHtml(recipe, mt, item.slot, item.idx);
-        })
-        .catch(function() {
-          var zone3 = document.getElementById('ri-' + item.idx);
-          if (zone3) zone3.innerHTML = '<button class="meal-btn pri" onclick="loadRecipe(\''+item.slot+'\','+item.idx+',this)">&#127859; Load recipe</button>';
-        });
-    }, activeSlots.indexOf(item) * 400); // stagger 400ms apart to avoid hammering API
-  });
-}
-
-function enrichMeals(p,t){
-  var slots=document.querySelectorAll('[data-slot]');
-  if(!slots.length)return;
-  var excl=(p.foodExclusions||[]).join(',')||'none';
-  var cuis=(p.cuisinePrefs||[]).join(',')||'neutral';
-  var prompt='Meal names for '+p.name+'. Return JSON only.\nDiet: '+(p.dietType||'flexible')+' | Exclude: '+excl+' | Cuisine: '+cuis+'\nToday: '+(t.isTraining?'training ('+t.plan.type+')':'rest day')+'\nReturn: {"pre-training":"name","post-training":"name","midday":"name","afternoon":"name","evening":"name"}\nShort names only.';
-  fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:100,system:'Return only valid JSON.',messages:[{role:'user',content:prompt}]})})
-  .then(function(r){return r.json();}).then(function(d){
-    var text=(d.content||[]).map(function(b){return b.text||'';}).join('').trim();
-    var m=text.match(/\{[\s\S]*\}/);if(!m)return;
-    var meals=JSON.parse(m[0]);
-    Object.keys(meals).forEach(function(slot){
-      var el=document.querySelector('[data-slot="'+slot+'"] .tl-title');
-      if(el&&meals[slot])el.textContent=meals[slot];
-    });
-  }).catch(function(){});
-}
-
-// ── Render plan ───────────────────────────────────
-function buildMealBars(loggedM, mProt, p, mealCount) {
-  function bar(pct, colour) {
-    return '<div style="flex:1;height:3px;background:var(--ink-1);border-radius:2px;overflow:hidden;">'
-      +'<div style="height:100%;width:'+Math.min(100,pct)+'%;background:'+colour+';border-radius:2px;transition:width 0.5s;"></div></div>';
-  }
-  function row(label, pct, val, colour) {
-    return '<div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;">'
-      +'<div style="width:9px;font-size:8px;font-weight:700;color:'+colour+';">'+label+'</div>'
-      +bar(pct, colour)
-      +'<div style="width:28px;font-size:8px;font-family:var(--mono);color:var(--dk-3);text-align:right;">'+val+'</div>'
-      +'</div>';
-  }
-  if (loggedM) {
-    var tP = Math.round((p.protein||140)/mealCount);
-    var tC = Math.round((p.carbs||160)/mealCount);
-    var tF = Math.round((p.fat||60)/mealCount);
-    return row('P', Math.round(loggedM.prot/Math.max(1,tP)*100), loggedM.prot+'g', 'var(--jade)')
-         + row('C', Math.round((loggedM.carbs||0)/Math.max(1,tC)*100), (loggedM.carbs||0)+'g', 'var(--amber)')
-         + row('F', Math.round((loggedM.fat||0)/Math.max(1,tF)*100), (loggedM.fat||0)+'g', '#5a7898');
-  } else {
-    // Not yet logged — show target as dimmed single bar
-    return row('P', 0, mProt+'g', 'rgba(0,200,160,0.25)');
-  }
-}
-
 function renderPlan(plan){
   var root=document.getElementById('day-root');
   window._blocks=plan.blocks;
@@ -1325,82 +1313,137 @@ function renderPlan(plan){
   var progCtx=getProgCtx(p);
   var prog={weekNum:progCtx.weekNum,phase:progCtx.phase};
 
-  var blocksHtml=plan.blocks.map(function(b,i){
-    var isMeal=!!b.mealSlot;
-    var isTrain=b.type==='training';
+  // ── Proportional height calculation ──────────────
+  // MIN_H=64px, PX_PER_MIN=1.4, sleep capped at 200px
+  var MIN_H=64, PX=1.4, SLEEP_CAP=200;
+  function blockHeight(b){
+    var d=b.durationMins||20;
+    var h=Math.max(MIN_H,Math.round(d*PX));
+    if(b.type==='sleep') h=Math.min(SLEEP_CAP,h);
+    return h;
+  }
 
-    // Simple blocks
-    if(!isMeal&&!isTrain){
-      var det=(b.detail||'').split('\n').map(function(l){return l.trim()?'<p>'+l+'</p>':'';}).join('');
-      var its=(b.items||[]).map(function(x){return '<div class="tl-item">'+x.name+(x.meta?' <span style="color:var(--dk-3);">'+x.meta+'</span>':'')+'</div>';}).join('');
-      return '<div class="tl-block t-'+(b.type||'supp')+'" onclick="this.classList.toggle(\'open\')">'
-        +'<div class="tl-head">'
-        +'<div class="tl-time">'+(b.time||'')+'</div>'
-        +'<div class="tl-main"><div class="tl-title">'+b.title+'</div>'+(b.subtitle?'<div class="tl-sub">'+b.subtitle+'</div>':'')+'</div>'
-        +(b.tag?'<span class="tl-tag '+(b.tagColor||'s')+'">'+b.tag+'</span>':'')
-        +'<span class="tl-chev">\u25be</span></div>'
-        +(b.coachNote?'<div class="coach-note">'+b.coachNote+'</div>':'')
-        +'<div class="tl-body">'+(det?'<div class="tl-detail">'+det+'</div>':'')+(b.science?'<div class="tl-science">'+b.science+'</div>':'')+(its?'<div class="tl-items">'+its+'</div>':'')+'</div>'
+  // ── Build supplement rows ─────────────────────────
+  function suppRows(suppList){
+    if(!suppList||!suppList.length) return '';
+    return '<div style="margin-top:8px;">'
+      +suppList.map(function(s){
+        return '<div class="supp-row">'
+          +'<span class="supp-name">'+s.name+'</span>'
+          +'<span class="supp-dose">'+(s.dose||'')+'</span>'
+          +(s.timing?'<span class="supp-time">'+s.timing+'</span>':'')
+          +'</div>';
+      }).join('')
+      +'</div>';
+  }
+
+  // ── Build exercise rows ───────────────────────────
+  function exRows(exercises){
+    if(!exercises||!exercises.length) return '';
+    return '<div style="margin-top:8px;">'
+      +exercises.map(function(ex){
+        var parsed=parseExercise(ex);
+        return '<div class="ex-row">'
+          +'<span class="ex-row-name">'+parsed.name+'</span>'
+          +'<span class="ex-row-schema">'+parsed.sets+'×'+parsed.reps+'</span>'
+          +'<span class="ex-row-rpe">RPE 7-8</span>'
+          +'</div>';
+      }).join('')
+      +'</div>';
+  }
+
+  // ── Build inline ingredient display ──────────────
+  function ingDisplay(recipe, mt, slot, idx){
+    if(!recipe) {
+      return '<div class="recipe-loading" id="ri-'+idx+'">'
+        +'<div class="spin" style="width:12px;height:12px;"></div>'
+        +'<span>Loading recipe…</span>'
         +'</div>';
     }
+    var ings=(recipe.ingredients||[]).slice(0,6).map(function(x){
+      return '<span class="ing-pill">'+x.name+' <em>'+x.quantity+'</em></span>';
+    }).join('');
+    return '<div id="ri-'+idx+'">'
+      +'<div class="meal-macros">'
+      +'<span class="mm-pill p">'+recipe.protein+'g P</span>'
+      +'<span class="mm-pill a">'+recipe.carbs+'g C</span>'
+      +'<span class="mm-pill">'+recipe.fat+'g F</span>'
+      +'<span class="mm-pill">'+recipe.calories+' kcal</span>'
+      +(recipe.prepTime?'<span class="mm-pill">'+recipe.prepTime+'</span>':'')
+      +'</div>'
+      +'<div style="font-size:12px;font-weight:500;color:var(--dk-1);margin-bottom:4px;">'+recipe.name+'</div>'
+      +(ings?'<div class="ing-list">'+ings+'</div>':'')
+      +'<button class="meal-btn" style="margin-top:8px;" onclick="shuffleRecipe(\''+slot+'\','+idx+')">&#8635; Shuffle</button>'
+      +'</div>';
+  }
 
-    // Meal blocks
-    if(isMeal){
+  // ── Render each block ─────────────────────────────
+  var blocksHtml=plan.blocks.map(function(b,i){
+    var h=blockHeight(b);
+    var isMeal=!!b.mealSlot;
+    var isTrain=b.type==='training';
+    var isSupp=b.type==='supp'||b.type==='recovery';
+    var isSleep=b.type==='sleep';
+    var tagColorMap={jade:'j',amber:'a',gold:'g',slate:'s'};
+    var tagCls=tagColorMap[b.tagColor]||'s';
+    var eaten=MACROS&&b.mealSlot&&MACROS.meals[b.mealSlot]&&MACROS.meals[b.mealSlot].logged;
+
+    // Header
+    var hd='<div class="ptl-hd">'
+      +'<div class="ptl-time">'+(b.time||'')+'</div>'
+      +'<div class="ptl-main">'
+      +'<div class="ptl-title">'+b.title+'</div>'
+      +(b.subtitle?'<div class="ptl-sub">'+b.subtitle+'</div>':'')
+      +(b.durationMins&&b.durationMins>20?'<div class="ptl-dur">~'+b.durationMins+' min</div>':'')
+      +'</div>'
+      +(b.tag?'<span class="ptl-tag '+tagCls+'">'+b.tag+'</span>':'')
+      +(isMeal?'<div class="ptl-tick'+(eaten?' done':'')+'" onclick="event.stopPropagation();quickTick(\''+b.mealSlot+'\','+i+')" title="Mark eaten">&#10003;</div>':'')
+      +'</div>';
+
+    // Body content
+    var body='';
+
+    if(isTrain){
+      body+='<div class="ptl-body">'
+        +exRows(b.exercises)
+        +'<div style="margin-top:10px;font-size:11px;font-weight:300;color:var(--dk-3);">10 min warm-up · Cool down 5-10 min · Track every load</div>'
+        +(b.injNote?'<div style="margin-top:6px;font-size:11px;color:rgba(255,140,100,.8);">⚠ '+b.injNote+'</div>':'')
+        +'</div>';
+    } else if(isMeal){
       var slot=b.mealSlot;
-      var eaten=MACROS&&MACROS.meals[slot]&&MACROS.meals[slot].logged;
       var cachedRecipe=_recipes[slot];
-      var riSection=cachedRecipe?buildRecipeHtml(cachedRecipe,{protein:Math.round((p.protein||140)/(p.mealCount||4)),carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25),calories:Math.round((t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91))/(p.mealCount||4))},slot,i)
-        :'<button class="meal-btn pri" onclick="loadRecipe(\''+slot+'\','+i+',this)">\uD83C\uDF73 Load recipe</button>';
-      // Per-meal macro targets and progress bar
       var mealCount=p.mealCount||4;
       var dayKcal=t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91);
-      var mProt=Math.round((p.protein||140)/mealCount);
-      var mKcal=Math.round(dayKcal/mealCount);
-      var loggedM=MACROS&&MACROS.meals[slot]&&MACROS.meals[slot].logged?MACROS.meals[slot]:null;
-      var protPct=loggedM?Math.min(100,Math.round(loggedM.prot/Math.max(1,mProt)*100)):0;
-      var subText=loggedM?(loggedM.prot+'g P · '+loggedM.kcal+' kcal ✓'):(b.subtitle||'~'+mProt+'g P · ~'+mKcal+' kcal');
-      var subCol=loggedM?'color:var(--jade);':'';
-      var barFill=loggedM?'var(--jade)':'transparent';
-
-      return '<div class="tl-block t-meal'+(eaten?' eaten':'')+'" data-slot="'+slot+'" id="meal-'+i+'">'
-        +'<div class="tl-head" onclick="toggleMeal('+i+')">'
-        +'<div class="tl-time">'+(b.time||'')+'</div>'
-        +'<div class="tl-main"><div class="tl-title">'+b.title+'</div>'
-        +'<div class="tl-sub" id="sub-'+slot+'" style="'+subCol+'">'+ subText+'</div>'
-        +'<div id="mbars-'+slot+'" style="margin-top:5px;">'+buildMealBars(loggedM, mProt, p, mealCount)+'</div>'
-        +'</div>'
-        +'<div style="display:flex;align-items:center;gap:6px;">'
-        +'<div class="tl-tick'+(eaten?' done':'')+'" onclick="event.stopPropagation();quickTick(\''+slot+'\','+i+')">\u2713</div>'
-        +'<span class="tl-tag a" id="mtag-'+slot+'">'+(eaten?'\u2713 Eaten':'Eat')+'</span>'
-        +'<span class="tl-chev">\u25be</span>'
-        +'</div></div>'
-        +(b.coachNote?'<div class="coach-note">'+b.coachNote+'</div>':'')
-        +'<div class="meal-inline">'
+      var mt={calories:Math.round(dayKcal/mealCount),protein:Math.round((p.protein||140)/mealCount),carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25)};
+      body+='<div class="ptl-body" data-slot="'+slot+'" id="meal-'+i+'">'
+        +ingDisplay(cachedRecipe, mt, slot, i)
         +'<div class="meal-actions">'
-        +'<button class="meal-btn con" onclick="quickTick(\''+slot+'\','+i+')">\u2713 Ate this</button>'
+        +'<button class="meal-btn con" onclick="quickTick(\''+slot+'\','+i+')">&#10003; Ate this</button>'
         +'<button class="meal-btn" onclick="showDevLogger(\''+slot+'\','+i+')">Something different</button>'
         +'</div>'
         +'<div id="dev-'+i+'"></div>'
-        +'<div id="ri-'+i+'">'+riSection+'</div>'
-        +'</div>'
         +'</div>';
+    } else if(isSupp){
+      body+='<div class="ptl-body">'+suppRows(b.suppList)+'</div>';
+    } else if(isSleep){
+      body+='<div class="ptl-body">'
+        +'<div style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.6;">'+b.science+'</div>'
+        +'</div>';
+    } else {
+      // Wake / generic
+      var det=(b.detail||'').split('\n').filter(function(l){return l.trim();}).map(function(l){return '<div style="margin-bottom:4px;">'+l+'</div>';}).join('');
+      if(det) body+='<div class="ptl-body"><div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.6;">'+det+'</div></div>';
     }
 
-    // Training block
+    // Coach note
+    var coachHtml=b.coachNote?'<div class="ptl-coach">'+b.coachNote+'</div>':'';
 
-        // Training block
-    if(isTrain){
-      var hasLevel=p.fitnessLevel!==undefined;
-      var lvlLabel=hasLevel?(p.fitnessLevelLabel||'Intermediate')+' prescription':'Tap to assess your level';
-      return '<div class="tl-block t-training">'
-        +'<div class="tl-head" onclick="'+(hasLevel?'showSession('+i+',window._blocks['+i+'])':'showQuiz('+i+',window._blocks['+i+'])')+'">'
-        +'<div class="tl-time">'+(b.time||'')+'</div>'
-        +'<div class="tl-main"><div class="tl-title">'+b.title+'</div><div class="tl-sub">'+lvlLabel+'</div></div>'
-        +'<span class="tl-tag j">'+(hasLevel?'Session \u2192':'Assess \u2192')+'</span>'
-        +'</div></div>'
-        +(b.coachNote?'<div class="coach-note">'+b.coachNote+'</div>':'');
-    }
-    return '';
+    return '<div class="ptl-block t-'+(b.type||'supp')+(eaten?' eaten':'')+'" style="min-height:'+h+'px;">'
+      +'<div class="ptl-dot"></div>'
+      +'<div class="ptl-card">'
+      +hd+body+coachHtml
+      +'</div>'
+      +'</div>';
   }).join('');
 
   // Week tabs
@@ -1411,12 +1454,51 @@ function renderPlan(plan){
   var dateStr=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
 
   root.innerHTML=
-    // ── Top: hero + week tabs + macros (full width) ──
-    '<div class="day-hero">'    +'<div class="day-kicker">'+dateStr+'</div>'    +'<div class="day-title">'+plan.dayTitle+'</div>'    +'<div class="day-brief">'+plan.dayBrief+'</div>'    +(plan.priority?'<div class="day-priority">'+plan.priority+'</div>':'')    +'</div>'    +weekTabsHtml    +'<div class="macro-tiles">'    +'<div class="mt"><div class="mt-val">'+plan.macros.kcal+'</div><div class="mt-label">Calories</div></div>'    +'<div class="mt"><div class="mt-val j">'+plan.macros.prot+'g</div><div class="mt-label">Protein</div></div>'    +'<div class="mt"><div class="mt-val a">'+plan.macros.carbs+'g</div><div class="mt-label">Carbs</div></div>'    +'<div class="mt"><div class="mt-val">'+plan.macros.fat+'g</div><div class="mt-label">Fat</div></div>'    +'</div>'    +'<div class="water-bar">\uD83D\uDCA7 '+plan.macros.water+' \u2014 spread across the day</div>'    +'<div id="day-macro-progress"></div>'    // ── SOS strip ──
-    +'<div style="margin:16px 0;background:rgba(200,148,30,0.05);border:1px solid rgba(200,148,30,0.2);border-radius:10px;padding:14px 16px;">'    +'<div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">&#9889; Something getting in the way?</div>'    +'<div class="dti-row" style="margin-bottom:10px;">'    +'<input class="dti-inp" id="sos-top-inp" placeholder="e.g. I\u2019m starving, I slept terribly, want to skip gym\u2026" onkeydown="if(event.key===\'Enter\'){openSOSFromInput();}">'    +'<button class="dti-send" onclick="openSOSFromInput()">Fix it \u2192</button>'    +'</div>'    +'<div class="sos-trigger-row" style="margin:0;">'    +'<button class="sos-t-btn primary" onclick="openSOS(null)">All situations</button>'    +'<button class="sos-t-btn" onclick="openSOS(\'starving\')">Starving</button>'    +'<button class="sos-t-btn" onclick="openSOS(\'bad-sleep\')">Bad sleep</button>'    +'<button class="sos-t-btn" onclick="openSOS(\'skip-gym\')">Skip gym</button>'    +'</div></div>'    // ── Two-column layout: left = timeline, right = coach ──
-    +'<div class="day-layout">'    +'<div class="day-col-left">'    +'<div id="prog-strip-slot"></div>'    +'<div class="sec-label">Your day</div>'    +blocksHtml    +'<button class="regen-btn" onclick="regen()">\u8635 Rebuild today</button>'    +'</div>'    +'<div class="day-col-right">'+'<div id="coach-narrative-body" class="coach-prose-wrap">'+'<div class="coach-prose-spin"><div class="spin" style="width:16px;height:16px;margin:0 auto 8px;"></div>'+'<div style="font-size:11px;color:var(--dk-3);">Coach is reading your day…</div></div>'+'</div>'+'</div>'    +'</div>';  // end day-layout
+    '<div class="day-hero">'
+    +'<div class="day-kicker">'+dateStr+'</div>'
+    +'<div class="day-title">'+plan.dayTitle+'</div>'
+    +'<div class="day-brief">'+plan.dayBrief+'</div>'
+    +(plan.priority?'<div class="day-priority">'+plan.priority+'</div>':'')
+    +'</div>'
+    +weekTabsHtml
+    +'<div class="macro-tiles">'
+    +'<div class="mt"><div class="mt-val">'+plan.macros.kcal+'</div><div class="mt-label">Calories</div></div>'
+    +'<div class="mt"><div class="mt-val j">'+plan.macros.prot+'g</div><div class="mt-label">Protein</div></div>'
+    +'<div class="mt"><div class="mt-val a">'+plan.macros.carbs+'g</div><div class="mt-label">Carbs</div></div>'
+    +'<div class="mt"><div class="mt-val">'+plan.macros.fat+'g</div><div class="mt-label">Fat</div></div>'
+    +'</div>'
+    +'<div class="water-bar">\uD83D\uDCA7 '+plan.macros.water+' \u2014 spread across the day</div>'
+    +'<div id="day-macro-progress"></div>'
+    // SOS strip
+    +'<div style="margin:16px 0;background:rgba(200,148,30,0.05);border:1px solid rgba(200,148,30,0.2);border-radius:10px;padding:14px 16px;">'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">&#9889; Something getting in the way?</div>'
+    +'<div class="dti-row" style="margin-bottom:10px;">'
+    +'<input class="dti-inp" id="sos-top-inp" placeholder="e.g. I\u2019m starving, I slept terribly, want to skip gym\u2026" onkeydown="if(event.key===\'Enter\'){openSOSFromInput();}">'
+    +'<button class="dti-send" onclick="openSOSFromInput()">Fix it \u2192</button>'
+    +'</div>'
+    +'<div class="sos-trigger-row" style="margin:0;">'
+    +'<button class="sos-t-btn primary" onclick="openSOS(null)">All situations</button>'
+    +'<button class="sos-t-btn" onclick="openSOS(\'starving\')">Starving</button>'
+    +'<button class="sos-t-btn" onclick="openSOS(\'bad-sleep\')">Bad sleep</button>'
+    +'<button class="sos-t-btn" onclick="openSOS(\'skip-gym\')">Skip gym</button>'
+    +'</div></div>'
+    // Two-column layout
+    +'<div class="day-layout">'
+    +'<div class="day-col-left">'
+    +'<div id="prog-strip-slot"></div>'
+    +'<div class="sec-label">Your day</div>'
+    +'<div class="ptl"><div class="ptl-line"></div>'+blocksHtml+'</div>'
+    +'<button class="regen-btn" onclick="regen()">\u8635 Rebuild today</button>'
+    +'</div>'
+    +'<div class="day-col-right">'
+    +'<div id="coach-narrative-body" class="coach-prose-wrap">'
+    +'<div class="coach-prose-spin"><div class="spin" style="width:16px;height:16px;margin:0 auto 8px;"></div>'
+    +'<div style="font-size:11px;color:var(--dk-3);">Coach is reading your day…</div></div>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
 
-    // Programme strip
+  // Programme strip
   var ps=document.getElementById('prog-strip-slot');
   if(ps){
     var dots=[1,2,3,4].map(function(w){return '<div class="ps-dot'+(w<progCtx.weekNum?' done':w===progCtx.weekNum?' curr':'')+'"></div>';}).join('');
@@ -1424,9 +1506,6 @@ function renderPlan(plan){
     ps.innerHTML='<div class="prog-strip"><div class="ps-left"><div class="ps-label">Programme</div><div class="ps-dots">'+dots+'</div></div><div class="ps-right"><div class="ps-week">Week '+progCtx.weekNum+' of 4</div><div class="ps-phase">'+progCtx.phase+'</div></div></div>'
       +(acc?'<div class="acc-strip"><div class="acc-body"><div class="acc-kicker">\uD83D\uDCA1 Accelerator</div><div class="acc-title">'+acc.name+'</div><div class="acc-why">'+acc.why+'</div></div><a href="'+acc.url+'" class="acc-link">More \u2192</a></div>':'');
   }
-
-  // Chips
-  
 }
 
 function regen(){try{localStorage.removeItem(TODAY.cacheKey);}catch(e){}location.reload();}
@@ -1445,17 +1524,31 @@ function preloadRecipes(p, t){
   };
   var mealBlocks = window._blocks.filter(function(b){ return b.mealSlot && !_recipes[b.mealSlot]; });
   if(!mealBlocks.length) return;
-  // Stagger fetches 400ms apart to avoid hammering API
   mealBlocks.forEach(function(b, i){
     setTimeout(function(){
       var blockIdx = window._blocks.indexOf(b);
       fetchRecipe(b.mealSlot, b.title, mt, false).then(function(recipe){
-        // Update the recipe zone if still showing the Load button
         var zone = document.getElementById('ri-' + blockIdx);
-        if(zone && zone.querySelector && zone.querySelector('.meal-btn.pri')){
-          zone.innerHTML = buildRecipeHtml(recipe, mt, b.mealSlot, blockIdx);
+        if(zone){
+          // Build inline ingredient display
+          var ings=(recipe.ingredients||[]).slice(0,6).map(function(x){
+            return '<span class="ing-pill">'+x.name+' <em>'+x.quantity+'</em></span>';
+          }).join('');
+          zone.innerHTML='<div class="meal-macros">'
+            +'<span class="mm-pill p">'+recipe.protein+'g P</span>'
+            +'<span class="mm-pill a">'+recipe.carbs+'g C</span>'
+            +'<span class="mm-pill">'+recipe.fat+'g F</span>'
+            +'<span class="mm-pill">'+recipe.calories+' kcal</span>'
+            +(recipe.prepTime?'<span class="mm-pill">'+recipe.prepTime+'</span>':'')
+            +'</div>'
+            +'<div style="font-size:12px;font-weight:500;color:var(--dk-1);margin-bottom:4px;">'+recipe.name+'</div>'
+            +(ings?'<div class="ing-list">'+ings+'</div>':'')
+            +'<button class="meal-btn" style="margin-top:8px;" onclick="shuffleRecipe(\''+b.mealSlot+'\','+blockIdx+')">&#8635; Shuffle</button>';
         }
-      }).catch(function(){});
+      }).catch(function(){
+        var zone3 = document.getElementById('ri-' + blockIdx);
+        if(zone3) zone3.innerHTML='<button class="meal-btn pri" onclick="loadRecipe(\''+b.mealSlot+'\','+blockIdx+',this)">&#127859; Load recipe</button>';
+      });
     }, i * 400);
   });
 }
@@ -1513,7 +1606,6 @@ function preloadRecipes(p, t){
     // Plan already built today — show immediately, no interaction needed
     renderPlan(cached);
     updateMacroBar();
-    enrichMeals(P, TODAY);
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, cached);
     return;
@@ -1554,18 +1646,19 @@ async function generateCoachNarrative(p, t, plan) {
   var trainType = t.plan && t.plan.type ? t.plan.type : 'session';
   var mealCount = p.mealCount || 4;
 
-  var prompt = 'You are the coach for ' + p.name + '. Write a SHORT, flowing narrative talking them through today.'
+  var prompt = 'You are the coach for ' + p.name + '. Write a motivating, intelligent daily briefing.'
     + ' Today: ' + t.name + (isTraining ? ', ' + trainType + ' day' : ', rest day') + '.'
     + ' Week ' + progCtx.weekNum + ' of 4 (' + progCtx.phase + ' phase).'
     + ' ' + age + 'yo ' + (isFemale?'female':'male') + ', ' + (p.weight||80) + 'kg, goal: ' + (p.goal||'fat loss') + '.'
     + ' Targets: ' + (p.calories||2000) + ' kcal, ' + (p.protein||140) + 'g protein, ' + mealCount + ' meals.'
     + (injuries ? ' Injuries: ' + injuries + '.' : '')
     + (p.wakeTime ? ' Wakes at ' + p.wakeTime + '.' : '')
-    + '\n\nWrite 3-4 short paragraphs. Talk through the day naturally — why training is timed this way, why nutrition is structured like this, what matters most today, what they should watch out for.'
-    + ' Be direct and personal. Use their name once. Reference specific numbers (protein target, training type, week number).'
-    + ' Do NOT use bullet points, headers, or any formatting. Pure flowing prose only.'
-    + ' Sound like a coach who trained them for months — warm but no-nonsense. No motivational clichés.'
-    + ' Keep it under 180 words total.';
+    + '\n\nWrite 4 paragraphs in this exact structure:'
+    + '\n\n1. OPENING PEP TALK — One punchy paragraph. Direct, personal, motivating. Not clichéd. Reference the week number, the phase, and what that means for today specifically. Make them feel like this day matters and why.'
+    + '\n\n2. THE LOGIC OF TODAY\'S TRAINING — Explain WHY the session is structured the way it is. Why this split today, why these rep ranges, what the session is actually doing to the body. Make the science feel personal to them.'
+    + '\n\n3. THE NUTRITION LOGIC — Walk through WHY today\'s nutrition is timed the way it is. Why protein at these intervals, why carbs are front-loaded, why the eating window closes when it does. Connect nutrition to today\'s training (or recovery).'
+    + '\n\n4. THE ONE THING — End with the single most important thing they need to nail today. One sentence. Specific. Not generic.'
+    + '\n\nTone: a coach who has trained them for months. Warm but no-nonsense. Specific numbers (protein target, training type, week number). No bullet points, no headers, pure flowing prose. Under 220 words total.';
 
   try {
     var res = await fetch('/api/chat', {
@@ -1766,7 +1859,6 @@ function buildDay(){
     try { localStorage.setItem(TODAY.cacheKey, JSON.stringify(plan)); } catch(e){}
     renderPlan(plan);
     updateMacroBar();
-    enrichMeals(P, TODAY);
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, plan);
   } catch(e){
