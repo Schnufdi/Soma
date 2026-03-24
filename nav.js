@@ -9,6 +9,7 @@
     <a class="nav-link" href="/bodylens-food.html">Food</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
     <a class="nav-link" href="/bodylens-science.html">Science</a>
+    <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
     <a class="nav-link" href="/bodylens-instructions.html">Report</a>
   </div>
   <div class="nav-right-group">
@@ -474,3 +475,43 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(sb);
   }
 });
+
+// ── GLOBAL OPTIMISATION HELPERS ───────────────────
+// Called from any page — Accelerators, Science, Food
+// saveOpt(id, name, icon) — adds to p.optimisations and shows feedback
+window.saveOpt = function(id, name, icon, btn) {
+  try {
+    const raw = localStorage.getItem('bl_profile');
+    if (!raw) { alert('No profile found. Complete onboarding first.'); return; }
+    const p = JSON.parse(raw);
+    // Migrate legacy accelerators
+    if (!p.optimisations) p.optimisations = (p.accelerators || []).map(function(a){ return a; });
+    // Also keep accelerators in sync
+    if (!p.accelerators) p.accelerators = [];
+    const existing = p.optimisations.map(function(o){ return typeof o === 'string' ? o : o.id; });
+    if (!existing.includes(id)) {
+      p.optimisations.push(id);
+      if (!p.accelerators.includes(id)) p.accelerators.push(id);
+      localStorage.setItem('bl_profile', JSON.stringify(p));
+    }
+    if (btn) {
+      btn.textContent = '✓ In your programme';
+      btn.style.background = 'var(--jade)';
+      btn.style.color = 'var(--ink)';
+      btn.style.borderColor = 'var(--jade)';
+      btn.disabled = true;
+    }
+  } catch(e) {
+    console.error('saveOpt error', e);
+  }
+};
+
+window.removeOpt = function(id) {
+  try {
+    const p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
+    if (!p) return;
+    p.accelerators = (p.accelerators || []).filter(function(a){ return a !== id; });
+    p.optimisations = (p.optimisations || []).filter(function(o){ return (typeof o === 'string' ? o : o.id) !== id; });
+    localStorage.setItem('bl_profile', JSON.stringify(p));
+  } catch(e) {}
+};

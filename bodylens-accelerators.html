@@ -642,19 +642,9 @@ function filterGoal(filter, btn) {
 
 function saveAcc(e, id, name) {
   e.stopPropagation();
-  try {
-    const raw = localStorage.getItem('bl_profile');
-    if (!raw) return;
-    const p = JSON.parse(raw);
-    if (!p.accelerators) p.accelerators = [];
-    if (!p.accelerators.includes(id)) {
-      p.accelerators.push(id);
-      localStorage.setItem('bl_profile', JSON.stringify(p));
-    }
-  } catch(e2) {}
-  const btn = event.target;
-  btn.textContent = '✓ Added to programme notes';
-  btn.classList.add('saved');
+  const btn = e.target;
+  window.saveOpt(id, name, '', btn);
+  btn.textContent = '✓ In your programme';
 }
 
 // ── INIT ──────────────────────────────────────────
