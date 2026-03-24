@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="bl-page" content="day">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#0c1010">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -423,10 +426,24 @@
 <script>
 'use strict';
 // BodyLens Daily Plan v5 — clean rebuild
+// PLAN_VERSION: bump this whenever renderPlan or buildPlan changes
+// Old cache keys with a different version are automatically purged on load.
+var PLAN_VERSION = 'v5r4';
 var API   = '/api/chat';
 var MODEL = 'claude-sonnet-4-20250514';
 var P=null, TODAY=null, MACROS=null;
 var _recipes={}, _rDate=new Date().toISOString().slice(0,10);
+
+// Purge any cached plans from older versions on load
+(function purgeStalePlans(){
+  try {
+    Object.keys(localStorage).forEach(function(k){
+      if(k.startsWith('dayplan_') && k.indexOf(PLAN_VERSION) === -1){
+        localStorage.removeItem(k);
+      }
+    });
+  } catch(e){}
+})();
 
 function _rKey(s){return 'bl_recipe_'+s+'_'+_rDate;}
 function _rLoad(){['pre-training','post-training','midday','afternoon','evening'].forEach(function(s){try{var r=localStorage.getItem(_rKey(s));if(r)_recipes[s]=JSON.parse(r);}catch(e){}});}
@@ -441,7 +458,7 @@ function getTodayCtx(p){
   var i=M[new Date().getDay()];
   var plan=(p.weekPlan||[])[i]||{type:'Rest',focus:'Recovery',priority:'rest'};
   return {idx:i,name:N[i],plan:plan,isTraining:plan.priority==='training',
-    cacheKey:'dayplan_v5_'+_rDate,DAY_NAMES:N};
+    cacheKey:'dayplan_'+PLAN_VERSION+'_'+_rDate,DAY_NAMES:N};
 }
 
 function initMacros(p,t){
@@ -1511,14 +1528,16 @@ function renderPlan(plan, browsing){
   // Week tabs
   var weekTabsHtml=renderWeekTabs(p,progCtx);
 
-  // Date
+  // Date — show browsed day name, not today's date
   var d=new Date();
-  var dateStr=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  var dateStr=isBrowsing
+    ? plan.dayTitle.split(' \u2014 ')[0]
+    : d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
 
   root.innerHTML=
     '<div class="day-hero">'
     +'<div class="day-kicker">'+dateStr+'</div>'
-    +(isBrowsing ? '<div style="display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:rgba(196,124,24,.08);border:1px solid rgba(196,124,24,.2);border-radius:14px;padding:4px 12px;margin-bottom:10px;">Viewing '+plan.dayTitle.split(' — ')[0]+' <span style="opacity:.5;">·</span> <button onclick="backToToday()" style="background:none;border:none;color:var(--jade);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);padding:0;">Back to today ↩</button></div><br>' : '')
+    +(isBrowsing ? '<div style="display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:rgba(196,124,24,.08);border:1px solid rgba(196,124,24,.2);border-radius:14px;padding:4px 12px;margin-bottom:10px;">Preview <span style="opacity:.5;">·</span> <button onclick="backToToday()" style="background:none;border:none;color:var(--jade);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);padding:0;">Back to today \u21a9</button></div><br>' : '')
     +'<div class="day-title">'+plan.dayTitle+'</div>'
     +'<div class="day-brief">'+plan.dayBrief+'</div>'
     +(plan.priority?'<div class="day-priority">'+plan.priority+'</div>':'')
@@ -1545,20 +1564,20 @@ function renderPlan(plan, browsing){
     +'<button class="sos-t-btn" onclick="openSOS(\'bad-sleep\')">Bad sleep</button>'
     +'<button class="sos-t-btn" onclick="openSOS(\'skip-gym\')">Skip gym</button>'
     +'</div></div>' : '')
-    // Two-column layout
-    +'<div class="day-layout">'
-    +'<div class="day-col-left">'
+    // Coach prose — compact single paragraph above timeline, today only
+    +(!isBrowsing
+      ? '<div id="coach-narrative-body" style="margin:0 0 20px;padding:14px 18px;background:var(--ink-2);border:1px solid var(--bd);border-left:3px solid rgba(0,200,160,0.35);border-radius:0 8px 8px 0;">'
+        +'<div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;opacity:.7;">Coach</div>'
+        +'<div class="coach-prose-spin"><div class="spin" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:8px;"></div>'
+        +'<span style="font-size:11px;color:var(--dk-3);">Reading your day\u2026</span></div>'
+        +'</div>'
+      : '')
+    // Single column — timeline
+    +'<div>'
     +'<div id="prog-strip-slot"></div>'
     +'<div class="sec-label">Your day</div>'
     +'<div class="ptl"><div class="ptl-line"></div>'+blocksHtml+'</div>'
-    +'<button class="regen-btn" onclick="'+(isBrowsing ? 'backToToday()' : 'regen()')+'">'+( isBrowsing ? '↩ Back to today' : '\u8635 Rebuild today')+'</button>'
-    +'</div>'
-    +'<div class="day-col-right">'
-    +(isBrowsing
-      ? '<div class="coach-prose-wrap" style="padding-top:8px;"><div style="font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.7;">Coach briefing is only available for today.</div></div>'
-      : '<div id="coach-narrative-body" class="coach-prose-wrap"><div class="coach-prose-spin"><div class="spin" style="width:16px;height:16px;margin:0 auto 8px;"></div><div style="font-size:11px;color:var(--dk-3);">Coach is reading your day…</div></div></div>'
-    )
-    +'</div>'
+    +'<button class="regen-btn" onclick="'+(isBrowsing ? 'backToToday()' : 'regen()')+'">'+( isBrowsing ? '\u21a9 Back to today' : '\u8635 Rebuild today')+'</button>'
     +'</div>';
 
   // Programme strip
@@ -1707,21 +1726,14 @@ async function generateCoachNarrative(p, t, plan) {
   var progCtx = getProgCtx(p);
   var injuries = (p.injuryAssessments || p.injuries || []).map(function(x){ return x.location || x; }).join(', ');
   var trainType = t.plan && t.plan.type ? t.plan.type : 'session';
-  var mealCount = p.mealCount || 4;
 
-  var prompt = 'You are the coach for ' + p.name + '. Write a motivating, intelligent daily briefing.'
+  var prompt = 'You are the coach for ' + p.name + '. Write ONE tight paragraph — max 60 words — for their daily briefing.'
     + ' Today: ' + t.name + (isTraining ? ', ' + trainType + ' day' : ', rest day') + '.'
     + ' Week ' + progCtx.weekNum + ' of 4 (' + progCtx.phase + ' phase).'
-    + ' ' + age + 'yo ' + (isFemale?'female':'male') + ', ' + (p.weight||80) + 'kg, goal: ' + (p.goal||'fat loss') + '.'
-    + ' Targets: ' + (p.calories||2000) + ' kcal, ' + (p.protein||140) + 'g protein, ' + mealCount + ' meals.'
+    + ' ' + age + 'yo ' + (isFemale?'female':'male') + ', goal: ' + (p.goal||'recomposition') + '.'
+    + ' Protein target: ' + (p.protein||140) + 'g.'
     + (injuries ? ' Injuries: ' + injuries + '.' : '')
-    + (p.wakeTime ? ' Wakes at ' + p.wakeTime + '.' : '')
-    + '\n\nWrite 4 paragraphs in this exact structure:'
-    + '\n\n1. OPENING PEP TALK — One punchy paragraph. Direct, personal, motivating. Not clichéd. Reference the week number, the phase, and what that means for today specifically. Make them feel like this day matters and why.'
-    + '\n\n2. THE LOGIC OF TODAY\'S TRAINING — Explain WHY the session is structured the way it is. Why this split today, why these rep ranges, what the session is actually doing to the body. Make the science feel personal to them.'
-    + '\n\n3. THE NUTRITION LOGIC — Walk through WHY today\'s nutrition is timed the way it is. Why protein at these intervals, why carbs are front-loaded, why the eating window closes when it does. Connect nutrition to today\'s training (or recovery).'
-    + '\n\n4. THE ONE THING — End with the single most important thing they need to nail today. One sentence. Specific. Not generic.'
-    + '\n\nTone: a coach who has trained them for months. Warm but no-nonsense. Specific numbers (protein target, training type, week number). No bullet points, no headers, pure flowing prose. Under 220 words total.';
+    + '\n\nOne paragraph only. Direct, warm, personal. Reference the day type and one specific number. Tell them the one thing that matters most today. No fluff, no clichés. Max 60 words.';
 
   try {
     var res = await fetch('/api/chat', {
@@ -1729,24 +1741,21 @@ async function generateCoachNarrative(p, t, plan) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 280,
-        system: 'You are a direct, warm performance coach. Write flowing prose only — no bullet points, no headers, no markdown.',
+        max_tokens: 120,
+        system: 'You are a direct performance coach. One paragraph only, max 60 words. No markdown.',
         messages: [{ role: 'user', content: prompt }]
       })
     });
     var data = await res.json();
     var text = (data.content||[]).map(function(b){ return b.text||''; }).join('').trim();
 
-    // Split into paragraphs and wrap
-    var paras = text.split('\n').filter(function(p){ return p.trim(); }).map(function(p){
-      return '<p>' + p.trim() + '</p>';
-    }).join('');
-
-    box.innerHTML = '<div class="coach-prose">' + paras + '</div>'
-      + '<button class="coach-refresh" onclick="generateCoachNarrative(P,TODAY,null)">↺ Refresh</button>';
+    box.innerHTML = '<div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;opacity:.7;">Coach</div>'
+      + '<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;">' + text + '</div>'
+      + '<button style="margin-top:8px;background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;font-family:var(--sans);padding:0;text-decoration:underline;" onclick="generateCoachNarrative(P,TODAY,null)">\u21ba Refresh</button>';
 
   } catch(e) {
-    box.innerHTML = '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">Could not load — <button class="coach-refresh" onclick="generateCoachNarrative(P,TODAY,null)">try again</button></div>';
+    box.innerHTML = '<div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;opacity:.7;">Coach</div>'
+      + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">Could not load — <button style="background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;text-decoration:underline;font-family:var(--sans);" onclick="generateCoachNarrative(P,TODAY,null)">try again</button></div>';
   }
 }
 
