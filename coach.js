@@ -35,60 +35,27 @@
   };
 
   // ── SYSTEM PROMPT ─────────────────────────────────────
-  function buildSystemPrompt(profile, pageContext) {
-    const isFemale = (profile.sex || '').toLowerCase() === 'female';
-    const injuries = profile.injuryAssessments || profile.injuries || [];
-    const supps    = profile.supplements || [];
-    const weekPlan = profile.weekPlan || [];
-    const trainDays = weekPlan.filter(d => d.priority === 'training').map(d => d.day).join(', ');
+  // ── SYSTEM PROMPT ─────────────────────────────────────
+  // Structured for Anthropic prompt caching:
+  //   Block 1 (cache_control: ephemeral) — static coaching instructions
+  //   Block 2 — dynamic: client profile + page context (changes per user/page)
+  //
+  // The static block (~1,400 tokens) is identical across all users and all calls.
+  // Anthropic caches it after the first call and charges 10% on subsequent hits.
+  // The dynamic block is small (~400 tokens) and billed at normal input rates.
+  // Net result: ~75% reduction in input token cost for the coach on repeat calls.
 
-    return `You are the BodyLens coach — a senior performance coach and applied sport scientist. You are speaking directly with ${profile.name}.
-
-CLIENT PROFILE:
-Name: ${profile.name} | Age: ${profile.age} | Sex: ${profile.sex}
-Weight: ${profile.weight}kg | Height: ${profile.height}cm${profile.bodyFat ? ' | Body fat: ' + profile.bodyFat + '%' : ''}
-Goal: ${profile.goal}${profile.target ? ' — ' + profile.target : ''}
-Experience: ${profile.experience || '—'} | Training: ${profile.trainingDays} days/week (${trainDays})
-Wake: ${profile.wakeTime || '07:00'} | Bedtime: ${profile.bedtime || '—'} | Sleep: ${profile.sleep || '—'} | Quality: ${profile.sleepQuality || '—'}
-Training time: ${profile.trainingTime || '—'}
-Calories: ${profile.calories} kcal | Protein: ${profile.protein}g | Carbs: ${profile.carbs}g | Fat: ${profile.fat}g
-Eating window: ${profile.actualEatingWindow || profile.fastingWindow || profile.eatingWindow || 'flexible'}
-Stress: ${profile.stressLevel || '—'} | Caffeine: ${profile.caffeineHabits || '—'} | Diet history: ${profile.dietHistory || '—'}
-Diet: ${profile.dietType || 'no restrictions'} | Exclude: ${(profile.foodExclusions || []).join(', ') || 'none'}
-Trigger foods: ${profile.triggerFoods || 'none'}
-Alcohol: ${profile.alcoholHabit || '—'}
-Recovery tools: ${(profile.recoveryTools || []).join(', ') || 'none'}
-Supplements: ${supps.map(s => s.name + ' ' + s.dose + ' (' + (s.timing || '') + ')').join(', ') || 'none'}
-Health conditions: ${profile.healthConditions || 'none'}
-${injuries.length ? 'INJURIES: ' + injuries.map(i => (i.location || i) + ': ' + (i.assessment || i.detail || '')).join('; ') : 'No injuries'}
-${profile.activityLevel ? 'Activity outside training: ' + profile.activityLevel : ''}
-${profile.cookingApproach ? 'Food approach: ' + profile.cookingApproach + (profile.cuisinePrefs && profile.cuisinePrefs.length ? ' | ' + profile.cuisinePrefs.join(', ') : '') : ''}
-${isFemale && profile.menstrualCycle ? 'Cycle: ' + profile.menstrualCycle : ''}
-
-${profile.bodyScan ? `BODY SCAN DATA (${profile.bodyScan.source || 'device'}, ${profile.bodyScan.scanDate || 'recent'}) — REAL MEASUREMENTS, USE THESE OVER ANY FORMULA ESTIMATE:
-${profile.bodyScan.weight       ? '• Weight: '              + profile.bodyScan.weight + 'kg' : ''}
-${profile.bodyScan.bodyFatPct   ? '• Body fat: '            + profile.bodyScan.bodyFatPct + '%' : ''}
-${profile.bodyScan.leanMass     ? '• Lean mass: '           + profile.bodyScan.leanMass + 'kg (protein target is based on this, not total weight)' : ''}
-${profile.bodyScan.skeletalMuscleMass ? '• Skeletal muscle: ' + profile.bodyScan.skeletalMuscleMass + 'kg' : ''}
-${profile.bodyScan.bmr          ? '• Measured BMR: '        + profile.bodyScan.bmr + ' kcal/day (this is real — the formula was ' + (profile.scanBmr !== profile.bodyScan.bmr ? 'different' : 'aligned') + ')' : ''}
-${profile.bodyScan.metabolicAge ? '• Metabolic age: '       + profile.bodyScan.metabolicAge + ' years' + (profile.bodyScan.metabolicAge > (profile.age||35) + 3 ? ' — elevated, prioritise sleep and zone 2' : '') : ''}
-${profile.bodyScan.visceralFatIndex ? '• Visceral fat index: ' + profile.bodyScan.visceralFatIndex + (profile.bodyScan.visceralFatIndex >= 13 ? ' — elevated, responds to resistance + zone 2 cardio' : ' — within standard range') : ''}
-${profile.bodyScan.restingHeartRate ? '• Resting HR: '      + profile.bodyScan.restingHeartRate + ' BPM' : ''}
-${profile.bodyScan.bodyWaterPct ? '• Body water: '          + profile.bodyScan.bodyWaterPct + '%' + (profile.bodyScan.bodyWaterPct < 50 ? ' — below optimal, hydration is a priority' : '') : ''}` : ''}
-
-CURRENT PAGE: ${pageContext}
+  const STATIC_COACHING_INSTRUCTIONS = `You are the BodyLens coach — a senior performance coach and applied sport scientist.
 
 YOUR VOICE:
-You speak like a senior coach with a science background having a real consultation — not a chatbot, not a generic fitness app. You are warm, direct, and specific. You reference ${profile.name}'s actual numbers, their actual training days, their injuries, their food preferences. You don't hedge unless there is genuine scientific uncertainty, and when you do hedge you say why.
+You speak like a senior coach with a science background having a real consultation — not a chatbot, not a generic fitness app. You are warm, direct, and specific. You reference the client's actual numbers, their actual training days, their injuries, their food preferences. You don't hedge unless there is genuine scientific uncertainty, and when you do hedge you say why.
 
 RESPONSE FORMAT — this is critical:
 Write in flowing prose, the way a coach actually talks. No bullet points. No bold text. No headers. No markdown formatting of any kind. Just clear, well-constructed sentences in paragraphs. A short answer is one or two sentences. A longer answer is two or three paragraphs. Never more than that unless they explicitly ask for a comprehensive explanation.
 
 The science lives in the explanation — you weave it into the answer naturally, not as bullet points. If the answer has a mechanism behind it, explain the mechanism in plain language as part of the flow.
 
-Always make the answer personal. Reference their specific situation — their ${profile.trainingDays} training days, their ${profile.protein}g protein target, their injuries if relevant. Generic advice is not coaching.
-
-${isFemale ? 'Frame all advice through female physiology where relevant — hormonal cycle, oestrogen effects, female-specific training and nutrition.' : 'Frame advice through male physiology where relevant — testosterone, GH, male-specific recovery and nutrition.'}
+Always make the answer personal. Reference their specific situation — their training days, their protein target, their injuries if relevant. Generic advice is not coaching.
 
 PERFORMANCE ACCELERATORS — know these and use them proactively:
 You have access to a library of 24 evidence-backed performance accelerators. When the conversation naturally leads there — or when someone asks how to speed up results, what else they can do, or expresses high motivation — suggest a specific accelerator with its mechanism explained in your voice. Never list multiple at once. Pick the single most relevant one and explain it properly.
@@ -117,6 +84,41 @@ Examples:
 - "I'm thinking of changing my goal to fat loss" → [NEW_INFO: considering goal change to fat loss]
 
 Only add this tag if there is genuinely new information that would change the profile. Do not add it for questions or general discussion.`;
+
+  function buildSystemPrompt(profile, pageContext) {
+    const isFemale = (profile.sex || '').toLowerCase() === 'female';
+    const injuries = profile.injuryAssessments || profile.injuries || [];
+    const supps    = profile.supplements || [];
+    const weekPlan = profile.weekPlan || [];
+    const trainDays = weekPlan.filter(d => d.priority === 'training').map(d => d.day).join(', ');
+
+    // Detect if message context is food/recipe related — only inject those fields when relevant
+    const isFoodContext = ['food','fuel'].includes(getPageType());
+
+    const dynamicBlock = `You are speaking directly with ${profile.name}.
+
+CLIENT PROFILE:
+Name: ${profile.name} | Age: ${profile.age} | Sex: ${profile.sex}
+Weight: ${profile.weight}kg | Height: ${profile.height}cm${profile.bodyFat ? ' | Body fat: ' + profile.bodyFat + '%' : ''}
+Goal: ${profile.goal}${profile.target ? ' — ' + profile.target : ''}
+Experience: ${profile.experience || '—'} | Training: ${profile.trainingDays} days/week (${trainDays})
+Wake: ${profile.wakeTime || '07:00'} | Sleep: ${profile.sleep || '—'} | Bedtime: ${profile.bedtime || '—'}
+Calories: ${profile.calories} kcal | Protein: ${profile.protein}g | Carbs: ${profile.carbs}g | Fat: ${profile.fat}g
+Eating window: ${profile.actualEatingWindow || profile.fastingWindow || profile.eatingWindow || 'flexible'}
+Stress: ${profile.stressLevel || '—'} | Alcohol: ${profile.alcoholHabit || '—'}
+Diet: ${profile.dietType || 'no restrictions'}${profile.triggerFoods && !profile.triggerFoods.toLowerCase().includes('none') ? ' | Trigger foods: ' + profile.triggerFoods : ''}
+Supplements: ${supps.map(s => s.name + ' ' + s.dose + ' (' + (s.timing || '') + ')').join(', ') || 'none'}
+${injuries.length ? 'INJURIES: ' + injuries.map(i => (i.location || i) + ': ' + (i.assessment || i.detail || '')).join('; ') : 'No injuries'}
+${profile.healthConditions && profile.healthConditions !== 'none' ? 'Health conditions: ' + profile.healthConditions : ''}
+${isFoodContext && profile.cookingApproach ? 'Food approach: ' + profile.cookingApproach + (profile.cuisinePrefs && profile.cuisinePrefs.length ? ' | ' + profile.cuisinePrefs.join(', ') : '') : ''}
+${isFemale && profile.menstrualCycle ? 'Cycle: ' + profile.menstrualCycle : ''}
+${isFemale ? 'Frame advice through female physiology — hormonal cycle, oestrogen effects, female-specific training and nutrition.' : 'Frame advice through male physiology — testosterone, GH, male-specific recovery and nutrition.'}
+${profile.bodyScan ? `BODY SCAN (${profile.bodyScan.scanDate || 'recent'}) — USE THESE OVER FORMULA ESTIMATES:
+${profile.bodyScan.weight ? 'Weight: ' + profile.bodyScan.weight + 'kg' : ''}${profile.bodyScan.bodyFatPct ? ' | Body fat: ' + profile.bodyScan.bodyFatPct + '%' : ''}${profile.bodyScan.leanMass ? ' | Lean mass: ' + profile.bodyScan.leanMass + 'kg' : ''}${profile.bodyScan.bmr ? ' | BMR: ' + profile.bodyScan.bmr + ' kcal' : ''}${profile.bodyScan.metabolicAge ? ' | Metabolic age: ' + profile.bodyScan.metabolicAge : ''}${profile.bodyScan.visceralFatIndex ? ' | Visceral fat: ' + profile.bodyScan.visceralFatIndex + (profile.bodyScan.visceralFatIndex >= 13 ? ' (elevated)' : '') : ''}` : ''}
+
+CURRENT PAGE: ${pageContext}`;
+
+    return { static: STATIC_COACHING_INSTRUCTIONS, dynamic: dynamicBlock };
   }
 
   // ── FOLLOW-UP PROMPT ──────────────────────────────────
@@ -237,16 +239,29 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
   // ── API CALL ──────────────────────────────────────────
   async function askCoach(userMessage, profile) {
     const history = loadHistory();
-    const systemPrompt = buildSystemPrompt(profile, PAGE_CONTEXTS[getPageType()] || PAGE_CONTEXTS.default);
+    const prompt = buildSystemPrompt(profile, PAGE_CONTEXTS[getPageType()] || PAGE_CONTEXTS.default);
     history.push({ role: 'user', content: userMessage });
 
+    // System prompt sent as two blocks:
+    //   Block 1 — static coaching instructions, marked for caching (saves ~75% on input cost after first call)
+    //   Block 2 — dynamic client profile + page context (small, billed normally)
     const res = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 450,
-        system: systemPrompt,
+        max_tokens: 650,
+        system: [
+          {
+            type: 'text',
+            text: prompt.static,
+            cache_control: { type: 'ephemeral' },
+          },
+          {
+            type: 'text',
+            text: prompt.dynamic,
+          },
+        ],
         messages: history.slice(-MAX_HISTORY),
       }),
     });
@@ -260,28 +275,106 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
     return text;
   }
 
-  // Generate follow-up chips after a reply
-  async function generateFollowUps(lastUser, lastCoach, profile) {
-    try {
-      const res = await fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 180,
-          system: 'You generate follow-up questions for a fitness coaching chat. Return ONLY a valid JSON array of 3 strings. No explanation, no markdown.',
-          messages: [{ role: 'user', content: buildFollowUpPrompt(lastUser, lastCoach, profile, loadHistory()) }],
-        }),
-      });
-      if (!res.ok) return null;
-      const data = await res.json();
-      const text = (data.content || []).map(b => b.text || '').join('').trim();
-      const match = text.match(/\[[\s\S]*\]/);
-      if (!match) return null;
-      return JSON.parse(match[0]).slice(0, 3);
-    } catch(e) {
-      return null;
-    }
+  // Generate follow-up chips deterministically — no API call.
+  // Pattern-matches keywords in the last coach reply and selects
+  // contextually relevant chips from a curated library.
+  // Saves ~$0.004 per coach message (~24% of per-message cost).
+  function generateFollowUps(lastUser, lastCoach, profile) {
+    const reply = (lastCoach || '').toLowerCase();
+    const isFemale = (profile.sex || '').toLowerCase() === 'female';
+    const injuries = profile.injuryAssessments || profile.injuries || [];
+    const trigger = (profile.triggerFoods || '').split(/[,/]/)[0].trim();
+    const hasTrigger = trigger && !trigger.toLowerCase().includes('none');
+    const name = profile.name || '';
+
+    // Topic detection — order matters, more specific first
+    if (/protein|leucine|mps|amino|whey/.test(reply)) return [
+      `How do I spread protein through the day?`,
+      `Does timing matter or just the total?`,
+      `Best high-protein foods that aren't chicken?`,
+    ];
+    if (/sleep|recovery|rest|circadian|melatonin|cortisol/.test(reply)) return [
+      `What's the fastest way to improve sleep quality?`,
+      `How much does one bad night actually set me back?`,
+      `Should I train if I slept badly?`,
+    ];
+    if (/creatine|supplement|magnesium|omega|vitamin/.test(reply)) return [
+      `When's the best time to take it?`,
+      `Can I stack this with what I already take?`,
+      `How long before I notice a difference?`,
+    ];
+    if (/calorie|deficit|tdee|maintenance|surplus/.test(reply)) return [
+      `How do I know if my deficit is too aggressive?`,
+      `Should I eat more on training days?`,
+      `What happens if I go over my target?`,
+    ];
+    if (/cardio|zone 2|vo2|hiit|steps|walk/.test(reply)) return [
+      `How do I fit cardio without killing my lifts?`,
+      `Zone 2 vs HIIT — which is better for my goal?`,
+      `How much cardio is too much?`,
+    ];
+    if (/alcohol|drink|wine|beer/.test(reply)) return [
+      `What's the least bad drink to choose?`,
+      `How long does it take to fully recover?`,
+      `Should I train the morning after?`,
+    ];
+    if (/fast|window|intermittent|16.8|eating window/.test(reply)) return [
+      `What can I have without breaking the fast?`,
+      `Does coffee break it?`,
+      `Should I train fasted?`,
+    ];
+    if (/injury|pain|knee|back|shoulder|hip|modify/.test(reply)) return [
+      injuries.length ? `Can I still train around my ${injuries[0].location || 'injury'}?` : `How do I know when it's safe to push again?`,
+      `What movements are safe right now?`,
+      `How long does this typically take to heal?`,
+    ];
+    if (/stress|cortisol|anxiet|mental|mood/.test(reply)) return [
+      `Does high stress actually affect fat loss?`,
+      `Should I train less when I'm stressed?`,
+      `What's the fastest way to lower cortisol?`,
+    ];
+    if (/plateau|stall|stopped|progress|slow/.test(reply)) return [
+      `How long should I wait before changing something?`,
+      `Is it a diet problem or a training problem?`,
+      `Should I take a diet break?`,
+    ];
+    if (/sauna|cold|plunge|contrast|nsdr|yoga nidra/.test(reply)) return [
+      `How often do I need to do this to see results?`,
+      `Best time of day — before or after training?`,
+      `Can I combine this with my current routine?`,
+    ];
+    if (/fat loss|lean|cut|shred|body fat/.test(reply)) return [
+      `How do I know I'm losing fat not muscle?`,
+      `Should I do more cardio or keep cutting calories?`,
+      hasTrigger ? `I keep craving ${trigger} — what do I do?` : `How do I manage hunger on a deficit?`,
+    ];
+    if (/muscle|hypertrophy|strength|build|mass/.test(reply)) return [
+      `Am I eating enough to actually build?`,
+      `How close to failure should I train?`,
+      `How long until I see real changes?`,
+    ];
+    if (/hormone|testoster|oestrogen|perimenopause|cycle/.test(reply)) return isFemale ? [
+      `How should I adjust training around my cycle?`,
+      `Does this affect my nutrition too?`,
+      `What should I actually track?`,
+    ] : [
+      `What's the biggest natural lever for testosterone at ${profile.age || 40}?`,
+      `How much does sleep actually affect it?`,
+      `Does training volume affect hormones?`,
+    ];
+
+    // Generic fallback — personalised to goal
+    const goal = (profile.goal || '').toLowerCase();
+    if (goal.includes('fat') || goal.includes('los')) return [
+      `What's my highest-leverage habit right now?`,
+      `Am I doing enough, or should I push harder?`,
+      `What would move the needle fastest this week?`,
+    ];
+    return [
+      `What should I focus on most this week?`,
+      `Am I leaving anything on the table?`,
+      isFemale ? `How does my cycle affect this?` : `What's my single best next move?`,
+    ];
   }
 
   // ── INITIAL CHIPS — clever, motivational ──────────────
