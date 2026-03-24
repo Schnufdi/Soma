@@ -7,9 +7,9 @@
   <div class="nav-links">
     <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
     <a class="nav-link" href="/bodylens-food.html">Food</a>
-    <a class="nav-link" href="/bodylens-programme.html">Programme</a>
     <a class="nav-link" href="/bodylens-science.html">Science</a>
     <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
+    <a class="nav-link" href="/bodylens-programme.html">Programme</a>
     <a class="nav-link" href="/bodylens-checkin.html">Week</a>
     <a class="nav-link" href="/bodylens-instructions.html">Report</a>
   </div>

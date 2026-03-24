@@ -335,6 +335,18 @@ body { background:var(--ink); color:var(--dk-1); }
       <div class="food-card-desc">Synergies, timing map, what to avoid, meal ideas. The deep reference layer.</div>
     </div>
 
+    <div class="food-card jade" onclick="window.location.href='bodylens-insulin.html'">
+      <span class="food-card-icon">📈</span>
+      <div class="food-card-title">Insulin & glucose</div>
+      <div class="food-card-desc">The hormone behind where energy goes. Glucose curves, nutrient partitioning, meal timing logic.</div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 3: FOOD ACCELERATORS -->
+  <div class="sec-label" style="margin-top:8px;">Food accelerators</div>
+  <div class="food-grid" id="food-acc-grid">
+    <!-- populated by renderFoodAccelerators() -->
   </div>
 
   <!-- PYRAMIDS PANEL -->
@@ -461,6 +473,159 @@ function closePanel(id) {
   _activePanel = null;
 }
 
+// ── FOOD PYRAMIDS ─────────────────────────────────
+function initPyramids() {
+  _pyramidInited = true;
+
+  // Four pyramid architectures — each maps to a goal
+  const PYRAMIDS = [
+    {
+      id: 'recomp', label: 'Recomposition', emoji: '⚡',
+      active: _p.goal && /recomp/i.test(_p.goal),
+      tagline: 'Lose fat and build muscle simultaneously',
+      tiers: [
+        { label: 'Foundation', items: ['Protein — ' + _prot + 'g every day, training or rest', 'Sleep 7-9h — the anabolic trigger'], col: 'jade', h: 60 },
+        { label: 'Training stimulus', items: ['Progressive overload 3-5x/week', 'Zone 2 cardio 2-3h/week'], col: 'jade', h: 50 },
+        { label: 'Nutrition timing', items: ['Pre-train: protein + carbs 90 min before', 'Post-train: fast protein + carbs within 30 min', 'Eating window: ' + (_p.actualEatingWindow || _p.eatingWindow || '12-8pm')], col: 'amber', h: 60 },
+        { label: 'Calories', items: ['Training: ' + _trainKcal + ' kcal', 'Rest: ' + _restKcal + ' kcal', 'Deficit drives fat loss; surplus drives muscle'], col: 'amber', h: 50 },
+        { label: 'Optimisers', items: ['Creatine 5g daily', 'Food ordering: protein first', 'Post-meal walks 10-15 min'], col: 'gold', h: 44 },
+      ],
+      sideNote: 'Recomposition requires patience. You cannot maximise both simultaneously — but you can do both meaningfully. The lever is insulin timing: anabolic when you train, fat-burning when you rest.'
+    },
+    {
+      id: 'fatloss', label: 'Fat loss', emoji: '🔥',
+      active: _p.goal && /fat|los|cut/i.test(_p.goal),
+      tagline: 'Maximise fat oxidation while protecting muscle',
+      tiers: [
+        { label: 'Caloric deficit', items: ['Target: ' + _restKcal + ' kcal/day', 'Training days: ' + _trainKcal + ' kcal (earned surplus)', 'Weekly deficit drives fat loss — not daily'], col: 'amber', h: 60 },
+        { label: 'Protein anchor', items: [_prot + 'g protein — non-negotiable', 'Muscle preservation requires leucine threshold each meal', 'Protein is the most satiating macro — use it'], col: 'jade', h: 50 },
+        { label: 'Carb management', items: ['Training days: carbs around training only', 'Rest days: carbs lower, fat moderate', 'Fibre 30g/day — glucose control + satiety'], col: 'gold', h: 50 },
+        { label: 'Fasting window', items: ['16h fast / 8h eating window optimal', 'Fat oxidation peaks after 14h fasted', 'Break fast with protein, not carbs'], col: 'amber', h: 44 },
+        { label: 'Optimisers', items: ['Fasted morning training', 'Post-meal walks', 'Cold-hot contrast on rest days'], col: 'slate', h: 38 },
+      ],
+      sideNote: 'Fat loss is simple but not easy. Caloric deficit is the mechanism — everything else is a lever that makes the deficit more sustainable or the body composition outcome better.'
+    },
+    {
+      id: 'muscle', label: 'Muscle gain', emoji: '💪',
+      active: _p.goal && /muscle|build|bulk/i.test(_p.goal),
+      tagline: 'Maximise hypertrophic stimulus and recovery',
+      tiers: [
+        { label: 'Caloric surplus', items: ['Target: ' + Math.round(_trainKcal * 1.05) + '–' + Math.round(_trainKcal * 1.1) + ' kcal/day', 'Lean surplus — 200-300 kcal above TDEE', 'Aggressive surplus adds fat, not muscle'], col: 'jade', h: 60 },
+        { label: 'Protein — maximum', items: [_prot + 'g protein daily minimum', 'Distribute across 4+ meals — leucine threshold each time', 'Pre-sleep: casein (cottage cheese, Greek yoghurt)'], col: 'jade', h: 60 },
+        { label: 'Carbohydrate loading', items: ['Carbs drive glycogen — glycogen drives training intensity', 'Pre-train: 60-80g fast carbs', 'Post-train: 50-80g fast carbs (GI is irrelevant here)', 'Rest days: carbs moderate, not zero'], col: 'amber', h: 60 },
+        { label: 'Recovery', items: ['Sleep is where muscle is built — GH peaks in slow-wave', '7-9h non-negotiable', 'Deload every 6-8 weeks'], col: 'gold', h: 50 },
+        { label: 'Creatine', items: ['5g/day — the only proven muscle-building supplement', 'No loading required — patience is', 'Works best with carbohydrate intake'], col: 'slate', h: 38 },
+      ],
+      sideNote: 'Muscle gain is slower than you think and faster than you fear. The physiology is unforgiving: without a caloric surplus, volume above maintenance produces marginal gains at best.'
+    },
+    {
+      id: 'performance', label: 'Performance', emoji: '🏆',
+      active: _p.goal && /perform|athlet|sport/i.test(_p.goal),
+      tagline: 'Fuel training, maximise output, accelerate recovery',
+      tiers: [
+        { label: 'Energy availability', items: ['Never train underfuelled — performance crashes', 'Pre-session: 1-4g carbs per kg bodyweight', 'Intra-session (60+ min): 30-60g carbs/hour'], col: 'amber', h: 60 },
+        { label: 'Protein for repair', items: [_prot + 'g/day split evenly', 'Post-session: leucine threshold within 30 min', 'Overnight: slow-release protein before sleep'], col: 'jade', h: 50 },
+        { label: 'Hydration', items: ['Dehydration of 2% body weight reduces output 10-20%', 'Electrolytes in sessions over 60 min', 'Urine colour as proxy — pale yellow target'], col: 'jade', h: 50 },
+        { label: 'Recovery nutrition', items: ['4:1 carb:protein ratio within 30 min post-session', 'Tart cherry juice: reduces inflammation and soreness', 'Anti-inflammatory eating between sessions'], col: 'gold', h: 44 },
+        { label: 'Caffeine protocol', items: ['3-6mg/kg 45-60 min pre-session', 'Avoid within 6h of sleep — half-life is long', 'Tolerance breaks every 4-6 weeks restore the effect'], col: 'slate', h: 38 },
+      ],
+      sideNote: 'Performance nutrition is periodised — it matches the training load. Heavy training block = higher carbs, more calories, aggressive recovery. Deload = lower carbs, maintenance calories.'
+    }
+  ];
+
+  // Render tabs
+  const tabs = document.getElementById('pyr-tabs');
+  const main = document.getElementById('pyr-main');
+  const side = document.getElementById('pyr-side');
+  if (!tabs || !main) return;
+
+  // Auto-select the pyramid that matches the user's goal, else first
+  let activeIdx = PYRAMIDS.findIndex(p => p.active);
+  if (activeIdx < 0) activeIdx = 0;
+
+  function renderPyramid(idx) {
+    const pyr = PYRAMIDS[idx];
+    // Tabs
+    tabs.innerHTML = PYRAMIDS.map((p, i) => `
+      <button style="padding:6px 14px;border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .12s;
+        background:${i===idx?'var(--amber)':'transparent'};color:${i===idx?'var(--ink)':'var(--dk-3)'};border:1px solid ${i===idx?'var(--amber)':'var(--bd)'};"
+        onclick="window._renderPyramid(${i})">${p.emoji} ${p.label}</button>
+    `).join('');
+
+    // Pyramid visual
+    const colMap = { jade:'var(--jade)', amber:'var(--amber)', gold:'var(--gold)', slate:'rgba(100,130,120,.6)' };
+    main.innerHTML = `
+      <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:14px;">${pyr.emoji} ${pyr.label} — ${pyr.tagline}</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;margin-bottom:20px;">
+        ${pyr.tiers.map((tier, ti) => {
+          const w = 100 - (ti * 12);
+          const col = colMap[tier.col] || 'var(--jade)';
+          return `<div style="width:${w}%;background:rgba(0,0,0,.3);border:1px solid ${col};border-radius:4px;padding:10px 16px;position:relative;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4px;">${tier.label}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${tier.items.map(item => `<div style="font-size:11px;font-weight:300;color:var(--dk-2);">· ${item}</div>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+
+    // Side note
+    if (side) {
+      side.innerHTML = `
+        <div style="background:rgba(196,124,24,.05);border:1px solid rgba(196,124,24,.2);border-radius:8px;padding:16px 18px;margin-bottom:16px;">
+          <div style="font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:8px;">The logic</div>
+          <div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;">${pyr.sideNote}</div>
+        </div>
+        <div style="background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;">
+          <div style="font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Your numbers</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="font-size:12px;font-weight:300;color:var(--dk-2);">Training kcal<br><strong style="color:var(--jade);font-family:var(--mono);">${_trainKcal}</strong></div>
+            <div style="font-size:12px;font-weight:300;color:var(--dk-2);">Rest kcal<br><strong style="color:var(--amber);font-family:var(--mono);">${_restKcal}</strong></div>
+            <div style="font-size:12px;font-weight:300;color:var(--dk-2);">Protein<br><strong style="color:var(--jade);font-family:var(--mono);">${_prot}g</strong></div>
+            <div style="font-size:12px;font-weight:300;color:var(--dk-2);">Carbs<br><strong style="color:var(--amber);font-family:var(--mono);">${_carbs}g</strong></div>
+          </div>
+        </div>`;
+    }
+  }
+
+  window._renderPyramid = renderPyramid;
+  renderPyramid(activeIdx);
+}
+
+// ── FOOD ACCELERATORS ─────────────────────────────
+function renderFoodAccelerators() {
+  const grid = document.getElementById('food-acc-grid');
+  if (!grid) return;
+
+  const FOOD_ACCS = [
+    { id:'post-meal-walks', icon:'🚶', label:'Post-meal walks', desc:'10 min after each meal. Glucose down 20–30%. Compounds across 3 meals.' },
+    { id:'food-ordering',   icon:'🥗', label:'Protein-first ordering', desc:'Eat protein and veg before carbs. Flattens glucose spike 30–40%.' },
+    { id:'vinegar',         icon:'🥤', label:'Vinegar before meals', desc:'1 tbsp ACV before high-carb meals. Slows glucose absorption 20–30%.' },
+    { id:'fibre-30g',       icon:'🌿', label:'30g daily fibre', desc:'Legumes, veg, whole grains. Improves insulin sensitivity and gut health.' },
+    { id:'carb-backload',   icon:'⚡', label:'Carb back-loading', desc:'Hold carbs until post-training. Insulin peaks when muscle uptake is highest.' },
+    { id:'fasted-coffee',   icon:'☕', label:'Fasted morning training', desc:'Train before eating. Catecholamines elevated. Fat oxidation higher.' },
+  ];
+
+  const saved = new Set([
+    ...((_p.accelerators)||[]),
+    ...((_p.optimisations)||[]).map(o => typeof o === 'string' ? o : o.id)
+  ]);
+
+  grid.innerHTML = FOOD_ACCS.map(acc => {
+    const isSaved = saved.has(acc.id);
+    return `<div class="food-card ${isSaved?'jade':'slate'}" style="position:relative;">
+      <span class="food-card-icon">${acc.icon}</span>
+      <div class="food-card-title">${acc.label}</div>
+      <div class="food-card-desc">${acc.desc}</div>
+      <button onclick="event.stopPropagation();window.saveOpt('${acc.id}','${acc.label}','${acc.icon}',this)"
+        style="margin-top:10px;padding:5px 12px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--sans);
+          background:${isSaved?'var(--jade)':'transparent'};color:${isSaved?'var(--ink)':'var(--dk-3)'};border:1px solid ${isSaved?'var(--jade)':'var(--bd)'};">
+        ${isSaved ? '✓ In your programme' : '+ Add to programme'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
 // ── TODAY MEALS ───────────────────────────────────
 const _todayCacheKey = 'bl_food_today_' + new Date().toISOString().slice(0,10);
 
@@ -580,7 +745,7 @@ let _selectedWeekDay = _todayIdx;
 // One ingredient pool generated per week. Each day draws from it.
 // Shopping list = the pool. Mix and match across the week.
 
-const _WEEK_POOL_KEY = 'bl_week_pool_' + new Date().toISOString().slice(0,7); // monthly cache
+const _WEEK_POOL_KEY = 'bl_week_pool_v2_' + new Date().toISOString().slice(0,7); // v2 = correct calorie alignment
 let _weekPool = null;  // { proteins:[], carbs:[], veg:[], fats:[], extras:[] }
 let _weekPlan_meals = {}; // { dayIdx: { meals:[] } }
 
@@ -708,44 +873,72 @@ Return ONLY valid JSON:
 function buildWeekFromPool() {
   if (!_weekPool) return;
   const pool = _weekPool;
-  // Assign meals to each day by cycling pool items
+
   DAY_NAMES.forEach((name, i) => {
     const dayPlan = _weekPlan[i] || {type:'Rest',priority:'rest'};
     const isTraining = dayPlan.priority === 'training';
     const template = isTraining ? DAY_MEAL_TEMPLATE.training : DAY_MEAL_TEMPLATE.rest;
     const ideas = pool.mealIdeas || {};
-    
-    // Rotate through ideas based on day index to vary the week
+
+    // ── CALORIE ALIGNMENT ────────────────────────────
+    // dayKcal is the canonical value from the profile.
+    // We distribute it across meals proportionally — NOT equally.
+    // Training days: pre/post-train meals are smaller (fuel, not feasts).
+    // The distribution weights must sum to 1.
+    const dayKcal = isTraining ? _trainKcal : _restKcal;
+    const dayProt = _prot;
+
+    // Proportional weights per slot
+    const SLOT_WEIGHTS = {
+      'breakfast':  0.25,
+      'pre-train':  0.15,
+      'post-train': 0.20,
+      'lunch':      0.25,
+      'dinner':     0.25,
+      'snack':      0.10,
+    };
+
+    // Normalise weights for the actual slots in this day's template
+    const rawWeights = template.map(s => SLOT_WEIGHTS[s.slot] || (1 / template.length));
+    const totalWeight = rawWeights.reduce((a, b) => a + b, 0);
+    const normWeights = rawWeights.map(w => w / totalWeight);
+
+    // Protein distribution — roughly proportional to calorie weight
+    const protWeights = normWeights; // same distribution
+
     const pickIdea = (arr, offset) => arr && arr.length ? arr[(i + offset) % arr.length] : null;
-    
+
     _weekPlan_meals[i] = {
       isTraining,
-      kcal: isTraining ? _trainKcal : _restKcal,
-      prot: _prot,
+      kcal: dayKcal,      // ← canonical day total
+      prot: dayProt,
       meals: template.map((slot, si) => {
         let mealName = '';
-        if (slot.slot === 'breakfast') mealName = pickIdea(ideas.breakfast, si) || 'Breakfast';
-        else if (slot.slot === 'pre-train') mealName = pickIdea(ideas.preTrain, si) || 'Pre-training meal';
+        if (slot.slot === 'breakfast')  mealName = pickIdea(ideas.breakfast, si) || 'Breakfast';
+        else if (slot.slot === 'pre-train')  mealName = pickIdea(ideas.preTrain, si) || 'Pre-training meal';
         else if (slot.slot === 'post-train') mealName = pickIdea(ideas.postTrain, si) || 'Post-training meal';
-        else if (slot.slot === 'lunch') mealName = pickIdea(ideas.lunch, si+1) || 'Lunch';
+        else if (slot.slot === 'lunch')  mealName = pickIdea(ideas.lunch, si+1) || 'Lunch';
         else if (slot.slot === 'dinner') mealName = pickIdea(ideas.dinner, i) || 'Dinner';
-        
-        // Pick protein for this meal (cycle through pool)
+        else mealName = slot.label || 'Snack';
+
         const protItem = pool.proteins ? pool.proteins[(i + si) % pool.proteins.length] : null;
         const carbItem = pool.carbs && slot.carb ? pool.carbs[(i + si) % pool.carbs.length] : null;
         const vegItem  = pool.veg && slot.veg  ? pool.veg[(i + si) % pool.veg.length] : null;
         const fatItem  = pool.fats ? pool.fats[si % (pool.fats.length||1)] : null;
-        
-        const protG = Math.round(_prot / template.length);
-        const kcalEach = Math.round((isTraining?_trainKcal:_restKcal) / template.length);
-        
+
+        // Use proportional weights — rounds to nearest integer, last meal gets remainder
+        const mealKcal = si === template.length - 1
+          ? dayKcal - _weekPlan_meals[i]?.meals?.reduce((s,m)=>s+(m.kcal||0),0) || Math.round(dayKcal * normWeights[si])
+          : Math.round(dayKcal * normWeights[si]);
+        const mealProt = Math.round(dayProt * protWeights[si]);
+
         return {
           time: slot.time,
           slot: slot.slot,
           label: slot.label,
           name: mealName,
-          protein: protG,
-          kcal: kcalEach,
+          protein: mealProt,
+          kcal: mealKcal,
           components: [
             protItem && `${protItem.name} (${protItem.per})`,
             carbItem && `${carbItem.name} (${carbItem.per})`,
@@ -755,8 +948,14 @@ function buildWeekFromPool() {
         };
       }),
     };
+
+    // Correct rounding errors on last meal so day total is exact
+    const mealSum = _weekPlan_meals[i].meals.reduce((s,m)=>s+(m.kcal||0),0);
+    if (mealSum !== dayKcal && _weekPlan_meals[i].meals.length > 0) {
+      _weekPlan_meals[i].meals[_weekPlan_meals[i].meals.length-1].kcal += (dayKcal - mealSum);
+    }
   });
-  
+
   renderWeekGrid();
 }
 
@@ -923,6 +1122,9 @@ function renderIntelligence() {
 }
 
 } // end profile check
+
+// Render food accelerators after profile is loaded
+if (typeof renderFoodAccelerators === 'function') renderFoodAccelerators();
 </script>
 
 <script src="nav.js"></script>
