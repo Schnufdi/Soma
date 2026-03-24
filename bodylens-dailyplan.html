@@ -434,7 +434,7 @@
 // BodyLens Daily Plan v5 — clean rebuild
 // PLAN_VERSION: bump this whenever renderPlan or buildPlan changes
 // Old cache keys with a different version are automatically purged on load.
-var PLAN_VERSION = 'v5r7';
+var PLAN_VERSION = 'v5r8';
 var API   = '/api/chat';
 var MODEL = 'claude-sonnet-4-20250514';
 var P=null, TODAY=null, MACROS=null;
@@ -480,6 +480,8 @@ function logMealMacros(slot,m){
   MACROS.eaten={kcal:0,prot:0,carbs:0,fat:0};
   Object.values(MACROS.meals).forEach(function(x){if(x&&x.logged){MACROS.eaten.kcal+=x.kcal||0;MACROS.eaten.prot+=x.prot||0;MACROS.eaten.carbs+=x.carbs||0;MACROS.eaten.fat+=x.fat||0;}});
   saveMacros();updateMacroBar();adjustRemaining();
+  // Sync to day log (defined later in file — safe to call via setTimeout)
+  if(typeof syncMacrosToLog==='function') setTimeout(syncMacrosToLog, 50);
 }
 function buildMacroRow(label,eaten,target,color,unit){
   var pct=Math.min(100,target>0?Math.round(eaten/target*100):0);
@@ -1971,12 +1973,7 @@ function syncMacrosToLog() {
   saveDayLog(log);
 }
 
-// Hook into logMealMacros to auto-sync
-var _origLogMealMacros = logMealMacros;
-function logMealMacros(slot, m) {
-  _origLogMealMacros(slot, m);
-  setTimeout(syncMacrosToLog, 50); // async so MACROS is updated first
-}
+// syncMacrosToLog is called directly inside logMealMacros below (see original definition)
 
 function setTrainStatus(status, note) {
   var log = loadDayLog(_rDate) || initDayLog();
