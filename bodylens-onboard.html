@@ -1368,12 +1368,25 @@ async function triggerGeneration() {
       supplements:        programme.supplements,
       injuryAssessments:  programme.injuries || [],
       coachSummary:       programme.coachSummary || '',
+      weeklyProgression:  programme.weeklyProgression || {},
+      fourWeekPlan:       programme.fourWeekPlan || null,
+      programmeGoal:      programme.programmeGoal || '',
+      reassessmentTriggers: programme.reassessmentTriggers || [],
       instructions:       buildInstructionsDoc(formData, programme),
       generated:    true,
       generatedAt:  new Date().toISOString(),
     };
 
     await delay(13000); // let animation finish
+
+    // Ensure trainingKcal/restKcal are stored explicitly
+    if (!finalProfile.trainingKcal) finalProfile.trainingKcal = finalProfile.calories || 2000;
+    if (!finalProfile.restKcal) finalProfile.restKcal = Math.round((finalProfile.calories || 2000) * 0.90);
+    // For muscle gain goals, use different split
+    if ((finalProfile.goal||'').toLowerCase().match(/muscle|build|bulk/)) {
+      finalProfile.trainingKcal = Math.round((finalProfile.calories||2000) * 1.05);
+      finalProfile.restKcal = Math.round((finalProfile.calories||2000) * 0.95);
+    }
 
     localStorage.setItem('bl_profile', JSON.stringify(finalProfile));
     document.getElementById('progress-fill').style.width = '100%';
@@ -1618,31 +1631,89 @@ Return ONLY a valid JSON object:
       "phase": "Foundation",
       "focus": "Learn the patterns, establish baseline loads. RPE 6-7 across all sets.",
       "volumeNote": "Lower total volume — priority is technique and movement quality.",
-      "keyFocus": "one sentence on the main adaptation target this week"
+      "keyFocus": "one sentence on the main adaptation target this week",
+      "rpe": "6-7",
+      "sets": "3 working sets per primary lift",
+      "mealStrategy": "Protein priority, moderate carbs. Establish eating rhythm.",
+      "nutritionFocus": "Hit protein target every day. Carbs at training window only."
     },
     "week2": {
       "phase": "Build",
       "focus": "Add one working set per primary exercise. Load increases where form was solid.",
       "volumeNote": "Volume increases 10-15% from week 1.",
-      "keyFocus": "one sentence"
+      "keyFocus": "one sentence",
+      "rpe": "7-8",
+      "sets": "4 working sets per primary lift",
+      "mealStrategy": "Increase carbs on training days. Pre-train meal critical.",
+      "nutritionFocus": "Pre-train carbs elevated. Post-train window within 30 min."
     },
     "week3": {
       "phase": "Peak",
       "focus": "Highest intensity of the block. RPE 8-9 on main lifts. Supramaximal stimulus.",
       "volumeNote": "Volume held or slightly increased. Intensity is the lever.",
-      "keyFocus": "one sentence"
+      "keyFocus": "one sentence",
+      "rpe": "8-9",
+      "sets": "4-5 working sets, top set AMRAP",
+      "mealStrategy": "Maximum carb availability on training days. Aggressive fuelling.",
+      "nutritionFocus": "Highest carb intake of the block on training days. Sleep extended if possible."
     },
     "week4": {
       "phase": "Deload",
       "focus": "50% volume reduction, maintain load. Let the adaptation consolidate.",
       "volumeNote": "50% fewer sets. Same or slightly reduced weight. Active recovery.",
-      "keyFocus": "one sentence — what this person specifically needs to deload well"
+      "keyFocus": "one sentence — what this person specifically needs to deload well",
+      "rpe": "5-6",
+      "sets": "2 working sets, technique focus",
+      "mealStrategy": "Return to maintenance calories. Anti-inflammatory foods priority.",
+      "nutritionFocus": "Omega-3, fibre, polyphenols. Let the adaptation consolidate."
+    }
+  },
+  "fourWeekPlan": {
+    "week1": {
+      "phase": "Foundation",
+      "trainingDays": {
+        "REPLACE_WITH_ACTUAL_TRAINING_DAY_1": {"exercises":[{"name":"Exercise name","sets":"3x10","rpe":"7","cue":"Form cue"}],"gymTime":55,"focus":"Session focus"},
+        "REPLACE_WITH_ACTUAL_TRAINING_DAY_2": {"exercises":[{"name":"Exercise name","sets":"3x8","rpe":"7","cue":"Form cue"}],"gymTime":55,"focus":"Session focus"},
+        "REPLACE_WITH_ACTUAL_TRAINING_DAY_3": {"exercises":[{"name":"Exercise name","sets":"3x10","rpe":"7","cue":"Form cue"}],"gymTime":60,"focus":"Session focus"},
+        "REPLACE_WITH_ACTUAL_TRAINING_DAY_4": {"exercises":[{"name":"Exercise name","sets":"3x10","rpe":"7","cue":"Form cue"}],"gymTime":50,"focus":"Session focus"}
+      },
+      "mealTheme": "Establish baseline. Hit protein every day without exception.",
+      "keyNutritionRules": ["Protein with every meal", "Carbs around training window", "Consistent meal timing"]
+    },
+    "week2": {
+      "phase": "Build",
+      "trainingDays": {
+        "REPLACE_WITH_SAME_DAYS": {"exercises":[{"name":"Exercise name","sets":"4x8","rpe":"8","cue":"Form cue"}],"gymTime":65,"focus":"Volume increase"}
+      },
+      "mealTheme": "Pre-train carbs elevated. Training is harder — fuel needs to match.",
+      "keyNutritionRules": ["Pre-train meal 90 min before: protein + carbs", "Post-train window: fast protein within 30 min", "Rest day carbs reduced by 20%"]
+    },
+    "week3": {
+      "phase": "Peak",
+      "trainingDays": {
+        "REPLACE_WITH_SAME_DAYS": {"exercises":[{"name":"Exercise name","sets":"4x6 + AMRAP","rpe":"9","cue":"Max effort last set"}],"gymTime":70,"focus":"Peak intensity"}
+      },
+      "mealTheme": "Maximum carb availability. Most demanding training week — fuel it completely.",
+      "keyNutritionRules": ["Highest carb intake of the block", "Pre-train: 60-80g fast carbs", "Sleep extension this week"]
+    },
+    "week4": {
+      "phase": "Deload",
+      "trainingDays": {
+        "REPLACE_WITH_SAME_DAYS": {"exercises":[{"name":"Exercise name","sets":"2x10","rpe":"6","cue":"Technique focus"}],"gymTime":40,"focus":"Active recovery"}
+      },
+      "mealTheme": "Return to maintenance. Anti-inflammatory focus. Let adaptation consolidate.",
+      "keyNutritionRules": ["Maintenance calories", "Omega-3 and anti-inflammatory foods priority", "Fibre 30g+"]
     }
   },
   "programmeGoal": "What this person should be able to do or measure after 4 weeks that they cannot now",
   "reassessmentTriggers": ["measurable outcome 1", "measurable outcome 2", "measurable outcome 3"]
 }
 
+CRITICAL — fourWeekPlan must:
+- Replace "REPLACE_WITH_ACTUAL_TRAINING_DAY_X" with real day names from this person's weekPlan (e.g. "Monday", "Wednesday")
+- Use exercises specifically chosen for this person's split, equipment, and injuries
+- Progressively increase RPE and volume week 1→3, then drop to 50% for week 4
+- Each exercise needs a real coaching cue, not a placeholder
 weekPlan must have exactly 7 entries Mon-Sun. weeklyProgression must have all 4 weeks. Return ONLY the JSON.`;
 
   const res = await fetch(API, {
@@ -1650,7 +1721,7 @@ weekPlan must have exactly 7 entries Mon-Sun. weeklyProgression must have all 4 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 1800,
+      max_tokens: 4000,
       system: 'You are a senior performance coach. Return only valid JSON. No markdown, no preamble.',
       messages: [{ role: 'user', content: prompt }],
     }),

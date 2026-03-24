@@ -6,6 +6,7 @@
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
+    <a class="nav-link" href="/bodylens-plan.html">Plan</a>
     <a class="nav-link" href="/bodylens-food.html">Food</a>
     <a class="nav-link" href="/bodylens-science.html">Science</a>
     <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
@@ -477,7 +478,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ── GLOBAL OPTIMISATION HELPERS ───────────────────
+// ── GLOBAL CALORIE HELPERS ────────────────────────
+// Single source of truth for daily calorie targets.
+// Any page that needs training/rest kcal calls these.
+
+window.getDayKcal = function(p, isTraining) {
+  // Use explicit stored values if present (set at programme generation)
+  if (isTraining && p.trainingKcal) return p.trainingKcal;
+  if (!isTraining && p.restKcal) return p.restKcal;
+
+  // Fallback: derive from p.calories and goal
+  // p.calories = the target (not TDEE — TDEE is p.tdee)
+  var base = p.calories || 2000;
+  var goal = (p.goal || '').toLowerCase();
+
+  if (isTraining) {
+    // Training days: at target or slight surplus on muscle gain
+    if (goal.includes('muscle') || goal.includes('build') || goal.includes('bulk')) {
+      return Math.round(base * 1.05); // +5% on training days for muscle
+    }
+    return base; // recomp / fat loss: target calories on training days
+  } else {
+    // Rest days: deficit below target
+    if (goal.includes('muscle') || goal.includes('build') || goal.includes('bulk')) {
+      return Math.round(base * 0.95); // small cut on rest days even for muscle gain
+    }
+    return Math.round(base * 0.90); // 10% below target on rest days
+  }
+};
+
+// Ensure profile has trainingKcal/restKcal — call after any profile save
+window.ensureKcalFields = function() {
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
+    if (!p || !p.calories) return;
+    var changed = false;
+    if (!p.trainingKcal) { p.trainingKcal = window.getDayKcal(p, true);  changed = true; }
+    if (!p.restKcal)     { p.restKcal     = window.getDayKcal(p, false); changed = true; }
+    if (changed) localStorage.setItem('bl_profile', JSON.stringify(p));
+  } catch(e) {}
+};
+
+// Run on every page load to backfill existing profiles
+window.addEventListener('load', function() {
+  setTimeout(window.ensureKcalFields, 500);
+});
 // Called from any page — Accelerators, Science, Food
 // saveOpt(id, name, icon) — adds to p.optimisations and shows feedback
 window.saveOpt = function(id, name, icon, btn) {

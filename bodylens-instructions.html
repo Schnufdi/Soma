@@ -288,6 +288,8 @@ Return ONLY a valid JSON object with this exact structure:
   "profile": {
     "goal": "derived primary goal",
     "calories": 0, "protein": 0, "carbs": 0, "fat": 0, "tdee": 0,
+    "trainingKcal": 0,
+    "restKcal": 0,
     "calorieReasoning": "2-3 sentences",
     "proteinReasoning": "1-2 sentences",
     "mealCount": 4,
@@ -312,14 +314,67 @@ Return ONLY a valid JSON object with this exact structure:
   ],
   "injuries": [],
   "weeklyProgression": {
-    "week1": {"phase":"Foundation","focus":"Learn the patterns, establish baseline loads","volumeNote":"Lower volume, technique priority","keyFocus":"one sentence"},
-    "week2": {"phase":"Build","focus":"Add volume and load","volumeNote":"+10-15% sets","keyFocus":"one sentence"},
-    "week3": {"phase":"Peak","focus":"Highest intensity","volumeNote":"RPE 8-9 on primary lifts","keyFocus":"one sentence"},
-    "week4": {"phase":"Deload","focus":"50% volume, maintain load","volumeNote":"Active recovery","keyFocus":"one sentence"}
+    "week1": {"phase":"Foundation","focus":"Learn the patterns, establish baseline loads","volumeNote":"Lower volume, technique priority","keyFocus":"one sentence","rpe":"6-7","sets":"3 working sets per primary lift","mealStrategy":"Protein priority, moderate carbs. Establish eating rhythm.","nutritionFocus":"Hit protein target every day. Carbs at training window only."},
+    "week2": {"phase":"Build","focus":"Add volume and load","volumeNote":"+10-15% sets","keyFocus":"one sentence","rpe":"7-8","sets":"4 working sets per primary lift","mealStrategy":"Increase carbs on training days. Pre-train meal critical.","nutritionFocus":"Pre-train carbs elevated. Post-train window within 30 min."},
+    "week3": {"phase":"Peak","focus":"Highest intensity","volumeNote":"RPE 8-9 on primary lifts","keyFocus":"one sentence","rpe":"8-9","sets":"4-5 working sets, top set AMRAP","mealStrategy":"Maximum carb availability on training days. Aggressive fuelling.","nutritionFocus":"Highest carb intake of the block on training days. Sleep extended if possible."},
+    "week4": {"phase":"Deload","focus":"50% volume, maintain load","volumeNote":"Active recovery","keyFocus":"one sentence","rpe":"5-6","sets":"2 working sets, technique focus","mealStrategy":"Return to maintenance calories. Anti-inflammatory foods priority.","nutritionFocus":"Omega-3, fibre, polyphenols. Let the adaptation consolidate."}
+  },
+  "fourWeekPlan": {
+    "week1": {
+      "phase": "Foundation",
+      "trainingDays": {
+        "Monday": {"exercises":[{"name":"Bench press","sets":"3x10","rpe":"7","cue":"Control the descent, 2 sec down"},{"name":"OHP","sets":"3x10","rpe":"6","cue":"Brace hard, no lower back arch"},{"name":"Lateral raise","sets":"3x15","rpe":"7","cue":"Lead with the elbow"}],"gymTime":55,"focus":"Establish movement patterns"},
+        "Wednesday": {"exercises":[{"name":"Pull-ups","sets":"3x6-8","rpe":"7","cue":"Full dead hang, chin over bar"},{"name":"Barbell row","sets":"3x10","rpe":"7","cue":"Horizontal pull, chest to bar"},{"name":"Face pull","sets":"3x15","rpe":"6","cue":"External rotation, high elbow"}],"gymTime":55,"focus":"Upper back and pull mechanics"},
+        "Friday": {"exercises":[{"name":"Squat","sets":"3x10","rpe":"7","cue":"Brace, sit back, drive through heels"},{"name":"RDL","sets":"3x10","rpe":"7","cue":"Hinge not squat, feel the hamstring load"},{"name":"Leg press","sets":"3x12","rpe":"6","cue":"Full range, controlled negative"}],"gymTime":60,"focus":"Posterior chain baseline"},
+        "Saturday": {"exercises":[{"name":"Shoulder press","sets":"3x10","rpe":"7","cue":"Seated or standing, neutral spine"},{"name":"Cable row","sets":"3x12","rpe":"6","cue":"Squeeze at end range"},{"name":"Bicep curl","sets":"3x12","rpe":"7","cue":"Supinate at top"}],"gymTime":50,"focus":"Upper body volume"}
+      },
+      "mealTheme": "Establish baseline. Hit protein every day without exception. Carbs moderate, timed around training.",
+      "keyNutritionRules": ["Protein with every meal", "Carbs in pre and post-training window", "Consistent meal timing sets ghrelin"]
+    },
+    "week2": {
+      "phase": "Build",
+      "trainingDays": {
+        "Monday": {"exercises":[{"name":"Bench press","sets":"4x8","rpe":"8","cue":"Tuck the elbows, leg drive"},{"name":"Incline DB press","sets":"3x10","rpe":"7","cue":"Stretch at bottom, press to full extension"},{"name":"OHP","sets":"3x8","rpe":"8","cue":"Add load from week 1"},{"name":"Lateral raise","sets":"4x12","rpe":"8","cue":"Slow eccentric"}],"gymTime":65,"focus":"Volume increase, load progression"},
+        "Wednesday": {"exercises":[{"name":"Pull-ups","sets":"4x6","rpe":"8","cue":"Add load if bodyweight felt easy"},{"name":"Barbell row","sets":"4x8","rpe":"8","cue":"10% more load than week 1"},{"name":"Face pull","sets":"3x15","rpe":"7","cue":"Maintain quality"},{"name":"Hammer curl","sets":"3x12","rpe":"7","cue":"Brachialis emphasis"}],"gymTime":65,"focus":"Back volume and load"},
+        "Friday": {"exercises":[{"name":"Squat","sets":"4x8","rpe":"8","cue":"Heavier than week 1"},{"name":"RDL","sets":"4x8","rpe":"8","cue":"Hinge deep, full stretch"},{"name":"Hip thrust","sets":"3x12","rpe":"7","cue":"Full hip extension at top"},{"name":"Leg curl","sets":"3x12","rpe":"7","cue":"Slow eccentric, hold at top"}],"gymTime":70,"focus":"Posterior chain volume"},
+        "Saturday": {"exercises":[{"name":"Shoulder press","sets":"4x8","rpe":"8","cue":"Add load"},{"name":"Weighted pull-ups","sets":"3x6","rpe":"8","cue":"Add weight or more reps"},{"name":"Chest-supported row","sets":"3x10","rpe":"7","cue":"Eliminate momentum"},{"name":"Tricep pushdown","sets":"3x15","rpe":"7","cue":"Squeeze the tricep"}],"gymTime":60,"focus":"Upper body load increase"}
+      },
+      "mealTheme": "Pre-train carbs elevated. The training is harder — the fuel needs to match.",
+      "keyNutritionRules": ["Pre-train meal 90 min before: protein + carbs", "Post-train window: fast protein within 30 min", "Rest day carbs reduced by 20%"]
+    },
+    "week3": {
+      "phase": "Peak",
+      "trainingDays": {
+        "Monday": {"exercises":[{"name":"Bench press","sets":"4x6 + AMRAP","rpe":"9","cue":"Max effort last set, record reps"},{"name":"Incline DB press","sets":"4x8","rpe":"8","cue":"Heaviest weight of the block"},{"name":"OHP","sets":"4x6","rpe":"9","cue":"Controlled negative, explosive concentric"},{"name":"Cable fly","sets":"3x15","rpe":"8","cue":"Stretch and squeeze"}],"gymTime":70,"focus":"Peak intensity — max stimulus"},
+        "Wednesday": {"exercises":[{"name":"Pull-ups","sets":"4x5 weighted","rpe":"9","cue":"Heaviest of the block"},{"name":"Barbell row","sets":"4x6","rpe":"9","cue":"Record your load"},{"name":"Single-arm DB row","sets":"3x10","rpe":"8","cue":"Full range, don't rush"},{"name":"Rear delt fly","sets":"3x15","rpe":"8","cue":"Squeeze at top"}],"gymTime":65,"focus":"Peak back stimulus"},
+        "Friday": {"exercises":[{"name":"Squat","sets":"4x5 + AMRAP","rpe":"9","cue":"Max effort, record this"},{"name":"RDL","sets":"4x6","rpe":"9","cue":"Heaviest of the block"},{"name":"Hip thrust","sets":"4x10","rpe":"8","cue":"Max load, drive hard"},{"name":"Bulgarian split squat","sets":"3x8","rpe":"8","cue":"Single leg strength peak"}],"gymTime":75,"focus":"Lower body peak stimulus"},
+        "Saturday": {"exercises":[{"name":"Shoulder press","sets":"4x6","rpe":"9","cue":"Max load for the block"},{"name":"Weighted pull-ups","sets":"4x5","rpe":"9","cue":"Heaviest of block"},{"name":"Barbell row","sets":"4x6","rpe":"8","cue":"Volume and load combined"},{"name":"Face pull","sets":"3x20","rpe":"7","cue":"Shoulder health maintenance"}],"gymTime":65,"focus":"Upper body peak"}
+      },
+      "mealTheme": "Maximum carb availability. This is the most demanding training week — fuel it completely.",
+      "keyNutritionRules": ["Highest carb intake of the block", "Pre-train carbs: 60-80g fast carbs", "Sleep extension this week if possible — GH is your recovery tool"]
+    },
+    "week4": {
+      "phase": "Deload",
+      "trainingDays": {
+        "Monday": {"exercises":[{"name":"Bench press","sets":"2x8","rpe":"6","cue":"Technique focus, same load as week 1"},{"name":"OHP","sets":"2x10","rpe":"6","cue":"Light and controlled"},{"name":"Lateral raise","sets":"2x15","rpe":"5","cue":"Feel the muscle work"}],"gymTime":40,"focus":"Movement quality, active recovery"},
+        "Wednesday": {"exercises":[{"name":"Pull-ups","sets":"2x6","rpe":"6","cue":"Perfect form, no strain"},{"name":"Barbell row","sets":"2x10","rpe":"6","cue":"Light and controlled"},{"name":"Face pull","sets":"3x20","rpe":"5","cue":"Shoulder health priority"}],"gymTime":40,"focus":"Upper back maintenance"},
+        "Friday": {"exercises":[{"name":"Squat","sets":"2x10","rpe":"6","cue":"Light, feel the movement"},{"name":"RDL","sets":"2x10","rpe":"6","cue":"Mobility emphasis"},{"name":"Leg curl","sets":"2x15","rpe":"5","cue":"Blood flow, not stimulus"}],"gymTime":40,"focus":"Lower body blood flow"},
+        "Saturday": {"exercises":[{"name":"Shoulder press","sets":"2x10","rpe":"6","cue":"Light, full range"},{"name":"Cable row","sets":"2x12","rpe":"5","cue":"Feel it working"},{"name":"Bicep curl","sets":"2x15","rpe":"5","cue":"Pump work only"}],"gymTime":35,"focus":"Flush and recover"}
+      },
+      "mealTheme": "Return to maintenance. Anti-inflammatory focus. Let the block's adaptation consolidate.",
+      "keyNutritionRules": ["Maintenance calories", "Omega-3, berries, leafy greens — anti-inflammatory priority", "Fibre 30g+ — gut health and recovery"]
+    }
   },
   "coachSummary": "3-4 sentences: overall read, biggest lever, what will make or break progress",
   "programmeGoal": "what they should be able to do after 4 weeks"
 }
+CRITICAL CALORIE RULES — read carefully:
+- "calories" = the daily target (NOT TDEE). For fat loss: TDEE minus deficit. For recomp: TDEE minus small deficit. For muscle: TDEE plus small surplus.
+- "tdee" = maintenance (before any adjustment)
+- "trainingKcal" = calories on training days. For fat loss/recomp = same as "calories". For muscle = calories * 1.05.
+- "restKcal" = calories on rest days. For fat loss = calories * 0.88. For recomp = calories * 0.90. For muscle = calories * 0.95.
+- weekPlan "kcal" fields: training days = trainingKcal. Rest days = restKcal. ALL DAYS MUST USE THESE VALUES CONSISTENTLY — never invent a different number for one day.
+- fourWeekPlan exercises MUST be personalised to the user's actual split (Push/Pull/Legs/Upper) and injuries. Do NOT copy the template — generate real exercises for this person.
 weekPlan must have exactly 7 entries Mon-Sun.`;
 
   try {
@@ -327,7 +382,7 @@ weekPlan must have exactly 7 entries Mon-Sun.`;
     const res = await fetch('/api/chat', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1800,
+        model:'claude-sonnet-4-20250514', max_tokens:4000,
         system:'Senior performance coach. Return ONLY valid JSON. No markdown. No preamble.',
         messages:[{role:'user', content:prompt}]
       })
@@ -362,6 +417,7 @@ weekPlan must have exactly 7 entries Mon-Sun.`;
       injuries:       result.injuries || formData.injuries || existing.injuries || [],
       coachSummary:   result.coachSummary || '',
       weeklyProgression: result.weeklyProgression || existing.weeklyProgression,
+      fourWeekPlan:   result.fourWeekPlan || existing.fourWeekPlan || null,
       programmeGoal:  result.programmeGoal || '',
       experience:     formData.exp || existing.experience,
       trainingDays:   parseInt(formData.days) || existing.trainingDays || 4,
@@ -505,6 +561,11 @@ async function buildReportFromScratch(btn) {
             if (regen.protein  && !p.protein)  { p.protein  = regen.protein;  profile.protein  = regen.protein;  }
             if (regen.carbs    && !p.carbs)    { p.carbs    = regen.carbs;    profile.carbs    = regen.carbs;    }
             if (regen.fat      && !p.fat)      { p.fat      = regen.fat;      profile.fat      = regen.fat;      }
+            if (regen.trainingKcal) { p.trainingKcal = regen.trainingKcal; profile.trainingKcal = regen.trainingKcal; }
+            if (regen.restKcal)     { p.restKcal     = regen.restKcal;     profile.restKcal     = regen.restKcal;     }
+            // Backfill if not provided
+            if (!p.trainingKcal && p.calories) p.trainingKcal = p.calories;
+            if (!p.restKcal && p.calories) p.restKcal = Math.round(p.calories * 0.90);
             if (regen.weekPlan && (!p.weekPlan || !p.weekPlan.length)) {
               p.weekPlan = regen.weekPlan; profile.weekPlan = regen.weekPlan;
             }

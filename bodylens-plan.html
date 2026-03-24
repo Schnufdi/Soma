@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BodyLens">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.page { max-width:1000px; margin:0 auto; padding:0 28px 100px; }
+
+/* ── HERO ─────────────────────────────────────── */
+.pl-hero { padding:40px 0 32px; }
+.pl-kicker { font-size:10px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--dk-3); margin-bottom:10px; }
+.pl-title { font-family:var(--serif); font-size:52px; font-weight:300; line-height:.93; letter-spacing:-.025em; color:var(--dk-1); margin-bottom:12px; }
+.pl-title em { font-style:italic; color:var(--dk-3); }
+.pl-goal { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:520px; }
+.pl-goal strong { color:var(--jade); font-weight:500; }
+
+/* ── WEEK SELECTOR ────────────────────────────── */
+.pl-week-nav { display:flex; gap:8px; margin:28px 0 0; overflow-x:auto; padding-bottom:2px; }
+.pl-week-nav::-webkit-scrollbar { display:none; }
+.pl-wk-btn {
+  flex-shrink:0; position:relative;
+  padding:14px 20px;
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:8px; cursor:pointer;
+  font-family:var(--sans); text-align:left;
+  transition:all .15s; min-width:130px;
+}
+.pl-wk-btn:hover { border-color:rgba(255,255,255,.1); }
+.pl-wk-btn.active { border-color:var(--jade); background:rgba(0,200,160,.04); }
+.pl-wk-btn.current::after {
+  content:'NOW';
+  position:absolute; top:8px; right:10px;
+  font-size:7px; font-weight:700; letter-spacing:.1em;
+  color:var(--jade); background:var(--jade-dim);
+  border:1px solid var(--jade-br); border-radius:8px;
+  padding:1px 5px;
+}
+.pl-wk-num { font-size:9px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--dk-3); margin-bottom:4px; }
+.pl-wk-btn.active .pl-wk-num { color:var(--jade); }
+.pl-wk-phase { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:2px; }
+.pl-wk-note { font-size:10px; font-weight:300; color:var(--dk-3); line-height:1.4; }
+.pl-wk-rpe {
+  display:inline-flex; align-items:center; gap:4px;
+  margin-top:6px; font-size:9px; font-weight:600; letter-spacing:.06em;
+  color:var(--amber); background:rgba(196,124,24,.08);
+  border:1px solid rgba(196,124,24,.2); border-radius:8px; padding:2px 7px;
+}
+
+/* ── WEEK CONTENT AREA ────────────────────────── */
+.pl-week-content { margin-top:24px; animation:fadeUp .2s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── PHASE BANNER ─────────────────────────────── */
+.pl-phase-banner {
+  padding:18px 22px;
+  background:var(--ink-1);
+  border:1px solid var(--bd);
+  border-left:3px solid var(--jade);
+  border-radius:0 8px 8px 0;
+  margin-bottom:20px;
+  display:flex; align-items:flex-start; gap:20px;
+}
+.pl-phase-banner.build { border-left-color:var(--amber); }
+.pl-phase-banner.peak { border-left-color:rgba(220,80,60,.7); }
+.pl-phase-banner.deload { border-left-color:var(--dk-3); }
+.pl-pb-left { flex:1; }
+.pl-pb-phase { font-size:9px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--jade); margin-bottom:4px; }
+.build .pl-pb-phase { color:var(--amber); }
+.peak .pl-pb-phase { color:rgba(220,80,60,.8); }
+.deload .pl-pb-phase { color:var(--dk-3); }
+.pl-pb-title { font-family:var(--serif); font-size:22px; font-weight:300; color:var(--dk-1); margin-bottom:6px; }
+.pl-pb-body { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.75; }
+.pl-pb-right { flex-shrink:0; display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+.pl-pb-stat { text-align:right; }
+.pl-pb-stat-val { font-family:var(--mono); font-size:18px; font-weight:500; color:var(--jade); line-height:1; }
+.build .pl-pb-stat-val { color:var(--amber); }
+.peak .pl-pb-stat-val { color:rgba(220,80,60,.8); }
+.pl-pb-stat-label { font-size:8px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--dk-3); margin-top:2px; }
+
+/* ── TWO-COL GRID ─────────────────────────────── */
+.pl-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.pl-col-label {
+  font-size:8px; font-weight:700; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--dk-3);
+  margin-bottom:12px; display:flex; align-items:center; gap:10px;
+}
+.pl-col-label::after { content:''; flex:1; height:1px; background:var(--bd); }
+
+/* ── TRAINING COLUMN ──────────────────────────── */
+.pl-day-card {
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:8px; overflow:hidden;
+  margin-bottom:8px; transition:border-color .12s;
+}
+.pl-day-card:hover { border-color:rgba(255,255,255,.1); }
+.pl-day-card.training { border-left:2px solid rgba(0,200,160,.35); }
+.pl-day-card.rest { opacity:.6; }
+.pl-day-hd {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 14px; cursor:pointer;
+}
+.pl-day-name { font-size:11px; font-weight:700; color:var(--dk-1); flex:1; }
+.pl-day-type { font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--jade); }
+.pl-day-card.rest .pl-day-type { color:var(--dk-3); }
+.pl-day-gymtime { font-size:9px; font-weight:300; color:var(--dk-3); }
+.pl-day-chevron { font-size:9px; color:var(--dk-3); transition:transform .15s; }
+.pl-day-card.open .pl-day-chevron { transform:rotate(180deg); }
+.pl-day-body { display:none; padding:0 14px 12px; border-top:1px solid rgba(255,255,255,.04); }
+.pl-day-card.open .pl-day-body { display:block; }
+.pl-day-focus { font-size:10px; font-weight:300; color:var(--dk-3); padding:8px 0 6px; }
+.pl-ex { display:flex; align-items:baseline; gap:8px; padding:5px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.pl-ex:last-of-type { border-bottom:none; }
+.pl-ex-name { font-size:12px; font-weight:400; color:var(--dk-1); flex:1; }
+.pl-ex-sets { font-family:var(--mono); font-size:11px; font-weight:600; color:var(--jade); }
+.pl-ex-rpe { font-size:9px; color:var(--dk-3); background:rgba(255,255,255,.04); border:1px solid var(--bd); border-radius:4px; padding:1px 5px; flex-shrink:0; }
+.pl-ex-cue { font-size:10px; font-weight:300; color:var(--dk-3); font-style:italic; display:block; margin-top:2px; padding-left:0; }
+.pl-rest-note { font-size:11px; font-weight:300; color:var(--dk-3); padding:12px 0 4px; line-height:1.65; }
+
+/* ── NUTRITION COLUMN ─────────────────────────── */
+.pl-meal-theme {
+  background:rgba(196,124,24,.04); border:1px solid rgba(196,124,24,.14);
+  border-radius:7px; padding:12px 14px; margin-bottom:10px;
+}
+.pl-mt-label { font-size:8px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--amber); margin-bottom:4px; }
+.pl-mt-body { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65; }
+
+.pl-macro-row {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:1px; background:var(--bd);
+  border-radius:7px; overflow:hidden;
+  margin-bottom:10px; border:1px solid var(--bd);
+}
+.pl-macro-cell { background:var(--ink-1); padding:10px 12px; text-align:center; }
+.pl-macro-val { font-family:var(--mono); font-size:16px; font-weight:500; color:var(--dk-1); margin-bottom:2px; }
+.pl-macro-val.jade { color:var(--jade); }
+.pl-macro-val.amber { color:var(--amber); }
+.pl-macro-label { font-size:8px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--dk-3); }
+
+.pl-rule { display:flex; align-items:flex-start; gap:8px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.pl-rule:last-child { border-bottom:none; }
+.pl-rule-dot { width:5px; height:5px; border-radius:50%; background:var(--jade); margin-top:5px; flex-shrink:0; }
+.pl-rule-text { font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.6; }
+
+.pl-rules-card { background:var(--ink-1); border:1px solid var(--bd); border-radius:8px; padding:12px 14px; margin-bottom:8px; }
+.pl-rules-label { font-size:8px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--jade); margin-bottom:8px; }
+
+/* ── ACCELERATORS STRIP ───────────────────────── */
+.pl-acc-strip {
+  margin-top:20px;
+  background:rgba(200,148,30,.03); border:1px solid rgba(200,148,30,.15);
+  border-radius:8px; padding:16px 18px;
+}
+.pl-acc-label { font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
+.pl-acc-grid { display:flex; flex-wrap:wrap; gap:6px; }
+.pl-acc-chip {
+  display:flex; align-items:center; gap:6px;
+  padding:5px 11px; border-radius:14px;
+  background:rgba(200,148,30,.06); border:1px solid rgba(200,148,30,.18);
+  font-size:10px; font-weight:500; color:var(--dk-2);
+}
+.pl-acc-chip-icon { font-size:12px; }
+.pl-acc-chip-days { font-size:9px; color:var(--dk-3); margin-left:2px; }
+
+/* ── NO PLAN STATE ────────────────────────────── */
+.pl-empty {
+  text-align:center; padding:60px 24px;
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:10px; margin-top:24px;
+}
+.pl-empty-icon { font-size:36px; margin-bottom:14px; }
+.pl-empty-title { font-family:var(--serif); font-size:26px; font-weight:300; color:var(--dk-1); margin-bottom:8px; }
+.pl-empty-body { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.75; max-width:420px; margin:0 auto 24px; }
+.pl-empty-btn { display:inline-block; background:var(--jade); color:var(--ink); padding:12px 28px; border-radius:7px; font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; text-decoration:none; }
+
+/* ── MISSING PLAN — GENERATE BUTTON ──────────── */
+.pl-generate-bar {
+  background:rgba(0,200,160,.04); border:1px solid var(--jade-br);
+  border-radius:8px; padding:14px 18px;
+  display:flex; align-items:center; gap:14px;
+  margin-bottom:20px;
+}
+.pl-gen-text { flex:1; font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.6; }
+.pl-gen-btn { flex-shrink:0; background:var(--jade); border:none; color:var(--ink); padding:9px 18px; border-radius:6px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; }
+.pl-gen-btn:disabled { opacity:.5; cursor:default; }
+
+/* ── RESPONSIVE ───────────────────────────────── */
+@media(max-width:700px){
+  .pl-grid { grid-template-columns:1fr; }
+  .pl-title { font-size:40px; }
+  .page { padding:0 16px 80px; }
+  .pl-phase-banner { flex-direction:column; gap:12px; }
+  .pl-pb-right { align-items:flex-start; flex-direction:row; flex-wrap:wrap; gap:10px; }
+}
+</style>
+</head>
+<body>
+<script src="nav.js"></script>
+<div class="page">
+  <div id="pl-root"></div>
+</div>
+
+<script>
+var API = '/api/chat';
+var MODEL = 'claude-sonnet-4-20250514';
+var _activeWeek = 1; // 1-4
+var _p = null;
+
+function getProfile() {
+  try { return JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) { return null; }
+}
+
+// Determine current week number within the 4-week block
+// Based on programme start date (generatedAt) or defaults to week 1
+function getCurrentWeekNum(p) {
+  if (!p || !p.generatedAt) return 1;
+  var start = new Date(p.generatedAt);
+  var now = new Date();
+  var diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+  var weekNum = Math.floor(diffDays / 7) % 4 + 1;
+  return Math.max(1, Math.min(4, weekNum));
+}
+
+// Get the day of week names from weekPlan that are training days
+function getTrainingDayNames(p) {
+  return (p.weekPlan || [])
+    .filter(function(d){ return d.priority === 'training'; })
+    .map(function(d){ return d.day; });
+}
+
+function getRestDayNames(p) {
+  return (p.weekPlan || [])
+    .filter(function(d){ return d.priority !== 'training'; })
+    .map(function(d){ return d.day; });
+}
+
+// Phase colour class
+function phaseClass(phase) {
+  if (!phase) return '';
+  var p = phase.toLowerCase();
+  if (p.includes('build')) return 'build';
+  if (p.includes('peak')) return 'peak';
+  if (p.includes('deload')) return 'deload';
+  return '';
+}
+
+// Get the calorie/macro targets for a given week and day type
+function getMacrosForWeek(p, weekNum, isTraining) {
+  var base = isTraining ? (p.trainingKcal || p.calories || 2000) : (p.restKcal || Math.round((p.calories||2000)*0.9));
+  // Week 3 (Peak): slightly elevated carbs for training days
+  if (weekNum === 3 && isTraining) base = Math.round(base * 1.03);
+  // Week 4 (Deload): maintenance
+  if (weekNum === 4) base = Math.round((p.calories || 2000) * (isTraining ? 1 : 0.92));
+  return {
+    kcal: base,
+    prot: p.protein || 140,
+    carbs: p.carbs || 160,
+    fat: p.fat || 60
+  };
+}
+
+function renderWeekSelector(p, currentWeekNum) {
+  var weeklyProg = p.weeklyProgression || {};
+  var weeks = [
+    { num:1, data: weeklyProg.week1 || {phase:'Foundation', focus:'Establish baseline', rpe:'6-7'} },
+    { num:2, data: weeklyProg.week2 || {phase:'Build', focus:'Add volume and load', rpe:'7-8'} },
+    { num:3, data: weeklyProg.week3 || {phase:'Peak', focus:'Maximum intensity', rpe:'8-9'} },
+    { num:4, data: weeklyProg.week4 || {phase:'Deload', focus:'Consolidate adaptation', rpe:'5-6'} },
+  ];
+
+  return '<div class="pl-week-nav">'
+    + weeks.map(function(w) {
+        var isActive = _activeWeek === w.num;
+        var isCurrent = currentWeekNum === w.num;
+        var cls = 'pl-wk-btn' + (isActive?' active':'') + (isCurrent?' current':'');
+        return '<button class="'+cls+'" onclick="switchWeek('+w.num+')">'
+          + '<div class="pl-wk-num">Week '+w.num+' of 4</div>'
+          + '<div class="pl-wk-phase">'+(w.data.phase||'Week '+w.num)+'</div>'
+          + '<div class="pl-wk-note">'+(w.data.volumeNote||w.data.focus||'').slice(0,40)+'</div>'
+          + (w.data.rpe ? '<div class="pl-wk-rpe">RPE '+w.data.rpe+'</div>' : '')
+          + '</button>';
+      }).join('')
+    + '</div>';
+}
+
+function renderPhaseBanner(weekData, weekNum) {
+  if (!weekData) return '';
+  var cls = phaseClass(weekData.phase);
+  return '<div class="pl-phase-banner '+cls+'">'
+    + '<div class="pl-pb-left">'
+      + '<div class="pl-pb-phase">Week '+weekNum+' — '+(weekData.phase||'')+'</div>'
+      + '<div class="pl-pb-title">'+(weekData.focus||weekData.keyFocus||'')+'</div>'
+      + '<div class="pl-pb-body">'
+        + (weekData.mealStrategy ? '<strong style="color:var(--amber);">Nutrition: </strong>' + weekData.mealStrategy + ' ' : '')
+        + (weekData.nutritionFocus || '')
+      + '</div>'
+    + '</div>'
+    + '<div class="pl-pb-right">'
+      + (weekData.rpe ? '<div class="pl-pb-stat"><div class="pl-pb-stat-val">'+weekData.rpe+'</div><div class="pl-pb-stat-label">Target RPE</div></div>' : '')
+      + (weekData.sets ? '<div class="pl-pb-stat"><div class="pl-pb-stat-val" style="font-size:13px;color:var(--dk-2);">'+weekData.sets+'</div><div class="pl-pb-stat-label">Volume</div></div>' : '')
+    + '</div>'
+    + '</div>';
+}
+
+function renderTrainingColumn(p, weekNum) {
+  var fwp = p.fourWeekPlan;
+  var weekKey = 'week' + weekNum;
+  var weekData = fwp && fwp[weekKey];
+  var trainingDays = weekData && weekData.trainingDays;
+  var allDays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var trainingDayNames = getTrainingDayNames(p);
+
+  var html = '<div class="pl-col-label">Training</div>';
+
+  // Check if we have fourWeekPlan data
+  if (!fwp || !weekData) {
+    html += '<div style="padding:16px;background:var(--ink-1);border:1px dashed var(--bd);border-radius:8px;font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.7;">'
+      + 'Detailed exercise data not yet generated for this week. '
+      + (weekNum === 1 ? 'Go to Report → rebuild your programme to generate the full 4-week plan.' : 'The plan is generated when you complete onboarding.')
+      + '</div>';
+    // Fallback: show exercises from weekPlan
+    html += '<div style="margin-top:10px;">'
+      + (p.weekPlan || []).map(function(day) {
+          var isTrain = day.priority === 'training';
+          return '<div class="pl-day-card '+(isTrain?'training':'rest')+'">'
+            + '<div class="pl-day-hd">'
+              + '<div class="pl-day-name">'+day.day+'</div>'
+              + '<div class="pl-day-type">'+(isTrain?day.type:'Rest')+'</div>'
+            + '</div>'
+            + (isTrain && day.keyExercises && day.keyExercises.length
+              ? '<div class="pl-day-body" style="display:block;padding:8px 14px 12px;">'
+                + day.keyExercises.map(function(ex){ return '<div class="pl-ex"><span class="pl-ex-name">'+ex+'</span></div>'; }).join('')
+                + '</div>'
+              : '')
+            + '</div>';
+        }).join('')
+      + '</div>';
+    return html;
+  }
+
+  // Render full week from fourWeekPlan
+  allDays.forEach(function(dayName) {
+    var isTrain = trainingDayNames.indexOf(dayName) >= 0;
+    var dayData = trainingDays && trainingDays[dayName];
+    var dayPlanEntry = (p.weekPlan || []).find(function(d){ return d.day === dayName; }) || {};
+
+    html += '<div class="pl-day-card '+(isTrain?'training':'rest')+'" id="pld-'+weekNum+'-'+dayName.toLowerCase()+'">';
+    html += '<div class="pl-day-hd" onclick="toggleDay(\'pld-'+weekNum+'-'+dayName.toLowerCase()+'\')">'
+      + '<div class="pl-day-name">'+dayName+'</div>'
+      + '<div class="pl-day-type">'+(isTrain?(dayPlanEntry.type||'Training'):'Rest')+'</div>'
+      + (dayData && dayData.gymTime ? '<div class="pl-day-gymtime">'+dayData.gymTime+' min</div>' : '')
+      + (isTrain ? '<div class="pl-day-chevron">▾</div>' : '')
+      + '</div>';
+
+    if (isTrain) {
+      html += '<div class="pl-day-body">';
+      if (dayData) {
+        if (dayData.focus) html += '<div class="pl-day-focus">'+dayData.focus+'</div>';
+        if (dayData.exercises && dayData.exercises.length) {
+          dayData.exercises.forEach(function(ex) {
+            html += '<div class="pl-ex">'
+              + '<span class="pl-ex-name">'+ex.name+'</span>'
+              + '<span class="pl-ex-sets">'+ex.sets+'</span>'
+              + (ex.rpe ? '<span class="pl-ex-rpe">RPE '+ex.rpe+'</span>' : '')
+              + '</div>'
+              + (ex.cue ? '<span class="pl-ex-cue">'+ex.cue+'</span>' : '');
+          });
+        }
+      } else {
+        // Fallback to weekPlan exercises
+        var wp = (p.weekPlan||[]).find(function(d){return d.day===dayName;});
+        if (wp && wp.keyExercises) {
+          wp.keyExercises.forEach(function(ex){ html += '<div class="pl-ex"><span class="pl-ex-name">'+ex+'</span></div>'; });
+        }
+      }
+      html += '</div>';
+    } else {
+      html += '<div class="pl-day-body" style="display:block;">'
+        + '<div class="pl-rest-note">Recovery day. MPS from your last session peaks 24-48h post-training. Protein stays constant — '+(p.protein||140)+'g even today.</div>'
+        + '</div>';
+    }
+    html += '</div>';
+  });
+
+  return html;
+}
+
+function renderNutritionColumn(p, weekNum) {
+  var fwp = p.fourWeekPlan;
+  var weekKey = 'week' + weekNum;
+  var weekData = fwp && fwp[weekKey];
+  var wProg = (p.weeklyProgression || {})[weekKey] || {};
+  var trainingMacros = getMacrosForWeek(p, weekNum, true);
+  var restMacros = getMacrosForWeek(p, weekNum, false);
+
+  var html = '<div class="pl-col-label">Nutrition</div>';
+
+  // Meal theme
+  var mealTheme = (weekData && weekData.mealTheme) || wProg.mealStrategy || '';
+  if (mealTheme) {
+    html += '<div class="pl-meal-theme">'
+      + '<div class="pl-mt-label">Week '+weekNum+' nutrition theme</div>'
+      + '<div class="pl-mt-body">'+mealTheme+'</div>'
+      + '</div>';
+  }
+
+  // Macro targets
+  html += '<div class="pl-macro-row">'
+    + '<div class="pl-macro-cell"><div class="pl-macro-val jade">'+trainingMacros.kcal+'</div><div class="pl-macro-label">Training kcal</div></div>'
+    + '<div class="pl-macro-cell"><div class="pl-macro-val amber">'+restMacros.kcal+'</div><div class="pl-macro-label">Rest kcal</div></div>'
+    + '<div class="pl-macro-cell"><div class="pl-macro-val jade">'+trainingMacros.prot+'g</div><div class="pl-macro-label">Protein daily</div></div>'
+    + '<div class="pl-macro-cell"><div class="pl-macro-val">'+trainingMacros.carbs+'g</div><div class="pl-macro-label">Carbs train</div></div>'
+    + '</div>';
+
+  // Key nutrition rules
+  var rules = (weekData && weekData.keyNutritionRules) || (wProg.nutritionFocus ? [wProg.nutritionFocus] : []);
+  if (rules && rules.length) {
+    html += '<div class="pl-rules-card">'
+      + '<div class="pl-rules-label">This week\'s rules</div>'
+      + rules.map(function(r) {
+          return '<div class="pl-rule"><div class="pl-rule-dot"></div><div class="pl-rule-text">'+r+'</div></div>';
+        }).join('')
+      + '</div>';
+  }
+
+  // Day-by-day nutrition intent
+  html += '<div class="pl-rules-card">'
+    + '<div class="pl-rules-label">Day by day</div>'
+    + (p.weekPlan || []).map(function(day) {
+        var isTrain = day.priority === 'training';
+        var m = getMacrosForWeek(p, weekNum, isTrain);
+        return '<div class="pl-rule">'
+          + '<div class="pl-rule-dot" style="background:'+(isTrain?'var(--jade)':'var(--dk-3)')+';"></div>'
+          + '<div class="pl-rule-text"><strong style="color:var(--dk-1);">'+day.day.slice(0,3)+'</strong>'
+            + (isTrain ? ' <span style="color:var(--jade);">'+day.type+'</span>' : ' Rest')
+            + ' — ' + m.kcal + ' kcal · ' + m.prot + 'g protein'
+          + '</div>'
+          + '</div>';
+      }).join('')
+    + '</div>';
+
+  // Supplementation notes for this week
+  if (p.supplements && p.supplements.length) {
+    var weekSupps = weekNum === 3
+      ? ['Creatine is fully loaded by week 3 — you\'re running at maximum phosphocreatine.', 'Magnesium becomes critical — peak training volume is most demanding on recovery.']
+      : weekNum === 4
+      ? ['Omega-3 anti-inflammatory effect is most important this week.', 'Consider reducing caffeine to reset tolerance for the next block.']
+      : null;
+    if (weekSupps) {
+      html += '<div class="pl-rules-card">'
+        + '<div class="pl-rules-label">Supplements this week</div>'
+        + weekSupps.map(function(s){ return '<div class="pl-rule"><div class="pl-rule-dot" style="background:var(--gold);"></div><div class="pl-rule-text">'+s+'</div></div>'; }).join('')
+        + '</div>';
+    }
+  }
+
+  return html;
+}
+
+function renderAccelerators(p, weekNum) {
+  if (!p.optimisations && !p.accelerators) return '';
+  var saved = new Set([
+    ...(p.accelerators || []),
+    ...(p.optimisations || []).map(function(o){ return typeof o === 'string' ? o : o.id; })
+  ]);
+  if (!saved.size) return '';
+
+  var ACC_META = {
+    'post-meal-walks':    { icon:'🚶', name:'Post-meal walks',     days:'Every day' },
+    'food-ordering':      { icon:'🥗', name:'Protein-first order', days:'Every day' },
+    'vinegar':            { icon:'🥤', name:'Vinegar protocol',    days:'Every day' },
+    'fasted-coffee':      { icon:'☕', name:'Fasted training',     days:'Training days' },
+    'zone2':              { icon:'🫀', name:'Zone 2 cardio',       days:'Rest days' },
+    'sauna':              { icon:'🔥', name:'Sauna protocol',      days:'Rest days' },
+    'contrast':           { icon:'🧊', name:'Cold-hot contrast',   days:'Rest days' },
+    'nsdr':               { icon:'🌊', name:'NSDR',                days:'Rest days' },
+    'loaded-stretch':     { icon:'🧘', name:'Loaded stretching',   days:'After training' },
+    'sleep-extension':    { icon:'😴', name:'Sleep extension',     days:'Every day' },
+    'morning-protocol':   { icon:'☀️', name:'Morning protocol',    days:'Every day' },
+    'training-log':       { icon:'📓', name:'Training log',        days:'Training days' },
+    'carb-backload':      { icon:'⚡', name:'Carb back-loading',   days:'Training days' },
+    'fibre-30g':          { icon:'🌿', name:'30g fibre target',    days:'Every day' },
+  };
+
+  // Week-specific accelerator recommendations
+  var weekRec = weekNum === 3
+    ? 'Peak week — sauna, sleep extension, and NSDR are highest priority this week.'
+    : weekNum === 4
+    ? 'Deload — Zone 2, contrast cycling, and NSDR are the deload week tools.'
+    : null;
+
+  var chips = [];
+  saved.forEach(function(id) {
+    var meta = ACC_META[id];
+    if (meta) chips.push(meta);
+  });
+
+  if (!chips.length) return '';
+
+  return '<div class="pl-acc-strip">'
+    + '<div class="pl-acc-label">Active accelerators this week</div>'
+    + (weekRec ? '<div style="font-size:11px;font-weight:300;color:var(--dk-2);margin-bottom:10px;line-height:1.6;">'+weekRec+'</div>' : '')
+    + '<div class="pl-acc-grid">'
+    + chips.map(function(c) {
+        return '<div class="pl-acc-chip">'
+          + '<span class="pl-acc-chip-icon">'+c.icon+'</span>'
+          + c.name
+          + '<span class="pl-acc-chip-days">'+c.days+'</span>'
+          + '</div>';
+      }).join('')
+    + '</div>'
+    + '<div style="margin-top:12px;">'
+      + '<a href="bodylens-accelerators.html" style="font-size:10px;font-weight:600;color:var(--gold);text-decoration:none;">Manage accelerators →</a>'
+    + '</div>'
+    + '</div>';
+}
+
+function renderWeekContent(p, weekNum) {
+  var weeklyProg = p.weeklyProgression || {};
+  var weekKey = 'week' + weekNum;
+  var weekData = weeklyProg[weekKey] || {};
+  var currentWeekNum = getCurrentWeekNum(p);
+
+  var html = '<div class="pl-week-content" id="pl-week-'+weekNum+'">';
+
+  // Phase banner
+  html += renderPhaseBanner(weekData, weekNum);
+
+  // Training + Nutrition grid
+  html += '<div class="pl-grid">'
+    + '<div>' + renderTrainingColumn(p, weekNum) + '</div>'
+    + '<div>' + renderNutritionColumn(p, weekNum) + '</div>'
+    + '</div>';
+
+  // Accelerators
+  html += renderAccelerators(p, weekNum);
+
+  html += '</div>';
+  return html;
+}
+
+function render() {
+  _p = getProfile();
+  var root = document.getElementById('pl-root');
+
+  if (!_p) {
+    root.innerHTML = '<div class="pl-empty">'
+      + '<div class="pl-empty-icon">📋</div>'
+      + '<div class="pl-empty-title">No programme yet</div>'
+      + '<div class="pl-empty-body">Complete onboarding to generate your personalised 4-week plan — exercise progression, calorie targets, and meal strategy all in one view.</div>'
+      + '<a href="bodylens-onboard.html" class="pl-empty-btn">Get started →</a>'
+      + '</div>';
+    return;
+  }
+
+  var currentWeekNum = getCurrentWeekNum(_p);
+  _activeWeek = currentWeekNum;
+
+  var hasFourWeekPlan = !!(_p.fourWeekPlan);
+
+  // Hero
+  var hero = '<div class="pl-hero">'
+    + '<div class="pl-kicker">4-week programme · ' + (_p.goal || 'Performance') + '</div>'
+    + '<div class="pl-title">Your<br><em>plan.</em></div>'
+    + '<div class="pl-goal">'
+      + (_p.programmeGoal
+          ? '<strong>' + _p.programmeGoal + '</strong>'
+          : 'Training progression + nutrition strategy, week by week.')
+    + '</div>'
+    + '</div>';
+
+  // Week selector
+  var weekNav = renderWeekSelector(_p, currentWeekNum);
+
+  // Generate banner if no fourWeekPlan
+  var generateBar = !hasFourWeekPlan
+    ? '<div class="pl-generate-bar">'
+        + '<div class="pl-gen-text">Your exercise data from onboarding is being used. For the full week-by-week progression with per-exercise RPE, sets, and coaching cues, rebuild your report.</div>'
+        + '<a href="bodylens-instructions.html" class="pl-gen-btn">Rebuild report →</a>'
+      + '</div>'
+    : '';
+
+  // Week content
+  var weekContent = renderWeekContent(_p, _activeWeek);
+
+  root.innerHTML = hero + weekNav + '<div id="pl-content" style="margin-top:24px;">' + generateBar + weekContent + '</div>';
+}
+
+function switchWeek(num) {
+  _activeWeek = num;
+
+  // Update button states
+  document.querySelectorAll('.pl-wk-btn').forEach(function(btn, i) {
+    btn.classList.toggle('active', i + 1 === num);
+  });
+
+  // Replace content
+  var content = document.getElementById('pl-content');
+  if (content) {
+    var hasFourWeekPlan = !!(_p.fourWeekPlan);
+    var generateBar = !hasFourWeekPlan
+      ? '<div class="pl-generate-bar"><div class="pl-gen-text">For full week-by-week progression, rebuild your report.</div><a href="bodylens-instructions.html" class="pl-gen-btn">Rebuild report →</a></div>'
+      : '';
+    content.innerHTML = generateBar + renderWeekContent(_p, num);
+  }
+}
+
+function toggleDay(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+// Set nav name
+var _navMeta = document.getElementById('nav-meta');
+if (_navMeta) {
+  var _np = getProfile();
+  if (_np && _np.name) _navMeta.innerHTML = '<span class="nav-tag nt-jade">' + _np.name + '</span>';
+}
+
+render();
+</script>
+</body>
+</html>
