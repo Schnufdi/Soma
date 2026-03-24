@@ -2,348 +2,330 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BodyLens">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="bl-page" content="checkin">
-<title>BodyLens — 4-Week Check-In</title>
+<title>BodyLens — Week Review</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
 body{background:var(--ink);color:var(--dk-1);}
-.page{max-width:680px;margin:0 auto;padding:0 32px 100px;}
-.ci-hero{padding:48px 0 36px;border-bottom:1px solid var(--bd);margin-bottom:36px;}
-.ci-kicker{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:12px;}
-.ci-kicker::before{content:'';width:24px;height:1px;background:var(--gold);}
-.ci-title{font-family:var(--serif);font-size:52px;font-weight:300;line-height:0.9;letter-spacing:-0.03em;color:var(--dk-1);margin-bottom:16px;}
-.ci-title em{font-style:italic;color:var(--dk-3);}
-.ci-sub{font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.75;max-width:480px;}
-.progress-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:32px;}
-.prog-week{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:12px 10px;text-align:center;}
-.prog-week.done{border-top:3px solid var(--gold);background:rgba(200,148,30,0.04);}
-.prog-week.current{border-top:3px solid var(--jade);background:rgba(0,200,160,0.04);}
-.pw-num{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--dk-3);margin-bottom:3px;}
-.pw-phase{font-size:12px;font-weight:500;color:var(--dk-1);}
-.pw-status{font-size:10px;font-weight:300;color:var(--dk-3);margin-top:2px;}
-.ci-section{margin-bottom:24px;}
-.ci-label{font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
-.ci-label::after{content:'';flex:1;height:1px;background:var(--bd);}
-.ci-field{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
-.ci-input-wrap{display:flex;flex-direction:column;gap:4px;}
-.ci-input-label{font-size:11px;font-weight:500;color:var(--dk-2);}
-.ci-input{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:10px 13px;font-size:13px;font-family:var(--sans);color:var(--dk-1);outline:none;width:100%;transition:border-color 0.12s;}
-.ci-input:focus{border-color:rgba(0,200,160,0.35);}
-.ci-input::placeholder{color:var(--dk-3);}
-.ci-slider-wrap{margin-bottom:14px;}
-.ci-slider{width:100%;margin:6px 0;accent-color:var(--jade);}
-.ci-slider-labels{display:flex;justify-content:space-between;font-size:10px;font-weight:300;color:var(--dk-3);}
-.ci-textarea{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:10px 13px;font-size:13px;font-family:var(--sans);color:var(--dk-1);outline:none;width:100%;resize:vertical;min-height:80px;transition:border-color 0.12s;line-height:1.6;}
-.ci-textarea:focus{border-color:rgba(0,200,160,0.35);}
-.ci-submit{width:100%;background:var(--jade);border:none;color:var(--ink);border-radius:8px;padding:14px;font-size:13px;font-weight:700;letter-spacing:0.04em;cursor:pointer;font-family:var(--sans);transition:opacity 0.12s;margin-top:8px;}
-.ci-submit:hover{opacity:0.88;}
-.ci-submit:disabled{opacity:0.35;cursor:not-allowed;}
-.ci-generating{padding:60px 0;text-align:center;}
-.ci-gen-spinner{width:32px;height:32px;border:2px solid var(--bd);border-top-color:var(--jade);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.ci-gen-text{font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:6px;}
-.ci-gen-sub{font-size:12px;font-weight:300;color:var(--dk-3);}
-.ci-done{padding:60px 0;text-align:center;}
-.ci-done-icon{font-size:48px;margin-bottom:16px;}
-.ci-done-title{font-family:var(--serif);font-size:32px;font-weight:300;color:var(--dk-1);margin-bottom:8px;}
-.ci-done-text{font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:28px;}
-.ci-done-btn{display:inline-block;background:var(--jade);color:var(--ink);padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;}
+.page{max-width:900px;margin:0 auto;padding:0 28px 100px;}
+.wr-hero{padding:44px 0 32px;border-bottom:1px solid var(--bd);margin-bottom:32px;}
+.wr-kicker{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--jade);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.wr-kicker::before{content:'';width:18px;height:1px;background:var(--jade);}
+.wr-title{font-family:var(--serif);font-size:52px;font-weight:300;line-height:.93;letter-spacing:-.025em;color:var(--dk-1);margin-bottom:12px;}
+.wr-title em{font-style:italic;color:var(--dk-3);}
+.wr-sub{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:480px;}
+.wr-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:28px;}
+.ws-cell{background:var(--ink-2);border:1px solid var(--bd);border-radius:7px;padding:14px 12px;text-align:center;}
+.ws-val{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--jade);margin-bottom:3px;}
+.ws-val.amber{color:var(--amber);}.ws-val.red{color:rgba(220,80,60,.85);}
+.ws-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);}
+.wr-sec{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--dk-3);margin:0 0 12px;display:flex;align-items:center;gap:10px;}
+.wr-sec::after{content:'';flex:1;height:1px;background:var(--bd);}
+.wr-day-row{background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;margin-bottom:4px;display:grid;grid-template-columns:100px 80px 1fr 90px;gap:12px;align-items:center;cursor:pointer;transition:border-color .12s;}
+.wr-day-row:hover{border-color:rgba(255,255,255,.1);}
+.wr-day-row.training{border-left:3px solid var(--jade);}
+.wr-day-row.rest{border-left:3px solid var(--bd);}
+.wr-day-row.today{border-color:rgba(0,200,160,.25);}
+.wr-day-row.future{opacity:.45;}
+.wr-day-row.expanded{border-bottom-left-radius:0;border-bottom-right-radius:0;border-color:rgba(0,200,160,.2);}
+.wdr-day{font-size:12px;font-weight:600;color:var(--dk-1);}
+.wdr-type{font-size:10px;font-weight:300;color:var(--dk-3);margin-top:1px;}
+.wdr-macro-row{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.wdr-macro-label{font-size:9px;color:var(--dk-3);width:10px;}
+.wdr-macro-bar{flex:1;height:3px;background:var(--bd);border-radius:2px;overflow:hidden;}
+.wdr-macro-fill{height:100%;border-radius:2px;transition:width .5s;}
+.wdr-macro-val{font-size:9px;font-family:var(--mono);width:60px;text-align:right;}
+.wdr-stars{font-size:13px;}
+.wdr-note{font-size:10px;font-weight:300;color:var(--dk-3);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:88px;margin-top:2px;}
+.wr-day-detail{background:var(--ink-1);border:1px solid rgba(0,200,160,.15);border-top:none;border-radius:0 0 8px 8px;padding:16px;margin-bottom:6px;display:none;}
+.wr-day-detail.open{display:block;}
+.wdd-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.wdd-block{background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:12px 14px;}
+.wdd-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;}
+.wdd-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px;}
+.wdd-row:last-child{border-bottom:none;}
+.wdd-key{font-weight:300;color:var(--dk-2);}
+.wdd-val{font-family:var(--mono);font-weight:500;}
+.wdd-val.jade{color:var(--jade);}.wdd-val.amber{color:var(--amber);}.wdd-val.red{color:rgba(220,80,60,.85);}
+.wci-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;}
+.wci-btn{padding:5px 12px;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .12s;background:transparent;border:1px solid var(--bd);color:var(--dk-3);}
+.wci-btn.active-done{background:var(--jade);color:var(--ink);border-color:var(--jade);}
+.wci-btn.active-modified{background:var(--amber);color:var(--ink);border-color:var(--amber);}
+.wci-btn.active-skipped{background:rgba(220,80,60,.85);color:#fff;border-color:rgba(220,80,60,.85);}
+.wr-analysis{background:var(--ink-2);border:1px solid var(--bd);border-left:3px solid rgba(0,200,160,.4);border-radius:0 8px 8px 0;padding:18px 22px;margin-bottom:28px;}
+.wra-kicker{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;opacity:.7;}
+.wra-body{font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.85;}
+.wra-body p{margin:0 0 10px;}.wra-body p:last-child{margin:0;}
+.wra-refresh{background:none;border:none;color:var(--dk-3);font-size:10px;cursor:pointer;font-family:var(--sans);text-decoration:underline;padding:10px 0 0;display:block;}
+.wr-weeks{display:flex;gap:6px;margin-bottom:24px;overflow-x:auto;padding-bottom:4px;}
+.wrw-btn{flex-shrink:0;padding:6px 14px;border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);background:transparent;border:1px solid var(--bd);color:var(--dk-3);transition:all .12s;}
+.wrw-btn.active{background:var(--jade-dim);border-color:var(--jade-br);color:var(--jade);}
+@media(max-width:600px){.wr-title{font-size:36px;}.wr-stats{grid-template-columns:repeat(2,1fr);}.wr-day-row{grid-template-columns:85px 60px 1fr;gap:8px;}.wdr-macro-val{display:none;}.page{padding:0 16px 80px;}.wdd-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-<nav class="site-nav">
-  <div class="nav-brand">Body<em>Lens</em></div>
-  <div class="nav-links">
-    <a class="nav-link nav-daily" href="bodylens-dailyplan.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-magazine-food.html">Food</a>
-    <a class="nav-link" href="bodylens-programme.html">Programme</a>
-    <a class="nav-link active" href="bodylens-science.html">Science</a>
-  </div>
-  <div class="nav-right-group">
-    <a class="nav-right" href="bodylens-howitworks.html">How it works</a>
-    <div class="nav-meta" id="nav-meta"></div>
-  </div>
-</nav>
-
-<div class="page" id="page">
-  <div class="ci-hero">
-    <div class="ci-kicker" id="ci-kicker">4-week check-in</div>
-    <div class="ci-title">How did<br><em>it go?</em></div>
-    <div class="ci-sub" id="ci-sub">Four weeks in. Time to take stock and rebuild the next block. Answer honestly — the next programme is only as good as the data you give it.</div>
-  </div>
-
-  <div class="progress-row" id="progress-row">
-    <div class="prog-week done"><div class="pw-num">Week 1</div><div class="pw-phase">Foundation</div><div class="pw-status">✓ Complete</div></div>
-    <div class="prog-week done"><div class="pw-num">Week 2</div><div class="pw-phase">Build</div><div class="pw-status">✓ Complete</div></div>
-    <div class="prog-week done"><div class="pw-num">Week 3</div><div class="pw-phase">Peak</div><div class="pw-status">✓ Complete</div></div>
-    <div class="prog-week done"><div class="pw-num">Week 4</div><div class="pw-phase">Deload</div><div class="pw-status">✓ Complete</div></div>
-  </div>
-
-  <form id="ci-form">
-
-    <div class="ci-section">
-      <div class="ci-label">Body metrics</div>
-      <div class="ci-field">
-        <div class="ci-input-wrap">
-          <div class="ci-input-label">Current weight (kg)</div>
-          <input class="ci-input" type="number" id="ci-weight" step="0.1" placeholder="e.g. 84.2">
-        </div>
-        <div class="ci-input-wrap">
-          <div class="ci-input-label">Waist circumference (cm, optional)</div>
-          <input class="ci-input" type="number" id="ci-waist" placeholder="e.g. 89">
-        </div>
-      </div>
-      <div class="ci-input-wrap">
-        <div class="ci-input-label">Energy levels on average this block (1 = exhausted, 10 = excellent)</div>
-        <div class="ci-slider-wrap">
-          <input class="ci-slider" type="range" id="ci-energy" min="1" max="10" value="6">
-          <div class="ci-slider-labels"><span>1 — Exhausted</span><span id="ci-energy-val">6</span><span>10 — Excellent</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="ci-section">
-      <div class="ci-label">Training</div>
-      <div class="ci-input-wrap" style="margin-bottom:12px;">
-        <div class="ci-input-label">Sessions completed (out of how many planned?)</div>
-        <input class="ci-input" type="text" id="ci-sessions" placeholder="e.g. 14 out of 16">
-      </div>
-      <div class="ci-input-wrap" style="margin-bottom:12px;">
-        <div class="ci-input-label">How difficult did training feel overall? (1–10)</div>
-        <div class="ci-slider-wrap">
-          <input class="ci-slider" type="range" id="ci-difficulty" min="1" max="10" value="7">
-          <div class="ci-slider-labels"><span>1 — Too easy</span><span id="ci-diff-val">7</span><span>10 — Too hard</span></div>
-        </div>
-      </div>
-      <div class="ci-input-wrap">
-        <div class="ci-input-label">Biggest strength improvement you noticed</div>
-        <input class="ci-input" type="text" id="ci-strength" placeholder="e.g. Deadlift went from 80kg to 95kg, or just 'felt stronger'">
-      </div>
-    </div>
-
-    <div class="ci-section">
-      <div class="ci-label">Nutrition & body</div>
-      <div class="ci-input-wrap" style="margin-bottom:12px;">
-        <div class="ci-input-label">Nutrition adherence (1–10)</div>
-        <div class="ci-slider-wrap">
-          <input class="ci-slider" type="range" id="ci-nutrition" min="1" max="10" value="6">
-          <div class="ci-slider-labels"><span>1 — Off the rails</span><span id="ci-nut-val">6</span><span>10 — Perfect</span></div>
-        </div>
-      </div>
-      <div class="ci-input-wrap">
-        <div class="ci-input-label">What's changed visually or how you feel in your body?</div>
-        <textarea class="ci-textarea" id="ci-body-change" placeholder="e.g. 'Waist down, shoulders look bigger' or 'No visible change yet but feel stronger and sleep better'"></textarea>
-      </div>
-    </div>
-
-    <div class="ci-section">
-      <div class="ci-label">What didn't work</div>
-      <div class="ci-input-wrap">
-        <div class="ci-input-label">Honest reflection — what was hard, what you skipped, what needs to change</div>
-        <textarea class="ci-textarea" id="ci-struggles" placeholder="e.g. 'Missed Wednesday training every week — timing doesn't work. Protein was fine except weekends.'"></textarea>
-      </div>
-    </div>
-
-    <div class="ci-section">
-      <div class="ci-label">Next block</div>
-      <div class="ci-input-wrap" style="margin-bottom:10px;">
-        <div class="ci-input-label">What's your primary focus for the next 4 weeks?</div>
-        <input class="ci-input" type="text" id="ci-next-goal" placeholder="e.g. 'Same — fat loss' or 'Shift to muscle gain' or 'Maintain what I built'">
-      </div>
-      <div class="ci-input-wrap">
-        <div class="ci-input-label">Anything else your coach should know?</div>
-        <textarea class="ci-textarea" id="ci-notes" placeholder="New injury, life change, travel coming up, something you want to try..."></textarea>
-      </div>
-    </div>
-
-    <button type="button" class="ci-submit" id="ci-submit-btn" onclick="submitCheckin()">Build my next 4-week programme →</button>
-  </form>
-</div>
-
 <script src="nav.js"></script>
+<div class="page">
+  <div class="wr-hero">
+    <div class="wr-kicker">Progress tracking</div>
+    <div class="wr-title">Week<br><em>review.</em></div>
+    <div class="wr-sub" id="wr-sub">Planned vs actual. Your decisions mapped against your progress.</div>
+  </div>
+  <div id="wr-content"></div>
+</div>
 <script>
-const API   = '/api/chat';
-const MODEL = 'claude-sonnet-4-20250514';
+var API='/api/chat', MODEL='claude-sonnet-4-20250514';
+var DAY_NAMES=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+var _expandedDay=null, _currentWeekStart=null, _lastDays=null, _lastProfile=null;
 
-const _p = (() => { try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); } catch(e){return null;} })();
-if (_p) {
-  document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${_p.name}</span>`;
-  if (_p.weight) document.getElementById('ci-weight').value = _p.weight;
-  document.getElementById('ci-kicker').textContent = `4-week check-in · ${_p.name}`;
-  document.getElementById('ci-sub').textContent = `Four weeks in${_p.goal?' — '+_p.goal:''}. Time to take stock and rebuild the next block.`;
+function getProfile(){try{return JSON.parse(localStorage.getItem('bl_profile')||'null');}catch(e){return null;}}
+function loadDayLog(ds){try{var r=localStorage.getItem('bl_daylog_'+ds);return r?JSON.parse(r):null;}catch(e){return null;}}
+function saveDayLog(log){try{log.updatedAt=new Date().toISOString();if(!log.loggedAt)log.loggedAt=log.updatedAt;localStorage.setItem('bl_daylog_'+log.date,JSON.stringify(log));}catch(e){}}
+function dateStr(d){return d.toISOString().slice(0,10);}
+function addDays(d,n){var r=new Date(d);r.setDate(d.getDate()+n);return r;}
+function getMondayOf(d){var day=d.getDay(),diff=day===0?-6:1-day,mon=new Date(d);mon.setDate(d.getDate()+diff);return mon;}
+
+function getWeeks(){
+  var today=new Date(),mon=getMondayOf(today),weeks=[];
+  for(var i=0;i<5;i++){
+    var start=addDays(mon,-i*7),end=addDays(start,6);
+    var hasDays=false;
+    for(var j=0;j<7;j++){if(loadDayLog(dateStr(addDays(start,j)))){hasDays=true;break;}}
+    if(i===0||hasDays) weeks.push({start:start,end:end,label:i===0?'This week':'w/c '+start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})});
+  }
+  return weeks;
 }
 
-// Slider labels
-['ci-energy','ci-difficulty','ci-nutrition'].forEach(id => {
-  const slider = document.getElementById(id);
-  const label  = document.getElementById(id.replace('ci-','ci-').replace('-energy','-energy-val').replace('-difficulty','-diff-val').replace('-nutrition','-nut-val'));
-  if (slider && label) {
-    slider.addEventListener('input', () => label.textContent = slider.value);
+function render(weekStart){
+  var p=getProfile();
+  if(!p){document.getElementById('wr-content').innerHTML='<div style="text-align:center;padding:60px;"><div style="font-size:13px;color:var(--dk-3);">No profile found.</div></div>';return;}
+  _currentWeekStart=weekStart;
+  var today=new Date(),todayStr=dateStr(today);
+
+  var days=[];
+  for(var i=0;i<7;i++){
+    var d=addDays(weekStart,i),ds=dateStr(d);
+    var wp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
+    var isTraining=wp.priority==='training';
+    var log=loadDayLog(ds);
+    var isPast=ds<todayStr,isToday=ds===todayStr,isFuture=ds>todayStr;
+    days.push({d:d,ds:ds,weekIdx:i,wp:wp,isTraining:isTraining,log:log,isPast:isPast,isToday:isToday,isFuture:isFuture});
   }
-});
-// Fix label IDs
-document.getElementById('ci-energy')?.addEventListener('input', e => document.getElementById('ci-energy-val').textContent = e.target.value);
-document.getElementById('ci-difficulty')?.addEventListener('input', e => document.getElementById('ci-diff-val').textContent = e.target.value);
-document.getElementById('ci-nutrition')?.addEventListener('input', e => document.getElementById('ci-nut-val').textContent = e.target.value);
+  _lastDays=days; _lastProfile=p;
 
-async function submitCheckin() {
-  const btn = document.getElementById('ci-submit-btn');
-  btn.disabled = true;
+  var trainDays=days.filter(function(x){return x.isTraining;});
+  var pastTrainDays=trainDays.filter(function(x){return !x.isFuture;});
+  var trainDone=pastTrainDays.filter(function(x){return x.log&&x.log.trainStatus==='done';}).length;
+  var trainSkipped=pastTrainDays.filter(function(x){return x.log&&x.log.trainStatus==='skipped';}).length;
+  var loggedDays=days.filter(function(x){return x.log&&x.log.actual&&x.log.actual.prot>0;});
+  var avgProtPct=loggedDays.length?Math.round(loggedDays.reduce(function(s,x){var pl=x.log.plan||{},ac=x.log.actual||{};return s+(pl.prot>0?(ac.prot/pl.prot*100):0);},0)/loggedDays.length):0;
+  var avgKcalPct=loggedDays.length?Math.round(loggedDays.reduce(function(s,x){var pl=x.log.plan||{},ac=x.log.actual||{};return s+(pl.kcal>0?(ac.kcal/pl.kcal*100):0);},0)/loggedDays.length):0;
 
-  const data = {
-    weight:     document.getElementById('ci-weight').value,
-    waist:      document.getElementById('ci-waist').value,
-    energy:     document.getElementById('ci-energy').value,
-    sessions:   document.getElementById('ci-sessions').value,
-    difficulty: document.getElementById('ci-difficulty').value,
-    strength:   document.getElementById('ci-strength').value,
-    nutrition:  document.getElementById('ci-nutrition').value,
-    bodyChange: document.getElementById('ci-body-change').value,
-    struggles:  document.getElementById('ci-struggles').value,
-    nextGoal:   document.getElementById('ci-next-goal').value,
-    notes:      document.getElementById('ci-notes').value,
-  };
+  var trainCol=trainSkipped>1?'red':trainDone>=pastTrainDays.length*0.8?'':'amber';
+  var protCol=avgProtPct>=90?'':avgProtPct>=70?'amber':'red';
+  var kcalCol=avgKcalPct>110?'amber':avgKcalPct<80?'amber':'';
 
-  document.getElementById('page').innerHTML = `
-    <div class="ci-generating">
-      <div class="ci-gen-spinner"></div>
-      <div class="ci-gen-text">Building your next 4-week programme…</div>
-      <div class="ci-gen-sub">Reading your check-in · Adjusting loads and volume · Setting new targets</div>
-    </div>`;
+  var weeks=getWeeks();
+  var weekSelHtml='<div class="wr-weeks">'+weeks.map(function(w){
+    var active=dateStr(w.start)===dateStr(weekStart);
+    return '<button class="wrw-btn'+(active?' active':'')+'" onclick="render(new Date(\''+w.start.toISOString()+'\'))">'+w.label+'</button>';
+  }).join('')+'</div>';
 
-  try {
-    const p = _p || {};
-    const prompt = `You are a senior performance coach. This person just completed a 4-week programme block. Build their NEXT 4-week programme based on the check-in data.
+  var statsHtml='<div class="wr-stats">'
+    +'<div class="ws-cell"><div class="ws-val '+trainCol+'">'+trainDone+'/'+pastTrainDays.length+'</div><div class="ws-label">Sessions done</div></div>'
+    +'<div class="ws-cell"><div class="ws-val '+(trainSkipped>0?'red':'')+'">'+trainSkipped+'</div><div class="ws-label">Sessions skipped</div></div>'
+    +'<div class="ws-cell"><div class="ws-val '+protCol+'">'+(loggedDays.length?avgProtPct+'%':'—')+'</div><div class="ws-label">Protein vs target</div></div>'
+    +'<div class="ws-cell"><div class="ws-val '+kcalCol+'">'+(loggedDays.length?avgKcalPct+'%':'—')+'</div><div class="ws-label">Calories vs target</div></div>'
+    +'</div>';
 
-PREVIOUS PROGRAMME:
-Goal: ${p.goal||'—'} | Age: ${p.age||'—'} | Sex: ${p.sex||'—'} | Weight was: ${p.weight||'—'}kg
-Previous calories: ${p.calories||'—'} | Protein: ${p.protein||'—'}g
-Training days: ${p.trainingDays||4}/week | Equipment: ${(p.equipmentUsed||[]).join(', ')||'full gym'}
-
-CHECK-IN DATA:
-Current weight: ${data.weight}kg${data.waist?' | Waist: '+data.waist+'cm':''}
-Energy (1-10): ${data.energy}
-Sessions completed: ${data.sessions}
-Training difficulty felt (1-10): ${data.difficulty}
-Strength improvement: ${data.strength}
-Nutrition adherence (1-10): ${data.nutrition}
-Body/visual change: ${data.bodyChange}
-What struggled: ${data.struggles}
-Next goal: ${data.nextGoal||p.goal||'—'}
-Additional notes: ${data.notes}
-
-COACHING ANALYSIS REQUIRED:
-1. If difficulty was < 5: increase load/volume in week 2 and 3
-2. If difficulty was > 8: reduce volume or consider changing split
-3. If sessions missed regularly: adjust training days to what's actually achievable
-4. If nutrition < 5: simplify the eating approach, reduce meal complexity
-5. If weight moved in wrong direction: recalculate calorie targets
-6. Apply progressive overload: week 1 of new block starts where week 3 of old block ended (not from zero)
-
-Return ONLY a valid JSON object with EXACTLY this structure:
-{
-  "profile": {
-    "goal": "updated goal",
-    "calories": 0,
-    "protein": 0,
-    "carbs": 0,
-    "fat": 0,
-    "tdee": 0,
-    "calorieReasoning": "2-3 sentences explaining the new calorie target",
-    "proteinReasoning": "1-2 sentences",
-    "mealCount": 4,
-    "keyFoodPrinciples": ["principle 1", "principle 2", "principle 3"],
-    "foodsToAvoid": [],
-    "triggerStrategy": "one sentence"
-  },
-  "weekPlan": [
-    {
-      "day": "Monday",
-      "type": "Push",
-      "focus": "Chest, shoulders, triceps",
-      "kcal": 0,
-      "priority": "training",
-      "keyExercises": ["Exercise 4xreps", "Exercise 3xreps"],
-      "modifications": [],
-      "coachNote": "one sentence"
+  var daysHtml=days.map(function(x,i){
+    var log=x.log,isT=x.isTraining;
+    var trainIcon='—',trainLabel='Rest',trainColor='var(--dk-3)';
+    if(isT){
+      var ts=log&&log.trainStatus;
+      if(!log||ts==='pending'){trainIcon=x.isFuture?'·':'?';trainLabel=x.isFuture?'Planned':'Not logged';}
+      else if(ts==='done'){trainIcon='✓';trainLabel='Done';trainColor='var(--jade)';}
+      else if(ts==='modified'){trainIcon='~';trainLabel='Modified';trainColor='var(--amber)';}
+      else if(ts==='skipped'){trainIcon='✗';trainLabel='Skipped';trainColor='rgba(220,80,60,.85)';}
     }
-  ],
-  "weeklyProgression": {
-    "week1": {"phase":"Foundation","focus":"Reestablish patterns at week 3 loads from last block","volumeNote":"Match previous peak volume","keyFocus":"one sentence"},
-    "week2": {"phase":"Build","focus":"Add volume and load","volumeNote":"+10-15% sets or weight","keyFocus":"one sentence"},
-    "week3": {"phase":"Peak","focus":"Highest intensity of block","volumeNote":"RPE 8-9 on primary lifts","keyFocus":"one sentence"},
-    "week4": {"phase":"Deload","focus":"50% volume, maintain load","volumeNote":"Active recovery","keyFocus":"one sentence"}
-  },
-  "coachSummary": "3-4 sentences assessing this person's progress and what the next block is designed to do",
-  "programmeGoal": "What they should be able to measure after this next block",
-  "reassessmentTriggers": ["outcome 1", "outcome 2"],
-  "blockNumber": 2
+    var plan=log?(log.plan||{}):{},actual=log?(log.actual||{}):{};
+    var pProt=plan.prot||(p.protein||140),pKcal=plan.kcal||(p.calories||2000);
+    var aProt=actual.prot||0,aKcal=actual.kcal||0;
+    var protPct=Math.min(130,pProt>0?Math.round(aProt/pProt*100):0);
+    var kcalPct=Math.min(130,pKcal>0?Math.round(aKcal/pKcal*100):0);
+    var pBC=!log||aProt===0?'var(--bd)':protPct>=90?'var(--jade)':protPct>=70?'var(--amber)':'rgba(220,80,60,.7)';
+    var kBC=!log||aKcal===0?'var(--bd)':kcalPct>108?'var(--amber)':'var(--jade)';
+    var macrosHtml='<div>'
+      +'<div class="wdr-macro-row"><div class="wdr-macro-label" style="color:var(--jade);">P</div>'
+        +'<div class="wdr-macro-bar"><div class="wdr-macro-fill" style="width:'+Math.min(100,protPct)+'%;background:'+pBC+';"></div></div>'
+        +'<div class="wdr-macro-val" style="color:'+pBC+';">'+(aProt>0?aProt+'g':'—')+'<span style="color:var(--dk-3);opacity:.6;">/'+pProt+'g</span></div></div>'
+      +'<div class="wdr-macro-row"><div class="wdr-macro-label" style="color:var(--amber);">K</div>'
+        +'<div class="wdr-macro-bar"><div class="wdr-macro-fill" style="width:'+Math.min(100,kcalPct)+'%;background:'+kBC+';"></div></div>'
+        +'<div class="wdr-macro-val" style="color:'+kBC+';">'+(aKcal>0?aKcal:'—')+'<span style="color:var(--dk-3);opacity:.6;">/'+pKcal+'</span></div></div>'
+      +'</div>';
+    var r=log&&log.rating||0;
+    var stars='<div class="wdr-stars">'+'<span style="color:var(--amber);">'+'★'.repeat(r)+'</span>'+'<span style="color:var(--bd);">'+'★'.repeat(5-r)+'</span></div>';
+    var notePreview=log&&log.dayNote?'<div class="wdr-note">'+log.dayNote.slice(0,28)+(log.dayNote.length>28?'…':'')+'</div>':'';
+    var isExp=_expandedDay===x.ds;
+    var rowClass='wr-day-row '+(isT?'training':'rest')+(x.isToday?' today':'')+(x.isFuture?' future':'')+(isExp?' expanded':'');
+    var row='<div class="'+rowClass+'" onclick="toggleDay(\''+x.ds+'\')">'
+      +'<div><div class="wdr-day">'+DAY_NAMES[i].slice(0,3)+(x.isToday?' <span style="font-size:9px;color:var(--jade);">today</span>':'')+'</div><div class="wdr-type">'+(x.wp.type||'Rest')+'</div></div>'
+      +'<div style="text-align:center;color:'+trainColor+'"><div style="font-size:16px;">'+trainIcon+'</div><div style="font-size:9px;font-weight:300;color:var(--dk-3);margin-top:2px;">'+trainLabel+'</div></div>'
+      +macrosHtml
+      +'<div>'+stars+notePreview+'</div>'
+      +'</div>';
+    var detail=buildDetail(x,p,isExp);
+    return row+detail;
+  }).join('');
+
+  var analysisHtml='<div class="wr-analysis" id="wr-analysis">'
+    +'<div class="wra-kicker">Coach analysis</div>'
+    +'<div id="wra-body"><div style="display:flex;align-items:center;gap:8px;color:var(--dk-3);font-size:12px;"><div class="spin" style="width:14px;height:14px;flex-shrink:0;display:inline-block;"></div>Reading your week…</div></div>'
+    +'</div>';
+
+  document.getElementById('wr-content').innerHTML=weekSelHtml+statsHtml
+    +'<div class="wr-sec">Day by day</div>'
+    +'<div>'+daysHtml+'</div>'
+    +analysisHtml;
+
+  generateWeekAnalysis(days,p);
 }
-weekPlan must have exactly 7 entries Mon-Sun.`;
 
-    const res = await fetch(API, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:MODEL, max_tokens:1800,
-        system:'You are a senior performance coach building personalised programmes. Return ONLY valid JSON. No markdown. No preamble.',
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const apiData = await res.json();
-    const text = (apiData.content||[]).map(b=>b.text||'').join('').trim();
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('No JSON returned');
-    const newProg = JSON.parse(match[0]);
+function buildDetail(x,p,isOpen){
+  if(!isOpen) return '<div class="wr-day-detail" id="detail-'+x.ds+'"></div>';
+  var log=x.log,plan=log?(log.plan||{}):{},actual=log?(log.actual||{}):{};
 
-    // Merge into existing profile
-    const existingProfile = JSON.parse(localStorage.getItem('bl_profile')||'{}');
-    const updatedProfile = {
-      ...existingProfile,
-      ...newProg.profile,
-      weight:      parseFloat(data.weight) || existingProfile.weight,
-      weekPlan:    newProg.weekPlan,
-      weeklyProgression: newProg.weeklyProgression,
-      coachSummary: newProg.coachSummary,
-      programmeGoal: newProg.programmeGoal,
-      reassessmentTriggers: newProg.reassessmentTriggers,
-      blockNumber:  newProg.blockNumber || 2,
-      generatedAt:  new Date().toISOString(),
-      generated:    true,
-      // Keep personal details
-      name: existingProfile.name,
-      age:  existingProfile.age,
-      sex:  existingProfile.sex,
-      height: existingProfile.height,
-    };
+  var trainBlock='';
+  if(x.isTraining){
+    var ts=log&&log.trainStatus;
+    var tsLabel=ts==='done'?'✓ Completed':ts==='skipped'?'✗ Skipped':ts==='modified'?'~ Modified':'? Not logged';
+    var tsCol=ts==='done'?'jade':ts==='skipped'?'red':ts==='modified'?'amber':'';
+    trainBlock='<div class="wdd-block">'
+      +'<div class="wdd-label">Training</div>'
+      +'<div class="wdd-row"><div class="wdd-key">Planned</div><div class="wdd-val">'+(x.wp.type||'Session')+'</div></div>'
+      +'<div class="wdd-row"><div class="wdd-key">Status</div><div class="wdd-val '+tsCol+'">'+tsLabel+'</div></div>'
+      +(log&&log.trainNote?'<div class="wdd-row"><div class="wdd-key">Note</div><div class="wdd-val" style="font-size:11px;font-weight:300;">'+log.trainNote+'</div></div>':'')
+      +'</div>';
+  }
 
-    localStorage.setItem('bl_profile', JSON.stringify(updatedProfile));
-    // Clear today's cached day plan so it rebuilds with new programme
-    const todayKey = 'dayplan_v4_' + new Date().toISOString().slice(0,10);
-    localStorage.removeItem(todayKey);
-    localStorage.removeItem(MACRO_KEY || ('bl_macros_' + new Date().toISOString().slice(0,10)));
+  var macroBlock='';
+  if(actual.kcal>0||actual.prot>0){
+    var pP=plan.prot||(p.protein||140),pK=plan.kcal||(p.calories||2000);
+    var dP=(actual.prot||0)-pP,dK=(actual.kcal||0)-pK;
+    var pDC=Math.abs(dP)<pP*0.1?'jade':dP<0?'red':'amber';
+    var kDC=Math.abs(dK)<pK*0.05?'jade':'amber';
+    macroBlock='<div class="wdd-block">'
+      +'<div class="wdd-label">Nutrition</div>'
+      +'<div class="wdd-row"><div class="wdd-key">Protein</div><div class="wdd-val '+pDC+'">'+(actual.prot||0)+'g <span style="font-size:9px;opacity:.6;">target '+pP+'g ('+( dP>=0?'+':'')+dP+'g)</span></div></div>'
+      +'<div class="wdd-row"><div class="wdd-key">Calories</div><div class="wdd-val '+kDC+'">'+(actual.kcal||0)+' <span style="font-size:9px;opacity:.6;">target '+pK+' ('+(dK>=0?'+':'')+dK+')</span></div></div>'
+      +'<div class="wdd-row"><div class="wdd-key">Carbs / Fat</div><div class="wdd-val">'+(actual.carbs||0)+'g / '+(actual.fat||0)+'g</div></div>'
+      +'</div>';
+  }
 
-    document.getElementById('page').innerHTML = `
-      <div class="ci-done">
-        <div class="ci-done-icon">🚀</div>
-        <div class="ci-done-title">Block 2 is ready.</div>
-        <div class="ci-done-text">${newProg.coachSummary}</div>
-        <a href="bodylens-dailyplan.html" class="ci-done-btn">Start today →</a>
-      </div>`;
+  var noteHtml=log&&log.dayNote
+    ?'<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;font-style:italic;padding:8px 0 4px;">"'+log.dayNote+'"</div>'
+    :(!log&&!x.isFuture?'<div style="font-size:11px;color:var(--dk-3);padding:6px 0;">No data logged yet.</div>':'');
 
-  } catch(err) {
-    console.error(err);
-    document.getElementById('page').innerHTML = `
-      <div class="ci-done">
-        <div class="ci-done-icon">⚠️</div>
-        <div class="ci-done-title">Something went wrong.</div>
-        <div class="ci-done-text">We couldn't generate your next programme. Please try again.</div>
-        <button onclick="location.reload()" class="ci-done-btn" style="background:var(--amber);border:none;cursor:pointer;">Try again</button>
-      </div>`;
+  var captureHtml='';
+  if(x.isToday){
+    var ts2=log&&log.trainStatus;
+    captureHtml='<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);">'
+      +'<div class="wci-label">Update today</div>'
+      +(x.isTraining?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">'
+        +['done','modified','skipped'].map(function(s){
+          var L={done:'✓ Done',modified:'~ Modified',skipped:'✗ Skipped'};
+          var ac=ts2===s?' active-'+s:'';
+          return '<button class="wci-btn'+ac+'" onclick="event.stopPropagation();updateTrain(\''+s+'\')">'+L[s]+'</button>';
+        }).join('')+'</div>':'')
+      +'<textarea rows="2" placeholder="Note anything — off plan meals, missed sleep, stress, wins…" '
+        +'style="width:100%;background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--dk-1);font-family:var(--sans);resize:none;outline:none;" '
+        +'onblur="updateDayNote(this.value)">'+(log&&log.dayNote?log.dayNote:'')+'</textarea>'
+      +'<div style="display:flex;gap:4px;margin-top:8px;">'
+      +[1,2,3,4,5].map(function(n){
+        var f=log&&log.rating>=n;
+        return '<span onclick="event.stopPropagation();updateRating('+n+')" style="font-size:18px;cursor:pointer;color:'+(f?'var(--amber)':'var(--bd)')+';">★</span>';
+      }).join('')
+      +'</div></div>';
+  }
+
+  var noData=x.isFuture?'<div style="font-size:11px;color:var(--dk-3);padding:4px 0;">Planned: '+(x.isTraining?(x.wp.type||'Training'):('Rest'))+(x.isTraining&&x.wp.focus?' — '+x.wp.focus:'')+'</div>':'';
+
+  return '<div class="wr-day-detail open" id="detail-'+x.ds+'">'
+    +(x.isFuture?noData:'<div class="wdd-grid">'+trainBlock+macroBlock+'</div>'+noteHtml)
+    +captureHtml
+    +'</div>';
+}
+
+function toggleDay(ds){
+  _expandedDay=_expandedDay===ds?null:ds;
+  render(_currentWeekStart);
+}
+
+function updateTrain(status){
+  var ts=new Date().toISOString().slice(0,10);
+  var log=loadDayLog(ts); if(!log)return;
+  log.trainStatus=status; saveDayLog(log);
+  render(_currentWeekStart); _expandedDay=ts;
+}
+function updateDayNote(note){
+  var ts=new Date().toISOString().slice(0,10);
+  var log=loadDayLog(ts); if(!log)return;
+  log.dayNote=note; saveDayLog(log);
+}
+function updateRating(r){
+  var ts=new Date().toISOString().slice(0,10);
+  var log=loadDayLog(ts); if(!log)return;
+  log.rating=r; saveDayLog(log);
+  render(_currentWeekStart); _expandedDay=ts;
+}
+
+async function generateWeekAnalysis(days,p){
+  var el=document.getElementById('wra-body'); if(!el)return;
+  var logged=days.filter(function(x){return x.log&&!x.isFuture;});
+  if(!logged.length){
+    el.innerHTML='<div style="font-size:12px;font-weight:300;color:var(--dk-3);">Log some days first — the analysis will build as you go through the week.</div>';
+    return;
+  }
+  var summary=logged.map(function(x){
+    var l=x.log,pl=l.plan||{},ac=l.actual||{};
+    return DAY_NAMES[x.weekIdx]+' ('+( x.wp.type||'Rest')+'): '
+      +'train='+( l.trainStatus||'?')+' | '
+      +'prot='+(ac.prot||0)+'g target '+(pl.prot||p.protein||140)+'g | '
+      +'kcal='+(ac.kcal||0)+' target '+(pl.kcal||p.calories||2000)
+      +(l.dayNote?' | "'+l.dayNote+'"':'');
+  }).join('\n');
+  var future=days.filter(function(x){return x.isFuture&&x.isTraining;});
+  var futureLine=future.length?'\nRemaining training days: '+future.map(function(x){return DAY_NAMES[x.weekIdx];}).join(', '):'';
+  var prompt='You are a performance coach reviewing '+p.name+'\'s week.\nProfile: '+(p.age||35)+'yo '+(p.sex||'male')+', '+(p.weight||80)+'kg, goal: '+(p.goal||'recomposition')+', protein target: '+(p.protein||140)+'g/day.\n\nWeek data:\n'+summary+futureLine+'\n\nWrite 2-3 short paragraphs. 1. What the data actually shows — honest, specific, reference numbers. 2. Real consequence of deviations on their goal — factual cause-effect, not a lecture. '+(future.length?'3. The single highest-leverage thing to nail in remaining days this week.':'3. What this week reveals about their pattern — one thing to watch next week.')+'\n\nTone: direct coach who respects them enough to be honest. No praise for mediocre. No markdown. Under 150 words.';
+  try{
+    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MODEL,max_tokens:250,
+        system:'Direct performance coach. Flowing prose only. No bullets, no headers.',
+        messages:[{role:'user',content:prompt}]})});
+    var data=await res.json();
+    var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var paras=text.split(/\n+/).filter(Boolean).map(function(s){return '<p>'+s+'</p>';}).join('');
+    el.innerHTML='<div class="wra-body">'+paras+'</div>'
+      +'<button class="wra-refresh" onclick="generateWeekAnalysis(_lastDays,_lastProfile)">↺ Refresh</button>';
+  }catch(e){
+    el.innerHTML='<div style="font-size:11px;color:var(--dk-3);">Could not load — <button style="background:none;border:none;color:var(--dk-3);cursor:pointer;text-decoration:underline;font-size:11px;" onclick="generateWeekAnalysis(_lastDays,_lastProfile)">try again</button></div>';
   }
 }
+
+var p=getProfile();
+if(p){var m=document.getElementById('nav-meta');if(m)m.innerHTML='<span class="nav-tag nt-jade">'+p.name+'</span>';
+document.getElementById('wr-sub').textContent=p.name+' · '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'. Planned vs actual.';}
+_currentWeekStart=getMondayOf(new Date());
+render(_currentWeekStart);
 </script>
-<script src="coach.js"></script>
 </body>
 </html>
