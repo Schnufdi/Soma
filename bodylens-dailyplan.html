@@ -51,9 +51,332 @@
   <div class="sp-body" id="sp-body"></div>
 </div>
 
+<!-- GYM COACH OVERLAY (full screen) -->
+<div id="gc-overlay">
+  <div id="gc-header">
+    <div id="gc-session-label">Session</div>
+    <div id="gc-progress-dots"></div>
+    <button id="gc-close" onclick="gcClose()">✕</button>
+  </div>
+  <div id="gc-main">
+    <div id="gc-card"></div>
+  </div>
+  <div id="gc-footer">
+    <div id="gc-timer-display"></div>
+    <button id="gc-primary-btn" onclick="gcPrimary()">▶ Start</button>
+    <button id="gc-secondary-btn" onclick="gcSecondary()">Skip →</button>
+  </div>
+</div>
+
+<!-- DEBRIEF BANNER (non-intrusive, bottom) -->
+<div id="debrief-banner">
+  <div id="debrief-banner-text">Day not fully logged</div>
+  <button onclick="openDebrief()" id="debrief-open-btn">Quick debrief</button>
+  <button onclick="dismissDebrief()" id="debrief-dismiss-btn">✕</button>
+</div>
+
+<!-- DEBRIEF OVERLAY -->
+<div id="debrief-overlay">
+  <div id="debrief-panel">
+    <div id="debrief-hd">
+      <div id="debrief-title">End of day</div>
+      <button onclick="closeDebrief()">✕</button>
+    </div>
+    <div id="debrief-body"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATION TOAST (browser alternative) -->
+<div id="notif-toast"></div>
+
 <style>
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(110%)}to{opacity:1;transform:translateX(0)}}
+
+/* ── GYM COACH OVERLAY ─────────────────────────── */
+#gc-overlay {
+  display:none; position:fixed; inset:0; z-index:500;
+  background:var(--ink); flex-direction:column;
+}
+#gc-overlay.open { display:flex; }
+#gc-header {
+  padding:16px 20px 12px; border-bottom:1px solid var(--bd);
+  display:flex; align-items:center; gap:12px; flex-shrink:0;
+  background:var(--ink-1);
+}
+#gc-session-label {
+  font-size:10px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--jade);
+}
+#gc-progress-dots {
+  display:flex; gap:5px; flex:1;
+}
+.gc-dot {
+  height:3px; border-radius:2px; flex:1;
+  background:rgba(255,255,255,.08); transition:background .3s;
+}
+.gc-dot.done { background:rgba(0,200,160,.4); }
+.gc-dot.curr { background:var(--jade); }
+#gc-close {
+  background:none; border:none; color:var(--dk-3);
+  font-size:16px; cursor:pointer; padding:4px 8px;
+  font-family:var(--sans);
+}
+#gc-main {
+  flex:1; overflow-y:auto; padding:24px 20px;
+  display:flex; flex-direction:column;
+}
+#gc-footer {
+  padding:16px 20px 28px; border-top:1px solid var(--bd);
+  background:var(--ink-1); flex-shrink:0;
+  display:flex; align-items:center; gap:10px;
+}
+#gc-timer-display {
+  font-family:var(--mono); font-size:28px; font-weight:700;
+  color:var(--jade); min-width:64px; flex-shrink:0;
+}
+#gc-primary-btn {
+  flex:1; background:var(--jade); border:none; color:var(--ink);
+  padding:14px; border-radius:10px; font-size:14px; font-weight:700;
+  cursor:pointer; font-family:var(--sans); transition:opacity .12s;
+}
+#gc-primary-btn:hover { opacity:.9; }
+#gc-primary-btn.danger { background:rgba(220,80,60,.8); color:#fff; }
+#gc-primary-btn.amber { background:var(--amber); }
+#gc-secondary-btn {
+  background:transparent; border:1px solid var(--bd);
+  color:var(--dk-3); padding:14px 18px; border-radius:10px;
+  font-size:12px; font-weight:600; cursor:pointer;
+  font-family:var(--sans); white-space:nowrap; transition:all .1s;
+}
+#gc-secondary-btn:hover { border-color:rgba(255,255,255,.12); color:var(--dk-2); }
+
+/* Gym coach card content */
+.gc-phase-label {
+  font-size:9px; font-weight:700; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--dk-3); margin-bottom:8px;
+}
+.gc-ex-name {
+  font-family:var(--serif); font-size:38px; font-weight:300;
+  color:var(--dk-1); line-height:1.0; margin-bottom:6px;
+}
+.gc-set-badge {
+  display:inline-block; background:var(--jade-dim); border:1px solid var(--jade-br);
+  border-radius:10px; padding:4px 12px; font-size:10px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--jade); margin-bottom:16px;
+}
+.gc-cue {
+  font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.75;
+  padding:12px 16px; background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:8px; margin-bottom:16px; border-left:2px solid var(--jade);
+}
+.gc-schema {
+  display:flex; gap:10px; margin-bottom:20px;
+}
+.gc-schema-chip {
+  background:var(--ink-2); border:1px solid var(--bd); border-radius:8px;
+  padding:8px 14px; text-align:center;
+}
+.gc-schema-val {
+  font-family:var(--mono); font-size:18px; font-weight:700;
+  color:var(--dk-1); line-height:1;
+}
+.gc-schema-label {
+  font-size:8px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--dk-3); margin-top:3px;
+}
+
+/* Log input row */
+.gc-log-row {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  margin-bottom:12px;
+}
+.gc-log-cell {
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:10px; padding:12px 8px; text-align:center;
+}
+.gc-log-cell-label {
+  font-size:8px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--dk-3); margin-bottom:8px;
+}
+.gc-log-stepper {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.gc-step-btn {
+  width:32px; height:32px; border-radius:8px;
+  background:var(--ink-2); border:1px solid var(--bd);
+  color:var(--dk-2); font-size:18px; font-weight:300;
+  cursor:pointer; font-family:var(--sans); transition:all .1s;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.gc-step-btn:hover { background:var(--ink-1); border-color:rgba(255,255,255,.1); }
+.gc-step-val {
+  font-family:var(--mono); font-size:20px; font-weight:700;
+  color:var(--dk-1); min-width:36px; text-align:center;
+}
+.gc-effort-row {
+  display:flex; gap:6px; justify-content:center; margin-bottom:8px;
+}
+.gc-effort-btn {
+  width:44px; height:44px; border-radius:10px;
+  background:var(--ink-2); border:1px solid var(--bd);
+  color:var(--dk-3); font-size:14px; font-weight:700;
+  cursor:pointer; font-family:var(--sans); transition:all .12s;
+  display:flex; align-items:center; justify-content:center;
+}
+.gc-effort-btn.sel { background:var(--amber); border-color:var(--amber); color:var(--ink); }
+
+/* Session complete */
+.gc-complete-icon { font-size:48px; text-align:center; margin-bottom:16px; }
+.gc-complete-title {
+  font-family:var(--serif); font-size:36px; font-weight:300;
+  color:var(--dk-1); text-align:center; margin-bottom:8px; line-height:1.1;
+}
+.gc-summary-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  margin:20px 0;
+}
+.gc-sum-cell {
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:8px; padding:12px 8px; text-align:center;
+}
+.gc-sum-val {
+  font-family:var(--mono); font-size:20px; font-weight:700;
+  color:var(--jade); margin-bottom:3px;
+}
+.gc-sum-label {
+  font-size:8px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--dk-3);
+}
+
+/* ── DEBRIEF BANNER ────────────────────────────── */
+#debrief-banner {
+  position:fixed; bottom:0; left:0; right:0;
+  background:var(--ink-1); border-top:1px solid var(--bd);
+  padding:12px 20px; display:none; align-items:center; gap:10px;
+  z-index:100; animation:slideUp .25s ease;
+}
+#debrief-banner.visible { display:flex; }
+#debrief-banner-text {
+  font-size:12px; font-weight:300; color:var(--dk-2); flex:1;
+}
+#debrief-open-btn {
+  background:var(--jade); border:none; color:var(--ink);
+  padding:8px 16px; border-radius:7px; font-size:11px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; cursor:pointer;
+  font-family:var(--sans); white-space:nowrap;
+}
+#debrief-dismiss-btn {
+  background:none; border:none; color:var(--dk-3);
+  font-size:16px; cursor:pointer; padding:4px 6px;
+}
+
+/* ── DEBRIEF OVERLAY ───────────────────────────── */
+#debrief-overlay {
+  display:none; position:fixed; inset:0; z-index:400;
+  background:rgba(8,14,13,.85); backdrop-filter:blur(8px);
+  align-items:flex-end; justify-content:center;
+}
+#debrief-overlay.open { display:flex; }
+#debrief-panel {
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:16px 16px 0 0; width:100%; max-width:600px;
+  max-height:88vh; overflow-y:auto;
+  animation:slideUp .25s ease;
+}
+#debrief-hd {
+  padding:16px 20px; border-bottom:1px solid var(--bd);
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0; position:sticky; top:0; background:var(--ink-1);
+}
+#debrief-title {
+  font-size:14px; font-weight:600; color:var(--dk-1);
+}
+#debrief-hd button {
+  background:none; border:none; color:var(--dk-3);
+  font-size:16px; cursor:pointer; font-family:var(--sans);
+}
+#debrief-body { padding:20px; }
+
+/* Debrief steps */
+.db-step { animation:fadeUp .2s ease; }
+.db-q {
+  font-family:var(--serif); font-size:22px; font-weight:300;
+  color:var(--dk-1); line-height:1.3; margin-bottom:6px;
+}
+.db-sub {
+  font-size:12px; font-weight:300; color:var(--dk-3);
+  margin-bottom:18px; line-height:1.6;
+}
+.db-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.db-chip {
+  padding:10px 18px; border-radius:10px; border:1px solid var(--bd);
+  background:var(--ink-2); font-size:13px; font-weight:500;
+  color:var(--dk-2); cursor:pointer; font-family:var(--sans);
+  transition:all .12s;
+}
+.db-chip:hover { border-color:rgba(255,255,255,.1); color:var(--dk-1); }
+.db-chip.sel { background:var(--jade-dim); border-color:var(--jade-br); color:var(--jade); }
+.db-chip.sel-amber { background:rgba(200,148,30,.08); border-color:rgba(200,148,30,.25); color:var(--amber); }
+.db-next-btn {
+  width:100%; background:var(--jade); border:none; color:var(--ink);
+  padding:14px; border-radius:10px; font-size:13px; font-weight:700;
+  cursor:pointer; font-family:var(--sans); margin-top:8px;
+  transition:opacity .12s;
+}
+.db-next-btn:hover { opacity:.9; }
+.db-skip-btn {
+  width:100%; background:transparent; border:1px solid var(--bd);
+  color:var(--dk-3); padding:10px; border-radius:10px;
+  font-size:11px; font-weight:600; letter-spacing:.06em;
+  text-transform:uppercase; cursor:pointer; font-family:var(--sans);
+  margin-top:6px; transition:all .1s;
+}
+.db-note-inp {
+  width:100%; background:var(--ink-2); border:1px solid var(--bd);
+  border-radius:8px; padding:12px; font-size:13px; font-weight:300;
+  color:var(--dk-1); font-family:var(--sans); resize:none; outline:none;
+  transition:border-color .12s; box-sizing:border-box;
+}
+.db-note-inp:focus { border-color:rgba(0,200,160,.3); }
+.db-summary {
+  background:rgba(0,200,160,.04); border:1px solid var(--jade-br);
+  border-radius:10px; padding:16px; margin-bottom:16px;
+}
+.db-summary-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:5px 0; border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:12px;
+}
+.db-summary-row:last-child { border-bottom:none; }
+.db-summary-key { font-weight:300; color:var(--dk-3); }
+.db-summary-val { font-weight:500; color:var(--jade); }
+
+/* ── NOTIFICATION TOAST ────────────────────────── */
+#notif-toast {
+  position:fixed; top:70px; right:16px; z-index:600;
+  display:flex; flex-direction:column; gap:8px; pointer-events:none;
+}
+.nt-item {
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:10px; padding:12px 14px; max-width:280px;
+  pointer-events:auto; animation:toastIn .25s ease;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+.nt-title { font-size:12px; font-weight:600; color:var(--dk-1); margin-bottom:3px; }
+.nt-body  { font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.5; margin-bottom:10px; }
+.nt-actions { display:flex; gap:6px; }
+.nt-btn {
+  padding:5px 12px; border-radius:8px; font-size:10px; font-weight:600;
+  letter-spacing:.05em; cursor:pointer; font-family:var(--sans);
+  border:1px solid var(--bd); background:transparent; color:var(--dk-3);
+  transition:all .1s;
+}
+.nt-btn.primary { background:var(--jade); border-color:var(--jade); color:var(--ink); }
+.nt-btn:hover { border-color:rgba(255,255,255,.1); color:var(--dk-2); }
 
 /* ── PROGRESS BANNER ───────────────────────────── */
 .prog-banner {
@@ -1632,6 +1955,12 @@ function showSession(blockIdx, block){
     '<div class="lv-tabs">'+levelTabs+'</div>'
     +progHtml+retakeHtml
     +'<div id="session-ex-cards" style="padding:14px 0;">'+buildExCards(tier)+'</div>'
+    +'<div style="padding:8px 0 4px;">'
+      +'<button onclick="_gcLaunchFromBlock('+blockIdx+',window._blocks['+blockIdx+'])" '
+        +'style="width:100%;background:var(--jade);border:none;color:var(--ink);padding:12px;border-radius:8px;'
+        +'font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;'
+        +'font-family:var(--sans);">▶ Start session with coach</button>'
+    +'</div>'
   );
 }
 function switchLevel(tier){
@@ -2986,5 +3315,732 @@ if('serviceWorker' in navigator){
   </div>
 </div>
 
+// ═══════════════════════════════════════════════════════════════
+//  GYM COACH — live session state machine
+// ═══════════════════════════════════════════════════════════════
+var GC = {
+  active: false,
+  exercises: [],      // [{name, sets, reps, rpe, cue}]
+  exIdx: 0,           // current exercise index
+  setIdx: 0,          // current set index (0-based)
+  phase: 'idle',      // idle | intro | working | resting | logging | done
+  timer: null,
+  timerSecs: 0,
+  sessionLog: {},     // {ex_0: {sets:[{reps,weight,effort}]}, ...}
+  restTarget: 90,     // seconds
+};
+
+function gcGetSettings() {
+  try { return JSON.parse(localStorage.getItem('bl_profile')||'{}').notifications || {}; }
+  catch(e) { return {}; }
+}
+
+function gcLaunch(block) {
+  var p = P;
+  if (!p) return;
+
+  // Parse exercises from block
+  var items = (block.items||[]).filter(function(e){ return e.name !== 'Track loads'; });
+  GC.exercises = items.map(function(e) {
+    var parsed = parseExercise(e.name);
+    return {
+      name: parsed.name,
+      sets: parsed.sets || 3,
+      reps: parsed.reps || '10',
+      rpe:  'RPE 7-8',
+      cue:  e.cue || ''
+    };
+  });
+
+  if (!GC.exercises.length) return;
+
+  GC.active = true;
+  GC.exIdx = 0;
+  GC.setIdx = 0;
+  GC.phase = 'intro';
+  GC.sessionLog = {};
+  GC.exercises.forEach(function(_, i) { GC.sessionLog['ex_'+i] = {name: GC.exercises[i].name, sets: []}; });
+
+  document.getElementById('gc-overlay').classList.add('open');
+
+  // Request wake lock to prevent screen sleep
+  if (navigator.wakeLock) {
+    navigator.wakeLock.request('screen').catch(function(){});
+  }
+
+  gcRender();
+}
+
+function gcClose() {
+  gcClearTimer();
+  GC.active = false;
+  GC.phase = 'idle';
+  document.getElementById('gc-overlay').classList.remove('open');
+  if (window._gcWakeLock) { try { window._gcWakeLock.release(); } catch(e) {} }
+}
+
+function gcRender() {
+  var ex = GC.exercises[GC.exIdx] || {};
+  var card = document.getElementById('gc-card');
+  var primaryBtn = document.getElementById('gc-primary-btn');
+  var secondaryBtn = document.getElementById('gc-secondary-btn');
+  var timerEl = document.getElementById('gc-timer-display');
+  var label = document.getElementById('gc-session-label');
+
+  // Progress dots
+  var dots = document.getElementById('gc-progress-dots');
+  if (dots) {
+    dots.innerHTML = GC.exercises.map(function(_, i) {
+      var cls = i < GC.exIdx ? 'done' : i === GC.exIdx ? 'curr' : '';
+      return '<div class="gc-dot ' + cls + '"></div>';
+    }).join('');
+  }
+
+  if (GC.phase === 'intro') {
+    label.textContent = 'Session — ' + GC.exercises.length + ' exercises';
+    timerEl.textContent = '';
+    card.innerHTML = '<div class="gc-phase-label">Ready to start</div>'
+      + '<div class="gc-ex-name">' + (P.plan || TODAY.plan.type || 'Training') + '</div>'
+      + '<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:20px;">'
+        + GC.exercises.map(function(e, i){ return (i+1)+'. '+e.name+' — '+e.sets+'×'+e.reps; }).join('<br>')
+      + '</div>'
+      + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">Log reps, weight, and effort after each set. Tap ▶ when you\'re warmed up and ready.</div>';
+    primaryBtn.textContent = '▶ Begin session';
+    primaryBtn.className = '';
+    secondaryBtn.style.display = 'none';
+
+  } else if (GC.phase === 'working') {
+    label.textContent = ex.name;
+    timerEl.textContent = '';
+    var setNum = GC.setIdx + 1;
+    var totalSets = ex.sets;
+    card.innerHTML = '<div class="gc-phase-label">Exercise ' + (GC.exIdx+1) + ' of ' + GC.exercises.length + '</div>'
+      + '<div class="gc-ex-name">' + ex.name + '</div>'
+      + '<div class="gc-set-badge">Set ' + setNum + ' of ' + totalSets + '</div>'
+      + '<div class="gc-schema">'
+        + '<div class="gc-schema-chip"><div class="gc-schema-val">' + ex.reps + '</div><div class="gc-schema-label">Reps</div></div>'
+        + '<div class="gc-schema-chip"><div class="gc-schema-val">' + ex.sets + '</div><div class="gc-schema-label">Sets</div></div>'
+        + '<div class="gc-schema-chip"><div class="gc-schema-val" style="font-size:13px;">' + ex.rpe + '</div><div class="gc-schema-label">Target</div></div>'
+      + '</div>'
+      + (ex.cue ? '<div class="gc-cue">' + ex.cue + '</div>' : '');
+    primaryBtn.textContent = '✓ Set done';
+    primaryBtn.className = '';
+    secondaryBtn.textContent = 'Skip set';
+    secondaryBtn.style.display = '';
+
+  } else if (GC.phase === 'resting') {
+    label.textContent = 'Rest';
+    card.innerHTML = '<div class="gc-phase-label">Recover</div>'
+      + '<div class="gc-ex-name" style="font-size:28px;color:var(--dk-2);">Rest period</div>'
+      + '<div style="font-size:12px;font-weight:300;color:var(--dk-3);margin-top:8px;">Next: set ' + (GC.setIdx+1) + ' of ' + ex.name + '</div>';
+    primaryBtn.textContent = 'Skip rest →';
+    primaryBtn.className = 'amber';
+    secondaryBtn.style.display = 'none';
+    gcStartTimer(GC.restTarget, function() { GC.phase = 'logging'; gcClearTimer(); gcRender(); });
+
+  } else if (GC.phase === 'logging') {
+    label.textContent = 'Log set';
+    timerEl.textContent = '';
+    var lastSet = GC.sessionLog['ex_'+GC.exIdx].sets.slice(-1)[0] || {};
+    var prevReps = lastSet.reps || parseInt(ex.reps) || 10;
+    var prevWeight = lastSet.weight || 0;
+
+    card.innerHTML = '<div class="gc-phase-label">How did that go?</div>'
+      + '<div class="gc-ex-name" style="font-size:24px;">' + ex.name + ' — Set ' + GC.setIdx + '</div>'
+      + '<div class="gc-log-row">'
+        + '<div class="gc-log-cell">'
+          + '<div class="gc-log-cell-label">Reps</div>'
+          + '<div class="gc-log-stepper">'
+            + '<button class="gc-step-btn" onclick="gcStep(\'reps\',-1)">−</button>'
+            + '<div class="gc-step-val" id="gc-val-reps">' + prevReps + '</div>'
+            + '<button class="gc-step-btn" onclick="gcStep(\'reps\',1)">+</button>'
+          + '</div>'
+        + '</div>'
+        + '<div class="gc-log-cell">'
+          + '<div class="gc-log-cell-label">Weight (kg)</div>'
+          + '<div class="gc-log-stepper">'
+            + '<button class="gc-step-btn" onclick="gcStep(\'weight\',-2.5)">−</button>'
+            + '<div class="gc-step-val" id="gc-val-weight">' + prevWeight + '</div>'
+            + '<button class="gc-step-btn" onclick="gcStep(\'weight\',2.5)">+</button>'
+          + '</div>'
+        + '</div>'
+        + '<div class="gc-log-cell">'
+          + '<div class="gc-log-cell-label">Effort</div>'
+          + '<div class="gc-effort-row" id="gc-effort-row">'
+            + [1,2,3,4,5].map(function(n){
+                return '<button class="gc-effort-btn" id="gc-eff-'+n+'" onclick="gcSetEffort('+n+')" title="' + ['','Easy','Moderate','Hard','Very hard','Max'][n] + '">' + n + '</button>';
+              }).join('')
+          + '</div>'
+        + '</div>'
+      + '</div>'
+      + '<div style="font-size:10px;font-weight:300;color:var(--dk-3);text-align:center;margin-bottom:8px;">Bodyweight / no weight? Leave weight at 0</div>';
+
+    GC._logVals = { reps: prevReps, weight: prevWeight, effort: 0 };
+    primaryBtn.textContent = 'Save & continue →';
+    primaryBtn.className = '';
+    secondaryBtn.textContent = 'Skip log';
+    secondaryBtn.style.display = '';
+
+  } else if (GC.phase === 'done') {
+    gcClearTimer();
+    label.textContent = 'Session complete';
+    timerEl.textContent = '';
+
+    // Build summary
+    var totalSets = 0, exercisesDone = 0;
+    Object.values(GC.sessionLog).forEach(function(e){ if(e.sets.length){ exercisesDone++; totalSets += e.sets.length; } });
+
+    card.innerHTML = '<div class="gc-complete-icon">🏁</div>'
+      + '<div class="gc-complete-title">Session complete.</div>'
+      + '<div class="gc-summary-grid">'
+        + '<div class="gc-sum-cell"><div class="gc-sum-val">' + exercisesDone + '</div><div class="gc-sum-label">Exercises</div></div>'
+        + '<div class="gc-sum-cell"><div class="gc-sum-val">' + totalSets + '</div><div class="gc-sum-label">Sets logged</div></div>'
+        + '<div class="gc-sum-cell"><div class="gc-sum-val" style="color:var(--amber);">✓</div><div class="gc-sum-label">Saved</div></div>'
+      + '</div>'
+      + '<div style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.75;text-align:center;">'
+        + 'All sets logged to today\'s record. See your full session in the day review.'
+      + '</div>';
+    primaryBtn.textContent = '← Back to today';
+    primaryBtn.className = '';
+    secondaryBtn.style.display = 'none';
+
+    // Write to daylog
+    gcSaveToLog();
+  }
+}
+
+function gcPrimary() {
+  if (GC.phase === 'intro') {
+    GC.phase = 'working';
+    gcRender();
+  } else if (GC.phase === 'working') {
+    // Set done — go to rest or logging
+    GC.phase = 'resting';
+    gcRender();
+  } else if (GC.phase === 'resting') {
+    // Skip rest
+    gcClearTimer();
+    GC.phase = 'logging';
+    gcRender();
+  } else if (GC.phase === 'logging') {
+    gcSaveSet();
+    gcAdvance();
+  } else if (GC.phase === 'done') {
+    gcClose();
+  }
+}
+
+function gcSecondary() {
+  if (GC.phase === 'working') {
+    // Skip set — go straight to logging or next
+    GC.phase = 'logging';
+    gcRender();
+  } else if (GC.phase === 'logging') {
+    // Skip logging this set
+    gcAdvance();
+  }
+}
+
+function gcAdvance() {
+  var ex = GC.exercises[GC.exIdx];
+  GC.setIdx++;
+  if (GC.setIdx < ex.sets) {
+    GC.phase = 'resting';
+    gcRender();
+  } else {
+    // Move to next exercise
+    GC.exIdx++;
+    GC.setIdx = 0;
+    if (GC.exIdx >= GC.exercises.length) {
+      GC.phase = 'done';
+    } else {
+      GC.phase = 'working';
+    }
+    gcRender();
+  }
+}
+
+function gcStep(field, delta) {
+  if (!GC._logVals) return;
+  GC._logVals[field] = Math.max(0, Math.round((GC._logVals[field] + delta) * 10) / 10);
+  var el = document.getElementById('gc-val-' + field);
+  if (el) el.textContent = GC._logVals[field];
+}
+
+function gcSetEffort(n) {
+  if (!GC._logVals) return;
+  GC._logVals.effort = n;
+  [1,2,3,4,5].forEach(function(i) {
+    var btn = document.getElementById('gc-eff-' + i);
+    if (btn) btn.classList.toggle('sel', i === n);
+  });
+}
+
+function gcSaveSet() {
+  var key = 'ex_' + GC.exIdx;
+  if (GC.sessionLog[key] && GC._logVals) {
+    GC.sessionLog[key].sets.push({
+      reps: GC._logVals.reps,
+      weight: GC._logVals.weight,
+      effort: GC._logVals.effort,
+      setNum: GC.setIdx
+    });
+  }
+}
+
+function gcSaveToLog() {
+  var log = loadDayLog(_rDate) || initDayLog();
+  if (!log.exercises) log.exercises = {};
+  Object.keys(GC.sessionLog).forEach(function(key, i) {
+    var entry = GC.sessionLog[key];
+    if (entry.sets.length) {
+      log.exercises[key] = {
+        name: entry.name,
+        status: 'done',
+        sets: entry.sets,
+        note: ''
+      };
+    }
+  });
+  if (Object.keys(log.exercises).some(function(k){ return log.exercises[k].sets && log.exercises[k].sets.length; })) {
+    log.trainStatus = 'done';
+  }
+  saveDayLog(log);
+  // Refresh the exercise rows on the page
+  renderProgressBanner(P, TODAY);
+}
+
+function gcStartTimer(secs, onComplete) {
+  gcClearTimer();
+  GC.timerSecs = secs;
+  var timerEl = document.getElementById('gc-timer-display');
+  function tick() {
+    if (timerEl) timerEl.textContent = Math.floor(GC.timerSecs/60) + ':' + (GC.timerSecs%60<10?'0':'') + (GC.timerSecs%60);
+    if (GC.timerSecs <= 0) { gcClearTimer(); if(onComplete) onComplete(); return; }
+    GC.timerSecs--;
+  }
+  tick();
+  GC.timer = setInterval(tick, 1000);
+}
+
+function gcClearTimer() {
+  if (GC.timer) { clearInterval(GC.timer); GC.timer = null; }
+}
+
+// Wire "Start with Coach" button into existing showSession
+var _origShowSession = showSession;
+window._gcLaunchFromBlock = function(blockIdx, block) {
+  // Close the session panel first
+  closeSession();
+  setTimeout(function() { gcLaunch(block); }, 200);
+};
+
+
+// ═══════════════════════════════════════════════════════════════
+//  DEBRIEF SYSTEM
+// ═══════════════════════════════════════════════════════════════
+var DB = {
+  step: 0,
+  data: {},
+  dismissed: false
+};
+
+function checkDebriefNeeded() {
+  if (DB.dismissed) return;
+  var prefs = (P && P.notifications) || {};
+  if (prefs.debrief === false) return;
+
+  var log = loadDayLog(_rDate);
+  var hour = new Date().getHours();
+  if (hour < 19) return; // Only show after 7pm
+
+  // Check what's missing
+  var missing = [];
+  if (TODAY.isTraining && (!log || log.trainStatus === 'pending')) missing.push('training');
+  if (!log || !log.sleepActual) missing.push('sleep');
+  if (!log || !log.energy) missing.push('energy');
+
+  if (!missing.length) return;
+
+  var banner = document.getElementById('debrief-banner');
+  var text = document.getElementById('debrief-banner-text');
+  if (!banner) return;
+
+  var msgs = {
+    training: 'Training not logged yet',
+    sleep: 'Sleep not logged yet',
+    energy: 'Energy not logged yet'
+  };
+  text.textContent = msgs[missing[0]] + (missing.length > 1 ? ' +' + (missing.length-1) + ' more' : '') + ' — quick update?';
+  banner.classList.add('visible');
+}
+
+function dismissDebrief() {
+  DB.dismissed = true;
+  var banner = document.getElementById('debrief-banner');
+  if (banner) banner.classList.remove('visible');
+}
+
+function openDebrief() {
+  dismissDebrief(); // hide banner
+  DB.step = 0;
+  DB.data = {};
+  var log = loadDayLog(_rDate) || {};
+  DB.data.trainStatus = log.trainStatus || '';
+  DB.data.sleepActual = log.sleepActual || 0;
+  DB.data.energy = log.energy || 0;
+
+  document.getElementById('debrief-overlay').classList.add('open');
+  dbRender();
+}
+
+function closeDebrief() {
+  document.getElementById('debrief-overlay').classList.remove('open');
+}
+
+var DB_STEPS = [
+  {
+    id: 'training',
+    q: 'How did training go?',
+    sub: null,
+    type: 'chips',
+    chips: [
+      { label: '✓ Done', val: 'done' },
+      { label: '~ Modified', val: 'modified' },
+      { label: '✗ Skipped', val: 'skipped' },
+      { label: 'Rest day', val: 'rest' }
+    ],
+    skip: true,
+    condition: function() { return TODAY.isTraining; }
+  },
+  {
+    id: 'exercises',
+    q: 'Which exercises were affected?',
+    sub: 'Select all that were modified or skipped',
+    type: 'ex-chips',
+    skip: true,
+    condition: function() { return DB.data.trainStatus === 'modified' || DB.data.trainStatus === 'skipped'; }
+  },
+  {
+    id: 'sleepActual',
+    q: 'How many hours did you sleep?',
+    sub: 'Last night',
+    type: 'chips',
+    chips: [
+      { label: '4h', val: 4 },
+      { label: '5h', val: 5 },
+      { label: '6h', val: 6 },
+      { label: '7h', val: 7 },
+      { label: '8h', val: 8 },
+      { label: '9h+', val: 9 }
+    ],
+    skip: true,
+    condition: function() { return !DB.data.sleepActual; }
+  },
+  {
+    id: 'energy',
+    q: 'Energy today?',
+    sub: '1 = wrecked · 5 = firing',
+    type: 'chips',
+    chips: [
+      { label: '1', val: 1 },
+      { label: '2', val: 2 },
+      { label: '3', val: 3 },
+      { label: '4', val: 4 },
+      { label: '5 🔥', val: 5 }
+    ],
+    skip: true,
+    condition: function() { return !DB.data.energy; }
+  },
+  {
+    id: 'dayNote',
+    q: 'Anything to note?',
+    sub: 'Off-plan food, stress, injury, a win — optional',
+    type: 'text',
+    skip: true,
+    condition: function() { return true; }
+  },
+  {
+    id: 'summary',
+    q: 'Logged.',
+    sub: null,
+    type: 'summary',
+    condition: function() { return true; }
+  }
+];
+
+function dbGetActiveSteps() {
+  return DB_STEPS.filter(function(s) { return !s.condition || s.condition(); });
+}
+
+function dbRender() {
+  var steps = dbGetActiveSteps();
+  var step = steps[DB.step];
+  if (!step) { closeDebrief(); return; }
+
+  var body = document.getElementById('debrief-body');
+  if (!body) return;
+
+  var html = '<div class="db-step">';
+  html += '<div class="gc-progress-dots" style="display:flex;gap:4px;margin-bottom:20px;">'
+    + steps.map(function(_, i) {
+        return '<div style="height:2px;flex:1;border-radius:2px;background:' + (i < DB.step ? 'var(--jade)' : i === DB.step ? 'rgba(0,200,160,.4)' : 'rgba(255,255,255,.06)') + ';"></div>';
+      }).join('')
+    + '</div>';
+
+  html += '<div class="db-q">' + step.q + '</div>';
+  if (step.sub) html += '<div class="db-sub">' + step.sub + '</div>';
+
+  if (step.type === 'chips') {
+    html += '<div class="db-chips">';
+    step.chips.forEach(function(c) {
+      var isSel = DB.data[step.id] === c.val;
+      html += '<div class="db-chip' + (isSel ? ' sel' : '') + '" onclick="dbSelectChip(\'' + step.id + '\',' + JSON.stringify(c.val) + ',this)">' + c.label + '</div>';
+    });
+    html += '</div>';
+    html += '<button class="db-next-btn" onclick="dbNext()">Continue →</button>';
+    if (step.skip) html += '<button class="db-skip-btn" onclick="dbSkip()">Skip</button>';
+
+  } else if (step.type === 'ex-chips') {
+    var exercises = (window._blocks || []).find(function(b){ return b.type === 'train'; });
+    var exList = exercises ? (exercises.items || []).filter(function(e){ return e.name !== 'Track loads'; }) : [];
+    if (!DB.data.affectedExercises) DB.data.affectedExercises = [];
+    html += '<div class="db-chips">';
+    exList.forEach(function(ex) {
+      var name = ex.name || '';
+      var isSel = DB.data.affectedExercises.indexOf(name) >= 0;
+      html += '<div class="db-chip' + (isSel ? ' sel' : '') + '" onclick="dbToggleEx(\'' + name.replace(/'/g, "\\'") + '\',this)">' + name + '</div>';
+    });
+    html += '</div>';
+    html += '<div style="margin-top:8px;">'
+      + '<textarea class="db-note-inp" id="db-ex-note" rows="2" placeholder="What happened? — optional">' + (DB.data.exNote||'') + '</textarea>'
+      + '</div>';
+    html += '<button class="db-next-btn" style="margin-top:12px;" onclick="dbSaveExNote();dbNext()">Continue →</button>';
+    if (step.skip) html += '<button class="db-skip-btn" onclick="dbSkip()">Skip</button>';
+
+  } else if (step.type === 'text') {
+    html += '<textarea class="db-note-inp" id="db-note-inp" rows="3" placeholder="Optional…">' + (DB.data[step.id]||'') + '</textarea>';
+    html += '<button class="db-next-btn" style="margin-top:12px;" onclick="dbSaveNote();dbNext()">Done →</button>';
+    if (step.skip) html += '<button class="db-skip-btn" onclick="dbSkip()">Skip</button>';
+
+  } else if (step.type === 'summary') {
+    // Write to daylog first
+    dbWriteToLog();
+    html += '<div class="db-summary">';
+    var rows = [
+      { key: 'Training', val: DB.data.trainStatus || '—' },
+      { key: 'Sleep', val: DB.data.sleepActual ? DB.data.sleepActual + 'h' : '—' },
+      { key: 'Energy', val: DB.data.energy ? DB.data.energy + '/5' : '—' },
+      { key: 'Note', val: DB.data.dayNote ? '"' + DB.data.dayNote.slice(0,40) + '"' : '—' }
+    ];
+    rows.forEach(function(r) {
+      html += '<div class="db-summary-row"><span class="db-summary-key">' + r.key + '</span><span class="db-summary-val">' + r.val + '</span></div>';
+    });
+    html += '</div>';
+    html += '<button class="db-next-btn" onclick="closeDebrief();renderDayCapture();">Done</button>';
+  }
+
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function dbSelectChip(field, val, el) {
+  DB.data[field] = val;
+  el.closest('.db-chips').querySelectorAll('.db-chip').forEach(function(c) { c.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+function dbToggleEx(name, el) {
+  if (!DB.data.affectedExercises) DB.data.affectedExercises = [];
+  var idx = DB.data.affectedExercises.indexOf(name);
+  if (idx >= 0) DB.data.affectedExercises.splice(idx, 1);
+  else DB.data.affectedExercises.push(name);
+  el.classList.toggle('sel', DB.data.affectedExercises.indexOf(name) >= 0);
+}
+
+function dbSaveNote() {
+  var inp = document.getElementById('db-note-inp');
+  if (inp) DB.data.dayNote = inp.value.trim();
+}
+
+function dbSaveExNote() {
+  var inp = document.getElementById('db-ex-note');
+  if (inp) DB.data.exNote = inp.value.trim();
+}
+
+function dbNext() {
+  DB.step++;
+  var steps = dbGetActiveSteps();
+  if (DB.step >= steps.length) { closeDebrief(); return; }
+  dbRender();
+}
+
+function dbSkip() {
+  dbNext();
+}
+
+function dbWriteToLog() {
+  var log = loadDayLog(_rDate) || initDayLog();
+  if (DB.data.trainStatus)  log.trainStatus  = DB.data.trainStatus;
+  if (DB.data.sleepActual)  log.sleepActual  = DB.data.sleepActual;
+  if (DB.data.energy)       log.energy       = DB.data.energy;
+  if (DB.data.dayNote)      log.dayNote      = DB.data.dayNote;
+
+  // Write affected exercises
+  if (DB.data.affectedExercises && DB.data.affectedExercises.length) {
+    if (!log.exercises) log.exercises = {};
+    DB.data.affectedExercises.forEach(function(name, i) {
+      var key = 'ex_aff_' + i;
+      log.exercises[key] = {
+        name: name,
+        status: DB.data.trainStatus === 'skipped' ? 'skipped' : 'modified',
+        note: DB.data.exNote || ''
+      };
+    });
+  }
+
+  saveDayLog(log);
+  renderProgressBanner(P, TODAY);
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+//  NOTIFICATION ENGINE (local, opt-in, settings-driven)
+// ═══════════════════════════════════════════════════════════════
+var NT = {
+  timers: {},
+  requested: false
+};
+
+function ntGetPrefs() {
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+    return Object.assign({ enabled: false, postMealWalk: true, trainingReminder: true, debrief: true, quietStart: 22, quietEnd: 7 }, p.notifications || {});
+  } catch(e) { return { enabled: false }; }
+}
+
+function ntInQuietHours() {
+  var prefs = ntGetPrefs();
+  if (!prefs.quietStart && !prefs.quietEnd) return false;
+  var hour = new Date().getHours();
+  var start = parseInt(prefs.quietStart) || 22;
+  var end   = parseInt(prefs.quietEnd)   || 7;
+  if (start > end) return hour >= start || hour < end;
+  return hour >= start && hour < end;
+}
+
+function ntShow(title, body, actions) {
+  if (!ntGetPrefs().enabled) return;
+  if (ntInQuietHours()) return;
+
+  var toast = document.getElementById('notif-toast');
+  if (!toast) return;
+
+  var id = 'nt-' + Date.now();
+  var actHtml = (actions||[]).map(function(a) {
+    return '<button class="nt-btn' + (a.primary?' primary':'') + '" onclick="ntAction(\'' + id + '\',function(){' + a.fn + '})">' + a.label + '</button>';
+  }).join('');
+
+  var el = document.createElement('div');
+  el.className = 'nt-item';
+  el.id = id;
+  el.innerHTML = '<div class="nt-title">' + title + '</div>'
+    + '<div class="nt-body">' + body + '</div>'
+    + '<div class="nt-actions">' + actHtml
+      + '<button class="nt-btn" onclick="ntDismiss(\'' + id + '\')">Dismiss</button>'
+    + '</div>';
+  toast.appendChild(el);
+
+  // Auto-dismiss after 12s
+  setTimeout(function() { ntDismiss(id); }, 12000);
+
+  // Also try native Notification if permitted
+  if (Notification && Notification.permission === 'granted') {
+    try { new Notification(title, { body: body, icon: '/icons/icon-192.png' }); } catch(e) {}
+  }
+}
+
+function ntDismiss(id) {
+  var el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function ntAction(id, fn) {
+  ntDismiss(id);
+  try { fn(); } catch(e) {}
+}
+
+function ntRequestPermission() {
+  if (NT.requested) return;
+  NT.requested = true;
+  if (Notification && Notification.permission === 'default') {
+    Notification.requestPermission().catch(function(){});
+  }
+}
+
+// Schedule notifications based on today's state
+function ntScheduleDay() {
+  var prefs = ntGetPrefs();
+  if (!prefs.enabled) return;
+
+  ntRequestPermission();
+
+  var now = new Date();
+  var hour = now.getHours();
+
+  // Training reminder — 9am on training days
+  if (prefs.trainingReminder && TODAY && TODAY.isTraining && hour < 9) {
+    var msTo9am = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0) - now;
+    if (msTo9am > 0) {
+      NT.timers.training = setTimeout(function() {
+        var log = loadDayLog(_rDate);
+        if (!log || log.trainStatus === 'pending') {
+          ntShow('Ready when you are 🏋️', TODAY.plan.type + ' day. Your session is loaded.', [
+            { label: 'Open today', primary: true, fn: 'window.scrollTo({top:0,behavior:"smooth"})' }
+          ]);
+        }
+      }, msTo9am);
+    }
+  }
+
+  // Debrief reminder — 8pm if not logged
+  if (prefs.debrief && hour < 20) {
+    var msTo8pm = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 20, 0, 0) - now;
+    if (msTo8pm > 0) {
+      NT.timers.debrief = setTimeout(function() {
+        var log = loadDayLog(_rDate);
+        var missing = !log || !log.sleepActual || !log.energy || (TODAY.isTraining && log.trainStatus === 'pending');
+        if (missing) {
+          ntShow('Quick log before you sleep?', 'A couple of taps — keeps your week review meaningful.', [
+            { label: 'Log now', primary: true, fn: 'openDebrief()' }
+          ]);
+          // Also show the debrief banner
+          checkDebriefNeeded();
+        }
+      }, msTo8pm);
+    }
+  }
+}
+
+// Post-meal walk notification — called when a meal is ticked
+window.ntPostMealWalk = function() {
+  var prefs = ntGetPrefs();
+  if (!prefs.enabled || !prefs.postMealWalk) return;
+  if (ntInQuietHours()) return;
+  setTimeout(function() {
+    ntShow('Good time for a short walk 🚶', '10–20 minutes now drops blood glucose by up to 30%.', [
+      { label: 'Done ✓', primary: true, fn: 'void(0)' },
+      { label: 'Remind in 1h', fn: 'setTimeout(function(){ntShow("Walk reminder","Still time for that post-meal walk 🚶",[{label:"Done",primary:true,fn:"void(0)"}])},3600000)' }
+    ]);
+  }, 20 * 60 * 1000); // 20 minutes after meal
+};
+
+// Check debrief needed on load (if past 7pm)
+setTimeout(function() {
+  checkDebriefNeeded();
+  ntScheduleDay();
+}, 3000);
+
+</script>
 </body>
 </html>
