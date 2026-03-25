@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Deep Stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.sp-page { max-width:800px; margin:0 auto; padding:0 28px 100px; }
+
+/* Hero */
+.sp-hero { padding:44px 0 28px; border-bottom:1px solid var(--bd); margin-bottom:32px; }
+.sp-kicker { font-size:10px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--dk-3); margin-bottom:10px; }
+.sp-title { font-family:var(--serif); font-size:52px; font-weight:300; line-height:.93; letter-spacing:-.02em; color:var(--dk-1); margin-bottom:12px; }
+.sp-title em { font-style:italic; color:var(--dk-3); }
+.sp-sub { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.75; max-width:520px; }
+
+/* Category filter */
+.sp-filter { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:28px; }
+.sp-filter-btn {
+  padding:5px 14px; border-radius:14px; border:1px solid var(--bd);
+  background:transparent; font-size:10px; font-weight:600;
+  letter-spacing:.06em; text-transform:uppercase;
+  color:var(--dk-3); cursor:pointer; font-family:var(--sans); transition:all .1s;
+}
+.sp-filter-btn:hover { border-color:rgba(255,255,255,.1); color:var(--dk-2); }
+.sp-filter-btn.active { background:var(--ink-1); border-color:rgba(200,148,30,.3); color:var(--amber); }
+
+/* Section label */
+.sp-sec { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--dk-3);
+  margin:28px 0 14px; display:flex; align-items:center; gap:10px; }
+.sp-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
+
+/* Supplement cards */
+.sp-card {
+  background:var(--ink-1); border:1px solid var(--bd);
+  border-radius:10px; overflow:hidden; margin-bottom:8px;
+  transition:border-color .12s;
+}
+.sp-card:hover { border-color:rgba(255,255,255,.08); }
+.sp-card.open { border-color:rgba(200,148,30,.25); }
+
+.sp-card-hd {
+  display:flex; align-items:center; gap:12px;
+  padding:14px 18px; cursor:pointer;
+}
+.sp-icon { font-size:18px; flex-shrink:0; width:24px; text-align:center; }
+.sp-info { flex:1; min-width:0; }
+.sp-name { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:2px; }
+.sp-card.open .sp-name { color:var(--amber); }
+.sp-tagline { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.4; }
+.sp-badges { display:flex; gap:5px; align-items:center; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+.sp-badge {
+  font-size:8px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  padding:3px 8px; border-radius:8px;
+}
+.sp-badge.evidence-strong { background:rgba(0,200,160,.1); border:1px solid var(--jade-br); color:var(--jade); }
+.sp-badge.evidence-moderate { background:rgba(200,148,30,.08); border:1px solid rgba(200,148,30,.25); color:var(--amber); }
+.sp-badge.evidence-emerging { background:rgba(255,255,255,.04); border:1px solid var(--bd); color:var(--dk-3); }
+.sp-badge.cat { background:var(--ink-2); border:1px solid var(--bd); color:var(--dk-3); }
+.sp-chevron { color:var(--dk-3); font-size:10px; transition:transform .15s; flex-shrink:0; }
+.sp-card.open .sp-chevron { transform:rotate(180deg); color:var(--amber); }
+
+/* Card body */
+.sp-body {
+  display:none; border-top:1px solid var(--bd);
+  padding:16px 18px; background:var(--ink-2);
+}
+.sp-card.open .sp-body { display:block; }
+.sp-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+.sp-field-label { font-size:8px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--dk-3); margin-bottom:4px; }
+.sp-field-val { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.6; }
+.sp-mechanism { font-family:var(--serif); font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.85; margin-bottom:12px; }
+.sp-relevance {
+  background:rgba(0,200,160,.04); border:1px solid var(--jade-br);
+  border-radius:6px; padding:10px 14px; margin-bottom:12px;
+}
+.sp-relevance-label { font-size:8px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--jade); margin-bottom:4px; }
+.sp-relevance-text { font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.65; }
+.sp-warn {
+  background:rgba(200,148,30,.05); border:1px solid rgba(200,148,30,.2);
+  border-radius:6px; padding:8px 12px; margin-bottom:12px;
+}
+.sp-warn-text { font-size:10px; font-weight:300; color:var(--amber); line-height:1.6; }
+.sp-add-btn {
+  display:inline-block; background:transparent; border:1px solid var(--bd);
+  border-radius:7px; padding:7px 16px; font-size:10px; font-weight:600;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--dk-3);
+  cursor:pointer; font-family:var(--sans); transition:all .12s;
+}
+.sp-add-btn:hover { border-color:var(--jade-br); color:var(--jade); }
+.sp-add-btn.saved { background:var(--jade); border-color:var(--jade); color:var(--ink); cursor:default; }
+.sp-stack-note { font-size:10px; font-weight:300; color:var(--dk-3); margin-top:6px; line-height:1.5; }
+</style>
+</head>
+<body>
+<script src="nav.js"></script>
+
+<div class="sp-page">
+  <div class="sp-hero">
+    <div class="sp-kicker">Advanced Supplementation</div>
+    <div class="sp-title">The deep<br><em>stack.</em></div>
+    <div class="sp-sub">Beyond the basics. Compounds with real mechanisms, honest evidence ratings, and specific relevance to your goal. Not mainstream. Not hype.</div>
+  </div>
+
+  <div id="sp-root"></div>
+</div>
+
+<script>
+var SUPPS = [
+  // ── HORMONAL / TESTOSTERONE ──────────────────────────────────────
+  {
+    id: 'tongkat-ali',
+    icon: '🌿',
+    name: 'Tongkat Ali (LJ100)',
+    tagline: 'Testosterone support via LH pathway — strongest evidence for men over 35',
+    cat: 'Hormonal',
+    evidence: 'moderate',
+    dose: '200–400mg/day',
+    timing: 'Morning, with food',
+    form: 'Standardised extract (LJ100 or 200:1)',
+    cycle: 'Can be taken continuously. Some cycle 5 days on / 2 off.',
+    mechanism: 'Eurycomanone (the active compound) inhibits SHBG binding and stimulates LH release from the pituitary, increasing free testosterone. Effect is most pronounced in men with suboptimal baseline T, which includes most men over 40 under chronic training stress.',
+    relevance: 'At 44, training hard for body recomp, your free testosterone is probably not where it was at 30. Tongkat Ali won\'t make you a different person, but at therapeutic doses it measurably improves free T, reduces cortisol-to-testosterone ratio, and supports the anabolic environment you need for simultaneous fat loss and muscle gain.',
+    warn: 'Ensure standardised extract (LJ100 or similar). Many products are underdosed or use poor extracts. Not suitable with anticoagulants or if you have hormone-sensitive conditions.',
+    stacks: 'Stacks well with Shilajit and Fadogia. Don\'t stack all three simultaneously — start with just one.'
+  },
+  {
+    id: 'fadogia-agrestis',
+    icon: '🌱',
+    name: 'Fadogia Agrestis',
+    tagline: 'LH stimulation, testosterone pathway — limited but growing evidence',
+    cat: 'Hormonal',
+    evidence: 'emerging',
+    dose: '425–600mg/day',
+    timing: 'Morning',
+    form: 'Standardised extract',
+    cycle: 'Cycle 8 weeks on / 2 weeks off. Not for continuous use.',
+    mechanism: 'Believed to stimulate luteinising hormone (LH) release, which signals the testes to produce more testosterone. Evidence base is primarily animal studies and limited human trials, but Andrew Huberman\'s popularisation has driven more research. The mechanism is plausible.',
+    relevance: 'Higher risk/benefit profile than Tongkat Ali. If you\'ve tried Tongkat Ali with good results, adding Fadogia in a cycle may amplify effect. If starting from zero, try Tongkat Ali first — better evidence, lower risk.',
+    warn: 'Testicular health concerns in animal studies at high doses. Use the lowest effective dose. Do not run continuously. Monitor how you feel — discontinue if any testicular discomfort.',
+    stacks: 'Often stacked with Tongkat Ali. Not with other LH stimulators simultaneously.'
+  },
+  {
+    id: 'shilajit',
+    icon: '🪨',
+    name: 'Shilajit (Purified)',
+    tagline: 'Mitochondrial energy, testosterone co-factor, particularly potent with zinc',
+    cat: 'Hormonal',
+    evidence: 'moderate',
+    dose: '250–500mg/day',
+    timing: 'Morning, with water or warm milk',
+    form: 'Purified resin or standardised extract (>40% fulvic acid)',
+    cycle: 'Continuous use is traditional. Some take 3 months on / 1 month off.',
+    mechanism: 'Fulvic acid (active compound) acts as a mitochondrial co-factor, improving ATP production efficiency. Also shown to significantly increase total and free testosterone in clinical trials of infertile men and healthy males over 45. Synergistic with zinc and CoQ10.',
+    relevance: 'The mitochondrial angle is directly relevant — at 44 training 4 days a week, your energy production capacity determines training quality. The testosterone effect is additive to your existing stack without duplicating creatine\'s pathway.',
+    warn: 'Quality is everything — heavy metal contamination is documented in low-grade products. Use only purified, lab-tested resin or extract. Avoid if kidney stones are a concern.',
+    stacks: 'Stacks well with zinc, CoQ10. Synergistic with Tongkat Ali.'
+  },
+
+  // ── COGNITIVE / ADAPTOGENIC ──────────────────────────────────────
+  {
+    id: 'ashwagandha',
+    icon: '🍃',
+    name: 'Ashwagandha (KSM-66)',
+    tagline: 'Cortisol reduction, testosterone support, stress adaptation',
+    cat: 'Adaptogenic',
+    evidence: 'strong',
+    dose: '300–600mg/day',
+    timing: 'Evening — cortisol lowering works best at night',
+    form: 'KSM-66 or Sensoril extract (standardised)',
+    cycle: 'Continuous use is well-tolerated. Some cycle 3 months on / 2 weeks off.',
+    mechanism: 'Withanolides (active compounds) reduce cortisol by acting on the HPA axis. Multiple RCTs show significant reduction in serum cortisol and improvements in VO2max, muscle recovery, and testosterone in resistance-trained men. One of the best-evidenced adaptogens.',
+    relevance: 'Body recomposition at 44 is essentially a cortisol management problem as much as a training problem. Chronically elevated cortisol from training, work, and life creates muscle catabolism and preferential fat storage around the trunk. KSM-66 directly addresses this. Stack with your magnesium at night.',
+    warn: 'Mild sedative effect — hence the evening timing. Can cause GI upset if taken fasted. Not suitable with thyroid medication or benzodiazepines without medical advice.',
+    stacks: 'Natural night stack: Ashwagandha + Magnesium + Apigenin + Glycine.'
+  },
+  {
+    id: 'lions-mane',
+    icon: '🦁',
+    name: 'Lion\'s Mane',
+    tagline: 'NGF and BDNF upregulation — nerve growth, cognitive clarity, recovery signalling',
+    cat: 'Cognitive',
+    evidence: 'moderate',
+    dose: '500–1000mg/day (fruiting body, not mycelium)',
+    timing: 'Morning with food',
+    form: 'Fruiting body extract (not grain/mycelium — check label carefully)',
+    cycle: 'Continuous use. Effects build over 4–8 weeks.',
+    mechanism: 'Hericenones and erinacines stimulate Nerve Growth Factor (NGF) synthesis and modulate BDNF. This supports neural plasticity, myelin repair, and reduces neuroinflammation. The motor learning improvements are relevant to training — movement pattern acquisition improves with better NGF.',
+    relevance: 'The clearest use case here is cognitive clarity under training load. The BDNF angle also supports motor patterning — learning and consolidating new movement patterns (relevant for your Pull and Posterior Chain technical work). Mild mood stabilising effect is a secondary benefit.',
+    warn: 'Ensure you\'re buying fruiting body extract, not mycelium on grain (which is mostly starch). This matters enormously for bioactive compound concentration.',
+    stacks: 'Cognitive stack: Lion\'s Mane + Rhodiola + L-Theanine (already in your stack).'
+  },
+  {
+    id: 'rhodiola',
+    icon: '🌸',
+    name: 'Rhodiola Rosea',
+    tagline: 'Reduces perceived exertion, mental fatigue, and cortisol spikes during training',
+    cat: 'Adaptogenic',
+    evidence: 'moderate',
+    dose: '200–400mg/day',
+    timing: '30–60 min before training or mentally demanding work',
+    form: 'Standardised to 3% rosavins and 1% salidroside',
+    cycle: 'Cycle recommended — 3 weeks on / 1 week off, or 6 weeks on / 2 weeks off.',
+    mechanism: 'Salidroside and rosavins reduce cortisol and adrenaline response to training stress. Multiple studies show reduced RPE (Rate of Perceived Exertion) during exercise — you work at the same absolute intensity but it feels easier. Also preserves mental sharpness under fatigue.',
+    relevance: 'Directly applicable to your training context. For RPE 6-9 sessions, having lower perceived exertion means you can execute better technique and get more quality reps. Pre-session use is well-supported. Particularly useful on high-volume weeks (Weeks 2–3 of your block).',
+    warn: 'Can cause mild stimulation — take earlier in the day to avoid sleep disruption. Quality varies significantly. Do not combine with MAOIs or SSRIs without medical guidance.',
+    stacks: 'Pre-training: Rhodiola + Citrulline Malate + Caffeine. Good substitute for additional caffeine.'
+  },
+
+  // ── SLEEP / RECOVERY ─────────────────────────────────────────────
+  {
+    id: 'apigenin',
+    icon: '🌼',
+    name: 'Apigenin',
+    tagline: 'GABA-A modulator — sleep onset, anxiety reduction, natural sedative',
+    cat: 'Sleep',
+    evidence: 'moderate',
+    dose: '50mg at night',
+    timing: '30–60 min before sleep',
+    form: 'Capsule — 50mg is the Andrew Huberman-popularised dose',
+    cycle: 'Continuous use. Some take breaks to maintain sensitivity.',
+    mechanism: 'Binds to GABA-A receptors, increasing chloride ion conductance, which inhibits neuronal excitability. Found naturally in chamomile (hence chamomile tea as a sleep aid). At 50mg supplemental dose, the effect is meaningfully stronger than chamomile tea.',
+    relevance: 'Growth hormone is released in pulses during slow-wave sleep — particularly the first 90-minute cycle. This is when posterior chain recovery happens. Apigenin specifically improves sleep onset and reduces time-to-slow-wave, which means your first GH pulse is more reliable. Stack with your Magnesium Glycinate for a serious sleep protocol.',
+    warn: 'May potentiate alcohol and other sedatives. Some studies suggest potential mild oestrogen-modulating effects at high doses — stay at 50mg.',
+    stacks: 'The night protocol: Magnesium Glycinate + Apigenin + Glycine (see below) = meaningful sleep quality upgrade.'
+  },
+  {
+    id: 'glycine',
+    icon: '💊',
+    name: 'Glycine',
+    tagline: 'Core body temperature drop for sleep depth, GH pulse support, anti-inflammatory',
+    cat: 'Sleep',
+    evidence: 'strong',
+    dose: '3–5g at night',
+    timing: 'Right before sleep',
+    form: 'Powder (cheap, unflavoured) or capsules',
+    cycle: 'Continuous use is safe and well-evidenced.',
+    mechanism: 'Glycine lowers core body temperature by dilating peripheral blood vessels, which is the physiological trigger for slow-wave sleep onset. Studies show improved sleep quality scores and reduced next-day fatigue without sedation. Also an important anti-inflammatory amino acid and collagen precursor.',
+    relevance: 'The most underrated item on this list for your situation. At 44 training four days a week, sleep quality (not just duration) determines adaptation rate. Glycine specifically improves the depth of sleep rather than just duration. Your existing Magnesium and the planned Apigenin all complement this. Cost: negligible.',
+    warn: 'No meaningful safety concerns at these doses. May cause mild GI discomfort in some people if taken in powder form without adequate water.',
+    stacks: 'The three-compound night stack: Magnesium Glycinate 400mg + Apigenin 50mg + Glycine 3g = the cleanest evidence-based sleep protocol available without prescription.'
+  },
+  {
+    id: 'tart-cherry',
+    icon: '🍒',
+    name: 'Tart Cherry Extract',
+    tagline: 'Melatonin precursor, anti-inflammatory, reduces DOMS — strong evidence',
+    cat: 'Recovery',
+    evidence: 'strong',
+    dose: '480mg extract or 240ml concentrate',
+    timing: 'Post-training or with evening meal',
+    form: 'Montmorency tart cherry — juice concentrate or capsule extract',
+    cycle: 'Continuous or targeted use around harder training blocks.',
+    mechanism: 'Contains natural melatonin precursors, anthocyanins (anti-inflammatory), and polyphenols. Multiple RCTs show reduced DOMS and faster strength recovery after intense training. The melatonin effect is mild but supports circadian rhythm reinforcement.',
+    relevance: 'Posterior chain volume is high in your programme (Friday Posterior Chain + Saturday Upper). Tart cherry taken after those sessions accelerates recovery and reduces the soreness that bleeds into next sessions. Better recovery between sessions means more quality reps across the week.',
+    warn: 'High sugar content in juice form — use extract capsules to avoid the calorie load. Montmorency-specific variety has the evidence base.',
+    stacks: 'Post-training recovery: Protein + Tart Cherry + Omega-3 (already in your stack).'
+  },
+
+  // ── BODY COMPOSITION / METABOLIC ─────────────────────────────────
+  {
+    id: 'berberine',
+    icon: '🟡',
+    name: 'Berberine',
+    tagline: 'AMPK activator, insulin sensitivity, glucose disposal — "natural metformin"',
+    cat: 'Metabolic',
+    evidence: 'strong',
+    dose: '500mg, 2–3x daily with meals',
+    timing: 'With meals — especially carbohydrate-containing meals',
+    form: 'Berberine HCl',
+    cycle: 'Cycle 8 weeks on / 4 weeks off. Gut microbiome reset needed.',
+    mechanism: 'Activates AMPK (AMP-activated protein kinase), the same pathway metformin targets. Improves insulin sensitivity and glucose uptake into muscle cells, reduces hepatic glucose output. Multiple meta-analyses show comparable blood glucose effects to metformin in Type 2 diabetics.',
+    relevance: 'For body recomposition, insulin sensitivity is a primary driver. Better insulin sensitivity means more of your carbohydrates go into muscle glycogen (fuel for training) rather than fat storage. Particularly useful taken with your post-training carb meals to direct glucose into muscle tissue.',
+    warn: 'Can cause significant GI distress (diarrhoea, cramping) — start with 500mg once daily and build up. Not suitable with metformin, cyclosporine, or anticoagulants. Can lower blood sugar significantly — monitor if combining with low-carb eating.',
+    stacks: 'Metabolic combo: Berberine + ACV (already in your Accelerators). Do not combine with other insulin sensitisers without monitoring.'
+  },
+  {
+    id: 'citrulline',
+    icon: '🍉',
+    name: 'Citrulline Malate',
+    tagline: 'Nitric oxide, pump, muscular endurance — better evidence than arginine',
+    cat: 'Performance',
+    evidence: 'strong',
+    dose: '6–8g pre-training',
+    timing: '45–60 min before training',
+    form: '2:1 Citrulline Malate (6g = 4g citrulline + 2g malate)',
+    cycle: 'Continuous use on training days.',
+    mechanism: 'Citrulline is converted to arginine in the kidneys, increasing nitric oxide production more effectively than arginine supplementation (which is poorly absorbed). The malate form also participates in the citric acid cycle, improving aerobic energy production. Studies show improved reps to failure and reduced muscular fatigue.',
+    relevance: 'Directly improves training quality on your Pull, Push, and Posterior Chain sessions. More reps at the same weight means more mechanical tension signal for muscle growth. The vasodilation (pump) effect also improves nutrient delivery to working muscles during training.',
+    warn: 'Can cause mild GI discomfort at doses above 8g. Take with plenty of water. May lower blood pressure — not suitable if you have hypotension.',
+    stacks: 'Pre-training: Citrulline Malate + Rhodiola + Caffeine = complete pre-workout without the rubbish in commercial products.'
+  },
+  {
+    id: 'beta-alanine',
+    icon: '⚡',
+    name: 'Beta-Alanine',
+    tagline: 'Carnosine buffer — delays muscular acidosis, improves endurance sets',
+    cat: 'Performance',
+    evidence: 'strong',
+    dose: '3.2–6.4g/day (split doses)',
+    timing: 'Split across day — 1.6g doses to reduce paraesthesia',
+    form: 'Beta-Alanine powder or capsules',
+    cycle: 'Load for 4 weeks, then maintain with lower dose.',
+    mechanism: 'Rate-limiting precursor to carnosine synthesis in muscle tissue. Carnosine buffers lactic acid, delaying the pH drop that causes muscular failure during high-rep sets. Effect is most pronounced in sets lasting 60–240 seconds and for exercises involving large muscle groups.',
+    relevance: 'Relevant primarily for your row and face pull sets (3×10-15 rep ranges where acidosis is the limiter). Less relevant for 4×6 pull-up sets where neural fatigue is the limiter. The tingling (paraesthesia) is harmless — take in split doses to reduce it.',
+    warn: 'Paraesthesia (tingling skin, particularly face and hands) is common and harmless but uncomfortable for some. Splits doses of 1.6g or sustained-release formulations reduce this. Not suitable with some cardiac medications.',
+    stacks: 'Endurance combo: Beta-Alanine + Citrulline Malate. Together they cover two different fatigue mechanisms.'
+  },
+  {
+    id: 'nmn',
+    icon: '🔬',
+    name: 'NMN / NR (NAD+ Precursors)',
+    tagline: 'NAD+ restoration, mitochondrial function, metabolic rate — David Sinclair territory',
+    cat: 'Longevity',
+    evidence: 'emerging',
+    dose: 'NMN: 500mg–1g/day | NR: 300–500mg/day',
+    timing: 'Morning — can disrupt sleep if taken late',
+    form: 'Sublingual NMN (better absorption) or NR capsules',
+    cycle: 'Continuous use in longevity context.',
+    mechanism: 'NMN and NR are precursors to NAD+, a coenzyme involved in cellular energy metabolism, DNA repair, and sirtuin activation. NAD+ levels decline with age — measurably so after 40. Restoration has shown improvements in energy metabolism, insulin sensitivity, and muscle function in animal models. Human evidence is building.',
+    relevance: 'The most speculative item on this list — but the longevity angle is directly relevant at 44. The mechanism is real and the safety profile is excellent. If you\'re interested in the Sinclair protocol, this is the entry point. The mitochondrial energy effect is secondary but genuine.',
+    warn: 'Expensive. Human evidence, while growing, is not yet definitive for the claimed longevity benefits. Some people experience mild flushing (less than niacin). Choose sublingual NMN or liposomal NR for absorption.',
+    stacks: 'Longevity stack: NMN + Resveratrol + Quercetin (the Sinclair protocol). This is a separate track from the performance-focused items above.'
+  }
+];
+
+var _openCard = null;
+var _activeFilter = 'All';
+
+function getProfile() {
+  try { return JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) { return null; }
+}
+
+function isInStack(id) {
+  var p = getProfile();
+  if (!p) return false;
+  var supps = (p.supplements || []).map(function(s){ return (s.name||s).toLowerCase(); });
+  var supp = SUPPS.find(function(s){ return s.id === id; });
+  if (!supp) return false;
+  return supps.some(function(s){ return s.includes(supp.name.toLowerCase().split(' ')[0]); });
+}
+
+function isSaved(id) {
+  var p = getProfile();
+  return p && (p.deepStack || []).includes(id);
+}
+
+function toggleCard(id) {
+  _openCard = _openCard === id ? null : id;
+  render();
+  if (_openCard) {
+    setTimeout(function() {
+      var el = document.getElementById('sp-card-' + id);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }, 50);
+  }
+}
+
+function addToStack(id, btn) {
+  var p = getProfile();
+  if (!p) return;
+  if (!p.deepStack) p.deepStack = [];
+  if (!p.deepStack.includes(id)) p.deepStack.push(id);
+  localStorage.setItem('bl_profile', JSON.stringify(p));
+  if (btn) { btn.textContent = '✓ In your deep stack'; btn.className = 'sp-add-btn saved'; btn.disabled = true; }
+}
+
+function setFilter(cat) {
+  _activeFilter = cat;
+  render();
+}
+
+function render() {
+  var p = getProfile();
+  var root = document.getElementById('sp-root');
+  if (!root) return;
+
+  if (p && p.name) {
+    var nm = document.getElementById('nav-meta');
+    if (nm) nm.innerHTML = '<span class="nav-tag nt-jade">' + p.name + '</span>';
+  }
+
+  var cats = ['All', 'Hormonal', 'Adaptogenic', 'Cognitive', 'Sleep', 'Recovery', 'Metabolic', 'Performance', 'Longevity'];
+  var filterHtml = '<div class="sp-filter">'
+    + cats.map(function(c) {
+        return '<button class="sp-filter-btn' + (_activeFilter===c?' active':'') + '" onclick="setFilter(\'' + c + '\')">' + c + '</button>';
+      }).join('')
+    + '</div>';
+
+  var filtered = _activeFilter === 'All' ? SUPPS : SUPPS.filter(function(s){ return s.cat === _activeFilter; });
+
+  // Group by category
+  var groups = {};
+  filtered.forEach(function(s) {
+    if (!groups[s.cat]) groups[s.cat] = [];
+    groups[s.cat].push(s);
+  });
+
+  var CAT_LABELS = {
+    Hormonal: 'Hormonal & testosterone',
+    Adaptogenic: 'Adaptogenic',
+    Cognitive: 'Cognitive',
+    Sleep: 'Sleep & recovery',
+    Recovery: 'Recovery',
+    Metabolic: 'Metabolic & body composition',
+    Performance: 'Training performance',
+    Longevity: 'Longevity'
+  };
+
+  var html = filterHtml;
+
+  // Your existing stack note
+  if (p && p.supplements && p.supplements.length) {
+    html += '<div style="background:var(--ink-1);border:1px solid var(--jade-br);border-radius:8px;padding:12px 16px;margin-bottom:24px;">'
+      + '<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:5px;">Your current stack</div>'
+      + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">' + p.supplements.map(function(s){ return s.name||s; }).join(' · ') + '</div>'
+      + '<div style="font-size:10px;font-weight:300;color:var(--dk-3);margin-top:4px;">The compounds below are additions — don\'t stack everything at once. Add one at a time, 4 weeks apart.</div>'
+      + '</div>';
+  }
+
+  Object.keys(groups).forEach(function(cat) {
+    html += '<div class="sp-sec">' + (CAT_LABELS[cat] || cat) + '</div>';
+    groups[cat].forEach(function(s, idx) {
+      var isOpen = _openCard === s.id;
+      var inStack = isInStack(s.id);
+      var saved = isSaved(s.id);
+      var evClass = 'evidence-' + s.evidence;
+      var evLabel = s.evidence === 'strong' ? 'Strong evidence' : s.evidence === 'moderate' ? 'Moderate evidence' : 'Emerging evidence';
+
+      html += '<div class="sp-card' + (isOpen?' open':'') + '" id="sp-card-' + s.id + '">';
+
+      // Header
+      html += '<div class="sp-card-hd" onclick="toggleCard(\'' + s.id + '\')">'
+        + '<div class="sp-icon">' + s.icon + '</div>'
+        + '<div class="sp-info">'
+          + '<div class="sp-name">' + s.name + '</div>'
+          + '<div class="sp-tagline">' + s.tagline + '</div>'
+        + '</div>'
+        + '<div class="sp-badges">'
+          + '<div class="sp-badge ' + evClass + '">' + evLabel + '</div>'
+          + (inStack ? '<div class="sp-badge" style="background:rgba(0,200,160,.08);border-color:var(--jade-br);color:var(--jade);">In stack</div>' : '')
+          + (saved && !inStack ? '<div class="sp-badge" style="background:rgba(200,148,30,.06);border-color:rgba(200,148,30,.2);color:var(--amber);">Saved</div>' : '')
+        + '</div>'
+        + '<div class="sp-chevron">▾</div>'
+        + '</div>';
+
+      // Body
+      html += '<div class="sp-body">';
+      html += '<div class="sp-mechanism">' + s.mechanism + '</div>';
+
+      // Relevance to you
+      if (s.relevance) {
+        html += '<div class="sp-relevance">'
+          + '<div class="sp-relevance-label">Relevance to you</div>'
+          + '<div class="sp-relevance-text">' + s.relevance + '</div>'
+          + '</div>';
+      }
+
+      // Dose grid
+      html += '<div class="sp-grid">'
+        + '<div><div class="sp-field-label">Dose</div><div class="sp-field-val">' + s.dose + '</div></div>'
+        + '<div><div class="sp-field-label">Timing</div><div class="sp-field-val">' + s.timing + '</div></div>'
+        + '<div><div class="sp-field-label">Form</div><div class="sp-field-val">' + s.form + '</div></div>'
+        + '<div><div class="sp-field-label">Cycling</div><div class="sp-field-val">' + s.cycle + '</div></div>'
+        + '</div>';
+
+      // Stacking notes
+      if (s.stacks) {
+        html += '<div style="margin-bottom:12px;">'
+          + '<div class="sp-field-label" style="margin-bottom:4px;">Stacking</div>'
+          + '<div class="sp-field-val">' + s.stacks + '</div>'
+          + '</div>';
+      }
+
+      // Warning
+      if (s.warn) {
+        html += '<div class="sp-warn"><div class="sp-warn-text">⚠ ' + s.warn + '</div></div>';
+      }
+
+      // Add button
+      if (!inStack) {
+        html += '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
+          + '<button class="sp-add-btn' + (saved?' saved':'') + '" '
+          + (saved ? 'disabled ' : '')
+          + 'onclick="event.stopPropagation();addToStack(\'' + s.id + '\',this)">'
+          + (saved ? '✓ Saved to deep stack' : '+ Save to deep stack')
+          + '</button>'
+          + '</div>';
+      }
+
+      html += '</div>'; // end body
+      html += '</div>'; // end card
+    });
+  });
+
+  root.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>

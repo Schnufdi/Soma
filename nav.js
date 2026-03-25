@@ -10,6 +10,7 @@
     <a class="nav-link" href="/bodylens-food.html">Food</a>
     <a class="nav-link" href="/bodylens-mealbuilder.html">Meals</a>
     <a class="nav-link" href="/bodylens-science.html">Science</a>
+    <a class="nav-link" href="/bodylens-supplements.html">Deep Stack</a>
     <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
     <a class="nav-link" href="/bodylens-checkin.html">Week</a>
