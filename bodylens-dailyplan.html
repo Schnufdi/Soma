@@ -567,6 +567,17 @@
 .ptl-opt-strip{border-top:1px solid rgba(196,124,24,.1);padding:7px 16px 10px 44px;display:flex;flex-direction:column;gap:4px;}
 .ptl-opt-note{font-size:10px;font-weight:400;color:rgba(196,124,24,.65);line-height:1.5;}
 .ptl-opt-note::before{content:'+ ';font-weight:700;opacity:.45;}
+/* Accelerator summary block */
+.ptl-block.t-accelerator .ptl-dot{background:var(--jade);border-color:var(--jade);}
+.ptl-block.t-accelerator .ptl-card{background:rgba(0,200,160,.03);border-color:rgba(0,200,160,.15);border-left:2px solid var(--jade);}
+.ptl-block.t-accelerator .ptl-title{color:var(--jade);}
+.ptl-acc-body{display:flex;flex-direction:column;gap:0;padding-top:4px;}
+.ptl-acc-row{display:grid;grid-template-columns:20px 1fr 80px 1fr;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.ptl-acc-row:last-child{border-bottom:none;}
+.ptl-acc-icon{font-size:13px;text-align:center;}
+.ptl-acc-name{font-size:12px;font-weight:500;color:var(--dk-1);}
+.ptl-acc-when{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);}
+.ptl-acc-benefit{font-size:11px;font-weight:300;color:rgba(0,200,160,.75);}
 
 /* ── SUPPLEMENTS ────────────────────────────── */
 .supp-row{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
@@ -1408,216 +1419,311 @@ function applyOptimisations(blocks, p, today) {
     return blocks.some(function(b){ return b.type === type; });
   }
 
+  var goal    = (p.goal||'').toLowerCase();
+  var isRecomp = goal.includes('recomp');
+  var age     = p.age || 35;
+  var protein = p.protein || 140;
+
+  // Helper: build goal-specific benefit string
+  function benefit(generic, recompNote) {
+    return (isRecomp && recompNote) ? recompNote : generic;
+  }
+
   // ── NUTRITION OPTIMISATIONS ───────────────────────
 
-  // Post-meal walks — add note to every meal block
   if (ids.has('post-meal-walks')) {
-    addNoteToMeals('🚶 10–15 min walk after this meal. Glucose down 20–30%.');
+    addNoteToMeals(benefit(
+      '🚶 10–15 min walk after this meal — reduces glucose spike 20–30%.',
+      '🚶 Walk 10–15 min after eating. Glucose clears into muscle glycogen rather than fat storage — directly supports the "lean" side of recomposition. Compounding: every meal you walk after is a meal that didn\'t spike insulin unnecessarily.'
+    ));
   }
 
-  // Food ordering — protein first
   if (ids.has('food-ordering')) {
-    addNoteToMeals('🥗 Protein and veg first, carbs last. Flattens glucose spike 30–40%.');
+    addNoteToMeals(benefit(
+      '🥗 Protein and veg first, carbs last — flattens glucose spike 30–40%.',
+      '🥗 Eat protein and veg before carbs. This flattens your glucose-insulin response 30–40% — which matters for recomp because insulin suppresses fat oxidation. Same food, better partition: more goes to muscle, less to fat.'
+    ));
   }
 
-  // Vinegar before meals
   if (ids.has('vinegar')) {
-    addNoteToMeals('🥤 1 tbsp ACV in water before this meal. Reduces peak glucose 20–30%.');
+    addNoteToMeals(benefit(
+      '🥤 1 tbsp ACV in water before this meal — reduces peak glucose 20–30%.',
+      '🥤 Take 1 tbsp apple cider vinegar in water before this meal. Acetic acid slows gastric emptying, blunting the glucose spike by 20–30%. At ' + age + ', insulin sensitivity is one of your primary body composition levers — this stacks with food ordering and post-meal walks.'
+    ));
   }
 
-  // Carb back-loading — modify meal descriptions on training days
   if (ids.has('carb-backload') && isTraining) {
     blocks.forEach(function(b) {
       if (b.mealSlot === 'midday' || b.mealSlot === 'pre-training') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('⚡ Carb back-loading: protein + fat only before training. Hold carbs for post-session.');
+        b.optNotes.push(benefit(
+          '⚡ Carb back-loading: keep carbs low before training. Hold them for the post-session window.',
+          '⚡ Carb back-loading: keep this meal protein + fat only. Holding carbs until after training maximises fat oxidation during the session, then the post-workout carbs go directly into muscle glycogen. Better fuel partition = faster recomp.'
+        ));
       }
       if (b.mealSlot === 'post-training') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('⚡ Carb back-loading: this is your maximum carb window. White rice, sweet potato, fruit.');
+        b.optNotes.push(benefit(
+          '⚡ Carb back-loading: this is your maximum carb window. White rice, sweet potato, fruit.',
+          '⚡ Carb back-loading: maximum carb opportunity. Your muscles are insulin-sensitised right now — carbs consumed here go to glycogen at 3–5× the efficiency of any other time. This is your recomp window.'
+        ));
       }
     });
   }
 
-  // Fasted morning training — modify wake block
   if (ids.has('fasted-coffee') && isTraining) {
     blocks.forEach(function(b) {
       if (b.type === 'wake') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('☕ Fasted training today. Black coffee 30–45 min before session. No food until post-training.');
+        b.optNotes.push(benefit(
+          '☕ Fasted training today. Black coffee 30–45 min before session. No food until post-training.',
+          '☕ Train fasted today. Fasted training elevates growth hormone 2–3× and maximises fat oxidation during the session without compromising muscle protein (protein is high enough to protect it). Black coffee 30–45 min before. No food until post-training meal.'
+        ));
       }
     });
   }
 
-  // Fibre 30g target — add to midday and evening meals
   if (ids.has('fibre-30g')) {
     blocks.forEach(function(b) {
       if (b.mealSlot === 'midday' || b.mealSlot === 'evening') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('🌿 Fibre target: include legumes, vegetables, or whole grains. Running total toward 30g today.');
+        b.optNotes.push(benefit(
+          '🌿 Fibre target: include legumes, vegetables, or whole grains. Running total toward 30g today.',
+          '🌿 30g fibre target: include legumes, veg, or whole grains here. High fibre improves gut microbiome diversity (relevant to insulin sensitivity), extends satiety, and improves SHBG binding — all directly relevant to your recomp goal. Running total across today\'s meals.'
+        ));
       }
     });
   }
 
   // ── TRAINING OPTIMISATIONS ────────────────────────
 
-  // Zone 2 — inject on rest days as a standalone block
   if (ids.has('zone2') && !isTraining) {
-    var z2Mins = wMins + 240; // default mid-morning
+    var z2Mins = wMins + 240;
+    var z2Lo = Math.round((220 - age) * 0.65);
+    var z2Hi = Math.round((220 - age) * 0.70);
     insertBlockBeforeType('recovery', {
       time: fmt(z2Mins), type: 'training', tag: 'Zone 2', tagColor: 'jade',
       durationMins: 45,
       title: 'Zone 2 cardio — 45 min',
-      subtitle: '60–70% max HR · conversational pace',
-      coachNote: 'Today is a rest day but Zone 2 is recovery work, not training. It builds mitochondrial density and accelerates muscle repair. You should be able to hold a full conversation throughout.',
+      subtitle: 'Mitochondrial density · fat oxidation · active recovery',
+      coachNote: benefit(
+        'Zone 2 builds mitochondrial density and aerobic base. Hold a conversational pace throughout.',
+        'Zone 2 on a rest day is one of the most intelligent recomp tools available. It burns fat without creating additional recovery demand on your muscles, and — critically at ' + age + ' — it drives mitochondrial biogenesis, improving the rate at which your cells oxidise fat at rest. Target ' + z2Lo + '–' + z2Hi + ' bpm. You should be able to hold a conversation throughout.'
+      ),
       exercises: [],
-      optNotes: ['🫀 Keep HR at 60–70% max (' + Math.round((220 - (p.age||35)) * 0.65) + '–' + Math.round((220 - (p.age||35)) * 0.70) + ' bpm for your age). Bike, row, or brisk walk all count.']
+      optNotes: ['🫀 ' + z2Lo + '–' + z2Hi + ' bpm for your age. Bike, row, or brisk walk. 45 min continuous. Recovery, not fatigue.']
     });
   }
 
-  // VO2max intervals — inject on one training day (the first training day found)
   if (ids.has('vo2max-intervals') && isTraining) {
     blocks.forEach(function(b) {
       if (b.type === 'training') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('🔥 VO₂max add-on: after your session, 4×4 min at 90–95% max HR with 3 min rest. 16 min total. Do this once this week only.');
+        b.optNotes.push(benefit(
+          '🔥 VO₂max add-on: 4×4 min at 90–95% max HR with 3 min rest. 16 min total. Once this week.',
+          '🔥 VO₂max add-on: after your session, 4×4 min at 90–95% max HR with 3 min rest. VO₂max is the strongest predictor of all-cause mortality at ' + age + ' — and it directly improves nutrient partitioning. 16 min total. Do this once this week max.'
+        ));
       }
     });
   }
 
-  // Loaded stretching — add block after training
   if (ids.has('loaded-stretch') && isTraining) {
     insertBlockAfterType('training', {
       time: '', type: 'recovery', tag: 'Stretch', tagColor: 'slate',
       durationMins: 20,
       title: 'Loaded stretching — 20 min',
-      subtitle: 'Fascia remodelling · hypertrophy without CNS cost',
-      coachNote: 'Hold each stretch under load for 90–120 seconds. This is not passive flexibility work — it creates a hypertrophy stimulus in the muscle at its longest length. Pick 3–4 muscles you trained today.',
-      optNotes: ['🧘 Target the muscles from today\'s session. 2 min per position, light load. Couch stretch, RDL stretch, lat hang.']
+      subtitle: 'Fascial remodelling · hypertrophy at end-range',
+      coachNote: benefit(
+        'Hold each stretch under load for 90–120 seconds. Creates hypertrophy stimulus at long muscle length.',
+        'Loaded stretching is hypertrophy without CNS cost — it generates a growth signal in the muscles at their longest length, which standard training misses. At ' + age + ', this also maintains the connective tissue quality that determines how long you can keep training. Pick 3–4 muscles from today\'s session, 90–120 sec per position.'
+      ),
+      optNotes: ['🧘 Target today\'s muscles. Lat hang, RDL stretch, face-pull stretch, rear delt. 2 min per position under mild load.']
     });
   }
 
-  // BFR — note in training block
   if (ids.has('bfr') && isTraining) {
     blocks.forEach(function(b) {
       if (b.type === 'training') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('🩸 BFR option: finish with 2–3 BFR isolation sets at 20% 1RM. Same hypertrophy signal, zero CNS cost.');
+        b.optNotes.push('🩸 BFR option: finish with 2–3 BFR isolation sets at 20% 1RM. Same hypertrophy signal at a fraction of the load — zero additional CNS cost. Good for arms, calves, or anything lagging.');
       }
     });
   }
 
-  // Training log
   if (ids.has('training-log') && isTraining) {
     blocks.forEach(function(b) {
       if (b.type === 'training') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('📓 Log every set: exercise · weight · reps · RPE. Check last week before you start.');
+        b.optNotes.push('📓 Log every set before you leave the gym: exercise · weight · reps · RPE. This is the data that drives intelligent progression. Check last week\'s numbers before you start.');
       }
     });
   }
 
-  // Dopamine scheduling — note in pre-training window (wake or supp block)
   if (ids.has('dopamine-scheduling') && isTraining) {
     blocks.forEach(function(b) {
       if (b.type === 'supp') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('🧠 Dopamine scheduling: no social media or passive content for 60–90 min before training. Lower baseline = bigger training hit.');
+        b.optNotes.push('🧠 No social media or passive content for 60–90 min before training. Lower dopamine baseline = bigger training reward = better motivation and session quality. Protect this window.');
       }
     });
   }
 
   // ── RECOVERY OPTIMISATIONS ────────────────────────
 
-  // Sauna — inject on rest days before wind-down
   if (ids.has('sauna') && !isTraining && !ids.has('contrast')) {
     insertBlockBeforeType('recovery', {
       time: fmt(bedMins - 120), type: 'recovery', tag: 'Sauna', tagColor: 'gold',
       durationMins: 20,
       title: 'Sauna — 20 min',
       subtitle: 'GH pulse · heat shock proteins · cardiovascular adaptation',
-      coachNote: 'GH pulses significantly during sauna exposure and peaks in the post-session cooling period. Heat shock proteins activated here accelerate muscle repair. 80–100°C for 15–20 minutes, then full cool-down before sleep.',
-      optNotes: ['🔥 Target 80–100°C. Full cool-down after before sleep — core temp must drop for quality sleep onset.']
+      coachNote: benefit(
+        'GH pulses significantly during sauna exposure. Heat shock proteins accelerate muscle repair. 80–100°C for 15–20 min.',
+        'Sauna triggers a GH pulse comparable to moderate-intensity exercise. Heat shock proteins activated here repair damaged muscle proteins — directly relevant after your training days. At ' + age + ', the cardiovascular adaptation from regular sauna use (3–5×/week) reduces all-cause mortality by ~40% in longitudinal data. 80–100°C, 15–20 min.'
+      ),
+      optNotes: ['🔥 80–100°C target. Full cool-down after — core temp must drop before sleep for quality sleep onset.']
     });
   }
 
-  // Cold-hot contrast — replaces sauna if both selected
   if (ids.has('contrast') && !isTraining) {
     insertBlockBeforeType('recovery', {
       time: fmt(bedMins - 150), type: 'recovery', tag: 'Contrast', tagColor: 'jade',
       durationMins: 60,
       title: 'Cold–hot contrast cycling',
-      subtitle: 'Sauna → cold plunge × 3–4 cycles · norepinephrine +300%',
-      coachNote: 'Norepinephrine rises 300% above baseline during cold-hot contrast cycling. This is one of the most powerful non-pharmacological recovery tools available. 3–4 full cycles. End on cold for alertness, end on heat for sleep.',
+      subtitle: 'Norepinephrine +300% · accelerated recovery · mental resilience',
+      coachNote: benefit(
+        'Cold-hot contrast cycling raises norepinephrine 300% above baseline. 3–4 cycles. End on heat for sleep.',
+        'Norepinephrine surges 300% during cold immersion — this drives fat metabolism and mood regulation for hours after. The contrast cycling also dramatically accelerates clearance of inflammatory markers from yesterday\'s session. 3–4 full cycles, 20 min sauna → 2–3 min cold. End on heat tonight for sleep quality.'
+      ),
       optNotes: ['🧊 Protocol: 20 min sauna → 2–3 min cold (≤15°C) → repeat 3–4 cycles. End on heat tonight for sleep quality.']
     });
   }
 
-  // NSDR — inject on rest days mid-afternoon
   if (ids.has('nsdr') && !isTraining) {
-    var nsdrMins = wMins + 390; // ~early afternoon
+    var nsdrMins = wMins + 390;
     insertBlockAfterType('supp', {
       time: fmt(nsdrMins), type: 'recovery', tag: 'NSDR', tagColor: 'slate',
       durationMins: 20,
       title: 'NSDR / Yoga Nidra — 20 min',
-      subtitle: 'Dopamine +65% · equivalent to 90 min sleep for recovery',
-      coachNote: 'Non-sleep deep rest activates the default mode network and triggers dopamine release equivalent to several hours of normal activity. On rest days this is the single highest-ROI 20 minutes available.',
-      optNotes: ['🌊 Lie down, eyes closed, body scan protocol. iRest or Yoga Nidra audio. Not sleep — keep awareness throughout.']
+      subtitle: 'Dopamine +65% · cortisol reset · equivalent recovery to 90 min sleep',
+      coachNote: benefit(
+        'Non-sleep deep rest restores dopamine to baseline and provides recovery equivalent to 90 min sleep.',
+        'NSDR raises dopamine 65% above baseline and provides recovery equivalent to ~90 min of sleep — without actually sleeping. On rest days, your cortisol from the training week is still elevated. This directly addresses that, which matters for body recomp: lower cortisol = better fat oxidation and less cortisol-driven muscle catabolism. 20 min, eyes closed, body-scan audio.'
+      ),
+      optNotes: ['🌊 iRest or Yoga Nidra audio. Lie flat, eyes closed. Not sleep — maintain awareness throughout. Free on YouTube.']
     });
   }
 
-  // Sleep extension
   if (ids.has('sleep-extension')) {
     blocks.forEach(function(b) {
       if (b.type === 'sleep') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('😴 Sleep extension active: target +30–60 min above your usual. Testosterone, reaction time, and MPS all improve measurably within 2 weeks.');
+        b.optNotes.push(benefit(
+          '😴 Sleep extension: target +30–60 min above usual. Testosterone and MPS improve measurably within 2 weeks.',
+          '😴 Sleep extension active: target +30–60 min tonight. At ' + age + ', growth hormone is released almost exclusively during sleep, and testosterone drops measurably after one week of 5–6h nights. More sleep = more GH = more muscle retention during fat loss. This is the cheapest anabolic tool available.'
+        ));
       }
     });
   }
 
   // ── BEHAVIOUR OPTIMISATIONS ───────────────────────
 
-  // Morning light + cold finish
   if (ids.has('morning-protocol')) {
     blocks.forEach(function(b) {
       if (b.type === 'wake') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('☀️ Morning protocol: 10 min outside within 30 min of waking. Cold water finish on your shower — 30 sec minimum.');
+        b.optNotes.push(benefit(
+          '☀️ Morning protocol: 10 min outside within 30 min of waking. Cold water finish on shower.',
+          '☀️ Morning protocol: outside for 10 min within 30 min of waking (sets circadian clock and cortisol peak timing), cold water finish on your shower (norepinephrine spike that persists for 2–4 hours). At ' + age + ', circadian alignment is directly linked to testosterone rhythm — this keeps the timing sharp.'
+        ));
       }
     });
   }
 
-  // Implementation intentions — add to first training block of the week
   if (ids.has('implementation-intent') && isTraining) {
     blocks.forEach(function(b) {
       if (b.type === 'training') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('🎯 Implementation intention: "When I feel like skipping, I will [your specific if-then]. Decision made in advance.');
+        b.optNotes.push('🎯 Implementation intention: before you start, decide your if-then. "If I feel like skipping set 3, I will rest 30 extra seconds and do it anyway." Pre-committing doubles follow-through rate.');
       }
     });
   }
 
-  // Body composition check-in — Mondays only (day index 0)
   if (ids.has('body-composition-check') && today.idx === 0) {
     insertBlockAfterType('wake', {
       time: fmt(wMins + 5), type: 'recovery', tag: 'Check-in', tagColor: 'jade',
       durationMins: 5,
       title: 'Weekly body composition check-in',
       subtitle: 'Post-toilet · pre-food · same conditions every Monday',
-      coachNote: 'One measurement per week, identical conditions. Scale weight + waist circumference at navel. Trend across 4 weeks is the signal. Any single data point is noise.',
-      optNotes: ['📊 Record: weight (kg) + waist (cm). A shrinking waist with stable scale = successful recomposition.']
+      coachNote: benefit(
+        'Record weight + waist every Monday, same conditions. Trend across 4 weeks is the signal.',
+        'Record weight (kg) + waist circumference (cm at navel) every Monday, same conditions. Recomposition often shows as stable scale weight with shrinking waist — one number alone misreads the story. 4-week trend is your data; any single day is noise.'
+      ),
+      optNotes: ['📊 Weight (kg) + waist (cm at navel). Same time, same conditions. Log in today\'s notes.']
     });
   }
 
-  // NEAT — add to daily summary via wake block note
   if (ids.has('neat')) {
     blocks.forEach(function(b) {
       if (b.type === 'wake') {
         b.optNotes = b.optNotes || [];
-        b.optNotes.push('📈 NEAT target: +2,000–3,000 steps above your baseline today. That\'s 100–150 kcal without touching food or training.');
+        b.optNotes.push(benefit(
+          '📈 NEAT target: +2,000–3,000 steps above baseline. That\'s 100–150 kcal without touching food or training.',
+          '📈 NEAT target: +2,000–3,000 steps above your baseline today. Non-exercise activity thermogenesis is the most sustainable fat loss lever because it doesn\'t trigger hunger compensation the way formal cardio does. 3,000 extra steps ≈ 150 kcal — compounded daily across a week that\'s more than a full rest-day calorie deficit.'
+        ));
       }
     });
+  }
+
+  // ── ACTIVE ACCELERATORS SUMMARY BLOCK ─────────────
+  // Inject a summary block at the top of the day when any accelerators are active
+  var activeList = [];
+  var ACC_SUMMARY = {
+    'post-meal-walks':    { icon:'🚶', name:'Post-meal walks',     when: 'every meal',    benefit: 'glucose → glycogen, not fat' },
+    'food-ordering':      { icon:'🥗', name:'Protein-first order', when: 'every meal',    benefit: '30–40% flatter insulin spike' },
+    'vinegar':            { icon:'🥤', name:'ACV before meals',    when: 'before carbs',  benefit: 'insulin sensitivity +' },
+    'carb-backload':      { icon:'⚡', name:'Carb back-loading',   when: 'training days', benefit: 'fat burn during, glycogen after' },
+    'fasted-coffee':      { icon:'☕', name:'Fasted training',     when: 'today',         benefit: 'GH +2–3×, fat oxidation peak' },
+    'fibre-30g':          { icon:'🌿', name:'30g fibre',           when: 'today',         benefit: 'gut health, satiety, SHBG' },
+    'zone2':              { icon:'🫀', name:'Zone 2 cardio',       when: 'rest days',     benefit: 'mitochondria + active recovery' },
+    'vo2max-intervals':   { icon:'🔥', name:'VO₂max intervals',   when: 'post session',  benefit: 'longevity + nutrient partition' },
+    'loaded-stretch':     { icon:'🧘', name:'Loaded stretching',   when: 'post session',  benefit: 'hypertrophy at long length' },
+    'bfr':                { icon:'🩸', name:'BFR training',        when: 'session end',   benefit: 'growth signal, zero CNS cost' },
+    'sauna':              { icon:'🔥', name:'Sauna protocol',      when: 'evening',       benefit: 'GH pulse + cardiovascular' },
+    'contrast':           { icon:'🧊', name:'Contrast cycling',    when: 'evening',       benefit: 'NE +300% + inflammation clear' },
+    'nsdr':               { icon:'🌊', name:'NSDR',                when: 'afternoon',     benefit: 'dopamine +65% + cortisol reset' },
+    'sleep-extension':    { icon:'😴', name:'Sleep extension',     when: 'tonight',       benefit: 'GH + testosterone preservation' },
+    'morning-protocol':   { icon:'☀️', name:'Morning protocol',    when: 'on wake',       benefit: 'circadian + cortisol timing' },
+    'neat':               { icon:'📈', name:'NEAT steps',          when: 'all day',       benefit: '100–150 kcal without hunger' },
+    'training-log':       { icon:'📓', name:'Training log',        when: 'every set',     benefit: 'progressive overload tracking' },
+    'dopamine-scheduling':{ icon:'🧠', name:'Dopamine scheduling', when: 'pre-session',   benefit: 'training quality + motivation' },
+    'implementation-intent': { icon:'🎯', name:'Pre-commitment',   when: 'before session', benefit: '2× follow-through rate' },
+    'body-composition-check': { icon:'📊', name:'Weekly check-in', when: 'Mondays',       benefit: 'recomp signal tracking' },
+  };
+
+  ids.forEach(function(id) {
+    var meta = ACC_SUMMARY[id];
+    if (meta) activeList.push(meta);
+  });
+
+  if (activeList.length >= 1) {
+    // Build compounding benefit note
+    var compoundNote = '';
+    if (activeList.length >= 3) {
+      compoundNote = 'These ' + activeList.length + ' accelerators compound each other today — each one stacks with the others to amplify the recomposition signal.';
+    } else if (activeList.length === 2) {
+      compoundNote = 'Both accelerators are active today and reinforce each other.';
+    }
+
+    var accBlock = {
+      time: fmt(wMins + 1), type: 'accelerator', tag: 'ACTIVE', tagColor: 'jade',
+      durationMins: 0,
+      title: activeList.length + ' accelerator' + (activeList.length > 1 ? 's' : '') + ' running today',
+      subtitle: activeList.map(function(a){ return a.icon + ' ' + a.name; }).join(' · '),
+      coachNote: compoundNote,
+      isAcceleratorSummary: true,
+      accList: activeList
+    };
+    blocks.unshift(accBlock);
   }
 
   // Now inject optNotes into coachNote for rendering
@@ -2123,6 +2229,8 @@ function quickTick(slot,i){
     var blockWrap=mealEl.closest('.ptl-block');
     if(blockWrap) blockWrap.classList.add('eaten');
   }
+  // Fire post-meal walk notification if enabled
+  if (typeof window.ntPostMealWalk === 'function') window.ntPostMealWalk();
 }
 
 // ── Deviation logger ──────────────────────────────
@@ -2415,6 +2523,18 @@ function renderPlan(plan, browsing){
         +'<div style="margin-top:10px;font-size:11px;font-weight:300;color:var(--dk-3);">10 min warm-up · Cool down 5-10 min · Track every load</div>'
         +(b.injNote?'<div style="margin-top:6px;font-size:11px;color:rgba(255,140,100,.8);">⚠ '+b.injNote+'</div>':'')
         +'</div>';
+    } else if(b.isAcceleratorSummary && b.accList){
+      // Active accelerators summary block
+      body += '<div class="ptl-body ptl-acc-body">'
+        + b.accList.map(function(a) {
+            return '<div class="ptl-acc-row">'
+              + '<span class="ptl-acc-icon">'+a.icon+'</span>'
+              + '<span class="ptl-acc-name">'+a.name+'</span>'
+              + '<span class="ptl-acc-when">'+a.when+'</span>'
+              + '<span class="ptl-acc-benefit">'+a.benefit+'</span>'
+              + '</div>';
+          }).join('')
+        + '</div>';
     } else if(isMeal){
       var slot=b.mealSlot;
       var cachedRecipe=_recipes[slot];
@@ -3315,6 +3435,7 @@ if('serviceWorker' in navigator){
   </div>
 </div>
 
+<script>
 // ═══════════════════════════════════════════════════════════════
 //  GYM COACH — live session state machine
 // ═══════════════════════════════════════════════════════════════
