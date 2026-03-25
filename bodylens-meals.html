@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="style.css">
 <style>
 body{background:var(--ink);color:var(--dk-1);}
-.mp{max-width:1040px;margin:0 auto;padding:0 28px 100px;}
+.mp{max-width:1060px;margin:0 auto;padding:0 28px 100px;}
 .mp-hero{padding:28px 0 20px;border-bottom:1px solid var(--bd);margin-bottom:24px;}
 .mp-kicker{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
 .mp-title{font-family:var(--serif);font-size:44px;font-weight:300;line-height:.93;color:var(--dk-1);margin-bottom:6px;}
@@ -22,20 +22,40 @@ body{background:var(--ink);color:var(--dk-1);}
 .mp-tab{padding:10px 20px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);background:none;border:none;cursor:pointer;font-family:var(--sans);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s;}
 .mp-tab:hover{color:var(--dk-2);}
 .mp-tab.active{color:var(--dk-1);border-bottom-color:var(--jade);}
+/* Prefs */
 .ps{margin-bottom:22px;}
 .pl{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
 .pl::after{content:'';flex:1;height:1px;background:var(--bd);}
+.pl-note{font-size:9px;font-weight:300;text-transform:none;letter-spacing:0;color:var(--dk-3);margin-left:4px;}
 .cr{display:flex;gap:6px;flex-wrap:wrap;}
 .ch{padding:7px 14px;border-radius:18px;border:1px solid var(--bd);background:transparent;font-size:11px;font-weight:500;color:var(--dk-2);cursor:pointer;font-family:var(--sans);transition:all .12s;white-space:nowrap;}
 .ch:hover{border-color:rgba(255,255,255,.12);color:var(--dk-1);}
 .ch.on{background:rgba(0,200,160,.08);border-color:var(--jade-br);color:var(--jade);}
 .ch.av{background:rgba(200,148,30,.07);border-color:rgba(200,148,30,.25);color:var(--amber);}
+.ch.warn{background:rgba(200,148,30,.07);border-color:rgba(200,148,30,.25);color:var(--amber);}
+/* Fat class chips */
+.fat-lean{border-color:var(--jade-br)!important;color:var(--jade)!important;}
+.fat-mod{border-color:var(--amber-br)!important;color:var(--amber)!important;}
+.fat-high{border-color:rgba(220,80,60,.3)!important;color:rgba(220,80,60,.85)!important;}
+.fat-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+/* Meal structure selector */
+.struct-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px;}
+@media(max-width:600px){.struct-grid{grid-template-columns:1fr;}}
+.struct-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:9px;padding:12px 14px;cursor:pointer;transition:all .12s;text-align:left;}
+.struct-card:hover{border-color:rgba(255,255,255,.1);}
+.struct-card.sel{border-color:var(--jade-br);background:rgba(0,200,160,.05);}
+.struct-card-title{font-size:12px;font-weight:600;color:var(--dk-1);margin-bottom:3px;}
+.struct-card.sel .struct-card-title{color:var(--jade);}
+.struct-card-sub{font-size:10px;font-weight:300;color:var(--dk-3);line-height:1.4;}
+/* Generate button */
 .gb{width:100%;background:var(--jade);border:none;color:var(--ink);padding:14px;border-radius:10px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);margin-top:8px;transition:opacity .12s;}
 .gb:hover{opacity:.88;}
 .gb:disabled{opacity:.4;cursor:not-allowed;}
+/* Loading */
 .ld{display:flex;align-items:center;gap:14px;padding:48px 20px;color:var(--dk-3);font-size:13px;font-weight:300;}
 .sp{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.08);border-top-color:var(--jade);animation:sp .7s linear infinite;flex-shrink:0;}
 @keyframes sp{to{transform:rotate(360deg)}}
+/* Day table */
 .th{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
 .tm{font-size:11px;font-weight:300;color:var(--dk-3);}
 .ta{display:flex;gap:8px;}
@@ -43,7 +63,7 @@ body{background:var(--ink);color:var(--dk-1);}
 .tb:hover{border-color:rgba(255,255,255,.1);color:var(--dk-2);}
 .tb.jd{border-color:rgba(0,200,160,.25);color:var(--jade);}
 .ww{overflow-x:auto;border-radius:10px;border:1px solid var(--bd);}
-.wt{width:100%;border-collapse:collapse;min-width:680px;}
+.wt{width:100%;border-collapse:collapse;min-width:700px;}
 .wt th{padding:10px 12px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);border-bottom:1px solid var(--bd);text-align:left;background:var(--ink-2);white-space:nowrap;}
 .wt th.mh{border-left:1px solid var(--bd);color:var(--dk-2);}
 .wt td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top;}
@@ -53,17 +73,43 @@ body{background:var(--ink);color:var(--dk-1);}
 .db{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:8px;display:inline-block;}
 .db.tr{background:rgba(0,200,160,.08);color:var(--jade);border:1px solid var(--jade-br);}
 .db.rs{background:rgba(255,255,255,.04);color:var(--dk-3);border:1px solid var(--bd);}
-.mc{border-left:1px solid rgba(255,255,255,.04);position:relative;min-width:180px;}
-.mc:hover{background:rgba(255,255,255,.015);}
-.mn{font-size:12px;font-weight:400;color:var(--dk-1);line-height:1.35;margin-bottom:4px;}
-.mm{display:flex;gap:6px;flex-wrap:wrap;}
-.mp2{font-size:9px;font-weight:600;color:var(--dk-3);}
-.mp2.p{color:rgba(0,200,160,.7);}
-.sw{position:absolute;top:7px;right:7px;width:22px;height:22px;border-radius:5px;background:transparent;border:1px solid var(--bd);color:var(--dk-3);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .1s;font-family:var(--sans);}
-.mc:hover .sw{opacity:1;}
-.sw:hover{border-color:rgba(255,255,255,.12);color:var(--dk-2);}
-.ec{color:rgba(255,255,255,.1);font-size:11px;font-style:italic;}
-.lc{color:var(--dk-3);font-size:11px;font-style:italic;}
+/* Meal cell */
+.mc{border-left:1px solid rgba(255,255,255,.04);position:relative;min-width:190px;}
+.mc:hover{background:rgba(255,255,255,.012);}
+.mn{font-size:12px;font-weight:500;color:var(--dk-1);line-height:1.3;margin-bottom:5px;}
+.mm{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px;}
+.mpill{font-size:9px;font-weight:600;color:var(--dk-3);padding:1px 6px;border-radius:6px;background:rgba(255,255,255,.04);}
+.mpill.p{color:rgba(0,200,160,.8);background:rgba(0,200,160,.06);}
+.mpill.f-lean{color:var(--jade);background:rgba(0,200,160,.06);border:1px solid rgba(0,200,160,.15);}
+.mpill.f-mod{color:var(--amber);background:rgba(200,148,30,.06);border:1px solid rgba(200,148,30,.2);}
+.mpill.f-high{color:rgba(220,80,60,.85);background:rgba(220,80,60,.06);border:1px solid rgba(220,80,60,.2);}
+.mpill.kcal{color:var(--dk-2);}
+/* Swap & expand */
+.mc-btns{display:flex;gap:5px;opacity:0;transition:opacity .1s;margin-top:5px;}
+.mc:hover .mc-btns{opacity:1;}
+.mc-btn{padding:3px 9px;border-radius:6px;border:1px solid var(--bd);background:transparent;font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all .1s;}
+.mc-btn:hover{border-color:rgba(255,255,255,.12);color:var(--dk-2);}
+.mc-btn.primary{border-color:var(--jade-br);color:var(--jade);}
+/* Expanded meal detail */
+.meal-detail{display:none;padding:10px 0 4px;border-top:1px solid rgba(255,255,255,.05);margin-top:8px;}
+.meal-detail.open{display:block;}
+.meal-detail-section{margin-bottom:8px;}
+.meal-detail-label{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:5px;}
+.ing-row{display:flex;align-items:baseline;gap:8px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.ing-row:last-child{border-bottom:none;}
+.ing-name{font-size:11px;font-weight:400;color:var(--dk-1);flex:1;}
+.ing-amount{font-size:10px;font-weight:500;color:var(--dk-2);white-space:nowrap;}
+.ing-guide{font-size:9px;font-weight:300;color:var(--dk-3);white-space:nowrap;}
+.fat-flag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:6px;white-space:nowrap;}
+.fat-flag.lean{background:rgba(0,200,160,.06);color:var(--jade);border:1px solid rgba(0,200,160,.15);}
+.fat-flag.moderate{background:rgba(200,148,30,.06);color:var(--amber);border:1px solid rgba(200,148,30,.2);}
+.fat-flag.high{background:rgba(220,80,60,.06);color:rgba(220,80,60,.85);border:1px solid rgba(220,80,60,.2);}
+.swap-suggest{font-size:10px;font-weight:300;color:var(--dk-3);line-height:1.55;padding:6px 8px;background:rgba(255,255,255,.02);border-radius:6px;border-left:2px solid var(--bd);}
+.swap-suggest strong{font-weight:600;color:var(--dk-2);}
+/* Snack / shake cells */
+.snack-badge{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.04);color:var(--dk-3);border:1px solid var(--bd);margin-bottom:4px;display:inline-block;}
+.snack-badge.shake{background:rgba(0,200,160,.06);color:var(--jade);border-color:var(--jade-br);}
+/* Totals row */
 .tor td{background:var(--ink-2);border-top:1px solid var(--bd);}
 .tl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);}
 .tb2{display:flex;flex-direction:column;gap:4px;}
@@ -71,9 +117,13 @@ body{background:var(--ink);color:var(--dk-1);}
 .bt{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;min-width:40px;}
 .bf{height:100%;border-radius:2px;transition:width .4s;}
 .bv{font-size:9px;font-weight:600;white-space:nowrap;}
+/* Save bar */
 .sb{position:sticky;bottom:0;background:var(--ink);border-top:1px solid var(--bd);padding:14px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;}
 .sbt{background:var(--jade);border:none;color:var(--ink);padding:11px 28px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);}
 .sn{font-size:11px;font-weight:300;color:var(--dk-3);}
+/* Shake row */
+.shake-row td{background:rgba(0,200,160,.025);}
+/* Custom meal */
 .cmc{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;margin-bottom:10px;overflow:hidden;}
 .cmh{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;}
 .cmt{font-size:13px;font-weight:500;color:var(--dk-1);flex:1;}
@@ -85,67 +135,201 @@ body{background:var(--ink);color:var(--dk-1);}
 .ic{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 8px;}
 .ig{font-size:10px;background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:3px 9px;color:var(--dk-2);}
 .cm2{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;padding:8px 0;border-top:1px solid rgba(255,255,255,.04);}
+/* Fat education panel */
+.fat-edu{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:16px 18px;margin-bottom:20px;}
+.fat-edu-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:12px;}
+.fat-edu-row{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.fat-edu-row:last-child{border-bottom:none;}
+.fat-edu-name{font-size:11px;font-weight:500;color:var(--dk-1);flex:1;}
+.fat-edu-val{font-size:10px;font-weight:600;min-width:50px;text-align:right;}
+.fat-edu-note{font-size:9px;font-weight:300;color:var(--dk-3);}
 </style>
 </head>
 <body>
 <script src="nav.js"></script>
 <div class="mp">
   <div class="mp-hero">
-    <div class="mp-kicker">Food planning</div>
+    <div class="mp-kicker">Nutrition system</div>
     <div class="mp-title">Your week of<br><em>meals.</em></div>
-    <div class="mp-sub">Choose proteins and cuisine. We build Breakfast, Lunch and Dinner for all 7 days, calibrated to your training schedule and macro targets.</div>
+    <div class="mp-sub">A macro-controlled meal planner. Every meal built from real ingredient weights, fat-classified, and calibrated to your training schedule.</div>
   </div>
   <div class="mp-tabs">
     <button class="mp-tab active" id="tab-week" onclick="showTab('week')">Week planner</button>
-    <button class="mp-tab" id="tab-custom" onclick="showTab('custom')">Custom meal</button>
+    <button class="mp-tab" id="tab-custom" onclick="showTab('custom')">Build a meal</button>
+    <button class="mp-tab" id="tab-learn" onclick="showTab('learn')">Fat guide</button>
   </div>
   <div id="pane-week"></div>
   <div id="pane-custom" style="display:none;"></div>
+  <div id="pane-learn" style="display:none;"></div>
 </div>
 <script>
+
+var FOOD_DB = {
+  // Lean proteins (fat < 5g per 100g)
+  'chicken-breast':  {label:'Chicken breast (skinless)', fatClass:'lean',  protClass:'high',  satiety:'high',   cal100:165, p100:31,  c100:0,   f100:3.6,  portion:'1 palm (120-150g)', portionG:135, note:'Leanest white meat. Low-fat, very high protein. Dry if overcooked -- brine or marinade.'},
+  'turkey-mince':    {label:'Turkey mince (5% fat)',     fatClass:'lean',  protClass:'high',  satiety:'high',   cal100:148, p100:29,  c100:0,   f100:2.5,  portion:'1 palm (120g)',      portionG:120, note:'Leaner than beef mince by a large margin. Good for bolognese swaps.'},
+  'white-fish':      {label:'White fish (cod/haddock)',  fatClass:'lean',  protClass:'high',  satiety:'medium', cal100:82,  p100:18,  c100:0,   f100:0.7,  portion:'1 palm (150g)',      portionG:150, note:'Lowest-calorie protein source. Very lean. Excellent on a cut.'},
+  'tuna-tin':        {label:'Tuna (tinned in water)',    fatClass:'lean',  protClass:'high',  satiety:'medium', cal100:116, p100:26,  c100:0,   f100:1.0,  portion:'1 tin (130g drained)',portionG:130, note:'Convenient high-protein, near-zero fat. Limit to 2-3x/week (mercury).'},
+  'egg-whites':      {label:'Egg whites',                fatClass:'lean',  protClass:'high',  satiety:'low',    cal100:52,  p100:11,  c100:0.7, f100:0.2,  portion:'4 whites (120g)',    portionG:120, note:'Pure protein, no fat. Low satiety alone -- pair with whole eggs or fat.'},
+  'greek-yogurt-0':  {label:'Greek yogurt (0% fat)',     fatClass:'lean',  protClass:'high',  satiety:'high',   cal100:57,  p100:10,  c100:4,   f100:0.2,  portion:'1 cup (200g)',       portionG:200, note:'0% fat version. Almost identical protein to full-fat but saves 8-10g fat. Use when tracking macros tightly.'},
+  'cottage-cheese':  {label:'Cottage cheese (low-fat)',  fatClass:'lean',  protClass:'high',  satiety:'high',   cal100:84,  p100:12,  c100:3.4, f100:2.3,  portion:'1 cup (200g)',       portionG:200, note:'High-casein slow-digesting protein. Good before bed. Low-calorie.'},
+  'prawns':          {label:'Prawns (king)',              fatClass:'lean',  protClass:'high',  satiety:'medium', cal100:99,  p100:22,  c100:0,   f100:0.8,  portion:'1 palm (150g)',      portionG:150, note:'Extremely lean. Very high protein density. Works hot or cold.'},
+  // Moderate-fat proteins (5-15g fat per 100g)
+  'eggs-whole':      {label:'Whole eggs (large)',         fatClass:'moderate', protClass:'high', satiety:'high', cal100:155, p100:13, c100:1.1, f100:11,   portion:'2 eggs (100g)',      portionG:100, note:'Fat is in the yolk (5g per egg). 2 whole eggs = 10g fat, 12g protein. Nutritious fat with vitamins D, B12, choline.'},
+  'salmon':          {label:'Salmon fillet',              fatClass:'moderate', protClass:'high', satiety:'high', cal100:208, p100:20, c100:0,   f100:13,   portion:'1 palm (150g)',      portionG:150, note:'13g fat per 100g -- almost 3x white fish. High omega-3. Factor the extra fat into your daily total. Worth it for recomp.'},
+  'chicken-thigh':   {label:'Chicken thigh (skinless)',   fatClass:'moderate', protClass:'high', satiety:'high', cal100:177, p100:26, c100:0,   f100:8,    portion:'1 thigh (130g)',     portionG:130, note:'More fat than breast but more flavourful and harder to dry out. Still much leaner than red meat.'},
+  'greek-yogurt-full':{label:'Greek yogurt (full-fat)',   fatClass:'moderate', protClass:'moderate', satiety:'very-high', cal100:133, p100:9, c100:4, f100:9, portion:'1 cup (200g)', portionG:200, note:'5g more fat per 100g than 0% version. Richer texture. Use on maintenance or if hunger is high.'},
+  'pork-loin':       {label:'Pork loin (lean)',           fatClass:'moderate', protClass:'high', satiety:'high', cal100:182, p100:26, c100:0,   f100:8.5,  portion:'1 palm (130g)',      portionG:130, note:'Leaner than you think. Close to chicken thigh in fat content. Good alternative to chicken.'},
+  'beef-lean':       {label:'Lean beef mince (5% fat)',   fatClass:'moderate', protClass:'high', satiety:'very-high', cal100:175, p100:21, c100:0, f100:10, portion:'1 palm (120g)',     portionG:120, note:'5% fat mince only. Standard mince (20% fat) has 4x the fat. Always check the label.'},
+  // High-fat proteins (>15g fat per 100g)
+  'beef-ribeye':     {label:'Ribeye steak',               fatClass:'high',  protClass:'high',  satiety:'very-high', cal100:268, p100:21, c100:0, f100:19,  portion:'1 palm (150g)',      portionG:150, note:'Beautiful cut but 19g fat per 100g. A 200g steak = 38g fat. Save for maintenance phases or once weekly.'},
+  'beef-mince-20':   {label:'Beef mince (20% fat)',        fatClass:'high',  protClass:'moderate', satiety:'very-high', cal100:254, p100:17, c100:0, f100:20, portion:'1 palm (120g)',   portionG:120, note:'Very common but high-fat. 120g = 24g fat. Swap to 5% mince or turkey to save 15-18g fat per serving.'},
+  'mackerel':        {label:'Mackerel fillet',             fatClass:'high',  protClass:'high',  satiety:'very-high', cal100:205, p100:19, c100:0, f100:14,  portion:'1 fillet (120g)',    portionG:120, note:'Omega-3 rich but calorie-dense. 14g fat per 100g. Great for omega-3 but plan the fat budget.'},
+  'protein-shake':   {label:'Whey protein shake',          fatClass:'lean',  protClass:'very-high', satiety:'low', cal100:380, p100:75, c100:7, f100:5, portion:'1 scoop (30g) + 300ml water', portionG:30, note:'25g protein, ~1.5g fat, ~125 kcal. Not a meal replacement but excellent protein top-up. Post-workout or between meals.'},
+  // Carb sources
+  'white-rice':      {label:'White rice (cooked)',         fatClass:'lean',  protClass:'low',   satiety:'medium', cal100:130, p100:2.7, c100:28, f100:0.3, portion:'1 cupped hand (150g cooked)', portionG:150, note:'Fast carb. High glycaemic. Best post-workout for glycogen replenishment.'},
+  'brown-rice':      {label:'Brown rice (cooked)',         fatClass:'lean',  protClass:'low',   satiety:'high',   cal100:112, p100:2.6, c100:23, f100:0.9, portion:'1 cupped hand (150g cooked)', portionG:150, note:'Slower carb than white rice. More fibre. Better for satiety on rest days.'},
+  'sweet-potato':    {label:'Sweet potato (baked)',        fatClass:'lean',  protClass:'low',   satiety:'high',   cal100:90,  p100:2,   c100:21, f100:0.1, portion:'1 fist (180g)',       portionG:180, note:'Micronutrient-dense carb. High potassium, beta-carotene. Excellent training day fuel.'},
+  'oats':            {label:'Oats (dry weight)',           fatClass:'lean',  protClass:'moderate', satiety:'very-high', cal100:379, p100:13, c100:67, f100:7, portion:'1 cupped hand (60g dry)', portionG:60, note:'Highest satiety carb. Slow digesting. Ideal breakfast before training.'},
+  'pasta':           {label:'Pasta (dry weight)',          fatClass:'lean',  protClass:'low',   satiety:'high',   cal100:352, p100:12, c100:71, f100:1.5, portion:'1 handful dry (75g)', portionG:75, note:'Dense carb. Easy to overeat. Weigh dry. 75g dry = ~200g cooked = ~260 kcal.'},
+  'quinoa':          {label:'Quinoa (cooked)',             fatClass:'lean',  protClass:'moderate', satiety:'high', cal100:120, p100:4.4, c100:22, f100:1.9, portion:'1 cupped hand (150g cooked)', portionG:150, note:'Complete protein carb. More protein than rice. Good base for bowls.'},
+  'bread-sourdough': {label:'Sourdough bread',             fatClass:'lean',  protClass:'low',   satiety:'medium', cal100:258, p100:9,  c100:50, f100:1.3, portion:'2 slices (80g)',       portionG:80,  note:'Lower GI than regular bread due to fermentation. Easy to overeat -- weigh.'},
+  'rice-cakes':      {label:'Rice cakes (plain)',          fatClass:'lean',  protClass:'low',   satiety:'low',    cal100:387, p100:8,  c100:83, f100:1,   portion:'3 cakes (30g)',        portionG:30,  note:'Low satiety. Good quick carb vehicle. Not filling alone -- pair with protein.'},
+  // Fat sources
+  'avocado':         {label:'Avocado',                     fatClass:'high',  protClass:'low',   satiety:'very-high', cal100:160, p100:2, c100:9, f100:15, portion:'half (80g)',           portionG:80,  note:'12g fat per half. Healthy monounsaturated fat but calorie-dense. Easy to overeat.'},
+  'olive-oil':       {label:'Extra virgin olive oil',      fatClass:'high',  protClass:'low',   satiety:'low',    cal100:884, p100:0,  c100:0,  f100:100, portion:'1 tbsp (14g)',         portionG:14,  note:'14g fat per tbsp. Invisible calories. Cooking sprays save 10g fat per meal.'},
+  'nuts-almonds':    {label:'Almonds',                     fatClass:'high',  protClass:'moderate', satiety:'high', cal100:579, p100:21, c100:22, f100:50, portion:'1 small handful (25g)', portionG:25,  note:'25g = 13g fat, ~145 kcal. Easy to overeat. Measure portion -- do not snack from the bag.'},
+  'peanut-butter':   {label:'Peanut butter (natural)',     fatClass:'high',  protClass:'moderate', satiety:'high', cal100:598, p100:25, c100:20, f100:50, portion:'1 tbsp (15g)',         portionG:15,  note:'15g = 8g fat. Dense. 2 tbsp adds 16g fat. Good with oats but account for it.'},
+  // Veg
+  'broccoli':        {label:'Broccoli',                    fatClass:'lean',  protClass:'low',   satiety:'high',   cal100:34,  p100:2.8, c100:7,  f100:0.4, portion:'1 fist (150g)',       portionG:150, note:'Volume food. High fibre, low calorie. 150g = ~50 kcal. Fill the plate with it.'},
+  'spinach':         {label:'Spinach (raw)',                fatClass:'lean',  protClass:'low',   satiety:'medium', cal100:23,  p100:2.9, c100:3.6,f100:0.4, portion:'2 large handfuls (60g)', portionG:60, note:'High iron when cooked. Very low calorie. Almost free macros.'},
+  'peppers':         {label:'Mixed peppers',               fatClass:'lean',  protClass:'low',   satiety:'high',   cal100:31,  p100:1,   c100:6,  f100:0.3, portion:'1 pepper (120g)',      portionG:120, note:'High vitamin C. Sweet red peppers have more carbs than green.'},
+  'courgette':       {label:'Courgette (zucchini)',         fatClass:'lean',  protClass:'low',   satiety:'high',   cal100:17,  p100:1.2, c100:3.1,f100:0.3, portion:'1 medium (180g)',      portionG:180, note:'Extremely low calorie volume food. 180g = only 30 kcal.'}
+};
+
+
 var API = '/api/chat';
 var MDL = 'claude-sonnet-4-20250514';
 var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-var SLS = ['breakfast','lunch','dinner'];
-var SLN = {breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner'};
+var SLOTS_BY_STRUCT = {
+  '3-meals':      ['breakfast','lunch','dinner'],
+  '3-meals-snack':['breakfast','lunch','dinner','snack1'],
+  '3-meals-2snacks':['breakfast','lunch','dinner','snack1','snack2'],
+  '2-shake':      ['breakfast','shake','lunch','dinner'],
+  '2-meals-snack':['breakfast','lunch','snack1','dinner']
+};
+var SLOT_LABELS = {
+  breakfast:'Breakfast', lunch:'Lunch', dinner:'Dinner',
+  snack1:'Snack', snack2:'Evening snack', shake:'Protein shake'
+};
+var SLOT_TYPES = {
+  breakfast:'meal', lunch:'meal', dinner:'meal',
+  snack1:'snack', snack2:'snack', shake:'shake'
+};
 
 function gp(){try{return JSON.parse(localStorage.getItem('bl_profile')||'null');}catch(e){return null;}}
-
 function wk(){var d=new Date(),m=new Date(d),dy=d.getDay();m.setDate(d.getDate()-(dy===0?6:dy-1));return 'bl_wmp_'+m.toISOString().slice(0,10);}
 function lp(){try{var r=localStorage.getItem(wk());return r?JSON.parse(r):null;}catch(e){return null;}}
 function sp(x){try{localStorage.setItem(wk(),JSON.stringify(x));}catch(e){}}
 function cp(){try{localStorage.removeItem(wk());}catch(e){}}
 
-var S={plan:null,prefs:{proteins:[],cuisines:[],avoids:[]},busy:false,swapping:null};
+var S={plan:null,prefs:{proteins:[],cuisines:[],avoids:[],mealStructure:'3-meals'},busy:false,swapping:null};
 
-function showTab(id){
-  document.getElementById('pane-week').style.display=id==='week'?'':'none';
-  document.getElementById('pane-custom').style.display=id==='custom'?'':'none';
-  document.getElementById('tab-week').className='mp-tab'+(id==='week'?' active':'');
-  document.getElementById('tab-custom').className='mp-tab'+(id==='custom'?' active':'');
-  if(id==='custom'&&!document.getElementById('cm-root'))renderCustom();
-}
-
-var PROTS=['Chicken breast','Salmon','Lean beef','Eggs','Tuna','Turkey mince','Tofu','Prawns','Greek yogurt','Cottage cheese','White fish','Lean pork'];
+var PROTS=[
+  {id:'chicken-breast', label:'Chicken breast',    fatClass:'lean'},
+  {id:'salmon',         label:'Salmon',             fatClass:'moderate'},
+  {id:'white-fish',     label:'White fish',          fatClass:'lean'},
+  {id:'tuna-tin',       label:'Tuna (tinned)',        fatClass:'lean'},
+  {id:'lean-beef',      label:'Lean beef (5% fat)',   fatClass:'moderate'},
+  {id:'turkey-mince',   label:'Turkey mince',         fatClass:'lean'},
+  {id:'eggs-whole',     label:'Whole eggs',           fatClass:'moderate'},
+  {id:'egg-whites',     label:'Egg whites',           fatClass:'lean'},
+  {id:'prawns',         label:'Prawns',               fatClass:'lean'},
+  {id:'greek-yogurt-0', label:'Greek yogurt (0%)',    fatClass:'lean'},
+  {id:'cottage-cheese', label:'Cottage cheese',       fatClass:'lean'},
+  {id:'pork-loin',      label:'Pork loin',            fatClass:'moderate'}
+];
 var CUIS=['British','Mediterranean','Asian','Middle Eastern','Mexican','Indian','Japanese','Italian','Flexible'];
 var AVDS=['Dairy','Gluten','Nuts','Shellfish','Eggs','Nightshades','Raw fish'];
+var STRUCTS=[
+  {id:'3-meals',         title:'3 meals',              sub:'Breakfast, Lunch, Dinner'},
+  {id:'3-meals-snack',   title:'3 meals + 1 snack',    sub:'+ mid-afternoon snack'},
+  {id:'3-meals-2snacks', title:'3 meals + 2 snacks',   sub:'+ mid-morning + evening snack'},
+  {id:'2-shake',         title:'2 meals + shake',      sub:'Breakfast, shake post-workout, Lunch, Dinner'},
+  {id:'2-meals-snack',   title:'2 meals + snack',      sub:'Breakfast, Lunch, snack, Dinner'}
+];
 
+var FAT_COLORS = {lean:'var(--jade)', moderate:'var(--amber)', high:'rgba(220,80,60,.85)'};
+var FAT_LABELS = {lean:'Low fat', moderate:'Moderate fat', high:'High fat'};
+
+function fatDot(cls){return '<span class="fat-dot" style="background:'+FAT_COLORS[cls||'lean']+'"></span>';}
+
+function showTab(id){
+  ['week','custom','learn'].forEach(function(t){
+    document.getElementById('pane-'+t).style.display=t===id?'':'none';
+    document.getElementById('tab-'+t).className='mp-tab'+(t===id?' active':'');
+  });
+  if(id==='learn') renderLearnTab();
+  if(id==='custom'&&!document.getElementById('cm-root')) renderCustom();
+}
+
+/* ---- PREFS RENDER ---- */
 function renderPrefs(p){
   var root=document.getElementById('pane-week');
-  function chips(arr,sel,fn,tp){
-    return arr.map(function(item){
-      var on=sel.indexOf(item)>=0;
-      var cls=tp==='avoid'?(on?' av':''):(on?' on':'');
-      return '<button class="ch'+cls+'" onclick="'+fn+'(\''+item.replace(/\'/g,'')+'\',this)">'+item+'</button>';
-    }).join('');
-  }
+  var slots=SLOTS_BY_STRUCT[S.prefs.mealStructure]||SLOTS_BY_STRUCT['3-meals'];
+  var tKcal=p.trainingKcal||p.calories||2769;
+  var rKcal=p.restKcal||Math.round((p.calories||2769)*.9);
+  var prot=p.protein||174;
+
+  // Protein chips with fat class indicator
+  var protHtml=PROTS.map(function(pr){
+    var on=S.prefs.proteins.indexOf(pr.id)>=0;
+    var fc=pr.fatClass;
+    return '<button class="ch'+(on?' on'+(fc?' fat-'+fc:''):'')+'" onclick="tgP(\''+pr.id+'\',this)">'
+      +fatDot(fc)+pr.label+'</button>';
+  }).join('');
+
+  // Cuisine chips
+  var cuisHtml=CUIS.map(function(c){
+    var on=S.prefs.cuisines.indexOf(c)>=0;
+    return '<button class="ch'+(on?' on':'')+'" onclick="tgC(\''+c+'\',this)">'+c+'</button>';
+  }).join('');
+
+  // Avoid chips
+  var avdsHtml=AVDS.map(function(a){
+    var on=S.prefs.avoids.indexOf(a)>=0;
+    return '<button class="ch'+(on?' av':'')+'" onclick="tgA(\''+a+'\',this)">'+a+'</button>';
+  }).join('');
+
+  // Meal structure cards
+  var structHtml=STRUCTS.map(function(s){
+    var sel=S.prefs.mealStructure===s.id;
+    return '<button class="struct-card'+(sel?' sel':'')+'" onclick="tgStruct(\''+s.id+'\')">'
+      +'<div class="struct-card-title">'+s.title+'</div>'
+      +'<div class="struct-card-sub">'+s.sub+'</div>'
+      +'</button>';
+  }).join('');
+
+  // Macro summary
+  var macroSummary='<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:8px;line-height:1.65;">'
+    +'Training days: <strong style="color:var(--dk-2);">'+tKcal+' kcal</strong> &middot; '
+    +'Rest days: <strong style="color:var(--dk-2);">'+rKcal+' kcal</strong> &middot; '
+    +'Protein every day: <strong style="color:var(--jade);">'+prot+'g</strong>'
+    +'<br>Split across '+slots.length+' meals/snacks: ~'
+    +Math.round(prot/slots.length)+'g protein and ~'
+    +Math.round(tKcal/slots.length)+' kcal per slot (training day average)'
+    +'</div>';
+
   root.innerHTML=
-    '<div class="ps"><div class="pl">1 -- Proteins this week<span style="font-size:9px;font-weight:300;text-transform:lowercase;margin-left:6px;">(pick at least 1)</span></div>'
-    +'<div class="cr">'+chips(PROTS,S.prefs.proteins,'tgP','protein')+'</div></div>'
+    '<div class="ps"><div class="pl">1 -- Proteins this week<span class="pl-note">(dot colour = fat class: green lean, amber moderate)</span></div>'
+    +'<div class="cr">'+protHtml+'</div></div>'
     +'<div class="ps"><div class="pl">2 -- Cuisine style</div>'
-    +'<div class="cr">'+chips(CUIS,S.prefs.cuisines,'tgC','cuisine')+'</div></div>'
-    +'<div class="ps"><div class="pl">3 -- Anything to avoid?</div>'
-    +'<div class="cr">'+chips(AVDS,S.prefs.avoids,'tgA','avoid')+'</div></div>'
+    +'<div class="cr">'+cuisHtml+'</div></div>'
+    +'<div class="ps"><div class="pl">3 -- Foods to avoid</div>'
+    +'<div class="cr">'+avdsHtml+'</div></div>'
+    +'<div class="ps"><div class="pl">4 -- Meal structure</div>'
+    +'<div class="struct-grid">'+structHtml+'</div>'
+    +macroSummary+'</div>'
     +'<button class="gb" id="gb" onclick="generate()" disabled>Build my week</button>';
   ugb();
 }
@@ -153,53 +337,96 @@ function renderPrefs(p){
 function tgP(v,b){tga(S.prefs.proteins,v,b,'on');ugb();}
 function tgC(v,b){tga(S.prefs.cuisines,v,b,'on');}
 function tgA(v,b){tga(S.prefs.avoids,v,b,'av');}
+function tgStruct(id){
+  S.prefs.mealStructure=id;
+  document.querySelectorAll('.struct-card').forEach(function(c){
+    c.classList.toggle('sel',c.getAttribute('onclick').indexOf("'"+id+"'")>=0);
+  });
+  var p=gp(); if(p) { var m=document.querySelector('.struct-card.sel'); if(m){ var macDiv=document.querySelector('[style*="line-height:1.65"]'); if(macDiv){var slots=SLOTS_BY_STRUCT[id]||SLOTS_BY_STRUCT['3-meals'];macDiv.innerHTML='Training days: <strong style="color:var(--dk-2);">'+(p.trainingKcal||p.calories||2769)+' kcal</strong> &middot; Rest days: <strong style="color:var(--dk-2);">'+(p.restKcal||Math.round((p.calories||2769)*.9))+' kcal</strong> &middot; Protein every day: <strong style="color:var(--jade);">'+(p.protein||174)+'g</strong><br>Split across '+slots.length+' meals/snacks: ~'+Math.round((p.protein||174)/slots.length)+'g protein and ~'+Math.round((p.trainingKcal||p.calories||2769)/slots.length)+' kcal per slot (training day average)';}}}
+  ugb();
+}
 function tga(arr,v,b,cls){var i=arr.indexOf(v);if(i>=0){arr.splice(i,1);b.classList.remove(cls);}else{arr.push(v);b.classList.add(cls);}}
 function ugb(){var b=document.getElementById('gb');if(b)b.disabled=S.prefs.proteins.length<1;}
 
+/* ---- GENERATE ---- */
 async function generate(){
   var p=gp();if(!p)return;
   S.busy=true;
-  document.getElementById('pane-week').innerHTML='<div class="ld"><div class="sp"></div>Building your week around your training schedule...</div>';
-  var tK=p.trainingKcal||2769,rK=p.restKcal||2492,pr=p.protein||174;
-  var sched=DNS.map(function(day,i){
-    var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
-    return day+': '+(dp.priority==='training'?dp.type+' training day | target '+tK+' kcal':'rest day | target '+rK+' kcal');
-  }).join('\n');
-  var prots=S.prefs.proteins.length?S.prefs.proteins.join(', '):'chicken, salmon, eggs';
+  var slots=SLOTS_BY_STRUCT[S.prefs.mealStructure]||SLOTS_BY_STRUCT['3-meals'];
+  document.getElementById('pane-week').innerHTML='<div class="ld"><div class="sp"></div>Building your macro-precise week...</div>';
+  var tK=p.trainingKcal||p.calories||2769;
+  var rK=p.restKcal||Math.round((p.calories||2769)*.9);
+  var prot=p.protein||174;
+  var fat=p.fat||87;
+  var carbs=p.carbs||323;
+  var prots=S.prefs.proteins.length?S.prefs.proteins.join(', '):'chicken breast, eggs, salmon';
   var cuis=S.prefs.cuisines.length?S.prefs.cuisines.join(', '):'flexible';
   var avds=S.prefs.avoids.length?S.prefs.avoids.join(', '):'none';
-  var prompt='You are a performance nutritionist. Build a 7-day meal plan.\n\n'
-    +'User: '+p.name+', '+p.age+'yo, '+p.weight+'kg, goal: '+(p.goal||'body recomposition')+'\n'
-    +'Daily protein target: '+pr+'g\n'
+  var sched=DNS.map(function(day,i){
+    var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
+    return day+': '+(dp.priority==='training'?dp.type+' training ('+tK+' kcal, '+prot+'g P, '+carbs+'g C, '+fat+'g F)':'rest day ('+rK+' kcal, '+prot+'g P, '+Math.round(carbs*.8)+'g C, '+fat+'g F)');
+  }).join('\n');
+
+  // Build slot-specific targets
+  var shakeSlot=slots.indexOf('shake')>=0;
+  var snackCount=slots.filter(function(s){return s.startsWith('snack');}).length;
+  var mealSlots=slots.filter(function(s){return SLOT_TYPES[s]==='meal';});
+  var slotInstructions=slots.map(function(sl){
+    var type=SLOT_TYPES[sl]||'meal';
+    if(type==='shake') return sl+': protein shake -- 25g protein, 130 kcal, 2g fat, minimal carbs';
+    if(type==='snack') return sl+': snack -- 15-25g protein, 150-250 kcal, lean/moderate fat, high satiety';
+    var splitKcal=Math.round((tK-(shakeSlot?130:0)-(snackCount*200))/mealSlots.length);
+    var splitProt=Math.round((prot-(shakeSlot?25:0)-(snackCount*20))/mealSlots.length);
+    return sl+': meal -- ~'+splitProt+'g protein, ~'+splitKcal+' kcal';
+  }).join('\n');
+
+  var prompt='You are an expert performance nutritionist with precision macro knowledge.\n\n'
+    +'USER: '+p.name+', '+p.age+'yo male, '+p.weight+'kg\n'
+    +'Goal: '+(p.goal||'body recomposition')+'\n'
+    +'DAILY MACRO TARGETS:\n'
+    +'  Training days: '+tK+' kcal | '+prot+'g protein | '+carbs+'g carbs | '+fat+'g fat\n'
+    +'  Rest days: '+rK+' kcal | '+prot+'g protein | '+Math.round(carbs*.8)+'g carbs | '+fat+'g fat\n'
     +'Preferred proteins: '+prots+'\n'
-    +'Cuisine style: '+cuis+'\n'
-    +'Foods to avoid: '+avds+'\n\n'
-    +'Training schedule:\n'+sched+'\n\n'
-    +'Rules:\n'
-    +'- Hit '+pr+'g protein every day\n'
-    +'- Training days: higher carbs especially breakfast and lunch\n'
-    +'- Rest days: moderate carbs, same protein\n'
-    +'- Breakfast ~30% of daily kcal, Lunch ~35%, Dinner ~35%\n'
-    +'- Breakfast may repeat Mon+Wed+Fri and Tue+Thu for easy prep\n'
-    +'- Lunch and Dinner must be unique each day\n\n'
-    +'Return ONLY this exact JSON with no markdown:\n'
-    +'{"days":{"Monday":{"breakfast":{"name":"string","calories":0,"protein":0,"carbs":0,"fat":0},'
-    +'"lunch":{"name":"string","calories":0,"protein":0,"carbs":0,"fat":0},'
-    +'"dinner":{"name":"string","calories":0,"protein":0,"carbs":0,"fat":0}},'
-    +'"Tuesday":{"breakfast":{},"lunch":{},"dinner":{}},'
-    +'"Wednesday":{"breakfast":{},"lunch":{},"dinner":{}},'
-    +'"Thursday":{"breakfast":{},"lunch":{},"dinner":{}},'
-    +'"Friday":{"breakfast":{},"lunch":{},"dinner":{}},'
-    +'"Saturday":{"breakfast":{},"lunch":{},"dinner":{}},'
-    +'"Sunday":{"breakfast":{},"lunch":{},"dinner":{}}}}';
+    +'Cuisine: '+cuis+'\n'
+    +'Avoid: '+avds+'\n\n'
+    +'MEAL STRUCTURE THIS WEEK: '+S.prefs.mealStructure+'\n'
+    +slotInstructions+'\n\n'
+    +'TRAINING SCHEDULE:\n'+sched+'\n\n'
+    +'CRITICAL MACRO ACCURACY RULES:\n'
+    +'- Calculate macros from REALISTIC INGREDIENT WEIGHTS, not guesses\n'
+    +'- 1 chicken breast = 150g cooked = 46g protein, 5g fat, 240 kcal\n'
+    +'- 1 salmon fillet = 150g = 30g protein, 20g fat, 297 kcal\n'
+    +'- 1 whole egg = 50g = 6g protein, 5g fat, 70 kcal\n'
+    +'- Greek yogurt 0% 200g = 20g protein, 0.4g fat, 114 kcal\n'
+    +'- White fish 150g = 27g protein, 1g fat, 123 kcal\n'
+    +'- DO NOT inflate protein -- be conservative and accurate\n'
+    +'- For each meal also include:\n'
+    +'  fatClass: lean/moderate/high (based on total fat per serving)\n'
+    +'  portionGuide: human-friendly portion description\n'
+    +'  ingredients: array of {name, grams, portion_visual}\n'
+    +'  swapNote: brief note on a leaner or higher-protein alternative\n'
+    +'  whyThisWorks: one sentence on why this meal fits this day\n\n'
+    +'- Breakfast may repeat Mon+Wed+Fri and Tue+Thu for meal prep convenience\n'
+    +'- Lunch and Dinner must be unique each day\n'
+    +'- If mealStructure includes "shake", return shake slot with protein powder macros only\n\n'
+    +'Return ONLY this JSON (no markdown, no preamble):\n'
+    +'{"days":{"Monday":{"breakfast":{"name":"","calories":0,"protein":0,"carbs":0,"fat":0,"fatClass":"lean","portionGuide":"","ingredients":[{"name":"","grams":0,"portion_visual":""}],"swapNote":"","whyThisWorks":""},'
+    +'"lunch":{...},"dinner":{...}'+(shakeSlot?',"shake":{...}':'')+
+    +(snackCount>=1?',"snack1":{...}':'')+
+    +(snackCount>=2?',"snack2":{...}':'')+
+    +'},"Tuesday":{...},"Wednesday":{...},"Thursday":{...},"Friday":{...},"Saturday":{...},"Sunday":{...}}}';
+
   try{
-    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MDL,max_tokens:3500,system:'Nutrition coach. Return ONLY valid compact JSON. No markdown.',messages:[{role:'user',content:prompt}]})});
+    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MDL,max_tokens:5000,
+        system:'Expert nutritionist. Return ONLY valid compact JSON. No markdown. Macro accuracy is critical.',
+        messages:[{role:'user',content:prompt}]})});
     var data=await res.json();
     var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
     var m=text.match(/\{[\s\S]*\}/);
     if(!m)throw new Error('No JSON returned');
     var parsed=JSON.parse(m[0]);
-    if(!parsed.days)throw new Error('Missing days in response');
+    if(!parsed.days)throw new Error('Missing days');
     S.plan={days:parsed.days,prefs:JSON.parse(JSON.stringify(S.prefs)),generatedAt:new Date().toISOString()};
     sp(S.plan);
     S.busy=false;
@@ -208,172 +435,242 @@ async function generate(){
     S.busy=false;
     document.getElementById('pane-week').innerHTML=
       '<div style="text-align:center;padding:40px;color:var(--dk-3);">'
-      +'<div style="font-size:22px;margin-bottom:10px;">Generation failed</div>'
-      +'<div style="font-size:12px;margin-bottom:16px;">'+(err.message||'Unknown error')+'</div>'
+      +'<div style="font-size:13px;margin-bottom:14px;">Generation failed: '+(err.message||'unknown error')+'</div>'
       +'<button onclick="renderPrefs(gp())" style="background:var(--jade);border:none;color:var(--ink);padding:10px 24px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);">Try again</button>'
       +'</div>';
-    console.error('Meal plan error:',err);
+    console.error(err);
   }
 }
 
+/* ---- SWAP MEAL ---- */
 async function swapMeal(day,slot){
   var p=gp();if(!p||!S.plan)return;
   S.swapping={day:day,slot:slot};
   var cell=document.getElementById('mc-'+day+'-'+slot);
-  if(cell)cell.innerHTML='<div class="lc">Swapping...</div>';
+  if(cell)cell.innerHTML='<div style="color:var(--dk-3);font-size:11px;padding:4px 0;">Swapping...</div>';
   var idx=DNS.indexOf(day);
   var dp=(p.weekPlan||[])[idx]||{type:'Rest',priority:'rest'};
   var isT=dp.priority==='training';
-  var splits={breakfast:.30,lunch:.35,dinner:.35};
-  var targetK=Math.round((isT?(p.trainingKcal||2769):(p.restKcal||2492))*(splits[slot]||.33));
-  var targetP=Math.round((p.protein||174)/3);
-  var prompt='Performance nutritionist. Give ONE '+slot+' meal.\n'
-    +'User: '+p.age+'yo, goal: '+(p.goal||'recomposition')+'\n'
-    +'Day: '+day+' ('+(isT?dp.type+' training':'rest day')+')\n'
-    +'Target: ~'+targetK+' kcal, ~'+targetP+'g protein\n'
-    +'Proteins: '+(S.plan.prefs.proteins||[]).join(', ')+'\n'
-    +'Cuisine: '+(S.plan.prefs.cuisines||[]).join(', ')+'\n\n'
-    +'Return ONLY: {"name":"string","calories":0,"protein":0,"carbs":0,"fat":0}';
+  var tK=p.trainingKcal||p.calories||2769;
+  var rK=p.restKcal||Math.round((p.calories||2769)*.9);
+  var slots=SLOTS_BY_STRUCT[S.plan.prefs.mealStructure||'3-meals'];
+  var mealSlots=slots.filter(function(s){return SLOT_TYPES[s]==='meal';});
+  var snackCount=slots.filter(function(s){return s.startsWith('snack');}).length;
+  var shakeSlot=slots.indexOf('shake')>=0;
+  var type=SLOT_TYPES[slot]||'meal';
+  var targetK,targetP;
+  if(type==='shake'){targetK=130;targetP=25;}
+  else if(type==='snack'){targetK=200;targetP=20;}
+  else{
+    targetK=Math.round(((isT?tK:rK)-(shakeSlot?130:0)-(snackCount*200))/mealSlots.length);
+    targetP=Math.round((p.protein||174-(shakeSlot?25:0)-(snackCount*20))/mealSlots.length);
+  }
+  var prompt='Expert nutritionist. Give ONE '+SLOT_LABELS[slot]+' for '+day+'.\n'
+    +'User: '+p.age+'yo male, '+p.weight+'kg, goal: '+(p.goal||'recomposition')+'\n'
+    +'Day type: '+(isT?dp.type+' training day':'rest day')+'\n'
+    +'Slot target: ~'+targetP+'g protein, ~'+targetK+' kcal\n'
+    +'Proteins available: '+(S.plan.prefs.proteins||[]).join(', ')+'\n'
+    +'Cuisine: '+(S.plan.prefs.cuisines||[]).join(', ')||'flexible'+'\n'
+    +'Avoid: '+(S.plan.prefs.avoids||[]).join(', ')||'none'+'\n\n'
+    +'Return ONLY: {"name":"","calories":0,"protein":0,"carbs":0,"fat":0,"fatClass":"lean","portionGuide":"","ingredients":[{"name":"","grams":0,"portion_visual":""}],"swapNote":"","whyThisWorks":""}';
   try{
-    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MDL,max_tokens:200,system:'Return ONLY valid JSON.',messages:[{role:'user',content:prompt}]})});
+    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MDL,max_tokens:400,system:'Expert nutritionist. Return ONLY valid JSON.',messages:[{role:'user',content:prompt}]})});
     var data=await res.json();
     var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
-    var m=text.match(/\{[\s\S]*\}/);
-    if(!m)throw new Error('no json');
-    var meal=JSON.parse(m[0]);
+    var match=text.match(/\{[\s\S]*\}/);
+    if(!match)throw new Error('no json');
+    var meal=JSON.parse(match[0]);
     if(!S.plan.days[day])S.plan.days[day]={};
     S.plan.days[day][slot]=meal;
     sp(S.plan);
-  }catch(e){}
+  }catch(e){console.error(e);}
   S.swapping=null;
   renderTable(gp());
 }
 
+/* ---- RENDER TABLE ---- */
 function renderTable(p){
   var root=document.getElementById('pane-week');
   if(!root||!p)return;
   var plan=S.plan;
   if(!plan||!plan.days){renderPrefs(p);return;}
-  var tK=p.trainingKcal||2769,rK=p.restKcal||2492,pr=p.protein||174;
+  var slots=SLOTS_BY_STRUCT[plan.prefs.mealStructure||'3-meals'];
+  var tK=p.trainingKcal||p.calories||2769;
+  var rK=p.restKcal||Math.round((p.calories||2769)*.9);
+  var prot=p.protein||174;
   var gd=plan.generatedAt?new Date(plan.generatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'';
+
   var html='<div class="th">'
-    +'<div class="tm">'+(gd?'Generated '+gd:'')+' &middot; Hover a meal to swap</div>'
-    +'<div class="ta">'
-      +'<button class="tb jd" onclick="editPrefs()">Change prefs</button>'
-      +'<button class="tb" onclick="generate()">Regenerate</button>'
-    +'</div></div>'
-    +'<div class="ww"><table class="wt"><thead><tr>'
-    +'<th>Day</th>'
-    +SLS.map(function(s){return '<th class="mh">'+SLN[s]+'</th>';}).join('')
+    +'<div class="tm">'+(gd?'Generated '+gd:'')+' &middot; Hover a cell to swap &middot; Click a cell to expand</div>'
+    +'<div class="ta"><button class="tb jd" onclick="editPrefs()">Change prefs</button>'
+    +'<button class="tb" onclick="generate()">Regenerate</button></div></div>'
+    +'<div class="ww"><table class="wt"><thead><tr><th>Day</th>'
+    +slots.map(function(s){return '<th class="mh">'+SLOT_LABELS[s]+'</th>';}).join('')
     +'</tr></thead><tbody>';
+
   DNS.forEach(function(day,i){
     var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
     var isT=dp.priority==='training';
     var dm=(plan.days||{})[day]||{};
     var dK=isT?tK:rK;
-    var totK=0,totP=0;
-    SLS.forEach(function(s){var m=dm[s];if(m){totK+=m.calories||0;totP+=m.protein||0;}});
+    var totK=0,totP=0,totF=0;
+    slots.forEach(function(s){var m=dm[s];if(m){totK+=m.calories||0;totP+=m.protein||0;totF+=m.fat||0;}});
+
     html+='<tr>';
-    html+='<td class="dc"><div class="dn">'+day.slice(0,3)+'</div><div class="db '+(isT?'tr':'rs')+'">'+(isT?(dp.type||'Train'):'Rest')+'</div></td>';
-    SLS.forEach(function(slot){
+    html+='<td class="dc"><div class="dn">'+day.slice(0,3)+'</div>'
+      +'<div class="db '+(isT?'tr':'rs')+'">'+(isT?(dp.type||'Train'):'Rest')+'</div></td>';
+
+    slots.forEach(function(slot){
       var m=dm[slot];
       var cid='mc-'+day+'-'+slot;
       var loading=S.swapping&&S.swapping.day===day&&S.swapping.slot===slot;
-      html+='<td class="mc" id="'+cid+'">';
-      if(loading){html+='<div class="lc">Swapping...</div>';}
-      else if(m){
+      var stype=SLOT_TYPES[slot]||'meal';
+      var isShake=stype==='shake';
+      var isSnack=stype==='snack';
+
+      html+='<td class="mc'+(isShake?' shake-td':'')+'" id="'+cid+'" onclick="toggleExpand(this)">';
+      if(loading){
+        html+='<div style="color:var(--dk-3);font-size:11px;">Swapping...</div>';
+      } else if(m) {
+        var fc=m.fatClass||'lean';
+        var fcLabel=FAT_LABELS[fc]||'Low fat';
+        var fcColor=FAT_COLORS[fc]||'var(--jade)';
+
+        if(isShake){html+='<div class="snack-badge shake">Shake</div>';}
+        else if(isSnack){html+='<div class="snack-badge">Snack</div>';}
+
         html+='<div class="mn">'+m.name+'</div>'
           +'<div class="mm">'
-            +'<span class="mp2 p">'+(m.protein||0)+'g P</span>'
-            +'<span class="mp2">'+(m.carbs||0)+'g C</span>'
-            +'<span class="mp2">'+(m.fat||0)+'g F</span>'
-            +'<span class="mp2">'+(m.calories||0)+' kcal</span>'
-          +'</div>'
-          +'<button class="sw" onclick="swapMeal(\''+day+'\',\''+slot+'\')">+</button>';
-      }else{html+='<div class="ec">-</div>';}
+            +'<span class="mpill p">'+(m.protein||0)+'g P</span>'
+            +'<span class="mpill">'+(m.carbs||0)+'g C</span>'
+            +'<span class="mpill f-'+fc+'">'+fatDot(fc)+fcLabel+'</span>'
+            +'<span class="mpill kcal">'+(m.calories||0)+' kcal</span>'
+          +'</div>';
+
+        // Expandable detail
+        var detailId='det-'+day+'-'+slot;
+        html+='<div class="meal-detail" id="'+detailId+'">';
+        if(m.portionGuide){
+          html+='<div class="meal-detail-section"><div class="meal-detail-label">Portion</div>'
+            +'<div style="font-size:11px;font-weight:300;color:var(--dk-2);">'+m.portionGuide+'</div></div>';
+        }
+        if(m.ingredients&&m.ingredients.length){
+          html+='<div class="meal-detail-section"><div class="meal-detail-label">Ingredients</div>';
+          m.ingredients.forEach(function(ing){
+            html+='<div class="ing-row">'
+              +'<div class="ing-name">'+ing.name+'</div>'
+              +'<div class="ing-amount">'+ing.grams+'g</div>'
+              +'<div class="ing-guide">'+((ing.portion_visual)||'')+'</div>'
+            +'</div>';
+          });
+          html+='</div>';
+        }
+        if(m.whyThisWorks){
+          html+='<div class="meal-detail-section">'
+            +'<div class="swap-suggest">'+m.whyThisWorks+'</div></div>';
+        }
+        if(m.swapNote){
+          html+='<div class="meal-detail-section">'
+            +'<div class="swap-suggest"><strong>Smarter swap:</strong> '+m.swapNote+'</div></div>';
+        }
+        html+='</div>';
+
+        // Buttons
+        html+='<div class="mc-btns">'
+          +'<button class="mc-btn primary" onclick="event.stopPropagation();swapMeal(\''+day+'\',\''+slot+'\')">Swap</button>'
+        +'</div>';
+      } else {
+        html+='<div style="color:rgba(255,255,255,.1);font-size:11px;">-</div>';
+      }
       html+='</td>';
     });
+
     html+='</tr>';
-    var pPct=Math.min(100,pr>0?Math.round(totP/pr*100):0);
+
+    // Totals row
+    var pPct=Math.min(100,prot>0?Math.round(totP/prot*100):0);
     var kPct=Math.min(100,dK>0?Math.round(totK/dK*100):0);
+    var fPct=Math.min(100,(p.fat||87)>0?Math.round(totF/(p.fat||87)*100):0);
     var pCol=pPct>=90?'var(--jade)':pPct>=70?'var(--amber)':'rgba(220,80,60,.7)';
     var kCol=kPct>=90&&kPct<=112?'var(--jade)':kPct<80?'rgba(220,80,60,.7)':'var(--amber)';
-    html+='<tr class="tor">'
-      +'<td><div class="tl">Total</div></td>'
-      +'<td class="mc" style="border-left:1px solid rgba(255,255,255,.04);" colspan="3">'
+    var fCol=fPct<=110?'var(--jade)':fPct<=130?'var(--amber)':'rgba(220,80,60,.7)';
+
+    html+='<tr class="tor"><td><div class="tl">Total</div></td>'
+      +'<td class="mc" style="border-left:1px solid rgba(255,255,255,.04);" colspan="'+slots.length+'">'
         +'<div class="tb2">'
-          +'<div class="br2"><div class="bt"><div class="bf" style="width:'+pPct+'%;background:'+pCol+';"></div></div><div class="bv" style="color:'+pCol+';">'+totP+'g P / '+pr+'g</div></div>'
-          +'<div class="br2"><div class="bt"><div class="bf" style="width:'+kPct+'%;background:'+kCol+';"></div></div><div class="bv" style="color:'+kCol+';">'+totK+' / '+dK+' kcal</div></div>'
+          +'<div class="br2"><div class="bt"><div class="bf" style="width:'+pPct+'%;background:'+pCol+'"></div></div>'
+            +'<div class="bv" style="color:'+pCol+'">'+totP+'g P / '+prot+'g</div></div>'
+          +'<div class="br2"><div class="bt"><div class="bf" style="width:'+kPct+'%;background:'+kCol+'"></div></div>'
+            +'<div class="bv" style="color:'+kCol+'">'+totK+' / '+dK+' kcal</div></div>'
+          +'<div class="br2"><div class="bt"><div class="bf" style="width:'+fPct+'%;background:'+fCol+'"></div></div>'
+            +'<div class="bv" style="color:'+fCol+'">'+totF+'g F / '+(p.fat||87)+'g</div></div>'
         +'</div>'
       +'</td></tr>';
   });
+
   html+='</tbody></table></div>'
-    +'<div class="sb"><div class="sn">Plan saves automatically. Today reads from this.</div>'
+    +'<div class="sb"><div class="sn">Saved automatically. Protein, kcal and fat tracked per day.</div>'
     +'<button class="sbt" id="sbt" onclick="doSave()">Save week</button></div>';
   root.innerHTML=html;
 }
 
-function doSave(){
-  if(S.plan)sp(S.plan);
-  var b=document.getElementById('sbt');
-  if(b){b.textContent='Saved';b.style.opacity='.6';setTimeout(function(){if(b){b.textContent='Save week';b.style.opacity='';}},2000);}
+function toggleExpand(tdEl){
+  var det=tdEl.querySelector('.meal-detail');
+  if(!det)return;
+  det.classList.toggle('open');
 }
+
+function doSave(){if(S.plan)sp(S.plan);var b=document.getElementById('sbt');if(b){b.textContent='Saved';b.style.opacity='.6';setTimeout(function(){if(b){b.textContent='Save week';b.style.opacity='';}},2000);}}
 function editPrefs(){S.plan=null;cp();renderPrefs(gp());}
 
+/* ---- CUSTOM MEAL BUILDER ---- */
 var CM={ctx:'Training day',protein:null,carb:null,veg:[],flavour:null,step:1,meals:[],busy:false,open:null};
-var CMP=['Chicken breast','Salmon','Lean beef','Eggs','Tuna','Greek yogurt','Tofu','White fish'];
-var CMC=['White rice','Sweet potato','Oats','Pasta','Quinoa','No carb'];
+var CMP=['Chicken breast','Salmon','Lean beef (5%)','Eggs (whole)','Egg whites','Tuna (tinned)','Greek yogurt (0%)','White fish','Turkey mince','Cottage cheese'];
+var CMC=['White rice','Sweet potato','Oats','Pasta','Quinoa','No carb (low-carb day)'];
 var CMV=['Broccoli','Spinach','Peppers','Courgette','Kale','Tomatoes','Asparagus'];
-var CMF=['Garlic and herbs','Ginger and soy','Lemon and capers','Harissa','Miso glaze','Plain'];
-var CMX=['Training day','Rest day','Post-workout','Light meal'];
+var CMF=['Garlic and herbs','Ginger and soy','Lemon and capers','Harissa','Miso glaze','Plain and simple'];
+var CMX=['Training day','Rest day','Post-workout','Low appetite day','Meal prep batch','High satiety focus'];
 
-function renderCustom(){
-  var root=document.getElementById('pane-custom');
-  if(!root)return;
-  root.innerHTML='<div id="cm-root"></div>';
-  renderCM();
-}
-
+function renderCustom(){var root=document.getElementById('pane-custom');if(!root)return;root.innerHTML='<div id="cm-root"></div>';renderCM();}
 function renderCM(){
-  var p=gp();var root=document.getElementById('cm-root');
-  if(!root||!p)return;
-  function ch(v,sel,fn){
-    var on=Array.isArray(sel)?sel.indexOf(v)>=0:sel===v;
-    return '<button class="ch'+(on?' on':'')+'" onclick="'+fn+'(\''+v.replace(/\'/g,'')+'\')">'+v+'</button>';
-  }
+  var p=gp();var root=document.getElementById('cm-root');if(!root||!p)return;
+  function ch(v,sel,fn){var on=Array.isArray(sel)?sel.indexOf(v)>=0:sel===v;return '<button class="ch'+(on?' on':'')+'" onclick="'+fn+'(\''+v.replace(/\'/g,'')+'\')">'+v+'</button>';}
   var html='<div class="ps" style="border-bottom:1px solid var(--bd);padding-bottom:16px;margin-bottom:20px;">'
     +'<div class="cr">'+CMX.map(function(c){return ch(c,CM.ctx,'cmX');}).join('')+'</div></div>';
-  if(CM.busy){html+='<div class="ld"><div class="sp"></div>Building meal options...</div>';root.innerHTML=html;return;}
+  if(CM.busy){html+='<div class="ld"><div class="sp"></div>Building macro-precise options...</div>';root.innerHTML=html;return;}
   if(CM.step<=4){
-    html+='<div class="ps"><div class="pl">Protein</div><div class="cr">'+CMP.map(function(v){return ch(v,CM.protein,'cmP');}).join('')+'</div></div>';
+    html+='<div class="ps"><div class="pl">Protein source</div><div class="cr">'+CMP.map(function(v){return ch(v,CM.protein,'cmP');}).join('')+'</div></div>';
     if(CM.protein){html+='<div class="ps"><div class="pl">Carbohydrate</div><div class="cr">'+CMC.map(function(v){return ch(v,CM.carb,'cmC');}).join('')+'</div></div>';}
     if(CM.protein&&CM.carb){
-      html+='<div class="ps"><div class="pl">Vegetables<span style="font-size:9px;font-weight:300;text-transform:lowercase;margin-left:6px;">(optional)</span></div><div class="cr">'+CMV.map(function(v){return ch(v,CM.veg,'cmV');}).join('')+'</div></div>';
-      html+='<div class="ps"><div class="pl">Flavour</div><div class="cr">'+CMF.map(function(v){return ch(v,CM.flavour,'cmF');}).join('')+'</div></div>';
+      html+='<div class="ps"><div class="pl">Vegetables <span style="font-size:9px;font-weight:300;text-transform:lowercase;">(up to 3)</span></div><div class="cr">'+CMV.map(function(v){return ch(v,CM.veg,'cmV');}).join('')+'</div></div>';
+      html+='<div class="ps"><div class="pl">Flavour profile</div><div class="cr">'+CMF.map(function(v){return ch(v,CM.flavour,'cmF');}).join('')+'</div></div>';
     }
-    if(CM.protein&&CM.carb&&CM.flavour){html+='<button class="gb" onclick="cmGen()">Generate 5 combinations</button>';}
+    if(CM.protein&&CM.carb&&CM.flavour){html+='<button class="gb" onclick="cmGen()">Generate 5 macro-precise combinations</button>';}
   }
   if(CM.step===5&&CM.meals.length){
-    html+='<div style="display:flex;gap:8px;margin-bottom:14px;">'
-      +'<button onclick="cmGen()" class="tb">Regenerate</button>'
-      +'<button onclick="CM.step=1;CM.meals=[];renderCM()" class="tb">New selection</button></div>';
+    html+='<div style="display:flex;gap:8px;margin-bottom:14px;"><button onclick="cmGen()" class="tb">Regenerate</button><button onclick="CM.step=1;CM.meals=[];renderCM()" class="tb">New selection</button></div>';
     CM.meals.forEach(function(meal,i){
       var open=CM.open===i;
+      var fc=meal.fatClass||'lean';
       html+='<div class="cmc"><div class="cmh" onclick="CM.open=CM.open==='+i+'?null:'+i+';renderCM()">'
-        +'<div class="cmt">'+(meal.title||meal.name||'Meal '+(i+1))+'</div>'
+        +'<div class="cmt">'+meal.title+'</div>'
         +'<span class="cmtg p">'+(meal.protein_g||0)+'g P</span>'
         +'<span class="cmtg k">'+(meal.kcal||0)+' kcal</span>'
+        +'<span class="mpill f-'+fc+'" style="margin-left:4px;">'+fatDot(fc)+(FAT_LABELS[fc]||'Low fat')+'</span>'
         +'</div>'
         +'<div class="cmb'+(open?' op':'')+'">'
           +'<div style="font-size:11px;font-weight:300;color:var(--dk-3);padding:10px 0 6px;">'+(meal.why||'')+'</div>'
-          +'<div class="ic">'+(meal.ingredients||[]).map(function(ing){return '<span class="ig">'+ing.name+' <em style="opacity:.6;">'+ing.portion+'</em></span>';}).join('')+'</div>'
+          +'<div class="ic">'+(meal.ingredients||[]).map(function(ing){return '<span class="ig">'+ing.name+' <em style="opacity:.6;">'+ing.grams+'g &middot; '+ing.portion_visual+'</em></span>';}).join('')+'</div>'
+          +(meal.portionGuide?'<div style="font-size:10px;font-weight:300;color:var(--dk-3);margin-bottom:6px;">Portion: '+meal.portionGuide+'</div>':'')
           +'<div class="cm2">'+(meal.method||'')+'</div>'
-        +'</div></div>';
+          +(meal.swapNote?'<div class="swap-suggest" style="margin-top:8px;"><strong>Smarter swap:</strong> '+meal.swapNote+'</div>':'')
+        +'</div>'
+      +'</div>';
     });
   }
   root.innerHTML=html;
 }
-
 function cmX(v){CM.ctx=v;renderCM();}
 function cmP(v){CM.protein=v;renderCM();}
 function cmC(v){CM.carb=v;renderCM();}
@@ -384,26 +681,103 @@ async function cmGen(){
   var p=gp();if(!p)return;
   CM.busy=true;renderCM();
   var isT=CM.ctx==='Training day'||CM.ctx==='Post-workout';
-  var dK=isT?(p.trainingKcal||2769):(p.restKcal||2492);
-  var perK=Math.round(dK/(p.mealCount||3));
-  var perP=Math.round((p.protein||174)/(p.mealCount||3));
-  var prompt='Performance nutrition coach. Create 5 personalised meal combinations.\n'
-    +'User: '+p.name+', '+p.age+'yo, '+p.weight+'kg, goal: '+(p.goal||'recomposition')+'\n'
+  var dK=isT?(p.trainingKcal||p.calories||2769):(p.restKcal||Math.round((p.calories||2769)*.9));
+  var perK=Math.round(dK/3);var perP=Math.round((p.protein||174)/3);
+  var prompt='Expert nutritionist. Create 5 meal combinations with precise macro calculations.\n'
+    +'User: '+p.name+', '+p.age+'yo male, '+p.weight+'kg, goal: '+(p.goal||'recomposition')+'\n'
     +'Context: '+CM.ctx+' | Target: ~'+perK+' kcal, ~'+perP+'g protein\n'
-    +'Ingredients: '+CM.protein+' + '+(CM.carb==='No carb'?'no carb':CM.carb)+(CM.veg.length?' + '+CM.veg.join(', '):'')+(CM.flavour?' + '+CM.flavour:'')+'\n'
+    +'Protein: '+CM.protein+' | Carb: '+(CM.carb==='No carb (low-carb day)'?'no carb':CM.carb)
+    +(CM.veg.length?' | Veg: '+CM.veg.join(', '):'')
+    +(CM.flavour?' | Flavour: '+CM.flavour:'')+'\n'
     +'Cuisine: '+((p.cuisinePrefs||[]).join(', ')||'flexible')+'\n\n'
-    +'Return ONLY JSON: {"meals":[{"title":"Name","why":"Why it works","protein_g":0,"carbs_g":0,"fat_g":0,"kcal":0,"ingredients":[{"name":"","portion":""}],"method":"One sentence."}]}';
+    +'MACRO RULES: Calculate from ingredient weights. Do not inflate protein.\n\n'
+    +'Return ONLY JSON: {"meals":[{"title":"Name","why":"Why this works for this user and day","protein_g":0,"carbs_g":0,"fat_g":0,"kcal":0,"fatClass":"lean","portionGuide":"e.g. 1 palm protein + 1 cupped hand carb","ingredients":[{"name":"","grams":0,"portion_visual":"e.g. 1 palm"}],"method":"One sentence.","swapNote":"Leaner or higher-protein alternative"}]}';
   try{
-    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MDL,max_tokens:2000,system:'Return ONLY valid JSON.',messages:[{role:'user',content:prompt}]})});
+    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MDL,max_tokens:2500,system:'Expert nutritionist. Return ONLY valid JSON. Macro accuracy critical.',messages:[{role:'user',content:prompt}]})});
     var data=await res.json();
     var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
-    var m=text.match(/\{[\s\S]*\}/);
-    if(!m)throw new Error('no json');
+    var m=text.match(/\{[\s\S]*\}/);if(!m)throw new Error('no json');
     CM.meals=JSON.parse(m[0]).meals||[];
   }catch(e){CM.meals=[];}
   CM.busy=false;CM.step=5;CM.open=null;renderCM();
 }
 
+/* ---- FAT GUIDE TAB ---- */
+function renderLearnTab(){
+  var root=document.getElementById('pane-learn');if(!root)return;
+  var p=gp();
+  var dailyFat=p?p.fat||87:87;
+  var groups=[
+    {label:'Lean proteins (under 5g fat per 100g)',
+     items:[
+      {name:'Chicken breast (skinless)',per100:'165 kcal, 31g P, 3.6g F',col:'var(--jade)',note:'Your default protein. Lean and versatile.'},
+      {name:'White fish (cod/haddock)',  per100:'82 kcal, 18g P, 0.7g F', col:'var(--jade)',note:'Lowest-calorie protein. Ideal on a cut.'},
+      {name:'Tuna (tinned in water)',    per100:'116 kcal, 26g P, 1g F',  col:'var(--jade)',note:'Convenience king. Limit to 3x/week.'},
+      {name:'Egg whites (4)',            per100:'52 kcal, 11g P, 0.2g F', col:'var(--jade)',note:'Pure protein. Pair with 1 yolk for satiety.'},
+      {name:'Greek yogurt 0% (200g)',    per100:'57 kcal, 10g P, 0.2g F', col:'var(--jade)',note:'0% saves ~10g fat vs full-fat. Same protein.'},
+      {name:'Prawns (150g)',             per100:'99 kcal, 22g P, 0.8g F', col:'var(--jade)',note:'Extremely lean. Fast to cook.'},
+      {name:'Turkey mince (5%)',         per100:'148 kcal, 29g P, 2.5g F',col:'var(--jade)',note:'Leaner than beef mince by 4-5x. Direct swap.'}
+    ]},
+    {label:'Moderate-fat proteins (5-15g fat per 100g)',
+     items:[
+      {name:'Salmon fillet (150g)',      per100:'208 kcal, 20g P, 13g F', col:'var(--amber)',note:'Omega-3 rich but a 150g fillet = 20g fat. Worth it 2x/week. Not every day if fat is tracked.'},
+      {name:'Whole eggs (2)',            per100:'155 kcal, 13g P, 11g F', col:'var(--amber)',note:'Fat is in yolk. 2 eggs = 10g fat. Nutritious fat (vitamins D, B12, choline).'},
+      {name:'Chicken thigh (skinless)',  per100:'177 kcal, 26g P, 8g F',  col:'var(--amber)',note:'More flavourful than breast. ~4.5g more fat per 100g. Good once or twice a week.'},
+      {name:'Lean beef mince 5% (120g)',per100:'175 kcal, 21g P, 10g F', col:'var(--amber)',note:'5% fat only. Standard mince (20%) is 4x the fat. Always check the label.'},
+      {name:'Greek yogurt full-fat (200g)',per100:'133 kcal, 9g P, 9g F',col:'var(--amber)',note:'Full-fat adds 16g fat per serving vs 0%. Use on maintenance days or high hunger.'}
+    ]},
+    {label:'High-fat proteins and fat sources (over 15g fat per 100g)',
+     items:[
+      {name:'Ribeye steak (200g)',       per100:'268 kcal, 21g P, 19g F', col:'rgba(220,80,60,.85)',note:'Beautiful cut but 38g fat in one 200g serving. Eats your entire daily fat budget. Save for once weekly.'},
+      {name:'Beef mince 20% fat',        per100:'254 kcal, 17g P, 20g F', col:'rgba(220,80,60,.85)',note:'Very common in supermarkets. 24g fat in 120g serving. Swap to 5% mince or turkey to save 15-18g fat.'},
+      {name:'Avocado (half)',            per100:'160 kcal, 2g P, 15g F',  col:'rgba(220,80,60,.85)',note:'Healthy fat but calorie-dense. Half = 12g fat and near zero protein.'},
+      {name:'Olive oil (1 tbsp)',        per100:'884 kcal, 0g P, 100g F', col:'rgba(220,80,60,.85)',note:'14g fat per tbsp. Invisible calories. Cooking sprays save 10g fat per meal.'},
+      {name:'Almonds (25g handful)',     per100:'579 kcal, 21g P, 50g F', col:'rgba(220,80,60,.85)',note:'13g fat in one handful. Easy to overeat. Weigh -- do not snack from the bag.'},
+      {name:'Peanut butter (2 tbsp)',    per100:'598 kcal, 25g P, 50g F', col:'rgba(220,80,60,.85)',note:'2 tbsp = 16g fat. Protein is OK but the fat comes with it. Account for every tablespoon.'}
+    ]}
+  ];
+
+  var html='<div class="fat-edu-title">Fat source guide for recomposition</div>'
+    +'<div style="font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.7;margin-bottom:20px;">'
+    +'Your daily fat target is <strong style="color:var(--jade);">'+dailyFat+'g</strong>. '
+    +'Fat calories are dense (9 kcal/g vs 4 kcal/g for protein and carbs). '
+    +'The table below shows where your fat is coming from and how to make smarter swaps without losing protein.'
+    +'</div>';
+
+  groups.forEach(function(grp){
+    html+='<div class="fat-edu" style="margin-bottom:16px;">'
+      +'<div class="fat-edu-title">'+grp.label+'</div>';
+    grp.items.forEach(function(item){
+      html+='<div class="fat-edu-row">'
+        +'<div class="fat-edu-name">'+item.name+'</div>'
+        +'<div class="fat-edu-val" style="color:'+item.col+';">'+item.per100+'</div>'
+        +'<div class="fat-edu-note" style="margin-left:12px;">'+item.note+'</div>'
+      +'</div>';
+    });
+    html+='</div>';
+  });
+
+  html+='<div style="background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:16px 18px;">'
+    +'<div class="fat-edu-title">Portion reference guide</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
+    +'<div style="font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.8;">'
+    +'<strong style="color:var(--dk-1);">Palm</strong> = 120-150g cooked protein<br>'
+    +'<strong style="color:var(--dk-1);">Cupped hand</strong> = 150g cooked carb (rice, potato)<br>'
+    +'<strong style="color:var(--dk-1);">Fist</strong> = 1 medium sweet potato (~180g)<br>'
+    +'<strong style="color:var(--dk-1);">Handful (dry)</strong> = 75g pasta, 60g oats'
+    +'</div>'
+    +'<div style="font-size:11px;font-weight:300;color:var(--dk-2);line-height:1.8;">'
+    +'<strong style="color:var(--dk-1);">Thumb</strong> = 1 tbsp oil or nut butter (~15g)<br>'
+    +'<strong style="color:var(--dk-1);">Small handful</strong> = 25g nuts<br>'
+    +'<strong style="color:var(--dk-1);">2 palms</strong> = a generous plate of leafy greens<br>'
+    +'<strong style="color:var(--dk-1);">Whole palm, flat</strong> = ~1 cup Greek yogurt (200g)'
+    +'</div></div></div>';
+
+  root.innerHTML=html;
+}
+
+/* ---- INIT ---- */
 function init(){
   var p=gp();
   var nm=document.getElementById('nav-meta');
@@ -424,7 +798,6 @@ function init(){
     S.plan=ex;S.prefs=ex.prefs||S.prefs;renderTable(p);
   }else{renderPrefs(p);}
 }
-
 init();
 </script>
 </body>

@@ -936,6 +936,7 @@
 var PLAN_VERSION = 'v6r1';
 var API   = '/api/chat';
 var MODEL = 'claude-sonnet-4-20250514';
+var MODEL_FAST = 'claude-haiku-4-5-20251001'; // Simple tasks: estimations, summaries, short outputs
 var P=null, TODAY=null, MACROS=null;
 var _recipes={}, _rDate=new Date().toISOString().slice(0,10);
 
@@ -2520,7 +2521,7 @@ async function submitDev(slot,i){
   if(/as planned|the meal|all of it|had it/i.test(txt)){quickTick(slot,i);if(res)res.innerHTML='<div class="dev-result"><strong>On plan</strong> \u2014 nice.</div>';return;}
   try{
     var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:MODEL,max_tokens:100,system:'Nutrition estimator. Return only valid JSON.',
+      body:JSON.stringify({model:MODEL_FAST,max_tokens:100,system:'Nutrition estimator. Return only valid JSON.',
         messages:[{role:'user',content:'Estimate macros: "'+txt+'". Person: '+(P.weight||80)+'kg '+(P.sex||'male')+'. Return: {"protein":0,"carbs":0,"fat":0,"calories":0,"note":"brief"}'}]})});
     var d=await r.json();
     var raw=(d.content||[]).map(function(b){return b.text||'';}).join('').trim();
@@ -3685,7 +3686,7 @@ async function generateCoachNarrative(p, t, plan) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: MODEL_FAST,
         max_tokens: 120,
         system: 'You are a direct performance coach. One paragraph only, max 60 words. No markdown.',
         messages: [{ role: 'user', content: prompt }]
@@ -3800,7 +3801,7 @@ async function runSOS() {
     var res = await fetch('/api/chat', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:300,
+        model:MODEL_FAST, max_tokens:300,
         system:'You are a performance coach giving emergency fixes. Return ONLY valid JSON. No markdown.',
         messages:[{role:'user',content:prompt}]
       })
@@ -4523,7 +4524,7 @@ async function gcGeneratePostSessionNote() {
 
   try {
     var res = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model: MODEL, max_tokens: 150,
+      body: JSON.stringify({ model: MODEL_FAST, max_tokens: 150,
         system: 'Direct performance coach. 2-3 sentences only. No markdown.',
         messages: [{ role:'user', content: prompt }]
       })
