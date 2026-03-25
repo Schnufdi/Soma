@@ -459,14 +459,14 @@
 .day-page{max-width:680px;margin:0 auto;padding:0 28px 120px;}
 
 /* ── HERO ───────────────────────────────────── */
-.day-hero{padding:44px 0 32px;}
-.day-kicker{font-size:9px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--jade);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.day-hero{padding:16px 0 8px;}
+.day-kicker{font-size:9px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;display:flex;align-items:center;gap:10px;}
 .day-kicker::before{content:'';width:16px;height:1px;background:var(--jade);}
-.day-title{font-family:var(--serif);font-size:62px;font-weight:300;line-height:.9;letter-spacing:-.03em;color:var(--dk-1);margin-bottom:18px;}
+.day-title{font-family:var(--serif);font-size:44px;font-weight:300;line-height:.92;letter-spacing:-.03em;color:var(--dk-1);margin-bottom:10px;}
 .day-title-day{display:block;}
-.day-title-type{display:block;font-style:italic;color:var(--dk-3);font-size:48px;}
-.day-brief{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;max-width:440px;}
-.day-priority{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);padding:5px 13px;border-radius:20px;margin-top:14px;}
+.day-title-type{display:block;font-style:italic;color:var(--dk-3);font-size:34px;}
+.day-brief{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:440px;}
+.day-priority{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);padding:4px 11px;border-radius:20px;margin-top:8px;}
 
 /* ── MACRO TILES ────────────────────────────── */
 .macro-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 14px;}
@@ -1830,11 +1830,11 @@ function renderProgressBanner(p, t) {
           + '<div class="pb-label">Streak 🔥</div>'
         + '</div>'
       : '')
-    + '<div class="pb-stat" style="margin-left:auto;border-right:none;">'
-      + '<div class="pb-val" style="font-size:12px;color:var(--dk-3);">'
-        + (t.isTraining ? '🏋️ ' + t.plan.type : '🛋 Rest')
-      + '</div>'
-      + '<div class="pb-label">Today</div>'
+    + '<div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-left:12px;">'
+      + (t.isTraining
+        ? '<button onclick="jumpToBlock(\'train\')" style="background:var(--jade);border:none;color:var(--ink);padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.05em;cursor:pointer;font-family:var(--sans);white-space:nowrap;">↓ Session</button>'
+        : '')
+      + '<button onclick="jumpToNow()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:5px 10px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;">Now ↓</button>'
     + '</div>';
 }
 // ── DAY BROWSING ──────────────────────────────────
@@ -1851,6 +1851,155 @@ function getDayCtx(p, i) {
     DAY_NAMES: N,
     isBrowsing: true
   };
+}
+
+// ── Jump navigation helpers ───────────────────────
+function jumpToBlock(type) {
+  // Find the first block matching the type in the DOM
+  var blocks = document.querySelectorAll('.ptl-block');
+  var target = null;
+  for (var i = 0; i < blocks.length; i++) {
+    var tag = blocks[i].querySelector('.ptl-tag');
+    if (!tag) continue;
+    var t = tag.textContent.toLowerCase();
+    if (type === 'train' && (t === 'train' || t === 'training')) { target = blocks[i]; break; }
+    if (type === 'eat' && t === 'eat') { target = blocks[i]; break; }
+    if (type === 'sleep' && t === 'sleep') { target = blocks[i]; break; }
+  }
+  if (target) {
+    var navH = 190; // height of sticky nav + banner + week strip
+    var top = target.getBoundingClientRect().top + window.scrollY - navH;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }
+}
+
+function jumpToNow() {
+  // Find the block whose time is closest to now from below
+  var now = new Date();
+  var nowMins = now.getHours() * 60 + now.getMinutes();
+  var blocks = document.querySelectorAll('.ptl-block');
+  var best = null, bestDiff = Infinity;
+
+  blocks.forEach(function(b) {
+    var timeEl = b.querySelector('.ptl-time');
+    if (!timeEl) return;
+    var t = timeEl.textContent.trim();
+    var parts = t.match(/(\d+):(\d+)/);
+    if (!parts) return;
+    var mins = parseInt(parts[1]) * 60 + parseInt(parts[2]);
+    var diff = Math.abs(mins - nowMins);
+    if (diff < bestDiff) { bestDiff = diff; best = b; }
+  });
+
+  if (best) {
+    var navH = 190;
+    var top = best.getBoundingClientRect().top + window.scrollY - navH;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    // Flash the block briefly
+    best.style.transition = 'box-shadow .2s';
+    best.style.boxShadow = '0 0 0 2px rgba(0,200,160,.4)';
+    setTimeout(function() { best.style.boxShadow = ''; }, 1200);
+  }
+}
+
+// ── Quick log strip (sleep / energy / training) ───
+function renderQuickLogStrip() {
+  var p = P, t = TODAY;
+  if (!p || !t || t.isBrowsing) return;
+  var zone = document.getElementById('day-capture-zone');
+  if (!zone) return;
+
+  var log = loadDayLog(_rDate) || {};
+  var sleep = log.sleepActual || 0;
+  var energy = log.energy || 0;
+  var trainStatus = log.trainStatus || '';
+  var allDone = sleep && energy && (!t.isTraining || (trainStatus && trainStatus !== 'pending'));
+  if (allDone) { zone.innerHTML = ''; return; } // nothing left to capture — hide strip
+
+  var html = '<div id="ql-strip" style="margin:20px 0 0;border:1px solid var(--bd);border-radius:10px;overflow:hidden;">'
+    + '<div style="padding:10px 14px 8px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;">'
+      + '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);">Quick log</div>'
+      + '<button onclick="document.getElementById(\'ql-strip\').style.display=\'none\'" style="background:none;border:none;color:var(--dk-3);font-size:13px;cursor:pointer;">✕</button>'
+    + '</div>'
+    + '<div style="padding:12px 14px;display:flex;flex-direction:column;gap:12px;">';
+
+  // Training status — only on training days
+  if (t.isTraining && (!trainStatus || trainStatus === 'pending')) {
+    html += '<div>'
+      + '<div style="font-size:10px;font-weight:600;color:var(--dk-3);margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;">Training</div>'
+      + '<div style="display:flex;gap:6px;">'
+      + ['done','modified','skipped'].map(function(s) {
+          var labels = { done:'✓ Done', modified:'~ Modified', skipped:'✗ Skipped' };
+          var cols = { done:'var(--jade)', modified:'var(--amber)', skipped:'rgba(220,80,60,.7)' };
+          return '<button onclick="qlSetTrain(\''+s+'\')" style="flex:1;padding:9px 6px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);background:transparent;border:1px solid var(--bd);color:var(--dk-3);transition:all .1s;" data-train="'+s+'">'+labels[s]+'</button>';
+        }).join('')
+      + '</div>'
+      + '</div>';
+  }
+
+  // Sleep
+  if (!sleep) {
+    html += '<div>'
+      + '<div style="font-size:10px;font-weight:600;color:var(--dk-3);margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;">Sleep last night</div>'
+      + '<div style="display:flex;gap:5px;">'
+      + [5,6,7,8,9].map(function(h) {
+          return '<button onclick="qlSetSleep('+h+')" style="flex:1;padding:9px 4px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);background:transparent;border:1px solid var(--bd);color:var(--dk-3);transition:all .1s;" data-sleep="'+h+'">'+h+'h</button>';
+        }).join('')
+      + '</div>'
+      + '</div>';
+  }
+
+  // Energy
+  if (!energy) {
+    html += '<div>'
+      + '<div style="font-size:10px;font-weight:600;color:var(--dk-3);margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;">Energy today</div>'
+      + '<div style="display:flex;gap:5px;">'
+      + [1,2,3,4,5].map(function(n) {
+          return '<button onclick="qlSetEnergy('+n+')" style="flex:1;padding:9px 4px;border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--sans);background:transparent;border:1px solid var(--bd);color:var(--dk-3);transition:all .1s;" data-energy="'+n+'">'+n+'</button>';
+        }).join('')
+      + '</div>'
+      + '</div>';
+  }
+
+  html += '</div></div>';
+  zone.innerHTML = html;
+}
+
+function qlSetTrain(status) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.trainStatus = status;
+  saveDayLog(log);
+  document.querySelectorAll('[data-train]').forEach(function(b) {
+    var col = { done:'var(--jade)', modified:'var(--amber)', skipped:'rgba(220,80,60,.7)' };
+    b.style.background = b.dataset.train === status ? col[status] : 'transparent';
+    b.style.color = b.dataset.train === status ? 'var(--ink)' : 'var(--dk-3)';
+    b.style.borderColor = b.dataset.train === status ? col[status] : 'var(--bd)';
+  });
+  setTimeout(renderQuickLogStrip, 600);
+}
+
+function qlSetSleep(h) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.sleepActual = h;
+  saveDayLog(log);
+  document.querySelectorAll('[data-sleep]').forEach(function(b) {
+    b.style.background = parseInt(b.dataset.sleep) === h ? 'var(--jade)' : 'transparent';
+    b.style.color = parseInt(b.dataset.sleep) === h ? 'var(--ink)' : 'var(--dk-3)';
+    b.style.borderColor = parseInt(b.dataset.sleep) === h ? 'var(--jade)' : 'var(--bd)';
+  });
+  setTimeout(renderQuickLogStrip, 600);
+}
+
+function qlSetEnergy(n) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.energy = n;
+  saveDayLog(log);
+  document.querySelectorAll('[data-energy]').forEach(function(b) {
+    b.style.background = parseInt(b.dataset.energy) === n ? 'var(--amber)' : 'transparent';
+    b.style.color = parseInt(b.dataset.energy) === n ? 'var(--ink)' : 'var(--dk-3)';
+    b.style.borderColor = parseInt(b.dataset.energy) === n ? 'var(--amber)' : 'var(--bd)';
+  });
+  setTimeout(renderQuickLogStrip, 600);
 }
 
 function jumpDay(i) {
@@ -2437,19 +2586,19 @@ function renderPlan(plan, browsing){
         var statusBorder = status ? statusColor : 'var(--bd)';
         var statusIcon = status==='done' ? '✓' : status==='modified' ? '~' : status==='skipped' ? '✗' : '·';
         var note = exLogs[key] && exLogs[key].note || '';
-        return '<div class="ex-row" id="exr-'+i+'" style="flex-direction:column;align-items:stretch;gap:0;padding:6px 0;">'
+        return '<div class="ex-row" id="exr-'+i+'" style="flex-direction:column;align-items:stretch;gap:0;padding:8px 0;">'
           +'<div style="display:flex;align-items:center;gap:8px;">'
-            +'<div style="width:22px;height:22px;border-radius:50%;border:1px solid '+statusBorder+';background:'+(status?'rgba(0,0,0,.15)':'transparent')+';'
-              +'display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+statusColor+';flex-shrink:0;cursor:pointer;transition:all .12s;"'
+            +'<div style="width:28px;height:28px;border-radius:50%;border:1px solid '+statusBorder+';background:'+(status?'rgba(0,0,0,.15)':'transparent')+';'
+              +'display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:'+statusColor+';flex-shrink:0;cursor:pointer;transition:all .12s;"'
               +' onclick="cycleExStatus('+i+',\''+parsed.name+'\')" title="Tap to log">'
               +statusIcon+'</div>'
             +'<span class="ex-row-name">'+parsed.name+'</span>'
             +'<span class="ex-row-schema">'+parsed.sets+'×'+parsed.reps+'</span>'
             +'<span class="ex-row-rpe">RPE 7-8</span>'
-            +'<div style="margin-left:auto;display:flex;gap:4px;">'
-              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'done\')" style="padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='done'?'background:var(--jade);color:var(--ink);border:1px solid var(--jade);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">✓</button>'
-              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'modified\')" style="padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='modified'?'background:var(--amber);color:var(--ink);border:1px solid var(--amber);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">~</button>'
-              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'skipped\')" style="padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='skipped'?'background:rgba(220,80,60,.7);color:#fff;border:1px solid rgba(220,80,60,.7);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">✗</button>'
+            +'<div style="margin-left:auto;display:flex;gap:5px;">'
+              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'done\')" style="min-width:40px;height:36px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='done'?'background:var(--jade);color:var(--ink);border:1px solid var(--jade);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">✓</button>'
+              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'modified\')" style="min-width:40px;height:36px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='modified'?'background:var(--amber);color:var(--ink);border:1px solid var(--amber);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">~</button>'
+              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'skipped\')" style="min-width:40px;height:36px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='skipped'?'background:rgba(220,80,60,.7);color:#fff;border:1px solid rgba(220,80,60,.7);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">✗</button>'
             +'</div>'
           +'</div>'
           +(status && status !== 'done'
@@ -2804,6 +2953,9 @@ function setDayRating(r) {
 }
 
 function renderDayCapture() {
+  // Quick log strip — always render at top of capture zone
+  renderQuickLogStrip();
+
   var zone = document.getElementById('day-capture-zone');
   if (!zone) return;
   var p = P, t = TODAY;

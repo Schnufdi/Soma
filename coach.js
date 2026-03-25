@@ -966,10 +966,9 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
           promptProfileUpdate(newInfo, profile);
         }
 
-        // Generate follow-up chips asynchronously
-        generateFollowUps(msg, reply, profile).then(followUps => {
-          if (followUps && followUps.length) showFollowUpChips(followUps);
-        });
+        // Generate follow-up chips synchronously
+        const followUps = generateFollowUps(msg, reply, profile);
+        if (followUps && followUps.length) showFollowUpChips(followUps);
 
       } catch(e) {
         hideTyping();
@@ -1337,9 +1336,9 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
         // Check for new info
         const newInfo = extractNewInfo(reply);
         if (newInfo) bloPromptUpdate(newInfo);
-        // Generate follow-up questions
-        generateFollowUps(msg, reply, profile).then(fups => {
-          if (!fups || !fups.length) return;
+        // Generate follow-up questions (synchronous)
+        const fups = generateFollowUps(msg, reply, profile);
+        if (fups && fups.length) {
           // Show as follow-up pills above the input
           const qPanel = document.getElementById('blo-q-panel');
           const qLabel = document.getElementById('blo-q-label');
@@ -1357,7 +1356,7 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
             });
             if (qPanel) qPanel.classList.add('open');
           }
-        });
+        }
       } catch(e) {
         if (typing.parentNode) typing.remove();
         bloAddMessage('coach', 'Something went wrong — try again.');
