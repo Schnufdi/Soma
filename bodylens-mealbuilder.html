@@ -198,10 +198,12 @@ function wpRender(p){
   if(!root||!p)return;
   var hasWeek=WP.plan&&Object.keys(WP.plan.days||{}).length>0;
   var genDate=WP.plan&&WP.plan.generatedAt?new Date(WP.plan.generatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):null;
+  var genBtnLabel=WP.generating?'<div class="mb-spin"></div> Building your week\u2026':(hasWeek?'\u21ba Regenerate week':'\u2736 Generate my week');
+  var genBtnAttr=WP.generating?' disabled':'';
   var html='<div class="wp-gen-bar">'
     +'<div>'
-      +'<button class="wp-gen-btn" id="wp-gen-btn" onclick="wpGenerate()"'+(WP.generating?' disabled':')>')
-      +(WP.generating?'<div class="mb-spin"></div> Building your week\u2026':(hasWeek?'\u21ba Regenerate week':'\u2736 Generate my week'))
+      +'<button class="wp-gen-btn" id="wp-gen-btn" onclick="wpGenerate()"'+genBtnAttr+'>'
+      +genBtnLabel
       +'</button>'
     +'</div>'
     +(genDate?'<div class="wp-gen-meta">Generated '+genDate+' \u00b7 <button onclick="wpClearAndRegen()" style="background:none;border:none;color:var(--dk-3);font-size:11px;cursor:pointer;text-decoration:underline;font-family:var(--sans);">Start fresh</button></div>':'')
