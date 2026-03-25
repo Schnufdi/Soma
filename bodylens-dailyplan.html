@@ -76,6 +76,19 @@
   <button onclick="dismissDebrief()" id="debrief-dismiss-btn">✕</button>
 </div>
 
+<!-- ACTIVITY LOG OVERLAY -->
+<div id="al-overlay" onclick="if(event.target===this)closeActivityLog()">
+  <div id="al-panel">
+    <div id="al-hd">
+      <div id="al-title">Log activity</div>
+      <button onclick="closeActivityLog()">&#10005;</button>
+    </div>
+    <div id="al-body">
+      <!-- Populated by renderActivityLog() -->
+    </div>
+  </div>
+</div>
+
 <!-- DEBRIEF OVERLAY -->
 <div id="debrief-overlay">
   <div id="debrief-panel">
@@ -301,6 +314,109 @@
   font-size:16px; cursor:pointer; font-family:var(--sans);
 }
 #debrief-body { padding:20px; }
+
+/* ---- Activity Log Drawer ---- */
+#al-overlay {
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:1100;align-items:flex-end;justify-content:center;
+}
+#al-overlay.open { display:flex; }
+#al-panel {
+  background:var(--ink-1);border-radius:16px 16px 0 0;
+  border:1px solid var(--bd);width:100%;max-width:600px;
+  max-height:92vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0);
+}
+#al-hd {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 22px 14px;border-bottom:1px solid var(--bd);position:sticky;top:0;
+  background:var(--ink-1);z-index:1;
+}
+#al-title { font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1); }
+#al-hd button { background:none;border:none;color:var(--dk-3);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px; }
+#al-hd button:hover { color:var(--dk-1);background:rgba(255,255,255,.06); }
+#al-body { padding:20px 22px; }
+
+.al-section { margin-bottom:22px; }
+.al-label {
+  font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dk-3);margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.al-label::after { content:'';flex:1;height:1px;background:var(--bd); }
+
+.al-group-label {
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dk-3);margin:12px 0 6px;
+}
+.al-chips { display:flex;gap:6px;flex-wrap:wrap; }
+.al-chip {
+  padding:7px 14px;border-radius:16px;border:1px solid var(--bd);
+  background:transparent;font-size:11px;font-weight:500;color:var(--dk-2);
+  cursor:pointer;font-family:var(--sans);transition:all .12s;
+}
+.al-chip:hover { border-color:rgba(255,255,255,.15);color:var(--dk-1); }
+.al-chip.sel { background:rgba(0,200,160,.08);border-color:var(--jade-br);color:var(--jade); }
+
+.al-slider-row { display:flex;align-items:center;gap:12px;margin-top:6px; }
+.al-slider { flex:1;accent-color:var(--jade); }
+.al-slider-val { font-size:13px;font-weight:600;color:var(--jade);min-width:32px; }
+
+.al-sub-badge {
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;
+  margin-top:12px;
+}
+.al-sub-badge.full    { background:rgba(0,200,160,.1);border:1px solid var(--jade-br);color:var(--jade); }
+.al-sub-badge.partial { background:rgba(200,148,30,.1);border:1px solid var(--amber-br);color:var(--amber); }
+.al-sub-badge.minimal,
+.al-sub-badge.none    { background:rgba(255,255,255,.04);border:1px solid var(--bd);color:var(--dk-3); }
+.al-sub-badge.additive{ background:rgba(0,168,114,.08);border:1px solid rgba(0,168,114,.25);color:var(--green); }
+
+.al-note-inp {
+  width:100%;background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;
+  padding:10px 12px;font-size:12px;font-weight:300;color:var(--dk-1);
+  font-family:var(--sans);outline:none;resize:none;line-height:1.5;
+  transition:border-color .12s;
+}
+.al-note-inp:focus { border-color:rgba(0,200,160,.3); }
+
+.al-submit-btn {
+  width:100%;background:var(--jade);border:none;color:var(--ink);
+  padding:14px;border-radius:10px;font-size:12px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
+  font-family:var(--sans);transition:opacity .12s;margin-top:4px;
+}
+.al-submit-btn:hover { opacity:.88; }
+.al-submit-btn:disabled { opacity:.4;cursor:not-allowed; }
+
+/* Logged activities strip on Today page */
+#al-logged-strip { margin:14px 0 0; }
+.al-logged-item {
+  display:flex;align-items:center;gap:10px;padding:9px 12px;
+  background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;
+  margin-bottom:6px;
+}
+.al-logged-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.al-logged-name { font-size:12px;font-weight:500;color:var(--dk-1);flex:1; }
+.al-logged-meta { font-size:10px;font-weight:300;color:var(--dk-3); }
+.al-logged-sub  { font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:8px; }
+.al-logged-sub.full    { background:rgba(0,200,160,.08);color:var(--jade);border:1px solid var(--jade-br); }
+.al-logged-sub.partial { background:rgba(200,148,30,.08);color:var(--amber);border:1px solid var(--amber-br); }
+.al-logged-sub.additive{ background:rgba(0,168,114,.06);color:var(--green);border:1px solid rgba(0,168,114,.2); }
+.al-logged-del  { background:none;border:none;color:var(--dk-3);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px; }
+.al-logged-del:hover { color:rgba(220,80,60,.8); }
+
+/* Coach ledger banner on Today page */
+#al-week-banner {
+  background:var(--ink-1);border:1px solid var(--bd);
+  border-radius:10px;padding:14px 16px;margin:0 0 14px;
+}
+.al-week-banner-row { display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px; }
+.al-week-stat { font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:8px;border:1px solid var(--bd);color:var(--dk-3); }
+.al-week-stat.jade { color:var(--jade);border-color:var(--jade-br);background:var(--jade-dim); }
+.al-week-stat.amber{ color:var(--amber);border-color:var(--amber-br);background:rgba(200,148,30,.06); }
+.al-week-stat.red  { color:rgba(220,80,60,.9);border-color:rgba(220,80,60,.25);background:rgba(220,80,60,.06); }
+.al-rec { font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;padding:8px 0 0; }
+.al-rec strong { font-weight:600;color:var(--dk-1); }
 
 /* Debrief steps */
 .db-step { animation:fadeUp .2s ease; }
@@ -810,6 +926,7 @@
 }
 </style>
 
+<script src="activitylog.js"></script>
 <script src="nav.js"></script>
 <script>
 'use strict';
@@ -2787,6 +2904,24 @@ function renderPlan(plan, browsing){
     +'<div id="prog-strip-slot"></div>'
     +'<div class="sec-label">Your day</div>'
     +'<div class="ptl"><div class="ptl-line"></div>'+blocksHtml+'</div>'
+    +(!isBrowsing ? '<div id="al-week-banner" style="display:none;"></div>' : '')
+    +(!isBrowsing ? '<div id="al-logged-strip"></div>' : '')
+    +(!isBrowsing
+      ? '<div style="margin:0 0 14px;">'
+        +'<button onclick="openActivityLog()" style="'
+          +'display:flex;align-items:center;gap:8px;padding:10px 18px;'
+          +'background:transparent;border:1px solid var(--bd);border-radius:8px;'
+          +'font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;'
+          +'color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all .12s;'
+          +'width:100%;"'
+        +' onmouseover="this.style.borderColor=\'var(--jade-br)\';this.style.color=\'var(--jade)\'"'
+        +' onmouseout="this.style.borderColor=\'var(--bd)\';this.style.color=\'var(--dk-3)\'"'
+        +'>'
+        +'<span style="font-size:15px;">+</span>'
+        +'Log activity'
+        +'</button>'
+      +'</div>'
+      : '')
     +(!isBrowsing ? '<div id="day-capture-zone"></div>' : '')
     // SOS — below timeline, quieter placement
     +(!isBrowsing
@@ -3114,7 +3249,261 @@ function initDayCapture() {
   renderDayCapture();
 }
 
+// ── Activity Log UI ───────────────────────────────────────────────
 
+var _alState = { typeKey: null, durationMins: 45, rpe: 7, note: '' };
+
+function openActivityLog() {
+  _alState = { typeKey: null, durationMins: 45, rpe: 7, note: '' };
+  renderActivityLogUI();
+  document.getElementById('al-overlay').classList.add('open');
+}
+
+function closeActivityLog() {
+  document.getElementById('al-overlay').classList.remove('open');
+}
+
+function renderActivityLogUI() {
+  var body = document.getElementById('al-body');
+  if (!body) return;
+
+  var todayPlan = TODAY && TODAY.isTraining
+    ? (TODAY.plan && TODAY.plan.type ? getPlannedType(TODAY.plan.type) : null) : null;
+
+  // Preview substitution if type selected
+  var subBadge = '';
+  if (_alState.typeKey && todayPlan) {
+    var classified = classifyActivity(_alState.typeKey, _alState.durationMins, _alState.rpe);
+    var sub = assessSubstitution(classified, todayPlan);
+    var badgeCls = sub.level;
+    subBadge = '<div class="al-sub-badge ' + badgeCls + '">'
+      + sub.label + ' for today\'s ' + todayPlan + ' session'
+      + ' <span style="opacity:.7;font-weight:400;">(' + sub.pct + '%)</span>'
+      + '</div>'
+      + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:6px;">' + sub.note + '</div>';
+  }
+
+  // Build activity type chips by group
+  var groupsHtml = ACTIVITY_GROUPS.map(function(grp) {
+    var chipsHtml = grp.keys.map(function(key) {
+      var def = ACTIVITY_TYPES[key];
+      if (!def) return '';
+      var sel = _alState.typeKey === key;
+      return '<button class="al-chip' + (sel ? ' sel' : '') + '" onclick="alSelectType(\'' + key + '\')">'
+        + def.label + '</button>';
+    }).join('');
+    return '<div class="al-group-label">' + grp.group + '</div>'
+      + '<div class="al-chips">' + chipsHtml + '</div>';
+  }).join('');
+
+  body.innerHTML =
+    '<div class="al-section">'
+      + '<div class="al-label">Activity type</div>'
+      + groupsHtml
+    + '</div>'
+
+    + (_alState.typeKey ? (
+      '<div class="al-section">'
+        + '<div class="al-label">Duration</div>'
+        + '<div class="al-slider-row">'
+          + '<input type="range" class="al-slider" min="10" max="120" step="5" value="' + _alState.durationMins + '"'
+          + ' oninput="alSetDuration(this.value)">'
+          + '<div class="al-slider-val" id="al-dur-val">' + _alState.durationMins + ' min</div>'
+        + '</div>'
+      + '</div>'
+
+      + '<div class="al-section">'
+        + '<div class="al-label">Effort (RPE 1-10)</div>'
+        + '<div class="al-slider-row">'
+          + '<input type="range" class="al-slider" min="1" max="10" step="1" value="' + _alState.rpe + '"'
+          + ' oninput="alSetRpe(this.value)">'
+          + '<div class="al-slider-val" id="al-rpe-val">' + _alState.rpe + '</div>'
+        + '</div>'
+        + '<div style="font-size:10px;font-weight:300;color:var(--dk-3);margin-top:4px;">'
+          + alRpeLabel(_alState.rpe)
+        + '</div>'
+      + '</div>'
+
+      + (subBadge ? '<div class="al-section">' + subBadge + '</div>' : '')
+
+      + '<div class="al-section">'
+        + '<div class="al-label">Note <span style="font-weight:300;text-transform:none;letter-spacing:0;">(optional)</span></div>'
+        + '<textarea class="al-note-inp" rows="2" placeholder="e.g. substituting pull session — back very fatigued" oninput="_alState.note=this.value">' + _alState.note + '</textarea>'
+      + '</div>'
+
+      + '<button class="al-submit-btn" onclick="submitActivityLog()">Log this activity</button>'
+    ) : '');
+}
+
+function alSelectType(key) {
+  _alState.typeKey = key;
+  renderActivityLogUI();
+}
+
+function alSetDuration(val) {
+  _alState.durationMins = parseInt(val);
+  var el = document.getElementById('al-dur-val');
+  if (el) el.textContent = val + ' min';
+  // Live-update substitution badge
+  if (_alState.typeKey) {
+    var today_plan = TODAY && TODAY.isTraining ? getPlannedType(TODAY.plan && TODAY.plan.type) : null;
+    if (today_plan) renderActivityLogUI();
+  }
+}
+
+function alSetRpe(val) {
+  _alState.rpe = parseInt(val);
+  var el = document.getElementById('al-rpe-val');
+  if (el) el.textContent = val;
+  // Update RPE label
+  var lbls = document.querySelectorAll('#al-body .al-section');
+  renderActivityLogUI();
+}
+
+function alRpeLabel(rpe) {
+  if (rpe <= 3) return 'Very easy — minimal effort';
+  if (rpe <= 5) return 'Moderate — comfortable but working';
+  if (rpe <= 7) return 'Hard — challenged but controlled';
+  if (rpe <= 9) return 'Very hard — near maximum';
+  return 'Maximum effort';
+}
+
+function submitActivityLog() {
+  if (!_alState.typeKey) return;
+  var activity = {
+    typeKey: _alState.typeKey,
+    durationMins: _alState.durationMins,
+    rpe: _alState.rpe,
+    note: _alState.note,
+    loggedAt: new Date().toISOString()
+  };
+  saveActivity(_rDate, activity);
+  closeActivityLog();
+  renderActivityStrip();
+  renderWeekBanner();
+}
+
+function renderActivityStrip() {
+  var strip = document.getElementById('al-logged-strip');
+  if (!strip) return;
+  var activities = loadActivities(_rDate);
+  if (!activities.length) { strip.innerHTML = ''; return; }
+
+  var todayPlan = TODAY && TODAY.isTraining ? getPlannedType(TODAY.plan && TODAY.plan.type) : null;
+
+  var html = '<div style="margin-bottom:14px;">'
+    + '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Logged today</div>';
+
+  activities.forEach(function(a, i) {
+    var c = classifyActivity(a.typeKey, a.durationMins, a.rpe);
+    var sub = todayPlan ? assessSubstitution(c, todayPlan) : { level: 'additive', label: 'Logged' };
+    var dotCol = sub.level === 'full' ? 'var(--jade)'
+      : sub.level === 'partial' ? 'var(--amber)'
+      : sub.level === 'additive' ? 'var(--green)'
+      : 'var(--dk-3)';
+
+    html += '<div class="al-logged-item">'
+      + '<div class="al-logged-dot" style="background:' + dotCol + ';"></div>'
+      + '<div class="al-logged-name">' + c.label + '</div>'
+      + '<div class="al-logged-meta">' + a.durationMins + ' min &middot; RPE ' + a.rpe + '</div>'
+      + '<div class="al-logged-sub ' + sub.level + '">' + sub.label + '</div>'
+      + '<button class="al-logged-del" onclick="deleteActivityToday(' + i + ')" title="Remove">&#215;</button>'
+    + '</div>';
+  });
+
+  html += '</div>';
+  strip.innerHTML = html;
+}
+
+function deleteActivityToday(idx) {
+  deleteActivity(_rDate, idx);
+  renderActivityStrip();
+  renderWeekBanner();
+}
+
+function renderWeekBanner() {
+  var banner = document.getElementById('al-week-banner');
+  if (!banner) return;
+
+  var ledger = rebuildWeekLedger();
+  if (!ledger) { banner.style.display = 'none'; return; }
+
+  var s = ledger.summary;
+  var recs = getCoachRecommendation(ledger);
+  var suggestions = suggestNextActivity(ledger);
+
+  // Only show if there's something worth surfacing
+  var hasData = s.sessionsDone > 0 || s.sessionsMissed > 0
+    || Object.values(ledger.days).some(function(d){ return d.activities && d.activities.length > 0; });
+  if (!hasData) { banner.style.display = 'none'; return; }
+
+  banner.style.display = 'block';
+
+  var fatigueCol = s.fatigueLevel === 'peak' ? 'red'
+    : s.fatigueLevel === 'high' ? 'amber' : 'jade';
+  var statusCol = s.weeksGoalStatus === 'on-track' ? 'jade'
+    : s.weeksGoalStatus === 'at-risk' ? 'amber' : 'red';
+
+  var statsHtml = '<div class="al-week-banner-row">'
+    + '<div class="al-week-stat ' + statusCol + '">' + s.weeksGoalStatus.replace('-',' ') + '</div>'
+    + '<div class="al-week-stat ' + fatigueCol + '">fatigue: ' + s.fatigueLevel + '</div>'
+    + (s.strengthCovered.length ? '<div class="al-week-stat jade">covered: ' + s.strengthCovered.join(' + ') + '</div>' : '')
+    + (s.strengthMissing.length ? '<div class="al-week-stat amber">missing: ' + s.strengthMissing.join(' + ') + '</div>' : '')
+    + (s.mobilityMins > 0 ? '<div class="al-week-stat jade">mobility: ' + s.mobilityMins + 'min</div>' : '')
+  + '</div>';
+
+  var topRec = recs && recs[0];
+  var recHtml = topRec
+    ? '<div class="al-rec">' + topRec.text + '</div>'
+    : '';
+
+  var sugHtml = '';
+  if (suggestions.length) {
+    sugHtml = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">'
+      + suggestions.map(function(s) {
+          return '<button onclick="alPresetType(\'' + s.key + '\')" style="'
+            + 'padding:5px 11px;border-radius:12px;border:1px solid var(--bd);'
+            + 'background:transparent;font-size:10px;font-weight:500;color:var(--dk-3);'
+            + 'cursor:pointer;font-family:var(--sans);">'
+            + s.label + '</button>';
+        }).join('')
+    + '</div>';
+  }
+
+  banner.innerHTML = '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Week so far</div>'
+    + statsHtml + recHtml + sugHtml;
+}
+
+function alPresetType(key) {
+  _alState = { typeKey: key, durationMins: 45, rpe: 7, note: '' };
+  renderActivityLogUI();
+  document.getElementById('al-overlay').classList.add('open');
+}
+
+// Also re-export getPlannedType for the UI (already in activitylog.js but ensure available)
+if (typeof getPlannedType === 'undefined') {
+  function getPlannedType(typeStr) {
+    if (!typeStr) return null;
+    var t = typeStr.toLowerCase();
+    if (t.indexOf('push') >= 0) return 'push';
+    if (t.indexOf('pull') >= 0) return 'pull';
+    if (t.indexOf('posterior') >= 0) return 'posterior';
+    if (t.indexOf('upper') >= 0) return 'upper';
+    if (t.indexOf('lower') >= 0) return 'lower';
+    return 'full';
+  }
+}
+
+// ── Wire activity strip and banner into page init ─────────────────
+// Called after buildPlan renders the page
+var _alOrigInitDayCapture = initDayCapture;
+function initDayCapture() {
+  _alOrigInitDayCapture();
+  setTimeout(function() {
+    renderActivityStrip();
+    renderWeekBanner();
+  }, 50);
+}
 
 
 // ── Pre-load all recipes silently in background ──────────────────
