@@ -849,6 +849,59 @@
 /* ── SOS ────────────────────────────────────── */
 .sos-strip{margin:0 0 24px;padding:0;}
 .sos-strip-label{display:none;}
+
+/* ── TODAY AT A GLANCE ──────────────────────────────── */
+.glance-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:20px;}
+.glance-rows{display:flex;flex-direction:column;gap:0;}
+.glance-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.glance-row:last-child{border-bottom:none;}
+.glance-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0;}
+.glance-label{font-size:12px;font-weight:600;color:var(--dk-1);min-width:80px;}
+.glance-value{font-size:12px;font-weight:300;color:var(--dk-3);flex:1;}
+.glance-value.good{color:var(--jade);}
+.glance-value.warn{color:var(--amber);}
+.glance-value.bad{color:rgba(220,80,60,.85);}
+.glance-badge{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:8px;flex-shrink:0;}
+.glance-badge.done{background:rgba(0,200,160,.1);color:var(--jade);border:1px solid var(--jade-br);}
+.glance-badge.pending{background:rgba(255,255,255,.04);color:var(--dk-3);border:1px solid var(--bd);}
+.glance-badge.warn{background:rgba(200,148,30,.1);color:var(--amber);border:1px solid var(--amber-br);}
+.glance-cta{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+.glance-primary-btn{width:100%;background:var(--jade);border:none;color:var(--ink);padding:13px 18px;border-radius:9px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:9px;transition:opacity .12s;}
+.glance-primary-btn:hover{opacity:.88;}
+.glance-primary-btn.rest{background:var(--ink-2);color:var(--dk-2);border:1px solid var(--bd);}
+.glance-secondary-link{text-align:center;font-size:11px;font-weight:300;color:var(--dk-3);cursor:pointer;transition:color .12s;}
+.glance-secondary-link:hover{color:var(--dk-2);}
+.glance-secondary-link span{color:var(--amber);font-weight:500;}
+.readiness-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* ── CHALLENGE GRID ─────────────────────────────────── */
+.challenge-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:20px;}
+.challenge-title{font-size:16px;font-weight:600;color:var(--dk-1);margin-bottom:4px;}
+.challenge-sub{font-size:11px;font-weight:300;color:var(--dk-3);margin-bottom:14px;}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.challenge-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--ink-2);border:1px solid var(--bd);border-radius:9px;cursor:pointer;transition:all .12s;font-family:var(--sans);text-align:left;}
+.challenge-btn:hover{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04);}
+.challenge-btn.sel{border-color:var(--amber-br);background:rgba(200,148,30,.07);}
+.challenge-btn-icon{font-size:16px;flex-shrink:0;}
+.challenge-btn-label{font-size:12px;font-weight:500;color:var(--dk-2);}
+.challenge-btn.sel .challenge-btn-label{color:var(--amber);}
+.challenge-more{text-align:center;padding:6px 0 2px;}
+.challenge-more-link{font-size:10px;font-weight:300;color:var(--dk-3);background:none;border:none;cursor:pointer;font-family:var(--sans);text-decoration:none;}
+.challenge-more-link:hover{color:var(--dk-2);}
+.challenge-response{margin-top:12px;background:var(--ink-2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;display:none;}
+.challenge-response.visible{display:block;}
+.challenge-resp-head{padding:14px 16px;border-bottom:1px solid var(--bd);}
+.challenge-resp-title{font-family:var(--serif);font-size:20px;font-weight:300;color:var(--dk-1);margin-bottom:2px;}
+.challenge-resp-sub{font-size:11px;font-weight:300;color:var(--dk-3);}
+.challenge-resp-body{padding:14px 16px;}
+.challenge-resp-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.challenge-resp-item:last-child{border-bottom:none;}
+.challenge-resp-dot{width:6px;height:6px;border-radius:50%;background:var(--jade);flex-shrink:0;margin-top:5px;}
+.challenge-resp-text{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.6;}
+.challenge-resp-cta{width:100%;background:var(--jade);border:none;color:var(--ink);padding:12px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);margin-top:12px;transition:opacity .12s;}
+.challenge-resp-cta:hover{opacity:.88;}
+.challenge-spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.08);border-top-color:var(--jade);animation:cgspin .7s linear infinite;}
+@keyframes cgspin{to{transform:rotate(360deg)}}
 .sos-trigger-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
 .sos-strip-toggle{background:transparent;border:none;color:var(--dk-3);font-size:10px;font-weight:300;cursor:pointer;font-family:var(--sans);padding:0;display:flex;align-items:center;gap:6px;letter-spacing:.02em;}
 .sos-strip-toggle::before{content:'⚡';font-size:11px;opacity:.4;}
@@ -2892,6 +2945,8 @@ function renderPlan(plan, browsing){
     +'<div id="day-macro-progress"></div>'
     // Week tabs + programme context
     +weekTabsHtml
+    // TODAY AT A GLANCE — compact status card before coach narrative
+    +(!isBrowsing ? renderGlanceCard(p, t, plan) : '')
     // Coach narrative — today only, appears before timeline
     +(!isBrowsing
       ? '<div id="coach-narrative-body" class="coach-narrative">'
@@ -2924,18 +2979,8 @@ function renderPlan(plan, browsing){
       +'</div>'
       : '')
     +(!isBrowsing ? '<div id="day-capture-zone"></div>' : '')
-    // SOS — below timeline, quieter placement
-    +(!isBrowsing
-      ? '<div class="sos-strip">'
-        +'<div class="sos-strip-label">Something getting in the way?</div>'
-        +'<div class="sos-trigger-row">'
-        +'<button class="sos-t-btn primary" onclick="openSOS(null)">All situations</button>'
-        +'<button class="sos-t-btn" onclick="openSOS(\'starving\')">Starving</button>'
-        +'<button class="sos-t-btn" onclick="openSOS(\'bad-sleep\')">Bad sleep</button>'
-        +'<button class="sos-t-btn" onclick="openSOS(\'skip-gym\')">Skip gym</button>'
-        +'</div>'
-        +'</div>'
-      : '')
+    // CHALLENGE GRID — replaces old SOS strip
+    +(!isBrowsing ? renderChallengeGrid() : '')
     +'<button class="regen-btn" onclick="'+(isBrowsing ? 'backToToday()' : 'regen()')+'">'+( isBrowsing ? '\u21a9 Back to today' : '\u8635 Rebuild today')+'</button>'
     +'</div>';
 
@@ -2950,6 +2995,263 @@ function renderPlan(plan, browsing){
 }
 
 function regen(){try{localStorage.removeItem(TODAY.cacheKey);}catch(e){}location.reload();}
+
+// ── GLANCE CARD ────────────────────────────────────────────────────
+function renderGlanceCard(p, t, plan) {
+  if (!p || !t) return '';
+  var log = loadDayLog(_rDate) || {};
+  var trainStatus = log.trainStatus || 'pending';
+
+  // Meals logged
+  var mealsLogged = 0;
+  if (log.meals) {
+    mealsLogged = Object.keys(log.meals).filter(function(k) {
+      return log.meals[k] && log.meals[k].actual;
+    }).length;
+  }
+  // Also count from MACROS
+  if (MACROS && MACROS.meals) {
+    mealsLogged = Math.max(mealsLogged, Object.values(MACROS.meals).filter(function(m){ return m && m.logged; }).length);
+  }
+  var mealCount = p.mealCount || 3;
+
+  // Sleep signal
+  var sleepHours = log.sleepActual || 0;
+  var sleepLabel = sleepHours >= 7 ? sleepHours + 'h — good'
+    : sleepHours >= 6 ? sleepHours + 'h — borderline'
+    : sleepHours > 0  ? sleepHours + 'h — needs attention'
+    : 'Not logged';
+  var sleepCls = sleepHours >= 7 ? 'good' : sleepHours >= 6 ? 'warn' : sleepHours > 0 ? 'bad' : '';
+
+  // Readiness
+  var activities = (typeof loadActivities === 'function') ? loadActivities(_rDate) : [];
+  var ledger = (typeof loadWeekLedger === 'function') ? loadWeekLedger() : null;
+  var fatigue = ledger ? ledger.summary.fatigueLevel : 'low';
+  var readiness = sleepHours >= 7 && fatigue === 'low'   ? 'High'
+    : sleepHours >= 6 && fatigue !== 'peak'              ? 'Moderate'
+    : sleepHours > 0  || fatigue === 'high'               ? 'Low'
+    : 'Unknown';
+  var readinessDot = readiness === 'High' ? 'var(--jade)'
+    : readiness === 'Moderate' ? 'var(--amber)' : 'rgba(220,80,60,.8)';
+  var readinessCls = readiness === 'High' ? 'good' : readiness === 'Moderate' ? 'warn' : 'bad';
+
+  // Training row
+  var trainLabel = !t.isTraining ? 'Rest day'
+    : trainStatus === 'done' ? 'Completed'
+    : trainStatus === 'modified' ? 'Modified'
+    : trainStatus === 'skipped' ? 'Skipped'
+    : 'Not started';
+  var trainBadgeCls = trainStatus === 'done' ? 'done'
+    : trainStatus === 'skipped' ? 'warn'
+    : 'pending';
+  var sessionName = t.isTraining ? (plan.blocks ? (plan.blocks.filter(function(b){return b.type==='train';})[0] || {}).title || t.plan.type : t.plan.type) : '';
+
+  // CTA
+  var ctaLabel = !t.isTraining ? 'Recovery day — protect your sleep'
+    : trainStatus === 'done' ? 'Session complete'
+    : 'Start ' + (t.plan.type || 'session');
+  var ctaIsRest = !t.isTraining || trainStatus === 'done';
+  var ctaOnclick = ctaIsRest ? '' : 'onclick="document.querySelector(\'.ptl\').scrollIntoView({behavior:\'smooth\'})"';
+
+  var rows =
+    '<div class="glance-row">'
+      +'<div class="glance-icon">&#9977;</div>'
+      +'<div class="glance-label">Training</div>'
+      +'<div class="glance-value">'+(t.isTraining ? (t.plan.type || 'Session') : 'Rest day')+'</div>'
+      +'<div class="glance-badge '+trainBadgeCls+'">'+trainLabel+'</div>'
+    +'</div>'
+    +'<div class="glance-row">'
+      +'<div class="glance-icon">&#127860;</div>'
+      +'<div class="glance-label">Meals</div>'
+      +'<div class="glance-value'+(mealsLogged >= mealCount ? ' good' : '')+'">'
+        +mealsLogged+' of '+mealCount+' logged'
+      +'</div>'
+      +'<div class="glance-badge '+(mealsLogged >= mealCount ? 'done' : 'pending')+'">'
+        +(mealsLogged >= mealCount ? 'On track' : mealCount - mealsLogged + ' remaining')
+      +'</div>'
+    +'</div>'
+    +'<div class="glance-row">'
+      +'<div class="glance-icon">&#128164;</div>'
+      +'<div class="glance-label">Sleep</div>'
+      +'<div class="glance-value '+sleepCls+'">'+sleepLabel+'</div>'
+    +'</div>'
+    +'<div class="glance-row">'
+      +'<div class="glance-icon"><div class="readiness-dot" style="background:'+readinessDot+';display:inline-block;vertical-align:middle;"></div></div>'
+      +'<div class="glance-label">Readiness</div>'
+      +'<div class="glance-value '+readinessCls+'">'+readiness
+        +(fatigue !== 'low' ? ' &middot; fatigue '+fatigue : '')
+      +'</div>'
+    +'</div>';
+
+  return '<div class="glance-card">'
+    +rows
+    +'<div class="glance-cta">'
+      +'<button class="glance-primary-btn'+(ctaIsRest?' rest':'')+'" '+ctaOnclick+'>'
+        +(t.isTraining && trainStatus !== 'done' ? '&#9654; ' : '&#10003; ')
+        +ctaLabel
+      +'</button>'
+      +(!ctaIsRest ? '<div class="glance-secondary-link" onclick="selectChallenge(\'skip-gym\')">Not up for that? <span>Adjust the day &rarr;</span></div>' : '')
+    +'</div>'
+  +'</div>';
+}
+
+// ── CHALLENGE GRID ──────────────────────────────────────────────────
+var CHALLENGES = [
+  { id:'bad-sleep',       icon:'&#128564;', label:'Terrible sleep'    },
+  { id:'feeling-sick',    icon:'&#129298;', label:'Feeling sick'      },
+  { id:'skip-gym',        icon:'&#127947;', label:'Skip the gym'      },
+  { id:'travelling',      icon:'&#9992;',   label:'Travelling later'  },
+  { id:'stressed',        icon:'&#128165;', label:'Feeling stressed'  },
+  { id:'zero-motivation', icon:'&#9660;',   label:'Zero motivation'   }
+];
+
+// Inline responses — no API call for speed
+var CHALLENGE_RESPONSES = {
+  'bad-sleep': {
+    title: "Train smarter, not harder today.",
+    sub: "One bad night won't wreck your progress.",
+    items: [
+      "Drop intensity to RPE 6-7 max. You can still train — just don't push to failure today.",
+      "Prioritise compound movements and cut accessory work if energy fades after warm-up.",
+      "Front-load your protein early — sleep deprivation suppresses appetite and you'll under-eat if you rely on hunger cues.",
+      "Nap 20-30 min before training if you can. Post-nap adenosine clears and performance recovers significantly."
+    ],
+    cta: 'Log this & adjust plan'
+  },
+  'feeling-sick': {
+    title: "Protect recovery, don't force it.",
+    sub: "Training when sick delays recovery by 2-4 days on average.",
+    items: [
+      "Symptoms above the neck (runny nose, mild sore throat) — light training is fine. Symptoms below the neck (chest, fatigue, fever) — rest completely.",
+      "Protein and sleep are your two most powerful recovery tools right now. Hit 174g protein even if you skip training.",
+      "Mark the session as skipped. One missed session in a 4-week block has zero effect on final outcome."
+    ],
+    cta: 'Mark session as rest day'
+  },
+  'skip-gym': {
+    title: "Let's get you something worth doing instead.",
+    sub: "Without wrecking the week.",
+    items: [
+      "Log a substitute activity — a 45-min walk, yoga, or a bodyweight circuit all count toward your weekly movement.",
+      "If it's a strength day, even 20 minutes of band work or loaded stretching preserves the stimulus.",
+      "Check the week ledger — if you've already hit your strength sessions this week, a rest day here is legitimately the right call."
+    ],
+    cta: 'Log a substitute activity'
+  },
+  'travelling': {
+    title: "Get you ready for travelling later.",
+    sub: "Without wrecking the plan.",
+    items: [
+      "Prepare portable high-protein snacks now — Greek yogurt pot, protein bar, or tinned tuna. Airport and travel food is typically high-fat and low-protein.",
+      "Train or walk before you leave if possible. Even 20 minutes is worth doing.",
+      "Bring a protein shake scoop if it's a multi-day trip. Easy to hit protein on the road.",
+      "Compression socks if it's a flight over 3 hours — reduces DVT risk and leg fatigue."
+    ],
+    cta: 'Got it — adjust my day'
+  },
+  'stressed': {
+    title: "High stress + heavy training is a bad combination.",
+    sub: "Cortisol is already elevated. Let's work with it.",
+    items: [
+      "High cortisol blunts muscle protein synthesis. Today is not a day to push PRs.",
+      "Train if you can — but keep RPE at 6-7 and focus on movement quality over load.",
+      "20 minutes of zone 2 walking or yoga nidra will lower cortisol more than skipping entirely.",
+      "Avoid skipping meals — stress suppresses appetite but your protein target still matters."
+    ],
+    cta: 'Log this & adjust intensity'
+  },
+  'zero-motivation': {
+    title: "Motivation is unreliable. Systems aren't.",
+    sub: "You don't need to feel like it. You just need to start.",
+    items: [
+      "Commit to just the warm-up. That's it. Two minutes to start — nothing else is required right now.",
+      "Motivation follows action, not the other way around. The feeling comes after you begin, not before.",
+      "Lower the bar: if the full session feels impossible, 20 minutes of any movement counts and keeps the habit intact.",
+      "Check your last week's data — you've already done sessions this week. That momentum is real."
+    ],
+    cta: 'Start the warm-up only'
+  }
+};
+
+var _selectedChallenge = null;
+
+function renderChallengeGrid() {
+  return '<div class="challenge-card" id="challenge-card">'
+    +'<div class="challenge-title">What\'s challenging today?</div>'
+    +'<div class="challenge-sub">Select anything in the way — we\'ll adjust.</div>'
+    +'<div class="challenge-grid">'
+    +CHALLENGES.map(function(c) {
+      return '<button class="challenge-btn" id="chal-'+c.id+'" onclick="selectChallenge(\''+c.id+'\')">'
+        +'<span class="challenge-btn-icon">'+c.icon+'</span>'
+        +'<span class="challenge-btn-label">'+c.label+'</span>'
+      +'</button>';
+    }).join('')
+    +'</div>'
+    +'<div class="challenge-more">'
+      +'<button class="challenge-more-link" onclick="openSOS(null)">More situations &rarr;</button>'
+    +'</div>'
+    +'<div class="challenge-response" id="challenge-response-panel"></div>'
+  +'</div>';
+}
+
+function selectChallenge(id) {
+  _selectedChallenge = id;
+
+  // Update button states
+  CHALLENGES.forEach(function(c) {
+    var btn = document.getElementById('chal-'+c.id);
+    if (btn) btn.classList.toggle('sel', c.id === id);
+  });
+
+  var panel = document.getElementById('challenge-response-panel');
+  if (!panel) return;
+
+  var resp = CHALLENGE_RESPONSES[id];
+  if (!resp) {
+    // Fall back to full SOS overlay for unknown challenges
+    openSOS(id);
+    return;
+  }
+
+  panel.classList.add('visible');
+  panel.innerHTML =
+    '<div class="challenge-resp-head">'
+      +'<div class="challenge-resp-title">'+resp.title+'</div>'
+      +'<div class="challenge-resp-sub">'+resp.sub+'</div>'
+    +'</div>'
+    +'<div class="challenge-resp-body">'
+    +resp.items.map(function(item) {
+      return '<div class="challenge-resp-item">'
+        +'<div class="challenge-resp-dot"></div>'
+        +'<div class="challenge-resp-text">'+item+'</div>'
+      +'</div>';
+    }).join('')
+    +'<button class="challenge-resp-cta" onclick="handleChallengeCta(\''+id+'\')">'+resp.cta+'</button>'
+    +'</div>';
+
+  // Scroll into view
+  setTimeout(function() {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 50);
+}
+
+function handleChallengeCta(id) {
+  if (id === 'skip-gym') {
+    openActivityLog();
+  } else if (id === 'feeling-sick') {
+    if (typeof setTrainStatus === 'function') setTrainStatus('skipped', 'Feeling sick');
+    var panel = document.getElementById('challenge-response-panel');
+    if (panel) {
+      panel.innerHTML += '<div style="font-size:11px;font-weight:500;color:var(--jade);padding:10px 16px;border-top:1px solid var(--bd);">&#10003; Session marked as rest. Recovery mode active.</div>';
+    }
+  } else {
+    // For others just close gracefully
+    var panel = document.getElementById('challenge-response-panel');
+    if (panel) {
+      panel.innerHTML += '<div style="font-size:11px;font-weight:500;color:var(--jade);padding:10px 16px;border-top:1px solid var(--bd);">&#10003; Got it. Coach updated.</div>';
+    }
+  }
+}
 
 // ── DAY LOG — storage schema designed for future iPhone notifications ──────
 // bl_daylog_YYYY-MM-DD = {
