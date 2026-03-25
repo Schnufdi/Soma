@@ -572,52 +572,84 @@ function renderAccelerators(p, weekNum) {
   ]);
   if (!saved.size) return '';
 
+  var goal = (p.goal||'').toLowerCase();
+  var isRecomp = goal.includes('recomp');
+  var age = p.age || 35;
+
   var ACC_META = {
-    'post-meal-walks':    { icon:'🚶', name:'Post-meal walks',     days:'Every day' },
-    'food-ordering':      { icon:'🥗', name:'Protein-first order', days:'Every day' },
-    'vinegar':            { icon:'🥤', name:'Vinegar protocol',    days:'Every day' },
-    'fasted-coffee':      { icon:'☕', name:'Fasted training',     days:'Training days' },
-    'zone2':              { icon:'🫀', name:'Zone 2 cardio',       days:'Rest days' },
-    'sauna':              { icon:'🔥', name:'Sauna protocol',      days:'Rest days' },
-    'contrast':           { icon:'🧊', name:'Cold-hot contrast',   days:'Rest days' },
-    'nsdr':               { icon:'🌊', name:'NSDR',                days:'Rest days' },
-    'loaded-stretch':     { icon:'🧘', name:'Loaded stretching',   days:'After training' },
-    'sleep-extension':    { icon:'😴', name:'Sleep extension',     days:'Every day' },
-    'morning-protocol':   { icon:'☀️', name:'Morning protocol',    days:'Every day' },
-    'training-log':       { icon:'📓', name:'Training log',        days:'Training days' },
-    'carb-backload':      { icon:'⚡', name:'Carb back-loading',   days:'Training days' },
-    'fibre-30g':          { icon:'🌿', name:'30g fibre target',    days:'Every day' },
+    'post-meal-walks':    { icon:'🚶', name:'Post-meal walks',     days:'Every meal',     benefit: 'Clears glucose into muscle, not fat storage. Compounds daily — over a week this is a meaningful shift in insulin sensitivity.' },
+    'food-ordering':      { icon:'🥗', name:'Protein-first order', days:'Every meal',     benefit: 'Flattens glucose-insulin spike 30–40% per meal. Same food, better hormonal partition.' },
+    'vinegar':            { icon:'🥤', name:'ACV before carbs',    days:'Every meal',     benefit: 'Acetic acid slows starch digestion, blunting peak glucose 20–30%. Stacks with protein-first ordering.' },
+    'fasted-coffee':      { icon:'☕', name:'Fasted training',     days:'Training days',  benefit: isRecomp ? 'GH elevated 2–3× fasted. Fat oxidation peaks during session. Muscle protected by high protein intake.' : 'Maximises fat burning during training. GH elevated, insulin low.' },
+    'zone2':              { icon:'🫀', name:'Zone 2 cardio',       days:'Rest days',      benefit: 'Builds mitochondrial density — the machinery that burns fat at rest. Active recovery without muscle fatigue.' + (age >= 40 ? ' VO₂max declines ~10%/decade without this.' : '') },
+    'sauna':              { icon:'🔥', name:'Sauna protocol',      days:'Rest days',      benefit: 'GH pulse comparable to moderate exercise. Heat shock proteins accelerate muscle repair from training.' + (age >= 40 ? ' At '+age+', GH declines significantly — sauna partially restores this.' : '') },
+    'contrast':           { icon:'🧊', name:'Cold–hot contrast',   days:'Rest days',      benefit: 'Norepinephrine +300% above baseline. Inflammatory clearance from training sessions is dramatically accelerated.' },
+    'nsdr':               { icon:'🌊', name:'NSDR',                days:'Rest days',      benefit: 'Dopamine +65% to above-baseline. Cortisol reset. Motor patterns from last session consolidate during NSDR same as during sleep.' },
+    'loaded-stretch':     { icon:'🧘', name:'Loaded stretching',   days:'Post-session',   benefit: 'Sarcomere addition at end-range — hypertrophy stimulus that standard lifting misses. Zero CNS recovery cost.' },
+    'sleep-extension':    { icon:'😴', name:'Sleep extension',     days:'Every night',    benefit: isRecomp ? 'GH released almost exclusively during sleep. Testosterone drops measurably after one week of short nights. Most underrated recomp tool available.' : 'Testosterone and reaction time improve measurably within 2 weeks of consistent extension.' },
+    'morning-protocol':   { icon:'☀️', name:'Morning protocol',    days:'Every morning',  benefit: 'Sets circadian rhythm (affects cortisol, testosterone timing). Cold finish provides norepinephrine spike lasting 2–4 hours.' },
+    'training-log':       { icon:'📓', name:'Training log',        days:'Training days',  benefit: 'Progressive overload without data is guesswork. Logging is the minimum requirement for structured progress.' },
+    'carb-backload':      { icon:'⚡', name:'Carb back-loading',   days:'Training days',  benefit: 'GLUT4 transporters are active 2–4h post-session. Post-training carbs go to muscle glycogen at 3–5× efficiency of any other time.' },
+    'fibre-30g':          { icon:'🌿', name:'30g fibre target',    days:'Every day',      benefit: 'Gut microbiome diversity affects insulin sensitivity, metabolic rate, and hormonal signalling — all relevant to body composition.' },
+    'bfr':                { icon:'🩸', name:'BFR training',        days:'Post-session',   benefit: 'Hypertrophy signal from isolation work at 20% 1RM. Adds volume without CNS cost — ideal for lagging muscles.' },
+    'vo2max-intervals':   { icon:'🔥', name:'VO₂max intervals',   days:'Once per week',  benefit: 'VO₂max is the strongest longevity predictor measurable. Drives mitochondrial biogenesis that Zone 2 alone won\'t achieve.' },
+    'neat':               { icon:'📈', name:'NEAT steps',          days:'Every day',      benefit: 'Non-exercise thermogenesis doesn\'t trigger hunger compensation like formal cardio. Sustainable, compounding daily deficit.' },
+    'dopamine-scheduling':{ icon:'🧠', name:'Dopamine scheduling', days:'Pre-session',    benefit: 'Low dopamine baseline before training = bigger reward response = better training quality and consistency.' },
+    'implementation-intent': { icon:'🎯', name:'Pre-commitment',   days:'Training days',  benefit: 'Pre-committed if-then plans double follow-through rate in research. Decision made before willpower is tested.' },
+    'body-composition-check': { icon:'📊', name:'Weekly check-in', days:'Mondays',        benefit: 'Scale alone misreads recomposition. Waist + weight trend over 4 weeks is the real signal.' },
   };
 
-  // Week-specific accelerator recommendations
-  var weekRec = weekNum === 3
-    ? 'Peak week — sauna, sleep extension, and NSDR are highest priority this week.'
-    : weekNum === 4
-    ? 'Deload — Zone 2, contrast cycling, and NSDR are the deload week tools.'
-    : null;
+  // Week-specific coaching note for accelerators
+  var weekNotes = {
+    1: 'Foundation week — build the habits. Each accelerator you execute this week makes next week easier. Focus on the nutrition stack (walks, ordering, ACV) — they cost nothing and compound daily.',
+    2: 'Build week — training load increases. Sleep extension and NSDR become more important as fatigue accumulates. Your nutrition accelerators are protecting the recomposition signal through harder training.',
+    3: 'Peak week — this is when your recovery accelerators earn their place. Sauna/contrast on rest days, NSDR mid-week, sleep extension every night. This is the hardest week — protect the adaptation.',
+    4: 'Deload week — Zone 2 and NSDR are your primary tools this week. The deload is when adaptation consolidates. Keep the nutrition habits running; reduce training accelerators to the minimum.',
+  };
+  var weekRec = weekNotes[weekNum] || null;
 
   var chips = [];
   saved.forEach(function(id) {
     var meta = ACC_META[id];
-    if (meta) chips.push(meta);
+    if (meta) chips.push(Object.assign({id: id}, meta));
   });
 
   if (!chips.length) return '';
 
+  // Group by category
+  var nutritionIds = new Set(['post-meal-walks','food-ordering','vinegar','carb-backload','fasted-coffee','fibre-30g']);
+  var trainingIds  = new Set(['zone2','vo2max-intervals','loaded-stretch','bfr','training-log','dopamine-scheduling','neat','implementation-intent']);
+  var recoveryIds  = new Set(['sauna','contrast','nsdr','sleep-extension','morning-protocol','body-composition-check']);
+
+  function renderGroup(label, groupIds) {
+    var group = chips.filter(function(c){ return groupIds.has(c.id); });
+    if (!group.length) return '';
+    return '<div style="margin-bottom:12px;">'
+      + '<div style="font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">' + label + '</div>'
+      + group.map(function(c) {
+          return '<div style="display:grid;grid-template-columns:20px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:baseline;">'
+            + '<span style="font-size:14px;">' + c.icon + '</span>'
+            + '<div>'
+              + '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:2px;">'
+                + '<span style="font-size:12px;font-weight:600;color:var(--dk-1);">' + c.name + '</span>'
+                + '<span style="font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);">' + c.days + '</span>'
+              + '</div>'
+              + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.55;">' + c.benefit + '</div>'
+            + '</div>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+
   return '<div class="pl-acc-strip">'
-    + '<div class="pl-acc-label">Active accelerators this week</div>'
-    + (weekRec ? '<div style="font-size:11px;font-weight:300;color:var(--dk-2);margin-bottom:10px;line-height:1.6;">'+weekRec+'</div>' : '')
-    + '<div class="pl-acc-grid">'
-    + chips.map(function(c) {
-        return '<div class="pl-acc-chip">'
-          + '<span class="pl-acc-chip-icon">'+c.icon+'</span>'
-          + c.name
-          + '<span class="pl-acc-chip-days">'+c.days+'</span>'
-          + '</div>';
-      }).join('')
-    + '</div>'
-    + '<div style="margin-top:12px;">'
-      + '<a href="bodylens-accelerators.html" style="font-size:10px;font-weight:600;color:var(--gold);text-decoration:none;">Manage accelerators →</a>'
+    + '<div class="pl-acc-label">Active accelerators — Week ' + weekNum + '</div>'
+    + (weekRec ? '<div style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:16px;font-style:italic;border-left:2px solid var(--gold);padding-left:12px;">' + weekRec + '</div>' : '')
+    + renderGroup('Nutrition', nutritionIds)
+    + renderGroup('Training', trainingIds)
+    + renderGroup('Recovery', recoveryIds)
+    + '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;">'
+      + '<span style="font-size:10px;font-weight:300;color:var(--dk-3);">' + chips.length + ' accelerator' + (chips.length>1?'s':'') + ' compounding this week</span>'
+      + '<a href="bodylens-accelerators.html" style="font-size:10px;font-weight:600;color:var(--gold);text-decoration:none;letter-spacing:.05em;">Manage →</a>'
     + '</div>'
     + '</div>';
 }
