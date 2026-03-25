@@ -17,14 +17,14 @@
 //          tone. Perfect for the engaged-listener host role (Sven).
 //
 const VOICE_MAP = {
-  dr:  'pNInz6obpgDQGcFmaJgB',   // Adam   — authoritative, documentary-grade
-  you: 'TxGEqnHWrfWFTfGW9XjX',   // Josh   — warm, conversational
+  dr:  'q0PCqBlLEWqtUZJ2DYn7',   // Adam   — authoritative, documentary-grade
+  you: 'bIHbv24MWmeRgasZH58o',   // Josh   — warm, conversational
 };
 
 // Fallbacks if above voices aren't on the account tier
 const FALLBACK_MAP = {
-  dr:  'onwK4e9ZLuTAKqWW03F9',   // Daniel — British, measured
-  you: 'N2lVS1w4EtoT3dr4eOWO',   // Callum — engaging
+  dr:  'q0PCqBlLEWqtUZJ2DYn7',   // Daniel — British, measured
+  you: 'bIHbv24MWmeRgasZH58o',   // Callum — engaging
 };
 
 // Voice settings tuned per speaker role
