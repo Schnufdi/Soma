@@ -13,776 +13,986 @@
 <style>
 body{background:var(--ink);color:var(--dk-1);min-height:100vh;}
 .bm-page{max-width:1100px;margin:0 auto;padding:0 28px 100px;}
-
-/* ── HERO ───────────────────────────────────────── */
 .bm-hero{padding:28px 0 20px;border-bottom:1px solid var(--bd);}
 .bm-kicker{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
 .bm-title{font-family:var(--serif);font-size:48px;font-weight:300;line-height:.93;letter-spacing:-.025em;color:var(--dk-1);margin-bottom:8px;}
 .bm-title em{font-style:italic;color:var(--dk-3);}
 .bm-sub{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:520px;}
-
-/* ── MODE TOGGLE ────────────────────────────────── */
 .bm-mode-bar{display:flex;gap:0;margin:20px 0 0;border:1px solid var(--bd);border-radius:10px;overflow:hidden;width:fit-content;}
 .bm-mode-btn{padding:10px 24px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);background:transparent;border:none;cursor:pointer;font-family:var(--sans);transition:all .15s;}
 .bm-mode-btn.active{background:var(--ink-2);color:var(--dk-1);}
 .bm-mode-btn.active.query{color:var(--jade);}
 .bm-mode-btn.active.focus{color:var(--amber);}
-
-/* ── MAIN LAYOUT ────────────────────────────────── */
 .bm-layout{display:grid;grid-template-columns:1fr 340px;gap:28px;margin-top:24px;align-items:start;}
 @media(max-width:800px){.bm-layout{grid-template-columns:1fr;}}
-
-/* ── BODY MAP CONTAINER ─────────────────────────── */
 .bm-map-section{background:var(--ink-1);border:1px solid var(--bd);border-radius:12px;padding:20px;}
 .bm-map-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .bm-map-title{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dk-3);}
 .bm-view-toggle{display:flex;gap:0;border:1px solid var(--bd);border-radius:7px;overflow:hidden;}
 .bm-view-btn{padding:5px 14px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dk-3);background:transparent;border:none;cursor:pointer;font-family:var(--sans);transition:all .1s;}
 .bm-view-btn.active{background:var(--ink-2);color:var(--dk-2);}
+.bm-map-wrap{display:flex;justify-content:center;align-items:flex-start;min-height:460px;padding:10px 0;}
 
-.bm-map-wrap{display:flex;justify-content:center;align-items:flex-start;min-height:480px;position:relative;}
-.bm-body-svg{width:100%;max-width:260px;cursor:pointer;}
+/* Dot system */
+.bm-dot-group{cursor:pointer;}
+.bm-dot{transition:r .15s ease,filter .15s ease;r:4px;}
+.bm-dot-group:hover .bm-dot{filter:brightness(1.5) drop-shadow(0 0 4px currentColor);}
+.bm-dot-ring{opacity:0;transform-origin:center;transition:opacity .15s,transform .15s;transform:scale(0.5);}
+.bm-dot-group:hover .bm-dot-ring{opacity:1;transform:scale(1);}
+.bm-dot-tooltip{opacity:0;transform:translateX(-3px);transition:opacity .15s ease,transform .15s ease;pointer-events:none;}
+.bm-dot-group:hover .bm-dot-tooltip{opacity:1;transform:translateX(0);}
 
-/* Body region styles */
-.bm-region{transition:fill .15s,opacity .15s;cursor:pointer;}
-.bm-region:hover{opacity:.75;}
-.bm-region.pri-high{fill:rgba(217,78,53,0.45);stroke:rgba(217,78,53,.7);stroke-width:.5;}
-.bm-region.pri-mid{fill:rgba(196,124,24,0.3);stroke:rgba(196,124,24,.5);stroke-width:.5;}
-.bm-region.pri-low{fill:rgba(0,168,114,0.15);stroke:rgba(0,168,114,.3);stroke-width:.5;}
-.bm-region.neutral{fill:rgba(255,255,255,.04);stroke:rgba(255,255,255,.06);stroke-width:.5;}
-.bm-region.selected{fill:rgba(0,200,160,.2);stroke:var(--jade);stroke-width:1.5;}
-.bm-region.selected:hover{opacity:1;}
+/* Pulse for high-priority */
+.bm-dot-pulse{transform-origin:center;animation:dotPulse 2.5s ease-in-out infinite;opacity:0;}
+.bm-dot-pulse.active{opacity:1;}
+@keyframes dotPulse{
+  0%{r:4;opacity:.55;}
+  60%{r:13;opacity:0;}
+  100%{r:13;opacity:0;}
+}
 
-/* Priority legend */
-.bm-legend{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;justify-content:center;}
+/* Selected label */
+.bm-selected-label{text-align:center;margin-top:10px;font-size:11px;font-weight:500;color:var(--jade);min-height:18px;letter-spacing:.04em;transition:opacity .2s;}
+
+/* Legend */
+.bm-legend{display:flex;gap:14px;margin-top:12px;flex-wrap:wrap;justify-content:center;}
 .bm-legend-item{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);}
 .bm-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
-/* Selected region label */
-.bm-selected-label{text-align:center;margin-top:10px;font-size:11px;font-weight:500;color:var(--jade);min-height:18px;transition:opacity .2s;}
-
-/* ── RIGHT PANEL ────────────────────────────────── */
+/* Panel */
 .bm-panel{display:flex;flex-direction:column;gap:12px;}
-
-/* Query input */
 .bm-query-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:16px;}
 .bm-card-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;}
 .bm-query-input{width:100%;background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;padding:11px 13px;font-size:13px;font-weight:300;color:var(--dk-1);font-family:var(--sans);resize:none;outline:none;box-sizing:border-box;line-height:1.5;transition:border-color .12s;}
 .bm-query-input:focus{border-color:rgba(0,200,160,.3);}
 .bm-query-input::placeholder{color:var(--dk-3);}
-
-/* Sensation chips */
 .bm-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
 .bm-chip{padding:5px 11px;border-radius:14px;border:1px solid var(--bd);background:transparent;font-size:10px;font-weight:500;color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all .1s;white-space:nowrap;}
 .bm-chip:hover{border-color:rgba(255,255,255,.1);color:var(--dk-2);}
 .bm-chip.sel{background:rgba(0,200,160,.07);border-color:var(--jade-br);color:var(--jade);}
-
-/* Submit button */
 .bm-submit-btn{width:100%;background:var(--jade);border:none;color:var(--ink);padding:12px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .12s;}
 .bm-submit-btn:hover{opacity:.88;}
 .bm-submit-btn:disabled{opacity:.4;cursor:not-allowed;}
-
-/* Focus mode summary */
 .bm-focus-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:16px;}
-.bm-focus-zone{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .1s;}
+.bm-focus-zone{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:all .1s;}
 .bm-focus-zone:last-child{border-bottom:none;}
 .bm-focus-zone:hover{background:rgba(255,255,255,.01);margin:0 -4px;padding-left:4px;padding-right:4px;border-radius:5px;}
-.bm-fz-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.bm-fz-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px;}
 .bm-fz-name{font-size:12px;font-weight:500;color:var(--dk-1);flex:1;}
 .bm-fz-reason{font-size:10px;font-weight:300;color:var(--dk-3);line-height:1.4;}
 .bm-fz-pri{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:8px;flex-shrink:0;}
 .bm-fz-pri.high{background:rgba(217,78,53,.12);color:#d94e35;border:1px solid rgba(217,78,53,.25);}
 .bm-fz-pri.mid{background:rgba(196,124,24,.1);color:var(--amber);border:1px solid rgba(196,124,24,.25);}
 .bm-fz-pri.low{background:rgba(0,168,114,.08);color:var(--green);border:1px solid rgba(0,168,114,.2);}
-
-/* ── RESULT PANEL ───────────────────────────────── */
 .bm-result{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-top:20px;}
 .bm-result-header{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .bm-result-region{font-family:var(--serif);font-size:26px;font-weight:300;color:var(--dk-1);line-height:1.1;}
 .bm-result-sensation{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:10px;background:rgba(0,200,160,.07);border:1px solid var(--jade-br);color:var(--jade);margin-top:5px;display:inline-block;}
-.bm-result-disclaimer{font-size:9px;font-weight:300;color:var(--dk-3);font-style:italic;line-height:1.5;max-width:200px;text-align:right;}
-
+.bm-result-disclaimer{font-size:9px;font-weight:300;color:var(--dk-3);font-style:italic;line-height:1.5;max-width:180px;text-align:right;}
 .bm-result-body{padding:20px;}
 .bm-result-section{margin-bottom:18px;}
 .bm-result-section:last-child{margin-bottom:0;}
 .bm-result-sec-label{font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
 .bm-result-text{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;}
 .bm-result-text.serif{font-family:var(--serif);font-size:15px;color:var(--dk-1);line-height:1.85;}
-
-/* Warning box */
 .bm-warning{background:rgba(217,78,53,.06);border:1px solid rgba(217,78,53,.2);border-radius:8px;padding:12px 14px;margin-top:14px;}
 .bm-warning-label{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#d94e35;margin-bottom:5px;}
 .bm-warning-text{font-size:11px;font-weight:300;color:rgba(232,220,210,.7);line-height:1.65;}
-
-/* Action tags */
 .bm-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .bm-action-tag{padding:5px 12px;border-radius:12px;font-size:10px;font-weight:600;border:1px solid var(--bd);color:var(--dk-2);background:var(--ink-2);}
 .bm-action-tag.do{border-color:var(--jade-br);color:var(--jade);background:var(--jade-dim);}
 .bm-action-tag.avoid{border-color:rgba(217,78,53,.25);color:#d94e35;background:rgba(217,78,53,.06);}
 .bm-action-tag.monitor{border-color:rgba(196,124,24,.25);color:var(--amber);background:rgba(196,124,24,.06);}
-
-/* Loading */
 .bm-loading{padding:32px 20px;display:flex;align-items:center;gap:12px;color:var(--dk-3);font-size:12px;font-weight:300;}
 .bm-spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.08);border-top-color:var(--jade);animation:bmspin .7s linear infinite;flex-shrink:0;}
 @keyframes bmspin{to{transform:rotate(360deg)}}
-
-/* Proactive focus result */
 .bm-focus-result{background:var(--ink-1);border:1px solid rgba(196,124,24,.2);border-radius:10px;padding:20px;margin-top:20px;}
 .bm-focus-result-title{font-family:var(--serif);font-size:22px;font-weight:300;color:var(--dk-1);margin-bottom:14px;}
-.bm-focus-zone-detail{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--bd);}
-.bm-focus-zone-detail:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
-.bm-fzd-name{font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
-.bm-fzd-text{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;}
 </style>
 </head>
 <body>
 <script src="nav.js"></script>
-
 <div class="bm-page">
   <div class="bm-hero">
     <div class="bm-kicker">Premium Feature</div>
     <div class="bm-title">Body<br><em>Mapper.</em></div>
-    <div class="bm-sub">Translate what you feel into body intelligence. Query a sensation or let your profile reveal which areas deserve more attention.</div>
+    <div class="bm-sub">Translate what you feel into body intelligence. Tap a point on the body to query a sensation, or switch to Focus mode to see which areas your profile says need attention.</div>
     <div class="bm-mode-bar">
-      <button class="bm-mode-btn active query" id="btn-query" onclick="setMode('query')">⚡ Query — I feel something</button>
-      <button class="bm-mode-btn focus" id="btn-focus" onclick="setMode('focus')">◎ Focus — Where to pay attention</button>
+      <button class="bm-mode-btn active query" id="btn-query" onclick="setMode('query')">&#9889; Query &mdash; I feel something</button>
+      <button class="bm-mode-btn focus" id="btn-focus" onclick="setMode('focus')">&#9711; Focus &mdash; Where to pay attention</button>
     </div>
   </div>
-
   <div class="bm-layout">
-    <!-- LEFT: Body map -->
     <div class="bm-map-section">
       <div class="bm-map-header">
-        <div class="bm-map-title" id="map-mode-label">Tap a region — front view</div>
+        <div class="bm-map-title" id="map-mode-label">Hover to identify &mdash; tap to select</div>
         <div class="bm-view-toggle">
           <button class="bm-view-btn active" id="btn-front" onclick="setView('front')">Front</button>
           <button class="bm-view-btn" id="btn-back" onclick="setView('back')">Back</button>
         </div>
       </div>
-      <div class="bm-map-wrap">
-        <div id="body-svg-container"></div>
+      <div class="bm-map-wrap" id="bm-map-wrap">
+        <div id="svg-front" style="width:100%;"><svg viewBox="0 0 200 405" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:240px;display:block;margin:0 auto;overflow:visible;">
+  <defs>
+    <radialGradient id="bodyGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="rgba(0,200,160,0.03)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="200" height="405" fill="url(#bodyGlow)" rx="4"/>
+  
+<ellipse cx="100" cy="28" rx="18" ry="22" fill="#1e2d2a" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+<path d="M93,46 Q93,58 88,62 L112,62 Q107,58 107,46 Z" fill="#1e2d2a"/>
+<path d="M88,62 Q78,62 65,72 Q55,80 52,90 L58,96 Q65,84 78,80 Q88,78 94,75 L94,62 Z" fill="#1a2926"/>
+<path d="M112,62 Q122,62 135,72 Q145,80 148,90 L142,96 Q135,84 122,80 Q112,78 106,75 L106,62 Z" fill="#1a2926"/>
+<path d="M94,62 L106,62 Q108,68 108,74 L92,74 Q92,68 94,62 Z" fill="#1d2d29"/>
+<path d="M58,96 Q52,106 52,120 Q52,136 56,148 Q60,162 64,172 Q68,180 72,188 L128,188 Q132,180 136,172 Q140,162 144,148 Q148,136 148,120 Q148,106 142,96 L58,96 Z" fill="#172623"/>
+<path d="M72,100 Q80,98 92,102 Q96,110 94,122 Q88,128 78,126 Q68,122 68,110 Q68,104 72,100 Z" fill="rgba(255,255,255,0.022)" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+<path d="M128,100 Q120,98 108,102 Q104,110 106,122 Q112,128 122,126 Q132,122 132,110 Q132,104 128,100 Z" fill="rgba(255,255,255,0.022)" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+<path d="M94,130 L106,130 L106,143 L94,143 Z" fill="rgba(255,255,255,0.016)" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" rx="2"/>
+<path d="M94,145 L106,145 L106,158 L94,158 Z" fill="rgba(255,255,255,0.016)" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" rx="2"/>
+<line x1="100" y1="96" x2="100" y2="185" stroke="rgba(255,255,255,0.035)" stroke-width="0.6"/>
+<path d="M58,96 Q50,98 44,108 Q40,118 38,128 Q37,140 38,150 Q40,158 44,160 L50,158 Q47,148 47,138 Q46,126 50,116 Q54,106 60,102 Z" fill="#182724"/>
+<path d="M44,160 Q40,168 38,178 Q37,188 38,196 L44,196 Q43,188 44,178 Q46,168 50,160 Z" fill="#1a2926"/>
+<ellipse cx="41" cy="201" rx="6" ry="9" fill="#1a2926"/>
+<path d="M142,96 Q150,98 156,108 Q160,118 162,128 Q163,140 162,150 Q160,158 156,160 L150,158 Q153,148 153,138 Q154,126 150,116 Q146,106 140,102 Z" fill="#182724"/>
+<path d="M156,160 Q160,168 162,178 Q163,188 162,196 L156,196 Q157,188 156,178 Q154,168 150,160 Z" fill="#1a2926"/>
+<ellipse cx="159" cy="201" rx="6" ry="9" fill="#1a2926"/>
+<path d="M72,188 Q72,196 75,202 L125,202 Q128,196 128,188 Z" fill="#182724"/>
+<path d="M75,202 Q68,210 68,224 Q68,248 72,268 Q76,282 78,288 L90,288 Q88,270 88,250 Q88,230 90,214 Q90,206 88,202 Z" fill="#182724"/>
+<path d="M88,202 Q96,206 98,224 Q98,250 96,270 Q94,282 92,288 L78,288 Q80,272 80,252 Q80,232 80,214 Q80,206 82,202 Z" fill="#192a27"/>
+<path d="M125,202 Q132,210 132,224 Q132,248 128,268 Q124,282 122,288 L110,288 Q112,270 112,250 Q112,230 110,214 Q110,206 112,202 Z" fill="#182724"/>
+<path d="M112,202 Q104,206 102,224 Q102,250 104,270 Q106,282 108,288 L122,288 Q120,272 120,252 Q120,232 120,214 Q120,206 118,202 Z" fill="#192a27"/>
+<ellipse cx="84" cy="292" rx="10" ry="8" fill="#1d2d29" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+<ellipse cx="116" cy="292" rx="10" ry="8" fill="#1d2d29" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+<path d="M76,298 Q74,316 74,335 Q74,355 76,368 Q78,375 80,378 L88,378 Q90,372 90,358 Q90,340 90,320 Q90,305 88,298 Z" fill="#182724"/>
+<path d="M124,298 Q126,316 126,335 Q126,355 124,368 Q122,375 120,378 L112,378 Q110,372 110,358 Q110,340 110,320 Q110,305 112,298 Z" fill="#182724"/>
+<path d="M76,378 Q74,382 74,386 Q74,392 78,394 Q84,396 88,392 Q90,388 90,382 L90,378 Z" fill="#1a2926"/>
+<path d="M124,378 Q126,382 126,386 Q126,392 122,394 Q116,396 112,392 Q110,388 110,382 L110,378 Z" fill="#1a2926"/>
+<path d="M100,6 Q118,6 118,28 Q118,46 112,58 Q120,60 132,70 Q144,78 148,94 L156,102 Q164,110 165,126 Q165,148 160,162 L162,180 L162,204 L152,210 Q148,232 148,256 Q148,280 144,295 L128,295 Q128,312 128,336 Q128,356 126,372 Q124,384 116,392 Q110,396 100,396 Q90,396 84,392 Q76,384 74,372 Q72,356 72,336 Q72,312 72,295 L56,295 Q52,280 52,256 Q52,232 48,210 L38,204 L38,180 L40,162 Q35,148 35,126 Q36,110 44,102 L52,94 Q56,78 68,70 Q80,60 88,58 Q82,46 82,28 Q82,6 100,6 Z" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+  <g class="bm-dot-group" id="dot-head" data-id="head" data-label="Head" onclick="selectDot('head','Head')">
+  
+  <circle class="bm-dot-ring" cx="100" cy="28" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-head" cx="100" cy="28" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="110.0" y="20.0" width="38.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="117.0" y="31.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Head</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-neck" data-id="neck" data-label="Neck" onclick="selectDot('neck','Neck')">
+  
+  <circle class="bm-dot-ring" cx="100" cy="62" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-neck" cx="100" cy="62" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="110.0" y="54.0" width="38.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="117.0" y="65.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Neck</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-shoulder" data-id="l-shoulder" data-label="Left Shoulder" onclick="selectDot('l-shoulder','Left Shoulder')">
+  
+  <circle class="bm-dot-ring" cx="60" cy="88" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-shoulder" cx="60" cy="88" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="70.0" y="80.0" width="94.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="77.0" y="91.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Shoulder</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-shoulder" data-id="r-shoulder" data-label="Right Shoulder" onclick="selectDot('r-shoulder','Right Shoulder')">
+  
+  <circle class="bm-dot-ring" cx="140" cy="88" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-shoulder" cx="140" cy="88" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="29.2" y="80.0" width="100.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="36.2" y="91.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Shoulder</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-chest" data-id="l-chest" data-label="Left Pec" onclick="selectDot('l-chest','Left Pec')">
+  
+  <circle class="bm-dot-ring" cx="78" cy="108" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-chest" cx="78" cy="108" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="88.0" y="100.0" width="63.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="95.0" y="111.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Pec</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-chest" data-id="r-chest" data-label="Right Pec" onclick="selectDot('r-chest','Right Pec')">
+  
+  <circle class="bm-dot-ring" cx="122" cy="108" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-chest" cx="122" cy="108" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="42.2" y="100.0" width="69.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="49.2" y="111.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Pec</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-upper-abs" data-id="upper-abs" data-label="Upper Abdomen" onclick="selectDot('upper-abs','Upper Abdomen')">
+  
+  <circle class="bm-dot-ring" cx="100" cy="136" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-upper-abs" cx="100" cy="136" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="110.0" y="128.0" width="94.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="117.0" y="139.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Upper Abdomen</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-lower-abs" data-id="lower-abs" data-label="Lower Abdomen" onclick="selectDot('lower-abs','Lower Abdomen')">
+  
+  <circle class="bm-dot-ring" cx="100" cy="164" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-lower-abs" cx="100" cy="164" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="110.0" y="156.0" width="94.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="117.0" y="167.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Lower Abdomen</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-hip" data-id="l-hip" data-label="Left Hip" onclick="selectDot('l-hip','Left Hip')">
+  
+  <circle class="bm-dot-ring" cx="75" cy="192" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-hip" cx="75" cy="192" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="85.0" y="184.0" width="63.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="92.0" y="195.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Hip</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-hip" data-id="r-hip" data-label="Right Hip" onclick="selectDot('r-hip','Right Hip')">
+  
+  <circle class="bm-dot-ring" cx="125" cy="192" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-hip" cx="125" cy="192" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="45.2" y="184.0" width="69.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="52.2" y="195.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Hip</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-upper-arm" data-id="l-upper-arm" data-label="Left Bicep" onclick="selectDot('l-upper-arm','Left Bicep')">
+  
+  <circle class="bm-dot-ring" cx="46" cy="120" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-upper-arm" cx="46" cy="120" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="56.0" y="112.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="63.0" y="123.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Bicep</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-upper-arm" data-id="r-upper-arm" data-label="Right Bicep" onclick="selectDot('r-upper-arm','Right Bicep')">
+  
+  <circle class="bm-dot-ring" cx="154" cy="120" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-upper-arm" cx="154" cy="120" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="61.8" y="112.0" width="82.2" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="68.8" y="123.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Bicep</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-elbow" data-id="l-elbow" data-label="Left Elbow" onclick="selectDot('l-elbow','Left Elbow')">
+  
+  <circle class="bm-dot-ring" cx="40" cy="152" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-elbow" cx="40" cy="152" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="50.0" y="144.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="57.0" y="155.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Elbow</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-elbow" data-id="r-elbow" data-label="Right Elbow" onclick="selectDot('r-elbow','Right Elbow')">
+  
+  <circle class="bm-dot-ring" cx="160" cy="152" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-elbow" cx="160" cy="152" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="67.8" y="144.0" width="82.2" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="74.8" y="155.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Elbow</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-forearm" data-id="l-forearm" data-label="Left Forearm" onclick="selectDot('l-forearm','Left Forearm')">
+  
+  <circle class="bm-dot-ring" cx="40" cy="178" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-forearm" cx="40" cy="178" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="50.0" y="170.0" width="88.4" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="57.0" y="181.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Forearm</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-forearm" data-id="r-forearm" data-label="Right Forearm" onclick="selectDot('r-forearm','Right Forearm')">
+  
+  <circle class="bm-dot-ring" cx="160" cy="178" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-forearm" cx="160" cy="178" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="55.4" y="170.0" width="94.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="62.4" y="181.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Forearm</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-groin" data-id="l-groin" data-label="Left Groin" onclick="selectDot('l-groin','Left Groin')">
+  
+  <circle class="bm-dot-ring" cx="82" cy="206" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-groin" cx="82" cy="206" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="92.0" y="198.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="99.0" y="209.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Groin</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-groin" data-id="r-groin" data-label="Right Groin" onclick="selectDot('r-groin','Right Groin')">
+  
+  <circle class="bm-dot-ring" cx="118" cy="206" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-groin" cx="118" cy="206" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="25.8" y="198.0" width="82.2" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="32.8" y="209.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Groin</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-quad" data-id="l-quad" data-label="Left Quad" onclick="selectDot('l-quad','Left Quad')">
+  
+  <circle class="bm-dot-ring" cx="80" cy="240" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-quad" cx="80" cy="240" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="90.0" y="232.0" width="69.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="97.0" y="243.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Quad</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-quad" data-id="r-quad" data-label="Right Quad" onclick="selectDot('r-quad','Right Quad')">
+  
+  <circle class="bm-dot-ring" cx="120" cy="240" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-quad" cx="120" cy="240" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="34.0" y="232.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="41.0" y="243.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Quad</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-knee" data-id="l-knee" data-label="Left Knee" onclick="selectDot('l-knee','Left Knee')">
+  
+  <circle class="bm-dot-ring" cx="84" cy="292" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-knee" cx="84" cy="292" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="94.0" y="284.0" width="69.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="101.0" y="295.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Knee</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-knee" data-id="r-knee" data-label="Right Knee" onclick="selectDot('r-knee','Right Knee')">
+  
+  <circle class="bm-dot-ring" cx="116" cy="292" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-knee" cx="116" cy="292" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="30.0" y="284.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="37.0" y="295.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Knee</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-shin" data-id="l-shin" data-label="Left Shin" onclick="selectDot('l-shin','Left Shin')">
+  
+  <circle class="bm-dot-ring" cx="80" cy="335" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-shin" cx="80" cy="335" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="90.0" y="327.0" width="69.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="97.0" y="338.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Shin</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-shin" data-id="r-shin" data-label="Right Shin" onclick="selectDot('r-shin','Right Shin')">
+  
+  <circle class="bm-dot-ring" cx="120" cy="335" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-shin" cx="120" cy="335" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="34.0" y="327.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="41.0" y="338.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Shin</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-l-ankle" data-id="l-ankle" data-label="Left Ankle" onclick="selectDot('l-ankle','Left Ankle')">
+  
+  <circle class="bm-dot-ring" cx="80" cy="382" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-l-ankle" cx="80" cy="382" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="90.0" y="374.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="97.0" y="385.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Ankle</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-r-ankle" data-id="r-ankle" data-label="Right Ankle" onclick="selectDot('r-ankle','Right Ankle')">
+  
+  <circle class="bm-dot-ring" cx="120" cy="382" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-r-ankle" cx="120" cy="382" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="27.8" y="374.0" width="82.2" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="34.8" y="385.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Ankle</text>
+  </g>
+</g>
+</svg></div>
+        <div id="svg-back"  style="width:100%;display:none;"><svg viewBox="0 0 200 405" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:240px;display:block;margin:0 auto;overflow:visible;">
+  <defs>
+    <radialGradient id="bodyGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="rgba(0,200,160,0.03)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="200" height="405" fill="url(#bodyGlow)" rx="4"/>
+  
+<ellipse cx="100" cy="28" rx="18" ry="22" fill="#1e2d2a" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+<path d="M93,46 Q93,58 88,62 L112,62 Q107,58 107,46 Z" fill="#1e2d2a"/>
+<path d="M88,62 Q78,62 62,72 Q54,80 52,92 L68,98 Q74,88 84,82 Q92,78 94,74 L94,62 Z" fill="#182724"/>
+<path d="M112,62 Q122,62 138,72 Q146,80 148,92 L132,98 Q126,88 116,82 Q108,78 106,74 L106,62 Z" fill="#182724"/>
+<path d="M94,62 L106,62 L106,74 L94,74 Z" fill="#1d2d29"/>
+<path d="M52,92 Q46,98 44,110 Q44,120 48,128 L56,122 Q52,114 54,106 Q56,98 62,94 Z" fill="#1a2926"/>
+<path d="M148,92 Q154,98 156,110 Q156,120 152,128 L144,122 Q148,114 146,106 Q144,98 138,94 Z" fill="#1a2926"/>
+<path d="M68,98 L132,98 Q140,102 144,114 Q148,126 148,140 Q148,156 144,168 Q140,178 136,186 L128,190 L72,190 L64,186 Q60,178 56,168 Q52,156 52,140 Q52,126 56,114 Q60,102 68,98 Z" fill="#172623"/>
+<path d="M68,104 Q62,116 62,132 Q62,148 68,160 Q72,168 78,172 Q72,160 72,144 Q72,128 76,114 Z" fill="rgba(0,0,0,0.1)"/>
+<path d="M132,104 Q138,116 138,132 Q138,148 132,160 Q128,168 122,172 Q128,160 128,144 Q128,128 124,114 Z" fill="rgba(0,0,0,0.1)"/>
+<line x1="100" y1="76" x2="100" y2="185" stroke="rgba(255,255,255,0.045)" stroke-width="0.7" stroke-dasharray="2.5 3"/>
+<path d="M52,92 Q44,98 40,112 Q38,124 38,136 Q38,148 42,158 L50,152 Q46,142 46,130 Q46,118 50,108 Z" fill="#182724"/>
+<path d="M42,158 Q38,170 38,182 Q38,194 40,202 L46,202 Q44,192 44,180 Q44,168 48,158 Z" fill="#1a2926"/>
+<ellipse cx="41" cy="207" rx="6" ry="9" fill="#1a2926"/>
+<path d="M148,92 Q156,98 160,112 Q162,124 162,136 Q162,148 158,158 L150,152 Q154,142 154,130 Q154,118 150,108 Z" fill="#182724"/>
+<path d="M158,158 Q162,170 162,182 Q162,194 160,202 L154,202 Q156,192 156,180 Q156,168 152,158 Z" fill="#1a2926"/>
+<ellipse cx="159" cy="207" rx="6" ry="9" fill="#1a2926"/>
+<path d="M72,190 Q64,196 62,208 Q62,222 68,232 Q74,238 84,240 Q92,240 98,234 Q100,228 100,218 Q100,208 96,200 Q90,192 80,190 Z" fill="#1a2926" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+<path d="M128,190 Q136,196 138,208 Q138,222 132,232 Q126,238 116,240 Q108,240 102,234 Q100,228 100,218 Q100,208 104,200 Q110,192 120,190 Z" fill="#1a2926" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+<path d="M72,190 Q80,202 100,202 Q120,202 128,190" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1"/>
+<path d="M68,240 Q64,252 64,268 Q64,282 68,292 L78,292 Q76,282 76,268 Q76,252 78,240 Z" fill="#182724"/>
+<path d="M78,240 Q84,248 86,264 Q88,278 86,292 L78,292 Q80,278 80,264 Q80,250 78,242 Z" fill="#192a27"/>
+<path d="M132,240 Q136,252 136,268 Q136,282 132,292 L122,292 Q124,282 124,268 Q124,252 122,240 Z" fill="#182724"/>
+<path d="M122,240 Q116,248 114,264 Q112,278 114,292 L122,292 Q120,278 120,264 Q120,250 122,242 Z" fill="#192a27"/>
+<ellipse cx="83" cy="296" rx="9" ry="7" fill="#1a2926" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+<ellipse cx="117" cy="296" rx="9" ry="7" fill="#1a2926" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+<path d="M74,300 Q72,318 72,336 Q72,354 75,368 Q78,378 82,382 L90,380 Q88,372 87,358 Q86,340 88,320 Q88,308 86,300 Z" fill="#182724"/>
+<path d="M126,300 Q128,318 128,336 Q128,354 125,368 Q122,378 118,382 L110,380 Q112,372 113,358 Q114,340 112,320 Q112,308 114,300 Z" fill="#182724"/>
+<path d="M82,382 Q80,386 80,390 Q80,396 85,398 Q90,400 90,394 L90,380 Z" fill="#1a2926"/>
+<path d="M118,382 Q120,386 120,390 Q120,396 115,398 Q110,400 110,394 L110,380 Z" fill="#1a2926"/>
+<path d="M100,6 Q118,6 118,28 Q118,46 112,58 Q120,60 132,70 Q144,78 148,94 L156,102 Q164,110 165,126 Q165,148 160,162 L162,180 L162,204 L152,210 Q148,232 148,256 Q148,280 144,295 L128,295 Q128,312 128,336 Q128,356 126,372 Q124,384 116,392 Q110,396 100,396 Q90,396 84,392 Q76,384 74,372 Q72,356 72,336 Q72,312 72,295 L56,295 Q52,280 52,256 Q52,232 48,210 L38,204 L38,180 L40,162 Q35,148 35,126 Q36,110 44,102 L52,94 Q56,78 68,70 Q80,60 88,58 Q82,46 82,28 Q82,6 100,6 Z" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+  <g class="bm-dot-group" id="dot-b-head" data-id="b-head" data-label="Back of Head" onclick="selectDot('b-head','Back of Head')">
+  
+  <circle class="bm-dot-ring" cx="100" cy="28" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-head" cx="100" cy="28" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="110.0" y="20.0" width="88.4" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="117.0" y="31.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Back of Head</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-neck" data-id="b-neck" data-label="Cervical Spine" onclick="selectDot('b-neck','Cervical Spine')">
+  
+  <circle class="bm-dot-ring" cx="100" cy="62" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-neck" cx="100" cy="62" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="110.0" y="54.0" width="100.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="117.0" y="65.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Cervical Spine</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-trap" data-id="b-l-trap" data-label="Left Trap" onclick="selectDot('b-l-trap','Left Trap')">
+  
+  <circle class="bm-dot-ring" cx="72" cy="86" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-trap" cx="72" cy="86" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="82.0" y="78.0" width="69.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="89.0" y="89.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Trap</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-trap" data-id="b-r-trap" data-label="Right Trap" onclick="selectDot('b-r-trap','Right Trap')">
+  
+  <circle class="bm-dot-ring" cx="128" cy="86" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-trap" cx="128" cy="86" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="42.0" y="78.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="49.0" y="89.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Trap</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-shoulder" data-id="b-l-shoulder" data-label="Left Rear Shoulder" onclick="selectDot('b-l-shoulder','Left Rear Shoulder')">
+  
+  <circle class="bm-dot-ring" cx="52" cy="98" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-shoulder" cx="52" cy="98" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="62.0" y="90.0" width="125.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="69.0" y="101.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Rear Shoulder</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-shoulder" data-id="b-r-shoulder" data-label="Right Rear Shoulder" onclick="selectDot('b-r-shoulder','Right Rear Shoulder')">
+  
+  <circle class="bm-dot-ring" cx="148" cy="98" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-shoulder" cx="148" cy="98" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="6.2" y="90.0" width="131.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="13.2" y="101.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Rear Shoulder</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-upper-back" data-id="b-upper-back" data-label="Upper Back" onclick="selectDot('b-upper-back','Upper Back')">
+  
+  <circle class="bm-dot-ring" cx="100" cy="120" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-upper-back" cx="100" cy="120" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="110.0" y="112.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="117.0" y="123.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Upper Back</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-lat" data-id="b-l-lat" data-label="Left Lat" onclick="selectDot('b-l-lat','Left Lat')">
+  
+  <circle class="bm-dot-ring" cx="62" cy="138" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-lat" cx="62" cy="138" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="72.0" y="130.0" width="63.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="79.0" y="141.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Lat</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-lat" data-id="b-r-lat" data-label="Right Lat" onclick="selectDot('b-r-lat','Right Lat')">
+  
+  <circle class="bm-dot-ring" cx="138" cy="138" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-lat" cx="138" cy="138" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="58.2" y="130.0" width="69.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="65.2" y="141.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Lat</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-lower-back" data-id="b-lower-back" data-label="Lower Back" onclick="selectDot('b-lower-back','Lower Back')">
+  
+  <circle class="bm-dot-ring" cx="100" cy="168" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-lower-back" cx="100" cy="168" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="110.0" y="160.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="117.0" y="171.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Lower Back</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-glute" data-id="b-l-glute" data-label="Left Glute" onclick="selectDot('b-l-glute','Left Glute')">
+  
+  <circle class="bm-dot-ring" cx="78" cy="212" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-glute" cx="78" cy="212" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="88.0" y="204.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="95.0" y="215.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Glute</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-glute" data-id="b-r-glute" data-label="Right Glute" onclick="selectDot('b-r-glute','Right Glute')">
+  
+  <circle class="bm-dot-ring" cx="122" cy="212" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-glute" cx="122" cy="212" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="29.8" y="204.0" width="82.2" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="36.8" y="215.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Glute</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-tri" data-id="b-l-tri" data-label="Left Tricep" onclick="selectDot('b-l-tri','Left Tricep')">
+  
+  <circle class="bm-dot-ring" cx="44" cy="122" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-tri" cx="44" cy="122" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="54.0" y="114.0" width="82.2" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="61.0" y="125.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Tricep</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-tri" data-id="b-r-tri" data-label="Right Tricep" onclick="selectDot('b-r-tri','Right Tricep')">
+  
+  <circle class="bm-dot-ring" cx="156" cy="122" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-tri" cx="156" cy="122" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="57.6" y="114.0" width="88.4" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="64.6" y="125.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Tricep</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-elbow" data-id="b-l-elbow" data-label="Left Elbow (rear)" onclick="selectDot('b-l-elbow','Left Elbow (rear)')">
+  
+  <circle class="bm-dot-ring" cx="40" cy="154" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-elbow" cx="40" cy="154" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="50.0" y="146.0" width="119.4" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="57.0" y="157.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Elbow (rear)</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-elbow" data-id="b-r-elbow" data-label="Right Elbow (rear)" onclick="selectDot('b-r-elbow','Right Elbow (rear)')">
+  
+  <circle class="bm-dot-ring" cx="160" cy="154" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-elbow" cx="160" cy="154" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="24.4" y="146.0" width="125.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="31.4" y="157.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Elbow (rear)</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-ham" data-id="b-l-ham" data-label="Left Hamstring" onclick="selectDot('b-l-ham','Left Hamstring')">
+  
+  <circle class="bm-dot-ring" cx="78" cy="258" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-ham" cx="78" cy="258" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="88.0" y="250.0" width="100.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="95.0" y="261.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Hamstring</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-ham" data-id="b-r-ham" data-label="Right Hamstring" onclick="selectDot('b-r-ham','Right Hamstring')">
+  
+  <circle class="bm-dot-ring" cx="122" cy="258" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-ham" cx="122" cy="258" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="5.0" y="250.0" width="107.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="12.0" y="261.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Hamstring</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-knee" data-id="b-l-knee" data-label="Back of Left Knee" onclick="selectDot('b-l-knee','Back of Left Knee')">
+  
+  <circle class="bm-dot-ring" cx="83" cy="296" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-knee" cx="83" cy="296" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="93.0" y="288.0" width="119.4" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="100.0" y="299.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Back of Left Knee</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-knee" data-id="b-r-knee" data-label="Back of Right Knee" onclick="selectDot('b-r-knee','Back of Right Knee')">
+  
+  <circle class="bm-dot-ring" cx="117" cy="296" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-knee" cx="117" cy="296" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="-18.6" y="288.0" width="125.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="-11.6" y="299.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Back of Right Knee</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-calf" data-id="b-l-calf" data-label="Left Calf" onclick="selectDot('b-l-calf','Left Calf')">
+  
+  <circle class="bm-dot-ring" cx="78" cy="338" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-calf" cx="78" cy="338" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="88.0" y="330.0" width="69.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="95.0" y="341.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Calf</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-calf" data-id="b-r-calf" data-label="Right Calf" onclick="selectDot('b-r-calf','Right Calf')">
+  
+  <circle class="bm-dot-ring" cx="122" cy="338" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-calf" cx="122" cy="338" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="36.0" y="330.0" width="76.0" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="43.0" y="341.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Calf</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-l-achilles" data-id="b-l-achilles" data-label="Left Achilles" onclick="selectDot('b-l-achilles','Left Achilles')">
+  
+  <circle class="bm-dot-ring" cx="78" cy="384" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-l-achilles" cx="78" cy="384" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="88.0" y="376.0" width="94.6" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="95.0" y="387.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Left Achilles</text>
+  </g>
+</g>
+<g class="bm-dot-group" id="dot-b-r-achilles" data-id="b-r-achilles" data-label="Right Achilles" onclick="selectDot('b-r-achilles','Right Achilles')">
+  
+  <circle class="bm-dot-ring" cx="122" cy="384" r="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle class="bm-dot" id="dc-b-r-achilles" cx="122" cy="384" r="4" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <g class="bm-dot-tooltip">
+    <rect x="11.2" y="376.0" width="100.8" height="16" fill="rgba(15,22,20,0.95)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8" rx="4"/>
+    <text x="18.2" y="387.5" font-family="Space Grotesk,sans-serif" font-size="9" font-weight="600" letter-spacing="0.04em" fill="#e8e3da" text-transform="uppercase">Right Achilles</text>
+  </g>
+</g>
+</svg></div>
       </div>
       <div class="bm-selected-label" id="selected-label"></div>
-      <div class="bm-legend" id="bm-legend">
+      <div class="bm-legend">
         <div class="bm-legend-item"><div class="bm-legend-dot" style="background:#d94e35;"></div>High priority</div>
         <div class="bm-legend-item"><div class="bm-legend-dot" style="background:var(--amber);"></div>Watch area</div>
-        <div class="bm-legend-item"><div class="bm-legend-dot" style="background:var(--green);"></div>Stable</div>
+        <div class="bm-legend-item"><div class="bm-legend-dot" style="background:rgba(255,255,255,.22);"></div>Tap to query</div>
         <div class="bm-legend-item"><div class="bm-legend-dot" style="background:var(--jade);"></div>Selected</div>
       </div>
     </div>
-
-    <!-- RIGHT: Panel -->
     <div class="bm-panel" id="bm-panel"></div>
   </div>
-
-  <!-- Result area -->
   <div id="bm-result-area"></div>
 </div>
 
 <script>
-var API   = '/api/chat';
-var MODEL = 'claude-sonnet-4-20250514';
-
+var API = '/api/chat', MODEL = 'claude-sonnet-4-20250514';
 function getProfile(){ try{ return JSON.parse(localStorage.getItem('bl_profile')||'null'); }catch(e){ return null; } }
 
-var BM = {
-  mode:     'query',   // 'query' | 'focus'
-  view:     'front',   // 'front' | 'back'
-  selected: null,      // {id, label, regionKey}
-  sensation: [],       // selected sensation chips
-  context:   [],       // selected context chips
-  queryText: '',
-  priorities: null,    // computed from profile
-};
+var BM = { mode:'query', view:'front', selected:null, sensation:[], context:[], queryText:'' };
 
-// ── BODY REGION DATA ──────────────────────────────────
-// Each region: id, label, front/back view, SVG path, priority class
-var REGIONS_FRONT = [
-  { id:'head',          label:'Head / Neck',         path:'M115,18 Q115,8 125,8 Q135,8 135,18 L135,32 Q135,40 125,40 Q115,40 115,32 Z',          priority:'neutral' },
-  { id:'neck',          label:'Neck',                 path:'M120,40 L120,52 L130,52 L130,40 Z',                                                    priority:'neutral' },
-  { id:'left-shoulder', label:'Left Shoulder',        path:'M80,55 Q68,55 65,65 Q63,75 70,80 L85,78 L88,58 Z',                                     priority:'neutral' },
-  { id:'right-shoulder',label:'Right Shoulder',       path:'M170,55 Q182,55 185,65 Q187,75 180,80 L165,78 L162,58 Z',                              priority:'neutral' },
-  { id:'left-chest',    label:'Left Chest / Pec',     path:'M88,58 L88,78 L115,80 L118,58 Z',                                                      priority:'neutral' },
-  { id:'right-chest',   label:'Right Chest / Pec',    path:'M162,58 L162,78 L135,80 L132,58 Z',                                                    priority:'neutral' },
-  { id:'upper-abs',     label:'Upper Abdomen',        path:'M105,80 L105,100 L145,100 L145,80 Z',                                                   priority:'neutral' },
-  { id:'lower-abs',     label:'Lower Abdomen / Core', path:'M105,100 L105,128 L145,128 L145,100 Z',                                                 priority:'neutral' },
-  { id:'left-hip',      label:'Left Hip / Groin',     path:'M85,128 L85,155 L115,155 L115,128 Z',                                                   priority:'neutral' },
-  { id:'right-hip',     label:'Right Hip / Groin',    path:'M135,128 L135,155 L165,155 L165,128 Z',                                                 priority:'neutral' },
-  { id:'left-upper-arm',label:'Left Upper Arm',       path:'M68,80 Q62,80 60,92 L62,118 L80,118 L85,90 Z',                                         priority:'neutral' },
-  { id:'right-upper-arm',label:'Right Upper Arm',     path:'M182,80 Q188,80 190,92 L188,118 L170,118 L165,90 Z',                                   priority:'neutral' },
-  { id:'left-elbow',    label:'Left Elbow',           path:'M60,118 L55,130 L68,130 L78,118 Z',                                                    priority:'neutral' },
-  { id:'right-elbow',   label:'Right Elbow',          path:'M190,118 L195,130 L182,130 L172,118 Z',                                                priority:'neutral' },
-  { id:'left-forearm',  label:'Left Forearm',         path:'M55,130 L50,160 L68,162 L75,130 Z',                                                    priority:'neutral' },
-  { id:'right-forearm', label:'Right Forearm',        path:'M195,130 L200,160 L182,162 L175,130 Z',                                                priority:'neutral' },
-  { id:'left-quad',     label:'Left Quadriceps',      path:'M85,155 L82,210 L112,210 L115,155 Z',                                                   priority:'neutral' },
-  { id:'right-quad',    label:'Right Quadriceps',     path:'M135,155 L138,210 L168,210 L165,155 Z',                                                 priority:'neutral' },
-  { id:'left-knee',     label:'Left Knee',            path:'M83,210 L80,228 L112,228 L113,210 Z',                                                   priority:'neutral' },
-  { id:'right-knee',    label:'Right Knee',           path:'M137,210 L140,228 L168,228 L167,210 Z',                                                 priority:'neutral' },
-  { id:'left-shin',     label:'Left Shin / Calf',     path:'M82,228 L79,272 L108,272 L112,228 Z',                                                   priority:'neutral' },
-  { id:'right-shin',    label:'Right Shin / Calf',    path:'M138,228 L142,272 L171,272 L168,228 Z',                                                 priority:'neutral' },
-  { id:'left-ankle',    label:'Left Ankle / Foot',    path:'M80,272 L78,285 L108,285 L108,272 Z',                                                   priority:'neutral' },
-  { id:'right-ankle',   label:'Right Ankle / Foot',   path:'M142,272 L142,285 L172,285 L170,272 Z',                                                priority:'neutral' },
+var DOTS_FRONT = [
+  ["head","Head",100,28],["neck","Neck",100,62],
+  ["l-shoulder","Left Shoulder",60,88],["r-shoulder","Right Shoulder",140,88],
+  ["l-chest","Left Pec",78,108],["r-chest","Right Pec",122,108],
+  ["upper-abs","Upper Abdomen",100,136],["lower-abs","Lower Abdomen",100,164],
+  ["l-hip","Left Hip",75,192],["r-hip","Right Hip",125,192],
+  ["l-upper-arm","Left Bicep",46,120],["r-upper-arm","Right Bicep",154,120],
+  ["l-elbow","Left Elbow",40,152],["r-elbow","Right Elbow",160,152],
+  ["l-forearm","Left Forearm",40,178],["r-forearm","Right Forearm",160,178],
+  ["l-groin","Left Groin",82,206],["r-groin","Right Groin",118,206],
+  ["l-quad","Left Quad",80,240],["r-quad","Right Quad",120,240],
+  ["l-knee","Left Knee",84,292],["r-knee","Right Knee",116,292],
+  ["l-shin","Left Shin",80,335],["r-shin","Right Shin",120,335],
+  ["l-ankle","Left Ankle",80,382],["r-ankle","Right Ankle",120,382]
+];
+var DOTS_BACK = [
+  ["b-head","Back of Head",100,28],["b-neck","Cervical Spine",100,62],
+  ["b-l-trap","Left Trap",72,86],["b-r-trap","Right Trap",128,86],
+  ["b-l-shoulder","Left Rear Shoulder",52,98],["b-r-shoulder","Right Rear Shoulder",148,98],
+  ["b-upper-back","Upper Back",100,120],["b-l-lat","Left Lat",62,138],["b-r-lat","Right Lat",138,138],
+  ["b-lower-back","Lower Back",100,168],
+  ["b-l-glute","Left Glute",78,212],["b-r-glute","Right Glute",122,212],
+  ["b-l-tri","Left Tricep",44,122],["b-r-tri","Right Tricep",156,122],
+  ["b-l-elbow","Left Elbow rear",40,154],["b-r-elbow","Right Elbow rear",160,154],
+  ["b-l-ham","Left Hamstring",78,258],["b-r-ham","Right Hamstring",122,258],
+  ["b-l-knee","Back of Left Knee",83,296],["b-r-knee","Back of Right Knee",117,296],
+  ["b-l-calf","Left Calf",78,338],["b-r-calf","Right Calf",122,338],
+  ["b-l-achilles","Left Achilles",78,384],["b-r-achilles","Right Achilles",122,384]
 ];
 
-var REGIONS_BACK = [
-  { id:'b-head',        label:'Back of Head / Skull', path:'M115,18 Q115,8 125,8 Q135,8 135,18 L135,32 Q135,40 125,40 Q115,40 115,32 Z',           priority:'neutral' },
-  { id:'b-neck',        label:'Neck / Cervical',      path:'M120,40 L120,52 L130,52 L130,40 Z',                                                    priority:'neutral' },
-  { id:'b-left-trap',   label:'Left Trapezius',       path:'M82,52 L82,78 L115,74 L118,52 Z',                                                      priority:'neutral' },
-  { id:'b-right-trap',  label:'Right Trapezius',      path:'M168,52 L168,78 L135,74 L132,52 Z',                                                    priority:'neutral' },
-  { id:'b-left-shoulder',label:'Left Rear Shoulder',  path:'M70,55 Q60,55 58,68 Q57,78 65,82 L82,78 L82,55 Z',                                     priority:'neutral' },
-  { id:'b-right-shoulder',label:'Right Rear Shoulder',path:'M180,55 Q190,55 192,68 Q193,78 185,82 L168,78 L168,55 Z',                             priority:'neutral' },
-  { id:'b-upper-back',  label:'Upper Back / Thoracic',path:'M88,74 L88,105 L162,105 L162,74 Z',                                                    priority:'neutral' },
-  { id:'b-lower-back',  label:'Lower Back / Lumbar',  path:'M92,105 L92,130 L158,130 L158,105 Z',                                                  priority:'neutral' },
-  { id:'b-left-glute',  label:'Left Glute',           path:'M88,130 L86,158 L118,158 L118,130 Z',                                                   priority:'neutral' },
-  { id:'b-right-glute', label:'Right Glute',          path:'M132,130 L132,158 L164,158 L162,130 Z',                                                 priority:'neutral' },
-  { id:'b-left-lat',    label:'Left Lat / Side',      path:'M70,78 L65,115 L90,110 L90,78 Z',                                                      priority:'neutral' },
-  { id:'b-right-lat',   label:'Right Lat / Side',     path:'M180,78 L185,115 L160,110 L160,78 Z',                                                  priority:'neutral' },
-  { id:'b-left-tri',    label:'Left Tricep',          path:'M65,82 L60,115 L78,115 L82,82 Z',                                                      priority:'neutral' },
-  { id:'b-right-tri',   label:'Right Tricep',         path:'M185,82 L190,115 L172,115 L168,82 Z',                                                  priority:'neutral' },
-  { id:'b-left-ham',    label:'Left Hamstring',       path:'M88,158 L85,210 L118,210 L118,158 Z',                                                   priority:'neutral' },
-  { id:'b-right-ham',   label:'Right Hamstring',      path:'M132,158 L132,210 L165,210 L162,158 Z',                                                 priority:'neutral' },
-  { id:'b-left-knee',   label:'Back of Left Knee',    path:'M86,210 L83,228 L118,228 L118,210 Z',                                                   priority:'neutral' },
-  { id:'b-right-knee',  label:'Back of Right Knee',   path:'M132,210 L132,228 L167,228 L164,210 Z',                                                 priority:'neutral' },
-  { id:'b-left-calf',   label:'Left Calf',            path:'M84,228 L80,272 L112,272 L116,228 Z',                                                   priority:'neutral' },
-  { id:'b-right-calf',  label:'Right Calf',           path:'M116,228 L118,272 L150,272 L166,228 Z',                                                 priority:'neutral' },
-  { id:'b-left-achilles',label:'Left Achilles / Heel',path:'M81,272 L80,285 L108,285 L109,272 Z',                                                  priority:'neutral' },
-  { id:'b-right-achilles',label:'Right Achilles / Heel',path:'M141,272 L141,285 L169,285 L168,272 Z',                                              priority:'neutral' },
-];
+var PRI_COLORS = { high:'#d94e35', mid:'#c47c18', low:'#00a872', neutral:'rgba(255,255,255,0.22)', selected:'#00c8a0' };
+var DOT_PRIORITY_MAP = {};
 
-// Body outline silhouette paths (non-interactive, just shape)
-var BODY_OUTLINE_FRONT = 'M125,5 Q140,5 142,20 L142,35 Q148,38 155,50 L182,52 Q195,55 195,68 Q195,80 182,82 L170,120 L200,158 L202,175 L175,280 L168,285 L140,285 L138,272 L135,155 L125,128 L115,155 L112,272 L110,285 L82,285 L75,280 L50,175 L52,158 L80,120 L68,82 Q55,80 55,68 Q55,55 68,52 L95,50 L102,38 L108,35 L108,20 Q110,5 125,5 Z';
-var BODY_OUTLINE_BACK  = 'M125,5 Q140,5 142,20 L142,35 Q150,38 160,50 L185,52 Q195,55 195,68 Q195,80 185,82 L172,120 L200,158 L202,175 L175,280 L168,285 L142,285 L139,272 L135,155 L125,128 L115,155 L111,272 L108,285 L82,285 L75,280 L48,175 L50,158 L78,120 L65,82 Q55,80 55,68 Q55,55 65,52 L90,50 L100,38 L108,35 L108,20 Q110,5 125,5 Z';
-
-// ── SENSATION & CONTEXT OPTIONS ───────────────────────
-var SENSATIONS = ['Dull ache','Sharp pain','Tightness','Pulling','Burning','Numbness','Stiffness','Soreness','Pressure','Weakness','Instability','Clicking'];
-var CONTEXTS   = ['After sitting','After lifting','During movement','After running','In the morning','After travel','During sleep','After stairs','At rest'];
-
-// ── PROFILE-BASED PRIORITY MAPPING ────────────────────
 function computePriorities(p) {
   if (!p) return {};
-  var priorities = {};
-  var age  = p.age || 35;
-  var isMale = (p.sex||'').toLowerCase() !== 'female';
-  var training = (p.weekPlan||[]).filter(function(d){ return d.priority === 'training'; }).length;
+  var out = {};
+  var age = p.age||35;
   var types = (p.weekPlan||[]).map(function(d){ return (d.type||'').toLowerCase(); });
-  var hasPull = types.some(function(t){ return t.includes('pull'); });
-  var hasPush = types.some(function(t){ return t.includes('push'); });
-  var hasLower = types.some(function(t){ return t.includes('posterior') || t.includes('leg') || t.includes('lower'); });
+  var hasPull = types.some(function(t){ return t.indexOf('pull')>=0; });
+  var hasPush = types.some(function(t){ return t.indexOf('push')>=0; });
+  var hasPost = types.some(function(t){ return t.indexOf('posterior')>=0||t.indexOf('lower')>=0; });
   var injuries = (p.injuryAssessments||p.injuries||[]).map(function(i){ return (i.location||i||'').toLowerCase(); });
-  var fatStorage = (p.fatStorage||'').toLowerCase();
-  var activity  = (p.activityLevel||'').toLowerCase();
-  var isSedentary = activity.includes('sedent') || activity.includes('desk') || activity.includes('sitting');
-
-  // Lower back — almost universal for 40+ male desk workers with posterior chain loading
-  if (age >= 35 || isSedentary || hasLower) {
-    priorities['b-lower-back'] = age >= 40 ? 'high' : 'mid';
-    priorities['lower-abs']    = 'mid';
-  }
-
-  // Hips — 40+ male, posterior chain, glute weakness
-  if (age >= 38 || hasLower) {
-    priorities['b-left-glute']  = age >= 42 ? 'high' : 'mid';
-    priorities['b-right-glute'] = age >= 42 ? 'high' : 'mid';
-    priorities['left-hip']      = 'mid';
-    priorities['right-hip']     = 'mid';
-  }
-
-  // Thoracic / upper back — push training, desk work, 40+
-  if (hasPush || age >= 38) {
-    priorities['b-upper-back']    = 'mid';
-    priorities['b-left-trap']     = age >= 40 ? 'mid' : 'low';
-    priorities['b-right-trap']    = age >= 40 ? 'mid' : 'low';
-  }
-
-  // Shoulders — push + pull training
-  if (hasPush || hasPull) {
-    priorities['left-shoulder']    = 'mid';
-    priorities['right-shoulder']   = 'mid';
-    priorities['b-left-shoulder']  = hasPush ? 'mid' : 'low';
-    priorities['b-right-shoulder'] = hasPush ? 'mid' : 'low';
-  }
-
-  // Hamstrings — posterior chain, 40+, sitting
-  if (hasLower || age >= 40) {
-    priorities['b-left-ham']  = 'mid';
-    priorities['b-right-ham'] = 'mid';
-  }
-
-  // Knees — 40+, lower body training
-  if (age >= 40 || hasLower) {
-    priorities['left-knee']  = age >= 42 ? 'mid' : 'low';
-    priorities['right-knee'] = age >= 42 ? 'mid' : 'low';
-    priorities['b-left-knee']  = 'low';
-    priorities['b-right-knee'] = 'low';
-  }
-
-  // Neck / cervical — desk work, pull training
-  if (hasPull || isSedentary || age >= 40) {
-    priorities['neck']   = 'mid';
-    priorities['b-neck'] = 'mid';
-  }
-
-  // Calves / achilles — posterior chain, running age-related
-  if (age >= 40 || hasLower) {
-    priorities['b-left-calf']      = 'low';
-    priorities['b-right-calf']     = 'low';
-    priorities['b-left-achilles']  = 'low';
-    priorities['b-right-achilles'] = 'low';
-  }
-
-  // Apply known injury history
-  injuries.forEach(function(loc) {
-    var key = loc.replace(/\s+/g, '-');
-    REGIONS_FRONT.concat(REGIONS_BACK).forEach(function(r) {
-      if (r.id.includes(key) || r.label.toLowerCase().includes(loc)) {
-        priorities[r.id] = 'high';
-      }
+  if (age>=40||hasPost){ out['b-lower-back']='high'; out['lower-abs']='mid'; }
+  if (age>=38||hasPost){ out['b-l-glute']='high'; out['b-r-glute']='high'; out['l-hip']='mid'; out['r-hip']='mid'; }
+  if (hasPush||age>=38){ out['b-upper-back']='mid'; out['b-l-trap']='mid'; out['b-r-trap']='mid'; }
+  if (hasPush||hasPull){ out['l-shoulder']='mid'; out['r-shoulder']='mid'; out['b-l-shoulder']='mid'; out['b-r-shoulder']='mid'; }
+  if (hasPost||age>=40){ out['b-l-ham']='mid'; out['b-r-ham']='mid'; }
+  if (age>=40||hasPost){ out['l-knee']='mid'; out['r-knee']='mid'; }
+  if (hasPull||age>=40){ out['neck']='mid'; out['b-neck']='mid'; }
+  if (age>=40){ out['b-l-achilles']='low'; out['b-r-achilles']='low'; out['b-l-calf']='low'; out['b-r-calf']='low'; }
+  injuries.forEach(function(loc){
+    DOTS_FRONT.concat(DOTS_BACK).forEach(function(d){
+      if(d[1].toLowerCase().indexOf(loc)>=0||d[0].indexOf(loc.replace(/\s+/g,'-'))>=0){ out[d[0]]='high'; }
     });
   });
-
-  return priorities;
+  return out;
 }
 
-function priorityClass(pri) {
-  if (pri === 'high') return 'pri-high';
-  if (pri === 'mid')  return 'pri-mid';
-  if (pri === 'low')  return 'pri-low';
-  return 'neutral';
+function applyPriorityColours() {
+  DOTS_FRONT.concat(DOTS_BACK).forEach(function(d) {
+    var el = document.getElementById('dc-'+d[0]);
+    if (!el) return;
+    var pri = DOT_PRIORITY_MAP[d[0]];
+    var isSel = BM.selected && BM.selected.id === d[0];
+    el.setAttribute('fill', isSel ? PRI_COLORS.selected : (PRI_COLORS[pri]||PRI_COLORS.neutral));
+    var pulse = el.parentElement && el.parentElement.querySelector('.bm-dot-pulse');
+    if (pulse) { if(pri==='high') pulse.classList.add('active'); else pulse.classList.remove('active'); }
+  });
 }
 
-// ── SVG BODY MAP ──────────────────────────────────────
-function buildSVG(view) {
-  var regions  = view === 'front' ? REGIONS_FRONT : REGIONS_BACK;
-  var outline  = view === 'front' ? BODY_OUTLINE_FRONT : BODY_OUTLINE_BACK;
-  var pri = BM.priorities || {};
-
-  var pathsHtml = regions.map(function(r) {
-    var pClass = pri[r.id] ? priorityClass(pri[r.id]) : 'neutral';
-    var isSel  = BM.selected && BM.selected.id === r.id;
-    if (isSel) pClass = 'selected';
-    return '<path class="bm-region ' + pClass + '" data-id="' + r.id + '" data-label="' + r.label + '" d="' + r.path + '" onclick="selectRegion(\'' + r.id + '\',\'' + r.label.replace(/'/g,"\\'") + '\')">'
-      + '<title>' + r.label + '</title>'
-    + '</path>';
-  }).join('');
-
-  return '<svg class="bm-body-svg" viewBox="0 0 250 295" xmlns="http://www.w3.org/2000/svg">'
-    + '<defs>'
-      + '<filter id="bm-glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
-    + '</defs>'
-    // Body outline silhouette
-    + '<path d="' + outline + '" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.08)" stroke-width="1"/>'
-    // Region overlays
-    + pathsHtml
-    // Centre line (subtle)
-    + '<line x1="125" y1="40" x2="125" y2="275" stroke="rgba(255,255,255,.04)" stroke-width=".5" stroke-dasharray="3 4"/>'
-  + '</svg>';
-}
-
-function renderMap() {
-  var container = document.getElementById('body-svg-container');
-  if (!container) return;
-  container.innerHTML = buildSVG(BM.view);
-  updateSelectedLabel();
-}
-
-function selectRegion(id, label) {
-  BM.selected = {id: id, label: label};
-  renderMap();
-  updateSelectedLabel();
-  if (BM.mode === 'query') {
-    updateSubmitBtn();
-  } else {
-    showFocusDetail(id, label);
-  }
-}
-
-function updateSelectedLabel() {
-  var el = document.getElementById('selected-label');
-  if (!el) return;
-  el.textContent = BM.selected ? '→ ' + BM.selected.label : '';
-}
-
-// ── MODE SWITCHING ────────────────────────────────────
 function setMode(mode) {
-  BM.mode = mode;
-  BM.selected = null;
-  document.getElementById('btn-query').classList.toggle('active', mode === 'query');
-  document.getElementById('btn-query').classList.toggle('query', mode === 'query');
-  document.getElementById('btn-focus').classList.toggle('active', mode === 'focus');
-  document.getElementById('btn-focus').classList.toggle('focus', mode === 'focus');
-  var mapLabel = document.getElementById('map-mode-label');
-  if (mapLabel) mapLabel.textContent = mode === 'query' ? 'Tap where you feel it' : 'Priority zones from your profile';
-  renderMap();
+  BM.mode = mode; BM.selected = null;
+  document.getElementById('btn-query').className = 'bm-mode-btn'+(mode==='query'?' active query':'');
+  document.getElementById('btn-focus').className = 'bm-mode-btn'+(mode==='focus'?' active focus':'');
+  var ml = document.getElementById('map-mode-label');
+  if (ml) ml.textContent = mode==='query' ? 'Hover to identify \u2014 tap to select' : 'Priority zones from your profile';
+  applyPriorityColours();
   renderPanel();
   document.getElementById('bm-result-area').innerHTML = '';
+  document.getElementById('selected-label').textContent = '';
 }
 
 function setView(view) {
-  BM.view = view;
-  BM.selected = null;
-  document.getElementById('btn-front').classList.toggle('active', view === 'front');
-  document.getElementById('btn-back').classList.toggle('active', view === 'back');
-  renderMap();
-  updateSelectedLabel();
+  BM.view = view; BM.selected = null;
+  document.getElementById('svg-front').style.display = view==='front' ? '' : 'none';
+  document.getElementById('svg-back').style.display  = view==='back'  ? '' : 'none';
+  document.getElementById('btn-front').className = 'bm-view-btn'+(view==='front'?' active':'');
+  document.getElementById('btn-back').className  = 'bm-view-btn'+(view==='back'?' active':'');
+  document.getElementById('selected-label').textContent = '';
 }
 
-// ── PANEL RENDERING ───────────────────────────────────
+function selectDot(id, label) {
+  BM.selected = {id:id, label:label};
+  applyPriorityColours();
+  var sl = document.getElementById('selected-label');
+  if (sl) sl.textContent = '\u2192 '+label;
+  if (BM.mode === 'query') updateSubmitBtn();
+  else showFocusDetail(id, label);
+}
+
+var SENSATIONS = ['Dull ache','Sharp pain','Tightness','Pulling','Burning','Numbness','Stiffness','Soreness','Pressure','Weakness','Instability','Clicking'];
+var CONTEXTS   = ['After sitting','After lifting','During movement','After running','In the morning','After travel','During sleep','After stairs','At rest'];
+
 function renderPanel() {
   var panel = document.getElementById('bm-panel');
   if (!panel) return;
-
-  if (BM.mode === 'query') {
-    renderQueryPanel(panel);
-  } else {
-    renderFocusPanel(panel);
-  }
+  if (BM.mode === 'query') renderQueryPanel(panel);
+  else renderFocusPanel(panel);
 }
 
 function renderQueryPanel(panel) {
-  var html =
+  var chips1 = SENSATIONS.map(function(s){
+    var sel = BM.sensation.indexOf(s)>=0 ? ' sel' : '';
+    return '<button class="bm-chip'+sel+'" onclick="toggleChip(\'sensation\',\''+s+'\',this)">'+s+'</button>';
+  }).join('');
+  var chips2 = CONTEXTS.map(function(s){
+    var sel = BM.context.indexOf(s)>=0 ? ' sel' : '';
+    return '<button class="bm-chip'+sel+'" onclick="toggleChip(\'context\',\''+s+'\',this)">'+s+'</button>';
+  }).join('');
+  panel.innerHTML =
     '<div class="bm-query-card">'
-      + '<div class="bm-card-label">What are you feeling?</div>'
-      + '<textarea class="bm-query-input" id="bm-query-inp" rows="3" placeholder="Describe in plain language — e.g. \'tight on the right side when I rotate\', \'dull ache that gets worse after sitting\'…">' + BM.queryText + '</textarea>'
-      + '<div class="bm-card-label" style="margin-top:12px;">Sensation type</div>'
-      + '<div class="bm-chips">'
-        + SENSATIONS.map(function(s){ return '<button class="bm-chip' + (BM.sensation.indexOf(s)>=0?' sel':'') + '" onclick="toggleChip(\'sensation\',\'' + s + '\',this)">' + s + '</button>'; }).join('')
-      + '</div>'
-      + '<div class="bm-card-label" style="margin-top:12px;">Context</div>'
-      + '<div class="bm-chips">'
-        + CONTEXTS.map(function(s){ return '<button class="bm-chip' + (BM.context.indexOf(s)>=0?' sel':'') + '" onclick="toggleChip(\'context\',\'' + s + '\',this)">' + s + '</button>'; }).join('')
-      + '</div>'
-    + '</div>'
-    + '<button class="bm-submit-btn" id="bm-submit" onclick="submitQuery()" disabled>'
-        + '<span>Interpret this →</span>'
-    + '</button>';
-  panel.innerHTML = html;
-
+    +'<div class="bm-card-label">What are you feeling?</div>'
+    +'<textarea class="bm-query-input" id="bm-query-inp" rows="3" placeholder="Describe in plain language \u2014 e.g. tight on the right side when I rotate, dull ache after sitting\u2026">'+BM.queryText+'</textarea>'
+    +'<div class="bm-card-label" style="margin-top:12px;">Sensation type</div>'
+    +'<div class="bm-chips">'+chips1+'</div>'
+    +'<div class="bm-card-label" style="margin-top:12px;">Context</div>'
+    +'<div class="bm-chips">'+chips2+'</div>'
+    +'</div>'
+    +'<button class="bm-submit-btn" id="bm-submit" onclick="submitQuery()" disabled><span>Interpret this \u2192</span></button>';
   var inp = document.getElementById('bm-query-inp');
-  if (inp) {
-    inp.addEventListener('input', function() { BM.queryText = this.value; updateSubmitBtn(); });
-  }
+  if (inp) inp.addEventListener('input', function(){ BM.queryText = this.value; updateSubmitBtn(); });
   updateSubmitBtn();
 }
 
 function renderFocusPanel(panel) {
-  var p = getProfile();
-  var pri = BM.priorities || {};
-
-  // Build prioritised list
-  var zones = [];
+  var pri = DOT_PRIORITY_MAP;
   var ZONE_META = {
-    'b-lower-back':   { name:'Lower back',          reason:'Posterior chain loading + age-related lumbar compression risk' },
-    'b-left-glute':   { name:'Left Glute',           reason:'Glute inhibition common with desk-seated lifestyle at 40+' },
-    'b-right-glute':  { name:'Right Glute',          reason:'Glute inhibition common with desk-seated lifestyle at 40+' },
-    'b-upper-back':   { name:'Thoracic spine',       reason:'Push training + forward posture risk from desk work' },
-    'left-shoulder':  { name:'Left Shoulder',        reason:'Push + Pull volume increases anterior capsule load' },
-    'right-shoulder': { name:'Right Shoulder',       reason:'Push + Pull volume increases anterior capsule load' },
-    'b-left-ham':     { name:'Left Hamstrings',      reason:'Posterior chain focus + prolonged hip flexion from sitting' },
-    'b-right-ham':    { name:'Right Hamstrings',     reason:'Posterior chain focus + prolonged hip flexion from sitting' },
-    'neck':           { name:'Neck / Cervical',      reason:'Pull training + forward head posture at desk' },
-    'left-knee':      { name:'Left Knee',            reason:'40+ joint resilience monitoring recommended' },
-    'right-knee':     { name:'Right Knee',           reason:'40+ joint resilience monitoring recommended' },
-    'left-hip':       { name:'Left Hip',             reason:'Hip flexor tension from training + sitting pattern' },
-    'right-hip':      { name:'Right Hip',            reason:'Hip flexor tension from training + sitting pattern' },
-    'b-left-calf':    { name:'Left Calf',            reason:'Posterior chain loading + ankle mobility at 40+' },
-    'b-right-calf':   { name:'Right Calf',           reason:'Posterior chain loading + ankle mobility at 40+' },
+    'b-lower-back': {name:'Lower back',     reason:'Posterior chain loading + lumbar compression risk at 40+'},
+    'b-l-glute':    {name:'Left Glute',      reason:'Glute inhibition common with desk lifestyle at 40+'},
+    'b-r-glute':    {name:'Right Glute',     reason:'Glute inhibition common with desk lifestyle at 40+'},
+    'b-upper-back': {name:'Thoracic spine',  reason:'Push training + forward posture risk'},
+    'l-shoulder':   {name:'Shoulders',       reason:'Push + Pull volume loads the anterior capsule'},
+    'b-l-ham':      {name:'Hamstrings',      reason:'Posterior chain focus + prolonged hip flexion from sitting'},
+    'l-knee':       {name:'Knees',           reason:'40+ joint resilience monitoring recommended'},
+    'neck':         {name:'Neck / Cervical', reason:'Pull training + forward head posture at desk'},
+    'l-hip':        {name:'Hip flexors',     reason:'Hip flexor tension from training + sitting pattern'},
+    'b-l-calf':     {name:'Calves',          reason:'Posterior chain loading + ankle mobility at 40+'}
   };
-
-  Object.keys(pri).forEach(function(id) {
-    if (ZONE_META[id]) zones.push({ id: id, priority: pri[id], meta: ZONE_META[id] });
-  });
-
-  // Sort: high > mid > low
-  var order = { high:0, mid:1, low:2 };
-  zones.sort(function(a,b){ return (order[a.priority]||3) - (order[b.priority]||3); });
-
-  // Dedupe similar zones
+  var zones = [];
+  Object.keys(pri).forEach(function(id){ if(ZONE_META[id]) zones.push({id:id,priority:pri[id],meta:ZONE_META[id]}); });
+  var order = {high:0,mid:1,low:2};
+  zones.sort(function(a,b){ return (order[a.priority]||3)-(order[b.priority]||3); });
   var seen = {};
-  zones = zones.filter(function(z) {
-    var base = z.meta.name.replace(/Left |Right /,'');
-    if (seen[base]) return false;
-    seen[base] = true;
-    return true;
-  });
-
-  var html = '<div class="bm-focus-card">'
-    + '<div class="bm-card-label">Your priority zones — tap to explore</div>';
-
-  zones.slice(0, 8).forEach(function(z) {
-    var col = z.priority === 'high' ? '#d94e35' : z.priority === 'mid' ? 'var(--amber)' : 'var(--green)';
-    html += '<div class="bm-focus-zone" onclick="showFocusDetail(\'' + z.id + '\',\'' + z.meta.name + '\')">'
-      + '<div class="bm-fz-dot" style="background:' + col + ';"></div>'
-      + '<div style="flex:1;">'
-        + '<div class="bm-fz-name">' + z.meta.name + '</div>'
-        + '<div class="bm-fz-reason">' + z.meta.reason + '</div>'
-      + '</div>'
-      + '<div class="bm-fz-pri ' + z.priority + '">' + z.priority + '</div>'
-    + '</div>';
-  });
-
-  html += '<button class="bm-submit-btn" style="margin-top:12px;" onclick="generateFocusReport()">'
-    + '<span>Generate full body focus report →</span>'
-  + '</button>';
-  html += '</div>';
-
-  panel.innerHTML = html;
+  zones = zones.filter(function(z){ var base=z.meta.name.replace(/Left |Right /,''); if(seen[base]) return false; seen[base]=true; return true; });
+  var rows = zones.slice(0,8).map(function(z){
+    var col = z.priority==='high'?'#d94e35':z.priority==='mid'?'var(--amber)':'var(--green)';
+    return '<div class="bm-focus-zone" onclick="showFocusDetail(\''+z.id+'\',\''+z.meta.name+'\')">'
+      +'<div class="bm-fz-dot" style="background:'+col+';"></div>'
+      +'<div style="flex:1;"><div class="bm-fz-name">'+z.meta.name+'</div><div class="bm-fz-reason">'+z.meta.reason+'</div></div>'
+      +'<div class="bm-fz-pri '+z.priority+'">'+z.priority+'</div>'
+      +'</div>';
+  }).join('');
+  panel.innerHTML = '<div class="bm-focus-card"><div class="bm-card-label">Your priority zones \u2014 tap to explore</div>'
+    +rows
+    +'<button class="bm-submit-btn" style="margin-top:12px;" onclick="generateFocusReport()"><span>Generate full body report \u2192</span></button></div>';
 }
 
 function toggleChip(type, val, btn) {
-  var arr = type === 'sensation' ? BM.sensation : BM.context;
+  var arr = type==='sensation' ? BM.sensation : BM.context;
   var idx = arr.indexOf(val);
-  if (idx >= 0) { arr.splice(idx, 1); btn.classList.remove('sel'); }
-  else           { arr.push(val);     btn.classList.add('sel'); }
+  if(idx>=0){ arr.splice(idx,1); btn.classList.remove('sel'); }
+  else{ arr.push(val); btn.classList.add('sel'); }
   updateSubmitBtn();
 }
 
 function updateSubmitBtn() {
   var btn = document.getElementById('bm-submit');
-  if (!btn) return;
-  var hasRegion = !!BM.selected;
-  var hasInput  = (BM.queryText && BM.queryText.trim().length > 0) || BM.sensation.length > 0;
-  btn.disabled = !(hasRegion || hasInput);
+  if(!btn) return;
+  btn.disabled = !(BM.selected || BM.queryText.trim().length>0 || BM.sensation.length>0);
 }
 
-// ── AI QUERY ──────────────────────────────────────────
 async function submitQuery() {
   var p = getProfile();
   var ra = document.getElementById('bm-result-area');
-  ra.innerHTML = '<div class="bm-result"><div class="bm-loading"><div class="bm-spin"></div>Interpreting your body signal…</div></div>';
-  ra.scrollIntoView({ behavior:'smooth', block:'nearest' });
-
-  var regionLabel = BM.selected ? BM.selected.label : 'unspecified area';
+  ra.innerHTML = '<div class="bm-result"><div class="bm-loading"><div class="bm-spin"></div>Interpreting your body signal\u2026</div></div>';
+  ra.scrollIntoView({behavior:'smooth',block:'nearest'});
+  var regionLabel = BM.selected ? BM.selected.label : 'unspecified';
   var sensation   = BM.sensation.length ? BM.sensation.join(', ') : 'not specified';
   var context     = BM.context.length   ? BM.context.join(', ')   : 'not specified';
-  var queryText   = BM.queryText.trim() || '';
-
-  var profileCtx = p ? [
-    p.name + ', ' + p.age + 'yo ' + (p.sex||'male') + ', ' + p.weight + 'kg',
-    'Goal: ' + (p.goal||'recomposition'),
-    'Training: ' + ((p.weekPlan||[]).filter(function(d){return d.priority==='training';}).length) + ' days/week — ' + ((p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join(', ')),
-    'Injuries: ' + ((p.injuryAssessments||p.injuries||[]).map(function(i){return i.location||i;}).join(', ')||'none reported'),
-    'Activity: ' + (p.activityLevel||'active'),
-    'Fat storage: ' + (p.fatStorage||'not specified'),
-  ].join(' | ') : 'No profile';
-
-  // Get recent training context
-  var recentTraining = '';
+  var trainingStr = p ? (p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join('/') : '';
+  var profileCtx  = p ? (p.name+', '+p.age+'yo '+(p.sex||'male')+', '+p.weight+'kg, goal:'+(p.goal||'recomposition')+', training:'+trainingStr) : 'no profile';
+  var prompt = 'Sports science and movement specialist.\n\nUSER: '+profileCtx+'\n\nQUERY:\nBody area: '+regionLabel+'\nDescription: '+(BM.queryText.trim()||'not provided')+'\nSensation: '+sensation+'\nContext: '+context+'\n\nReturn ONLY valid JSON: {"anatomical_area":"specific name","coach_insight":"One direct sentence connecting to their training","likely_pattern":"2-3 sentences","contributing_factors":"2-3 factors specific to this user","immediate_suggestions":["action 1","action 2","action 3"],"avoid":["avoid 1","avoid 2"],"monitor":["sign 1","sign 2"],"training_note":"1-2 sentences","seek_medical":"clear warning signs"}';
   try {
-    var log = JSON.parse(localStorage.getItem('bl_daylog_' + new Date().toISOString().slice(0,10))||'{}');
-    if (log.trainStatus) recentTraining = 'Today: ' + log.trainStatus + ' session.';
-  } catch(e) {}
-
-  var prompt =
-    'You are a sports science and movement specialist providing body intelligence guidance.\n\n'
-    + 'USER PROFILE: ' + profileCtx + '\n'
-    + (recentTraining ? 'RECENT: ' + recentTraining + '\n' : '')
-    + '\nUSER QUERY:\n'
-    + 'Body area: ' + regionLabel + '\n'
-    + 'Description: ' + (queryText || '(not provided)') + '\n'
-    + 'Sensation: ' + sensation + '\n'
-    + 'Context: ' + context + '\n\n'
-    + 'Provide a structured body intelligence response. Return ONLY valid JSON:\n'
-    + '{\n'
-    + '  "anatomical_area": "specific anatomical name",\n'
-    + '  "likely_pattern": "2-3 sentences on likely muscle/joint/tissue pattern",\n'
-    + '  "contributing_factors": "2-3 specific factors relevant to this user",\n'
-    + '  "immediate_suggestions": ["action 1", "action 2", "action 3"],\n'
-    + '  "avoid": ["thing to avoid 1", "thing to avoid 2"],\n'
-    + '  "monitor": ["sign to watch 1", "sign to watch 2"],\n'
-    + '  "training_note": "1-2 sentences on training implications for this specific user",\n'
-    + '  "coach_insight": "One direct, specific sentence connecting this to their training pattern",\n'
-    + '  "seek_medical": "specific clear warning signs that warrant professional assessment"\n'
-    + '}\n\n'
-    + 'Be specific to this user\'s age, training type, and context. No generic advice. Not a diagnosis — frame as pattern recognition and guidance.';
-
-  try {
-    var res = await fetch(API, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:MODEL, max_tokens:800,
-        system: 'Sports science and movement specialist. Return ONLY valid JSON. No markdown.',
-        messages: [{role:'user', content:prompt}]
-      })
-    });
+    var res = await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:800,system:'Sports science. Return ONLY valid JSON.',messages:[{role:'user',content:prompt}]})});
     var data = await res.json();
     var text = (data.content||[]).map(function(b){return b.text||'';}).join('').trim();
-    var match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('no json');
-    var result = JSON.parse(match[0]);
-    renderQueryResult(result, regionLabel, sensation);
+    var m = text.match(/\{[\s\S]*\}/);
+    if(!m) throw new Error('no json');
+    renderQueryResult(JSON.parse(m[0]), regionLabel, sensation);
   } catch(e) {
-    ra.innerHTML = '<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not interpret — <button onclick="submitQuery()" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
+    ra.innerHTML = '<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not interpret \u2014 <button onclick="submitQuery()" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
   }
 }
 
 function renderQueryResult(r, region, sensation) {
   var ra = document.getElementById('bm-result-area');
-  var html =
-    '<div class="bm-result">'
-      + '<div class="bm-result-header">'
-        + '<div>'
-          + '<div class="bm-result-region">' + (r.anatomical_area || region) + '</div>'
-          + (sensation !== 'not specified' ? '<div class="bm-result-sensation">' + sensation + '</div>' : '')
-        + '</div>'
-        + '<div class="bm-result-disclaimer">Pattern recognition, not diagnosis. See a clinician for persistent or worsening symptoms.</div>'
-      + '</div>'
-      + '<div class="bm-result-body">'
-
-        + '<div class="bm-result-section">'
-          + '<div class="bm-result-sec-label">Coach insight</div>'
-          + '<div class="bm-result-text serif">' + (r.coach_insight||'') + '</div>'
-        + '</div>'
-
-        + '<div class="bm-result-section">'
-          + '<div class="bm-result-sec-label">Likely pattern</div>'
-          + '<div class="bm-result-text">' + (r.likely_pattern||'') + '</div>'
-        + '</div>'
-
-        + '<div class="bm-result-section">'
-          + '<div class="bm-result-sec-label">Contributing factors</div>'
-          + '<div class="bm-result-text">' + (r.contributing_factors||'') + '</div>'
-        + '</div>'
-
-        + '<div class="bm-result-section">'
-          + '<div class="bm-result-sec-label">Training note</div>'
-          + '<div class="bm-result-text">' + (r.training_note||'') + '</div>'
-        + '</div>'
-
-        + '<div class="bm-result-section">'
-          + '<div class="bm-result-sec-label">What to do</div>'
-          + '<div class="bm-actions">'
-            + (r.immediate_suggestions||[]).map(function(s){ return '<span class="bm-action-tag do">✓ ' + s + '</span>'; }).join('')
-          + '</div>'
-        + '</div>'
-
-        + '<div class="bm-result-section">'
-          + '<div class="bm-result-sec-label">Avoid</div>'
-          + '<div class="bm-actions">'
-            + (r.avoid||[]).map(function(s){ return '<span class="bm-action-tag avoid">✗ ' + s + '</span>'; }).join('')
-          + '</div>'
-        + '</div>'
-
-        + '<div class="bm-result-section">'
-          + '<div class="bm-result-sec-label">Monitor</div>'
-          + '<div class="bm-actions">'
-            + (r.monitor||[]).map(function(s){ return '<span class="bm-action-tag monitor">◎ ' + s + '</span>'; }).join('')
-          + '</div>'
-        + '</div>'
-
-        + '<div class="bm-warning">'
-          + '<div class="bm-warning-label">⚠ Seek medical assessment if</div>'
-          + '<div class="bm-warning-text">' + (r.seek_medical||'Pain is severe, worsening, or accompanied by neurological symptoms (numbness, tingling, weakness).') + '</div>'
-        + '</div>'
-
-      + '</div>'
-    + '</div>';
-  ra.innerHTML = html;
-  ra.scrollIntoView({behavior:'smooth', block:'start'});
+  var doTags = (r.immediate_suggestions||[]).map(function(s){return '<span class="bm-action-tag do">\u2713 '+s+'</span>';}).join('');
+  var avTags = (r.avoid||[]).map(function(s){return '<span class="bm-action-tag avoid">\u2717 '+s+'</span>';}).join('');
+  var moTags = (r.monitor||[]).map(function(s){return '<span class="bm-action-tag monitor">\u25ce '+s+'</span>';}).join('');
+  ra.innerHTML = '<div class="bm-result">'
+    +'<div class="bm-result-header">'
+      +'<div><div class="bm-result-region">'+(r.anatomical_area||region)+'</div>'+(sensation!=='not specified'?'<div class="bm-result-sensation">'+sensation+'</div>':'')+'</div>'
+      +'<div class="bm-result-disclaimer">Pattern recognition, not diagnosis. See a clinician for persistent or worsening symptoms.</div>'
+    +'</div>'
+    +'<div class="bm-result-body">'
+      +'<div class="bm-result-section"><div class="bm-result-sec-label">Coach insight</div><div class="bm-result-text serif">'+(r.coach_insight||'')+'</div></div>'
+      +'<div class="bm-result-section"><div class="bm-result-sec-label">Likely pattern</div><div class="bm-result-text">'+(r.likely_pattern||'')+'</div></div>'
+      +'<div class="bm-result-section"><div class="bm-result-sec-label">Contributing factors</div><div class="bm-result-text">'+(r.contributing_factors||'')+'</div></div>'
+      +'<div class="bm-result-section"><div class="bm-result-sec-label">Training note</div><div class="bm-result-text">'+(r.training_note||'')+'</div></div>'
+      +'<div class="bm-result-section"><div class="bm-result-sec-label">What to do</div><div class="bm-actions">'+doTags+'</div></div>'
+      +'<div class="bm-result-section"><div class="bm-result-sec-label">Avoid</div><div class="bm-actions">'+avTags+'</div></div>'
+      +'<div class="bm-result-section"><div class="bm-result-sec-label">Monitor</div><div class="bm-actions">'+moTags+'</div></div>'
+      +'<div class="bm-warning"><div class="bm-warning-label">\u26a0 Seek medical assessment if</div><div class="bm-warning-text">'+(r.seek_medical||'Pain is severe, worsening, or accompanied by neurological symptoms.')+'</div></div>'
+    +'</div></div>';
+  ra.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-// ── FOCUS MODE ────────────────────────────────────────
-function showFocusDetail(id, label) {
-  BM.selected = {id: id, label: label};
-  renderMap();
-  generateFocusZoneDetail(id, label);
-}
-
-async function generateFocusZoneDetail(id, label) {
+async function showFocusDetail(id, label) {
+  BM.selected = {id:id, label:label};
+  applyPriorityColours();
   var ra = document.getElementById('bm-result-area');
-  ra.innerHTML = '<div class="bm-result"><div class="bm-loading"><div class="bm-spin"></div>Analysing ' + label + ' for your profile…</div></div>';
-  ra.scrollIntoView({behavior:'smooth', block:'nearest'});
+  ra.innerHTML = '<div class="bm-result"><div class="bm-loading"><div class="bm-spin"></div>Analysing '+label+' for your profile\u2026</div></div>';
+  ra.scrollIntoView({behavior:'smooth',block:'nearest'});
   var p = getProfile();
-  var pri = BM.priorities || {};
-  var zonePri = pri[id] || 'moderate';
-  var profileCtx = p ? p.name + ', ' + p.age + 'yo, ' + (p.sex||'male') + ', goal: ' + (p.goal||'recomposition') + ', training: ' + ((p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join('/')) : '';
-
-  var prompt = 'Sports science specialist. Give a proactive body focus briefing for: ' + label + '\n'
-    + 'User: ' + profileCtx + '\n'
-    + 'Priority level: ' + zonePri + '\n\n'
-    + 'Return ONLY valid JSON:\n'
-    + '{"why_matters":"2-3 sentences why this zone matters for this specific user","risk_drivers":["factor 1","factor 2","factor 3"],"mobility_work":["movement 1","movement 2"],"strength_work":["exercise 1","exercise 2"],"training_link":"how this connects to their current training split","one_action":"the single most important thing to do this week for this zone"}';
-
+  var zonePri = DOT_PRIORITY_MAP[id]||'moderate';
+  var trainingStr = p ? (p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join('/') : '';
+  var profileCtx  = p ? (p.name+', '+p.age+'yo, goal:'+(p.goal||'recomposition')+', training:'+trainingStr) : '';
+  var prompt = 'Sports science specialist. Proactive body focus briefing for: '+label+'. User: '+profileCtx+'. Priority: '+zonePri+'. Return ONLY valid JSON: {"why_matters":"2-3 sentences","risk_drivers":["f1","f2","f3"],"mobility_work":["m1","m2"],"strength_work":["s1","s2"],"training_link":"connection to their split","one_action":"single most important thing this week"}';
   try {
-    var res = await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:MODEL,max_tokens:500,system:'Sports science. Return ONLY valid JSON.',messages:[{role:'user',content:prompt}]})});
-    var data = await res.json();
+    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:500,system:'Sports science. Return ONLY valid JSON.',messages:[{role:'user',content:prompt}]})});
+    var data=await res.json();
     var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
-    var m=text.match(/\{[\s\S]*\}/);if(!m)throw new Error('no json');
+    var m=text.match(/\{[\s\S]*\}/);
+    if(!m) throw new Error('no json');
     var r=JSON.parse(m[0]);
-    var col = zonePri==='high'?'#d94e35':zonePri==='mid'?'var(--amber)':'var(--green)';
-    var priLabel = zonePri==='high'?'High priority':zonePri==='mid'?'Watch area':'Low priority';
-    ra.innerHTML = '<div class="bm-focus-result">'
-      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
-        + '<div style="width:12px;height:12px;border-radius:50%;background:'+col+';flex-shrink:0;"></div>'
-        + '<div class="bm-focus-result-title" style="margin-bottom:0;">' + label + '</div>'
-        + '<div class="bm-fz-pri '+zonePri+'" style="margin-left:auto;">' + priLabel + '</div>'
-      + '</div>'
-      + '<div class="bm-result-sec-label">Why this matters for you</div>'
-      + '<div class="bm-result-text" style="margin-bottom:14px;">' + (r.why_matters||'') + '</div>'
-      + '<div class="bm-result-sec-label">Risk drivers</div>'
-      + '<div class="bm-actions" style="margin-bottom:14px;">'
-        + (r.risk_drivers||[]).map(function(s){return '<span class="bm-action-tag monitor">'+s+'</span>';}).join('')
-      + '</div>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">'
-        + '<div><div class="bm-result-sec-label">Mobility work</div><div class="bm-actions" style="flex-direction:column;">'+(r.mobility_work||[]).map(function(s){return '<span class="bm-action-tag do">'+s+'</span>';}).join('')+'</div></div>'
-        + '<div><div class="bm-result-sec-label">Strength work</div><div class="bm-actions" style="flex-direction:column;">'+(r.strength_work||[]).map(function(s){return '<span class="bm-action-tag do">'+s+'</span>';}).join('')+'</div></div>'
-      + '</div>'
-      + '<div class="bm-result-sec-label">Training link</div>'
-      + '<div class="bm-result-text" style="margin-bottom:14px;">' + (r.training_link||'') + '</div>'
-      + '<div style="background:rgba(0,200,160,.04);border:1px solid var(--jade-br);border-radius:8px;padding:12px 14px;">'
-        + '<div class="bm-result-sec-label" style="color:var(--jade);">This week\'s priority action</div>'
-        + '<div class="bm-result-text serif" style="color:var(--dk-1);">' + (r.one_action||'') + '</div>'
-      + '</div>'
-    + '</div>';
+    var col=zonePri==='high'?'#d94e35':zonePri==='mid'?'var(--amber)':'var(--green)';
+    var riskTags=(r.risk_drivers||[]).map(function(s){return '<span class="bm-action-tag monitor">'+s+'</span>';}).join('');
+    var mobTags=(r.mobility_work||[]).map(function(s){return '<span class="bm-action-tag do">'+s+'</span>';}).join('');
+    var strTags=(r.strength_work||[]).map(function(s){return '<span class="bm-action-tag do">'+s+'</span>';}).join('');
+    ra.innerHTML='<div class="bm-focus-result">'
+      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+        +'<div style="width:12px;height:12px;border-radius:50%;background:'+col+';flex-shrink:0;"></div>'
+        +'<div class="bm-focus-result-title" style="margin-bottom:0;">'+label+'</div>'
+        +'<div class="bm-fz-pri '+zonePri+'" style="margin-left:auto;">'+zonePri+'</div>'
+      +'</div>'
+      +'<div class="bm-result-sec-label">Why this matters for you</div>'
+      +'<div class="bm-result-text" style="margin-bottom:14px;">'+(r.why_matters||'')+'</div>'
+      +'<div class="bm-result-sec-label">Risk drivers</div>'
+      +'<div class="bm-actions" style="margin-bottom:14px;">'+riskTags+'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">'
+        +'<div><div class="bm-result-sec-label">Mobility</div><div class="bm-actions" style="flex-direction:column;">'+mobTags+'</div></div>'
+        +'<div><div class="bm-result-sec-label">Strength</div><div class="bm-actions" style="flex-direction:column;">'+strTags+'</div></div>'
+      +'</div>'
+      +'<div class="bm-result-sec-label">Training link</div>'
+      +'<div class="bm-result-text" style="margin-bottom:14px;">'+(r.training_link||'')+'</div>'
+      +'<div style="background:rgba(0,200,160,.04);border:1px solid var(--jade-br);border-radius:8px;padding:12px 14px;">'
+        +'<div class="bm-result-sec-label" style="color:var(--jade);">This week</div>'
+        +'<div class="bm-result-text serif" style="color:var(--dk-1);">'+(r.one_action||'')+'</div>'
+      +'</div>'
+    +'</div>';
     ra.scrollIntoView({behavior:'smooth',block:'start'});
   } catch(e) {
-    ra.innerHTML = '<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not load — <button onclick="generateFocusZoneDetail(\''+id+'\',\''+label+'\')" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
+    ra.innerHTML = '<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not load \u2014 <button onclick="showFocusDetail(\''+id+'\',\''+label+'\')" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
   }
 }
 
 async function generateFocusReport() {
   var ra = document.getElementById('bm-result-area');
-  ra.innerHTML = '<div class="bm-result"><div class="bm-loading"><div class="bm-spin"></div>Building your full body focus report…</div></div>';
+  ra.innerHTML='<div class="bm-result"><div class="bm-loading"><div class="bm-spin"></div>Building your full body focus report\u2026</div></div>';
   ra.scrollIntoView({behavior:'smooth',block:'nearest'});
   var p = getProfile();
-  var pri = BM.priorities || {};
-  var highZones = Object.keys(pri).filter(function(k){return pri[k]==='high';});
-  var midZones  = Object.keys(pri).filter(function(k){return pri[k]==='mid';});
-  var profileCtx = p ? p.name+', '+p.age+'yo '+(p.sex||'male')+', '+p.weight+'kg, goal:'+(p.goal||'recomposition')+', training:'+(p.trainingDays||4)+' days/week ('+(p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join('/')+')'  : 'no profile';
-  var zoneNames = function(ids) { var allR = REGIONS_FRONT.concat(REGIONS_BACK); return ids.map(function(id){ var r=allR.find(function(x){return x.id===id;}); return r?r.label:id; }).join(', '); };
-
-  var prompt = 'Body intelligence specialist. Write a personalised body focus report.\n'
-    + 'User: ' + profileCtx + '\n'
-    + 'High priority zones: ' + zoneNames(highZones) + '\n'
-    + 'Watch areas: ' + zoneNames(midZones.slice(0,5)) + '\n\n'
-    + 'Write a 3-paragraph report: 1. What the pattern shows about this user\'s body under their current training and lifestyle. 2. The highest-leverage areas to address and why they compound each other. 3. A concrete 4-week focus protocol — specific, actionable, integrated with their training split.\n\n'
-    + 'Tone: direct, specific, personal. Reference their actual training types. Not generic advice. This is a body intelligence briefing for a serious user.\n\n'
-    + 'Return plain prose, no JSON, no headers, no markdown. Under 250 words.';
-
+  var pri = DOT_PRIORITY_MAP;
+  var allDots = DOTS_FRONT.concat(DOTS_BACK);
+  function zoneNames(pv){ return Object.keys(pri).filter(function(k){return pri[k]===pv;}).map(function(id){ var d=allDots.find(function(x){return x[0]===id;}); return d?d[1]:id; }).slice(0,5).join(', '); }
+  var trainingStr = p ? (p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join('/') : '';
+  var profileCtx  = p ? (p.name+', '+p.age+'yo '+(p.sex||'male')+', '+p.weight+'kg, goal:'+(p.goal||'recomposition')+', '+(p.trainingDays||4)+' days/wk ('+trainingStr+')') : 'no profile';
+  var prompt = 'Body intelligence specialist. Write a personalised body focus report.\nUser: '+profileCtx+'\nHigh priority zones: '+zoneNames('high')+'\nWatch areas: '+zoneNames('mid')+'\n\n3 paragraphs: 1. What the pattern shows about this person. 2. Highest-leverage areas and why they compound each other. 3. Concrete 4-week protocol integrated with their training split.\n\nDirect, specific, personal. Plain prose only. Under 250 words.';
   try {
-    var res = await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:MODEL,max_tokens:400,system:'Body intelligence specialist. Direct, specific, personal. Plain prose only.',messages:[{role:'user',content:prompt}]})});
+    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:400,system:'Body intelligence specialist. Direct, specific. Plain prose.',messages:[{role:'user',content:prompt}]})});
     var data=await res.json();
     var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
     var paras=text.split(/\n+/).filter(Boolean);
     ra.innerHTML='<div class="bm-focus-result">'
       +'<div class="bm-focus-result-title">Your body focus report</div>'
-      +'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:14px;">Personalised to your profile · ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long'}) + '</div>'
-      +paras.map(function(p,i){return '<p style="font-family:var(--serif);font-size:15px;font-weight:300;color:'+(i===0?'var(--dk-1)':'var(--dk-2)')+';line-height:1.85;margin-bottom:14px;">'+p+'</p>';}).join('')
+      +'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:14px;">Personalised to your profile \u00b7 '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long'})+'</div>'
+      +paras.map(function(para,idx){return '<p style="font-family:var(--serif);font-size:15px;font-weight:300;color:'+(idx===0?'var(--dk-1)':'var(--dk-2)')+';line-height:1.85;margin-bottom:14px;">'+para+'</p>';}).join('')
     +'</div>';
     ra.scrollIntoView({behavior:'smooth',block:'start'});
   } catch(e) {
-    ra.innerHTML='<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not generate — <button onclick="generateFocusReport()" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
+    ra.innerHTML='<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not generate \u2014 <button onclick="generateFocusReport()" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
   }
 }
 
-// ── BOOT ─────────────────────────────────────────────
 function init() {
   var p = getProfile();
   var nm = document.getElementById('nav-meta');
-  if (nm && p) nm.innerHTML = '<span class="nav-tag nt-jade">' + p.name + '</span>';
-
-  BM.priorities = computePriorities(p);
-  renderMap();
+  if (nm && p) nm.innerHTML = '<span class="nav-tag nt-jade">'+p.name+'</span>';
+  DOT_PRIORITY_MAP = computePriorities(p);
+  applyPriorityColours();
   renderPanel();
 }
 
