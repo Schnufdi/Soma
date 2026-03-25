@@ -302,7 +302,10 @@ var POD = {
   currentLine: 0,
   playInterval: null,
   episodeNum: loadEpisodeCount(),
-  history: loadHistory()
+  history: loadHistory(),
+  elapsedSecs: 0,          // real seconds elapsed since play started
+  _tickInterval: null,     // setInterval handle for the seconds ticker
+  _lineStartSec: 0         // elapsed secs when current line started
 };
 
 // ── Storage helpers ───────────────────────────────
@@ -599,6 +602,7 @@ async function playLine(idx) {
   }
 
   POD.currentLine = idx;
+  POD._lineStartSec = POD.elapsedSecs;  // remember elapsed when this line started
   updateLineHighlight(idx);
   scrollToLine(idx);
   updateNowSpeaking(idx);
@@ -664,12 +668,14 @@ function togglePlay() {
   if (POD.playing) {
     if (POD.currentLine >= (POD.episode.lines||[]).length) {
       POD.currentLine = 0;
+      POD.elapsedSecs = 0;
     }
-    // Prefetch first few lines immediately
     if (elEnabled()) prefetchAhead(POD.currentLine, 3);
+    startTicker();
     playLine(POD.currentLine);
   } else {
     stopAudio();
+    stopTicker();
     updatePlayBtn('▶');
   }
   updatePlayBtn();
@@ -677,6 +683,7 @@ function togglePlay() {
 
 function startPlayback() {
   stopAudio();
+  startTicker();
   playLine(POD.currentLine);
 }
 
@@ -719,18 +726,34 @@ function updateNowSpeaking(idx) {
 }
 
 function updateProgress() {
-  var bar = document.querySelector('.pod-progress-fill');
-  var el = document.querySelector('.pod-progress-curr');
+  var bar  = document.querySelector('.pod-progress-fill');
   if (!bar || !POD.episode) return;
-  var pct = Math.round((POD.currentLine / Math.max(1, POD.episode.lines.length)) * 100);
+  var total = POD.episode.lines.length;
+  // Progress bar uses line position for seek accuracy
+  var pct = Math.round((POD.currentLine / Math.max(1, total)) * 100);
   bar.style.width = pct + '%';
-
-  var totalMin = Math.round(POD.episode.lines.length * 0.5);
-  var currMin = Math.round(POD.currentLine * 0.5);
-  if (el) el.textContent = formatTime(currMin * 60);
-
+  // Time display uses real elapsed seconds
   var timeEl = document.getElementById('pod-current-time');
-  if (timeEl) timeEl.textContent = formatTime(currMin * 60);
+  if (timeEl) timeEl.textContent = formatTime(POD.elapsedSecs);
+}
+
+function startTicker() {
+  stopTicker();
+  POD._tickInterval = setInterval(function() {
+    if (!POD.playing) return;
+    POD.elapsedSecs++;
+    // Also update audio currentTime if ElevenLabs audio is playing
+    if (EL.currentAudio && !EL.currentAudio.paused) {
+      // Real audio is driving time — sync from audio element
+      POD.elapsedSecs = Math.round(POD._lineStartSec + EL.currentAudio.currentTime);
+    }
+    var timeEl = document.getElementById('pod-current-time');
+    if (timeEl) timeEl.textContent = formatTime(POD.elapsedSecs);
+  }, 1000);
+}
+
+function stopTicker() {
+  if (POD._tickInterval) { clearInterval(POD._tickInterval); POD._tickInterval = null; }
 }
 
 function formatTime(secs) {
@@ -1018,7 +1041,9 @@ function regenerate() {
 
 function restartEp() {
   stopAudio();
+  stopTicker();
   POD.currentLine = 0;
+  POD.elapsedSecs = 0;
   POD.playing = false;
   EL.audioCache = {}; // clear cached audio when restarting
   render();

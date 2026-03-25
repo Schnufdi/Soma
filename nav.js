@@ -8,7 +8,7 @@
     <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
     <a class="nav-link" href="/bodylens-plan.html">Plan</a>
     <a class="nav-link" href="/bodylens-food.html">Food</a>
-    <a class="nav-link" href="/bodylens-mealbuilder.html">Meals</a>
+    <a class="nav-link" href="/bodylens-meals.html">Meals</a>
     <a class="nav-link" href="/bodylens-science.html">Science</a>
     <a class="nav-link" href="/bodylens-supplements.html">Deep Stack</a>
     <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
@@ -41,7 +41,7 @@
   <a class="mm-link" href="/bodylens-checkin.html">Week review</a>
   <div class="mm-section-label">Food</div>
   <a class="mm-link" href="/bodylens-food.html">Food hub</a>
-  <a class="mm-link" href="/bodylens-mealbuilder.html">Meal planner</a>
+  <a class="mm-link" href="/bodylens-meals.html">Meal planner</a>
   <div class="mm-section-label">Optimise</div>
   <a class="mm-link" href="/bodylens-accelerators.html">Accelerators</a>
   <a class="mm-link" href="/bodylens-supplements.html">Deep Stack</a>
@@ -63,7 +63,7 @@
     <div class="mtb-icon">&#128197;</div>
     <div class="mtb-label">Today</div>
   </a>
-  <a class="mtb-tab" href="/bodylens-mealbuilder.html">
+  <a class="mtb-tab" href="/bodylens-meals.html">
     <div class="mtb-icon">&#127829;</div>
     <div class="mtb-label">Meals</div>
   </a>
