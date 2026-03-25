@@ -2671,6 +2671,15 @@ function renderPlan(plan, browsing){
         +exRows(b.exercises)
         +'<div style="margin-top:10px;font-size:11px;font-weight:300;color:var(--dk-3);">10 min warm-up · Cool down 5-10 min · Track every load</div>'
         +(b.injNote?'<div style="margin-top:6px;font-size:11px;color:rgba(255,140,100,.8);">⚠ '+b.injNote+'</div>':'')
+        +'<div style="margin-top:12px;">'
+          +'<button onclick="event.stopPropagation();_gcLaunchFromBlock('+i+',window._blocks['+i+'])" '
+            +'style="background:var(--jade);border:none;color:var(--ink);padding:10px 20px;border-radius:8px;'
+            +'font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;'
+            +'font-family:var(--sans);display:inline-flex;align-items:center;gap:6px;">▶ Start with coach</button>'
+          +'<button onclick="event.stopPropagation();showSession('+i+',window._blocks['+i+'])" '
+            +'style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:10px 16px;border-radius:8px;'
+            +'font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);margin-left:8px;">View session →</button>'
+        +'</div>'
         +'</div>';
     } else if(b.isAcceleratorSummary && b.accList){
       // Active accelerators summary block
