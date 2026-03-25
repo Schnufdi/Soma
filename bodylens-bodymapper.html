@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens — Body Mapper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body{background:var(--ink);color:var(--dk-1);min-height:100vh;}
+.bm-page{max-width:1100px;margin:0 auto;padding:0 28px 100px;}
+
+/* ── HERO ───────────────────────────────────────── */
+.bm-hero{padding:28px 0 20px;border-bottom:1px solid var(--bd);}
+.bm-kicker{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
+.bm-title{font-family:var(--serif);font-size:48px;font-weight:300;line-height:.93;letter-spacing:-.025em;color:var(--dk-1);margin-bottom:8px;}
+.bm-title em{font-style:italic;color:var(--dk-3);}
+.bm-sub{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:520px;}
+
+/* ── MODE TOGGLE ────────────────────────────────── */
+.bm-mode-bar{display:flex;gap:0;margin:20px 0 0;border:1px solid var(--bd);border-radius:10px;overflow:hidden;width:fit-content;}
+.bm-mode-btn{padding:10px 24px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);background:transparent;border:none;cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.bm-mode-btn.active{background:var(--ink-2);color:var(--dk-1);}
+.bm-mode-btn.active.query{color:var(--jade);}
+.bm-mode-btn.active.focus{color:var(--amber);}
+
+/* ── MAIN LAYOUT ────────────────────────────────── */
+.bm-layout{display:grid;grid-template-columns:1fr 340px;gap:28px;margin-top:24px;align-items:start;}
+@media(max-width:800px){.bm-layout{grid-template-columns:1fr;}}
+
+/* ── BODY MAP CONTAINER ─────────────────────────── */
+.bm-map-section{background:var(--ink-1);border:1px solid var(--bd);border-radius:12px;padding:20px;}
+.bm-map-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.bm-map-title{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dk-3);}
+.bm-view-toggle{display:flex;gap:0;border:1px solid var(--bd);border-radius:7px;overflow:hidden;}
+.bm-view-btn{padding:5px 14px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dk-3);background:transparent;border:none;cursor:pointer;font-family:var(--sans);transition:all .1s;}
+.bm-view-btn.active{background:var(--ink-2);color:var(--dk-2);}
+
+.bm-map-wrap{display:flex;justify-content:center;align-items:flex-start;min-height:480px;position:relative;}
+.bm-body-svg{width:100%;max-width:260px;cursor:pointer;}
+
+/* Body region styles */
+.bm-region{transition:fill .15s,opacity .15s;cursor:pointer;}
+.bm-region:hover{opacity:.75;}
+.bm-region.pri-high{fill:rgba(217,78,53,0.45);stroke:rgba(217,78,53,.7);stroke-width:.5;}
+.bm-region.pri-mid{fill:rgba(196,124,24,0.3);stroke:rgba(196,124,24,.5);stroke-width:.5;}
+.bm-region.pri-low{fill:rgba(0,168,114,0.15);stroke:rgba(0,168,114,.3);stroke-width:.5;}
+.bm-region.neutral{fill:rgba(255,255,255,.04);stroke:rgba(255,255,255,.06);stroke-width:.5;}
+.bm-region.selected{fill:rgba(0,200,160,.2);stroke:var(--jade);stroke-width:1.5;}
+.bm-region.selected:hover{opacity:1;}
+
+/* Priority legend */
+.bm-legend{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;justify-content:center;}
+.bm-legend-item{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);}
+.bm-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* Selected region label */
+.bm-selected-label{text-align:center;margin-top:10px;font-size:11px;font-weight:500;color:var(--jade);min-height:18px;transition:opacity .2s;}
+
+/* ── RIGHT PANEL ────────────────────────────────── */
+.bm-panel{display:flex;flex-direction:column;gap:12px;}
+
+/* Query input */
+.bm-query-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:16px;}
+.bm-card-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;}
+.bm-query-input{width:100%;background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;padding:11px 13px;font-size:13px;font-weight:300;color:var(--dk-1);font-family:var(--sans);resize:none;outline:none;box-sizing:border-box;line-height:1.5;transition:border-color .12s;}
+.bm-query-input:focus{border-color:rgba(0,200,160,.3);}
+.bm-query-input::placeholder{color:var(--dk-3);}
+
+/* Sensation chips */
+.bm-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.bm-chip{padding:5px 11px;border-radius:14px;border:1px solid var(--bd);background:transparent;font-size:10px;font-weight:500;color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all .1s;white-space:nowrap;}
+.bm-chip:hover{border-color:rgba(255,255,255,.1);color:var(--dk-2);}
+.bm-chip.sel{background:rgba(0,200,160,.07);border-color:var(--jade-br);color:var(--jade);}
+
+/* Submit button */
+.bm-submit-btn{width:100%;background:var(--jade);border:none;color:var(--ink);padding:12px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .12s;}
+.bm-submit-btn:hover{opacity:.88;}
+.bm-submit-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* Focus mode summary */
+.bm-focus-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:16px;}
+.bm-focus-zone{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .1s;}
+.bm-focus-zone:last-child{border-bottom:none;}
+.bm-focus-zone:hover{background:rgba(255,255,255,.01);margin:0 -4px;padding-left:4px;padding-right:4px;border-radius:5px;}
+.bm-fz-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.bm-fz-name{font-size:12px;font-weight:500;color:var(--dk-1);flex:1;}
+.bm-fz-reason{font-size:10px;font-weight:300;color:var(--dk-3);line-height:1.4;}
+.bm-fz-pri{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:8px;flex-shrink:0;}
+.bm-fz-pri.high{background:rgba(217,78,53,.12);color:#d94e35;border:1px solid rgba(217,78,53,.25);}
+.bm-fz-pri.mid{background:rgba(196,124,24,.1);color:var(--amber);border:1px solid rgba(196,124,24,.25);}
+.bm-fz-pri.low{background:rgba(0,168,114,.08);color:var(--green);border:1px solid rgba(0,168,114,.2);}
+
+/* ── RESULT PANEL ───────────────────────────────── */
+.bm-result{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-top:20px;}
+.bm-result-header{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.bm-result-region{font-family:var(--serif);font-size:26px;font-weight:300;color:var(--dk-1);line-height:1.1;}
+.bm-result-sensation{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:10px;background:rgba(0,200,160,.07);border:1px solid var(--jade-br);color:var(--jade);margin-top:5px;display:inline-block;}
+.bm-result-disclaimer{font-size:9px;font-weight:300;color:var(--dk-3);font-style:italic;line-height:1.5;max-width:200px;text-align:right;}
+
+.bm-result-body{padding:20px;}
+.bm-result-section{margin-bottom:18px;}
+.bm-result-section:last-child{margin-bottom:0;}
+.bm-result-sec-label{font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
+.bm-result-text{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;}
+.bm-result-text.serif{font-family:var(--serif);font-size:15px;color:var(--dk-1);line-height:1.85;}
+
+/* Warning box */
+.bm-warning{background:rgba(217,78,53,.06);border:1px solid rgba(217,78,53,.2);border-radius:8px;padding:12px 14px;margin-top:14px;}
+.bm-warning-label{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#d94e35;margin-bottom:5px;}
+.bm-warning-text{font-size:11px;font-weight:300;color:rgba(232,220,210,.7);line-height:1.65;}
+
+/* Action tags */
+.bm-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.bm-action-tag{padding:5px 12px;border-radius:12px;font-size:10px;font-weight:600;border:1px solid var(--bd);color:var(--dk-2);background:var(--ink-2);}
+.bm-action-tag.do{border-color:var(--jade-br);color:var(--jade);background:var(--jade-dim);}
+.bm-action-tag.avoid{border-color:rgba(217,78,53,.25);color:#d94e35;background:rgba(217,78,53,.06);}
+.bm-action-tag.monitor{border-color:rgba(196,124,24,.25);color:var(--amber);background:rgba(196,124,24,.06);}
+
+/* Loading */
+.bm-loading{padding:32px 20px;display:flex;align-items:center;gap:12px;color:var(--dk-3);font-size:12px;font-weight:300;}
+.bm-spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.08);border-top-color:var(--jade);animation:bmspin .7s linear infinite;flex-shrink:0;}
+@keyframes bmspin{to{transform:rotate(360deg)}}
+
+/* Proactive focus result */
+.bm-focus-result{background:var(--ink-1);border:1px solid rgba(196,124,24,.2);border-radius:10px;padding:20px;margin-top:20px;}
+.bm-focus-result-title{font-family:var(--serif);font-size:22px;font-weight:300;color:var(--dk-1);margin-bottom:14px;}
+.bm-focus-zone-detail{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--bd);}
+.bm-focus-zone-detail:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.bm-fzd-name{font-size:13px;font-weight:600;color:var(--dk-1);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.bm-fzd-text{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;}
+</style>
+</head>
+<body>
+<script src="nav.js"></script>
+
+<div class="bm-page">
+  <div class="bm-hero">
+    <div class="bm-kicker">Premium Feature</div>
+    <div class="bm-title">Body<br><em>Mapper.</em></div>
+    <div class="bm-sub">Translate what you feel into body intelligence. Query a sensation or let your profile reveal which areas deserve more attention.</div>
+    <div class="bm-mode-bar">
+      <button class="bm-mode-btn active query" id="btn-query" onclick="setMode('query')">⚡ Query — I feel something</button>
+      <button class="bm-mode-btn focus" id="btn-focus" onclick="setMode('focus')">◎ Focus — Where to pay attention</button>
+    </div>
+  </div>
+
+  <div class="bm-layout">
+    <!-- LEFT: Body map -->
+    <div class="bm-map-section">
+      <div class="bm-map-header">
+        <div class="bm-map-title" id="map-mode-label">Tap a region — front view</div>
+        <div class="bm-view-toggle">
+          <button class="bm-view-btn active" id="btn-front" onclick="setView('front')">Front</button>
+          <button class="bm-view-btn" id="btn-back" onclick="setView('back')">Back</button>
+        </div>
+      </div>
+      <div class="bm-map-wrap">
+        <div id="body-svg-container"></div>
+      </div>
+      <div class="bm-selected-label" id="selected-label"></div>
+      <div class="bm-legend" id="bm-legend">
+        <div class="bm-legend-item"><div class="bm-legend-dot" style="background:#d94e35;"></div>High priority</div>
+        <div class="bm-legend-item"><div class="bm-legend-dot" style="background:var(--amber);"></div>Watch area</div>
+        <div class="bm-legend-item"><div class="bm-legend-dot" style="background:var(--green);"></div>Stable</div>
+        <div class="bm-legend-item"><div class="bm-legend-dot" style="background:var(--jade);"></div>Selected</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Panel -->
+    <div class="bm-panel" id="bm-panel"></div>
+  </div>
+
+  <!-- Result area -->
+  <div id="bm-result-area"></div>
+</div>
+
+<script>
+var API   = '/api/chat';
+var MODEL = 'claude-sonnet-4-20250514';
+
+function getProfile(){ try{ return JSON.parse(localStorage.getItem('bl_profile')||'null'); }catch(e){ return null; } }
+
+var BM = {
+  mode:     'query',   // 'query' | 'focus'
+  view:     'front',   // 'front' | 'back'
+  selected: null,      // {id, label, regionKey}
+  sensation: [],       // selected sensation chips
+  context:   [],       // selected context chips
+  queryText: '',
+  priorities: null,    // computed from profile
+};
+
+// ── BODY REGION DATA ──────────────────────────────────
+// Each region: id, label, front/back view, SVG path, priority class
+var REGIONS_FRONT = [
+  { id:'head',          label:'Head / Neck',         path:'M115,18 Q115,8 125,8 Q135,8 135,18 L135,32 Q135,40 125,40 Q115,40 115,32 Z',          priority:'neutral' },
+  { id:'neck',          label:'Neck',                 path:'M120,40 L120,52 L130,52 L130,40 Z',                                                    priority:'neutral' },
+  { id:'left-shoulder', label:'Left Shoulder',        path:'M80,55 Q68,55 65,65 Q63,75 70,80 L85,78 L88,58 Z',                                     priority:'neutral' },
+  { id:'right-shoulder',label:'Right Shoulder',       path:'M170,55 Q182,55 185,65 Q187,75 180,80 L165,78 L162,58 Z',                              priority:'neutral' },
+  { id:'left-chest',    label:'Left Chest / Pec',     path:'M88,58 L88,78 L115,80 L118,58 Z',                                                      priority:'neutral' },
+  { id:'right-chest',   label:'Right Chest / Pec',    path:'M162,58 L162,78 L135,80 L132,58 Z',                                                    priority:'neutral' },
+  { id:'upper-abs',     label:'Upper Abdomen',        path:'M105,80 L105,100 L145,100 L145,80 Z',                                                   priority:'neutral' },
+  { id:'lower-abs',     label:'Lower Abdomen / Core', path:'M105,100 L105,128 L145,128 L145,100 Z',                                                 priority:'neutral' },
+  { id:'left-hip',      label:'Left Hip / Groin',     path:'M85,128 L85,155 L115,155 L115,128 Z',                                                   priority:'neutral' },
+  { id:'right-hip',     label:'Right Hip / Groin',    path:'M135,128 L135,155 L165,155 L165,128 Z',                                                 priority:'neutral' },
+  { id:'left-upper-arm',label:'Left Upper Arm',       path:'M68,80 Q62,80 60,92 L62,118 L80,118 L85,90 Z',                                         priority:'neutral' },
+  { id:'right-upper-arm',label:'Right Upper Arm',     path:'M182,80 Q188,80 190,92 L188,118 L170,118 L165,90 Z',                                   priority:'neutral' },
+  { id:'left-elbow',    label:'Left Elbow',           path:'M60,118 L55,130 L68,130 L78,118 Z',                                                    priority:'neutral' },
+  { id:'right-elbow',   label:'Right Elbow',          path:'M190,118 L195,130 L182,130 L172,118 Z',                                                priority:'neutral' },
+  { id:'left-forearm',  label:'Left Forearm',         path:'M55,130 L50,160 L68,162 L75,130 Z',                                                    priority:'neutral' },
+  { id:'right-forearm', label:'Right Forearm',        path:'M195,130 L200,160 L182,162 L175,130 Z',                                                priority:'neutral' },
+  { id:'left-quad',     label:'Left Quadriceps',      path:'M85,155 L82,210 L112,210 L115,155 Z',                                                   priority:'neutral' },
+  { id:'right-quad',    label:'Right Quadriceps',     path:'M135,155 L138,210 L168,210 L165,155 Z',                                                 priority:'neutral' },
+  { id:'left-knee',     label:'Left Knee',            path:'M83,210 L80,228 L112,228 L113,210 Z',                                                   priority:'neutral' },
+  { id:'right-knee',    label:'Right Knee',           path:'M137,210 L140,228 L168,228 L167,210 Z',                                                 priority:'neutral' },
+  { id:'left-shin',     label:'Left Shin / Calf',     path:'M82,228 L79,272 L108,272 L112,228 Z',                                                   priority:'neutral' },
+  { id:'right-shin',    label:'Right Shin / Calf',    path:'M138,228 L142,272 L171,272 L168,228 Z',                                                 priority:'neutral' },
+  { id:'left-ankle',    label:'Left Ankle / Foot',    path:'M80,272 L78,285 L108,285 L108,272 Z',                                                   priority:'neutral' },
+  { id:'right-ankle',   label:'Right Ankle / Foot',   path:'M142,272 L142,285 L172,285 L170,272 Z',                                                priority:'neutral' },
+];
+
+var REGIONS_BACK = [
+  { id:'b-head',        label:'Back of Head / Skull', path:'M115,18 Q115,8 125,8 Q135,8 135,18 L135,32 Q135,40 125,40 Q115,40 115,32 Z',           priority:'neutral' },
+  { id:'b-neck',        label:'Neck / Cervical',      path:'M120,40 L120,52 L130,52 L130,40 Z',                                                    priority:'neutral' },
+  { id:'b-left-trap',   label:'Left Trapezius',       path:'M82,52 L82,78 L115,74 L118,52 Z',                                                      priority:'neutral' },
+  { id:'b-right-trap',  label:'Right Trapezius',      path:'M168,52 L168,78 L135,74 L132,52 Z',                                                    priority:'neutral' },
+  { id:'b-left-shoulder',label:'Left Rear Shoulder',  path:'M70,55 Q60,55 58,68 Q57,78 65,82 L82,78 L82,55 Z',                                     priority:'neutral' },
+  { id:'b-right-shoulder',label:'Right Rear Shoulder',path:'M180,55 Q190,55 192,68 Q193,78 185,82 L168,78 L168,55 Z',                             priority:'neutral' },
+  { id:'b-upper-back',  label:'Upper Back / Thoracic',path:'M88,74 L88,105 L162,105 L162,74 Z',                                                    priority:'neutral' },
+  { id:'b-lower-back',  label:'Lower Back / Lumbar',  path:'M92,105 L92,130 L158,130 L158,105 Z',                                                  priority:'neutral' },
+  { id:'b-left-glute',  label:'Left Glute',           path:'M88,130 L86,158 L118,158 L118,130 Z',                                                   priority:'neutral' },
+  { id:'b-right-glute', label:'Right Glute',          path:'M132,130 L132,158 L164,158 L162,130 Z',                                                 priority:'neutral' },
+  { id:'b-left-lat',    label:'Left Lat / Side',      path:'M70,78 L65,115 L90,110 L90,78 Z',                                                      priority:'neutral' },
+  { id:'b-right-lat',   label:'Right Lat / Side',     path:'M180,78 L185,115 L160,110 L160,78 Z',                                                  priority:'neutral' },
+  { id:'b-left-tri',    label:'Left Tricep',          path:'M65,82 L60,115 L78,115 L82,82 Z',                                                      priority:'neutral' },
+  { id:'b-right-tri',   label:'Right Tricep',         path:'M185,82 L190,115 L172,115 L168,82 Z',                                                  priority:'neutral' },
+  { id:'b-left-ham',    label:'Left Hamstring',       path:'M88,158 L85,210 L118,210 L118,158 Z',                                                   priority:'neutral' },
+  { id:'b-right-ham',   label:'Right Hamstring',      path:'M132,158 L132,210 L165,210 L162,158 Z',                                                 priority:'neutral' },
+  { id:'b-left-knee',   label:'Back of Left Knee',    path:'M86,210 L83,228 L118,228 L118,210 Z',                                                   priority:'neutral' },
+  { id:'b-right-knee',  label:'Back of Right Knee',   path:'M132,210 L132,228 L167,228 L164,210 Z',                                                 priority:'neutral' },
+  { id:'b-left-calf',   label:'Left Calf',            path:'M84,228 L80,272 L112,272 L116,228 Z',                                                   priority:'neutral' },
+  { id:'b-right-calf',  label:'Right Calf',           path:'M116,228 L118,272 L150,272 L166,228 Z',                                                 priority:'neutral' },
+  { id:'b-left-achilles',label:'Left Achilles / Heel',path:'M81,272 L80,285 L108,285 L109,272 Z',                                                  priority:'neutral' },
+  { id:'b-right-achilles',label:'Right Achilles / Heel',path:'M141,272 L141,285 L169,285 L168,272 Z',                                              priority:'neutral' },
+];
+
+// Body outline silhouette paths (non-interactive, just shape)
+var BODY_OUTLINE_FRONT = 'M125,5 Q140,5 142,20 L142,35 Q148,38 155,50 L182,52 Q195,55 195,68 Q195,80 182,82 L170,120 L200,158 L202,175 L175,280 L168,285 L140,285 L138,272 L135,155 L125,128 L115,155 L112,272 L110,285 L82,285 L75,280 L50,175 L52,158 L80,120 L68,82 Q55,80 55,68 Q55,55 68,52 L95,50 L102,38 L108,35 L108,20 Q110,5 125,5 Z';
+var BODY_OUTLINE_BACK  = 'M125,5 Q140,5 142,20 L142,35 Q150,38 160,50 L185,52 Q195,55 195,68 Q195,80 185,82 L172,120 L200,158 L202,175 L175,280 L168,285 L142,285 L139,272 L135,155 L125,128 L115,155 L111,272 L108,285 L82,285 L75,280 L48,175 L50,158 L78,120 L65,82 Q55,80 55,68 Q55,55 65,52 L90,50 L100,38 L108,35 L108,20 Q110,5 125,5 Z';
+
+// ── SENSATION & CONTEXT OPTIONS ───────────────────────
+var SENSATIONS = ['Dull ache','Sharp pain','Tightness','Pulling','Burning','Numbness','Stiffness','Soreness','Pressure','Weakness','Instability','Clicking'];
+var CONTEXTS   = ['After sitting','After lifting','During movement','After running','In the morning','After travel','During sleep','After stairs','At rest'];
+
+// ── PROFILE-BASED PRIORITY MAPPING ────────────────────
+function computePriorities(p) {
+  if (!p) return {};
+  var priorities = {};
+  var age  = p.age || 35;
+  var isMale = (p.sex||'').toLowerCase() !== 'female';
+  var training = (p.weekPlan||[]).filter(function(d){ return d.priority === 'training'; }).length;
+  var types = (p.weekPlan||[]).map(function(d){ return (d.type||'').toLowerCase(); });
+  var hasPull = types.some(function(t){ return t.includes('pull'); });
+  var hasPush = types.some(function(t){ return t.includes('push'); });
+  var hasLower = types.some(function(t){ return t.includes('posterior') || t.includes('leg') || t.includes('lower'); });
+  var injuries = (p.injuryAssessments||p.injuries||[]).map(function(i){ return (i.location||i||'').toLowerCase(); });
+  var fatStorage = (p.fatStorage||'').toLowerCase();
+  var activity  = (p.activityLevel||'').toLowerCase();
+  var isSedentary = activity.includes('sedent') || activity.includes('desk') || activity.includes('sitting');
+
+  // Lower back — almost universal for 40+ male desk workers with posterior chain loading
+  if (age >= 35 || isSedentary || hasLower) {
+    priorities['b-lower-back'] = age >= 40 ? 'high' : 'mid';
+    priorities['lower-abs']    = 'mid';
+  }
+
+  // Hips — 40+ male, posterior chain, glute weakness
+  if (age >= 38 || hasLower) {
+    priorities['b-left-glute']  = age >= 42 ? 'high' : 'mid';
+    priorities['b-right-glute'] = age >= 42 ? 'high' : 'mid';
+    priorities['left-hip']      = 'mid';
+    priorities['right-hip']     = 'mid';
+  }
+
+  // Thoracic / upper back — push training, desk work, 40+
+  if (hasPush || age >= 38) {
+    priorities['b-upper-back']    = 'mid';
+    priorities['b-left-trap']     = age >= 40 ? 'mid' : 'low';
+    priorities['b-right-trap']    = age >= 40 ? 'mid' : 'low';
+  }
+
+  // Shoulders — push + pull training
+  if (hasPush || hasPull) {
+    priorities['left-shoulder']    = 'mid';
+    priorities['right-shoulder']   = 'mid';
+    priorities['b-left-shoulder']  = hasPush ? 'mid' : 'low';
+    priorities['b-right-shoulder'] = hasPush ? 'mid' : 'low';
+  }
+
+  // Hamstrings — posterior chain, 40+, sitting
+  if (hasLower || age >= 40) {
+    priorities['b-left-ham']  = 'mid';
+    priorities['b-right-ham'] = 'mid';
+  }
+
+  // Knees — 40+, lower body training
+  if (age >= 40 || hasLower) {
+    priorities['left-knee']  = age >= 42 ? 'mid' : 'low';
+    priorities['right-knee'] = age >= 42 ? 'mid' : 'low';
+    priorities['b-left-knee']  = 'low';
+    priorities['b-right-knee'] = 'low';
+  }
+
+  // Neck / cervical — desk work, pull training
+  if (hasPull || isSedentary || age >= 40) {
+    priorities['neck']   = 'mid';
+    priorities['b-neck'] = 'mid';
+  }
+
+  // Calves / achilles — posterior chain, running age-related
+  if (age >= 40 || hasLower) {
+    priorities['b-left-calf']      = 'low';
+    priorities['b-right-calf']     = 'low';
+    priorities['b-left-achilles']  = 'low';
+    priorities['b-right-achilles'] = 'low';
+  }
+
+  // Apply known injury history
+  injuries.forEach(function(loc) {
+    var key = loc.replace(/\s+/g, '-');
+    REGIONS_FRONT.concat(REGIONS_BACK).forEach(function(r) {
+      if (r.id.includes(key) || r.label.toLowerCase().includes(loc)) {
+        priorities[r.id] = 'high';
+      }
+    });
+  });
+
+  return priorities;
+}
+
+function priorityClass(pri) {
+  if (pri === 'high') return 'pri-high';
+  if (pri === 'mid')  return 'pri-mid';
+  if (pri === 'low')  return 'pri-low';
+  return 'neutral';
+}
+
+// ── SVG BODY MAP ──────────────────────────────────────
+function buildSVG(view) {
+  var regions  = view === 'front' ? REGIONS_FRONT : REGIONS_BACK;
+  var outline  = view === 'front' ? BODY_OUTLINE_FRONT : BODY_OUTLINE_BACK;
+  var pri = BM.priorities || {};
+
+  var pathsHtml = regions.map(function(r) {
+    var pClass = pri[r.id] ? priorityClass(pri[r.id]) : 'neutral';
+    var isSel  = BM.selected && BM.selected.id === r.id;
+    if (isSel) pClass = 'selected';
+    return '<path class="bm-region ' + pClass + '" data-id="' + r.id + '" data-label="' + r.label + '" d="' + r.path + '" onclick="selectRegion(\'' + r.id + '\',\'' + r.label.replace(/'/g,"\\'") + '\')">'
+      + '<title>' + r.label + '</title>'
+    + '</path>';
+  }).join('');
+
+  return '<svg class="bm-body-svg" viewBox="0 0 250 295" xmlns="http://www.w3.org/2000/svg">'
+    + '<defs>'
+      + '<filter id="bm-glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+    + '</defs>'
+    // Body outline silhouette
+    + '<path d="' + outline + '" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.08)" stroke-width="1"/>'
+    // Region overlays
+    + pathsHtml
+    // Centre line (subtle)
+    + '<line x1="125" y1="40" x2="125" y2="275" stroke="rgba(255,255,255,.04)" stroke-width=".5" stroke-dasharray="3 4"/>'
+  + '</svg>';
+}
+
+function renderMap() {
+  var container = document.getElementById('body-svg-container');
+  if (!container) return;
+  container.innerHTML = buildSVG(BM.view);
+  updateSelectedLabel();
+}
+
+function selectRegion(id, label) {
+  BM.selected = {id: id, label: label};
+  renderMap();
+  updateSelectedLabel();
+  if (BM.mode === 'query') {
+    updateSubmitBtn();
+  } else {
+    showFocusDetail(id, label);
+  }
+}
+
+function updateSelectedLabel() {
+  var el = document.getElementById('selected-label');
+  if (!el) return;
+  el.textContent = BM.selected ? '→ ' + BM.selected.label : '';
+}
+
+// ── MODE SWITCHING ────────────────────────────────────
+function setMode(mode) {
+  BM.mode = mode;
+  BM.selected = null;
+  document.getElementById('btn-query').classList.toggle('active', mode === 'query');
+  document.getElementById('btn-query').classList.toggle('query', mode === 'query');
+  document.getElementById('btn-focus').classList.toggle('active', mode === 'focus');
+  document.getElementById('btn-focus').classList.toggle('focus', mode === 'focus');
+  var mapLabel = document.getElementById('map-mode-label');
+  if (mapLabel) mapLabel.textContent = mode === 'query' ? 'Tap where you feel it' : 'Priority zones from your profile';
+  renderMap();
+  renderPanel();
+  document.getElementById('bm-result-area').innerHTML = '';
+}
+
+function setView(view) {
+  BM.view = view;
+  BM.selected = null;
+  document.getElementById('btn-front').classList.toggle('active', view === 'front');
+  document.getElementById('btn-back').classList.toggle('active', view === 'back');
+  renderMap();
+  updateSelectedLabel();
+}
+
+// ── PANEL RENDERING ───────────────────────────────────
+function renderPanel() {
+  var panel = document.getElementById('bm-panel');
+  if (!panel) return;
+
+  if (BM.mode === 'query') {
+    renderQueryPanel(panel);
+  } else {
+    renderFocusPanel(panel);
+  }
+}
+
+function renderQueryPanel(panel) {
+  var html =
+    '<div class="bm-query-card">'
+      + '<div class="bm-card-label">What are you feeling?</div>'
+      + '<textarea class="bm-query-input" id="bm-query-inp" rows="3" placeholder="Describe in plain language — e.g. \'tight on the right side when I rotate\', \'dull ache that gets worse after sitting\'…">' + BM.queryText + '</textarea>'
+      + '<div class="bm-card-label" style="margin-top:12px;">Sensation type</div>'
+      + '<div class="bm-chips">'
+        + SENSATIONS.map(function(s){ return '<button class="bm-chip' + (BM.sensation.indexOf(s)>=0?' sel':'') + '" onclick="toggleChip(\'sensation\',\'' + s + '\',this)">' + s + '</button>'; }).join('')
+      + '</div>'
+      + '<div class="bm-card-label" style="margin-top:12px;">Context</div>'
+      + '<div class="bm-chips">'
+        + CONTEXTS.map(function(s){ return '<button class="bm-chip' + (BM.context.indexOf(s)>=0?' sel':'') + '" onclick="toggleChip(\'context\',\'' + s + '\',this)">' + s + '</button>'; }).join('')
+      + '</div>'
+    + '</div>'
+    + '<button class="bm-submit-btn" id="bm-submit" onclick="submitQuery()" disabled>'
+        + '<span>Interpret this →</span>'
+    + '</button>';
+  panel.innerHTML = html;
+
+  var inp = document.getElementById('bm-query-inp');
+  if (inp) {
+    inp.addEventListener('input', function() { BM.queryText = this.value; updateSubmitBtn(); });
+  }
+  updateSubmitBtn();
+}
+
+function renderFocusPanel(panel) {
+  var p = getProfile();
+  var pri = BM.priorities || {};
+
+  // Build prioritised list
+  var zones = [];
+  var ZONE_META = {
+    'b-lower-back':   { name:'Lower back',          reason:'Posterior chain loading + age-related lumbar compression risk' },
+    'b-left-glute':   { name:'Left Glute',           reason:'Glute inhibition common with desk-seated lifestyle at 40+' },
+    'b-right-glute':  { name:'Right Glute',          reason:'Glute inhibition common with desk-seated lifestyle at 40+' },
+    'b-upper-back':   { name:'Thoracic spine',       reason:'Push training + forward posture risk from desk work' },
+    'left-shoulder':  { name:'Left Shoulder',        reason:'Push + Pull volume increases anterior capsule load' },
+    'right-shoulder': { name:'Right Shoulder',       reason:'Push + Pull volume increases anterior capsule load' },
+    'b-left-ham':     { name:'Left Hamstrings',      reason:'Posterior chain focus + prolonged hip flexion from sitting' },
+    'b-right-ham':    { name:'Right Hamstrings',     reason:'Posterior chain focus + prolonged hip flexion from sitting' },
+    'neck':           { name:'Neck / Cervical',      reason:'Pull training + forward head posture at desk' },
+    'left-knee':      { name:'Left Knee',            reason:'40+ joint resilience monitoring recommended' },
+    'right-knee':     { name:'Right Knee',           reason:'40+ joint resilience monitoring recommended' },
+    'left-hip':       { name:'Left Hip',             reason:'Hip flexor tension from training + sitting pattern' },
+    'right-hip':      { name:'Right Hip',            reason:'Hip flexor tension from training + sitting pattern' },
+    'b-left-calf':    { name:'Left Calf',            reason:'Posterior chain loading + ankle mobility at 40+' },
+    'b-right-calf':   { name:'Right Calf',           reason:'Posterior chain loading + ankle mobility at 40+' },
+  };
+
+  Object.keys(pri).forEach(function(id) {
+    if (ZONE_META[id]) zones.push({ id: id, priority: pri[id], meta: ZONE_META[id] });
+  });
+
+  // Sort: high > mid > low
+  var order = { high:0, mid:1, low:2 };
+  zones.sort(function(a,b){ return (order[a.priority]||3) - (order[b.priority]||3); });
+
+  // Dedupe similar zones
+  var seen = {};
+  zones = zones.filter(function(z) {
+    var base = z.meta.name.replace(/Left |Right /,'');
+    if (seen[base]) return false;
+    seen[base] = true;
+    return true;
+  });
+
+  var html = '<div class="bm-focus-card">'
+    + '<div class="bm-card-label">Your priority zones — tap to explore</div>';
+
+  zones.slice(0, 8).forEach(function(z) {
+    var col = z.priority === 'high' ? '#d94e35' : z.priority === 'mid' ? 'var(--amber)' : 'var(--green)';
+    html += '<div class="bm-focus-zone" onclick="showFocusDetail(\'' + z.id + '\',\'' + z.meta.name + '\')">'
+      + '<div class="bm-fz-dot" style="background:' + col + ';"></div>'
+      + '<div style="flex:1;">'
+        + '<div class="bm-fz-name">' + z.meta.name + '</div>'
+        + '<div class="bm-fz-reason">' + z.meta.reason + '</div>'
+      + '</div>'
+      + '<div class="bm-fz-pri ' + z.priority + '">' + z.priority + '</div>'
+    + '</div>';
+  });
+
+  html += '<button class="bm-submit-btn" style="margin-top:12px;" onclick="generateFocusReport()">'
+    + '<span>Generate full body focus report →</span>'
+  + '</button>';
+  html += '</div>';
+
+  panel.innerHTML = html;
+}
+
+function toggleChip(type, val, btn) {
+  var arr = type === 'sensation' ? BM.sensation : BM.context;
+  var idx = arr.indexOf(val);
+  if (idx >= 0) { arr.splice(idx, 1); btn.classList.remove('sel'); }
+  else           { arr.push(val);     btn.classList.add('sel'); }
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn() {
+  var btn = document.getElementById('bm-submit');
+  if (!btn) return;
+  var hasRegion = !!BM.selected;
+  var hasInput  = (BM.queryText && BM.queryText.trim().length > 0) || BM.sensation.length > 0;
+  btn.disabled = !(hasRegion || hasInput);
+}
+
+// ── AI QUERY ──────────────────────────────────────────
+async function submitQuery() {
+  var p = getProfile();
+  var ra = document.getElementById('bm-result-area');
+  ra.innerHTML = '<div class="bm-result"><div class="bm-loading"><div class="bm-spin"></div>Interpreting your body signal…</div></div>';
+  ra.scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+  var regionLabel = BM.selected ? BM.selected.label : 'unspecified area';
+  var sensation   = BM.sensation.length ? BM.sensation.join(', ') : 'not specified';
+  var context     = BM.context.length   ? BM.context.join(', ')   : 'not specified';
+  var queryText   = BM.queryText.trim() || '';
+
+  var profileCtx = p ? [
+    p.name + ', ' + p.age + 'yo ' + (p.sex||'male') + ', ' + p.weight + 'kg',
+    'Goal: ' + (p.goal||'recomposition'),
+    'Training: ' + ((p.weekPlan||[]).filter(function(d){return d.priority==='training';}).length) + ' days/week — ' + ((p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join(', ')),
+    'Injuries: ' + ((p.injuryAssessments||p.injuries||[]).map(function(i){return i.location||i;}).join(', ')||'none reported'),
+    'Activity: ' + (p.activityLevel||'active'),
+    'Fat storage: ' + (p.fatStorage||'not specified'),
+  ].join(' | ') : 'No profile';
+
+  // Get recent training context
+  var recentTraining = '';
+  try {
+    var log = JSON.parse(localStorage.getItem('bl_daylog_' + new Date().toISOString().slice(0,10))||'{}');
+    if (log.trainStatus) recentTraining = 'Today: ' + log.trainStatus + ' session.';
+  } catch(e) {}
+
+  var prompt =
+    'You are a sports science and movement specialist providing body intelligence guidance.\n\n'
+    + 'USER PROFILE: ' + profileCtx + '\n'
+    + (recentTraining ? 'RECENT: ' + recentTraining + '\n' : '')
+    + '\nUSER QUERY:\n'
+    + 'Body area: ' + regionLabel + '\n'
+    + 'Description: ' + (queryText || '(not provided)') + '\n'
+    + 'Sensation: ' + sensation + '\n'
+    + 'Context: ' + context + '\n\n'
+    + 'Provide a structured body intelligence response. Return ONLY valid JSON:\n'
+    + '{\n'
+    + '  "anatomical_area": "specific anatomical name",\n'
+    + '  "likely_pattern": "2-3 sentences on likely muscle/joint/tissue pattern",\n'
+    + '  "contributing_factors": "2-3 specific factors relevant to this user",\n'
+    + '  "immediate_suggestions": ["action 1", "action 2", "action 3"],\n'
+    + '  "avoid": ["thing to avoid 1", "thing to avoid 2"],\n'
+    + '  "monitor": ["sign to watch 1", "sign to watch 2"],\n'
+    + '  "training_note": "1-2 sentences on training implications for this specific user",\n'
+    + '  "coach_insight": "One direct, specific sentence connecting this to their training pattern",\n'
+    + '  "seek_medical": "specific clear warning signs that warrant professional assessment"\n'
+    + '}\n\n'
+    + 'Be specific to this user\'s age, training type, and context. No generic advice. Not a diagnosis — frame as pattern recognition and guidance.';
+
+  try {
+    var res = await fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:MODEL, max_tokens:800,
+        system: 'Sports science and movement specialist. Return ONLY valid JSON. No markdown.',
+        messages: [{role:'user', content:prompt}]
+      })
+    });
+    var data = await res.json();
+    var text = (data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('no json');
+    var result = JSON.parse(match[0]);
+    renderQueryResult(result, regionLabel, sensation);
+  } catch(e) {
+    ra.innerHTML = '<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not interpret — <button onclick="submitQuery()" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
+  }
+}
+
+function renderQueryResult(r, region, sensation) {
+  var ra = document.getElementById('bm-result-area');
+  var html =
+    '<div class="bm-result">'
+      + '<div class="bm-result-header">'
+        + '<div>'
+          + '<div class="bm-result-region">' + (r.anatomical_area || region) + '</div>'
+          + (sensation !== 'not specified' ? '<div class="bm-result-sensation">' + sensation + '</div>' : '')
+        + '</div>'
+        + '<div class="bm-result-disclaimer">Pattern recognition, not diagnosis. See a clinician for persistent or worsening symptoms.</div>'
+      + '</div>'
+      + '<div class="bm-result-body">'
+
+        + '<div class="bm-result-section">'
+          + '<div class="bm-result-sec-label">Coach insight</div>'
+          + '<div class="bm-result-text serif">' + (r.coach_insight||'') + '</div>'
+        + '</div>'
+
+        + '<div class="bm-result-section">'
+          + '<div class="bm-result-sec-label">Likely pattern</div>'
+          + '<div class="bm-result-text">' + (r.likely_pattern||'') + '</div>'
+        + '</div>'
+
+        + '<div class="bm-result-section">'
+          + '<div class="bm-result-sec-label">Contributing factors</div>'
+          + '<div class="bm-result-text">' + (r.contributing_factors||'') + '</div>'
+        + '</div>'
+
+        + '<div class="bm-result-section">'
+          + '<div class="bm-result-sec-label">Training note</div>'
+          + '<div class="bm-result-text">' + (r.training_note||'') + '</div>'
+        + '</div>'
+
+        + '<div class="bm-result-section">'
+          + '<div class="bm-result-sec-label">What to do</div>'
+          + '<div class="bm-actions">'
+            + (r.immediate_suggestions||[]).map(function(s){ return '<span class="bm-action-tag do">✓ ' + s + '</span>'; }).join('')
+          + '</div>'
+        + '</div>'
+
+        + '<div class="bm-result-section">'
+          + '<div class="bm-result-sec-label">Avoid</div>'
+          + '<div class="bm-actions">'
+            + (r.avoid||[]).map(function(s){ return '<span class="bm-action-tag avoid">✗ ' + s + '</span>'; }).join('')
+          + '</div>'
+        + '</div>'
+
+        + '<div class="bm-result-section">'
+          + '<div class="bm-result-sec-label">Monitor</div>'
+          + '<div class="bm-actions">'
+            + (r.monitor||[]).map(function(s){ return '<span class="bm-action-tag monitor">◎ ' + s + '</span>'; }).join('')
+          + '</div>'
+        + '</div>'
+
+        + '<div class="bm-warning">'
+          + '<div class="bm-warning-label">⚠ Seek medical assessment if</div>'
+          + '<div class="bm-warning-text">' + (r.seek_medical||'Pain is severe, worsening, or accompanied by neurological symptoms (numbness, tingling, weakness).') + '</div>'
+        + '</div>'
+
+      + '</div>'
+    + '</div>';
+  ra.innerHTML = html;
+  ra.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── FOCUS MODE ────────────────────────────────────────
+function showFocusDetail(id, label) {
+  BM.selected = {id: id, label: label};
+  renderMap();
+  generateFocusZoneDetail(id, label);
+}
+
+async function generateFocusZoneDetail(id, label) {
+  var ra = document.getElementById('bm-result-area');
+  ra.innerHTML = '<div class="bm-result"><div class="bm-loading"><div class="bm-spin"></div>Analysing ' + label + ' for your profile…</div></div>';
+  ra.scrollIntoView({behavior:'smooth', block:'nearest'});
+  var p = getProfile();
+  var pri = BM.priorities || {};
+  var zonePri = pri[id] || 'moderate';
+  var profileCtx = p ? p.name + ', ' + p.age + 'yo, ' + (p.sex||'male') + ', goal: ' + (p.goal||'recomposition') + ', training: ' + ((p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join('/')) : '';
+
+  var prompt = 'Sports science specialist. Give a proactive body focus briefing for: ' + label + '\n'
+    + 'User: ' + profileCtx + '\n'
+    + 'Priority level: ' + zonePri + '\n\n'
+    + 'Return ONLY valid JSON:\n'
+    + '{"why_matters":"2-3 sentences why this zone matters for this specific user","risk_drivers":["factor 1","factor 2","factor 3"],"mobility_work":["movement 1","movement 2"],"strength_work":["exercise 1","exercise 2"],"training_link":"how this connects to their current training split","one_action":"the single most important thing to do this week for this zone"}';
+
+  try {
+    var res = await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MODEL,max_tokens:500,system:'Sports science. Return ONLY valid JSON.',messages:[{role:'user',content:prompt}]})});
+    var data = await res.json();
+    var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var m=text.match(/\{[\s\S]*\}/);if(!m)throw new Error('no json');
+    var r=JSON.parse(m[0]);
+    var col = zonePri==='high'?'#d94e35':zonePri==='mid'?'var(--amber)':'var(--green)';
+    var priLabel = zonePri==='high'?'High priority':zonePri==='mid'?'Watch area':'Low priority';
+    ra.innerHTML = '<div class="bm-focus-result">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+        + '<div style="width:12px;height:12px;border-radius:50%;background:'+col+';flex-shrink:0;"></div>'
+        + '<div class="bm-focus-result-title" style="margin-bottom:0;">' + label + '</div>'
+        + '<div class="bm-fz-pri '+zonePri+'" style="margin-left:auto;">' + priLabel + '</div>'
+      + '</div>'
+      + '<div class="bm-result-sec-label">Why this matters for you</div>'
+      + '<div class="bm-result-text" style="margin-bottom:14px;">' + (r.why_matters||'') + '</div>'
+      + '<div class="bm-result-sec-label">Risk drivers</div>'
+      + '<div class="bm-actions" style="margin-bottom:14px;">'
+        + (r.risk_drivers||[]).map(function(s){return '<span class="bm-action-tag monitor">'+s+'</span>';}).join('')
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">'
+        + '<div><div class="bm-result-sec-label">Mobility work</div><div class="bm-actions" style="flex-direction:column;">'+(r.mobility_work||[]).map(function(s){return '<span class="bm-action-tag do">'+s+'</span>';}).join('')+'</div></div>'
+        + '<div><div class="bm-result-sec-label">Strength work</div><div class="bm-actions" style="flex-direction:column;">'+(r.strength_work||[]).map(function(s){return '<span class="bm-action-tag do">'+s+'</span>';}).join('')+'</div></div>'
+      + '</div>'
+      + '<div class="bm-result-sec-label">Training link</div>'
+      + '<div class="bm-result-text" style="margin-bottom:14px;">' + (r.training_link||'') + '</div>'
+      + '<div style="background:rgba(0,200,160,.04);border:1px solid var(--jade-br);border-radius:8px;padding:12px 14px;">'
+        + '<div class="bm-result-sec-label" style="color:var(--jade);">This week\'s priority action</div>'
+        + '<div class="bm-result-text serif" style="color:var(--dk-1);">' + (r.one_action||'') + '</div>'
+      + '</div>'
+    + '</div>';
+    ra.scrollIntoView({behavior:'smooth',block:'start'});
+  } catch(e) {
+    ra.innerHTML = '<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not load — <button onclick="generateFocusZoneDetail(\''+id+'\',\''+label+'\')" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
+  }
+}
+
+async function generateFocusReport() {
+  var ra = document.getElementById('bm-result-area');
+  ra.innerHTML = '<div class="bm-result"><div class="bm-loading"><div class="bm-spin"></div>Building your full body focus report…</div></div>';
+  ra.scrollIntoView({behavior:'smooth',block:'nearest'});
+  var p = getProfile();
+  var pri = BM.priorities || {};
+  var highZones = Object.keys(pri).filter(function(k){return pri[k]==='high';});
+  var midZones  = Object.keys(pri).filter(function(k){return pri[k]==='mid';});
+  var profileCtx = p ? p.name+', '+p.age+'yo '+(p.sex||'male')+', '+p.weight+'kg, goal:'+(p.goal||'recomposition')+', training:'+(p.trainingDays||4)+' days/week ('+(p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join('/')+')'  : 'no profile';
+  var zoneNames = function(ids) { var allR = REGIONS_FRONT.concat(REGIONS_BACK); return ids.map(function(id){ var r=allR.find(function(x){return x.id===id;}); return r?r.label:id; }).join(', '); };
+
+  var prompt = 'Body intelligence specialist. Write a personalised body focus report.\n'
+    + 'User: ' + profileCtx + '\n'
+    + 'High priority zones: ' + zoneNames(highZones) + '\n'
+    + 'Watch areas: ' + zoneNames(midZones.slice(0,5)) + '\n\n'
+    + 'Write a 3-paragraph report: 1. What the pattern shows about this user\'s body under their current training and lifestyle. 2. The highest-leverage areas to address and why they compound each other. 3. A concrete 4-week focus protocol — specific, actionable, integrated with their training split.\n\n'
+    + 'Tone: direct, specific, personal. Reference their actual training types. Not generic advice. This is a body intelligence briefing for a serious user.\n\n'
+    + 'Return plain prose, no JSON, no headers, no markdown. Under 250 words.';
+
+  try {
+    var res = await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MODEL,max_tokens:400,system:'Body intelligence specialist. Direct, specific, personal. Plain prose only.',messages:[{role:'user',content:prompt}]})});
+    var data=await res.json();
+    var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var paras=text.split(/\n+/).filter(Boolean);
+    ra.innerHTML='<div class="bm-focus-result">'
+      +'<div class="bm-focus-result-title">Your body focus report</div>'
+      +'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:14px;">Personalised to your profile · ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long'}) + '</div>'
+      +paras.map(function(p,i){return '<p style="font-family:var(--serif);font-size:15px;font-weight:300;color:'+(i===0?'var(--dk-1)':'var(--dk-2)')+';line-height:1.85;margin-bottom:14px;">'+p+'</p>';}).join('')
+    +'</div>';
+    ra.scrollIntoView({behavior:'smooth',block:'start'});
+  } catch(e) {
+    ra.innerHTML='<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not generate — <button onclick="generateFocusReport()" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
+  }
+}
+
+// ── BOOT ─────────────────────────────────────────────
+function init() {
+  var p = getProfile();
+  var nm = document.getElementById('nav-meta');
+  if (nm && p) nm.innerHTML = '<span class="nav-tag nt-jade">' + p.name + '</span>';
+
+  BM.priorities = computePriorities(p);
+  renderMap();
+  renderPanel();
+}
+
+init();
+</script>
+</body>
+</html>

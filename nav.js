@@ -12,6 +12,7 @@
     <a class="nav-link" href="/bodylens-science.html">Science</a>
     <a class="nav-link" href="/bodylens-supplements.html">Deep Stack</a>
     <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
+    <a class="nav-link" href="/bodylens-bodymapper.html">Body Mapper</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
     <a class="nav-link" href="/bodylens-checkin.html">Week</a>
     <a class="nav-link" href="/bodylens-podcast.html">Podcast</a>
@@ -44,6 +45,7 @@
   <div class="mm-section-label">Optimise</div>
   <a class="mm-link" href="/bodylens-accelerators.html">Accelerators</a>
   <a class="mm-link" href="/bodylens-supplements.html">Deep Stack</a>
+  <a class="mm-link" href="/bodylens-bodymapper.html">Body Mapper</a>
   <a class="mm-link" href="/bodylens-science.html">Science</a>
   <div class="mm-section-label">Programme</div>
   <a class="mm-link" href="/bodylens-programme.html">My programme</a>
