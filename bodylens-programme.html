@@ -230,6 +230,16 @@ body { background:var(--ink); color:var(--dk-1); }
 /* No profile */
 .no-profile { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center; padding:48px; gap:14px; }
 .no-profile h2 { font-family:var(--serif); font-size:30px; font-weight:300; }
+
+/* Preference chips */
+.prog-pref-chip {
+  padding:5px 12px; border-radius:14px;
+  border:1px solid var(--bd); background:var(--ink-2);
+  font-size:10px; font-weight:500; color:var(--dk-3);
+  cursor:pointer; font-family:var(--sans); transition:all .1s;
+}
+.prog-pref-chip:hover { border-color:rgba(255,255,255,.1); color:var(--dk-2); }
+.prog-pref-chip.active { background:rgba(196,124,24,.08); border-color:rgba(196,124,24,.3); color:var(--amber); }
 .no-profile p  { font-size:14px; font-weight:300; color:var(--dk-2); max-width:360px; line-height:1.7; }
 .no-profile a  { display:inline-block; padding:12px 28px; background:var(--jade); border-radius:6px; font-size:13px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink); text-decoration:none; }
 
@@ -367,11 +377,67 @@ function render(p) {
         ${(p.nonNegotiables||[]).length ? `<div class="prog-row"><span class="prog-row-label">Non-negotiables</span><span class="prog-row-val">${p.nonNegotiables.join(', ')}</span></div>` : ''}
       </div>
 
+      <!-- FOOD PREFERENCES CARD -->
+      <div class="prog-card amber" style="margin-top:12px;">
+        <div class="prog-card-head">
+          <div class="prog-card-title amber">Food preferences</div>
+          <div style="font-size:11px;font-weight:300;color:var(--dk-3);">Used by Meal Builder, Podcast, and weekly meal plans</div>
+        </div>
+        <div style="padding:14px 18px;display:flex;flex-direction:column;gap:14px;">
+
+          <!-- Cuisine prefs -->
+          <div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Cuisine preferences</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;" id="cuisine-chips">
+              ${['Mediterranean','Middle Eastern','Asian','Japanese','British','Mexican','Italian','American','Indian','Flexible'].map(c => {
+                const active = (p.cuisinePrefs||[]).includes(c);
+                return `<button class="prog-pref-chip${active?' active':''}" onclick="togglePref('cuisinePrefs','${c}',this)">${c}</button>`;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Recipe complexity -->
+          <div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Recipe complexity</div>
+            <div style="display:flex;gap:6px;">
+              ${['Simple (5 ingredients)','Standard (10 ingredients)','Complex (I enjoy cooking)'].map(c => {
+                const active = (p.recipeComplexity||'') === c;
+                return `<button class="prog-pref-chip${active?' active':''}" onclick="setSinglePref('recipeComplexity','${c}',this)">${c}</button>`;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Meal style -->
+          <div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Preferred meal styles</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${['Bowls','Trays / bakes','Salads','Wraps','Grills','Curries','Stir-fries','Soups','One-pan'].map(c => {
+                const active = (p.mealStyles||[]).includes(c);
+                return `<button class="prog-pref-chip${active?' active':''}" onclick="togglePref('mealStyles','${c}',this)">${c}</button>`;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Food exclusions -->
+          <div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Food exclusions / avoid</div>
+            <input type="text" id="food-excl-inp"
+              value="${(p.foodExclusions||[]).join(', ')}"
+              placeholder="e.g. shellfish, pork, gluten…"
+              style="width:100%;box-sizing:border-box;background:var(--ink-2);border:1px solid var(--bd);border-radius:6px;padding:8px 12px;font-size:12px;font-family:var(--sans);color:var(--dk-1);outline:none;transition:border-color .12s;"
+              onfocus="this.style.borderColor='rgba(196,124,24,.4)'"
+              onblur="this.style.borderColor='var(--bd)'"
+              onchange="saveFoodExclusions(this.value)">
+          </div>
+
+          <div style="font-size:10px;font-weight:300;color:var(--dk-3);padding-top:4px;">Changes save instantly and apply to Meal Builder, weekly plans, and Podcast suggestions.</div>
+        </div>
+      </div>
+
       <div class="prog-actions">
-        <a href="bodylens-day.html" class="prog-btn jade">Today's plan →</a>
-        <a href="bodylens-week.html" class="prog-btn">Week view</a>
-        <button onclick="location.reload()" class="prog-btn">Regenerate science pages</button>
-        <a href="bodylens-checkin.html" class="prog-btn" style="background:rgba(200,148,30,0.1);border-color:rgba(200,148,30,0.3);color:var(--gold);">4-week check-in →</a>
+        <a href="bodylens-dailyplan.html" class="prog-btn jade">Today's plan →</a>
+        <a href="bodylens-checkin.html" class="prog-btn" style="background:rgba(200,148,30,0.1);border-color:rgba(200,148,30,0.3);color:var(--gold);">Week review →</a>
+        <a href="bodylens-instructions.html" class="prog-btn">Rebuild report →</a>
         <button onclick="location.href='bodylens-reset.html'" class="prog-btn red">Reset all data</button>
       </div>
 
@@ -802,6 +868,41 @@ function switchTab(id, btn) {
   document.querySelectorAll('.prog-pane').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('pane-' + id).classList.add('active');
+}
+
+function _savePrefField(field, value) {
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
+    if (!p) return;
+    p[field] = value;
+    localStorage.setItem('bl_profile', JSON.stringify(p));
+  } catch(e) {}
+}
+
+function togglePref(field, value, btn) {
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
+    if (!p) return;
+    var arr = p[field] || [];
+    var idx = arr.indexOf(value);
+    if (idx >= 0) arr.splice(idx, 1);
+    else arr.push(value);
+    p[field] = arr;
+    localStorage.setItem('bl_profile', JSON.stringify(p));
+    btn.classList.toggle('active', arr.includes(value));
+  } catch(e) {}
+}
+
+function setSinglePref(field, value, btn) {
+  _savePrefField(field, value);
+  btn.closest('div').querySelectorAll('.prog-pref-chip').forEach(function(b) {
+    b.classList.toggle('active', b === btn);
+  });
+}
+
+function saveFoodExclusions(val) {
+  var arr = val.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  _savePrefField('foodExclusions', arr);
 }
 
 function removeAcc(id) {

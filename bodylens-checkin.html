@@ -325,7 +325,23 @@ var p=getProfile();
 if(p){var m=document.getElementById('nav-meta');if(m)m.innerHTML='<span class="nav-tag nt-jade">'+p.name+'</span>';
 document.getElementById('wr-sub').textContent=p.name+' · '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'. Planned vs actual.';}
 _currentWeekStart=getMondayOf(new Date());
+
+// Expose on window so nav.js / profile-manager re-runs can't lose the reference
+window._wrRender = function(){ render(_currentWeekStart); };
+window._wrWeekStart = _currentWeekStart;
+
+// Initial render
 render(_currentWeekStart);
+
+// Re-run after external scripts (nav.js/supabase-auth/profile-manager) have settled
+// This defeats the race condition where injectNavButtons() at 800ms wipes wr-content
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    if(!document.getElementById('wr-content').innerHTML.trim()){
+      render(_currentWeekStart);
+    }
+  }, 900);
+});
 </script>
 </body>
 </html>
