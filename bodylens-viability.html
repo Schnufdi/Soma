@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens - Viability Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0c1010;
+  --ink-1: #131918;
+  --ink-2: #192120;
+  --dk-1: #e8e3da;
+  --dk-2: #8a9490;
+  --dk-3: #3e504a;
+  --bd: rgba(255,255,255,0.07);
+  --bd-2: rgba(255,255,255,0.13);
+  --jade: #00c8a0;
+  --jade-br: rgba(0,200,160,0.25);
+  --jade-dim: rgba(0,200,160,0.08);
+  --amber: #c47c18;
+  --amber-br: rgba(196,124,24,0.25);
+  --red: #d94e35;
+  --red-br: rgba(217,78,53,0.25);
+  --red-dim: rgba(217,78,53,0.08);
+  --green: #00a872;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Space Grotesk', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--ink); color: var(--dk-1); font-family: var(--sans); line-height: 1.6; }
+
+/* ---- NAV ---- */
+.nav { display: flex; align-items: center; padding: 0 40px; height: 60px; border-bottom: 1px solid var(--bd); background: rgba(12,16,16,0.97); position: sticky; top: 0; z-index: 100; }
+.nav-brand { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--dk-1); }
+.nav-brand em { font-style: normal; color: var(--jade); }
+.nav-tag { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 3px 10px; border-radius: 10px; background: var(--red-dim); border: 1px solid var(--red-br); color: var(--red); margin-left: 16px; }
+
+/* ---- LAYOUT ---- */
+.page { max-width: 960px; margin: 0 auto; padding: 0 40px 100px; }
+
+/* ---- HERO ---- */
+.hero { padding: 56px 0 40px; border-bottom: 1px solid var(--bd); }
+.hero-kicker { font-size: 10px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 12px; }
+.hero-title { font-family: var(--serif); font-size: 62px; font-weight: 300; line-height: .92; letter-spacing: -.02em; color: var(--dk-1); margin-bottom: 16px; }
+.hero-title em { font-style: italic; color: var(--dk-3); }
+.hero-sub { font-size: 14px; font-weight: 300; color: var(--dk-2); line-height: 1.75; max-width: 560px; margin-bottom: 28px; }
+.hero-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+.hero-meta-item { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--dk-3); }
+.hero-meta-item span { color: var(--dk-2); font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+/* ---- VERDICT BANNER ---- */
+.verdict { margin: 40px 0; padding: 28px 32px; background: var(--ink-1); border: 1px solid var(--bd-2); border-radius: 12px; border-left: 3px solid var(--amber); }
+.verdict-label { font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+.verdict-title { font-family: var(--serif); font-size: 28px; font-weight: 300; color: var(--dk-1); margin-bottom: 12px; }
+.verdict-text { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.8; }
+
+/* ---- SECTION ---- */
+.section { margin-top: 52px; }
+.section-label { font-size: 9px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+.section-num { font-size: 9px; font-weight: 700; color: var(--dk-3); opacity: .5; }
+.section-title { font-family: var(--serif); font-size: 36px; font-weight: 300; color: var(--dk-1); margin-bottom: 6px; }
+.section-title em { font-style: italic; color: var(--dk-3); }
+.section-intro { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.8; margin-bottom: 24px; max-width: 680px; }
+
+/* ---- CARDS ---- */
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cards.single { grid-template-columns: 1fr; }
+.cards.three { grid-template-columns: 1fr 1fr 1fr; }
+@media(max-width:700px) { .cards, .cards.three { grid-template-columns: 1fr; } }
+
+.card { background: var(--ink-1); border: 1px solid var(--bd); border-radius: 10px; padding: 20px; }
+.card.good { border-left: 2px solid var(--jade); }
+.card.warn { border-left: 2px solid var(--amber); }
+.card.bad  { border-left: 2px solid var(--red); }
+.card.neutral { border-left: 2px solid var(--dk-3); }
+.card-label { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 6px; }
+.card.good  .card-label { color: var(--jade); }
+.card.warn  .card-label { color: var(--amber); }
+.card.bad   .card-label { color: var(--red); }
+.card.neutral .card-label { color: var(--dk-3); }
+.card-title { font-size: 14px; font-weight: 600; color: var(--dk-1); margin-bottom: 8px; }
+.card-text { font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.75; }
+
+/* ---- SCORE BAR ---- */
+.score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media(max-width:600px) { .score-grid { grid-template-columns: 1fr; } }
+.score-item { background: var(--ink-1); border: 1px solid var(--bd); border-radius: 8px; padding: 14px 16px; }
+.score-name { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 8px; }
+.score-bar-wrap { display: flex; align-items: center; gap: 10px; }
+.score-bar { flex: 1; height: 4px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 2px; }
+.score-val { font-size: 11px; font-weight: 700; min-width: 28px; text-align: right; }
+.score-note { font-size: 10px; font-weight: 300; color: var(--dk-3); margin-top: 5px; line-height: 1.5; }
+
+/* ---- COST SECTION ---- */
+.cost-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+.cost-table th { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--dk-3); padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--bd); background: var(--ink-2); }
+.cost-table td { font-size: 12px; font-weight: 300; color: var(--dk-2); padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: top; }
+.cost-table tr:last-child td { border-bottom: none; }
+.cost-table td:first-child { font-weight: 500; color: var(--dk-1); }
+.cost-table td.num { font-weight: 600; color: var(--dk-1); font-variant-numeric: tabular-nums; }
+.cost-table td.jade { color: var(--jade); font-weight: 600; }
+.cost-table td.amber { color: var(--amber); font-weight: 600; }
+.cost-wrap { background: var(--ink-1); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; }
+
+.cost-summary { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--bd); margin-top: 20px; border-radius: 10px; overflow: hidden; }
+.cost-stat { background: var(--ink-1); padding: 18px 20px; }
+.cost-stat-label { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 6px; }
+.cost-stat-val { font-size: 22px; font-weight: 600; color: var(--dk-1); font-variant-numeric: tabular-nums; }
+.cost-stat-sub { font-size: 10px; font-weight: 300; color: var(--dk-3); margin-top: 3px; }
+@media(max-width:640px) { .cost-summary { grid-template-columns: 1fr 1fr; } }
+
+/* ---- ROADMAP ---- */
+.roadmap-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media(max-width:700px) { .roadmap-col { grid-template-columns: 1fr; } }
+.roadmap-bucket { background: var(--ink-1); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; }
+.roadmap-head { padding: 14px 18px; border-bottom: 1px solid var(--bd); }
+.roadmap-head-label { font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 2px; }
+.roadmap-head-title { font-size: 14px; font-weight: 600; color: var(--dk-1); }
+.roadmap-head.now  { border-top: 2px solid var(--red); }
+.roadmap-head.next { border-top: 2px solid var(--amber); }
+.roadmap-head.later{ border-top: 2px solid var(--jade); }
+.roadmap-head.now  .roadmap-head-label { color: var(--red); }
+.roadmap-head.next .roadmap-head-label { color: var(--amber); }
+.roadmap-head.later .roadmap-head-label { color: var(--jade); }
+.roadmap-items { padding: 12px 18px; }
+.roadmap-item { font-size: 11px; font-weight: 300; color: var(--dk-2); padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04); line-height: 1.5; display: flex; gap: 8px; }
+.roadmap-item:last-child { border-bottom: none; }
+.roadmap-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+.roadmap-head.now  ~ .roadmap-items .roadmap-dot { background: var(--red); }
+.roadmap-head.next ~ .roadmap-items .roadmap-dot { background: var(--amber); }
+.roadmap-head.later ~ .roadmap-items .roadmap-dot { background: var(--jade); }
+
+/* ---- PROSE ---- */
+.prose { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.85; }
+.prose p { margin-bottom: 14px; }
+.prose strong { font-weight: 600; color: var(--dk-1); }
+.prose em { font-style: italic; color: var(--dk-1); }
+
+/* ---- DIVIDER ---- */
+.divider { height: 1px; background: var(--bd); margin: 52px 0; }
+
+/* ---- FOOTNOTE ---- */
+.footnote { margin-top: 60px; padding-top: 28px; border-top: 1px solid var(--bd); font-size: 11px; font-weight: 300; color: var(--dk-3); line-height: 1.75; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-tag">Internal Document</div>
+</nav>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-kicker">Product Analysis</div>
+    <div class="hero-title">Viability &amp;<br><em>Gap Analysis.</em></div>
+    <div class="hero-sub">A structured, unsparing assessment of BodyLens as it moves from prototype toward a credible, mature product. Covers product intelligence, scientific rigour, cost modelling, and what it would take to become genuinely elite.</div>
+    <div class="hero-meta">
+      <div class="hero-meta-item">Prepared <span>March 2026</span></div>
+      <div class="hero-meta-item">Stack <span>Claude Sonnet 4.6 + Vercel + Supabase</span></div>
+      <div class="hero-meta-item">Status <span>Late prototype / pre-launch</span></div>
+    </div>
+  </div>
+
+  <!-- VERDICT -->
+  <div class="verdict">
+    <div class="verdict-label">Brutally honest verdict</div>
+    <div class="verdict-title">A very well-designed AI wrapper — not yet an intelligent coaching system.</div>
+    <div class="verdict-text">BodyLens is genuinely impressive as product engineering. The onboarding, daily operating system, contextual prompting, and workflow design are all above average. But right now the intelligence is primarily <strong>UX intelligence</strong> — premium orchestration of well-structured prompts — rather than a true reasoning engine. The system sounds authoritative without being fully adaptive, and it would break under real clinical complexity. That gap is closable. But it requires deliberate architectural investment, not more features.</div>
+  </div>
+
+  <!-- SCORES -->
+  <div class="section">
+    <div class="section-label"><span class="section-num">01</span> Product Scores</div>
+    <div class="section-title">Where it stands <em>today.</em></div>
+    <div class="section-intro">Ten dimensions scored 0-10. Honest, not generous.</div>
+
+    <div class="score-grid">
+
+      <div class="score-item">
+        <div class="score-name">Product Intelligence</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:68%;background:var(--amber);"></div></div>
+          <div class="score-val" style="color:var(--amber);">6.8</div>
+        </div>
+        <div class="score-note">Strong orchestration. Weak genuine adaptation. Responses feel smart but follow templates.</div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-name">Reasoning Depth</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:52%;background:var(--red);"></div></div>
+          <div class="score-val" style="color:var(--red);">5.2</div>
+        </div>
+        <div class="score-note">Surface-level logic. Doesn't yet reconcile contradictions or reason about trade-offs.</div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-name">Scientific Rigour</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:55%;background:var(--amber);"></div></div>
+          <div class="score-val" style="color:var(--amber);">5.5</div>
+        </div>
+        <div class="score-note">Sounds confident. Rarely caveats. Some claims would not survive peer review.</div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-name">Behavioural Usefulness</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:78%;background:var(--jade);"></div></div>
+          <div class="score-val" style="color:var(--jade);">7.8</div>
+        </div>
+        <div class="score-note">Daily planning, debrief, emergency interventions — genuinely useful architecture.</div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-name">User Trust</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:62%;background:var(--amber);"></div></div>
+          <div class="score-val" style="color:var(--amber);">6.2</div>
+        </div>
+        <div class="score-note">Trust built by design and tone. Not yet earned through transparent reasoning or audit trails.</div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-name">Edge-Case Handling</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:38%;background:var(--red);"></div></div>
+          <div class="score-val" style="color:var(--red);">3.8</div>
+        </div>
+        <div class="score-note">Brittle. Medical complexity, contradictory goals, and unrealistic expectations are not yet handled.</div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-name">Explainability</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:45%;background:var(--red);"></div></div>
+          <div class="score-val" style="color:var(--red);">4.5</div>
+        </div>
+        <div class="score-note">Tells users what to do. Rarely explains the mechanism behind the recommendation.</div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-name">System Credibility</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:65%;background:var(--amber);"></div></div>
+          <div class="score-val" style="color:var(--amber);">6.5</div>
+        </div>
+        <div class="score-note">Premium framing is convincing. Credibility would not hold up to an expert user probing the science.</div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-name">Differentiation</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:72%;background:var(--amber);"></div></div>
+          <div class="score-val" style="color:var(--amber);">7.2</div>
+        </div>
+        <div class="score-note">Daily OS + contextual memory is genuinely distinctive. Not yet defensible as a reasoning moat.</div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-name">Product Completeness</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:60%;background:var(--amber);"></div></div>
+          <div class="score-val" style="color:var(--amber);">6.0</div>
+        </div>
+        <div class="score-note">Core flows exist. Meal planner, Body Mapper, and wearables integration still unreliable or missing.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CURRENT STRENGTHS -->
+  <div class="section">
+    <div class="section-label"><span class="section-num">02</span> Current Strengths</div>
+    <div class="section-title">What is genuinely <em>working.</em></div>
+    <div class="section-intro">These are real advantages that should be preserved and leaned into. Not every strength is permanent — some are structural, some are fragile.</div>
+
+    <div class="cards">
+      <div class="card good">
+        <div class="card-label">Architecture</div>
+        <div class="card-title">Daily operating system, not a chatbot</div>
+        <div class="card-text">The shift from chat interface to structured daily workflow is the single most valuable design decision. Today page, training blocks, food log, debrief, interventions — this is coherent product thinking, not just a wrapper around a model.</div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Intake</div>
+        <div class="card-title">Rich contextual profile from onboarding</div>
+        <div class="card-text">Collecting age, weight, training history, injury status, goals, schedule, food preferences, and lifestyle in structured form means the AI has real context. Most competitors work from a single prompt. BodyLens builds a model of the person.</div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Behaviour</div>
+        <div class="card-title">Adherence design is strong</div>
+        <div class="card-text">Emergency interventions, debrief system, hunger module, setback handling, and motivation scaffolding show genuine thinking about the behaviour gap — the space between knowing what to do and actually doing it. This is rare in AI fitness tools.</div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Design</div>
+        <div class="card-title">Premium aesthetic builds trust</div>
+        <div class="card-text">The visual language — dark mode, Cormorant Garamond, jade accent, card-based layout — creates an impression of seriousness that generic AI wrappers don't have. Design is doing real trust work here, even before the intelligence earns it.</div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Personalisation</div>
+        <div class="card-title">Programme generation is contextually aware</div>
+        <div class="card-text">The 4-week block structure, training day types, macro calculation, and weekly schedule are calibrated to the user's actual profile. This is meaningfully more useful than generic workout generators.</div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Scope</div>
+        <div class="card-title">Unusually broad coverage for a prototype</div>
+        <div class="card-text">Training, nutrition, sleep, recovery, supplementation, body intelligence, podcast, coaching chat — the surface area is ambitious and mostly coherent. This is a real product, not just a fitness chatbot with a nice skin.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- GAPS -->
+  <div class="section">
+    <div class="section-label"><span class="section-num">03</span> Critical Gaps</div>
+    <div class="section-title">Where it is still <em>shallow.</em></div>
+    <div class="section-intro">These are the places where BodyLens currently sounds smarter than it is, or would fail under real-world pressure.</div>
+
+    <div class="cards">
+      <div class="card bad">
+        <div class="card-label">Intelligence gap</div>
+        <div class="card-title">Orchestration masquerading as reasoning</div>
+        <div class="card-text">The system generates good-sounding responses because it sends well-structured prompts with rich context. But it does not actually reason about trade-offs, contradictions, or edge cases. Ask it about conflicting goals (recomp + heavy training + sleep deprivation) and it will give authoritative advice that doesn't reconcile the conflict — it just picks the dominant framing from the prompt.</div>
+      </div>
+      <div class="card bad">
+        <div class="card-label">Trust gap</div>
+        <div class="card-title">Authority without audit trail</div>
+        <div class="card-text">The system makes confident recommendations about body composition, caloric targets, training load, and supplementation. But it never explains why, never shows its working, and never acknowledges the limits of its knowledge. A sophisticated user would quickly notice the recommendations are stylistically authoritative but epistemically thin.</div>
+      </div>
+      <div class="card bad">
+        <div class="card-label">Science gap</div>
+        <div class="card-title">Overconfident on contested science</div>
+        <div class="card-text">The sauna module, supplement recommendations, and some sleep claims are presented with more certainty than the research supports. The 95% accuracy claim for body fat from a visual assessment is false. Some HRV guidance would be contested by sports scientists. The product needs a tiered evidence framework: established / emerging / anecdotal.</div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Adaptation gap</div>
+        <div class="card-title">Plan doesn't learn from what you actually do</div>
+        <div class="card-text">The system has an elaborate logging system but nothing that feeds logged data back into the programme logic. If you consistently rate effort at 3/5 (too easy), the plan doesn't adjust next week. If you miss three Pull sessions in a row, the plan doesn't respond. The feedback loop is cosmetic, not functional.</div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Reliability gap</div>
+        <div class="card-title">Technical instability undermines trust</div>
+        <div class="card-text">The meal planner has failed repeatedly due to encoding bugs, cache issues, and deployment inconsistencies. The podcast TTS returns 401 errors. The body mapper has had multiple script crashes. In a health product, technical unreliability damages trust more severely than in a productivity tool. Users won't return after two failures.</div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Edge-case gap</div>
+        <div class="card-title">Would fail under medical complexity</div>
+        <div class="card-text">A 44-year-old with hypertension starting a recomp programme, a user with disordered eating history requesting caloric restriction advice, someone with chronic lower back pain asking about deadlift load — none of these are handled with appropriate caution. The system doesn't know what it doesn't know, and doesn't say so.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- COST ANALYSIS -->
+  <div class="section">
+    <div class="section-label"><span class="section-num">04</span> Cost Analysis</div>
+    <div class="section-title">What it actually <em>costs to run.</em></div>
+    <div class="section-intro">Based on real token measurements from the live app. Claude Sonnet 4.6 pricing: $3/M input tokens, $15/M output tokens. All figures are per user per month estimates based on active daily use.</div>
+
+    <div class="cost-summary">
+      <div class="cost-stat">
+        <div class="cost-stat-label">Profile context</div>
+        <div class="cost-stat-val">~2,400</div>
+        <div class="cost-stat-sub">tokens per API call (input base)</div>
+      </div>
+      <div class="cost-stat">
+        <div class="cost-stat-label">Daily API calls</div>
+        <div class="cost-stat-val">8-15</div>
+        <div class="cost-stat-sub">active user estimate</div>
+      </div>
+      <div class="cost-stat">
+        <div class="cost-stat-label">Cost per user/month</div>
+        <div class="cost-stat-val">$1.80</div>
+        <div class="cost-stat-sub">median active user</div>
+      </div>
+      <div class="cost-stat">
+        <div class="cost-stat-label">Breakeven pricing</div>
+        <div class="cost-stat-val">$12-18</div>
+        <div class="cost-stat-sub">per user/month at 3x margin</div>
+      </div>
+    </div>
+
+    <div class="cost-wrap" style="margin-top:20px;">
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Trigger</th>
+            <th>Input tokens</th>
+            <th>Output tokens</th>
+            <th>Cost per call</th>
+            <th>Monthly (active user)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Coach chat (per message)</td>
+            <td>Every user message</td>
+            <td class="num">~3,500</td>
+            <td class="num">~300</td>
+            <td class="jade">$0.0155</td>
+            <td class="num">$1.55 (100 msgs)</td>
+          </tr>
+          <tr>
+            <td>Daily plan generation</td>
+            <td>Once per day</td>
+            <td class="num">~2,800</td>
+            <td class="num">~500</td>
+            <td class="jade">$0.016</td>
+            <td class="num">$0.48 (30 days)</td>
+          </tr>
+          <tr>
+            <td>Meal plan (full week)</td>
+            <td>Weekly</td>
+            <td class="num">~1,200</td>
+            <td class="num">~3,000</td>
+            <td class="amber">$0.049</td>
+            <td class="num">$0.20 (4x/month)</td>
+          </tr>
+          <tr>
+            <td>Meal swap (single)</td>
+            <td>Per swap</td>
+            <td class="num">~400</td>
+            <td class="num">~200</td>
+            <td class="jade">$0.004</td>
+            <td class="num">$0.04 (10 swaps)</td>
+          </tr>
+          <tr>
+            <td>Podcast generation</td>
+            <td>Per episode</td>
+            <td class="num">~2,500</td>
+            <td class="num">~4,000</td>
+            <td class="amber">$0.068</td>
+            <td class="num">$0.27 (4 episodes)</td>
+          </tr>
+          <tr>
+            <td>ElevenLabs TTS (podcast)</td>
+            <td>Per episode (~3,000 chars)</td>
+            <td class="num">—</td>
+            <td class="num">—</td>
+            <td class="amber">$0.045</td>
+            <td class="num">$0.18 (4 episodes)</td>
+          </tr>
+          <tr>
+            <td>Body Mapper query</td>
+            <td>Per query</td>
+            <td class="num">~1,800</td>
+            <td class="num">~800</td>
+            <td class="jade">$0.017</td>
+            <td class="num">$0.17 (10 queries)</td>
+          </tr>
+          <tr>
+            <td>Gym coach post-session summary</td>
+            <td>Per session</td>
+            <td class="num">~600</td>
+            <td class="num">~150</td>
+            <td class="jade">$0.004</td>
+            <td class="num">$0.06 (16 sessions)</td>
+          </tr>
+          <tr>
+            <td>Programme onboarding</td>
+            <td>Once at signup</td>
+            <td class="num">~3,000</td>
+            <td class="num">~2,000</td>
+            <td class="amber">$0.039</td>
+            <td class="num">$0.04 (one-off)</td>
+          </tr>
+          <tr style="background:var(--ink-2);">
+            <td><strong>Total estimated monthly</strong></td>
+            <td><strong>Active daily user</strong></td>
+            <td class="num">—</td>
+            <td class="num">—</td>
+            <td class="jade"><strong>—</strong></td>
+            <td class="jade"><strong>~$2.99/month</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cards" style="margin-top:16px;">
+      <div class="card warn">
+        <div class="card-label">Cost risk: coach chat</div>
+        <div class="card-title">Chat is the dominant cost driver</div>
+        <div class="card-text">If a power user sends 200+ messages per month, cost exceeds $3 from chat alone. At scale, chat without rate limiting or tiering will be the primary margin risk. The system prompt (profile context) is large — 2,400 tokens on every call. Caching the static portion saves ~70% on system prompt cost (Anthropic prompt caching is already in the API config).</div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Cost opportunity: Haiku</div>
+        <div class="card-title">Simple tasks don't need Sonnet</div>
+        <div class="card-text">Meal swaps, coach summaries, follow-up question generation, and simple text tasks can run on Claude Haiku 4.5 at ~15x cheaper ($0.80/M input, $4/M output). Routing low-complexity calls to Haiku could reduce the average user cost to under $1.50/month while keeping quality high on complex reasoning tasks.</div>
+      </div>
+      <div class="card neutral">
+        <div class="card-label">Pricing viability</div>
+        <div class="card-title">Unit economics are viable</div>
+        <div class="card-text">At $2.99/month COGS (active daily user) and $14.99/month subscription, gross margin is ~80%. This is comparable to other AI consumer products. The ElevenLabs TTS adds ~$0.18/month for podcast users — modest. The real ceiling is if engagement is much higher than modelled (heavy chat users at 300+ msgs/month push cost to $5+).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- WHAT WOULD MAKE IT ELITE -->
+  <div class="section">
+    <div class="section-label"><span class="section-num">05</span> The Elite Gap</div>
+    <div class="section-title">What separates <em>impressive</em> from genuinely <em>intelligent.</em></div>
+    <div class="section-intro">The difference between a world-class coaching product and a well-designed wrapper is not features. It is the quality of the reasoning engine underneath.</div>
+
+    <div class="cards single">
+      <div class="card bad">
+        <div class="card-label">The core gap</div>
+        <div class="card-title">A truly elite coaching system must reason, not just retrieve</div>
+        <div class="card-text">Right now, BodyLens sends well-structured prompts and returns well-structured answers. The intelligence lives in the prompt engineering, not in a reasoning process. A genuinely elite system would:<br><br>
+        <strong>1. Reconcile contradictions.</strong> If a user has a high training volume, poor sleep, and a caloric deficit, the system should detect that these three inputs are in tension and tell the user which variable to prioritise — not just deliver advice on each separately.<br><br>
+        <strong>2. Reason about uncertainty.</strong> A 44-year-old male doing heavy posterior chain work with no injury history and 6.5 hours sleep: what is the probability this leads to overtraining within 8 weeks? The system should reason about risk, not just give instructions.<br><br>
+        <strong>3. Update from evidence.</strong> If the user logs RPE 8/10 for three weeks running on what the system classified as moderate sessions, the system should notice and recalibrate — not keep generating the same plan.<br><br>
+        <strong>4. Know what it doesn't know.</strong> When a query requires clinical judgment (injury management, disordered eating risk, cardiovascular concerns in over-40 males), the system should route to caution, not authority. Currently it routes to authority regardless.</div>
+      </div>
+    </div>
+
+    <div class="cards" style="margin-top:12px;">
+      <div class="card warn">
+        <div class="card-label">Data moat</div>
+        <div class="card-title">Without longitudinal data, intelligence is capped</div>
+        <div class="card-text">The hardest AI coaching problems require weeks and months of data. Strength progressions, body composition trends, recovery patterns, HRV baselines — these require persistent, structured memory across sessions. Currently BodyLens has session-level context but no multi-week reasoning. Building a proper data layer is the highest-leverage infrastructure investment.</div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Calibration</div>
+        <div class="card-title">Science layer needs tiered confidence</div>
+        <div class="card-text">Every recommendation should carry an evidence level: established (multiple RCTs), emerging (preliminary evidence), anecdotal (community practice). This would not only be more honest — it would differentiate BodyLens from every competitor that pretends everything is equally certain. Users would trust a system more that admits when evidence is mixed.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ROADMAP -->
+  <div class="section">
+    <div class="section-label"><span class="section-num">06</span> Priority Roadmap</div>
+    <div class="section-title">What to build <em>in order.</em></div>
+    <div class="section-intro">Sequenced by urgency and impact. Must-fix items block trust formation. Should-improve items build the intelligence gap. Premium items create the moat.</div>
+
+    <div class="roadmap-col">
+
+      <div class="roadmap-bucket">
+        <div class="roadmap-head now">
+          <div class="roadmap-head-label">Must fix now</div>
+          <div class="roadmap-head-title">Trust foundations</div>
+        </div>
+        <div class="roadmap-items">
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Meal planner reliability — ASCII-safe script, no encoding regressions, proper deployment pipeline</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>ElevenLabs 401 — ELEVENLABS_API_KEY must be set in Vercel environment variables</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Podcast timer — real-time seconds ticker, not line-jump</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Medical disclaimers — every health recommendation must carry a clear "not medical advice" framing</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Body fat estimate caveating — remove false precision claims from body scan</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Error states — every AI call needs graceful failure with clear messaging, not blank screens</div>
+        </div>
+      </div>
+
+      <div class="roadmap-bucket">
+        <div class="roadmap-head next">
+          <div class="roadmap-head-label">Should improve next</div>
+          <div class="roadmap-head-title">Intelligence layer</div>
+        </div>
+        <div class="roadmap-items">
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Training ledger — adaptive coaching system that reconciles planned vs actual activity weekly</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>RPE feedback loop — logged effort data should adjust programme intensity for the following week</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Contradiction detection — coach should flag when goals, habits, and recovery are in tension</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Explainability — every major recommendation should link to a brief mechanism explanation</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Wearable integration — Oura or Whoop OAuth for real HRV and sleep data</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Multi-week memory — programme should reason across 4-week blocks, not just today</div>
+        </div>
+      </div>
+
+      <div class="roadmap-bucket">
+        <div class="roadmap-head later">
+          <div class="roadmap-head-label">Premium enhancements</div>
+          <div class="roadmap-head-title">Moat builders</div>
+        </div>
+        <div class="roadmap-items">
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Longitudinal data layer — structured storage of training logs, body metrics, and recovery across months</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Tiered evidence framework — every science claim labelled: established / emerging / anecdotal</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Apple Watch HealthKit — native iOS app for live heart rate, HRV, sleep stages</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Strength progression modelling — predict optimal load progression from logged set history</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Smart routing — Haiku for simple tasks, Sonnet for reasoning tasks</div>
+          <div class="roadmap-item"><div class="roadmap-dot"></div>Risk flagging — detect medical edge cases and route to appropriate caution or deferral</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- DIFFERENTIATION -->
+  <div class="section">
+    <div class="section-label"><span class="section-num">07</span> Differentiation</div>
+    <div class="section-title">What would make it <em>defensible.</em></div>
+
+    <div class="prose">
+      <p>Right now BodyLens is differentiated by <strong>product design and orchestration</strong>. That is real but fragile. A well-resourced competitor could replicate the design system and prompting architecture in 8-12 weeks. The defensible moat has to come from somewhere else.</p>
+      <p><strong>The longitudinal data layer is the most defensible asset.</strong> Every week a user trains with BodyLens, the system knows more about how their body responds to load, nutrition, and recovery than any new competitor could. If that data is structured and reasoned about — not just stored — it becomes increasingly irreplaceable.</p>
+      <p><strong>The coaching voice and system prompt are underexplored assets.</strong> If BodyLens develops a distinctive coaching philosophy (not just instructions, but a consistent set of principles about how to train, eat, and recover) that is embedded throughout the product, it creates a product character that users identify with. Generic AI coaching has no personality. BodyLens already has the beginnings of one.</p>
+      <p><strong>The "operating system" metaphor is the right positioning.</strong> Not a fitness app. Not a coach. An operating system for how you relate to your body — that frames training, nutrition, sleep, supplementation, and recovery as interconnected systems rather than separate tools. No competitor is occupying this position credibly yet.</p>
+    </div>
+  </div>
+
+  <div class="footnote">
+    <p><strong>BodyLens Viability Analysis</strong> &middot; March 2026 &middot; Internal document &middot; Not for distribution</p>
+    <p>Scoring methodology: 10-point scale, calibrated against category-leading products (Whoop, Levels, Renaissance Periodisation app, MyFitnessPal Pro, Future). Cost figures based on Anthropic Claude Sonnet 4.6 pricing at $3/M input, $15/M output tokens and ElevenLabs Creator plan at $0.30/1000 chars. Active user defined as 20+ sessions/month.</p>
+  </div>
+
+</div>
+</body>
+</html>
