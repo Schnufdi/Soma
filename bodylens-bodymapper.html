@@ -66,6 +66,22 @@ body{background:var(--ink);color:var(--dk-1);min-height:100vh;}
 .bm-query-input{width:100%;background:var(--ink-2);border:1px solid var(--bd);border-radius:8px;padding:11px 13px;font-size:13px;font-weight:300;color:var(--dk-1);font-family:var(--sans);resize:none;outline:none;box-sizing:border-box;line-height:1.5;transition:border-color .12s;}
 .bm-query-input:focus{border-color:rgba(0,200,160,.3);}
 .bm-query-input::placeholder{color:var(--dk-3);}
+.bm-query-input.listening{border-color:rgba(220,50,50,.4);background:rgba(220,50,50,.03);}
+.bm-input-wrap{position:relative;}
+.bm-mic-btn{
+  position:absolute;bottom:9px;right:9px;
+  width:30px;height:30px;border-radius:8px;
+  background:transparent;border:1px solid var(--bd);
+  color:var(--dk-3);cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.bm-mic-btn:hover{border-color:rgba(0,200,160,.35);color:var(--jade);background:rgba(0,200,160,.06);}
+.bm-mic-btn.listening{
+  background:rgba(220,50,50,.12);border-color:rgba(220,50,50,.5);
+  color:#fff;animation:micPulse 1.2s ease infinite;
+}
+@keyframes micPulse{0%,100%{opacity:1;}50%{opacity:.55;}}
 .bm-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
 .bm-chip{padding:5px 11px;border-radius:14px;border:1px solid var(--bd);background:transparent;font-size:10px;font-weight:500;color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all .1s;white-space:nowrap;}
 .bm-chip:hover{border-color:rgba(255,255,255,.1);color:var(--dk-2);}
@@ -806,7 +822,10 @@ function renderQueryPanel(panel) {
   panel.innerHTML =
     '<div class="bm-query-card">'
     +'<div class="bm-card-label">What are you feeling?</div>'
-    +'<textarea class="bm-query-input" id="bm-query-inp" rows="3" placeholder="Describe in plain language \u2014 e.g. tight on the right side when I rotate, dull ache after sitting\u2026">'+BM.queryText+'</textarea>'
+    +'<div class="bm-input-wrap">'
+      +'<textarea class="bm-query-input" id="bm-query-inp" rows="3" placeholder="Describe in plain language \u2014 e.g. tight on the right side when I rotate, dull ache after sitting\u2026" style="padding-right:44px;">'+BM.queryText+'</textarea>'
+      +'<button class="bm-mic-btn" id="bm-mic-btn" title="Tap to speak">&#127908;</button>'
+    +'</div>'
     +'<div class="bm-card-label" style="margin-top:12px;">Sensation type</div>'
     +'<div class="bm-chips">'+chips1+'</div>'
     +'<div class="bm-card-label" style="margin-top:12px;">Context</div>'
@@ -815,6 +834,16 @@ function renderQueryPanel(panel) {
     +'<button class="bm-submit-btn" id="bm-submit" onclick="submitQuery()" disabled><span>Interpret this \u2192</span></button>';
   var inp = document.getElementById('bm-query-inp');
   if (inp) inp.addEventListener('input', function(){ BM.queryText = this.value; updateSubmitBtn(); });
+  // Wire mic button
+  var micBtn = document.getElementById('bm-mic-btn');
+  if (micBtn) {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      micBtn.style.display = 'none';
+    } else {
+      micBtn.addEventListener('click', function() { bmToggleMic(inp, micBtn); });
+    }
+  }
   updateSubmitBtn();
 }
 
@@ -985,6 +1014,86 @@ async function generateFocusReport() {
   } catch(e) {
     ra.innerHTML='<div class="bm-result" style="padding:20px;color:var(--dk-3);">Could not generate \u2014 <button onclick="generateFocusReport()" style="background:none;border:none;color:var(--jade);cursor:pointer;font-family:var(--sans);font-size:12px;text-decoration:underline;">try again</button></div>';
   }
+}
+
+// -- Mic engine for body query input --
+var _bmRec = null;
+var _bmListening = false;
+
+function bmToggleMic(textarea, btn) {
+  if (_bmListening) {
+    _bmListening = false;
+    if (_bmRec) try { _bmRec.stop(); } catch(e) {}
+    if (btn) { btn.classList.remove('listening'); btn.innerHTML = '&#127908;'; btn.title = 'Tap to speak'; }
+    if (textarea) textarea.classList.remove('listening');
+    return;
+  }
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+
+  _bmRec = new SR();
+  _bmRec.continuous = false;
+  _bmRec.interimResults = true;
+  _bmRec.lang = 'en-GB';
+
+  _bmRec.onstart = function() {
+    _bmListening = true;
+    if (btn) { btn.classList.add('listening'); btn.innerHTML = '&#9632;'; btn.title = 'Tap to stop'; }
+    if (textarea) {
+      textarea.classList.add('listening');
+      textarea.placeholder = 'Listening...';
+    }
+  };
+
+  _bmRec.onresult = function(e) {
+    var interim = '', final = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      var t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    if (textarea) {
+      textarea.value = final || interim;
+      BM.queryText = textarea.value;
+      updateSubmitBtn();
+    }
+    if (final.trim()) {
+      _bmListening = false;
+      if (btn) { btn.classList.remove('listening'); btn.innerHTML = '&#127908;'; btn.title = 'Tap to speak'; }
+      if (textarea) {
+        textarea.classList.remove('listening');
+        textarea.placeholder = 'Describe in plain language...';
+      }
+    }
+  };
+
+  _bmRec.onerror = function(e) {
+    _bmListening = false;
+    if (btn) { btn.classList.remove('listening'); btn.innerHTML = '&#127908;'; }
+    if (textarea) {
+      textarea.classList.remove('listening');
+      textarea.placeholder = e.error === 'not-allowed'
+        ? 'Mic access blocked - check browser permissions'
+        : 'No speech detected - try again';
+      setTimeout(function() {
+        if (textarea) textarea.placeholder = 'Describe in plain language...';
+      }, 3000);
+    }
+  };
+
+  _bmRec.onend = function() {
+    if (_bmListening) {
+      // Unexpected end - update UI
+      _bmListening = false;
+      if (btn) { btn.classList.remove('listening'); btn.innerHTML = '&#127908;'; }
+      if (textarea) textarea.classList.remove('listening');
+    }
+  };
+
+  try {
+    _bmRec.start();
+  } catch(e) {}
 }
 
 function init() {
