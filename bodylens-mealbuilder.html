@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- BodyLens Meals v4 | rebuilt 2026-03-25 11:08 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -121,7 +122,7 @@ function weekKey(){
 function loadPlan(){ try{ var r=localStorage.getItem(weekKey()); return r?JSON.parse(r):null; }catch(e){ return null; } }
 function savePlan(data){ try{ localStorage.setItem(weekKey(),JSON.stringify(data)); }catch(e){} }
 
-// ── State ──────────────────────────────────────────────
+// -- State ----------------------------------------------
 var WP = {
   plan: null,        // { days: { Monday: { breakfast:{name,calories,protein,carbs,fat}, ... } } }
   prefs: {
@@ -133,7 +134,7 @@ var WP = {
   swapping: null,    // {day, slot} currently being swapped
 };
 
-// ── Tab switching ──────────────────────────────────────
+// -- Tab switching --------------------------------------
 function showTab(id) {
   document.getElementById('pane-week').style.display   = id === 'week'   ? '' : 'none';
   document.getElementById('pane-custom').style.display = id === 'custom' ? '' : 'none';
@@ -142,24 +143,24 @@ function showTab(id) {
   if (id === 'custom' && !document.getElementById('mb-root')) renderCustom();
 }
 
-// ── Preference data ────────────────────────────────────
+// -- Preference data ------------------------------------
 var PROTEINS = [
-  {id:'chicken', label:'🍗 Chicken'}, {id:'salmon', label:'🐟 Salmon'},
-  {id:'beef',    label:'🥩 Beef'},    {id:'eggs',   label:'🥚 Eggs'},
-  {id:'tuna',    label:'🐡 Tuna'},    {id:'turkey', label:'🦃 Turkey'},
-  {id:'tofu',    label:'🫘 Tofu'},    {id:'prawn',  label:'🦐 Prawns'},
-  {id:'greek-yogurt', label:'🥛 Greek yogurt'}, {id:'cottage-cheese', label:'🧀 Cottage cheese'},
-  {id:'white-fish',   label:'🐟 White fish'},   {id:'pork',           label:'🥓 Lean pork'},
+  {id:'chicken', label:'Chicken'}, {id:'salmon', label:'Salmon'},
+  {id:'beef',    label:'Beef'},    {id:'eggs',   label:'Eggs'},
+  {id:'tuna',    label:'Tuna'},    {id:'turkey', label:'Turkey'},
+  {id:'tofu',    label:'Tofu'},    {id:'prawn',  label:'Prawns'},
+  {id:'greek-yogurt', label:'Greek yogurt'}, {id:'cottage-cheese', label:'Cottage cheese'},
+  {id:'white-fish',   label:'White fish'},   {id:'pork',           label:'Lean pork'},
 ];
 var CUISINES = [
-  {id:'british',       label:'🇬🇧 British'},    {id:'mediterranean', label:'🫒 Mediterranean'},
-  {id:'asian',         label:'🥢 Asian'},         {id:'middle-eastern',label:'🫙 Middle Eastern'},
-  {id:'mexican',       label:'🌮 Mexican'},       {id:'indian',        label:'🍛 Indian'},
-  {id:'japanese',      label:'🍱 Japanese'},      {id:'american',      label:'🍔 American'},
-  {id:'italian',       label:'🍝 Italian'},       {id:'flexible',      label:'✨ Flexible'},
+  {id:'british',       label:'British'},    {id:'mediterranean', label:'Mediterranean'},
+  {id:'asian',         label:'Asian'},         {id:'middle-eastern',label:'Middle Eastern'},
+  {id:'mexican',       label:'Mexican'},       {id:'indian',        label:'Indian'},
+  {id:'japanese',      label:'Japanese'},      {id:'american',      label:'American'},
+  {id:'italian',       label:'Italian'},       {id:'flexible',      label:'Flexible'},
 ];
 
-// ── Init ──────────────────────────────────────────────
+// -- Init ----------------------------------------------
 function init() {
   var p = getProfile();
   if (!p) {
@@ -167,7 +168,7 @@ function init() {
       '<div style="text-align:center;padding:60px 0;">'
       + '<div style="font-size:40px;margin-bottom:14px;">👤</div>'
       + '<div style="font-size:15px;font-weight:300;color:var(--dk-2);margin-bottom:6px;">Profile needed</div>'
-      + '<div style="font-size:12px;font-weight:300;color:var(--dk-3);">Complete onboarding first — the meal planner needs your macro targets and food preferences.</div>'
+      + '<div style="font-size:12px;font-weight:300;color:var(--dk-3);">Complete onboarding first -- the meal planner needs your macro targets and food preferences.</div>'
       + '</div>';
     return;
   }
@@ -190,7 +191,7 @@ function init() {
   }
 }
 
-// ── Decision tree ──────────────────────────────────────
+// -- Decision tree --------------------------------------
 function renderDecisionTree(p) {
   var root = document.getElementById('pane-week');
 
@@ -208,16 +209,16 @@ function renderDecisionTree(p) {
 
   root.innerHTML =
     '<div class="dt-section">'
-      + '<div class="dt-label">1 — Proteins this week <span style="color:var(--dk-3);font-weight:300;font-size:9px;letter-spacing:.04em;text-transform:lowercase;">(pick at least 2)</span></div>'
+      + '<div class="dt-label">1 -- Proteins this week <span style="color:var(--dk-3);font-weight:300;font-size:9px;letter-spacing:.04em;text-transform:lowercase;">(pick at least 2)</span></div>'
       + '<div class="dt-chips" id="dt-proteins">' + chipHtml(PROTEINS, WP.prefs.proteins, 'protein') + '</div>'
       + '<div class="dt-note">Choose what you have access to or enjoy. These will appear across your 7-day plan.</div>'
     + '</div>'
     + '<div class="dt-section">'
-      + '<div class="dt-label">2 — Cuisine style</div>'
+      + '<div class="dt-label">2 -- Cuisine style</div>'
       + '<div class="dt-chips" id="dt-cuisines">' + chipHtml(CUISINES, WP.prefs.cuisines, 'cuisine') + '</div>'
     + '</div>'
     + '<div class="dt-section" id="dt-avoid-section">'
-      + '<div class="dt-label">3 — Anything to avoid this week?</div>'
+      + '<div class="dt-label">3 -- Anything to avoid this week?</div>'
       + '<div class="dt-chips" id="dt-avoids">'
         + ['Dairy','Gluten','Nuts','Eggs','Nightshades','High FODMAP','Raw fish'].map(function(a) {
             var isSel = WP.prefs.avoids.indexOf(a) >= 0;
@@ -253,14 +254,14 @@ function updateGenBtn() {
   btn.disabled = !ok;
 }
 
-// ── Generate ───────────────────────────────────────────
+// -- Generate -------------------------------------------
 async function generate() {
   var p = getProfile();
   if (!p) return;
 
   WP.generating = true;
   document.getElementById('pane-week').innerHTML =
-    '<div class="wp-loading"><div class="wp-spin"></div>Building your week around your training schedule — this takes about 15 seconds…</div>';
+    '<div class="wp-loading"><div class="wp-spin"></div>Building your week around your training schedule -- this takes about 15 seconds…</div>';
 
   var tKcal  = p.trainingKcal || p.calories || 2700;
   var rKcal  = p.restKcal     || Math.round((p.calories || 2500) * 0.91);
@@ -292,7 +293,7 @@ async function generate() {
     + '- Training days: more carbs at breakfast and lunch (fuel timing)\n'
     + '- Rest days: moderate carbs, same protein\n'
     + '- Calorie splits: breakfast 30%, lunch 35%, dinner 35%\n'
-    + '- Use the specified proteins across the week — vary them, do not repeat the same protein at same meal slot on consecutive days\n\n'
+    + '- Use the specified proteins across the week -- vary them, do not repeat the same protein at same meal slot on consecutive days\n\n'
     + 'REPEATS (for easy prep): Breakfast can repeat Mon+Wed+Fri and Tue+Thu+Sat. Lunch and Dinner must be unique each day.\n\n'
     + 'Return ONLY valid compact JSON (no markdown, no explanation):\n'
     + '{"days":{"Monday":{"breakfast":{"name":"Recipe name","calories":0,"protein":0,"carbs":0,"fat":0},"lunch":{"name":"Recipe name","calories":0,"protein":0,"carbs":0,"fat":0},"dinner":{"name":"Recipe name","calories":0,"protein":0,"carbs":0,"fat":0}},"Tuesday":{...},...}}\n\n'
@@ -329,14 +330,14 @@ async function generate() {
     document.getElementById('pane-week').innerHTML =
       '<div style="text-align:center;padding:40px;color:var(--dk-3);">'
       + '<div style="font-size:24px;margin-bottom:12px;">⚠</div>'
-      + '<div style="font-size:13px;font-weight:300;margin-bottom:12px;">Generation failed — ' + e.message + '</div>'
+      + '<div style="font-size:13px;font-weight:300;margin-bottom:12px;">Generation failed -- ' + e.message + '</div>'
       + '<button onclick="generate()" style="background:var(--jade);border:none;color:var(--ink);padding:10px 24px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);">Try again</button>'
       + '</div>';
     console.error('Meal plan generation error:', e);
   }
 }
 
-// ── Swap single meal ───────────────────────────────────
+// -- Swap single meal -----------------------------------
 async function swapMeal(day, slot) {
   var p = getProfile();
   if (!p || !WP.plan) return;
@@ -391,7 +392,7 @@ async function swapMeal(day, slot) {
   renderTable(p);
 }
 
-// ── Render table ───────────────────────────────────────
+// -- Render table ---------------------------------------
 function renderTable(p) {
   var root = document.getElementById('pane-week');
   if (!root || !p) return;
@@ -411,7 +412,7 @@ function renderTable(p) {
         + ' &middot; Tap ↻ to swap any meal'
       + '</div>'
       + '<div style="display:flex;gap:8px;">'
-        + '<button class="wt-edit-btn" onclick="editPrefs()">← Change preferences</button>'
+        + '<button class="wt-edit-btn" onclick="editPrefs()"><- Change preferences</button>'
         + '<button class="wt-regen-btn" onclick="generate()">↺ Regenerate week</button>'
       + '</div>'
     + '</div>'
@@ -457,7 +458,7 @@ function renderTable(p) {
           + '</div>'
           + '<button class="wt-swap-btn" onclick="swapMeal(\'' + day + '\',\'' + slot + '\')" title="Swap this meal">↻</button>';
       } else {
-        html += '<div class="wt-empty-cell">—</div>';
+        html += '<div class="wt-empty-cell">--</div>';
       }
       html += '</td>';
     });
@@ -508,7 +509,7 @@ function editPrefs() {
   renderDecisionTree(getProfile());
 }
 
-// ── Custom meal builder (preserved from before) ────────
+// -- Custom meal builder (preserved from before) --------
 var MB = {context:'training',protein:null,carb:null,veg:[],extra:null,step:1,meals:[],loading:false,openMeal:null};
 var MB_PROTEINS=[{id:'chicken-breast',name:'Chicken breast',note:'Lean'},{id:'salmon',name:'Salmon',note:'Omega-3'},{id:'beef',name:'Lean beef',note:'Iron'},{id:'eggs',name:'Eggs',note:'Complete'},{id:'tuna',name:'Tuna',note:'Fast'},{id:'greek-yogurt',name:'Greek yogurt',note:'Casein'},{id:'tofu',name:'Tofu',note:'Plant'},{id:'cod',name:'White fish',note:'Very lean'}];
 var MB_CARBS=[{id:'white-rice',name:'White rice',note:'Fast'},{id:'sweet-potato',name:'Sweet potato',note:'Micronutrients'},{id:'oats',name:'Oats',note:'Slow'},{id:'pasta',name:'Pasta',note:'Satisfying'},{id:'quinoa',name:'Quinoa',note:'Complete'},{id:'nocarb',name:'No carb',note:'Low-carb'}];
@@ -556,14 +557,14 @@ function renderMB() {
         + '</div>';
     }
     if (MB.protein && MB.carb && MB.extra) {
-      html += '<button class="dt-generate-btn" onclick="mbGenerate()">Generate 5 meal combinations →</button>';
+      html += '<button class="dt-generate-btn" onclick="mbGenerate()">Generate 5 meal combinations -></button>';
     }
   }
 
   if (MB.step === 5 && MB.meals.length) {
     html += '<div style="display:flex;gap:8px;margin-bottom:14px;">'
       + '<button onclick="mbGenerate()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:7px 14px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--sans);">↺ Regenerate</button>'
-      + '<button onclick="MB.step=1;MB.meals=[];renderMB()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:7px 14px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--sans);">← New selection</button>'
+      + '<button onclick="MB.step=1;MB.meals=[];renderMB()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:7px 14px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--sans);"><- New selection</button>'
     + '</div>';
     MB.meals.forEach(function(meal, i) {
       var isOpen = MB.openMeal === i;
@@ -618,7 +619,7 @@ async function mbGenerate() {
   MB.loading = false; MB.step = 5; MB.openMeal = null; renderMB();
 }
 
-// ── Boot ───────────────────────────────────────────────
+// -- Boot -----------------------------------------------
 init();
 </script>
 </body>
