@@ -116,7 +116,15 @@ ${isFemale ? 'Frame advice through female physiology — hormonal cycle, oestrog
 ${profile.bodyScan ? `BODY SCAN (${profile.bodyScan.scanDate || 'recent'}) — USE THESE OVER FORMULA ESTIMATES:
 ${profile.bodyScan.weight ? 'Weight: ' + profile.bodyScan.weight + 'kg' : ''}${profile.bodyScan.bodyFatPct ? ' | Body fat: ' + profile.bodyScan.bodyFatPct + '%' : ''}${profile.bodyScan.leanMass ? ' | Lean mass: ' + profile.bodyScan.leanMass + 'kg' : ''}${profile.bodyScan.bmr ? ' | BMR: ' + profile.bodyScan.bmr + ' kcal' : ''}${profile.bodyScan.metabolicAge ? ' | Metabolic age: ' + profile.bodyScan.metabolicAge : ''}${profile.bodyScan.visceralFatIndex ? ' | Visceral fat: ' + profile.bodyScan.visceralFatIndex + (profile.bodyScan.visceralFatIndex >= 13 ? ' (elevated)' : '') : ''}` : ''}
 
-CURRENT PAGE: ${pageContext}`;
+CURRENT PAGE: ${pageContext}
+
+${(function() {
+  try {
+    var ledger = typeof loadWeekLedger === 'function' ? loadWeekLedger() : null;
+    if (!ledger) return '';
+    return typeof buildWeekContext === 'function' ? buildWeekContext(ledger) : '';
+  } catch(e) { return ''; }
+})()}`;
 
     return { static: STATIC_COACHING_INSTRUCTIONS, dynamic: dynamicBlock };
   }
