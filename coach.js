@@ -615,6 +615,7 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
       transition: border-color 0.12s;
     }
     #bl-coach-input:focus { border-color: rgba(0,200,160,0.35); }
+    #bl-coach-input.recording { border-color: rgba(220,50,50,0.45) !important; background: rgba(220,50,50,0.04); }
     #bl-coach-input::placeholder { color: #2a4038; }
     #bl-coach-send {
       width: 34px; height: 34px; border-radius: 8px; background: #00c8a0;
@@ -628,15 +629,23 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
       width: 34px; height: 34px; border-radius: 8px;
       background: transparent; border: 1px solid #1e2e28;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; align-self: flex-end; transition: all 0.12s;
-      color: #3e504a; font-size: 15px;
+      flex-shrink: 0; align-self: flex-end; transition: all 0.15s;
+      color: #3e6058; font-size: 15px; user-select: none;
     }
-    #bl-coach-mic:hover { border-color: rgba(0,200,160,0.3); color: #00c8a0; }
+    #bl-coach-mic:hover { border-color: rgba(0,200,160,0.35); color: #00c8a0; background: rgba(0,200,160,0.06); }
     #bl-coach-mic.listening {
-      background: rgba(220,60,60,0.12); border-color: rgba(220,60,60,0.4);
-      color: rgba(220,60,60,0.9); animation: micPulse 1s ease infinite;
+      background: rgba(220,50,50,0.15);
+      border-color: rgba(220,50,50,0.6);
+      color: #fff;
+      font-size: 13px;
+      box-shadow: 0 0 0 3px rgba(220,50,50,0.15), 0 0 12px rgba(220,50,50,0.2);
+      animation: micRing 1.2s ease infinite;
     }
-    @keyframes micPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    @keyframes micRing {
+      0%   { box-shadow: 0 0 0 0px rgba(220,50,50,0.4); }
+      70%  { box-shadow: 0 0 0 6px rgba(220,50,50,0); }
+      100% { box-shadow: 0 0 0 0px rgba(220,50,50,0); }
+    }
 
     @media(max-width:480px) {
       #bl-coach-panel { right:10px; bottom:82px; width:calc(100vw - 20px); }
@@ -812,7 +821,7 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
         <div id="bl-coach-chips"></div>
         <div id="bl-coach-input-wrap">
           <textarea id="bl-coach-input" placeholder="Ask your coach…" rows="1"></textarea>
-          <button id="bl-coach-mic" title="Voice input" onclick="window._blCoach && window._blCoach.toggleMic()">🎤</button>
+          <button id="bl-coach-mic" title="Tap to speak">🎤</button>
           <button id="bl-coach-send">↑</button>
         </div>
       </div>
@@ -987,86 +996,117 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
     // ── VOICE INPUT (Web Speech API — free, no key) ───────
     let _recognition = null;
     let _micListening = false;
+    const mic = document.getElementById('bl-coach-mic');
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    function initMic() {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) return null;
-      const r = new SR();
-      r.continuous = false;
-      r.interimResults = true;
-      r.lang = 'en-GB';
-      r.maxAlternatives = 1;
+    if (!SR || !mic) {
+      // Browser doesn't support it — hide the button silently
+      if (mic) mic.style.display = 'none';
+    } else {
+      // Build recogniser once, reuse it
+      _recognition = new SR();
+      _recognition.continuous = true;       // keep listening until we say stop
+      _recognition.interimResults = true;   // show words as they arrive
+      _recognition.lang = 'en-GB';
+      _recognition.maxAlternatives = 1;
 
-      r.onstart = () => {
+      _recognition.onstart = () => {
         _micListening = true;
-        const mic = document.getElementById('bl-coach-mic');
-        if (mic) { mic.classList.add('listening'); mic.title = 'Listening… tap to stop'; }
-        if (input) input.placeholder = 'Listening…';
+        mic.classList.add('listening');
+        mic.textContent = '⏹';
+        mic.title = 'Tap to stop';
+        if (input) {
+          input.value = '';
+          input.placeholder = '🎤 Listening…';
+          input.classList.add('recording');
+        }
       };
 
-      r.onresult = (e) => {
-        let transcript = '';
+      _recognition.onresult = (e) => {
+        let interim = '', final = '';
         for (let i = e.resultIndex; i < e.results.length; i++) {
-          transcript += e.results[i][0].transcript;
+          const t = e.results[i][0].transcript;
+          if (e.results[i].isFinal) final += t;
+          else interim += t;
         }
         if (input) {
-          input.value = transcript;
+          input.value = final || interim;
           input.style.height = 'auto';
           input.style.height = Math.min(input.scrollHeight, 90) + 'px';
         }
-        // Final result — auto-send
-        if (e.results[e.results.length - 1].isFinal) {
-          setTimeout(() => { if (input?.value?.trim()) send_msg(); }, 400);
+        // Auto-send on final result
+        if (final.trim()) {
+          setTimeout(() => {
+            stopMic();
+            send_msg(final.trim());
+          }, 300);
         }
       };
 
-      r.onerror = (e) => {
-        stopMic();
-        if (e.error === 'not-allowed') {
-          if (input) input.placeholder = 'Mic blocked — check browser permissions';
-          setTimeout(() => { if (input) input.placeholder = 'Ask your coach…'; }, 3000);
+      _recognition.onerror = (e) => {
+        if (e.error === 'no-speech') {
+          // Timed out waiting — stop cleanly
+          stopMic();
+          if (input) {
+            input.placeholder = 'No speech detected — try again';
+            setTimeout(() => { input.placeholder = 'Ask your coach…'; }, 2500);
+          }
+        } else if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+          stopMic();
+          if (input) {
+            input.placeholder = 'Mic blocked — check browser permissions';
+            setTimeout(() => { input.placeholder = 'Ask your coach…'; }, 3500);
+          }
+        } else if (e.error !== 'aborted') {
+          stopMic();
         }
       };
 
-      r.onend = () => { stopMic(); };
+      _recognition.onend = () => {
+        // Only stop UI if we actually want to stop — not if continuous mode is still active
+        if (_micListening) {
+          // Unexpected end — restart if we didn't mean to stop
+          try { _recognition.start(); }
+          catch(err) { stopMic(); }
+        }
+      };
 
-      return r;
-    }
+      function stopMic() {
+        if (!_micListening) return;
+        _micListening = false;
+        mic.classList.remove('listening');
+        mic.textContent = '🎤';
+        mic.title = 'Tap to speak';
+        if (input) {
+          input.placeholder = 'Ask your coach…';
+          input.classList.remove('recording');
+        }
+        try { _recognition.stop(); } catch(e) {}
+      }
 
-    function stopMic() {
-      _micListening = false;
-      const mic = document.getElementById('bl-coach-mic');
-      if (mic) { mic.classList.remove('listening'); mic.title = 'Voice input'; }
-      if (input && !input.value) input.placeholder = 'Ask your coach…';
-      try { _recognition?.stop(); } catch(e) {}
+      function startMic() {
+        if (_micListening) return;
+        try {
+          _recognition.start();
+        } catch(e) {
+          // If already started, abort and restart
+          try { _recognition.abort(); } catch(e2) {}
+          setTimeout(() => {
+            try { _recognition.start(); } catch(e3) { /* give up */ }
+          }, 100);
+        }
+      }
+
+      // Single addEventListener — no onclick in HTML
+      mic.addEventListener('click', () => {
+        if (_micListening) stopMic();
+        else startMic();
+      });
     }
 
     function toggleMic() {
-      if (_micListening) { stopMic(); return; }
-      if (!_recognition) _recognition = initMic();
-      if (!_recognition) {
-        // Browser doesn't support it
-        if (input) {
-          input.placeholder = 'Voice not supported — type your question';
-          setTimeout(() => { input.placeholder = 'Ask your coach…'; }, 3000);
-        }
-        return;
-      }
-      try { _recognition.start(); }
-      catch(e) { stopMic(); }
-    }
-
-    // Expose toggleMic via window._blCoach
-    // (assigned below in the exports block — toggling here pre-emptively)
-    const mic = document.getElementById('bl-coach-mic');
-    if (mic) {
-      // Check browser support and hide if unsupported
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        mic.style.display = 'none';
-      } else {
-        mic.addEventListener('click', toggleMic);
-      }
+      if (_micListening) stopMic();
+      else if (mic) mic.click();
     }
     const QUESTION_CATS = [
       {
