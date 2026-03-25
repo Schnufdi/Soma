@@ -349,11 +349,43 @@ function tga(arr,v,b,cls){var i=arr.indexOf(v);if(i>=0){arr.splice(i,1);b.classL
 function ugb(){var b=document.getElementById('gb');if(b)b.disabled=S.prefs.proteins.length<1;}
 
 /* ---- GENERATE ---- */
+/* ---- DETAIL CACHE (lazy per meal click) ---- */
+var DETAIL_CACHE = {};
+function detailKey(day,slot){ return day+'-'+slot; }
+
+async function loadMealDetail(day,slot){
+  var key=detailKey(day,slot);
+  if(DETAIL_CACHE[key]) return DETAIL_CACHE[key];
+  var p=gp(); if(!p||!S.plan) return null;
+  var meal=S.plan.days[day]&&S.plan.days[day][slot];
+  if(!meal) return null;
+  var idx=DNS.indexOf(day);
+  var dp=(p.weekPlan||[])[idx]||{type:'Rest',priority:'rest'};
+  var isT=dp.priority==='training';
+  var prompt='Nutritionist. Give cooking detail for this meal.\n'
+    +'Meal: '+meal.name+' ('+meal.calories+' kcal, '+meal.protein+'g P, '+meal.carbs+'g C, '+meal.fat+'g F, '+(meal.fatClass||'lean')+' fat)\n'
+    +'User: '+p.age+'yo male, '+p.weight+'kg, goal: '+(p.goal||'recomposition')+'\n'
+    +'Day: '+day+' ('+(isT?dp.type+' training':'rest day')+')\n\n'
+    +'Return ONLY: {"portionGuide":"e.g. 1 palm protein + 1 cupped hand carb","ingredients":[{"name":"","grams":0,"portion_visual":""}],"swapNote":"leaner or higher-protein alternative in one sentence","whyThisWorks":"why this fits this day in one sentence"}';
+  try{
+    var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MDL,max_tokens:350,system:'Nutritionist. Return ONLY valid compact JSON.',messages:[{role:'user',content:prompt}]})});
+    var data=await res.json();
+    var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var m=text.match(/\{[\s\S]*\}/);
+    if(!m) return null;
+    var detail=JSON.parse(m[0]);
+    DETAIL_CACHE[key]=detail;
+    return detail;
+  }catch(e){ return null; }
+}
+
 async function generate(){
   var p=gp();if(!p)return;
   S.busy=true;
+  DETAIL_CACHE={};
   var slots=SLOTS_BY_STRUCT[S.prefs.mealStructure]||SLOTS_BY_STRUCT['3-meals'];
-  document.getElementById('pane-week').innerHTML='<div class="ld"><div class="sp"></div>Building your macro-precise week...</div>';
+  document.getElementById('pane-week').innerHTML='<div class="ld"><div class="sp"></div>Building your week...</div>';
   var tK=p.trainingKcal||p.calories||2769;
   var rK=p.restKcal||Math.round((p.calories||2769)*.9);
   var prot=p.protein||174;
@@ -366,67 +398,57 @@ async function generate(){
     var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
     return day+': '+(dp.priority==='training'?dp.type+' training ('+tK+' kcal, '+prot+'g P, '+carbs+'g C, '+fat+'g F)':'rest day ('+rK+' kcal, '+prot+'g P, '+Math.round(carbs*.8)+'g C, '+fat+'g F)');
   }).join('\n');
-
-  // Build slot-specific targets
   var shakeSlot=slots.indexOf('shake')>=0;
   var snackCount=slots.filter(function(s){return s.startsWith('snack');}).length;
   var mealSlots=slots.filter(function(s){return SLOT_TYPES[s]==='meal';});
-  var slotInstructions=slots.map(function(sl){
-    var type=SLOT_TYPES[sl]||'meal';
-    if(type==='shake') return sl+': protein shake -- 25g protein, 130 kcal, 2g fat, minimal carbs';
-    if(type==='snack') return sl+': snack -- 15-25g protein, 150-250 kcal, lean/moderate fat, high satiety';
-    var splitKcal=Math.round((tK-(shakeSlot?130:0)-(snackCount*200))/mealSlots.length);
-    var splitProt=Math.round((prot-(shakeSlot?25:0)-(snackCount*20))/mealSlots.length);
-    return sl+': meal -- ~'+splitProt+'g protein, ~'+splitKcal+' kcal';
-  }).join('\n');
+  var slotProt=Math.round((prot-(shakeSlot?25:0)-(snackCount*20))/mealSlots.length);
+  var slotKcal=Math.round((tK-(shakeSlot?130:0)-(snackCount*200))/mealSlots.length);
+  var slotDesc=slots.map(function(sl){
+    var t=SLOT_TYPES[sl]||'meal';
+    if(t==='shake') return sl+':shake(25g P,130kcal)';
+    if(t==='snack') return sl+':snack(~20g P,~200kcal)';
+    return sl+':meal(~'+slotProt+'g P,~'+slotKcal+'kcal)';
+  }).join(' | ');
 
-  var prompt='You are an expert performance nutritionist with precision macro knowledge.\n\n'
-    +'USER: '+p.name+', '+p.age+'yo male, '+p.weight+'kg\n'
-    +'Goal: '+(p.goal||'body recomposition')+'\n'
-    +'DAILY MACRO TARGETS:\n'
-    +'  Training days: '+tK+' kcal | '+prot+'g protein | '+carbs+'g carbs | '+fat+'g fat\n'
-    +'  Rest days: '+rK+' kcal | '+prot+'g protein | '+Math.round(carbs*.8)+'g carbs | '+fat+'g fat\n'
-    +'Preferred proteins: '+prots+'\n'
-    +'Cuisine: '+cuis+'\n'
-    +'Avoid: '+avds+'\n\n'
-    +'MEAL STRUCTURE THIS WEEK: '+S.prefs.mealStructure+'\n'
-    +slotInstructions+'\n\n'
-    +'TRAINING SCHEDULE:\n'+sched+'\n\n'
-    +'CRITICAL MACRO ACCURACY RULES:\n'
-    +'- Calculate macros from REALISTIC INGREDIENT WEIGHTS, not guesses\n'
-    +'- 1 chicken breast = 150g cooked = 46g protein, 5g fat, 240 kcal\n'
-    +'- 1 salmon fillet = 150g = 30g protein, 20g fat, 297 kcal\n'
-    +'- 1 whole egg = 50g = 6g protein, 5g fat, 70 kcal\n'
-    +'- Greek yogurt 0% 200g = 20g protein, 0.4g fat, 114 kcal\n'
-    +'- White fish 150g = 27g protein, 1g fat, 123 kcal\n'
-    +'- DO NOT inflate protein -- be conservative and accurate\n'
-    +'- For each meal also include:\n'
-    +'  fatClass: lean/moderate/high (based on total fat per serving)\n'
-    +'  portionGuide: human-friendly portion description\n'
-    +'  ingredients: array of {name, grams, portion_visual}\n'
-    +'  swapNote: brief note on a leaner or higher-protein alternative\n'
-    +'  whyThisWorks: one sentence on why this meal fits this day\n\n'
-    +'- Breakfast may repeat Mon+Wed+Fri and Tue+Thu for meal prep convenience\n'
-    +'- Lunch and Dinner must be unique each day\n'
-    +'- If mealStructure includes "shake", return shake slot with protein powder macros only\n\n'
-    +'Return ONLY this JSON (no markdown, no preamble):\n'
-    +'{"days":{"Monday":{"breakfast":{"name":"","calories":0,"protein":0,"carbs":0,"fat":0,"fatClass":"lean","portionGuide":"","ingredients":[{"name":"","grams":0,"portion_visual":""}],"swapNote":"","whyThisWorks":""},'
-    +'"lunch":{...},"dinner":{...}'+(shakeSlot?',"shake":{...}':'')+
-    +(snackCount>=1?',"snack1":{...}':'')+
-    +(snackCount>=2?',"snack2":{...}':'')+
-    +'},"Tuesday":{...},"Wednesday":{...},"Thursday":{...},"Friday":{...},"Saturday":{...},"Sunday":{...}}}';
+  // PHASE 1: Fast table -- names + 5 macros + fatClass only
+  // max_tokens:2000 keeps this under Vercel 10s timeout
+  // Details (ingredients, portions, swap notes) load lazily per cell click
+
+  var prompt='Expert performance nutritionist. Build 7-day meal plan.\n\n'
+    +'User: '+p.name+', '+p.age+'yo male, '+p.weight+'kg, goal: '+(p.goal||'body recomposition')+'\n'
+    +'Targets: training '+tK+'kcal/'+prot+'g P/'+carbs+'g C/'+fat+'g F | rest '+rK+'kcal/'+prot+'g P/'+Math.round(carbs*.8)+'g C/'+fat+'g F\n'
+    +'Proteins: '+prots+' | Cuisine: '+cuis+' | Avoid: '+avds+'\n'
+    +'Slots: '+slotDesc+'\n'
+    +'Schedule:\n'+sched+'\n\n'
+    +'MACRO ACCURACY (calculate from real weights):\n'
+    +'150g cooked chicken=46g P,5g F,240kcal | 150g salmon=30g P,20g F,297kcal | 1 egg=6g P,5g F,70kcal\n'
+    +'200g yogurt 0%=20g P,0.4g F,114kcal | 150g white fish=27g P,1g F,123kcal\n'
+    +'Do NOT inflate protein. Conservative and accurate.\n'
+    +'Breakfast repeats: Mon+Wed+Fri same, Tue+Thu+Sat same. Lunches and dinners unique each day.\n'
+    +'fatClass: lean=under 10g fat total, moderate=10-20g, high=over 20g\n\n'
+    +'Return ONLY compact JSON (no markdown):\n'
+    +'{"days":{"Monday":{"breakfast":{"name":"","calories":0,"protein":0,"carbs":0,"fat":0,"fatClass":"lean"},"lunch":{"name":"","calories":0,"protein":0,"carbs":0,"fat":0,"fatClass":"lean"},"dinner":{"name":"","calories":0,"protein":0,"carbs":0,"fat":0,"fatClass":"lean"}},"Tuesday":{...},"Wednesday":{...},"Thursday":{...},"Friday":{...},"Saturday":{...},"Sunday":{...}}}';
 
   try{
     var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:MDL,max_tokens:5000,
-        system:'Expert nutritionist. Return ONLY valid compact JSON. No markdown. Macro accuracy is critical.',
+      body:JSON.stringify({model:MDL,max_tokens:2000,
+        system:'Expert nutritionist. Return ONLY valid compact JSON. No markdown. Macro accuracy critical.',
         messages:[{role:'user',content:prompt}]})});
+    if(!res.ok) throw new Error('API '+res.status);
     var data=await res.json();
     var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
     var m=text.match(/\{[\s\S]*\}/);
-    if(!m)throw new Error('No JSON returned');
+    if(!m) throw new Error('No JSON in response');
     var parsed=JSON.parse(m[0]);
-    if(!parsed.days)throw new Error('Missing days');
+    if(!parsed.days) throw new Error('Missing days');
+    // Fill in fatClass if AI omitted it
+    DNS.forEach(function(day){
+      var dm=parsed.days[day]||{};
+      slots.forEach(function(slot){
+        var meal=dm[slot];
+        if(meal&&!meal.fatClass) meal.fatClass=meal.fat<10?'lean':meal.fat<20?'moderate':'high';
+      });
+    });
     S.plan={days:parsed.days,prefs:JSON.parse(JSON.stringify(S.prefs)),generatedAt:new Date().toISOString()};
     sp(S.plan);
     S.busy=false;
@@ -438,11 +460,9 @@ async function generate(){
       +'<div style="font-size:13px;margin-bottom:14px;">Generation failed: '+(err.message||'unknown error')+'</div>'
       +'<button onclick="renderPrefs(gp())" style="background:var(--jade);border:none;color:var(--ink);padding:10px 24px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);">Try again</button>'
       +'</div>';
-    console.error(err);
+    console.error('Meal gen error:',err);
   }
 }
-
-/* ---- SWAP MEAL ---- */
 async function swapMeal(day,slot){
   var p=gp();if(!p||!S.plan)return;
   S.swapping={day:day,slot:slot};
@@ -548,33 +568,11 @@ function renderTable(p){
             +'<span class="mpill kcal">'+(m.calories||0)+' kcal</span>'
           +'</div>';
 
-        // Expandable detail
+        // Expandable detail -- lazy loaded on first click
         var detailId='det-'+day+'-'+slot;
-        html+='<div class="meal-detail" id="'+detailId+'">';
-        if(m.portionGuide){
-          html+='<div class="meal-detail-section"><div class="meal-detail-label">Portion</div>'
-            +'<div style="font-size:11px;font-weight:300;color:var(--dk-2);">'+m.portionGuide+'</div></div>';
-        }
-        if(m.ingredients&&m.ingredients.length){
-          html+='<div class="meal-detail-section"><div class="meal-detail-label">Ingredients</div>';
-          m.ingredients.forEach(function(ing){
-            html+='<div class="ing-row">'
-              +'<div class="ing-name">'+ing.name+'</div>'
-              +'<div class="ing-amount">'+ing.grams+'g</div>'
-              +'<div class="ing-guide">'+((ing.portion_visual)||'')+'</div>'
-            +'</div>';
-          });
-          html+='</div>';
-        }
-        if(m.whyThisWorks){
-          html+='<div class="meal-detail-section">'
-            +'<div class="swap-suggest">'+m.whyThisWorks+'</div></div>';
-        }
-        if(m.swapNote){
-          html+='<div class="meal-detail-section">'
-            +'<div class="swap-suggest"><strong>Smarter swap:</strong> '+m.swapNote+'</div></div>';
-        }
-        html+='</div>';
+        html+='<div class="meal-detail" id="'+detailId+'" data-day="'+day+'" data-slot="'+slot+'">'
+          +'<div class="meal-detail-loading" style="font-size:10px;font-weight:300;color:var(--dk-3);padding:6px 0;">Tap to load details...</div>'
+          +'</div>';
 
         // Buttons
         html+='<div class="mc-btns">'
@@ -615,10 +613,62 @@ function renderTable(p){
   root.innerHTML=html;
 }
 
-function toggleExpand(tdEl){
+async function toggleExpand(tdEl){
   var det=tdEl.querySelector('.meal-detail');
   if(!det)return;
-  det.classList.toggle('open');
+  var day=det.getAttribute('data-day');
+  var slot=det.getAttribute('data-slot');
+  var isOpen=det.classList.contains('open');
+
+  if(isOpen){det.classList.remove('open');return;}
+
+  det.classList.add('open');
+
+  // If already loaded, just show
+  if(det.querySelector('.ing-row')||det.querySelector('.swap-suggest')) return;
+
+  // Check DETAIL_CACHE
+  if(day&&slot){
+    var cached=DETAIL_CACHE&&DETAIL_CACHE[day+'-'+slot];
+    if(cached){renderDetailInto(det,cached);return;}
+
+    // Show loading spinner
+    det.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;color:var(--dk-3);font-size:10px;">'
+      +'<div style="width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(255,255,255,.08);border-top-color:var(--jade);animation:sp .7s linear infinite;flex-shrink:0;"></div>'
+      +'Loading portion guide...</div>';
+
+    var detail=await loadMealDetail(day,slot);
+    if(detail){renderDetailInto(det,detail);}
+    else{det.innerHTML='<div style="font-size:10px;font-weight:300;color:var(--dk-3);padding:6px 0;">Could not load detail.</div>';}
+  }
+}
+
+function renderDetailInto(det,d){
+  var html='';
+  if(d.portionGuide){
+    html+='<div class="meal-detail-section"><div class="meal-detail-label">Portion</div>'
+      +'<div style="font-size:11px;font-weight:300;color:var(--dk-2);">'+d.portionGuide+'</div></div>';
+  }
+  if(d.ingredients&&d.ingredients.length){
+    html+='<div class="meal-detail-section"><div class="meal-detail-label">Ingredients</div>';
+    d.ingredients.forEach(function(ing){
+      html+='<div class="ing-row">'
+        +'<div class="ing-name">'+ing.name+'</div>'
+        +'<div class="ing-amount">'+ing.grams+'g</div>'
+        +'<div class="ing-guide">'+((ing.portion_visual)||'')+'</div>'
+      +'</div>';
+    });
+    html+='</div>';
+  }
+  if(d.whyThisWorks){
+    html+='<div class="meal-detail-section">'
+      +'<div class="swap-suggest">'+d.whyThisWorks+'</div></div>';
+  }
+  if(d.swapNote){
+    html+='<div class="meal-detail-section">'
+      +'<div class="swap-suggest"><strong>Smarter swap:</strong> '+d.swapNote+'</div></div>';
+  }
+  det.innerHTML=html||'<div style="font-size:10px;font-weight:300;color:var(--dk-3);padding:4px 0;">No detail available.</div>';
 }
 
 function doSave(){if(S.plan)sp(S.plan);var b=document.getElementById('sbt');if(b){b.textContent='Saved';b.style.opacity='.6';setTimeout(function(){if(b){b.textContent='Save week';b.style.opacity='';}},2000);}}
