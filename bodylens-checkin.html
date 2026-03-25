@@ -125,14 +125,22 @@ function render(weekStart){
   var trainDays=days.filter(function(x){return x.isTraining;});
   var pastTrainDays=trainDays.filter(function(x){return !x.isFuture;});
   var trainDone=pastTrainDays.filter(function(x){return x.log&&x.log.trainStatus==='done';}).length;
+  var trainModified=pastTrainDays.filter(function(x){return x.log&&x.log.trainStatus==='modified';}).length;
   var trainSkipped=pastTrainDays.filter(function(x){return x.log&&x.log.trainStatus==='skipped';}).length;
   var loggedDays=days.filter(function(x){return x.log&&x.log.actual&&x.log.actual.prot>0;});
   var avgProtPct=loggedDays.length?Math.round(loggedDays.reduce(function(s,x){var pl=x.log.plan||{},ac=x.log.actual||{};return s+(pl.prot>0?(ac.prot/pl.prot*100):0);},0)/loggedDays.length):0;
   var avgKcalPct=loggedDays.length?Math.round(loggedDays.reduce(function(s,x){var pl=x.log.plan||{},ac=x.log.actual||{};return s+(pl.kcal>0?(ac.kcal/pl.kcal*100):0);},0)/loggedDays.length):0;
 
+  // Sleep and energy averages from new fields
+  var sleepDays=days.filter(function(x){return x.log&&x.log.sleepActual>0;});
+  var avgSleep=sleepDays.length?Math.round(sleepDays.reduce(function(s,x){return s+x.log.sleepActual;},0)/sleepDays.length*10)/10:0;
+  var energyDays=days.filter(function(x){return x.log&&x.log.energy>0;});
+  var avgEnergy=energyDays.length?Math.round(energyDays.reduce(function(s,x){return s+x.log.energy;},0)/energyDays.length*10)/10:0;
+
   var trainCol=trainSkipped>1?'red':trainDone>=pastTrainDays.length*0.8?'':'amber';
   var protCol=avgProtPct>=90?'':avgProtPct>=70?'amber':'red';
   var kcalCol=avgKcalPct>110?'amber':avgKcalPct<80?'amber':'';
+  var sleepCol=avgSleep>=7?'':avgSleep>0&&avgSleep<6?'red':avgSleep>0?'amber':'';
 
   var weeks=getWeeks();
   var weekSelHtml='<div class="wr-weeks">'+weeks.map(function(w){
@@ -142,9 +150,11 @@ function render(weekStart){
 
   var statsHtml='<div class="wr-stats">'
     +'<div class="ws-cell"><div class="ws-val '+trainCol+'">'+trainDone+'/'+pastTrainDays.length+'</div><div class="ws-label">Sessions done</div></div>'
-    +'<div class="ws-cell"><div class="ws-val '+(trainSkipped>0?'red':'')+'">'+trainSkipped+'</div><div class="ws-label">Sessions skipped</div></div>'
+    +'<div class="ws-cell"><div class="ws-val '+(trainModified>0?'amber':'')+'">'+trainModified+'</div><div class="ws-label">Modified</div></div>'
+    +'<div class="ws-cell"><div class="ws-val '+(trainSkipped>0?'red':'')+'">'+trainSkipped+'</div><div class="ws-label">Skipped</div></div>'
     +'<div class="ws-cell"><div class="ws-val '+protCol+'">'+(loggedDays.length?avgProtPct+'%':'—')+'</div><div class="ws-label">Protein vs target</div></div>'
-    +'<div class="ws-cell"><div class="ws-val '+kcalCol+'">'+(loggedDays.length?avgKcalPct+'%':'—')+'</div><div class="ws-label">Calories vs target</div></div>'
+    +'<div class="ws-cell"><div class="ws-val '+sleepCol+'">'+(avgSleep?avgSleep+'h':'—')+'</div><div class="ws-label">Avg sleep</div></div>'
+    +'<div class="ws-cell"><div class="ws-val '+(avgEnergy>=4?'jade':avgEnergy>0&&avgEnergy<3?'amber':'')+'">'+( avgEnergy?avgEnergy+'/5':'—')+'</div><div class="ws-label">Avg energy</div></div>'
     +'</div>';
 
   var daysHtml=days.map(function(x,i){
@@ -213,7 +223,37 @@ function buildDetail(x,p,isOpen){
       +'<div class="wdd-label">Training</div>'
       +'<div class="wdd-row"><div class="wdd-key">Planned</div><div class="wdd-val">'+(x.wp.type||'Session')+'</div></div>'
       +'<div class="wdd-row"><div class="wdd-key">Status</div><div class="wdd-val '+tsCol+'">'+tsLabel+'</div></div>'
-      +(log&&log.trainNote?'<div class="wdd-row"><div class="wdd-key">Note</div><div class="wdd-val" style="font-size:11px;font-weight:300;">'+log.trainNote+'</div></div>':'')
+      +(log&&log.trainNote?'<div class="wdd-row"><div class="wdd-key">Note</div><div class="wdd-val" style="font-size:11px;font-weight:300;">'+log.trainNote+'</div></div>':'');
+
+    // Per-exercise breakdown
+    var exLogs = log&&log.exercises||{};
+    var exKeys = Object.keys(exLogs);
+    if(exKeys.length) {
+      trainBlock += '<div style="margin-top:8px;border-top:1px solid var(--bd);padding-top:8px;">'
+        +'<div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;">Exercises</div>';
+      exKeys.forEach(function(k){
+        var ex = exLogs[k];
+        var col = ex.status==='done'?'var(--jade)':ex.status==='modified'?'var(--amber)':'rgba(220,80,60,.7)';
+        var icon = ex.status==='done'?'✓':ex.status==='modified'?'~':'✗';
+        trainBlock += '<div style="display:flex;gap:8px;align-items:baseline;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+          +'<span style="font-size:10px;font-weight:700;color:'+col+';flex-shrink:0;">'+icon+'</span>'
+          +'<span style="font-size:12px;font-weight:300;color:var(--dk-2);flex:1;">'+ex.name+'</span>'
+          +(ex.note?'<span style="font-size:10px;font-weight:300;color:var(--dk-3);font-style:italic;">'+ex.note+'</span>':'')
+          +'</div>';
+      });
+      trainBlock += '</div>';
+    }
+    trainBlock += '</div>';
+  }
+
+  // Sleep + energy block
+  var recoveryBlock='';
+  if(log&&(log.sleepActual||log.energy||log.rating)){
+    recoveryBlock='<div class="wdd-block">'
+      +'<div class="wdd-label">Recovery</div>'
+      +(log.sleepActual?'<div class="wdd-row"><div class="wdd-key">Sleep</div><div class="wdd-val '+(log.sleepActual>=7?'jade':log.sleepActual<6?'red':'amber')+'">'+log.sleepActual+'h '+(log.sleepActual>=7?'✓ Good':log.sleepActual<6?'⚠ Short':'OK')+'</div></div>':'')
+      +(log.energy?'<div class="wdd-row"><div class="wdd-key">Energy</div><div class="wdd-val '+(log.energy>=4?'jade':log.energy<=2?'amber':'')+'">'+log.energy+'/5</div></div>':'')
+      +(log.rating?'<div class="wdd-row"><div class="wdd-key">Day rating</div><div class="wdd-val amber">'+'★'.repeat(log.rating)+'</div></div>':'')
       +'</div>';
   }
 
@@ -260,7 +300,7 @@ function buildDetail(x,p,isOpen){
   var noData=x.isFuture?'<div style="font-size:11px;color:var(--dk-3);padding:4px 0;">Planned: '+(x.isTraining?(x.wp.type||'Training'):('Rest'))+(x.isTraining&&x.wp.focus?' — '+x.wp.focus:'')+'</div>':'';
 
   return '<div class="wr-day-detail open" id="detail-'+x.ds+'">'
-    +(x.isFuture?noData:'<div class="wdd-grid">'+trainBlock+macroBlock+'</div>'+noteHtml)
+    +(x.isFuture?noData:'<div class="wdd-grid">'+trainBlock+macroBlock+recoveryBlock+'</div>'+noteHtml)
     +captureHtml
     +'</div>';
 }
@@ -292,33 +332,112 @@ async function generateWeekAnalysis(days,p){
   var el=document.getElementById('wra-body'); if(!el)return;
   var logged=days.filter(function(x){return x.log&&!x.isFuture;});
   if(!logged.length){
-    el.innerHTML='<div style="font-size:12px;font-weight:300;color:var(--dk-3);">Log some days first — the analysis will build as you go through the week.</div>';
+    el.innerHTML='<div style="font-size:12px;font-weight:300;color:var(--dk-3);">Log some days first — the analysis builds as you go through the week.</div>';
     return;
   }
-  var summary=logged.map(function(x){
-    var l=x.log,pl=l.plan||{},ac=l.actual||{};
-    return DAY_NAMES[x.weekIdx]+' ('+( x.wp.type||'Rest')+'): '
-      +'train='+( l.trainStatus||'?')+' | '
-      +'prot='+(ac.prot||0)+'g target '+(pl.prot||p.protein||140)+'g | '
-      +'kcal='+(ac.kcal||0)+' target '+(pl.kcal||p.calories||2000)
-      +(l.dayNote?' | "'+l.dayNote+'"':'');
+
+  // Build rich data summary for each logged day
+  var summary = logged.map(function(x){
+    var l=x.log, pl=l.plan||{}, ac=l.actual||{};
+    var exLogs = l.exercises||{};
+    var exDone = Object.values(exLogs).filter(function(e){return e.status==='done';}).length;
+    var exMod  = Object.values(exLogs).filter(function(e){return e.status==='modified';}).length;
+    var exSkip = Object.values(exLogs).filter(function(e){return e.status==='skipped';}).length;
+    var exNotes= Object.values(exLogs).filter(function(e){return e.note;}).map(function(e){return e.name+': '+e.note;}).join('; ');
+    var line = DAY_NAMES[x.weekIdx]+' ('+( x.wp.type||'Rest')+'): ';
+    line += 'session='+( l.trainStatus||'not logged');
+    if(exDone||exMod||exSkip) line += ' [ex: '+exDone+' done, '+exMod+' modified, '+exSkip+' skipped]';
+    if(exNotes) line += ' | deviations: '+exNotes;
+    if(ac.prot>0) line += ' | prot='+ac.prot+'g/'+( pl.prot||p.protein||174)+'g ('+Math.round(ac.prot/(pl.prot||174)*100)+'%)';
+    if(ac.kcal>0) line += ' | kcal='+ac.kcal+'/'+(pl.kcal||p.trainingKcal||2769);
+    if(l.sleepActual) line += ' | sleep='+l.sleepActual+'h';
+    if(l.energy) line += ' | energy='+l.energy+'/5';
+    if(l.rating) line += ' | rating='+l.rating+'/5';
+    if(l.dayNote) line += ' | note: "'+l.dayNote+'"';
+    return line;
   }).join('\n');
+
   var future=days.filter(function(x){return x.isFuture&&x.isTraining;});
-  var futureLine=future.length?'\nRemaining training days: '+future.map(function(x){return DAY_NAMES[x.weekIdx];}).join(', '):'';
-  var prompt='You are a performance coach reviewing '+p.name+'\'s week.\nProfile: '+(p.age||35)+'yo '+(p.sex||'male')+', '+(p.weight||80)+'kg, goal: '+(p.goal||'recomposition')+', protein target: '+(p.protein||140)+'g/day.\n\nWeek data:\n'+summary+futureLine+'\n\nWrite 2-3 short paragraphs. 1. What the data actually shows — honest, specific, reference numbers. 2. Real consequence of deviations on their goal — factual cause-effect, not a lecture. '+(future.length?'3. The single highest-leverage thing to nail in remaining days this week.':'3. What this week reveals about their pattern — one thing to watch next week.')+'\n\nTone: direct coach who respects them enough to be honest. No praise for mediocre. No markdown. Under 150 words.';
+  var futureLine=future.length?'\nRemaining training this week: '+future.map(function(x){return DAY_NAMES[x.weekIdx]+' ('+x.wp.type+')';}).join(', '):'';
+
+  // Compute pattern signals to include
+  var trainDone   = logged.filter(function(x){return x.log&&x.log.trainStatus==='done';}).length;
+  var trainSkipped= logged.filter(function(x){return x.log&&x.log.trainStatus==='skipped';}).length;
+  var trainMod    = logged.filter(function(x){return x.log&&x.log.trainStatus==='modified';}).length;
+  var sleepDays   = logged.filter(function(x){return x.log&&x.log.sleepActual>0;});
+  var avgSleep    = sleepDays.length ? (sleepDays.reduce(function(s,x){return s+x.log.sleepActual;},0)/sleepDays.length).toFixed(1) : null;
+  var energyDays  = logged.filter(function(x){return x.log&&x.log.energy>0;});
+  var avgEnergy   = energyDays.length ? (energyDays.reduce(function(s,x){return s+x.log.energy;},0)/energyDays.length).toFixed(1) : null;
+  var protDays    = logged.filter(function(x){return x.log&&x.log.actual&&x.log.actual.prot>0;});
+  var avgProtPct  = protDays.length ? Math.round(protDays.reduce(function(s,x){var pl=x.log.plan||{};return s+(x.log.actual.prot/(pl.prot||p.protein||174)*100);},0)/protDays.length) : null;
+
+  var contextLine = 'Goal: '+( p.goal||'body recomposition')+'. Week '+( Math.min(4,Math.ceil((new Date()-new Date(p.generatedAt||Date.now()))/(1000*60*60*24*7))))+' of 4-week block (phase: Foundation/Build/Peak/Deload).';
+  var statsLine = [
+    trainDone+' sessions completed, '+trainMod+' modified, '+trainSkipped+' skipped',
+    avgSleep ? 'avg sleep '+avgSleep+'h' : null,
+    avgEnergy ? 'avg energy '+avgEnergy+'/5' : null,
+    avgProtPct ? 'avg protein '+avgProtPct+'% of target' : null
+  ].filter(Boolean).join(' | ');
+
+  var prompt = 'You are a performance coach reviewing '+p.name+'\'s week in BodyLens.\n'
+    +p.name+' is '+( p.age||44)+'yo, '+(p.weight||87)+'kg, '+(p.sex||'male')+'. '
+    +contextLine+'\n\nWeek summary: '+statsLine+'\n\nDay-by-day data:\n'+summary+futureLine
+    +'\n\nWrite a coach review in EXACTLY this structure — use these exact section labels:\n\n'
+    +'WHAT HAPPENED\n[2-3 sentences. Specific numbers. What actually occurred this week — sessions, protein, sleep, energy. Be precise.]\n\n'
+    +'DEVIATION IMPACT\n[2-3 sentences. For any deviations (skipped sessions, low protein, poor sleep) explain the actual physiological consequence for their specific goal. Cause-effect, not moralising. If no deviations, say so and note what that means.]\n\n'
+    +(future.length
+      ? 'REMAINING DAYS\n[1-2 sentences. The single highest-leverage thing to do before the week closes. Specific.]\n\n'
+      : 'PATTERN SIGNAL\n[1-2 sentences. What this week reveals. One thing to watch or change next week.]\n\n')
+    +'COACH NOTE\n[1 sentence. Honest. No filler. Something they will actually remember.]\n\n'
+    +'Tone: direct, data-grounded, respectful. No bullet points. Under 200 words total.';
+
   try{
     var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:MODEL,max_tokens:250,
-        system:'Direct performance coach. Flowing prose only. No bullets, no headers.',
+      body:JSON.stringify({model:MODEL,max_tokens:350,
+        system:'Performance coach. Structure your response exactly as requested with bold section headers. Direct, data-led, no filler.',
         messages:[{role:'user',content:prompt}]})});
     var data=await res.json();
     var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
-    var paras=text.split(/\n+/).filter(Boolean).map(function(s){return '<p>'+s+'</p>';}).join('');
-    el.innerHTML='<div class="wra-body">'+paras+'</div>'
-      +'<button class="wra-refresh" onclick="generateWeekAnalysis(_lastDays,_lastProfile)">↺ Refresh</button>';
+
+    // Parse sections
+    var sections = ['WHAT HAPPENED','DEVIATION IMPACT','REMAINING DAYS','PATTERN SIGNAL','COACH NOTE'];
+    var html = '';
+    sections.forEach(function(sec) {
+      var re = new RegExp(sec+'\\s*\\n([\\s\\S]*?)(?=(?:'+sections.join('|')+')|$)','i');
+      var m = text.match(re);
+      if (m) {
+        var body = m[1].trim();
+        var isCoachNote = sec === 'COACH NOTE';
+        var labelColor = sec==='DEVIATION IMPACT' ? 'var(--amber)' : sec==='COACH NOTE' ? 'var(--jade)' : 'var(--dk-3)';
+        html += '<div style="margin-bottom:14px;">'
+          +'<div style="font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:'+labelColor+';margin-bottom:5px;">'+sec+'</div>'
+          +'<div style="font-family:'+(isCoachNote?'var(--serif)':'inherit')+';font-size:'+(isCoachNote?'15':'12')+'px;font-weight:300;color:'+(isCoachNote?'var(--dk-1)':'var(--dk-2)')+';line-height:1.75;'+(isCoachNote?'font-style:italic;border-left:2px solid var(--jade);padding-left:12px;':'')+'">'+body+'</div>'
+          +'</div>';
+      }
+    });
+
+    // Fallback: if parsing fails, show as paragraphs
+    if (!html) {
+      html = text.split(/\n+/).filter(Boolean).map(function(s){return '<p style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:10px;">'+s+'</p>';}).join('');
+    }
+
+    el.innerHTML='<div class="wra-body">'+html+'</div>'
+      +'<div style="display:flex;gap:8px;margin-top:12px;">'
+      +'<button class="wra-refresh" onclick="generateWeekAnalysis(_lastDays,_lastProfile)">↺ Regenerate</button>'
+      +'<button class="wra-refresh" onclick="copyWeekReview()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);">Copy review</button>'
+      +'</div>';
   }catch(e){
     el.innerHTML='<div style="font-size:11px;color:var(--dk-3);">Could not load — <button style="background:none;border:none;color:var(--dk-3);cursor:pointer;text-decoration:underline;font-size:11px;" onclick="generateWeekAnalysis(_lastDays,_lastProfile)">try again</button></div>';
   }
+}
+
+function copyWeekReview() {
+  var el = document.getElementById('wra-body');
+  if (!el) return;
+  var text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).catch(function(){});
+  var btns = document.querySelectorAll('.wra-refresh');
+  btns.forEach(function(b){ if(b.textContent.includes('Copy')) { b.textContent = '✓ Copied'; setTimeout(function(){ b.textContent = 'Copy review'; }, 2000); } });
 }
 
 var p=getProfile();
