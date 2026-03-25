@@ -56,6 +56,7 @@
   <div id="gc-header">
     <div id="gc-session-label">Session</div>
     <div id="gc-progress-dots"></div>
+    <button id="gc-pause-btn" onclick="gcPause()" style="background:none;border:1px solid var(--bd);color:var(--dk-3);width:32px;height:32px;border-radius:7px;cursor:pointer;font-size:14px;font-family:var(--sans);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s;">⏸</button>
     <button id="gc-close" onclick="gcClose()">✕</button>
   </div>
   <div id="gc-main">
@@ -3600,37 +3601,115 @@ if('serviceWorker' in navigator){
 // ═══════════════════════════════════════════════════════════════
 //  GYM COACH — live session state machine
 // ═══════════════════════════════════════════════════════════════
-var GC = {
-  active: false,
-  exercises: [],      // [{name, sets, reps, rpe, cue}]
-  exIdx: 0,           // current exercise index
-  setIdx: 0,          // current set index (0-based)
-  phase: 'idle',      // idle | intro | working | resting | logging | done
-  timer: null,
-  timerSecs: 0,
-  sessionLog: {},     // {ex_0: {sets:[{reps,weight,effort}]}, ...}
-  restTarget: 90,     // seconds
+// ═══════════════════════════════════════════════════════════════
+//  GYM COACH — full immersive session experience
+// ═══════════════════════════════════════════════════════════════
+
+// Exercise-specific coaching cues
+var GC_CUES = {
+  'pull-up':       { cue:'Dead hang to chin over bar. Control the negative — 3 seconds down. Scapular retraction before each rep.', warmup:'Scapular hangs — 3×10 dead hang shrugs. Band pull-aparts — 2×15.' },
+  'chin-up':       { cue:'Supinated grip — biceps drive. Chest to bar, full lockout. Slow eccentric.', warmup:'Dead hangs 3×10s. Band pull-aparts 2×15.' },
+  'row':           { cue:'Chest proud, hinge at hip. Elbow drives back past your torso — not your chin. Squeeze at the top for a count.', warmup:'Band rows 2×15. Shoulder dislocations.' },
+  'seated row':    { cue:'Sit tall. Pull to your lower sternum. Pause, then slow return. No rocking.', warmup:'Band face pulls 2×15. Cat-cows 10 reps.' },
+  'lat pulldown':  { cue:'Lean slightly back. Pull to upper chest. Think "elbows to hips". Control the ascent.', warmup:'Straight-arm band pulldowns 2×15.' },
+  'face pull':     { cue:'Elbows high and wide — at eye level. Pull to your face, not your chest. External rotation at end range.', warmup:'Light band pull-aparts 2×20.' },
+  'bicep curl':    { cue:'Upper arm pinned to your side. Full range — all the way down. No swinging.', warmup:'Wrist circles. Light empty-bar curls 2×12.' },
+  'hammer curl':   { cue:'Neutral grip throughout. Slow negative — 3 seconds down. Targets brachialis.', warmup:'Wrist circles. Forearm shakes.' },
+  'bench press':   { cue:'Shoulder blades pinched and depressed. Slight arch. Bar to lower chest. Leg drive.', warmup:'Empty bar 2×15. 50% 1×8. 75% 1×5.' },
+  'overhead press':{ cue:'Core braced, glutes squeezed. Bar traces your face on the way up. Lockout fully.', warmup:'Empty bar 2×15. Band dislocations 10 reps.' },
+  'push-up':       { cue:'Hands slightly wider than shoulders. Full range. Hollow body — no sagging hips.', warmup:'Shoulder circles. Band pull-aparts 2×15.' },
+  'incline press': { cue:'Upper chest focus. Don\'t let the bench angle pull you into shoulder impingement — tuck elbows slightly.', warmup:'Empty bar 2×12 on incline.' },
+  'dip':           { cue:'Forward lean for chest, upright for triceps. Full lockout. Controlled descent.', warmup:'Band-assisted dips 2×10. Shoulder circles.' },
+  'squat':         { cue:'Brace and breathe before descent. Knees track toes. Hip crease below parallel. Drive through the whole foot.', warmup:'Hip circles 2×10. Goblet squats 2×10. Box squats 1×8.' },
+  'deadlift':      { cue:'Bar over mid-foot. Hinge to the bar — don\'t squat it. Brace hard, then push the floor away. Keep the bar close.', warmup:'RDLs empty bar 2×10. Good mornings 2×10.' },
+  'rdl':           { cue:'Soft knee, hinge from hips. Bar drags down your shins. Feel the hamstring stretch. Drive hips through to finish.', warmup:'Hip hinges bodyweight 2×10. Hamstring swings.' },
+  'hip thrust':    { cue:'Shoulder blades on bench edge. Posterior pelvic tilt at the top. Squeeze hard at lockout. Control the descent.', warmup:'Glute bridges 2×15. Clamshells 2×15 each.' },
+  'leg press':     { cue:'Feet shoulder-width. Full range — don\'t lock out completely. Control the eccentric.', warmup:'Bodyweight squats 2×15. Hip flexor stretch.' },
+  'lunge':         { cue:'Torso upright — don\'t lean forward. Back knee to the floor. Drive through front heel to return.', warmup:'Hip flexor stretches. Bodyweight lunges 2×10 each.' },
+  'leg curl':      { cue:'Hips stay on the pad. Curl all the way, hold briefly, slow descent. Control both directions.', warmup:'Leg swings 2×10 each. Light machine warm-up set.' },
+  'calf raise':    { cue:'Full stretch at bottom, full contraction at top. Slow and controlled — calves respond to time under tension.', warmup:'Ankle circles 2×10. Bodyweight calf raises 2×20.' },
+  'plank':         { cue:'Hollow body — ribs in, glutes squeezed, don\'t let hips rise or drop. Eyes down. Breathe steadily.', warmup:'Cat-cows 10 reps. Dead bugs 2×8 each side.' },
+  'default':       { cue:'Full range of motion. Control the eccentric. Breathe through the set.', warmup:'Joint circles. Light movement prep for the target muscles.' }
 };
 
-function gcGetSettings() {
-  try { return JSON.parse(localStorage.getItem('bl_profile')||'{}').notifications || {}; }
-  catch(e) { return {}; }
+// Warmup movements by session type
+var GC_WARMUPS = {
+  'Push':           ['Shoulder circles — 10 each direction', 'Band pull-aparts — 2×15', 'Empty bar bench press — 2×15', 'Rotator cuff circles — 10 each', 'Push-up warm-up — 2×10 slow'],
+  'Pull':           ['Dead hangs — 3×10 seconds', 'Band pull-aparts — 2×15', 'Scapular shrugs — 2×10', 'Shoulder dislocations (band/stick) — 2×10', 'Light lat pulldown — 1×15'],
+  'Legs':           ['Hip circles — 2×10 each way', 'Goblet squat — 2×10 light', 'Hip flexor stretch — 60s each side', 'RDL — 2×10 empty bar', 'Walking lunges — 2×10 each'],
+  'Upper':          ['Shoulder circles — 10 each', 'Band pull-aparts — 2×15', 'Arm swings — 20 reps', 'Empty bar press — 2×12', 'Band rows — 2×15'],
+  'Lower':          ['Hip circles — 2×10', 'Leg swings — 2×10 each', 'Goblet squat — 2×10', 'Hip hinge — 2×10', 'Walking lunges — 2×10'],
+  'Posterior Chain':['Hip hinges — 2×10', 'RDL — 2×10 empty bar', 'Glute bridges — 2×15', 'Hamstring swings — 2×10 each', 'Good mornings — 2×10'],
+  'Full Body':      ['Joint circles top to bottom', 'Bodyweight squats — 2×10', 'Push-ups — 2×10', 'Hip hinges — 2×10', 'Band pull-aparts — 2×15'],
+  'default':        ['Joint circles — top to bottom', 'Light dynamic stretching', 'Movement prep for today\'s muscles', 'Practice movement patterns unloaded', '2 warm-up sets before working weight']
+};
+
+// Rest period guidance by RPE
+var GC_REST_NOTES = {
+  high:   'Good intensity. Full rest — don\'t rush. The next set is where the adaptation happens.',
+  mid:    'Solid set. Rest until breathing is calm and you feel ready. Not a second more than you need.',
+  low:    'You have more in you. Either add weight next set or push closer to failure.',
+  first:  'First set of the session. Rest fully — neurological activation takes a couple of sets.',
+  last:   'Last set of this exercise. Give it everything.',
+};
+
+// Between-exercise transition notes
+var GC_TRANSITIONS = [
+  'Good work. Next exercise — stay focused. Same quality, different muscle.',
+  'That\'s done. Take 90 seconds before you set up for the next one.',
+  'Move to the next exercise. Reset mentally — each exercise is its own effort.',
+  'Solid. Set up for the next one while your heart rate comes down.',
+  'That block is in the log. Next exercise — own it.',
+];
+
+function gcGetExCue(name) {
+  var n = (name||'').toLowerCase();
+  for (var key in GC_CUES) {
+    if (n.includes(key)) return GC_CUES[key];
+  }
+  return GC_CUES['default'];
 }
+
+function gcGetWarmup(sessionType) {
+  for (var key in GC_WARMUPS) {
+    if ((sessionType||'').toLowerCase().includes(key.toLowerCase())) return GC_WARMUPS[key];
+  }
+  return GC_WARMUPS['default'];
+}
+
+var GC = {
+  active: false,
+  exercises: [],
+  exIdx: 0,
+  setIdx: 0,
+  // phases: brief | warmup | working | resting | logging | transition | done
+  phase: 'idle',
+  timer: null,
+  timerSecs: 0,
+  timerTarget: 0,
+  sessionLog: {},
+  restTarget: 90,
+  sessionType: '',
+  startTime: null,
+  paused: false,
+  _pausedSecs: 0,
+};
 
 function gcLaunch(block) {
   var p = P;
   if (!p) return;
 
-  // Parse exercises from block
-  var items = (block.items||[]).filter(function(e){ return e.name !== 'Track loads'; });
+  var items = (block.items||block.exercises||[]).filter(function(e){ return (e.name||e) !== 'Track loads'; });
   GC.exercises = items.map(function(e) {
-    var parsed = parseExercise(e.name);
+    var name = e.name || e;
+    var parsed = parseExercise(name);
+    var cueData = gcGetExCue(parsed.name);
     return {
       name: parsed.name,
       sets: parsed.sets || 3,
       reps: parsed.reps || '10',
-      rpe:  'RPE 7-8',
-      cue:  e.cue || ''
+      rpe: 'RPE 7-8',
+      cue: cueData.cue,
     };
   });
 
@@ -3639,15 +3718,20 @@ function gcLaunch(block) {
   GC.active = true;
   GC.exIdx = 0;
   GC.setIdx = 0;
-  GC.phase = 'intro';
+  GC.phase = 'brief';
+  GC.sessionType = block.title || block.type || 'Training';
+  GC.startTime = Date.now();
+  GC.paused = false;
   GC.sessionLog = {};
-  GC.exercises.forEach(function(_, i) { GC.sessionLog['ex_'+i] = {name: GC.exercises[i].name, sets: []}; });
+  GC.exercises.forEach(function(ex, i) {
+    GC.sessionLog['ex_'+i] = { name: ex.name, sets: [] };
+  });
 
-  document.getElementById('gc-overlay').classList.add('open');
+  var overlay = document.getElementById('gc-overlay');
+  if (overlay) overlay.classList.add('open');
 
-  // Request wake lock to prevent screen sleep
   if (navigator.wakeLock) {
-    navigator.wakeLock.request('screen').catch(function(){});
+    navigator.wakeLock.request('screen').then(function(wl){ window._gcWakeLock = wl; }).catch(function(){});
   }
 
   gcRender();
@@ -3657,8 +3741,29 @@ function gcClose() {
   gcClearTimer();
   GC.active = false;
   GC.phase = 'idle';
-  document.getElementById('gc-overlay').classList.remove('open');
-  if (window._gcWakeLock) { try { window._gcWakeLock.release(); } catch(e) {} }
+  GC.paused = false;
+  var overlay = document.getElementById('gc-overlay');
+  if (overlay) overlay.classList.remove('open');
+  if (window._gcWakeLock) { try { window._gcWakeLock.release(); } catch(e) {} window._gcWakeLock = null; }
+}
+
+function gcPause() {
+  if (GC.paused) {
+    // Resume
+    GC.paused = false;
+    var btn = document.getElementById('gc-pause-btn');
+    if (btn) btn.textContent = '⏸';
+    if (GC.phase === 'resting') {
+      gcStartTimer(GC._pausedSecs, function(){ GC.phase = 'logging'; gcClearTimer(); gcRender(); });
+    }
+  } else {
+    // Pause
+    GC.paused = true;
+    GC._pausedSecs = GC.timerSecs;
+    gcClearTimer();
+    var btn = document.getElementById('gc-pause-btn');
+    if (btn) btn.textContent = '▶';
+  }
 }
 
 function gcRender() {
@@ -3668,158 +3773,279 @@ function gcRender() {
   var secondaryBtn = document.getElementById('gc-secondary-btn');
   var timerEl = document.getElementById('gc-timer-display');
   var label = document.getElementById('gc-session-label');
+  if (!card) return;
 
   // Progress dots
   var dots = document.getElementById('gc-progress-dots');
   if (dots) {
-    dots.innerHTML = GC.exercises.map(function(_, i) {
-      var cls = i < GC.exIdx ? 'done' : i === GC.exIdx ? 'curr' : '';
-      return '<div class="gc-dot ' + cls + '"></div>';
+    dots.innerHTML = GC.exercises.map(function(e, i) {
+      var cls = i < GC.exIdx ? 'done' : i === GC.exIdx && GC.phase !== 'brief' && GC.phase !== 'warmup' ? 'curr' : '';
+      return '<div class="gc-dot ' + cls + '" title="' + e.name + '"></div>';
     }).join('');
   }
 
-  if (GC.phase === 'intro') {
-    label.textContent = 'Session — ' + GC.exercises.length + ' exercises';
-    timerEl.textContent = '';
-    card.innerHTML = '<div class="gc-phase-label">Ready to start</div>'
-      + '<div class="gc-ex-name">' + (P.plan || TODAY.plan.type || 'Training') + '</div>'
-      + '<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:20px;">'
-        + GC.exercises.map(function(e, i){ return (i+1)+'. '+e.name+' — '+e.sets+'×'+e.reps; }).join('<br>')
-      + '</div>'
-      + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">Log reps, weight, and effort after each set. Tap ▶ when you\'re warmed up and ready.</div>';
-    primaryBtn.textContent = '▶ Begin session';
-    primaryBtn.className = '';
-    secondaryBtn.style.display = 'none';
+  if (timerEl) timerEl.textContent = '';
+  secondaryBtn.style.display = '';
 
+  // ── BRIEF ───────────────────────────────────────────
+  if (GC.phase === 'brief') {
+    label.textContent = GC.sessionType;
+    card.innerHTML =
+      '<div class="gc-phase-label">Session brief</div>'
+      + '<div class="gc-ex-name" style="font-size:36px;">' + GC.sessionType + '</div>'
+      + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.8;margin:14px 0 20px;">'
+        + GC.exercises.map(function(e, i){
+            return '<div style="display:flex;align-items:baseline;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+              + '<span style="font-size:10px;font-weight:700;color:var(--jade);min-width:16px;">' + (i+1) + '</span>'
+              + '<span>' + e.name + '</span>'
+              + '<span style="color:var(--dk-3);font-size:10px;margin-left:auto;">' + e.sets + '\u00d7' + e.reps + ' \u00b7 ' + e.rpe + '</span>'
+            + '</div>';
+          }).join('')
+      + '</div>'
+      + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);background:rgba(0,200,160,.04);border:1px solid var(--jade-br);border-radius:8px;padding:10px 14px;">'
+        + '\u2022 Log reps, weight and effort after each set<br>'
+        + '\u2022 Rest timer auto-starts \u2014 skip it any time<br>'
+        + '\u2022 Tap \u23f8 to pause if life interrupts'
+      + '</div>';
+    primaryBtn.textContent = '\u25b6 Start warmup';
+    primaryBtn.className = '';
+    secondaryBtn.textContent = 'Skip warmup \u2192';
+
+  // ── WARMUP ──────────────────────────────────────────
+  } else if (GC.phase === 'warmup') {
+    label.textContent = 'Warm up';
+    var wu = gcGetWarmup(GC.sessionType);
+    card.innerHTML =
+      '<div class="gc-phase-label">Warmup — take your time</div>'
+      + '<div class="gc-ex-name" style="font-size:22px;margin-bottom:16px;">Prepare your body</div>'
+      + '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">'
+        + wu.map(function(m, i){
+            return '<div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--ink-2);border-radius:8px;border:1px solid var(--bd);">'
+              + '<div style="width:20px;height:20px;border-radius:50%;background:var(--ink-1);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--dk-3);flex-shrink:0;">' + (i+1) + '</div>'
+              + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">' + m + '</div>'
+            + '</div>';
+          }).join('')
+      + '</div>'
+      + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">Complete 1\u20132 warm-up sets of your first exercise before working weight.</div>';
+    primaryBtn.textContent = '\u25b6 Begin session';
+    primaryBtn.className = '';
+    secondaryBtn.textContent = 'Already warm \u2192';
+
+  // ── WORKING ─────────────────────────────────────────
   } else if (GC.phase === 'working') {
-    label.textContent = ex.name;
-    timerEl.textContent = '';
     var setNum = GC.setIdx + 1;
-    var totalSets = ex.sets;
-    card.innerHTML = '<div class="gc-phase-label">Exercise ' + (GC.exIdx+1) + ' of ' + GC.exercises.length + '</div>'
+    var isLastSet = setNum === ex.sets;
+    var isFirstSet = GC.setIdx === 0;
+    label.textContent = ex.name;
+    card.innerHTML =
+      '<div class="gc-phase-label">Exercise ' + (GC.exIdx+1) + ' of ' + GC.exercises.length + (isLastSet ? ' \u00b7 Last set' : '') + '</div>'
       + '<div class="gc-ex-name">' + ex.name + '</div>'
-      + '<div class="gc-set-badge">Set ' + setNum + ' of ' + totalSets + '</div>'
+      + '<div class="gc-set-badge">Set ' + setNum + ' of ' + ex.sets + '</div>'
       + '<div class="gc-schema">'
-        + '<div class="gc-schema-chip"><div class="gc-schema-val">' + ex.reps + '</div><div class="gc-schema-label">Reps</div></div>'
-        + '<div class="gc-schema-chip"><div class="gc-schema-val">' + ex.sets + '</div><div class="gc-schema-label">Sets</div></div>'
-        + '<div class="gc-schema-chip"><div class="gc-schema-val" style="font-size:13px;">' + ex.rpe + '</div><div class="gc-schema-label">Target</div></div>'
+        + '<div class="gc-schema-chip">'
+          + '<div class="gc-schema-val">' + ex.reps + '</div>'
+          + '<div class="gc-schema-label">Target reps</div>'
+        + '</div>'
+        + '<div class="gc-schema-chip">'
+          + '<div class="gc-schema-val" style="font-size:13px;">' + ex.rpe + '</div>'
+          + '<div class="gc-schema-label">Intensity</div>'
+        + '</div>'
+        + (GC.sessionLog['ex_'+GC.exIdx].sets.length > 0
+          ? '<div class="gc-schema-chip">'
+              + '<div class="gc-schema-val" style="font-size:13px;">'
+                + (GC.sessionLog['ex_'+GC.exIdx].sets.slice(-1)[0].weight || 'BW') + (GC.sessionLog['ex_'+GC.exIdx].sets.slice(-1)[0].weight ? 'kg' : '')
+              + '</div>'
+              + '<div class="gc-schema-label">Last set</div>'
+            + '</div>'
+          : '')
       + '</div>'
-      + (ex.cue ? '<div class="gc-cue">' + ex.cue + '</div>' : '');
-    primaryBtn.textContent = '✓ Set done';
+      + '<div class="gc-cue">' + ex.cue + '</div>';
+
+    primaryBtn.textContent = '\u2713 Set done';
     primaryBtn.className = '';
-    secondaryBtn.textContent = 'Skip set';
-    secondaryBtn.style.display = '';
+    secondaryBtn.textContent = 'Skip this set';
 
+  // ── RESTING ─────────────────────────────────────────
   } else if (GC.phase === 'resting') {
-    label.textContent = 'Rest';
-    card.innerHTML = '<div class="gc-phase-label">Recover</div>'
-      + '<div class="gc-ex-name" style="font-size:28px;color:var(--dk-2);">Rest period</div>'
-      + '<div style="font-size:12px;font-weight:300;color:var(--dk-3);margin-top:8px;">Next: set ' + (GC.setIdx+1) + ' of ' + ex.name + '</div>';
-    primaryBtn.textContent = 'Skip rest →';
-    primaryBtn.className = 'amber';
-    secondaryBtn.style.display = 'none';
-    gcStartTimer(GC.restTarget, function() { GC.phase = 'logging'; gcClearTimer(); gcRender(); });
+    var isLastSetOfEx = GC.setIdx + 1 >= ex.sets;
+    var nextEx = GC.exercises[GC.exIdx + (isLastSetOfEx ? 1 : 0)];
+    var lastLoggedEffort = GC.sessionLog['ex_'+GC.exIdx].sets.slice(-1)[0] && GC.sessionLog['ex_'+GC.exIdx].sets.slice(-1)[0].effort;
+    var restNote = lastLoggedEffort >= 5 ? GC_REST_NOTES.high
+                 : lastLoggedEffort >= 3 ? GC_REST_NOTES.mid
+                 : lastLoggedEffort > 0  ? GC_REST_NOTES.low
+                 : GC.setIdx === 0       ? GC_REST_NOTES.first
+                 : isLastSetOfEx         ? GC_REST_NOTES.last
+                 : GC_REST_NOTES.mid;
+    var nextLabel = isLastSetOfEx && nextEx ? 'Next: ' + nextEx.name : isLastSetOfEx ? 'Last exercise done' : 'Next: Set ' + (GC.setIdx + 2) + ' of ' + ex.name;
 
+    label.textContent = 'Rest';
+    card.innerHTML =
+      '<div class="gc-phase-label">Rest \u2014 ' + nextLabel + '</div>'
+      + '<div id="gc-rest-ring-wrap" style="display:flex;align-items:center;justify-content:center;margin:20px 0;">'
+        + '<svg viewBox="0 0 120 120" width="120" height="120">'
+          + '<circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="8"/>'
+          + '<circle id="gc-rest-arc" cx="60" cy="60" r="52" fill="none" stroke="var(--jade)" stroke-width="8" stroke-linecap="round"'
+            + ' stroke-dasharray="327" stroke-dashoffset="0" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .9s linear;"/>'
+          + '<text x="60" y="54" text-anchor="middle" font-size="28" font-weight="700" fill="var(--dk-1)" font-family="var(--mono)" id="gc-rest-ring-text">0:00</text>'
+          + '<text x="60" y="72" text-anchor="middle" font-size="10" fill="var(--dk-3)" font-family="var(--sans)" letter-spacing=".08em">RECOVER</text>'
+        + '</svg>'
+      + '</div>'
+      + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;padding:10px 14px;background:var(--ink-2);border-radius:8px;border-left:2px solid rgba(0,200,160,.3);">' + restNote + '</div>';
+
+    primaryBtn.textContent = 'Ready \u2192';
+    primaryBtn.className = 'amber';
+    secondaryBtn.textContent = '+30s rest';
+
+    gcStartRestTimer(GC.restTarget);
+
+  // ── LOGGING ─────────────────────────────────────────
   } else if (GC.phase === 'logging') {
-    label.textContent = 'Log set';
-    timerEl.textContent = '';
     var lastSet = GC.sessionLog['ex_'+GC.exIdx].sets.slice(-1)[0] || {};
     var prevReps = lastSet.reps || parseInt(ex.reps) || 10;
     var prevWeight = lastSet.weight || 0;
+    var setDone = GC.setIdx; // setIdx hasn't advanced yet during logging
 
-    card.innerHTML = '<div class="gc-phase-label">How did that go?</div>'
-      + '<div class="gc-ex-name" style="font-size:24px;">' + ex.name + ' — Set ' + GC.setIdx + '</div>'
+    label.textContent = 'Log set ' + (setDone) + ' \u2014 ' + ex.name;
+    card.innerHTML =
+      '<div class="gc-phase-label">How did that go?</div>'
+      + '<div style="font-size:16px;font-weight:500;color:var(--dk-1);margin-bottom:16px;">' + ex.name + ' \u00b7 Set ' + setDone + '</div>'
       + '<div class="gc-log-row">'
         + '<div class="gc-log-cell">'
           + '<div class="gc-log-cell-label">Reps</div>'
           + '<div class="gc-log-stepper">'
-            + '<button class="gc-step-btn" onclick="gcStep(\'reps\',-1)">−</button>'
+            + '<button class="gc-step-btn" onclick="gcStep(\'reps\',-1)">\u2212</button>'
             + '<div class="gc-step-val" id="gc-val-reps">' + prevReps + '</div>'
             + '<button class="gc-step-btn" onclick="gcStep(\'reps\',1)">+</button>'
           + '</div>'
         + '</div>'
         + '<div class="gc-log-cell">'
-          + '<div class="gc-log-cell-label">Weight (kg)</div>'
+          + '<div class="gc-log-cell-label">Weight kg</div>'
           + '<div class="gc-log-stepper">'
-            + '<button class="gc-step-btn" onclick="gcStep(\'weight\',-2.5)">−</button>'
+            + '<button class="gc-step-btn" onclick="gcStep(\'weight\',-2.5)">\u2212</button>'
             + '<div class="gc-step-val" id="gc-val-weight">' + prevWeight + '</div>'
             + '<button class="gc-step-btn" onclick="gcStep(\'weight\',2.5)">+</button>'
           + '</div>'
         + '</div>'
-        + '<div class="gc-log-cell">'
-          + '<div class="gc-log-cell-label">Effort</div>'
-          + '<div class="gc-effort-row" id="gc-effort-row">'
-            + [1,2,3,4,5].map(function(n){
-                return '<button class="gc-effort-btn" id="gc-eff-'+n+'" onclick="gcSetEffort('+n+')" title="' + ['','Easy','Moderate','Hard','Very hard','Max'][n] + '">' + n + '</button>';
-              }).join('')
-          + '</div>'
-        + '</div>'
       + '</div>'
-      + '<div style="font-size:10px;font-weight:300;color:var(--dk-3);text-align:center;margin-bottom:8px;">Bodyweight / no weight? Leave weight at 0</div>';
+      + '<div style="margin-bottom:6px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);">Effort</div>'
+      + '<div class="gc-effort-row" id="gc-effort-row">'
+        + [1,2,3,4,5].map(function(n){
+            var labels = ['','Easy','Moderate','Hard','Very hard','Max'];
+            return '<button class="gc-effort-btn" id="gc-eff-'+n+'" onclick="gcSetEffort('+n+')">'
+              + '<span style="font-size:16px;font-weight:700;">' + n + '</span>'
+              + '<span style="font-size:8px;display:block;margin-top:2px;opacity:.6;">' + labels[n] + '</span>'
+            + '</button>';
+          }).join('')
+      + '</div>'
+      + '<div style="font-size:10px;font-weight:300;color:var(--dk-3);text-align:center;margin-top:6px;">Bodyweight exercise? Leave weight at 0.</div>';
 
     GC._logVals = { reps: prevReps, weight: prevWeight, effort: 0 };
-    primaryBtn.textContent = 'Save & continue →';
+    primaryBtn.textContent = 'Save & continue \u2192';
     primaryBtn.className = '';
     secondaryBtn.textContent = 'Skip log';
-    secondaryBtn.style.display = '';
 
-  } else if (GC.phase === 'done') {
-    gcClearTimer();
-    label.textContent = 'Session complete';
-    timerEl.textContent = '';
-
-    // Build summary
-    var totalSets = 0, exercisesDone = 0;
-    Object.values(GC.sessionLog).forEach(function(e){ if(e.sets.length){ exercisesDone++; totalSets += e.sets.length; } });
-
-    card.innerHTML = '<div class="gc-complete-icon">🏁</div>'
-      + '<div class="gc-complete-title">Session complete.</div>'
-      + '<div class="gc-summary-grid">'
-        + '<div class="gc-sum-cell"><div class="gc-sum-val">' + exercisesDone + '</div><div class="gc-sum-label">Exercises</div></div>'
-        + '<div class="gc-sum-cell"><div class="gc-sum-val">' + totalSets + '</div><div class="gc-sum-label">Sets logged</div></div>'
-        + '<div class="gc-sum-cell"><div class="gc-sum-val" style="color:var(--amber);">✓</div><div class="gc-sum-label">Saved</div></div>'
-      + '</div>'
-      + '<div style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.75;text-align:center;">'
-        + 'All sets logged to today\'s record. See your full session in the day review.'
-      + '</div>';
-    primaryBtn.textContent = '← Back to today';
+  // ── TRANSITION (between exercises) ──────────────────
+  } else if (GC.phase === 'transition') {
+    var nextE = GC.exercises[GC.exIdx];
+    var transNote = GC_TRANSITIONS[GC.exIdx % GC_TRANSITIONS.length];
+    var nextCue = gcGetExCue(nextE.name);
+    label.textContent = nextE.name + ' up next';
+    card.innerHTML =
+      '<div class="gc-phase-label">Exercise ' + GC.exIdx + ' complete \u2014 ' + (GC.exercises.length - GC.exIdx) + ' to go</div>'
+      + '<div class="gc-ex-name" style="font-size:28px;margin-bottom:8px;">' + nextE.name + '</div>'
+      + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-bottom:16px;">' + nextE.sets + '\u00d7' + nextE.reps + ' \u00b7 ' + nextE.rpe + '</div>'
+      + '<div class="gc-cue">' + nextCue.cue + '</div>'
+      + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:12px;font-style:italic;">' + transNote + '</div>';
+    primaryBtn.textContent = '\u25b6 Start exercise';
     primaryBtn.className = '';
     secondaryBtn.style.display = 'none';
 
-    // Write to daylog
+  // ── DONE ─────────────────────────────────────────────
+  } else if (GC.phase === 'done') {
+    gcClearTimer();
+    label.textContent = 'Session complete';
+    var elapsed = GC.startTime ? Math.round((Date.now() - GC.startTime) / 60000) : 0;
+    var totalSetsLogged = 0;
+    var totalReps = 0;
+    var totalVol = 0;
+    Object.values(GC.sessionLog).forEach(function(e){
+      e.sets.forEach(function(s){ totalSetsLogged++; totalReps += s.reps||0; totalVol += (s.reps||0)*(s.weight||0); });
+    });
+
+    card.innerHTML =
+      '<div class="gc-complete-icon">\uD83C\uDFC1</div>'
+      + '<div class="gc-complete-title">Session done.</div>'
+      + '<div class="gc-summary-grid">'
+        + '<div class="gc-sum-cell"><div class="gc-sum-val">' + GC.exercises.length + '</div><div class="gc-sum-label">Exercises</div></div>'
+        + '<div class="gc-sum-cell"><div class="gc-sum-val">' + totalSetsLogged + '</div><div class="gc-sum-label">Sets logged</div></div>'
+        + '<div class="gc-sum-cell"><div class="gc-sum-val">' + elapsed + 'm</div><div class="gc-sum-label">Duration</div></div>'
+        + (totalVol > 0 ? '<div class="gc-sum-cell"><div class="gc-sum-val" style="font-size:14px;">' + totalVol + 'kg</div><div class="gc-sum-label">Volume</div></div>' : '')
+      + '</div>'
+      + '<div id="gc-post-summary" style="margin-top:12px;font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.75;padding:12px 14px;background:var(--ink-2);border-radius:8px;">'
+        + '<div style="display:flex;align-items:center;gap:8px;"><div class="spin" style="width:12px;height:12px;display:inline-block;border:1.5px solid rgba(255,255,255,.1);border-top-color:var(--jade);border-radius:50%;animation:spin .8s linear infinite;"></div><span>Coach reviewing your session\u2026</span></div>'
+      + '</div>';
+    primaryBtn.textContent = '\u2190 Back to today';
+    primaryBtn.className = '';
+    secondaryBtn.style.display = 'none';
+
     gcSaveToLog();
+    gcGeneratePostSessionNote();
   }
 }
 
+function gcStartRestTimer(secs) {
+  gcClearTimer();
+  GC.timerSecs = secs;
+  GC.timerTarget = secs;
+  var circ = 2 * Math.PI * 52; // 326.7
+
+  function tick() {
+    var textEl = document.getElementById('gc-rest-ring-text');
+    var arcEl  = document.getElementById('gc-rest-arc');
+    var pct = GC.timerSecs / GC.timerTarget;
+    if (textEl) textEl.textContent = Math.floor(GC.timerSecs/60) + ':' + (GC.timerSecs%60<10?'0':'') + (GC.timerSecs%60);
+    if (arcEl) arcEl.setAttribute('stroke-dashoffset', circ * (1 - pct));
+    if (arcEl) arcEl.setAttribute('stroke', GC.timerSecs < 10 ? 'var(--amber)' : 'var(--jade)');
+    if (GC.timerSecs <= 0) { gcClearTimer(); GC.phase = 'logging'; gcRender(); return; }
+    GC.timerSecs--;
+  }
+  tick();
+  GC.timer = setInterval(tick, 1000);
+}
+
 function gcPrimary() {
-  if (GC.phase === 'intro') {
-    GC.phase = 'working';
-    gcRender();
+  if (GC.phase === 'brief') {
+    GC.phase = 'warmup'; gcRender();
+  } else if (GC.phase === 'warmup') {
+    GC.phase = 'working'; gcRender();
   } else if (GC.phase === 'working') {
-    // Set done — go to rest or logging
-    GC.phase = 'resting';
-    gcRender();
+    GC.phase = 'resting'; gcRender();
   } else if (GC.phase === 'resting') {
-    // Skip rest
-    gcClearTimer();
-    GC.phase = 'logging';
-    gcRender();
+    gcClearTimer(); GC.phase = 'logging'; gcRender();
   } else if (GC.phase === 'logging') {
-    gcSaveSet();
-    gcAdvance();
+    gcSaveSet(); gcAdvance();
+  } else if (GC.phase === 'transition') {
+    GC.phase = 'working'; gcRender();
   } else if (GC.phase === 'done') {
     gcClose();
   }
 }
 
 function gcSecondary() {
-  if (GC.phase === 'working') {
-    // Skip set — go straight to logging or next
-    GC.phase = 'logging';
-    gcRender();
+  if (GC.phase === 'brief') {
+    GC.phase = 'working'; gcRender(); // skip warmup
+  } else if (GC.phase === 'warmup') {
+    GC.phase = 'working'; gcRender();
+  } else if (GC.phase === 'working') {
+    GC.phase = 'logging'; gcRender(); // skip to log
+  } else if (GC.phase === 'resting') {
+    // Add 30 seconds
+    GC.timerSecs += 30;
+    GC.timerTarget += 30;
+    var textEl = document.getElementById('gc-rest-ring-text');
+    if (textEl) textEl.textContent = GC.timerSecs + 's';
   } else if (GC.phase === 'logging') {
-    // Skip logging this set
-    gcAdvance();
+    gcAdvance(); // skip logging
   }
 }
 
@@ -3827,16 +4053,14 @@ function gcAdvance() {
   var ex = GC.exercises[GC.exIdx];
   GC.setIdx++;
   if (GC.setIdx < ex.sets) {
-    GC.phase = 'resting';
-    gcRender();
+    GC.phase = 'resting'; gcRender();
   } else {
-    // Move to next exercise
     GC.exIdx++;
     GC.setIdx = 0;
     if (GC.exIdx >= GC.exercises.length) {
       GC.phase = 'done';
     } else {
-      GC.phase = 'working';
+      GC.phase = 'transition'; // show next exercise preview
     }
     gcRender();
   }
@@ -3873,46 +4097,64 @@ function gcSaveSet() {
 function gcSaveToLog() {
   var log = loadDayLog(_rDate) || initDayLog();
   if (!log.exercises) log.exercises = {};
-  Object.keys(GC.sessionLog).forEach(function(key, i) {
+  Object.keys(GC.sessionLog).forEach(function(key) {
     var entry = GC.sessionLog[key];
     if (entry.sets.length) {
-      log.exercises[key] = {
-        name: entry.name,
-        status: 'done',
-        sets: entry.sets,
-        note: ''
-      };
+      log.exercises[key] = { name: entry.name, status: 'done', sets: entry.sets, note: '' };
     }
   });
   if (Object.keys(log.exercises).some(function(k){ return log.exercises[k].sets && log.exercises[k].sets.length; })) {
     log.trainStatus = 'done';
   }
   saveDayLog(log);
-  // Refresh the exercise rows on the page
   renderProgressBanner(P, TODAY);
 }
 
-function gcStartTimer(secs, onComplete) {
-  gcClearTimer();
-  GC.timerSecs = secs;
-  var timerEl = document.getElementById('gc-timer-display');
-  function tick() {
-    if (timerEl) timerEl.textContent = Math.floor(GC.timerSecs/60) + ':' + (GC.timerSecs%60<10?'0':'') + (GC.timerSecs%60);
-    if (GC.timerSecs <= 0) { gcClearTimer(); if(onComplete) onComplete(); return; }
-    GC.timerSecs--;
+async function gcGeneratePostSessionNote() {
+  var el = document.getElementById('gc-post-summary');
+  if (!el) return;
+  var p = P;
+
+  // Build session summary for the prompt
+  var summary = Object.values(GC.sessionLog).filter(function(e){ return e.sets.length; }).map(function(e){
+    var avgEffort = e.sets.reduce(function(s,x){ return s+(x.effort||0); }, 0) / e.sets.length;
+    var totalReps = e.sets.reduce(function(s,x){ return s+(x.reps||0); }, 0);
+    var maxWeight = Math.max.apply(null, e.sets.map(function(x){ return x.weight||0; }));
+    return e.name + ': ' + e.sets.length + ' sets, ' + totalReps + ' total reps'
+      + (maxWeight > 0 ? ', up to ' + maxWeight + 'kg' : ' bodyweight')
+      + ', avg effort ' + avgEffort.toFixed(1) + '/5';
+  }).join('\n');
+
+  var prompt = p.name + ' just completed a ' + GC.sessionType + ' session.\n'
+    + 'Profile: ' + p.age + 'yo, goal: ' + (p.goal||'recomposition') + ', Week ' + Math.ceil((Date.now()-new Date(p.generatedAt||Date.now()))/(1000*60*60*24*7)) + ' of programme.\n\n'
+    + 'Session data:\n' + summary + '\n\n'
+    + 'Write a post-session note: 2-3 sentences. One sentence on what the data shows (specific numbers). '
+    + 'One sentence on what this means for their goal. One sentence: the single highest-value thing to do in the next 60 minutes for recovery. '
+    + 'Direct, no filler, no praise for average.';
+
+  try {
+    var res = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model: MODEL, max_tokens: 150,
+        system: 'Direct performance coach. 2-3 sentences only. No markdown.',
+        messages: [{ role:'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    var text = (data.content||[]).map(function(b){ return b.text||''; }).join('').trim();
+    if (el && text) {
+      el.innerHTML = '<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:6px;">Coach</div>'
+        + '<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;font-family:var(--serif);">' + text + '</div>';
+    }
+  } catch(e) {
+    if (el) el.style.display = 'none';
   }
-  tick();
-  GC.timer = setInterval(tick, 1000);
 }
 
 function gcClearTimer() {
   if (GC.timer) { clearInterval(GC.timer); GC.timer = null; }
 }
 
-// Wire "Start with Coach" button into existing showSession
-var _origShowSession = showSession;
 window._gcLaunchFromBlock = function(blockIdx, block) {
-  // Close the session panel first
   closeSession();
   setTimeout(function() { gcLaunch(block); }, 200);
 };

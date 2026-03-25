@@ -22,9 +22,62 @@
     <a class="nav-right" href="/bodylens-howitworks.html">How it works</a>
     <a class="nav-right" href="/bodylens-bodyscan.html">Body scan</a>
     <div class="nav-meta" id="nav-meta"></div>
-  <a class="nav-link nav-profiles" href="/bodylens-profiles.html" title="Profile Vault" style="margin-left:8px;opacity:0.6;font-size:11px;">⬡ Vault</a>
+    <a class="nav-link nav-profiles" href="/bodylens-profiles.html" title="Profile Vault" style="margin-left:8px;opacity:0.6;font-size:11px;">⬡ Vault</a>
+    <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu">&#9776;</button>
   </div>
-</nav>`;
+</nav>
+
+<!-- MOBILE MENU OVERLAY -->
+<div class="mobile-menu-overlay" id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mm-header">
+    <div class="mm-brand">Body<em>Lens</em></div>
+    <button class="mm-close" onclick="closeMobileMenu()">&#10005;</button>
+  </div>
+  <div class="mm-section-label">Daily</div>
+  <a class="mm-link" href="/bodylens-dailyplan.html">Today</a>
+  <a class="mm-link" href="/bodylens-plan.html">Plan</a>
+  <a class="mm-link" href="/bodylens-checkin.html">Week review</a>
+  <div class="mm-section-label">Food</div>
+  <a class="mm-link" href="/bodylens-food.html">Food hub</a>
+  <a class="mm-link" href="/bodylens-mealbuilder.html">Meal planner</a>
+  <div class="mm-section-label">Optimise</div>
+  <a class="mm-link" href="/bodylens-accelerators.html">Accelerators</a>
+  <a class="mm-link" href="/bodylens-supplements.html">Deep Stack</a>
+  <a class="mm-link" href="/bodylens-science.html">Science</a>
+  <div class="mm-section-label">Programme</div>
+  <a class="mm-link" href="/bodylens-programme.html">My programme</a>
+  <a class="mm-link" href="/bodylens-podcast.html">Podcast</a>
+  <a class="mm-link" href="/bodylens-instructions.html">Report</a>
+  <div class="mm-section-label">More</div>
+  <a class="mm-link" href="/bodylens-guide.html">Guide</a>
+  <a class="mm-link" href="/bodylens-howitworks.html">How it works</a>
+  <a class="mm-link" href="/bodylens-bodyscan.html">Body scan</a>
+  <a class="mm-link" href="/bodylens-profiles.html">⬡ Vault</a>
+</div>`;
+
+  const BOTTOM_TAB_HTML = `<div class="mobile-tab-bar" id="mobile-tab-bar">
+  <a class="mtb-tab" href="/bodylens-dailyplan.html">
+    <div class="mtb-icon">&#128197;</div>
+    <div class="mtb-label">Today</div>
+  </a>
+  <a class="mtb-tab" href="/bodylens-mealbuilder.html">
+    <div class="mtb-icon">&#127829;</div>
+    <div class="mtb-label">Meals</div>
+  </a>
+  <a class="mtb-tab" href="/bodylens-accelerators.html">
+    <div class="mtb-icon">&#9889;</div>
+    <div class="mtb-label">Boost</div>
+  </a>
+  <a class="mtb-tab" href="/bodylens-programme.html">
+    <div class="mtb-icon">&#128100;</div>
+    <div class="mtb-label">Programme</div>
+  </a>
+  <button class="mtb-tab mtb-more" onclick="toggleMobileMenu()">
+    <div class="mtb-icon">&#8942;</div>
+    <div class="mtb-label">More</div>
+  </button>
+</div>`;
 
   function doInject() {
     // Replace existing nav if present
@@ -36,10 +89,21 @@
       document.body.insertAdjacentHTML('afterbegin', NAV_HTML);
     }
 
-    // Mark current page active
+    // Inject bottom tab bar (mobile only — hidden on desktop via CSS)
+    if (!document.getElementById('mobile-tab-bar')) {
+      document.body.insertAdjacentHTML('beforeend', BOTTOM_TAB_HTML);
+    }
+
+    // Mark current page active in both nav and bottom tab bar
     const path = window.location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('.nav-link, .nav-right').forEach(a => {
-      const href = a.getAttribute('href').split('/').pop();
+    document.querySelectorAll('.nav-link, .nav-right, .mm-link, .mtb-tab').forEach(a => {
+      const href = (a.getAttribute('href')||'').split('/').pop();
+      if (href === path) a.classList.add('active');
+    });
+
+    // Mark active tab in mobile menu
+    document.querySelectorAll('.mm-link').forEach(a => {
+      const href = (a.getAttribute('href')||'').split('/').pop();
       if (href === path) a.classList.add('active');
     });
 
@@ -563,4 +627,22 @@ window.removeOpt = function(id) {
     p.optimisations = (p.optimisations || []).filter(function(o){ return (typeof o === 'string' ? o : o.id) !== id; });
     localStorage.setItem('bl_profile', JSON.stringify(p));
   } catch(e) {}
+};
+
+// ── MOBILE MENU ─────────────────────────────────────────
+window.toggleMobileMenu = function() {
+  var menu = document.getElementById('mobile-menu');
+  var overlay = document.getElementById('mobile-menu-overlay');
+  if (!menu) return;
+  var isOpen = menu.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+};
+
+window.closeMobileMenu = function() {
+  var menu = document.getElementById('mobile-menu');
+  var overlay = document.getElementById('mobile-menu-overlay');
+  if (menu) menu.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
 };
