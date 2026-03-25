@@ -624,6 +624,19 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
     }
     #bl-coach-send:hover { opacity: 0.85; }
     #bl-coach-send:disabled { opacity: 0.25; cursor: not-allowed; }
+    #bl-coach-mic {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: transparent; border: 1px solid #1e2e28;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; align-self: flex-end; transition: all 0.12s;
+      color: #3e504a; font-size: 15px;
+    }
+    #bl-coach-mic:hover { border-color: rgba(0,200,160,0.3); color: #00c8a0; }
+    #bl-coach-mic.listening {
+      background: rgba(220,60,60,0.12); border-color: rgba(220,60,60,0.4);
+      color: rgba(220,60,60,0.9); animation: micPulse 1s ease infinite;
+    }
+    @keyframes micPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
     @media(max-width:480px) {
       #bl-coach-panel { right:10px; bottom:82px; width:calc(100vw - 20px); }
@@ -799,6 +812,7 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
         <div id="bl-coach-chips"></div>
         <div id="bl-coach-input-wrap">
           <textarea id="bl-coach-input" placeholder="Ask your coach…" rows="1"></textarea>
+          <button id="bl-coach-mic" title="Voice input" onclick="window._blCoach && window._blCoach.toggleMic()">🎤</button>
           <button id="bl-coach-send">↑</button>
         </div>
       </div>
@@ -970,7 +984,90 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
       });
     }
 
-    // ── CATEGORISED QUESTIONS ─────────────────────────
+    // ── VOICE INPUT (Web Speech API — free, no key) ───────
+    let _recognition = null;
+    let _micListening = false;
+
+    function initMic() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return null;
+      const r = new SR();
+      r.continuous = false;
+      r.interimResults = true;
+      r.lang = 'en-GB';
+      r.maxAlternatives = 1;
+
+      r.onstart = () => {
+        _micListening = true;
+        const mic = document.getElementById('bl-coach-mic');
+        if (mic) { mic.classList.add('listening'); mic.title = 'Listening… tap to stop'; }
+        if (input) input.placeholder = 'Listening…';
+      };
+
+      r.onresult = (e) => {
+        let transcript = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          transcript += e.results[i][0].transcript;
+        }
+        if (input) {
+          input.value = transcript;
+          input.style.height = 'auto';
+          input.style.height = Math.min(input.scrollHeight, 90) + 'px';
+        }
+        // Final result — auto-send
+        if (e.results[e.results.length - 1].isFinal) {
+          setTimeout(() => { if (input?.value?.trim()) send_msg(); }, 400);
+        }
+      };
+
+      r.onerror = (e) => {
+        stopMic();
+        if (e.error === 'not-allowed') {
+          if (input) input.placeholder = 'Mic blocked — check browser permissions';
+          setTimeout(() => { if (input) input.placeholder = 'Ask your coach…'; }, 3000);
+        }
+      };
+
+      r.onend = () => { stopMic(); };
+
+      return r;
+    }
+
+    function stopMic() {
+      _micListening = false;
+      const mic = document.getElementById('bl-coach-mic');
+      if (mic) { mic.classList.remove('listening'); mic.title = 'Voice input'; }
+      if (input && !input.value) input.placeholder = 'Ask your coach…';
+      try { _recognition?.stop(); } catch(e) {}
+    }
+
+    function toggleMic() {
+      if (_micListening) { stopMic(); return; }
+      if (!_recognition) _recognition = initMic();
+      if (!_recognition) {
+        // Browser doesn't support it
+        if (input) {
+          input.placeholder = 'Voice not supported — type your question';
+          setTimeout(() => { input.placeholder = 'Ask your coach…'; }, 3000);
+        }
+        return;
+      }
+      try { _recognition.start(); }
+      catch(e) { stopMic(); }
+    }
+
+    // Expose toggleMic via window._blCoach
+    // (assigned below in the exports block — toggling here pre-emptively)
+    const mic = document.getElementById('bl-coach-mic');
+    if (mic) {
+      // Check browser support and hide if unsupported
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        mic.style.display = 'none';
+      } else {
+        mic.addEventListener('click', toggleMic);
+      }
+    }
     const QUESTION_CATS = [
       {
         id:'today', icon:'📅', label:"Today's plan",
@@ -1120,6 +1217,7 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
 
     window._blCoach = {
       send: (t) => send_msg(t),
+      toggleMic: () => toggleMic(),
       open: () => { panel.classList.add('open'); btn.classList.add('open'); btn.innerHTML = '✕'; },
       close: () => { panel.classList.remove('open'); btn.classList.remove('open'); btn.innerHTML = '💬'; localStorage.setItem('bl_coach_open','0'); },
       expand: () => {

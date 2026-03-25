@@ -1986,16 +1986,43 @@ function renderPlan(plan, browsing){
       +'</div>';
   }
 
-  // ── Build exercise rows ───────────────────────────
+  // ── Build exercise rows (interactive — tap to log status) ───────
   function exRows(exercises){
     if(!exercises||!exercises.length) return '';
-    return '<div style="margin-top:8px;">'
-      +exercises.map(function(ex){
-        var parsed=parseExercise(ex);
-        return '<div class="ex-row">'
-          +'<span class="ex-row-name">'+parsed.name+'</span>'
-          +'<span class="ex-row-schema">'+parsed.sets+'×'+parsed.reps+'</span>'
-          +'<span class="ex-row-rpe">RPE 7-8</span>'
+    var log = loadDayLog(_rDate) || {};
+    var exLogs = log.exercises || {};
+    return '<div style="margin-top:8px;" id="ex-rows-wrap">'
+      +exercises.map(function(ex, i){
+        var parsed = parseExercise(ex);
+        var key = 'ex_' + i;
+        var status = exLogs[key] && exLogs[key].status || '';
+        var statusColor = status==='done' ? 'var(--jade)' : status==='modified' ? 'var(--amber)' : status==='skipped' ? 'rgba(220,80,60,.7)' : 'transparent';
+        var statusBorder = status ? statusColor : 'var(--bd)';
+        var statusIcon = status==='done' ? '✓' : status==='modified' ? '~' : status==='skipped' ? '✗' : '·';
+        var note = exLogs[key] && exLogs[key].note || '';
+        return '<div class="ex-row" id="exr-'+i+'" style="flex-direction:column;align-items:stretch;gap:0;padding:6px 0;">'
+          +'<div style="display:flex;align-items:center;gap:8px;">'
+            +'<div style="width:22px;height:22px;border-radius:50%;border:1px solid '+statusBorder+';background:'+(status?'rgba(0,0,0,.15)':'transparent')+';'
+              +'display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+statusColor+';flex-shrink:0;cursor:pointer;transition:all .12s;"'
+              +' onclick="cycleExStatus('+i+',\''+parsed.name+'\')" title="Tap to log">'
+              +statusIcon+'</div>'
+            +'<span class="ex-row-name">'+parsed.name+'</span>'
+            +'<span class="ex-row-schema">'+parsed.sets+'×'+parsed.reps+'</span>'
+            +'<span class="ex-row-rpe">RPE 7-8</span>'
+            +'<div style="margin-left:auto;display:flex;gap:4px;">'
+              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'done\')" style="padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='done'?'background:var(--jade);color:var(--ink);border:1px solid var(--jade);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">✓</button>'
+              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'modified\')" style="padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='modified'?'background:var(--amber);color:var(--ink);border:1px solid var(--amber);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">~</button>'
+              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'skipped\')" style="padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='skipped'?'background:rgba(220,80,60,.7);color:#fff;border:1px solid rgba(220,80,60,.7);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">✗</button>'
+            +'</div>'
+          +'</div>'
+          +(status && status !== 'done'
+            ? '<div style="margin-top:4px;margin-left:30px;">'
+                +'<input type="text" value="'+note.replace(/"/g,'&quot;')+'" '
+                +'placeholder="'+(status==='skipped'?'Why skipped?':'What changed?')+'" '
+                +'style="width:100%;box-sizing:border-box;background:var(--ink-1);border:1px solid var(--bd);border-radius:5px;padding:5px 8px;font-size:11px;color:var(--dk-2);font-family:var(--sans);outline:none;" '
+                +'oninput="setExNote('+i+',this.value)">'
+              +'</div>'
+            : '')
           +'</div>';
       }).join('')
       +'</div>';
@@ -2222,7 +2249,10 @@ function initDayLog() {
     actual: { kcal:0, prot:0, carbs:0, fat:0 },
     trainStatus: t.isTraining ? 'pending' : 'rest',
     trainNote: '',
+    exercises: {},
     meals: {},
+    sleepActual: 0,
+    energy: 0,
     dayNote: '',
     rating: 0,
     loggedAt: null,
@@ -2259,6 +2289,58 @@ function setTrainStatus(status, note) {
   renderDayCapture();
 }
 
+function cycleExStatus(idx, name, forcedStatus) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  if (!log.exercises) log.exercises = {};
+  var key = 'ex_' + idx;
+  var current = log.exercises[key] && log.exercises[key].status || '';
+  var cycle = ['done','modified','skipped',''];
+  var next = forcedStatus !== undefined
+    ? (forcedStatus === current ? '' : forcedStatus)
+    : cycle[(cycle.indexOf(current) + 1) % cycle.length];
+  if (!next) {
+    delete log.exercises[key];
+  } else {
+    log.exercises[key] = { name: name, status: next, note: (log.exercises[key]&&log.exercises[key].note)||'' };
+  }
+  saveDayLog(log);
+  // Re-render just the exercise rows without full page rebuild
+  var wrap = document.getElementById('ex-rows-wrap');
+  if (wrap && window._blocks) {
+    var trainBlock = window._blocks.find(function(b){ return b.type==='train'; });
+    if (trainBlock && trainBlock.exercises) {
+      var newHtml = exRows(trainBlock.exercises);
+      var tmp = document.createElement('div');
+      tmp.innerHTML = newHtml;
+      var newWrap = tmp.firstElementChild;
+      if (newWrap) wrap.parentNode.replaceChild(newWrap, wrap);
+    }
+  }
+}
+
+function setExNote(idx, note) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  if (!log.exercises) log.exercises = {};
+  var key = 'ex_' + idx;
+  if (!log.exercises[key]) log.exercises[key] = { status: 'modified', note: '' };
+  log.exercises[key].note = note;
+  saveDayLog(log);
+}
+
+function setSleepHours(h) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.sleepActual = h;
+  saveDayLog(log);
+  renderDayCapture();
+}
+
+function setEnergy(e) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.energy = e;
+  saveDayLog(log);
+  renderDayCapture();
+}
+
 function setDayNote(note) {
   var log = loadDayLog(_rDate) || initDayLog();
   log.dayNote = note;
@@ -2282,6 +2364,8 @@ function renderDayCapture() {
   var isTraining = t.isTraining;
   var trainStatus = log.trainStatus;
   var rating = log.rating || 0;
+  var sleepActual = log.sleepActual || 0;
+  var energy = log.energy || 0;
 
   // Training status buttons
   var trainHtml = '';
@@ -2317,8 +2401,38 @@ function renderDayCapture() {
     trainHtml += '</div>';
   }
 
-  // Rating stars
-  var stars = '';
+  // Sleep hours picker
+  var sleepHtml = '<div style="margin-bottom:14px;">'
+    + '<div class="dci-label">Sleep last night</div>'
+    + '<div style="display:flex;gap:5px;flex-wrap:wrap;">'
+    + [4,5,6,7,8,9].map(function(h) {
+        var active = sleepActual === h;
+        var good = h >= 7;
+        var col = good ? 'var(--jade)' : 'var(--amber)';
+        return '<button onclick="setSleepHours('+h+')" style="padding:5px 12px;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .12s;'
+          + (active ? 'background:'+col+';color:var(--ink);border:1px solid '+col+';' : 'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')
+          + '">' + h + 'h</button>';
+      }).join('')
+    + (sleepActual ? '<span style="font-size:10px;font-weight:300;color:'+(sleepActual>=7?'var(--jade)':'var(--amber)')+';align-self:center;margin-left:4px;">'
+        + (sleepActual >= 7 ? '✓ Good' : '⚠ Under target') + '</span>' : '')
+    + '</div>'
+    + '</div>';
+
+  // Energy level
+  var energyLabels = ['', 'Wrecked', 'Low', 'OK', 'Good', 'Firing 🔥'];
+  var energyHtml = '<div style="margin-bottom:14px;">'
+    + '<div class="dci-label">Energy today</div>'
+    + '<div style="display:flex;gap:5px;">'
+    + [1,2,3,4,5].map(function(e) {
+        var active = energy === e;
+        var col = e >= 4 ? 'var(--jade)' : e === 3 ? 'var(--amber)' : 'rgba(220,80,60,.7)';
+        return '<button onclick="setEnergy('+e+')" style="padding:5px 12px;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .12s;min-width:36px;'
+          + (active ? 'background:'+col+';color:var(--ink);border:1px solid '+col+';' : 'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')
+          + '">' + e + '</button>';
+      }).join('')
+    + (energy ? '<span style="font-size:10px;font-weight:300;color:var(--dk-3);align-self:center;margin-left:6px;">' + energyLabels[energy] + '</span>' : '')
+    + '</div>'
+    + '</div>';
   for (var i = 1; i <= 5; i++) {
     var filled = i <= rating;
     stars += '<span onclick="setDayRating(' + i + ')" style="font-size:20px;cursor:pointer;color:' + (filled?'var(--amber)':'var(--bd)') + ';transition:color .1s;" '
@@ -2357,6 +2471,8 @@ function renderDayCapture() {
 
   zone.innerHTML = '<div class="day-capture-card">'
     + '<div class="dci-kicker">How was today?</div>'
+    + sleepHtml
+    + energyHtml
     + '<div style="margin-bottom:14px;">'
       + '<div class="dci-label">Day rating</div>'
       + '<div style="display:flex;gap:2px;">' + stars + '</div>'
