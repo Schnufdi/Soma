@@ -715,6 +715,20 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
     }
     #blo-input:focus { border-color:rgba(0,200,160,0.35); }
     #blo-input::placeholder { color:#2a4038; }
+    #blo-input.recording { border-color:rgba(220,50,50,0.45) !important; background:rgba(220,50,50,0.04); }
+    #blo-mic {
+      width:40px; height:40px; border-radius:10px;
+      background:transparent; border:1px solid #1e2e28;
+      cursor:pointer; flex-shrink:0; align-self:flex-end;
+      transition:all .15s; color:#3e6058; font-size:16px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    #blo-mic:hover { border-color:rgba(0,200,160,.35); color:#00c8a0; background:rgba(0,200,160,.06); }
+    #blo-mic.listening {
+      background:rgba(220,50,50,.15); border-color:rgba(220,50,50,.6);
+      color:#fff; font-size:14px;
+      animation:micRing 1.2s ease infinite;
+    }
     #blo-send {
       width:40px; height:40px; border-radius:10px; background:#00c8a0;
       border:none; cursor:pointer; color:#0c1010; font-size:18px;
@@ -844,6 +858,7 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
           </div>
           <div id="blo-input-wrap">
             <textarea id="blo-input" placeholder="Ask anything&#8230;" rows="1"></textarea>
+            <button id="blo-mic" title="Tap to speak">🎤</button>
             <button id="blo-send">&#8593;</button>
           </div>
           <div id="blo-cats"></div>
@@ -995,6 +1010,8 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
     // ── VOICE INPUT (Web Speech API — free, no key) ───────
     let _recognition = null;
     let _micListening = false;
+    let _micTargetInput = input; // which textarea receives the transcript — small panel by default
+
     const mic = document.getElementById('bl-coach-mic');
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -1004,20 +1021,28 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
     } else {
       // Build recogniser once, reuse it
       _recognition = new SR();
-      _recognition.continuous = true;       // keep listening until we say stop
-      _recognition.interimResults = true;   // show words as they arrive
+      _recognition.continuous = true;
+      _recognition.interimResults = true;
       _recognition.lang = 'en-GB';
       _recognition.maxAlternatives = 1;
 
+      function syncMicButtons(listening) {
+        // Update both mic buttons to reflect current state
+        [document.getElementById('bl-coach-mic'), document.getElementById('blo-mic')].forEach(function(btn) {
+          if (!btn) return;
+          btn.classList.toggle('listening', listening);
+          btn.textContent = listening ? '⏹' : '🎤';
+          btn.title = listening ? 'Tap to stop' : 'Tap to speak';
+        });
+      }
+
       _recognition.onstart = () => {
         _micListening = true;
-        mic.classList.add('listening');
-        mic.textContent = '⏹';
-        mic.title = 'Tap to stop';
-        if (input) {
-          input.value = '';
-          input.placeholder = '🎤 Listening…';
-          input.classList.add('recording');
+        syncMicButtons(true);
+        if (_micTargetInput) {
+          _micTargetInput.value = '';
+          _micTargetInput.placeholder = '🎤 Listening…';
+          _micTargetInput.classList.add('recording');
         }
       };
 
@@ -1028,33 +1053,40 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
           if (e.results[i].isFinal) final += t;
           else interim += t;
         }
-        if (input) {
-          input.value = final || interim;
-          input.style.height = 'auto';
-          input.style.height = Math.min(input.scrollHeight, 90) + 'px';
+        if (_micTargetInput) {
+          _micTargetInput.value = final || interim;
+          _micTargetInput.style.height = 'auto';
+          _micTargetInput.style.height = Math.min(_micTargetInput.scrollHeight, 90) + 'px';
         }
         // Auto-send on final result
         if (final.trim()) {
           setTimeout(() => {
+            const txt = final.trim();
             stopMic();
-            send_msg(final.trim());
+            // Send to the correct panel
+            const isBlo = _micTargetInput && _micTargetInput.id === 'blo-input';
+            if (isBlo) bloSend(txt);
+            else send_msg(txt);
           }, 300);
         }
       };
 
       _recognition.onerror = (e) => {
         if (e.error === 'no-speech') {
-          // Timed out waiting — stop cleanly
           stopMic();
-          if (input) {
-            input.placeholder = 'No speech detected — try again';
-            setTimeout(() => { input.placeholder = 'Ask your coach…'; }, 2500);
+          if (_micTargetInput) {
+            _micTargetInput.placeholder = 'No speech detected — try again';
+            setTimeout(() => {
+              if (_micTargetInput) _micTargetInput.placeholder = _micTargetInput.id === 'blo-input' ? 'Ask anything…' : 'Ask your coach…';
+            }, 2500);
           }
         } else if (e.error === 'not-allowed' || e.error === 'permission-denied') {
           stopMic();
-          if (input) {
-            input.placeholder = 'Mic blocked — check browser permissions';
-            setTimeout(() => { input.placeholder = 'Ask your coach…'; }, 3500);
+          if (_micTargetInput) {
+            _micTargetInput.placeholder = 'Mic blocked — check browser permissions';
+            setTimeout(() => {
+              if (_micTargetInput) _micTargetInput.placeholder = _micTargetInput.id === 'blo-input' ? 'Ask anything…' : 'Ask your coach…';
+            }, 3500);
           }
         } else if (e.error !== 'aborted') {
           stopMic();
@@ -1062,9 +1094,7 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
       };
 
       _recognition.onend = () => {
-        // Only stop UI if we actually want to stop — not if continuous mode is still active
         if (_micListening) {
-          // Unexpected end — restart if we didn't mean to stop
           try { _recognition.start(); }
           catch(err) { stopMic(); }
         }
@@ -1073,39 +1103,37 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
       function stopMic() {
         if (!_micListening) return;
         _micListening = false;
-        mic.classList.remove('listening');
-        mic.textContent = '🎤';
-        mic.title = 'Tap to speak';
-        if (input) {
-          input.placeholder = 'Ask your coach…';
-          input.classList.remove('recording');
+        syncMicButtons(false);
+        if (_micTargetInput) {
+          _micTargetInput.placeholder = _micTargetInput.id === 'blo-input' ? 'Ask anything…' : 'Ask your coach…';
+          _micTargetInput.classList.remove('recording');
         }
         try { _recognition.stop(); } catch(e) {}
       }
 
-      function startMic() {
+      function startMic(targetInput) {
+        if (targetInput) _micTargetInput = targetInput;
         if (_micListening) return;
         try {
           _recognition.start();
         } catch(e) {
-          // If already started, abort and restart
           try { _recognition.abort(); } catch(e2) {}
           setTimeout(() => {
-            try { _recognition.start(); } catch(e3) { /* give up */ }
+            try { _recognition.start(); } catch(e3) {}
           }, 100);
         }
       }
 
-      // Single addEventListener — no onclick in HTML
+      // Small panel mic click — targets small panel input
       mic.addEventListener('click', () => {
         if (_micListening) stopMic();
-        else startMic();
+        else startMic(input);
       });
     }
 
     function toggleMic() {
       if (_micListening) stopMic();
-      else if (mic) mic.click();
+      else if (mic) startMic(input);
     }
     const QUESTION_CATS = [
       {
@@ -1281,6 +1309,18 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
           bloInput.addEventListener('input', () => {
             bloInput.style.height = 'auto';
             bloInput.style.height = Math.min(bloInput.scrollHeight, 120) + 'px';
+          });
+        }
+        // Wire overlay mic — reuses same speech recognition engine, targets blo-input
+        const bloMicBtn = document.getElementById('blo-mic');
+        if (bloMicBtn && !bloMicBtn._wired && _recognition) {
+          bloMicBtn._wired = true;
+          bloMicBtn.addEventListener('click', () => {
+            if (_micListening) {
+              stopMic();
+            } else {
+              startMic(bloInput);
+            }
           });
         }
         // Sync existing conversation from panel history
