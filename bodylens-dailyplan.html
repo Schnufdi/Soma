@@ -1409,6 +1409,110 @@ body {
 
 /* ── Cardio tag colour ─────────────────────────────────────────── */
 .ptl-tag.cardio { color: var(--jade); background: rgba(0,200,160,.08); border: 1px solid rgba(0,200,160,.18); }
+
+/* ── Recovery modal ─────────────────────────────────────────────── */
+#recovery-modal-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+#recovery-modal {
+  background: var(--ink-1); border-radius: 20px 20px 0 0;
+  border: 1px solid rgba(255,255,255,.1);
+  width: 100%; max-width: 560px; max-height: 88vh;
+  overflow-y: auto; display: flex; flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.rm-hd {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 22px 24px 16px; border-bottom: 1px solid rgba(255,255,255,.07);
+  position: sticky; top: 0; background: var(--ink-1); z-index: 1; flex-shrink: 0;
+}
+.rm-title {
+  font-family: var(--serif); font-size: 26px; font-weight: 300;
+  color: var(--dk-1); flex: 1; line-height: 1.1;
+}
+.rm-sub { font-size: 12px; font-weight: 300; color: var(--dk-3); margin-top: 4px; }
+.rm-close {
+  background: none; border: none; color: var(--dk-3); cursor: pointer;
+  font-size: 18px; padding: 4px 6px; border-radius: 8px; flex-shrink: 0;
+  transition: color .12s;
+}
+.rm-close:hover { color: var(--dk-1); }
+.rm-body { padding: 20px 24px; flex: 1; }
+.rm-item { margin-bottom: 24px; }
+.rm-missed-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--dk-3); margin-bottom: 6px;
+}
+.rm-missed-session {
+  font-size: 18px; font-weight: 600; color: var(--dk-1);
+  margin-bottom: 14px; letter-spacing: -.01em;
+}
+.rm-missed-day { font-weight: 300; color: var(--dk-3); font-size: 14px; }
+.rm-opts-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--dk-3); margin-bottom: 8px;
+}
+.rm-opts { display: flex; flex-direction: column; gap: 6px; }
+.rm-opt {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-radius: 12px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  cursor: pointer; font-family: var(--sans); text-align: left; transition: all .12s;
+}
+.rm-opt:hover { border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.06); }
+.rm-opt-best { border-color: rgba(0,200,160,.25); background: rgba(0,200,160,.05); }
+.rm-opt-selected {
+  border-color: var(--jade) !important;
+  background: rgba(0,200,160,.1) !important;
+}
+.rm-opt-day { font-size: 13px; font-weight: 600; color: var(--dk-1); }
+.rm-opt-best .rm-opt-day { color: var(--jade); }
+.rm-opt-selected .rm-opt-day { color: var(--jade); }
+.rm-opt-sub { font-size: 10px; font-weight: 300; color: var(--dk-3); margin-top: 2px; }
+.rm-skip-opt { margin-top: 10px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.06); }
+.rm-skip-btn {
+  background: none; border: none; color: var(--dk-3);
+  font-size: 11px; font-weight: 400; cursor: pointer; font-family: var(--sans);
+  text-decoration: underline; padding: 0; transition: color .12s;
+}
+.rm-skip-btn:hover { color: var(--dk-2); }
+.rm-footer {
+  padding: 14px 24px; border-top: 1px solid rgba(255,255,255,.07); flex-shrink: 0;
+}
+.rm-confirm {
+  width: 100%; background: var(--jade); border: none; color: var(--ink);
+  padding: 14px; border-radius: 12px; font-size: 13px; font-weight: 700;
+  letter-spacing: .04em; cursor: pointer; font-family: var(--sans);
+  transition: opacity .12s;
+}
+.rm-confirm:hover:not(:disabled) { opacity: .88; }
+.rm-confirm:disabled { opacity: .35; cursor: not-allowed; }
+
+/* ── Week strip missed/recovered states ─────────────────────────── */
+.ws-day.missed .ws-day-num  { color: rgba(220,80,60,.8); }
+.ws-day.missed .ws-day-type { color: rgba(220,80,60,.6); }
+.ws-day.missed { border-color: rgba(220,80,60,.2) !important; cursor: pointer; }
+.ws-day.missed:hover { background: rgba(220,80,60,.08) !important; }
+.ws-day.missed::after {
+  content: '!';
+  position: absolute; top: 3px; right: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(220,80,60,.7); color: white;
+  font-size: 9px; font-weight: 800; display: flex;
+  align-items: center; justify-content: center; line-height: 1;
+}
+.ws-day { position: relative; } /* needed for ::after */
+
+.ws-day.recovered .ws-day-num  { color: var(--jade); }
+.ws-day.recovered .ws-day-type { color: var(--jade); font-style: italic; }
+.ws-day.recovered { border-color: rgba(0,200,160,.25) !important; background: rgba(0,200,160,.05) !important; }
+.ws-day.recovered::after {
+  content: '\2192'; /* → arrow */
+  position: absolute; top: 3px; right: 3px;
+  font-size: 10px; color: var(--jade); font-weight: 700;
+}
 </style>
 
 <script src="activitylog.js"></script>
@@ -2378,8 +2482,9 @@ function renderWeekStrip(p,t){
   monday.setDate(_now.getDate()-(_wd===0?6:_wd-1));
   monday.setHours(0,0,0,0);
   el.innerHTML=t.DAY_NAMES.map(function(n,i){
-    var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
+    var dp=typeof getEffectiveDayPlan==='function'?getEffectiveDayPlan(p,i):((p.weekPlan||[])[i]||{type:'Rest',priority:'rest'});
     var isTr=dp.priority==='training';
+    var isRecovered=dp.source==='recovery';
     var isToday=i===t.idx;
     var dayDate=new Date(monday);
     dayDate.setDate(monday.getDate()+i);
@@ -2387,7 +2492,14 @@ function renderWeekStrip(p,t){
     var logKey='bl_daylog_'+dayDate.toISOString().slice(0,10);
     var isDone=false;
     try{var lg=JSON.parse(localStorage.getItem(logKey)||'null');isDone=!!(lg&&lg.trainStatus==='done');}catch(e){}
-    return '<div class="ws-day '+(isTr?'train':'rest')+' '+(isToday?'today':'')+' '+(isDone?'done':'')+'" onclick="jumpDay('+i+')">' 
+    var isPastMissed=false;
+    if(!isToday&&!isDone){
+      var _now2=new Date();var _mon2=new Date(_now2);var _wd2=_now2.getDay();
+      _mon2.setDate(_now2.getDate()-(_wd2===0?6:_wd2-1));_mon2.setHours(0,0,0,0);
+      var _dd=new Date(_mon2);_dd.setDate(_mon2.getDate()+i);
+      isPastMissed=isTr&&_dd<new Date(_now2.toDateString());
+    }
+    return '<div class="ws-day '+(isTr?'train':'rest')+' '+(isToday?'today':'')+' '+(isDone?'done':'')+' '+(isPastMissed?'missed':'')+' '+(isRecovered?'recovered':'')+'" onclick="wsDayClick('+i+')">' 
       +'<div class="ws-day-num">'+dateNum+'</div>'
       +'<div class="ws-day-name">'+n.slice(0,3)+'</div>'
       +'<div class="ws-day-type">'+(dp.type||'Rest')+'</div>'
@@ -2496,7 +2608,7 @@ var VIEWING_DAY = null;
 
 function getDayCtx(p, i) {
   var N = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  var plan = (p.weekPlan||[])[i] || {type:'Rest',focus:'Recovery',priority:'rest'};
+  var plan = (typeof getEffectiveDayPlan==='function' ? getEffectiveDayPlan(p,i) : null) || (p.weekPlan||[])[i] || {type:'Rest',focus:'Recovery',priority:'rest'};
   return {
     idx: i, name: N[i], plan: plan,
     isTraining: plan.priority === 'training',
@@ -2653,6 +2765,29 @@ function qlSetEnergy(n) {
     b.style.borderColor = parseInt(b.dataset.energy) === n ? 'var(--amber)' : 'var(--bd)';
   });
   setTimeout(renderQuickLogStrip, 600);
+}
+
+function wsDayClick(i) {
+  var p = P, t = TODAY;
+  if (!p || !t) return;
+  // Past missed training day? Offer recovery
+  var dp = typeof getEffectiveDayPlan==='function' ? getEffectiveDayPlan(p,i) : ((p.weekPlan||[])[i]||{});
+  if (dp.priority === 'training' && i < t.idx) {
+    var mon = new Date(), wd = mon.getDay();
+    mon.setDate(mon.getDate() - (wd === 0 ? 6 : wd - 1));
+    mon.setHours(0,0,0,0);
+    var d = new Date(mon); d.setDate(mon.getDate() + i);
+    var logKey = 'bl_daylog_' + d.toISOString().slice(0,10);
+    var log = null;
+    try { log = JSON.parse(localStorage.getItem(logKey)||'null'); } catch(e) {}
+    if (!log || log.trainStatus !== 'done') {
+      // Show recovery modal for this specific missed day
+      var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      openRecoveryModal([{ idx: i, day: DNS[i], date: d.toISOString().slice(0,10), sessionType: dp.type }]);
+      return;
+    }
+  }
+  jumpDay(i);
 }
 
 function jumpDay(i) {
@@ -3661,6 +3796,261 @@ function logSleepHours(h) {
   }
 }
 
+
+// ── WEEK OVERRIDE ENGINE ───────────────────────────────────────────────
+// Stores per-week session remaps without touching the permanent weekPlan.
+// Key: bl_week_override_YYYY-MM-DD (Monday of current week)
+// Value: { dayIdx: { type, priority, source, reason } }
+
+function _weekOverrideKey() {
+  var d = new Date(), mon = new Date(d), wd = d.getDay();
+  mon.setDate(d.getDate() - (wd === 0 ? 6 : wd - 1));
+  mon.setHours(0,0,0,0);
+  return 'bl_week_override_' + mon.toISOString().slice(0,10);
+}
+
+function loadWeekOverride() {
+  try { var r = localStorage.getItem(_weekOverrideKey()); return r ? JSON.parse(r) : {}; }
+  catch(e) { return {}; }
+}
+
+function saveWeekOverride(data) {
+  try { localStorage.setItem(_weekOverrideKey(), JSON.stringify(data)); } catch(e) {}
+}
+
+function getEffectiveDayPlan(p, idx) {
+  var override = loadWeekOverride();
+  if (override[idx]) return override[idx];
+  return (p.weekPlan || [])[idx] || { type: 'Rest', priority: 'rest' };
+}
+
+// Find missed training days in the current week
+function getMissedSessions(p) {
+  var now = new Date();
+  var mon = new Date(now);
+  var wd = now.getDay();
+  mon.setDate(now.getDate() - (wd === 0 ? 6 : wd - 1));
+  mon.setHours(0,0,0,0);
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var missed = [];
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(mon); d.setDate(mon.getDate() + i);
+    if (d >= new Date(now.toDateString())) break; // stop at today
+    var plan = getEffectiveDayPlan(p, i);
+    if (plan.priority !== 'training') continue;
+    var logKey = 'bl_daylog_' + d.toISOString().slice(0,10);
+    var log = null;
+    try { log = JSON.parse(localStorage.getItem(logKey)||'null'); } catch(e) {}
+    if (!log || log.trainStatus !== 'done') {
+      missed.push({ idx: i, day: DNS[i], date: d.toISOString().slice(0,10), sessionType: plan.type });
+    }
+  }
+  return missed;
+}
+
+// Find available future slots to reschedule into
+function getRecoveryOptions(p, missedIdx) {
+  var now = new Date();
+  var todayIdx = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var override = loadWeekOverride();
+  var options = [];
+  // Look at today and future days this week
+  for (var i = todayIdx; i < 7; i++) {
+    var plan = getEffectiveDayPlan(p, i);
+    // A day is available if it's currently rest OR already a training day
+    // We prefer rest days (turning rest into training is the recovery)
+    // Avoid stacking on days that already have hard sessions
+    var hasHardSession = plan.priority === 'training';
+    var isTodaySlot = i === todayIdx;
+    options.push({
+      idx: i,
+      day: DNS[i],
+      isToday: isTodaySlot,
+      currentType: plan.type,
+      currentPriority: plan.priority,
+      isAvailable: !hasHardSession, // rest days preferred
+      isAlreadyTraining: hasHardSession,
+    });
+  }
+  // Best option: nearest available rest day (ideally today)
+  var best = options.find(function(o) { return o.isAvailable; });
+  return { options: options, best: best };
+}
+
+// Apply a recovery: remap missedSession to targetDayIdx
+function applyRecovery(p, missedSession, targetDayIdx) {
+  var override = loadWeekOverride();
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  
+  // Mark the missed day as explicitly skipped
+  var missedDate = (() => {
+    var mon = new Date(), wd = mon.getDay();
+    mon.setDate(mon.getDate() - (wd === 0 ? 6 : wd - 1));
+    mon.setHours(0,0,0,0);
+    var d = new Date(mon); d.setDate(mon.getDate() + missedSession.idx);
+    return d.toISOString().slice(0,10);
+  })();
+  var missedLog = {};
+  try { missedLog = JSON.parse(localStorage.getItem('bl_daylog_'+missedDate)||'{}'); } catch(e) {}
+  missedLog.trainStatus = 'skipped';
+  missedLog.trainNote = 'Missed — rescheduled to ' + DNS[targetDayIdx];
+  try { localStorage.setItem('bl_daylog_'+missedDate, JSON.stringify(missedLog)); } catch(e) {}
+  
+  // Override the target day with the missed session type
+  override[targetDayIdx] = {
+    type: missedSession.sessionType,
+    priority: 'training',
+    source: 'recovery',
+    recoveredFrom: missedSession.day,
+    recoveredDate: missedDate,
+    reason: missedSession.sessionType + ' session recovered from ' + missedSession.day
+  };
+  
+  saveWeekOverride(override);
+  
+  // Bust the day plan cache for today so it rebuilds with new session
+  var todayDate = new Date().toISOString().slice(0,10);
+  try { localStorage.removeItem('dayplan_v6r2_' + todayDate); } catch(e) {}
+  // Also bust the generic cache
+  if (window.TODAY && window.TODAY.cacheKey) {
+    try { localStorage.removeItem(window.TODAY.cacheKey); } catch(e) {}
+  }
+}
+
+// ── RECOVERY MODAL ──────────────────────────────────────────────────
+function openRecoveryModal(missedSessions) {
+  var existing = document.getElementById('recovery-modal-overlay');
+  if (existing) existing.remove();
+  
+  var p = P;
+  if (!p || !missedSessions || !missedSessions.length) return;
+  
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  
+  // Build modal HTML
+  var missedList = missedSessions.map(function(m) {
+    var rec = getRecoveryOptions(p, m.idx);
+    var best = rec.best;
+    return { missed: m, best: best, options: rec.options };
+  });
+  
+  var itemsHtml = missedList.map(function(item, i) {
+    var m = item.missed;
+    var best = item.best;
+    var optHtml = item.options.map(function(o) {
+      var label = o.isToday ? 'Today (' + o.day + ')' : o.day;
+      var subLabel = o.isAlreadyTraining ? 'Already training — will stack' : 'Rest day → reschedule here';
+      var isBest = best && o.idx === best.idx;
+      return '<button class="rm-opt'+(isBest?' rm-opt-best':'')+'" data-missed="'+i+'" data-target="'+o.idx+'" onclick="rmSelectOption(this)">'
+        + '<div class="rm-opt-day">' + label + '</div>'
+        + '<div class="rm-opt-sub">' + subLabel + '</div>'
+        + '</button>';
+    }).join('');
+    
+    return '<div class="rm-item" id="rm-item-'+i+'">'
+      + '<div class="rm-missed-label">Missed session</div>'
+      + '<div class="rm-missed-session">' + m.sessionType + ' <span class="rm-missed-day">(' + m.day + ')</span></div>'
+      + '<div class="rm-opts-label">Reschedule to:</div>'
+      + '<div class="rm-opts">' + optHtml + '</div>'
+    + '</div>';
+  }).join('');
+  
+  var html = '<div id="recovery-modal-overlay" onclick="if(event.target===this)closeRecoveryModal()">'
+    + '<div id="recovery-modal">'
+      + '<div class="rm-hd">'
+        + '<div class="rm-title">Recover your week</div>'
+        + '<div class="rm-sub">' + missedSessions.length + ' session' + (missedSessions.length>1?'s':'') + ' missed — choose where to slot ' + (missedSessions.length>1?'them':'it') + ' in</div>'
+        + '<button class="rm-close" onclick="closeRecoveryModal()">&#10005;</button>'
+      + '</div>'
+      + '<div class="rm-body">'
+        + itemsHtml
+        + '<div class="rm-skip-opt">'
+          + '<button onclick="markAllSkippedAndClose()" class="rm-skip-btn">Skip recovery — mark as missed and continue</button>'
+        + '</div>'
+      + '</div>'
+      + '<div class="rm-footer">'
+        + '<button id="rm-confirm-btn" class="rm-confirm" onclick="confirmRecovery()" disabled>Reschedule &#8594;</button>'
+      + '</div>'
+    + '</div>'
+  + '</div>';
+  
+  document.body.insertAdjacentHTML('beforeend', html);
+  
+  // Store state
+  window._rmMissedList = missedList;
+  window._rmSelections = {}; // missedIdx -> targetDayIdx
+  
+  // Auto-select best options
+  missedList.forEach(function(item, i) {
+    if (item.best) {
+      window._rmSelections[i] = item.best.idx;
+      var btn = document.querySelector('[data-missed="'+i+'"][data-target="'+item.best.idx+'"]');
+      if (btn) btn.classList.add('rm-opt-selected');
+      rmCheckConfirm();
+    }
+  });
+}
+
+function rmSelectOption(btn) {
+  var missedI = parseInt(btn.getAttribute('data-missed'));
+  var targetIdx = parseInt(btn.getAttribute('data-target'));
+  // Deselect others in same group
+  document.querySelectorAll('[data-missed="'+missedI+'"]').forEach(function(b) {
+    b.classList.remove('rm-opt-selected');
+  });
+  btn.classList.add('rm-opt-selected');
+  window._rmSelections[missedI] = targetIdx;
+  rmCheckConfirm();
+}
+
+function rmCheckConfirm() {
+  var ml = window._rmMissedList || [];
+  var sel = window._rmSelections || {};
+  var allSelected = ml.every(function(_, i) { return sel[i] !== undefined; });
+  var btn = document.getElementById('rm-confirm-btn');
+  if (btn) btn.disabled = !allSelected;
+}
+
+function confirmRecovery() {
+  var p = P;
+  var ml = window._rmMissedList || [];
+  var sel = window._rmSelections || {};
+  ml.forEach(function(item, i) {
+    if (sel[i] !== undefined) {
+      applyRecovery(p, item.missed, sel[i]);
+    }
+  });
+  closeRecoveryModal();
+  // Reload today's plan with updated override
+  location.reload();
+}
+
+function markAllSkippedAndClose() {
+  var p = P;
+  var ml = window._rmMissedList || [];
+  ml.forEach(function(item) {
+    var mon = new Date(), wd = mon.getDay();
+    mon.setDate(mon.getDate() - (wd === 0 ? 6 : wd - 1));
+    mon.setHours(0,0,0,0);
+    var d = new Date(mon); d.setDate(mon.getDate() + item.missed.idx);
+    var dateStr = d.toISOString().slice(0,10);
+    var log = {};
+    try { log = JSON.parse(localStorage.getItem('bl_daylog_'+dateStr)||'{}'); } catch(e) {}
+    log.trainStatus = 'skipped';
+    log.trainNote = 'Missed — no recovery scheduled';
+    try { localStorage.setItem('bl_daylog_'+dateStr, JSON.stringify(log)); } catch(e) {}
+  });
+  closeRecoveryModal();
+  renderWeekStrip(P, TODAY);
+  renderProgressBanner(P, TODAY);
+}
+
+function closeRecoveryModal() {
+  var el = document.getElementById('recovery-modal-overlay');
+  if (el) el.remove();
+}
+
 function renderGlanceCard(p, t, plan) {
   if (!p || !t) return '';
   var log = loadDayLog(_rDate) || {};
@@ -3737,6 +4127,26 @@ function renderGlanceCard(p, t, plan) {
     ctaOnclick = 'onclick="document.querySelector(\'.ptl\').scrollIntoView({behavior:\'smooth\'})"';
   }
 
+  // Check for missed sessions — show recovery prompt
+  var missed = typeof getMissedSessions==='function' ? getMissedSessions(p) : [];
+  var missedBanner = '';
+  if (missed.length && !isBrowsing) {
+    var mLabel = missed.length === 1
+      ? missed[0].sessionType + ' (' + missed[0].day + ') not logged'
+      : missed.length + ' sessions not logged this week';
+    missedBanner = '<div style="'
+      + 'display:flex;align-items:center;gap:10px;padding:12px 16px;'
+      + 'background:rgba(196,124,24,.07);border-bottom:1px solid rgba(196,124,24,.15);'
+      + 'cursor:pointer;" onclick="openRecoveryModal(getMissedSessions(P))">'
+      + '<span style="font-size:16px;">⚠</span>'
+      + '<div style="flex:1;">'
+        + '<div style="font-size:12px;font-weight:600;color:var(--amber);">' + mLabel + '</div>'
+        + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">Tap to recover or mark as skipped</div>'
+      + '</div>'
+      + '<span style="font-size:11px;font-weight:600;color:var(--amber);">Fix →</span>'
+    + '</div>';
+  }
+
   var rows =
     '<div class="glance-row">'
       +'<div class="glance-icon">&#9977;</div>'
@@ -3768,6 +4178,7 @@ function renderGlanceCard(p, t, plan) {
     +'</div>';
 
   return '<div class="glance-card">'
+    +missedBanner
     +rows
     +'<div class="glance-cta">'
       +'<button class="glance-primary-btn'+(ctaIsRest?' rest':'')+'" '+ctaOnclick+'>'
