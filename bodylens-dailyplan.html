@@ -1207,7 +1207,51 @@ body {
 @media (max-width: 640px) {
   .nav-links { display: flex !important; }
   .mobile-tab-bar { display: none !important; }
-}</style>
+}
+/* ── Week strip date number ─────────────────────────────────── */
+.ws-day-num {
+  font-size: 16px; font-weight: 600; color: var(--dk-3);
+  letter-spacing: -.02em; line-height: 1;
+}
+.ws-day.today .ws-day-num { color: var(--dk-1); }
+.ws-day.train .ws-day-num { color: var(--dk-2); }
+.ws-day.done .ws-day-num  { color: var(--jade); opacity: .7; }
+.ws-day-tick { font-size: 8px; color: var(--jade); line-height: 1; }
+
+/* ── Prog banner items ──────────────────────────────────────── */
+.pb-item {
+  display: flex; flex-direction: column; justify-content: center; gap: 3px;
+  padding: 0 20px 0 0; border-right: 1px solid rgba(255,255,255,.06);
+  margin-right: 20px; flex-shrink: 0;
+}
+.pb-val {
+  font-size: 17px; font-weight: 700; color: var(--dk-1);
+  letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.pb-val.jade { color: var(--jade); }
+.pb-val.amber, .pb-val.gold { color: var(--amber); }
+.pb-label {
+  font-size: 9px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--dk-3); line-height: 1;
+}
+.pb-phase {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  color: var(--jade); background: rgba(0,200,160,.07);
+  border: 1px solid rgba(0,200,160,.18); border-radius: 20px;
+  padding: 5px 12px; white-space: nowrap;
+}
+.pb-dots { display: flex; gap: 4px; align-items: center; }
+.pb-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(255,255,255,.1);
+}
+.pb-dot.done { background: rgba(0,200,160,.5); }
+.pb-dot.curr { background: var(--jade); box-shadow: 0 0 5px rgba(0,200,160,.4); }
+.pb-session-btn-wrap {
+  margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-left: 12px;
+}
+</style>
 
 <script src="activitylog.js"></script>
 <script src="nav.js"></script>
@@ -1216,7 +1260,7 @@ body {
 // BodyLens Daily Plan v5 — clean rebuild
 // PLAN_VERSION: bump this whenever renderPlan or buildPlan changes
 // Old cache keys with a different version are automatically purged on load.
-var PLAN_VERSION = 'v6r1';
+var PLAN_VERSION = 'v6r2';
 var API   = '/api/chat';
 var MODEL = 'claude-sonnet-4-20250514';
 var MODEL_FAST = 'claude-haiku-4-5-20251001'; // Simple tasks: estimations, summaries, short outputs
@@ -1499,8 +1543,9 @@ function buildPlan(profile, today) {
     trainTimeStr.includes('evening')  ? 18 * 60     : wMins + 120;
 
   // Supplements by timing
-  const mornSupps  = supps.filter(s => /morning|wake|before train/i.test(s.timing||''));
+  const mornSupps  = supps.filter(s => /morning|wake|before train|any time|daily|with.*coffee/i.test(s.timing||'') || /creatine|theanine/i.test(s.name||''));
   const nightSupps = supps.filter(s => /night|sleep|evening|bed/i.test(s.timing||''));
+  const mealSupps  = supps.filter(s => /meal|food|fat meal|largest meal/i.test(s.timing||'') && !/creatine|theanine/i.test(s.name||''));
 
   // Bedtime
   const bed = p.bedtime || '';
@@ -1544,9 +1589,9 @@ function buildPlan(profile, today) {
         ? mornSupps.map(s => s.name + ' ' + s.dose + ' — ' + (s.timing||'')).join('\n')
         : 'Creatine 5g with water. Omega-3 with food if not taken.'),
     science: 'Caffeine before the cortisol peak adds nothing and enlarges the afternoon crash.',
-    suppList: mornSupps.length
-      ? mornSupps
-      : [{ name:'Coffee', dose:'1 cup', timing:'90min post-wake' }, { name:'Creatine', dose:'5g', timing:'with water' }],
+    suppList: [{ name:'Coffee', dose:'1 cup', timing:'90 min post-wake — after cortisol peak' }]
+      .concat(mornSupps.length ? mornSupps
+        : [{ name:'Creatine', dose:'5g', timing:'with water' }]),
     items: mornSupps.length
       ? mornSupps.map(s => ({ name:s.name, meta:s.dose }))
       : [{ name:'Coffee', meta:'after cortisol peak' }, { name:'Creatine', meta:'5g' }]
@@ -1666,6 +1711,7 @@ function buildPlan(profile, today) {
     subtitle: 'Final protein hit · close the window',
     coachNote: 'Last protein hit of the day. Casein-rich foods like cottage cheese or Greek yoghurt release amino acids slowly through the overnight fast — they extend MPS while you sleep. Close the eating window after this.',
     mealSlot: 'evening',
+    mealSuppList: mealSupps,
     detail: 'Lean protein priority. ' +
       (isTraining ? 'Lower carbs than midday — glycogen already replenished.' : 'Moderate carbs fine on rest day.') +
       '\nClose eating window by ' + fmt(closeWin) + '.',
@@ -2140,13 +2186,25 @@ function applyOptimisations(blocks, p, today) {
 function renderWeekStrip(p,t){
   var el=document.getElementById('week-strip');
   if(!el)return;
+  var _now=new Date(); var _wd=_now.getDay();
+  var monday=new Date(_now);
+  monday.setDate(_now.getDate()-(_wd===0?6:_wd-1));
+  monday.setHours(0,0,0,0);
   el.innerHTML=t.DAY_NAMES.map(function(n,i){
     var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
     var isTr=dp.priority==='training';
     var isToday=i===t.idx;
-    return '<div class="ws-day '+(isTr?'train':'rest')+' '+(isToday?'today':'')+'" onclick="jumpDay('+i+')">'
+    var dayDate=new Date(monday);
+    dayDate.setDate(monday.getDate()+i);
+    var dateNum=dayDate.getDate();
+    var logKey='bl_daylog_'+dayDate.toISOString().slice(0,10);
+    var isDone=false;
+    try{var lg=JSON.parse(localStorage.getItem(logKey)||'null');isDone=!!(lg&&lg.trainStatus==='done');}catch(e){}
+    return '<div class="ws-day '+(isTr?'train':'rest')+' '+(isToday?'today':'')+' '+(isDone?'done':'')+'" onclick="jumpDay('+i+')">' 
+      +'<div class="ws-day-num">'+dateNum+'</div>'
       +'<div class="ws-day-name">'+n.slice(0,3)+'</div>'
       +'<div class="ws-day-type">'+(dp.type||'Rest')+'</div>'
+      +(isDone?'<div class="ws-day-tick">&#10003;</div>':'')
       +'</div>';
   }).join('');
 }
@@ -2154,6 +2212,8 @@ function renderWeekStrip(p,t){
 function renderProgressBanner(p, t) {
   var el = document.getElementById('prog-banner');
   if (!el || !p) return;
+  var _bannerLog = (typeof loadDayLog === 'function') ? loadDayLog(new Date().toISOString().slice(0,10)) : {};
+  var trainStatus = (_bannerLog && _bannerLog.trainStatus) || 'pending';
 
   var progCtx = getProgCtx(p);
   var start = p.generatedAt ? new Date(p.generatedAt) : new Date();
@@ -2211,32 +2271,36 @@ function renderProgressBanner(p, t) {
     return '<div class="pb-dot '+cls+'"></div>';
   }).join('');
 
+  var _sessColor = sessionsThisWeek >= trainingDaysThisWeek ? 'var(--jade)'
+    : sessionsThisWeek > 0 ? 'var(--amber)' : 'rgba(255,255,255,.3)';
   el.innerHTML =
-    '<div class="pb-stat">'
-      + '<div class="pb-val jade">Day '+dayNum+'</div>'
+    '<div class="pb-item" style="min-width:64px;">'
+      + '<div style="display:flex;align-items:baseline;gap:4px;">'
+        + '<div class="pb-val jade">Day&nbsp;'+dayNum+'</div>'
+      + '</div>'
       + '<div class="pb-label">of '+totalDays+'</div>'
     + '</div>'
-    + '<div class="pb-block-dots">' + dots + '</div>'
-    + '<div class="pb-phase-tag">'
-      + '<div class="pb-phase-pill" style="color:'+phaseColor+';background:rgba(0,0,0,.15);border-color:'+phaseColor+';">Wk '+wk+' '+phases[wk-1]+'</div>'
+    + '<div class="pb-item">'
+      + '<div class="pb-phase" style="color:'+phaseColor+';border-color:'+phaseColor+'40;">'
+        + dots + ' Wk '+wk+' &middot; '+phases[wk-1]
+      + '</div>'
+      + '<div class="pb-label">Phase</div>'
     + '</div>'
-    + '<div class="pb-stat">'
-      + '<div class="pb-val '+(sessionsThisWeek>0?'jade':'')+'">'
-        +sessionsThisWeek+'/'+trainingDaysThisWeek
-      +'</div>'
-      + '<div class="pb-label">Sessions this week</div>'
+    + '<div class="pb-item">'
+      + '<div class="pb-val" style="color:'+_sessColor+';">'+sessionsThisWeek+'/'+trainingDaysThisWeek+'</div>'
+      + '<div class="pb-label">Sessions</div>'
     + '</div>'
     + (streak > 1
-      ? '<div class="pb-stat">'
-          + '<div class="pb-val gold">'+streak+' day</div>'
-          + '<div class="pb-label">Streak 🔥</div>'
+      ? '<div class="pb-item">'
+          + '<div class="pb-val" style="color:var(--amber);">'+streak+'d</div>'
+          + '<div class="pb-label">Streak &#128293;</div>'
         + '</div>'
       : '')
-    + '<div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-left:12px;">'
+    + '<div class="pb-session-btn-wrap">'
       + (t.isTraining
         ? '<button onclick="jumpToBlock(\'train\')" style="background:var(--jade);border:none;color:var(--ink);padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.05em;cursor:pointer;font-family:var(--sans);white-space:nowrap;">↓ Session</button>'
         : '')
-      + '<button onclick="jumpToNow()" style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:5px 10px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;">Now ↓</button>'
+      + '<button onclick="jumpToNow()" style="background:transparent;border:1px solid rgba(255,255,255,.08);color:var(--dk-3);padding:5px 10px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:all .12s;">Now &#8595;</button>'
     + '</div>';
 }
 // ── DAY BROWSING ──────────────────────────────────
@@ -2968,7 +3032,7 @@ function renderPlan(plan, browsing){
         return '<div class="supp-row">'
           +'<span class="supp-name">'+s.name+'</span>'
           +'<span class="supp-dose">'+(s.dose||'')+'</span>'
-          +(s.timing?'<span class="supp-time">'+s.timing+'</span>':'')
+          +(s.timing?'<span class="supp-timing">'+s.timing+'</span>':'')
           +'</div>';
       }).join('')
       +'</div>';
@@ -3098,11 +3162,25 @@ function renderPlan(plan, browsing){
     } else if(isMeal){
       var slot=b.mealSlot;
       var cachedRecipe=_recipes[slot];
-      var mealCount=p.mealCount||4;
+      var mealCount=p.mealCount||3;
       var dayKcal=(typeof getDayKcal==="function")?getDayKcal(p,t.isTraining):(t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91));
       var mt={calories:Math.round(dayKcal/mealCount),protein:Math.round((p.protein||140)/mealCount),carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25)};
+      var mealSuppHtml='';
+      if(b.mealSuppList&&b.mealSuppList.length){
+        mealSuppHtml='<div style="margin:8px 0 4px;padding:8px 10px;background:rgba(196,124,24,.04);border:1px solid rgba(196,124,24,.12);border-radius:8px;">'
+          +'<div style="font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;">With this meal</div>'
+          +b.mealSuppList.map(function(s){
+            return '<div style="display:flex;align-items:baseline;gap:8px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+              +'<span style="font-size:11px;font-weight:500;color:var(--dk-1);flex:1;">'+s.name+'</span>'
+              +'<span style="font-size:11px;font-weight:600;color:var(--amber);">'+(s.dose||'')+'</span>'
+              +(s.timing?'<span style="font-size:9px;font-weight:300;color:var(--dk-3);">'+s.timing+'</span>':'')
+            +'</div>';
+          }).join('')
+          +'</div>';
+      }
       body+='<div class="ptl-body" data-slot="'+slot+'" id="meal-'+i+'">'
         +ingDisplay(cachedRecipe, mt, slot, i)
+        +mealSuppHtml
         +'<div class="meal-actions">'
         +'<button class="meal-btn con" onclick="quickTick(\''+slot+'\','+i+')">&#10003; Ate this</button>'
         +'<button class="meal-btn" onclick="showDevLogger(\''+slot+'\','+i+')">Something different</button>'
@@ -3271,13 +3349,19 @@ function renderGlanceCard(p, t, plan) {
   var activities = (typeof loadActivities === 'function') ? loadActivities(_rDate) : [];
   var ledger = (typeof loadWeekLedger === 'function') ? loadWeekLedger() : null;
   var fatigue = ledger ? ledger.summary.fatigueLevel : 'low';
-  var readiness = sleepHours >= 7 && fatigue === 'low'   ? 'High'
-    : sleepHours >= 6 && fatigue !== 'peak'              ? 'Moderate'
-    : sleepHours > 0  || fatigue === 'high'               ? 'Low'
-    : 'Unknown';
-  var readinessDot = readiness === 'High' ? 'var(--jade)'
-    : readiness === 'Moderate' ? 'var(--amber)' : 'rgba(220,80,60,.8)';
-  var readinessCls = readiness === 'High' ? 'good' : readiness === 'Moderate' ? 'warn' : 'bad';
+  var readiness, readinessDot, readinessCls;
+  if (sleepHours >= 7 && fatigue === 'low') {
+    readiness = 'High'; readinessDot = 'var(--jade)'; readinessCls = 'good';
+  } else if ((sleepHours >= 6 || sleepHours === 0) && fatigue === 'low') {
+    readiness = sleepHours >= 6 ? 'Moderate' : 'Log sleep to confirm';
+    readinessDot = 'var(--amber)'; readinessCls = 'warn';
+  } else if (fatigue === 'peak') {
+    readiness = 'Low — high fatigue'; readinessDot = 'rgba(220,80,60,.8)'; readinessCls = 'bad';
+  } else if (sleepHours > 0 || fatigue === 'high') {
+    readiness = 'Low'; readinessDot = 'rgba(220,80,60,.8)'; readinessCls = 'bad';
+  } else {
+    readiness = 'Log last night\'s sleep'; readinessDot = 'rgba(255,255,255,.15)'; readinessCls = '';
+  }
 
   // Training row
   var trainLabel = !t.isTraining ? 'Rest day'
@@ -3290,12 +3374,26 @@ function renderGlanceCard(p, t, plan) {
     : 'pending';
   var sessionName = t.isTraining ? (plan.blocks ? (plan.blocks.filter(function(b){return b.type==='train';})[0] || {}).title || t.plan.type : t.plan.type) : '';
 
-  // CTA
-  var ctaLabel = !t.isTraining ? 'Recovery day — protect your sleep'
-    : trainStatus === 'done' ? 'Session complete'
-    : 'Start ' + (t.plan.type || 'session');
-  var ctaIsRest = !t.isTraining || trainStatus === 'done';
-  var ctaOnclick = ctaIsRest ? '' : 'onclick="document.querySelector(\'.ptl\').scrollIntoView({behavior:\'smooth\'})"';
+  // CTA — rest day: show protein target
+  var _protTarget = p.protein || 174;
+  var _protLogged = (MACROS && MACROS.prot) ? Math.round(MACROS.prot) : 0;
+  var _protRemain = Math.max(0, _protTarget - _protLogged);
+  var ctaLabel, ctaIsRest, ctaOnclick;
+  if (!t.isTraining) {
+    ctaLabel = _protLogged >= _protTarget
+      ? '&#10003; Protein target hit — recovery on track'
+      : _protLogged > 0
+        ? _protRemain + 'g protein still to hit today'
+        : 'Hit ' + _protTarget + 'g protein today';
+    ctaIsRest = true; ctaOnclick = '';
+  } else if (trainStatus === 'done') {
+    ctaLabel = '&#10003; Session complete — well done';
+    ctaIsRest = true; ctaOnclick = '';
+  } else {
+    ctaLabel = 'Start ' + (t.plan.type || 'session');
+    ctaIsRest = false;
+    ctaOnclick = 'onclick="document.querySelector(\'.ptl\').scrollIntoView({behavior:\'smooth\'})"';
+  }
 
   var rows =
     '<div class="glance-row">'
@@ -3334,7 +3432,9 @@ function renderGlanceCard(p, t, plan) {
         +(t.isTraining && trainStatus !== 'done' ? '&#9654; ' : '&#10003; ')
         +ctaLabel
       +'</button>'
-      +(!ctaIsRest ? '<div class="glance-secondary-link" onclick="selectChallenge(\'skip-gym\')">Not up for that? <span>Adjust the day &rarr;</span></div>' : '')
+      +'<div class="glance-secondary-link" onclick="document.querySelector(\'.challenge-card\').scrollIntoView({behavior:\'smooth\'})" style="cursor:pointer;">'
+        +(t.isTraining && trainStatus !== 'done' ? 'Not up for that? <span>Adjust the day &rarr;</span>' : 'Something in the way today? <span>Get a fix &rarr;</span>')
+        +'</div>'
     +'</div>'
   +'</div>';
 }
