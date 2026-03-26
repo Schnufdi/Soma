@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="proteinbars">
+<title>BodyLens — Protein Bars</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="nav.js" defer></script>
+<style>
+body { background: var(--ink); color: var(--dk-1); }
+.page { max-width: 760px; margin: 0 auto; padding: 0 32px 120px; }
+
+/* Hero */
+.pb-hero { padding: 52px 0 44px; border-bottom: 1px solid var(--bd); margin-bottom: 44px; }
+.pb-kicker {
+  font-size: 10px; font-weight: 700; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--amber);
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.pb-kicker::before { content: ''; width: 24px; height: 1px; background: var(--amber); }
+.pb-title {
+  font-family: var(--serif); font-size: 58px; font-weight: 300;
+  line-height: .95; letter-spacing: -.02em; color: var(--dk-1);
+  margin-bottom: 20px;
+}
+.pb-title em { font-style: italic; color: var(--dk-3); }
+.pb-intro {
+  font-size: 15px; font-weight: 300; color: var(--dk-2);
+  line-height: 1.75; max-width: 580px; margin-bottom: 28px;
+}
+
+/* Verdict banner */
+.verdict-banner {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 20px 22px; border-radius: 14px;
+  background: rgba(196,124,24,.06); border: 1px solid rgba(196,124,24,.18);
+  border-left: 3px solid var(--amber); margin-bottom: 48px;
+}
+.vb-icon { font-size: 24px; flex-shrink: 0; }
+.vb-body {}
+.vb-headline { font-size: 15px; font-weight: 600; color: var(--dk-1); margin-bottom: 6px; }
+.vb-text { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.7; }
+.vb-text strong { color: var(--dk-1); font-weight: 500; }
+
+/* Dividers */
+.dr {
+  display: flex; align-items: center; gap: 14px; margin: 0 0 28px;
+  font-size: 10px; font-weight: 600; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--dk-3);
+}
+.dr::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+.dr.amber { color: var(--amber); }
+.dr.jade  { color: var(--jade); }
+.dr.red   { color: rgba(220,80,60,.8); }
+
+/* Body text */
+.body-lg { font-size: 15px; font-weight: 300; color: var(--dk-2); line-height: 1.85; margin-bottom: 20px; }
+.body-sm { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.8; margin-bottom: 16px; }
+.body-sm strong { color: var(--dk-1); font-weight: 500; }
+
+/* Label cards */
+.lc {
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px; padding: 20px 22px; margin-bottom: 10px;
+}
+.lc-eye {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.lc-eye.amber { color: var(--amber); }
+.lc-eye.jade  { color: var(--jade); }
+.lc-eye.red   { color: rgba(220,80,60,.8); }
+.lc-t {
+  font-family: var(--serif); font-size: 21px; font-weight: 500;
+  color: var(--dk-1); margin-bottom: 8px; line-height: 1.15;
+}
+.lc-body { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.78; }
+.lc-body strong { color: var(--dk-1); font-weight: 500; }
+.lc-rule {
+  margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+  font-size: 12px; font-weight: 400; line-height: 1.6;
+}
+.lc-rule.jade { background: rgba(0,200,160,.06); color: var(--jade); border: 1px solid rgba(0,200,160,.15); }
+.lc-rule.amber { background: rgba(196,124,24,.06); color: var(--amber); border: 1px solid rgba(196,124,24,.15); }
+.lc-rule.red { background: rgba(220,80,60,.06); color: rgba(220,80,60,.9); border: 1px solid rgba(220,80,60,.15); }
+
+/* Comparison table */
+.comp-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 12px; }
+.comp-table th {
+  background: var(--ink-2); border: 1px solid rgba(255,255,255,.06);
+  padding: 10px 14px; font-size: 9px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--dk-3); text-align: left;
+}
+.comp-table td {
+  border: 1px solid rgba(255,255,255,.05); padding: 11px 14px;
+  vertical-align: top; color: var(--dk-2); line-height: 1.5;
+}
+.comp-table tr.good td { background: rgba(0,200,160,.04); }
+.comp-table tr.ok td   { background: rgba(196,124,24,.04); }
+.comp-table tr.bad td  { background: rgba(220,80,60,.04); }
+.comp-table .bar-name { font-weight: 600; color: var(--dk-1); }
+.comp-table .signal-good { color: var(--jade); font-weight: 600; }
+.comp-table .signal-warn { color: var(--amber); font-weight: 600; }
+.comp-table .signal-bad  { color: rgba(220,80,60,.9); font-weight: 600; }
+
+/* Ingredient red flags */
+.flag-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+.flag-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 13px 16px; border-radius: 10px;
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.05);
+}
+.flag-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 4px;
+}
+.flag-dot.red   { background: rgba(220,80,60,.8); }
+.flag-dot.amber { background: var(--amber); }
+.flag-dot.jade  { background: var(--jade); }
+.flag-name { font-size: 13px; font-weight: 600; color: var(--dk-1); margin-bottom: 3px; }
+.flag-why  { font-size: 11px; font-weight: 300; color: var(--dk-3); line-height: 1.5; }
+
+/* Use cases grid */
+.use-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 32px; }
+.use-card {
+  padding: 18px 20px; border-radius: 12px;
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.05);
+}
+.use-card.yes { border-top: 2px solid var(--jade); }
+.use-card.no  { border-top: 2px solid rgba(220,80,60,.6); }
+.use-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.use-label.yes { color: var(--jade); }
+.use-label.no  { color: rgba(220,80,60,.8); }
+.use-item {
+  font-size: 12px; font-weight: 300; color: var(--dk-2);
+  padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  line-height: 1.5;
+}
+.use-item:last-child { border-bottom: none; }
+.use-item strong { color: var(--dk-1); font-weight: 500; }
+
+/* Formula checker */
+.checker-wrap {
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px; padding: 24px; margin-bottom: 32px;
+}
+.checker-title {
+  font-size: 13px; font-weight: 700; color: var(--dk-1);
+  margin-bottom: 4px; letter-spacing: -.01em;
+}
+.checker-sub {
+  font-size: 11px; font-weight: 300; color: var(--dk-3); margin-bottom: 18px;
+}
+.checker-fields { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.checker-field label {
+  display: block; font-size: 9px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dk-3); margin-bottom: 6px;
+}
+.checker-field input {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px; padding: 10px 12px;
+  font-size: 13px; font-weight: 500; color: var(--dk-1);
+  font-family: var(--mono); outline: none; transition: border-color .12s;
+}
+.checker-field input:focus { border-color: rgba(0,200,160,.35); }
+.checker-field input::placeholder { color: var(--dk-3); font-weight: 300; }
+.checker-result {
+  padding: 14px 18px; border-radius: 10px; font-size: 13px;
+  font-weight: 400; line-height: 1.6; display: none;
+}
+.checker-result.good { background: rgba(0,200,160,.07); border: 1px solid rgba(0,200,160,.18); color: var(--jade); display: block; }
+.checker-result.warn { background: rgba(196,124,24,.07); border: 1px solid rgba(196,124,24,.18); color: var(--amber); display: block; }
+.checker-result.bad  { background: rgba(220,80,60,.06); border: 1px solid rgba(220,80,60,.18); color: rgba(220,80,60,.9); display: block; }
+.checker-btn {
+  background: var(--jade); border: none; color: var(--ink);
+  padding: 11px 22px; border-radius: 8px; font-size: 11px;
+  font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  cursor: pointer; font-family: var(--sans); margin-top: 14px;
+  transition: opacity .12s;
+}
+.checker-btn:hover { opacity: .88; }
+
+/* Profile callout */
+.profile-callout {
+  background: rgba(0,200,160,.04); border: 1px solid rgba(0,200,160,.2);
+  border-left: 3px solid var(--jade); border-radius: 0 10px 10px 0;
+  padding: 16px 20px; margin-top: 28px; margin-bottom: 32px; display: none;
+}
+.pc-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--jade); margin-bottom: 8px;
+}
+.pc-text { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.7; }
+.pc-text strong { color: var(--dk-1); font-weight: 500; }
+
+/* Real food vs bar comparison */
+.versus-grid {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  gap: 16px; align-items: center; margin-bottom: 32px;
+}
+.vs-side { padding: 20px; background: var(--ink-1); border-radius: 12px; border: 1px solid rgba(255,255,255,.05); }
+.vs-side.food { border-top: 2px solid var(--jade); }
+.vs-side.bar  { border-top: 2px solid rgba(255,255,255,.1); }
+.vs-label { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 10px; }
+.vs-label.food { color: var(--jade); }
+.vs-name  { font-size: 14px; font-weight: 600; color: var(--dk-1); margin-bottom: 12px; }
+.vs-stat  { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px; }
+.vs-stat:last-child { border-bottom: none; }
+.vs-stat-label { font-weight: 300; color: var(--dk-3); }
+.vs-stat-val   { font-weight: 600; color: var(--dk-1); font-variant-numeric: tabular-nums; }
+.vs-stat-val.jade { color: var(--jade); }
+.vs-stat-val.amber { color: var(--amber); }
+.vs-or { font-size: 13px; font-weight: 600; color: var(--dk-3); text-align: center; }
+.vs-cost-flag { margin-top: 10px; padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: 300; color: var(--dk-3); background: rgba(255,255,255,.03); }
+
+@media (max-width: 640px) {
+  .pb-title { font-size: 40px; }
+  .use-grid { grid-template-columns: 1fr; }
+  .versus-grid { grid-template-columns: 1fr; }
+  .vs-or { display: none; }
+  .checker-fields { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="pb-hero">
+    <div class="pb-kicker">Nutrition intelligence</div>
+    <h1 class="pb-title">Protein bars:<br><em>the honest read.</em></h1>
+    <p class="pb-intro">
+      They're not evil. They're not magic. Most are a reasonable compromise 
+      in specific situations — and a poor replacement for food in most others. 
+      Here's exactly when they earn their place and when they don't.
+    </p>
+  </div>
+
+  <!-- Verdict banner -->
+  <div class="verdict-banner">
+    <div class="vb-icon">⚖️</div>
+    <div class="vb-body">
+      <div class="vb-headline">The verdict: useful tool, not a food group</div>
+      <div class="vb-text">
+        A good protein bar covers a genuine gap — post-training when a meal is delayed, 
+        travel, or a day where protein is running short. A bad one is a confectionery product 
+        with a health halo. <strong>The difference is in the label, not the marketing.</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 1: The protein quality problem -->
+  <div class="dr amber">The protein quality problem</div>
+
+  <p class="body-lg">
+    The number on the front — "20g protein" — doesn't tell you what kind of protein. 
+    Most bars use a blend of whey concentrate, collagen, and soy isolate. 
+    Whey concentrate is solid. The others are cheaper, absorbed less efficiently, 
+    and have a weaker leucine signal — the amino acid that actually triggers muscle protein synthesis.
+  </p>
+
+  <div class="lc">
+    <div class="lc-eye amber">Why this matters</div>
+    <div class="lc-t">Leucine is the trigger, not the total</div>
+    <div class="lc-body">
+      MPS (muscle protein synthesis) is triggered by a <strong>leucine threshold of around 2–3g</strong> per meal. 
+      Whey protein hits this easily. Collagen protein is essentially leucine-deficient — 
+      it counts toward your gram total but contributes almost nothing to the anabolic signal. 
+      Some bars hit 20g total but only 14g of that is high-quality protein. 
+      You're paying a premium for numbers, not signal.
+    </div>
+    <div class="lc-rule amber">Read the ingredient list. If collagen is in the top 3 protein sources, discount the protein count by 20–30%.</div>
+  </div>
+
+  <!-- Section 2: The sugar alcohol problem -->
+  <div class="dr red" style="margin-top: 36px;">The sugar alcohol issue</div>
+
+  <div class="flag-list">
+    <div class="flag-row">
+      <div class="flag-dot red"></div>
+      <div>
+        <div class="flag-name">Maltitol</div>
+        <div class="flag-why">Has a glycaemic index of 35 — not zero. Spikes insulin more than the label implies. Causes significant GI distress in doses above 10g, which most bars hit. Widespread in Quest-style bars. Listed on labels as "sugar alcohol" so it's excluded from the sugar count — misleading.</div>
+      </div>
+    </div>
+    <div class="flag-row">
+      <div class="flag-dot amber"></div>
+      <div>
+        <div class="flag-name">Erythritol + stevia blend</div>
+        <div class="flag-why">Far better than maltitol. Erythritol passes through mostly unabsorbed, minimal GI effect. Stevia is calorie-free and doesn't spike insulin. This is the sweetener combination you want.</div>
+      </div>
+    </div>
+    <div class="flag-row">
+      <div class="flag-dot amber"></div>
+      <div>
+        <div class="flag-name">Glycerin (glycerol)</div>
+        <div class="flag-why">Counted as a carb but has minimal insulin impact. Used to keep bars chewy. Not a red flag at low doses but inflates the carb total — factor this in if you're carb-counting.</div>
+      </div>
+    </div>
+    <div class="flag-row">
+      <div class="flag-dot red"></div>
+      <div>
+        <div class="flag-name">Coating chocolate with palm oil</div>
+        <div class="flag-why">Most "chocolate-flavoured" coatings use palm kernel oil rather than cocoa butter. High in saturated fat, low in anything useful. Adds 5–8g fat with zero nutritional benefit. The bar suddenly has 18g fat — almost a third of a rest-day fat budget.</div>
+      </div>
+    </div>
+    <div class="flag-row">
+      <div class="flag-dot jade"></div>
+      <div>
+        <div class="flag-name">Inulin / chicory root fibre</div>
+        <div class="flag-why">Actually useful. Prebiotic fibre that feeds gut bacteria, improves satiety, and doesn't spike blood sugar. Bars that use it to hit their fibre numbers are doing the right thing. Some people experience mild bloating — a 5–10 day adaptation window normally resolves it.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: When to use one -->
+  <div class="dr jade" style="margin-top: 36px;">When they actually earn their place</div>
+
+  <div class="use-grid">
+    <div class="use-card yes">
+      <div class="use-label yes">✓ Good use cases</div>
+      <div class="use-item"><strong>Post-training, no meal ready</strong> — better than waiting 2+ hours. Protein window still matters.</div>
+      <div class="use-item"><strong>Travel or airports</strong> — airport food is uniformly terrible for protein. A bar bridges the gap.</div>
+      <div class="use-item"><strong>Protein running short at 9pm</strong> — if you're 30g under target and the kitchen is closed, a bar is the right call.</div>
+      <div class="use-item"><strong>Pre-training if training fasted</strong> — 20g protein + a little carb, 60 min before, without a heavy stomach.</div>
+    </div>
+    <div class="use-card no">
+      <div class="use-label no">✗ Poor use cases</div>
+      <div class="use-item"><strong>Replacing a meal</strong> — 230 kcal doesn't constitute a meal. You'll be under on calories and still hungry.</div>
+      <div class="use-item"><strong>Daily habit without tracking</strong> — they're easy to over-consume. The "healthy snack" that adds 500 kcal to a rest day.</div>
+      <div class="use-item"><strong>Instead of protein-dense real food</strong> — Greek yoghurt, cottage cheese, or eggs beat every bar on cost, nutrient density, and satiety.</div>
+      <div class="use-item"><strong>Bedtime protein</strong> — whey digests fast. Casein (cottage cheese, Greek yoghurt) is far superior for overnight MPS.</div>
+    </div>
+  </div>
+
+  <!-- Section 4: Real food vs bar -->
+  <div class="dr amber" style="margin-top: 36px;">Real food comparison</div>
+
+  <p class="body-sm">Same protein, very different picture.</p>
+
+  <div class="versus-grid">
+    <div class="vs-side food">
+      <div class="vs-label food">Real food</div>
+      <div class="vs-name">200g 0% Greek yoghurt</div>
+      <div class="vs-stat"><span class="vs-stat-label">Protein</span><span class="vs-stat-val jade">20g</span></div>
+      <div class="vs-stat"><span class="vs-stat-label">Calories</span><span class="vs-stat-val">110 kcal</span></div>
+      <div class="vs-stat"><span class="vs-stat-label">Sugar</span><span class="vs-stat-val">6g (natural lactose)</span></div>
+      <div class="vs-stat"><span class="vs-stat-label">Protein type</span><span class="vs-stat-val jade">Casein + whey</span></div>
+      <div class="vs-stat"><span class="vs-stat-label">Satiety</span><span class="vs-stat-val jade">High</span></div>
+      <div class="vs-cost-flag">≈ £0.45 per serving</div>
+    </div>
+    <div class="vs-or">vs</div>
+    <div class="vs-side bar">
+      <div class="vs-label">Typical protein bar</div>
+      <div class="vs-name">Grenade Carb Killa (60g)</div>
+      <div class="vs-stat"><span class="vs-stat-label">Protein</span><span class="vs-stat-val">22g</span></div>
+      <div class="vs-stat"><span class="vs-stat-label">Calories</span><span class="vs-stat-val">218 kcal</span></div>
+      <div class="vs-stat"><span class="vs-stat-label">Sugar alcohols</span><span class="vs-stat-val amber">15g maltitol</span></div>
+      <div class="vs-stat"><span class="vs-stat-label">Protein type</span><span class="vs-stat-val amber">Whey + milk protein</span></div>
+      <div class="vs-stat"><span class="vs-stat-label">Satiety</span><span class="vs-stat-val amber">Moderate</span></div>
+      <div class="vs-cost-flag">≈ £1.90 per bar</div>
+    </div>
+  </div>
+
+  <!-- Section 5: Bar comparison table -->
+  <div class="dr jade" style="margin-top: 36px;">Bars ranked</div>
+
+  <p class="body-sm" style="margin-bottom:18px;">UK market. Ranked by protein quality, sweetener choice, and overall composition.</p>
+
+  <div style="overflow-x:auto;margin-bottom:32px;">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Bar</th>
+          <th>Protein</th>
+          <th>Kcal</th>
+          <th>Sweetener</th>
+          <th>Protein source</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="good">
+          <td><span class="bar-name">Fulfil Vitamin &amp; Protein</span></td>
+          <td><span class="signal-good">20g</span></td>
+          <td>190</td>
+          <td><span class="signal-good">Erythritol</span></td>
+          <td>Whey isolate</td>
+          <td><span class="signal-good">Best in class</span></td>
+        </tr>
+        <tr class="good">
+          <td><span class="bar-name">PhD Smart Bar</span></td>
+          <td><span class="signal-good">20g</span></td>
+          <td>197</td>
+          <td><span class="signal-good">Stevia blend</span></td>
+          <td>Whey isolate + milk</td>
+          <td><span class="signal-good">Excellent</span></td>
+        </tr>
+        <tr class="ok">
+          <td><span class="bar-name">Grenade Carb Killa</span></td>
+          <td>22g</td>
+          <td>218</td>
+          <td><span class="signal-warn">Maltitol</span></td>
+          <td>Whey + milk protein</td>
+          <td><span class="signal-warn">GI risk</span></td>
+        </tr>
+        <tr class="ok">
+          <td><span class="bar-name">Myprotein Layer Bar</span></td>
+          <td>21g</td>
+          <td>210</td>
+          <td><span class="signal-warn">Sucralose</span></td>
+          <td>Milk protein</td>
+          <td><span class="signal-warn">Acceptable</span></td>
+        </tr>
+        <tr class="ok">
+          <td><span class="bar-name">Nakd Protein Bar</span></td>
+          <td>10g</td>
+          <td>198</td>
+          <td><span class="signal-good">None (dates)</span></td>
+          <td>Pea protein</td>
+          <td><span class="signal-warn">Low protein</span></td>
+        </tr>
+        <tr class="bad">
+          <td><span class="bar-name">Special K Protein Bar</span></td>
+          <td><span class="signal-bad">9g</span></td>
+          <td>172</td>
+          <td>Sugar + glucose</td>
+          <td>Soy isolate</td>
+          <td><span class="signal-bad">Avoid</span></td>
+        </tr>
+        <tr class="bad">
+          <td><span class="bar-name">Aldi Protein Bar</span></td>
+          <td>18g</td>
+          <td>245</td>
+          <td><span class="signal-bad">Maltitol heavy</span></td>
+          <td>Collagen blend</td>
+          <td><span class="signal-bad">Poor quality</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Section 6: Label checker -->
+  <div class="dr amber">Label checker</div>
+
+  <div class="checker-wrap">
+    <div class="checker-title">Is this bar worth it?</div>
+    <div class="checker-sub">Enter the label numbers and get an instant verdict.</div>
+    <div class="checker-fields">
+      <div class="checker-field">
+        <label>Protein (g)</label>
+        <input type="number" id="chk-prot" placeholder="20" min="0" max="50" oninput="checkBar()">
+      </div>
+      <div class="checker-field">
+        <label>Calories</label>
+        <input type="number" id="chk-kcal" placeholder="210" min="50" max="600" oninput="checkBar()">
+      </div>
+      <div class="checker-field">
+        <label>Sugar (g)</label>
+        <input type="number" id="chk-sug" placeholder="3" min="0" max="60" oninput="checkBar()">
+      </div>
+      <div class="checker-field">
+        <label>Fat (g)</label>
+        <input type="number" id="chk-fat" placeholder="8" min="0" max="30" oninput="checkBar()">
+      </div>
+    </div>
+    <div id="checker-result" class="checker-result"></div>
+  </div>
+
+  <!-- Profile callout -->
+  <div class="profile-callout" id="profile-callout">
+    <div class="pc-label">Your context</div>
+    <div class="pc-text" id="profile-callout-text"></div>
+  </div>
+
+  <!-- Section 7: The rule -->
+  <div class="dr jade">The rule</div>
+
+  <div class="lc">
+    <div class="lc-eye jade">The three-question test</div>
+    <div class="lc-t">Before you buy a bar, ask three things</div>
+    <div class="lc-body">
+      <strong>1. Is there real food available?</strong> If yes, eat that. Greek yoghurt, eggs, chicken, tuna, cottage cheese — all beat every bar on satiety, cost, and nutrient density.<br><br>
+      <strong>2. Does it have 20g+ protein from whey or milk protein (not collagen)?</strong> If the bar doesn't clear this threshold, it's not a protein bar — it's a snack bar with marketing.<br><br>
+      <strong>3. Is the sweetener erythritol, stevia, or nothing?</strong> Maltitol is a dealbreaker if you're training the same day. The GI distress risk is real.
+    </div>
+    <div class="lc-rule jade">
+      If all three are satisfied: fine to use as a tactical tool. If one fails: pick a different bar or eat real food.
+    </div>
+  </div>
+
+  <div style="margin-top:48px;padding-top:28px;border-top:1px solid rgba(255,255,255,.05);">
+    <p class="body-sm" style="color:var(--dk-3);">
+      ← <a href="bodylens-food.html" style="color:var(--amber);text-decoration:none;">Back to Food hub</a>
+      &nbsp;&nbsp;
+      <a href="bodylens-fridge.html" style="color:var(--jade);text-decoration:none;">Fridge overhaul →</a>
+    </p>
+  </div>
+
+</div>
+
+<script>
+// ── Profile personalisation ─────────────────────────────
+function init() {
+  const p = (() => { try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); } catch(e) { return null; } })();
+  if (!p) return;
+
+  const callout = document.getElementById('profile-callout');
+  const text = document.getElementById('profile-callout-text');
+  const prot = p.protein || 140;
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long' });
+  const todayPlan = (p.weekPlan||[]).find(d => d.day === today);
+  const isTraining = todayPlan?.priority === 'training';
+
+  let lines = [];
+  lines.push(`Your daily protein target is <strong>${prot}g</strong>. A good bar (20g protein) covers ~${Math.round(20/prot*100)}% of that in one hit — useful when you're running short, not useful as a default.`);
+
+  if (isTraining) {
+    lines.push(`Today is a <strong>${todayPlan.type} training day</strong>. Post-session is the highest-priority use case — if your meal will be delayed more than 90 minutes, a whey-based bar bridges the gap without compromising recovery.`);
+  } else {
+    lines.push(`Today is a <strong>rest day</strong> (${p.restKcal || 2492} kcal). Protein bars are lower priority — you have time to eat real food. Use only if you're genuinely short on protein by evening.`);
+  }
+
+  // Check if target is high
+  if (prot >= 170) {
+    lines.push(`At ${prot}g protein, you'll likely need 1–2 bar-quality supplemental hits per week regardless. The goal is real food first, bars only when the gap is real.`);
+  }
+
+  text.innerHTML = lines.join(' ');
+  callout.style.display = 'block';
+}
+
+// ── Label checker ───────────────────────────────────────
+function checkBar() {
+  const prot = parseFloat(document.getElementById('chk-prot').value) || 0;
+  const kcal = parseFloat(document.getElementById('chk-kcal').value) || 0;
+  const sug  = parseFloat(document.getElementById('chk-sug').value) || 0;
+  const fat  = parseFloat(document.getElementById('chk-fat').value) || 0;
+
+  if (!prot || !kcal) {
+    document.getElementById('checker-result').className = 'checker-result';
+    return;
+  }
+
+  const kcalPerGramProt = kcal / prot;
+  const sugarRatio = sug / kcal * 100;
+  const fatRatio   = fat / kcal * 100 * 9; // fat contributes 9kcal/g
+
+  let verdict = '', cls = '', points = 0;
+
+  // Protein density — should be under 11 kcal per g protein
+  if (kcalPerGramProt < 10)       { points += 2; }
+  else if (kcalPerGramProt < 12)  { points += 1; }
+  else                            { points -= 1; }
+
+  // Raw protein
+  if (prot >= 20)       { points += 2; }
+  else if (prot >= 15)  { points += 0; }
+  else                  { points -= 2; }
+
+  // Sugar
+  if (sug <= 3)        { points += 2; }
+  else if (sug <= 8)   { points += 1; }
+  else if (sug <= 15)  { points -= 1; }
+  else                 { points -= 3; }
+
+  // Total calories
+  if (kcal <= 200)       { points += 1; }
+  else if (kcal <= 240)  { points += 0; }
+  else if (kcal <= 280)  { points -= 1; }
+  else                   { points -= 2; }
+
+  if (points >= 5) {
+    cls = 'good';
+    verdict = `✓ Solid bar. ${prot}g protein at ${kcalPerGramProt.toFixed(1)} kcal/g protein — efficient. ${sug}g sugar is well-controlled. Check the protein source (whey or milk isolate only) and sweetener (avoid maltitol). If those clear, this is a legitimate tool.`;
+  } else if (points >= 2) {
+    cls = 'warn';
+    const issues = [];
+    if (prot < 20) issues.push(`protein is below the 20g threshold`);
+    if (sug > 8) issues.push(`${sug}g sugar is higher than ideal`);
+    if (kcalPerGramProt > 12) issues.push(`caloric density is low relative to protein`);
+    verdict = `⚠ Acceptable with caveats. ${issues.length ? 'Issues: ' + issues.join(', ') + '.' : ''} Fine in a genuine pinch, but there are better options. Check sweetener type before buying.`;
+  } else {
+    cls = 'bad';
+    const issues = [];
+    if (prot < 15) issues.push(`only ${prot}g protein (not a protein bar)`);
+    if (sug > 15) issues.push(`${sug}g sugar — this is confectionery`);
+    if (kcal > 300) issues.push(`${kcal} kcal with poor protein return`);
+    verdict = `✗ Skip it. ${issues.join('; ')}. The marketing doesn't match the label. A Greek yoghurt pot would serve you better.`;
+  }
+
+  const el = document.getElementById('checker-result');
+  el.className = 'checker-result ' + cls;
+  el.textContent = verdict;
+}
+
+init();
+</script>
+
+</body>
+</html>
