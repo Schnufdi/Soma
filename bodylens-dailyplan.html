@@ -526,8 +526,38 @@ body {
   background: rgba(74,96,120,.04);
   border-color: rgba(74,96,120,.12); opacity: .85;
 }
-.ptl-block.eaten .ptl-card { opacity: .38; filter: saturate(.3); }
+.ptl-block.eaten .ptl-card { opacity: .45; filter: saturate(.25); }
 .ptl-block.eaten .ptl-dot  { opacity: .25; }
+/* Keep tick fully visible and interactive on eaten blocks */
+.ptl-block.eaten .ptl-tick { opacity: 1 !important; filter: none !important; }
+.ptl-block.eaten .ptl-tick.done { background: var(--jade); color: var(--ink); border-color: var(--jade); }
+.ptl-tick.done:hover {
+  background: rgba(220,80,60,.75);
+  border-color: rgba(220,80,60,.75);
+  color: #fff;
+  title: 'Undo';
+}
+.ptl-tick.done[title]:hover::before {
+  content: attr(title);
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dk-1);
+  background: var(--ink-1);
+  border: 1px solid var(--bd);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+.ptl-block.eaten .ptl-tick.done:hover { background: rgba(220,80,60,.7); border-color: rgba(220,80,60,.7); color: #fff; }
+.ptl-block.eaten .ptl-tick.done:hover::after { content: 'Undo'; font-size: 8px; position: absolute; }
 
 /* ── Timeline card header ───────────────────────────────────────────── */
 .ptl-hd {
@@ -564,6 +594,7 @@ body {
 
 /* ── Tick button ────────────────────────────────────────────────────── */
 .ptl-tick {
+  position: relative;
   width: 32px; height: 32px; border-radius: 50%;
   border: 1.5px solid rgba(0,200,160,.2);
   display: flex; align-items: center; justify-content: center;
@@ -572,6 +603,31 @@ body {
 }
 .ptl-tick:hover { background: rgba(0,200,160,.1); color: var(--jade); border-color: rgba(0,200,160,.35); }
 .ptl-tick.done { background: var(--jade); color: var(--ink); border-color: var(--jade); }
+.ptl-tick.done:hover {
+  background: rgba(220,80,60,.75);
+  border-color: rgba(220,80,60,.75);
+  color: #fff;
+  title: 'Undo';
+}
+.ptl-tick.done[title]:hover::before {
+  content: attr(title);
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dk-1);
+  background: var(--ink-1);
+  border: 1px solid var(--bd);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
 
 /* ── Timeline body ─────────────────────────────────────────────────── */
 .ptl-body { padding: 0 18px 16px 46px; }
@@ -2952,6 +3008,12 @@ function quickTick(slot,i){
     // Reset subtitle
     var sub=document.getElementById('sub-'+slot);
     if(sub){sub.style.color='';sub.textContent='';}
+    // Re-expand the block so user sees it's been unticked
+    var mealElU=document.getElementById('meal-'+i);
+    if(mealElU){
+      var blockWrapU=mealElU.closest('.ptl-block');
+      if(blockWrapU) blockWrapU.classList.remove('collapsed');
+    }
     return;
   }
 
@@ -2974,7 +3036,10 @@ function quickTick(slot,i){
   var mealEl=document.getElementById('meal-'+i);
   if(mealEl){
     var blockWrap=mealEl.closest('.ptl-block');
-    if(blockWrap) blockWrap.classList.add('eaten');
+    if(blockWrap) {
+      blockWrap.classList.add('eaten');
+      blockWrap.classList.add('collapsed');
+    }
   }
   // Fire post-meal walk notification if enabled
   if (typeof window.ntPostMealWalk === 'function') window.ntPostMealWalk();
@@ -3368,7 +3433,7 @@ function renderPlan(plan, browsing){
         + '</div>';
     }
 
-    return '<div class="ptl-block t-'+(b.type||'supp')+(eaten?' eaten':'')+(b.type==='wake'||b.type==='supp'||b.type==='sleep'?' collapsed':'')+'" onclick="togglePtlBlock(this)" style="min-height:'+h+'px;">'
+    return '<div class="ptl-block t-'+(b.type||'supp')+(eaten?' eaten':'')+' collapsed'+'" onclick="togglePtlBlock(this)" style="min-height:'+h+'px;">'
       +'<div class="ptl-dot"></div>'
       +'<div class="ptl-card">'
       +hd+body+coachHtml+optHtml
