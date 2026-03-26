@@ -3587,7 +3587,7 @@ function renderPlan(plan, browsing){
 
   // Build sidebar HTML
   var sidebarHtml = !isBrowsing ? (
-    renderGlanceCard(p, t, plan)
+    renderGlanceCard(p, t, plan, isBrowsing)
     + renderChallengeGrid()
   ) : '';
 
@@ -4051,7 +4051,7 @@ function closeRecoveryModal() {
   if (el) el.remove();
 }
 
-function renderGlanceCard(p, t, plan) {
+function renderGlanceCard(p, t, plan, browsing) {
   if (!p || !t) return '';
   var log = loadDayLog(_rDate) || {};
   var trainStatus = log.trainStatus || 'pending';
@@ -4130,7 +4130,8 @@ function renderGlanceCard(p, t, plan) {
   // Check for missed sessions — show recovery prompt
   var missed = typeof getMissedSessions==='function' ? getMissedSessions(p) : [];
   var missedBanner = '';
-  if (missed.length && !isBrowsing) {
+  var _isCurrentlyBrowsing = browsing || (typeof VIEWING_DAY !== 'undefined' && VIEWING_DAY !== null);
+  if (missed.length && !_isCurrentlyBrowsing) {
     var mLabel = missed.length === 1
       ? missed[0].sessionType + ' (' + missed[0].day + ') not logged'
       : missed.length + ' sessions not logged this week';
