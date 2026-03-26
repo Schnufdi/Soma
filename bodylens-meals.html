@@ -143,9 +143,44 @@ body{background:var(--ink);color:var(--dk-1);}
 .fat-edu-name{font-size:11px;font-weight:500;color:var(--dk-1);flex:1;}
 .fat-edu-val{font-size:10px;font-weight:600;min-width:50px;text-align:right;}
 .fat-edu-note{font-size:9px;font-weight:300;color:var(--dk-3);}
+
+/* ── Fridge restock banner ────────────────────────────────────── */
+.frb {
+  background: rgba(0,200,160,.05);
+  border: 1px solid rgba(0,200,160,.2);
+  border-left: 3px solid var(--jade);
+  border-radius: 14px; padding: 18px 20px;
+  margin: 20px 0 28px; animation: fadeIn .3s ease;
+}
+.frb-hd { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.frb-left { display: flex; gap: 12px; align-items: flex-start; }
+.frb-icon { font-size: 22px; flex-shrink: 0; }
+.frb-title { font-size: 13px; font-weight: 600; color: var(--jade); margin-bottom: 3px; }
+.frb-sub { font-size: 11px; font-weight: 300; color: var(--dk-3); }
+.frb-close { background: none; border: none; color: var(--dk-3); cursor: pointer; font-size: 16px; padding: 2px 6px; }
+.frb-items { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.frb-item {
+  padding: 4px 10px; border-radius: 20px;
+  background: rgba(0,200,160,.08); border: 1px solid rgba(0,200,160,.18);
+  font-size: 11px; font-weight: 500; color: var(--jade);
+}
+.frb-item em { font-style: normal; font-weight: 300; color: var(--dk-3); }
+.frb-more { font-size: 11px; font-weight: 300; color: var(--dk-3); align-self: center; }
+.frb-actions { display: flex; gap: 8px; }
+.frb-btn {
+  padding: 9px 18px; border-radius: 10px;
+  font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  cursor: pointer; font-family: var(--sans); transition: all .12s;
+}
+.frb-btn.primary { background: var(--jade); border: none; color: var(--ink); }
+.frb-btn.primary:hover { opacity: .88; }
+.frb-btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,.1); color: var(--dk-3); }
+.frb-btn.secondary:hover { border-color: rgba(255,255,255,.2); color: var(--dk-2); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
+<div id="fridge-restock-banner" style="display:none;align-items:center;gap:12px;padding:14px 20px;background:rgba(0,200,160,.06);border-bottom:1px solid rgba(0,200,160,.15);position:sticky;top:52px;z-index:48;"></div>
 <script src="nav.js"></script>
 <div class="mp">
   <div class="mp-hero">
@@ -228,7 +263,7 @@ var SLOT_TYPES = {
 };
 
 function gp(){try{return JSON.parse(localStorage.getItem('bl_profile')||'null');}catch(e){return null;}}
-function wk(){var d=new Date(),m=new Date(d),dy=d.getDay();m.setDate(d.getDate()-(dy===0?6:dy-1));return 'bl_wmp_'+m.toISOString().slice(0,10);}
+function wk(){var d=new Date(),m=new Date(d),dy=d.getDay();m.setDate(d.getDate()-(dy===0?6:dy-1));return 'bl_weekly_meals_'+m.toISOString().slice(0,10);}
 function lp(){try{var r=localStorage.getItem(wk());return r?JSON.parse(r):null;}catch(e){return null;}}
 function sp(x){try{localStorage.setItem(wk(),JSON.stringify(x));}catch(e){}}
 function cp(){try{localStorage.removeItem(wk());}catch(e){}}
@@ -420,6 +455,10 @@ async function generate(){
     +'Proteins: '+prots+' | Cuisine: '+cuis+' | Avoid: '+avds+'\n'
     +'Slots: '+slotDesc+'\n'
     +'Schedule:\n'+sched+'\n\n'
+    +(window._fridgeRestockItems && window._fridgeRestockItems.length
+      ? '\nFRIDGE ITEMS AVAILABLE (from fridge scan — use these as primary ingredients where possible):\n'
+        + window._fridgeRestockItems.map(function(i){return '- '+i.name+(i.quantity?' ('+i.quantity+')':'');}).join('\n') + '\n\n'
+      : '')
     +'MACRO ACCURACY (calculate from real weights):\n'
     +'150g cooked chicken=46g P,5g F,240kcal | 150g salmon=30g P,20g F,297kcal | 1 egg=6g P,5g F,70kcal\n'
     +'200g yogurt 0%=20g P,0.4g F,114kcal | 150g white fish=27g P,1g F,123kcal\n'
@@ -671,7 +710,8 @@ function renderDetailInto(det,d){
   det.innerHTML=html||'<div style="font-size:10px;font-weight:300;color:var(--dk-3);padding:4px 0;">No detail available.</div>';
 }
 
-function doSave(){if(S.plan)sp(S.plan);var b=document.getElementById('sbt');if(b){b.textContent='Saved';b.style.opacity='.6';setTimeout(function(){if(b){b.textContent='Save week';b.style.opacity='';}},2000);}}
+function doSave(){if(S.plan)sp(S.plan);
+  try{localStorage.removeItem('dayplan_v6r2_'+new Date().toISOString().slice(0,10));}catch(_e){}var b=document.getElementById('sbt');if(b){b.textContent='Saved';b.style.opacity='.6';setTimeout(function(){if(b){b.textContent='Save week';b.style.opacity='';}},2000);}}
 function editPrefs(){S.plan=null;cp();renderPrefs(gp());}
 
 /* ---- CUSTOM MEAL BUILDER ---- */
@@ -828,10 +868,103 @@ function renderLearnTab(){
 }
 
 /* ---- INIT ---- */
+
+// ── FRIDGE RESTOCK BANNER ──────────────────────────────────────────────
+function showFridgeRestockBanner(restock) {
+  var existing = document.getElementById('fridge-restock-banner');
+  if (existing) existing.remove();
+
+  var items = restock.items || [];
+  var scannedDate = restock.scannedAt ? new Date(restock.scannedAt).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : '';
+  
+  var itemsHtml = items.slice(0, 8).map(function(item) {
+    return '<span class="frb-item">' + item.name + (item.quantity ? ' <em>'+item.quantity+'</em>' : '') + '</span>';
+  }).join('');
+  var moreCount = items.length > 8 ? ' <span class="frb-more">+' + (items.length-8) + ' more</span>' : '';
+
+  var banner = document.createElement('div');
+  banner.id = 'fridge-restock-banner';
+  banner.className = 'frb';
+  banner.innerHTML = ''
+    + '<div class="frb-hd">'
+      + '<div class="frb-left">'
+        + '<div class="frb-icon">🧊</div>'
+        + '<div>'
+          + '<div class="frb-title">Fridge scan' + (scannedDate ? ' · ' + scannedDate : '') + '</div>'
+          + '<div class="frb-sub">Your restock list is ready — use it to inform your meal plan</div>'
+        + '</div>'
+      + '</div>'
+      + '<button class="frb-close" onclick="dismissFridgeBanner()">✕</button>'
+    + '</div>'
+    + '<div class="frb-items">' + itemsHtml + moreCount + '</div>'
+    + '<div class="frb-actions">'
+      + '<button class="frb-btn primary" onclick="useFridgeItems()">Use this list when generating →</button>'
+      + '<button class="frb-btn secondary" onclick="dismissFridgeBanner()">Dismiss</button>'
+    + '</div>';
+
+  // Insert before the main meal plan container
+  var target = document.querySelector('.meal-page, .page, body > div:first-child') || document.body;
+  target.insertBefore(banner, target.firstChild);
+  
+  // Store items for use during generation
+  window._fridgeRestockItems = items;
+}
+
+function dismissFridgeBanner() {
+  var banner = document.getElementById('fridge-restock-banner');
+  if (banner) banner.remove();
+  try { localStorage.removeItem('bl_fridge_restock'); } catch(e) {}
+  window._fridgeRestockItems = null;
+}
+
+function useFridgeItems() {
+  // Highlight that fridge items will be used
+  var banner = document.getElementById('fridge-restock-banner');
+  if (banner) {
+    banner.querySelector('.frb-sub').textContent = '✓ Will be used as ingredient guidance when you generate your meal plan';
+    banner.querySelector('.frb-btn.primary').textContent = '✓ Active';
+    banner.querySelector('.frb-btn.primary').style.opacity = '.5';
+    banner.querySelector('.frb-btn.primary').onclick = null;
+  }
+  // Flag will be read during generate()
+  window._useFridgeItems = true;
+}
+
 function init(){
+  // Check for pending fridge restock list
+  try {
+    var fr = localStorage.getItem('bl_fridge_restock');
+    if (fr) {
+      var frData = JSON.parse(fr);
+      var banner = document.getElementById('fridge-restock-banner');
+      if (banner && frData.items && frData.items.length) {
+        var itemNames = frData.items.slice(0,5).map(function(i){return i.name;}).join(', ');
+        var more = frData.items.length > 5 ? ' +' + (frData.items.length-5) + ' more' : '';
+        banner.style.display = 'flex';
+        banner.innerHTML = '<span style="font-size:18px">🛒</span>'
+          + '<div style="flex:1">'
+          + '<div style="font-size:12px;font-weight:600;color:var(--jade)">Fridge restock ready</div>'
+          + '<div style="font-size:11px;font-weight:300;color:var(--dk-3)">' + itemNames + more + '</div>'
+          + '</div>'
+          + '<button onclick="applyFridgeRestock()" style="background:var(--jade);border:none;color:var(--ink);padding:7px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">Use list</button>'
+          + '<button onclick="dismissFridgeRestock()" style="background:transparent;border:none;color:var(--dk-3);padding:7px 10px;cursor:pointer;font-size:16px">×</button>';
+      }
+    }
+  } catch(e) {}
   var p=gp();
   var nm=document.getElementById('nav-meta');
   if(nm&&p)nm.innerHTML='<span class="nav-tag nt-jade">'+p.name+'</span>';
+
+  // ── Fridge restock: check if fridge page sent items here ──
+  try {
+    var restockRaw = localStorage.getItem('bl_fridge_restock');
+    if (restockRaw) {
+      var restock = JSON.parse(restockRaw);
+      if (restock && restock.items && restock.items.length) {
+        showFridgeRestockBanner(restock);
+      }
+    }
+  } catch(e) {}
   if(!p){
     document.getElementById('pane-week').innerHTML='<div style="text-align:center;padding:60px 20px;"><div style="font-size:14px;font-weight:300;color:var(--dk-2);margin-bottom:6px;">Profile needed</div><div style="font-size:12px;font-weight:300;color:var(--dk-3);">Complete onboarding first.</div></div>';
     return;
@@ -849,6 +982,38 @@ function init(){
   }else{renderPrefs(p);}
 }
 init();
+</script>
+
+<script>
+// ── Fridge restock integration ──────────────────────────────
+function applyFridgeRestock() {
+  try {
+    var fr = JSON.parse(localStorage.getItem('bl_fridge_restock') || 'null');
+    if (!fr || !fr.items) return;
+    // Pre-populate the protein prefs from fridge items
+    // Items with high protein get added as protein sources
+    var proteinItems = fr.items.filter(function(i) {
+      return /chicken|beef|fish|salmon|tuna|egg|turkey|pork|lamb|prawn|shrimp|tofu|tempeh|cottage|greek|yoghurt|yogurt/i.test(i.name);
+    }).map(function(i) { return i.name.split(' ')[0]; });
+    if (proteinItems.length && S.prefs) {
+      S.prefs.proteins = proteinItems.slice(0, 4);
+      renderPrefs();
+    }
+    dismissFridgeRestock();
+    // Show a toast
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--jade);color:var(--ink);padding:10px 20px;border-radius:20px;font-size:12px;font-weight:700;z-index:9999;';
+    t.textContent = '✓ Fridge items applied to meal preferences';
+    document.body.appendChild(t);
+    setTimeout(function() { t.remove(); }, 3000);
+  } catch(e) {}
+}
+
+function dismissFridgeRestock() {
+  localStorage.removeItem('bl_fridge_restock');
+  var b = document.getElementById('fridge-restock-banner');
+  if (b) b.style.display = 'none';
+}
 </script>
 </body>
 </html>
