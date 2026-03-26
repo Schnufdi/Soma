@@ -9,6 +9,7 @@
     <a class="nav-link" href="/bodylens-plan.html">Plan</a>
     <a class="nav-link" href="/bodylens-food.html">Food</a>
     <a class="nav-link" href="/bodylens-meals.html">Meals</a>
+    <a class="nav-link" href="/bodylens-fridge.html">Fridge</a>
     <a class="nav-link" href="/bodylens-science.html">Science</a>
     <a class="nav-link" href="/bodylens-supplements.html">Deep Stack</a>
     <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
@@ -42,6 +43,7 @@
   <div class="mm-section-label">Food</div>
   <a class="mm-link" href="/bodylens-food.html">Food hub</a>
   <a class="mm-link" href="/bodylens-meals.html">Meal planner</a>
+  <a class="mm-link" href="/bodylens-fridge.html">Fridge overhaul</a>
   <div class="mm-section-label">Optimise</div>
   <a class="mm-link" href="/bodylens-accelerators.html">Accelerators</a>
   <a class="mm-link" href="/bodylens-supplements.html">Deep Stack</a>

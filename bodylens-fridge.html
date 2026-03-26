@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BodyLens — Fridge Overhaul</title>
+<link rel="stylesheet" href="style.css">
+<script src="nav.js" defer></script>
+<style>
+/* ── Page layout ─────────────────────────────────────────── */
+.fridge-page {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 48px 24px 120px;
+}
+
+/* ── Hero ────────────────────────────────────────────────── */
+.fridge-hero {
+  margin-bottom: 48px;
+}
+.fridge-kicker {
+  font-size: 10px; font-weight: 700; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--jade);
+  margin-bottom: 12px;
+}
+.fridge-title {
+  font-family: var(--serif); font-size: 52px; font-weight: 300;
+  color: var(--dk-1); line-height: 1.05; letter-spacing: -.02em;
+  margin-bottom: 16px;
+}
+.fridge-title em { font-style: italic; color: var(--jade); }
+.fridge-brief {
+  font-size: 15px; font-weight: 300; color: var(--dk-2);
+  line-height: 1.65; max-width: 520px;
+}
+
+/* ── Upload zone ─────────────────────────────────────────── */
+.upload-zone {
+  border: 1.5px dashed rgba(255,255,255,.12);
+  border-radius: 20px;
+  padding: 48px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  background: rgba(255,255,255,.02);
+  margin-bottom: 12px;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--jade);
+  background: rgba(0,200,160,.04);
+}
+.upload-zone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.upload-icon {
+  font-size: 40px; margin-bottom: 16px; display: block;
+  filter: grayscale(.4);
+}
+.upload-title {
+  font-size: 16px; font-weight: 600; color: var(--dk-1); margin-bottom: 6px;
+}
+.upload-sub {
+  font-size: 12px; font-weight: 300; color: var(--dk-3); line-height: 1.5;
+}
+.upload-btn-hint {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 18px; padding: 9px 20px;
+  border: 1px solid rgba(255,255,255,.1); border-radius: 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--dk-2);
+  transition: all .12s;
+}
+.upload-zone:hover .upload-btn-hint {
+  border-color: rgba(0,200,160,.3); color: var(--jade);
+}
+
+/* ── Image preview ───────────────────────────────────────── */
+.preview-wrap {
+  display: none;
+  position: relative; border-radius: 16px; overflow: hidden;
+  margin-bottom: 24px; border: 1px solid rgba(255,255,255,.08);
+}
+.preview-wrap.active { display: block; }
+.preview-img {
+  width: 100%; max-height: 400px;
+  object-fit: cover; display: block;
+}
+.preview-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(12,16,16,.9));
+  pointer-events: none;
+}
+.preview-change {
+  position: absolute; top: 14px; right: 14px;
+  background: rgba(12,16,16,.85); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 10px;
+  color: var(--dk-2); font-size: 11px; font-weight: 600;
+  padding: 7px 14px; cursor: pointer; font-family: var(--sans);
+  transition: all .12s;
+}
+.preview-change:hover { color: var(--dk-1); border-color: rgba(255,255,255,.2); }
+.preview-label {
+  position: absolute; bottom: 16px; left: 20px;
+  font-size: 12px; font-weight: 300; color: rgba(255,255,255,.5);
+}
+
+/* ── Analyse button ──────────────────────────────────────── */
+.analyse-btn {
+  width: 100%; padding: 16px;
+  background: var(--jade); border: none; color: var(--ink);
+  border-radius: 14px; font-size: 14px; font-weight: 700;
+  letter-spacing: .04em; cursor: pointer; font-family: var(--sans);
+  transition: opacity .15s; display: flex; align-items: center;
+  justify-content: center; gap: 10px;
+}
+.analyse-btn:hover { opacity: .88; }
+.analyse-btn:disabled { opacity: .4; cursor: not-allowed; }
+.analyse-btn.loading {
+  background: rgba(0,200,160,.15);
+  border: 1px solid rgba(0,200,160,.25); color: var(--jade);
+}
+
+/* ── Scanning animation ──────────────────────────────────── */
+.scan-state {
+  display: none; text-align: center; padding: 40px 24px;
+}
+.scan-state.active { display: block; }
+.scan-bar-wrap {
+  width: 100%; height: 2px;
+  background: rgba(255,255,255,.06); border-radius: 2px;
+  margin: 24px 0 12px; overflow: hidden;
+}
+.scan-bar {
+  height: 100%; width: 30%; border-radius: 2px;
+  background: var(--jade);
+  animation: scanslide 1.8s ease-in-out infinite;
+}
+@keyframes scanslide {
+  0% { transform: translateX(-100%); width: 30%; }
+  50% { width: 60%; }
+  100% { transform: translateX(400%); width: 30%; }
+}
+.scan-label {
+  font-size: 12px; font-weight: 300; color: var(--dk-3);
+  animation: fadepulse 1.8s ease-in-out infinite;
+}
+@keyframes fadepulse {
+  0%, 100% { opacity: .5; }
+  50% { opacity: 1; }
+}
+.scan-phases {
+  display: flex; justify-content: center; gap: 24px;
+  margin-top: 20px;
+}
+.scan-phase {
+  font-size: 10px; font-weight: 600; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--dk-3); opacity: .3;
+  transition: opacity .3s, color .3s;
+}
+.scan-phase.active { opacity: 1; color: var(--jade); }
+
+/* ── Results ─────────────────────────────────────────────── */
+.results-wrap { display: none; }
+.results-wrap.active { display: block; }
+
+.results-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px;
+}
+.results-title {
+  font-family: var(--serif); font-size: 32px; font-weight: 300;
+  color: var(--dk-1); letter-spacing: -.01em;
+}
+.results-rescan {
+  background: transparent; border: 1px solid rgba(255,255,255,.1);
+  color: var(--dk-3); font-size: 11px; font-weight: 600;
+  padding: 8px 16px; border-radius: 20px; cursor: pointer;
+  font-family: var(--sans); transition: all .12s;
+}
+.results-rescan:hover { border-color: rgba(255,255,255,.2); color: var(--dk-2); }
+
+/* ── Score card ──────────────────────────────────────────── */
+.fridge-score {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px; margin-bottom: 32px;
+}
+.score-tile {
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px; padding: 18px 20px;
+  text-align: center;
+}
+.score-val {
+  font-size: 32px; font-weight: 700; line-height: 1;
+  letter-spacing: -.03em; font-variant-numeric: tabular-nums;
+}
+.score-val.good { color: var(--jade); }
+.score-val.warn { color: var(--amber); }
+.score-val.bad  { color: var(--red); }
+.score-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--dk-3); margin-top: 6px;
+}
+
+/* ── Verdict bar ─────────────────────────────────────────── */
+.verdict-bar {
+  padding: 18px 22px; border-radius: 14px; margin-bottom: 32px;
+  border-left: 3px solid var(--jade);
+  background: rgba(0,200,160,.04);
+}
+.verdict-bar.warn { border-color: var(--amber); background: rgba(196,124,24,.04); }
+.verdict-bar.bad  { border-color: var(--red); background: rgba(220,80,60,.04); }
+.verdict-text {
+  font-size: 14px; font-weight: 400; color: var(--dk-1); line-height: 1.65;
+}
+
+/* ── Sections ────────────────────────────────────────────── */
+.result-section { margin-bottom: 36px; }
+.rs-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.rs-icon { font-size: 18px; flex-shrink: 0; }
+.rs-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.rs-title.keep  { color: var(--jade); }
+.rs-title.ditch { color: var(--red); }
+.rs-title.buy   { color: var(--amber); }
+.rs-count {
+  margin-left: auto; font-size: 11px; font-weight: 300; color: var(--dk-3);
+}
+
+/* ── Item rows ───────────────────────────────────────────── */
+.item-list { display: flex; flex-direction: column; gap: 8px; }
+.item-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px; border-radius: 12px;
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.05);
+  transition: border-color .12s;
+}
+.item-row:hover { border-color: rgba(255,255,255,.1); }
+.item-row.keep  { border-left: 2px solid rgba(0,200,160,.3); }
+.item-row.ditch { border-left: 2px solid rgba(220,80,60,.3); }
+.item-row.buy   { border-left: 2px solid rgba(196,124,24,.3); }
+.item-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.item-body { flex: 1; min-width: 0; }
+.item-name {
+  font-size: 13px; font-weight: 600; color: var(--dk-1);
+  margin-bottom: 3px;
+}
+.item-reason {
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  line-height: 1.5;
+}
+.item-macro {
+  display: inline-flex; align-items: center;
+  padding: 3px 8px; border-radius: 20px;
+  font-size: 9px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; margin-right: 5px; margin-top: 5px;
+}
+.item-macro.p { background: rgba(0,200,160,.1); color: var(--jade); }
+.item-macro.c { background: rgba(196,124,24,.08); color: var(--amber); }
+.item-macro.f { background: rgba(255,255,255,.06); color: var(--dk-2); }
+.item-check {
+  width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,.1); background: transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s; font-family: var(--sans); font-size: 12px;
+  color: transparent;
+}
+.item-check.checked {
+  background: var(--jade); border-color: var(--jade); color: var(--ink);
+}
+
+/* ── Shopping list export ────────────────────────────────── */
+.shop-list-actions {
+  display: flex; gap: 10px; margin-top: 32px; padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.shop-action-btn {
+  flex: 1; padding: 14px; border-radius: 12px;
+  font-size: 12px; font-weight: 700; letter-spacing: .04em;
+  cursor: pointer; font-family: var(--sans); transition: all .12s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.shop-action-btn.primary {
+  background: var(--jade); border: none; color: var(--ink);
+}
+.shop-action-btn.primary:hover { opacity: .88; }
+.shop-action-btn.secondary {
+  background: transparent; border: 1px solid rgba(255,255,255,.1); color: var(--dk-2);
+}
+.shop-action-btn.secondary:hover { border-color: rgba(255,255,255,.2); color: var(--dk-1); }
+
+/* ── No profile state ────────────────────────────────────── */
+.no-profile-note {
+  background: rgba(196,124,24,.06); border: 1px solid rgba(196,124,24,.15);
+  border-radius: 12px; padding: 14px 18px; margin-bottom: 24px;
+  font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.6;
+}
+.no-profile-note a { color: var(--amber); text-decoration: none; }
+.no-profile-note a:hover { text-decoration: underline; }
+
+/* ── Tips strip ──────────────────────────────────────────── */
+.tips-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-top: 48px; padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.tip-card {
+  padding: 18px; border-radius: 14px;
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.05);
+}
+.tip-icon { font-size: 22px; margin-bottom: 10px; }
+.tip-title {
+  font-size: 12px; font-weight: 600; color: var(--dk-1); margin-bottom: 5px;
+}
+.tip-text { font-size: 11px; font-weight: 300; color: var(--dk-3); line-height: 1.6; }
+
+@media (max-width: 640px) {
+  .fridge-title { font-size: 36px; }
+  .fridge-score { grid-template-columns: 1fr 1fr; }
+  .tips-strip { grid-template-columns: 1fr; }
+  .shop-list-actions { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="fridge-page">
+
+  <!-- Hero -->
+  <div class="fridge-hero">
+    <div class="fridge-kicker">Nutrition System</div>
+    <h1 class="fridge-title">Fridge<br><em>overhaul.</em></h1>
+    <p class="fridge-brief">
+      Photograph your fridge. The engine reads what's in there, 
+      tells you what to bin, what to keep, and exactly what to buy — 
+      calibrated to your macros, your training week, and your goals.
+    </p>
+  </div>
+
+  <!-- No profile warning -->
+  <div class="no-profile-note" id="no-profile-note" style="display:none;">
+    ⚠ No profile found — analysis will use generic guidelines.
+    <a href="bodylens-plan.html">Complete onboarding</a> for macro-specific recommendations.
+  </div>
+
+  <!-- Upload zone -->
+  <div id="upload-section">
+    <div class="upload-zone" id="upload-zone"
+         ondragover="handleDrag(event)" ondragleave="handleDragLeave(event)"
+         ondrop="handleDrop(event)">
+      <input type="file" id="file-input" accept="image/*" capture="environment"
+             onchange="handleFile(this.files[0])">
+      <span class="upload-icon">📷</span>
+      <div class="upload-title">Drop a photo or tap to shoot</div>
+      <div class="upload-sub">
+        Open your fridge, take a photo, upload it here.<br>
+        The clearer the photo the better the analysis.
+      </div>
+      <span class="upload-btn-hint">Choose photo &rarr;</span>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-wrap" id="preview-wrap">
+    <img class="preview-img" id="preview-img" src="" alt="Fridge photo">
+    <div class="preview-overlay"></div>
+    <button class="preview-change" onclick="resetUpload()">Change photo</button>
+    <div class="preview-label" id="preview-label">Your fridge</div>
+  </div>
+
+  <!-- Analyse button -->
+  <button class="analyse-btn" id="analyse-btn" onclick="analyseFridge()" disabled>
+    <span>🔍</span> Analyse my fridge
+  </button>
+
+  <!-- Scanning state -->
+  <div class="scan-state" id="scan-state">
+    <div style="font-size:32px;margin-bottom:16px;">🧊</div>
+    <div style="font-size:18px;font-weight:600;color:var(--dk-1);margin-bottom:6px;">Reading your fridge…</div>
+    <div class="scan-bar-wrap"><div class="scan-bar" id="scan-bar"></div></div>
+    <div class="scan-label" id="scan-label">Identifying items</div>
+    <div class="scan-phases">
+      <div class="scan-phase active" id="phase-1">Scan</div>
+      <div class="scan-phase" id="phase-2">Classify</div>
+      <div class="scan-phase" id="phase-3">Calibrate</div>
+      <div class="scan-phase" id="phase-4">Plan</div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-wrap" id="results-wrap">
+
+    <div class="results-header">
+      <div class="results-title">Your fridge report</div>
+      <button class="results-rescan" onclick="resetUpload()">↺ New photo</button>
+    </div>
+
+    <!-- Score tiles -->
+    <div class="fridge-score" id="score-tiles"></div>
+
+    <!-- Verdict -->
+    <div class="verdict-bar" id="verdict-bar">
+      <div class="verdict-text" id="verdict-text"></div>
+    </div>
+
+    <!-- Keep -->
+    <div class="result-section" id="section-keep"></div>
+
+    <!-- Ditch -->
+    <div class="result-section" id="section-ditch"></div>
+
+    <!-- Buy -->
+    <div class="result-section" id="section-buy"></div>
+
+    <!-- Shopping list actions -->
+    <div class="shop-list-actions">
+      <button class="shop-action-btn primary" onclick="copyShopList()">
+        <span>📋</span> Copy shopping list
+      </button>
+      <button class="shop-action-btn secondary" onclick="sendToMealPlan()">
+        <span>🗓</span> Send to meal planner
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Tips strip -->
+  <div class="tips-strip">
+    <div class="tip-card">
+      <div class="tip-icon">📸</div>
+      <div class="tip-title">Better photos = better reads</div>
+      <div class="tip-text">Open both fridge doors, good lighting. The AI reads labels and packaging — legibility matters.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🔄</div>
+      <div class="tip-title">Do it weekly</div>
+      <div class="tip-text">Scan every Sunday before your shop. Takes 30 seconds and eliminates the "nothing to eat" problem.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🎯</div>
+      <div class="tip-title">Calibrated to you</div>
+      <div class="tip-text">Recommendations are built around your protein target, training days, and eating window. Not generic.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let imageBase64 = null;
+let analysisResult = null;
+
+// ── Profile ───────────────────────────────────────────────
+function getProfile() {
+  try { return JSON.parse(localStorage.getItem('bl_profile') || 'null'); }
+  catch(e) { return null; }
+}
+
+function init() {
+  const p = getProfile();
+  if (!p) {
+    document.getElementById('no-profile-note').style.display = 'block';
+  }
+}
+
+// ── Upload handling ───────────────────────────────────────
+function handleFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    imageBase64 = dataUrl.split(',')[1];
+    showPreview(dataUrl);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showPreview(dataUrl) {
+  document.getElementById('preview-img').src = dataUrl;
+  document.getElementById('preview-wrap').classList.add('active');
+  document.getElementById('preview-label').textContent = 'Your fridge — ready to analyse';
+  document.getElementById('analyse-btn').disabled = false;
+  document.getElementById('upload-section').style.display = 'none';
+  document.getElementById('results-wrap').classList.remove('active');
+  document.getElementById('scan-state').classList.remove('active');
+}
+
+function resetUpload() {
+  imageBase64 = null;
+  analysisResult = null;
+  document.getElementById('preview-wrap').classList.remove('active');
+  document.getElementById('upload-section').style.display = 'block';
+  document.getElementById('analyse-btn').disabled = true;
+  document.getElementById('results-wrap').classList.remove('active');
+  document.getElementById('scan-state').classList.remove('active');
+  document.getElementById('file-input').value = '';
+}
+
+function handleDrag(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+  document.getElementById('upload-zone').classList.remove('drag-over');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+}
+
+// ── Analysis ──────────────────────────────────────────────
+async function analyseFridge() {
+  if (!imageBase64) return;
+
+  const btn = document.getElementById('analyse-btn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.innerHTML = '<div class="spin" style="width:14px;height:14px;border:2px solid rgba(0,200,160,.2);border-top-color:var(--jade);border-radius:50%;animation:spin .7s linear infinite"></div> Analysing…';
+
+  document.getElementById('preview-wrap').classList.remove('active');
+  document.getElementById('scan-state').classList.add('active');
+  document.getElementById('results-wrap').classList.remove('active');
+
+  // Animate scan phases
+  const phases = ['Identifying items', 'Classifying nutrition', 'Calibrating to your macros', 'Building your restock plan'];
+  const phaseEls = ['phase-1','phase-2','phase-3','phase-4'];
+  let phaseIdx = 0;
+  const phaseTimer = setInterval(() => {
+    if (phaseIdx > 0) document.getElementById(phaseEls[phaseIdx-1])?.classList.remove('active');
+    if (phaseIdx < phaseEls.length) {
+      document.getElementById(phaseEls[phaseIdx])?.classList.add('active');
+      document.getElementById('scan-label').textContent = phases[phaseIdx];
+      phaseIdx++;
+    }
+  }, 1800);
+
+  try {
+    const p = getProfile();
+    const profileContext = p ? buildProfileContext(p) : 'No profile available — use general healthy eating guidelines.';
+
+    const prompt = `You are analysing a photo of someone's fridge as part of a body recomposition programme.
+
+USER PROFILE:
+${profileContext}
+
+TASK: Analyse every visible food and drink item in this fridge photo.
+
+Return ONLY valid JSON in this exact structure:
+{
+  "score": {
+    "protein": 65,
+    "overall": 48,
+    "verdict": "warn"
+  },
+  "summary": "One or two punchy sentences on the overall fridge state. Direct, honest, not mean.",
+  "keep": [
+    {
+      "name": "Chicken breast",
+      "reason": "Lean protein anchor. Hits your 174g target efficiently.",
+      "macros": ["protein"],
+      "icon": "✅"
+    }
+  ],
+  "ditch": [
+    {
+      "name": "Flavoured yoghurt (Muller corner)",
+      "reason": "26g sugar per pot. Causes insulin spike that blunts fat oxidation — especially harmful on rest days.",
+      "icon": "🗑"
+    }
+  ],
+  "buy": [
+    {
+      "name": "Cottage cheese (500g)",
+      "reason": "Slow-release casein protein. Perfect pre-sleep or evening meal base. Hits protein without excess fat.",
+      "macros": ["protein"],
+      "icon": "🛒",
+      "quantity": "2 packs"
+    }
+  ]
+}
+
+Rules:
+- keep: items that support the user's goals. Include a reason and which macros they serve (protein/carbs/fat).
+- ditch: items that actively work against the goals. Be specific about WHY — reference the profile (e.g. high sugar on rest days, processed fat, hidden calories). No more than 8 items.
+- buy: exactly what to buy to optimally restock this fridge for the user's goals and training week. Include quantity. Minimum 8 items, maximum 15. Be specific — brand names if helpful.
+- score.protein: 0-100, how protein-optimal the current fridge is
+- score.overall: 0-100, overall alignment with goals
+- score.verdict: "good" (70+), "warn" (40-69), "bad" (<40)
+- If the photo is unclear or doesn't show a fridge, return a JSON with a clear error message in "summary" and empty arrays.
+- Return ONLY the JSON object. No markdown, no code fences, no explanation.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: 'image/jpeg',
+                data: imageBase64
+              }
+            },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    clearInterval(phaseTimer);
+
+    if (!response.ok) throw new Error('API error: ' + response.status);
+
+    const data = await response.json();
+    const rawText = data.content?.[0]?.text || '';
+    let parsed;
+    try {
+      parsed = JSON.parse(rawText.replace(/```json|```/g, '').trim());
+    } catch(e) {
+      throw new Error('Could not parse response');
+    }
+
+    analysisResult = parsed;
+    renderResults(parsed);
+
+  } catch(err) {
+    clearInterval(phaseTimer);
+    console.error('Fridge analysis error:', err);
+    document.getElementById('scan-state').classList.remove('active');
+    document.getElementById('preview-wrap').classList.add('active');
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.innerHTML = '<span>🔍</span> Analyse my fridge';
+    alert('Could not analyse photo — check connection and try again.\n\n' + err.message);
+  }
+}
+
+function buildProfileContext(p) {
+  const trainDays = (p.weekPlan || []).filter(d => d.priority === 'training').map(d => d.day).join(', ');
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long' });
+  const todayPlan = (p.weekPlan || []).find(d => d.day === today);
+  return [
+    `Name: ${p.name || 'Unknown'}, Age: ${p.age || '?'}, Weight: ${p.weight || '?'}kg`,
+    `Goal: ${p.goal || 'Body recomposition'}`,
+    `Daily protein target: ${p.protein || 140}g`,
+    `Calories: ${p.calories || 2000} kcal (training days), ${p.restKcal || p.calories || 1800} kcal (rest days)`,
+    `Carbs: ${p.carbs || 160}g, Fat: ${p.fat || 60}g`,
+    `Training days: ${trainDays || 'not set'}`,
+    `Today (${today}): ${todayPlan ? todayPlan.type : 'Rest'}`,
+    `Diet type: ${p.dietType || 'No restrictions'}`,
+    p.eatingWindow ? `Eating window: ${p.eatingWindow}` : '',
+    (p.triggerFoods || []).length ? `Avoid: ${p.triggerFoods.join(', ')}` : '',
+    p.mealCount ? `Meals per day: ${p.mealCount}` : ''
+  ].filter(Boolean).join('\n');
+}
+
+// ── Render results ─────────────────────────────────────────
+function renderResults(data) {
+  document.getElementById('scan-state').classList.remove('active');
+  document.getElementById('results-wrap').classList.add('active');
+
+  // Score tiles
+  const scoreColor = data.score.overall >= 70 ? 'good' : data.score.overall >= 40 ? 'warn' : 'bad';
+  const protColor = data.score.protein >= 70 ? 'good' : data.score.protein >= 40 ? 'warn' : 'bad';
+  document.getElementById('score-tiles').innerHTML = `
+    <div class="score-tile">
+      <div class="score-val ${scoreColor}">${data.score.overall}</div>
+      <div class="score-label">Overall score</div>
+    </div>
+    <div class="score-tile">
+      <div class="score-val ${protColor}">${data.score.protein}</div>
+      <div class="score-label">Protein alignment</div>
+    </div>
+    <div class="score-tile">
+      <div class="score-val" style="color:var(--dk-2)">${(data.buy||[]).length}</div>
+      <div class="score-label">Items to buy</div>
+    </div>`;
+
+  // Verdict
+  const vBar = document.getElementById('verdict-bar');
+  vBar.className = 'verdict-bar ' + (data.score.verdict || 'warn');
+  document.getElementById('verdict-text').textContent = data.summary || '';
+
+  // Keep section
+  renderSection('section-keep', '✅', 'keep', 'What to keep', data.keep || [], 'keep');
+
+  // Ditch section
+  renderSection('section-ditch', '🗑', 'ditch', 'What to ditch', data.ditch || [], 'ditch');
+
+  // Buy section
+  renderSection('section-buy', '🛒', 'buy', 'What to buy', data.buy || [], 'buy');
+
+  // Scroll into view
+  document.getElementById('results-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderSection(elId, icon, type, title, items, cls) {
+  if (!items.length) {
+    document.getElementById(elId).style.display = 'none';
+    return;
+  }
+  document.getElementById(elId).style.display = '';
+
+  const macroTags = (macros) => (macros || []).map(m => {
+    const cls = m === 'protein' ? 'p' : m === 'carbs' ? 'c' : 'f';
+    const label = m === 'protein' ? 'Protein' : m === 'carbs' ? 'Carbs' : 'Fat';
+    return `<span class="item-macro ${cls}">${label}</span>`;
+  }).join('');
+
+  const rows = items.map((item, i) => `
+    <div class="item-row ${cls}" id="${cls}-${i}">
+      <div class="item-icon">${item.icon || (cls === 'keep' ? '✅' : cls === 'ditch' ? '🗑' : '🛒')}</div>
+      <div class="item-body">
+        <div class="item-name">${item.name}${item.quantity ? ' <span style="font-weight:300;color:var(--dk-3)">× '+item.quantity+'</span>' : ''}</div>
+        <div class="item-reason">${item.reason}</div>
+        ${macroTags(item.macros)}
+      </div>
+      ${cls === 'buy' ? `<button class="item-check" id="chk-${cls}-${i}" onclick="toggleCheck('${cls}',${i})">✓</button>` : ''}
+    </div>`).join('');
+
+  document.getElementById(elId).innerHTML = `
+    <div class="rs-header">
+      <span class="rs-icon">${icon}</span>
+      <span class="rs-title ${cls}">${title}</span>
+      <span class="rs-count">${items.length} item${items.length !== 1 ? 's' : ''}</span>
+    </div>
+    <div class="item-list">${rows}</div>`;
+}
+
+function toggleCheck(cls, i) {
+  const btn = document.getElementById('chk-'+cls+'-'+i);
+  if (!btn) return;
+  btn.classList.toggle('checked');
+}
+
+// ── Shopping list export ───────────────────────────────────
+function copyShopList() {
+  if (!analysisResult || !analysisResult.buy) return;
+  const lines = analysisResult.buy.map(item =>
+    `• ${item.name}${item.quantity ? ' ('+item.quantity+')' : ''}`
+  );
+  const text = `BodyLens Shopping List\n${'─'.repeat(30)}\n${lines.join('\n')}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target.closest('button');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span>✓</span> Copied!';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  });
+}
+
+function sendToMealPlan() {
+  if (!analysisResult || !analysisResult.buy) return;
+  // Store buy list for meal planner to pick up
+  try {
+    localStorage.setItem('bl_fridge_restock', JSON.stringify({
+      items: analysisResult.buy,
+      scannedAt: new Date().toISOString()
+    }));
+  } catch(e) {}
+  window.location.href = 'bodylens-meals.html';
+}
+
+// ── Init ───────────────────────────────────────────────────
+init();
+</script>
+
+</body>
+</html>
