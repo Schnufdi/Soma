@@ -454,6 +454,7 @@
 <script>
 // ── State ──────────────────────────────────────────────────
 let imageBase64 = null;
+let imageMediaType = 'image/jpeg';
 let analysisResult = null;
 
 // ── Profile ───────────────────────────────────────────────
@@ -472,6 +473,7 @@ function init() {
 // ── Upload handling ───────────────────────────────────────
 function handleFile(file) {
   if (!file || !file.type.startsWith('image/')) return;
+  imageMediaType = file.type || 'image/jpeg';
   const reader = new FileReader();
   reader.onload = function(e) {
     const dataUrl = e.target.result;
@@ -493,6 +495,7 @@ function showPreview(dataUrl) {
 
 function resetUpload() {
   imageBase64 = null;
+  imageMediaType = 'image/jpeg';
   analysisResult = null;
   document.getElementById('preview-wrap').classList.remove('active');
   document.getElementById('upload-section').style.display = 'block';
@@ -597,7 +600,7 @@ Rules:
 - If the photo is unclear or doesn't show a fridge, return a JSON with a clear error message in "summary" and empty arrays.
 - Return ONLY the JSON object. No markdown, no code fences, no explanation.`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -610,7 +613,7 @@ Rules:
               type: 'image',
               source: {
                 type: 'base64',
-                media_type: 'image/jpeg',
+                media_type: imageMediaType,
                 data: imageBase64
               }
             },
