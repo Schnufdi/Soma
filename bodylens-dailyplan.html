@@ -651,6 +651,16 @@ body {
 }
 .ic-chip .ic-qty { font-weight: 300; color: var(--dk-3); font-size: 9px; }
 
+/* ing-pill and ing-list (used in ingDisplay) */
+.ing-list { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 10px; }
+.ing-pill {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 4px 10px; border-radius: 20px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07);
+  font-size: 10px; font-weight: 500; color: var(--dk-2); white-space: nowrap;
+}
+.ing-pill em { font-style: normal; font-weight: 300; color: var(--dk-3); font-size: 9px; }
+
 .meal-actions { display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
 .meal-ate-btn {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1041,7 +1051,163 @@ body {
   .glance-row { padding: 11px 16px; }
   .glance-cta { padding: 12px 16px; }
 }
-</style>
+/* ── Fix display-mode fullscreen override ──────────────────────── */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  .site-nav .nav-links { display: flex !important; }
+  .mobile-tab-bar { display: none !important; }
+}
+
+/* ── Week strip: ws-day classes (actual rendered classes) ─────── */
+.ws-day {
+  flex: 1; min-width: 44px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 4px; border-radius: 10px; cursor: pointer;
+  gap: 3px; transition: all .12s; border: 1px solid transparent;
+  text-decoration: none;
+}
+.ws-day:hover { background: rgba(255,255,255,.04); }
+.ws-day.today {
+  background: rgba(0,200,160,.07); border-color: rgba(0,200,160,.2);
+}
+.ws-day-name {
+  font-size: 8px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dk-3);
+}
+.ws-day.today .ws-day-name { color: var(--jade); }
+.ws-day-type {
+  font-size: 9px; font-weight: 500; color: var(--dk-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px;
+}
+.ws-day.today .ws-day-type { color: var(--jade); }
+.ws-day.train .ws-day-type { font-weight: 600; }
+.ws-day.rest .ws-day-type { opacity: .5; }
+
+/* ── Macro pill classes (mm-pill, not mm) ─────────────────────── */
+.mm-pill {
+  display: inline-flex; align-items: center;
+  padding: 4px 9px; border-radius: 20px;
+  font-size: 10px; font-weight: 600;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+  color: var(--dk-2); margin-right: 4px;
+}
+.mm-pill.p { background: rgba(0,200,160,.08); border-color: rgba(0,200,160,.2); color: var(--jade); font-size: 11px; }
+.mm-pill.a { background: rgba(196,124,24,.06); border-color: rgba(196,124,24,.15); color: var(--amber); }
+
+/* ── Meal button classes ──────────────────────────────────────── */
+.meal-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+.meal-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 20px;
+  background: transparent; border: 1px solid rgba(255,255,255,.1);
+  color: var(--dk-2); font-size: 10px; font-weight: 600; letter-spacing: .04em;
+  cursor: pointer; font-family: var(--sans); transition: all .12s;
+  text-decoration: none; white-space: nowrap;
+}
+.meal-btn:hover { border-color: rgba(255,255,255,.2); color: var(--dk-1); }
+.meal-btn.con {
+  background: rgba(0,200,160,.08); border-color: rgba(0,200,160,.22);
+  color: var(--jade);
+}
+.meal-btn.con:hover { background: rgba(0,200,160,.16); border-color: rgba(0,200,160,.4); }
+.meal-btn.pri {
+  background: var(--jade); border-color: var(--jade);
+  color: var(--ink); font-weight: 700;
+}
+.meal-btn.pri:hover { opacity: .88; }
+
+/* Shuffle button */
+.ri-shuf, .meal-btn[onclick*="shuffle"] {
+  padding: 6px 12px; font-size: 9px; font-weight: 600; letter-spacing: .06em;
+  color: var(--dk-3); border-color: rgba(255,255,255,.07);
+}
+.ri-shuf:hover { color: var(--dk-2); border-color: rgba(255,255,255,.14); }
+
+/* Recipe loading spinner */
+.recipe-loading {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 0; font-size: 12px; font-weight: 300; color: var(--dk-3);
+}
+
+/* ── No-plan meal state ───────────────────────────────────────── */
+.meal-no-plan {
+  padding: 16px 0; text-align: center;
+}
+.meal-no-plan-title {
+  font-size: 13px; font-weight: 500; color: var(--dk-2); margin-bottom: 4px;
+}
+.meal-no-plan-sub {
+  font-size: 11px; font-weight: 300; color: var(--dk-3); margin-bottom: 12px; line-height: 1.5;
+}
+.meal-no-plan-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 20px;
+  background: rgba(196,124,24,.08); border: 1px solid rgba(196,124,24,.2);
+  color: var(--amber); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  cursor: pointer; font-family: var(--sans); text-decoration: none; transition: all .12s;
+}
+.meal-no-plan-btn:hover { background: rgba(196,124,24,.14); }
+
+/* ── Collapsible timeline blocks ──────────────────────────────── */
+.ptl-block { cursor: pointer; }
+.ptl-body  { transition: none; }
+.ptl-block.collapsed .ptl-body   { display: none; }
+.ptl-block.collapsed .ptl-coach  { display: none; }
+.ptl-block.collapsed .ptl-opt-strip { display: none; }
+.ptl-block.collapsed .ptl-card {
+  opacity: .7;
+}
+.ptl-block.t-training.collapsed .ptl-card { opacity: .85; }
+.ptl-collapse-hint {
+  font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dk-3); opacity: .5; margin-left: auto; padding: 0 2px; flex-shrink: 0;
+  transition: opacity .12s;
+}
+.ptl-block:hover .ptl-collapse-hint { opacity: .8; }
+.ptl-block.collapsed .ptl-collapse-hint { opacity: .4; }
+
+/* ── Time column — more prominent ────────────────────────────── */
+.ptl-time {
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,.25);
+  width: 40px; flex-shrink: 0; padding-top: 2px;
+  font-variant-numeric: tabular-nums; letter-spacing: -.01em;
+  line-height: 1;
+}
+.ptl-block.t-training .ptl-time { color: rgba(0,200,160,.45); }
+.ptl-block.t-meal     .ptl-time { color: rgba(196,124,24,.4); }
+
+/* ── Meal ingredient display ──────────────────────────────────── */
+.meal-ings {
+  display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 10px;
+}
+.meal-ing-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 20px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07);
+  font-size: 10px; font-weight: 500; color: var(--dk-2); white-space: nowrap;
+}
+.meal-ing-qty {
+  font-weight: 300; color: var(--dk-3); font-size: 9px;
+}
+.meal-name {
+  font-size: 14px; font-weight: 600; color: var(--dk-1);
+  margin-bottom: 8px; letter-spacing: -.01em; line-height: 1.2;
+}
+
+/* ── Dev logger ───────────────────────────────────────────────── */
+.dev-log { margin-top: 10px; padding: 12px 14px; background: rgba(255,255,255,.025); border-radius: 10px; border: 1px solid rgba(255,255,255,.06); }
+.dev-log-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.dev-inp { flex: 1; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: var(--dk-1); font-family: var(--sans); outline: none; transition: border-color .12s; }
+.dev-inp:focus { border-color: rgba(0,200,160,.3); }
+.dev-inp::placeholder { color: var(--dk-3); }
+.dev-result { font-size: 11px; font-weight: 300; color: var(--dk-3); margin-top: 6px; line-height: 1.6; }
+.ra-sv { flex: 1; background: var(--jade); border: none; color: var(--ink); border-radius: 10px; padding: 9px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; font-family: var(--sans); transition: opacity .12s; }
+.ra-sv:hover { opacity: .88; }
+
+/* ── Responsive overrides ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  .nav-links { display: flex !important; }
+  .mobile-tab-bar { display: none !important; }
+}</style>
 
 <script src="activitylog.js"></script>
 <script src="nav.js"></script>
@@ -2968,7 +3134,7 @@ function renderPlan(plan, browsing){
         + '</div>';
     }
 
-    return '<div class="ptl-block t-'+(b.type||'supp')+(eaten?' eaten':'')+'" style="min-height:'+h+'px;">'
+    return '<div class="ptl-block t-'+(b.type||'supp')+(eaten?' eaten':'')+(b.type==='wake'||b.type==='supp'||b.type==='sleep'?' collapsed':'')+'" onclick="togglePtlBlock(this)" style="min-height:'+h+'px;">'
       +'<div class="ptl-dot"></div>'
       +'<div class="ptl-card">'
       +hd+body+coachHtml+optHtml
@@ -3061,6 +3227,20 @@ function renderPlan(plan, browsing){
 function regen(){try{localStorage.removeItem(TODAY.cacheKey);}catch(e){}location.reload();}
 
 // ── GLANCE CARD ────────────────────────────────────────────────────
+
+function togglePtlBlock(el) {
+  // Don't collapse if clicking a button inside
+  if(event && event.target && (
+    event.target.tagName === 'BUTTON' ||
+    event.target.tagName === 'A' ||
+    event.target.tagName === 'INPUT' ||
+    event.target.closest('button') ||
+    event.target.closest('a') ||
+    event.target.closest('.ptl-tick')
+  )) return;
+  el.classList.toggle('collapsed');
+}
+
 function renderGlanceCard(p, t, plan) {
   if (!p || !t) return '';
   var log = loadDayLog(_rDate) || {};
