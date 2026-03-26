@@ -1513,6 +1513,31 @@ body {
   position: absolute; top: 3px; right: 3px;
   font-size: 10px; color: var(--jade); font-weight: 700;
 }
+
+/* ── Glance card sleep quick-log ──────────────────────────── */
+.glance-sleep-row {
+  padding: 10px 18px 12px;
+  border-top: 1px solid rgba(255,255,255,.04);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.glance-sleep-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--dk-3); flex-shrink: 0;
+}
+.glance-sleep-btns { display: flex; gap: 5px; flex: 1; }
+.gsb {
+  flex: 1; padding: 6px 2px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: transparent; color: var(--dk-3);
+  font-size: 10px; font-weight: 600; cursor: pointer;
+  font-family: var(--sans); transition: all .12s;
+  white-space: nowrap;
+}
+.gsb:hover { border-color: rgba(0,200,160,.3); color: var(--jade); }
+.gsb.sel { border-color: var(--jade); background: rgba(0,200,160,.12); color: var(--jade); }
+.glance-sleep-conf {
+  width: 100%; font-size: 10px; font-weight: 300; color: var(--jade);
+}
 </style>
 
 <script src="activitylog.js"></script>
@@ -1571,7 +1596,34 @@ function saveWeeklyMeals(data){
 function getMealForSlot(dayName, slot){
   var wm=loadWeeklyMeals();
   if(!wm||!wm.days||!wm.days[dayName])return null;
-  return wm.days[dayName][slot]||null;
+  var dayMeals=wm.days[dayName];
+
+  // Direct match first — if meals page used matching slot names
+  if(dayMeals[slot]) return dayMeals[slot];
+
+  // Slot translation: meals page saves breakfast/lunch/dinner
+  // dailyplan uses pre-training/post-training/midday/afternoon/evening
+  // Figure out if this is a training day
+  var p=P||JSON.parse(localStorage.getItem('bl_profile')||'null');
+  var dayIdx=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].indexOf(dayName);
+  var dayPlan=dayIdx>=0 ? getEffectiveDayPlan(p,dayIdx) : null;
+  var isTrain=dayPlan&&dayPlan.priority==='training';
+
+  var slotMap=isTrain ? {
+    'pre-training':  dayMeals.breakfast||dayMeals.lunch||null,
+    'post-training': dayMeals.lunch||dayMeals.breakfast||null,
+    'midday':        dayMeals.lunch||dayMeals.breakfast||null,
+    'afternoon':     dayMeals.snack1||null,
+    'evening':       dayMeals.dinner||null
+  } : {
+    'midday':        dayMeals.breakfast||dayMeals.lunch||null,
+    'afternoon':     dayMeals.snack1||dayMeals.lunch||null,
+    'evening':       dayMeals.dinner||null,
+    'pre-training':  dayMeals.breakfast||null,
+    'post-training': dayMeals.lunch||null
+  };
+
+  return slotMap[slot]||null;
 }
 
 // Today's meal for a given slot — reads from weekly plan then falls back to per-day recipe cache
@@ -2035,9 +2087,35 @@ function buildPlan(profile, today) {
   var wm = loadWeeklyMeals();
   if (wm && wm.days && wm.days[name]) {
     var dayMeals = wm.days[name];
+    // Slot translation: meals.html uses breakfast/lunch/dinner
+    // dailyplan uses midday/evening/pre-training/post-training
+    // Map the meal plan slots to daily plan slots based on training context
+    var slotMap = isTraining ? {
+      'breakfast':    'pre-training',
+      'lunch':        'post-training',
+      'dinner':       'evening',
+      'snack1':       'afternoon',
+      'snack2':       'afternoon',
+      'midday':       'post-training',
+      'evening':      'evening',
+    } : {
+      'breakfast':    'midday',
+      'lunch':        'midday',
+      'dinner':       'evening',
+      'snack1':       'afternoon',
+      'snack2':       'afternoon',
+      'midday':       'midday',
+      'evening':      'evening',
+    };
+    // Build a reverse map: dailyPlanSlot -> mealPlanMeal
+    var dpToMeal = {};
+    Object.keys(dayMeals).forEach(function(mSlot) {
+      var dpSlot = slotMap[mSlot] || mSlot;
+      if (!dpToMeal[dpSlot]) dpToMeal[dpSlot] = dayMeals[mSlot]; // first wins
+    });
     blocks.forEach(function(b) {
-      if (b.mealSlot && dayMeals[b.mealSlot] && dayMeals[b.mealSlot].name) {
-        var meal = dayMeals[b.mealSlot];
+      var meal = dpToMeal[b.mealSlot] || dayMeals[b.mealSlot];
+      if (b.mealSlot && meal && meal.name) {
         b.title = meal.name;
         b.subtitle = meal.protein + 'g P · ' + meal.calories + ' kcal' + (meal.prepTime ? ' · ' + meal.prepTime : '');
         // Pre-populate recipe cache from weekly plan so no extra API call needed
@@ -3118,6 +3196,7 @@ function toggleMeal(i){
   if(block)block.classList.toggle('meal-open');
 }
 function quickTick(slot,i){
+  if(navigator.vibrate) navigator.vibrate(8);
   // Toggle — if already logged, untick and wipe
   if(MACROS && MACROS.meals[slot] && MACROS.meals[slot].logged){
     // UNTICK
@@ -3666,7 +3745,16 @@ function renderPlan(plan, browsing){
   }
 }
 
-function regen(){try{localStorage.removeItem(TODAY.cacheKey);}catch(e){}location.reload();}
+function regen(keepRecipes) {
+  try { localStorage.removeItem(TODAY.cacheKey); } catch(e) {}
+  if (!keepRecipes) {
+    // Clear recipe cache too (full rebuild)
+    ['pre-training','post-training','midday','afternoon','evening'].forEach(function(s) {
+      try { localStorage.removeItem('bl_recipe_' + _rDate + '_' + s); } catch(e) {}
+    });
+  }
+  location.reload();
+}
 
 // ── GLANCE CARD ────────────────────────────────────────────────────
 
@@ -3740,6 +3828,7 @@ function buildBlockSummary(b) {
 
 // ── SUPPLEMENT CHECKBOX TOGGLE ─────────────────────────────────────────
 function toggleSupp(name, blockIdx, itemIdx) {
+  if(navigator.vibrate) navigator.vibrate(8);
   var log = loadDayLog(_rDate) || {};
   if (!log.suppLog) log.suppLog = {};
   log.suppLog[name] = !log.suppLog[name];
@@ -3761,6 +3850,7 @@ function toggleSupp(name, blockIdx, itemIdx) {
 
 // ── SLEEP INLINE LOGGER ────────────────────────────────────────────────
 function logSleepHours(h) {
+  if(navigator.vibrate) navigator.vibrate(8);
   var log = loadDayLog(_rDate) || {};
   log.sleepActual = h;
   saveDayLog(_rDate, log);
@@ -4148,6 +4238,10 @@ function renderGlanceCard(p, t, plan, browsing) {
     + '</div>';
   }
 
+  // Check if weekly meal plan exists
+  var _wm = (typeof loadWeeklyMeals === 'function') ? loadWeeklyMeals() : null;
+  var _mealPlanActive = !!((_wm && _wm.days) || false);
+
   var rows =
     '<div class="glance-row">'
       +'<div class="glance-icon">&#9977;</div>'
@@ -4178,9 +4272,24 @@ function renderGlanceCard(p, t, plan, browsing) {
       +'</div>'
     +'</div>';
 
+  // Sleep quick-log — always visible in sidebar, no scrolling needed
+  var _slNow = loadDayLog(_rDate) || {};
+  var _slv = _slNow.sleepActual || 0;
+  var sleepRow = '<div class="glance-sleep-row">'
+    + '<div class="glance-sleep-label">Last night</div>'
+    + '<div class="glance-sleep-btns">'
+    + [5,6,7,8,9].map(function(h){
+        var sel = _slv == h;
+        return '<button class="gsb'+(sel?' sel':'')+'" onclick="event.stopPropagation();logSleepHours('+h+')">'+h+'h</button>';
+      }).join('')
+    + '</div>'
+    + (_slv ? '<div class="glance-sleep-conf">&#10003; '+_slv+'h logged</div>' : '')
+  + '</div>';
+
   return '<div class="glance-card">'
     +missedBanner
     +rows
+    +sleepRow
     +'<div class="glance-cta">'
       +'<button class="glance-primary-btn'+(ctaIsRest?' rest':'')+'" '+ctaOnclick+'>'
         +(t.isTraining && trainStatus !== 'done' ? '&#9654; ' : '&#10003; ')
@@ -4361,11 +4470,16 @@ function handleChallengeCta(id) {
 
 function _dlKey(dateStr){ return 'bl_daylog_' + (dateStr || _rDate); }
 
+// Memoised — prevents 28x redundant localStorage reads per session
+var _dayLogCache = {};
+function clearDayLogCache(dateStr) { if(dateStr) delete _dayLogCache[dateStr]; else _dayLogCache={}; }
 function loadDayLog(dateStr) {
+  if (_dayLogCache[dateStr] !== undefined) return _dayLogCache[dateStr];
   try {
     var raw = localStorage.getItem(_dlKey(dateStr));
-    return raw ? JSON.parse(raw) : null;
-  } catch(e) { return null; }
+    _dayLogCache[dateStr] = raw ? JSON.parse(raw) : {};
+    return _dayLogCache[dateStr];
+  } catch(e) { return {}; }
 }
 
 function saveDayLog(log) {
@@ -5073,13 +5187,47 @@ async function generateCoachNarrative(p, t, plan) {
   var injuries = (p.injuryAssessments || p.injuries || []).map(function(x){ return x.location || x; }).join(', ');
   var trainType = t.plan && t.plan.type ? t.plan.type : 'session';
 
+  // Build today's live snapshot for coach context
+  var _snap = (function() {
+    var _log = loadDayLog(_rDate) || {};
+    var _mac = MACROS || {};
+    var _prot = Math.round(_mac.prot || 0);
+    var _ptgt = p.protein || 174;
+    return {
+      protLogged: _prot, protRemain: Math.max(0, _ptgt - _prot), protTarget: _ptgt,
+      mealsEaten: Object.values(_mac.meals||{}).filter(function(m){return m&&m.logged;}).length,
+      mealCount: p.mealCount || 3,
+      sleepH: _log.sleepActual || 0,
+      trainDone: _log.trainStatus === 'done',
+      suppsDone: Object.keys(_log.suppLog||{}).filter(function(k){return _log.suppLog[k];}).length,
+      suppsTotal: (p.supplements||[]).length,
+      hour: new Date().getHours()
+    };
+  })();
+
+  var _weekCtx = (function() {
+    var missed = typeof getMissedSessions === 'function' ? getMissedSessions(p) : [];
+    if (!missed.length) return '';
+    var trainingLeft = (p.weekPlan||[]).slice(t.idx).filter(function(d){return d.priority==='training';}).length;
+    return ' WEEK: ' + missed.length + ' session' + (missed.length>1?'s':'') + ' missed ('
+      + missed.map(function(m){return m.sessionType;}).join(', ') + '). '
+      + trainingLeft + ' training day' + (trainingLeft!==1?'s':'') + ' left — '
+      + (trainingLeft > 0 ? 'recovery still possible.' : 'focus on what remains.');
+  })();
+
   var prompt = 'You are the coach for ' + p.name + '. Write ONE tight paragraph — max 60 words — for their daily briefing.'
     + ' Today: ' + t.name + (isTraining ? ', ' + trainType + ' day' : ', rest day') + '.'
     + ' Week ' + progCtx.weekNum + ' of 4 (' + progCtx.phase + ' phase).'
     + ' ' + age + 'yo ' + (isFemale?'female':'male') + ', goal: ' + (p.goal||'recomposition') + '.'
-    + ' Protein target: ' + (p.protein||140) + 'g.'
+    + ' Protein: ' + _snap.protLogged + 'g of ' + _snap.protTarget + 'g logged' + (_snap.protRemain > 0 ? ', ' + _snap.protRemain + 'g to go.' : ' — target hit.')
+    + ' Meals: ' + _snap.mealsEaten + '/' + _snap.mealCount + '.'
+    + (_snap.sleepH > 0 ? ' Slept ' + _snap.sleepH + 'h.' : '')
+    + (isTraining && _snap.trainDone ? ' Session done.' : '')
+    + (_snap.suppsDone > 0 ? ' Supps: ' + _snap.suppsDone + '/' + _snap.suppsTotal + '.' : '')
+    + ' Time: ' + _snap.hour + ':00.'
+    + _weekCtx
     + (injuries ? ' Injuries: ' + injuries + '.' : '')
-    + '\n\nOne paragraph only. Direct, warm, personal. Reference the day type and one specific number. Tell them the one thing that matters most today. No fluff, no clichés. Max 60 words.';
+    + '\n\nOne paragraph. Direct, personal, specific to their actual numbers right now. Tell them the one thing that matters most at this moment in their day. Max 60 words.';
 
   try {
     var res = await fetch('/api/chat', {
@@ -5196,8 +5344,26 @@ async function runSOS() {
     + '\n{"title":"one line — what this actually is","context":"1-2 sentences max — the honest read","fixes":["fix 1 (12 words max)","fix 2","fix 3"]}'
     + '\n\nFixes must be specific actions, not advice. Max 3 fixes. Reference their actual numbers where relevant. No fluff.';
 
+  // Cache SOS responses — same situation + profile = same advice
+  var _sosKey = 'bl_sos_' + situation.replace(/\s+/g,'_').toLowerCase().slice(0,30) + '_' + (p.age||0) + '_' + (p.goal||'').slice(0,8);
+  var _sosCached = null;
+  try {
+    var _sosRaw = localStorage.getItem(_sosKey);
+    if (_sosRaw) {
+      var _sosParsed = JSON.parse(_sosRaw);
+      if (_sosParsed.ts && Date.now() - _sosParsed.ts < 7*24*60*60*1000) {
+        _sosCached = _sosParsed.data;
+      }
+    }
+  } catch(e) {}
+
   try {
     window._sosSituation = situation;
+    if (_sosCached) {
+      // Use cached response — render immediately, no API call
+      renderSosResult(_sosCached, situation);
+      return;
+    }
     var res = await fetch('/api/chat', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
