@@ -30,7 +30,11 @@ window.BL.signOut = function() {
   loadSupabase(function(sb) {
     sb.auth.signOut().then(function() {
       window._blUser = null;
-      localStorage.removeItem('bl_profile');
+      // Clear ALL user data so the next user starts clean
+      var keysToRemove = Object.keys(localStorage).filter(function(k) {
+        return k.startsWith('bl_') || k.startsWith('dayplan_');
+      });
+      keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
       window.location.href = '/bodylens-login.html';
     });
   });
@@ -55,8 +59,34 @@ window.BL.loadProfile = function(cb) {
     sb.from('profiles').select('profile').eq('id', window._blUser.id).single()
       .then(function(res) {
         if (res.data && res.data.profile) {
-          localStorage.setItem('bl_profile', JSON.stringify(res.data.profile));
-          cb && cb(res.data.profile);
+          var serverProfile = res.data.profile;
+          var localRaw = localStorage.getItem('bl_profile');
+          var localProfile = null;
+          try { localProfile = localRaw ? JSON.parse(localRaw) : null; } catch(e) {}
+
+          // Check if we're switching users (different name or different profile)
+          var isDifferentUser = localProfile && serverProfile &&
+            localProfile.name && serverProfile.name &&
+            localProfile.name !== serverProfile.name;
+
+          // Set the correct profile in localStorage
+          localStorage.setItem('bl_profile', JSON.stringify(serverProfile));
+
+          if (isDifferentUser) {
+            // Wrong user was loaded — clear stale day logs and reload
+            // Clear only the volatile per-day data, keep the profile
+            Object.keys(localStorage).forEach(function(k) {
+              if (k.startsWith('dayplan_') || k.startsWith('bl_macros_') ||
+                  k.startsWith('bl_recipe_') || k.startsWith('bl_weekledger_')) {
+                localStorage.removeItem(k);
+              }
+            });
+            // Reload so every page renders with the correct user's data
+            window.location.reload();
+            return;
+          }
+
+          cb && cb(serverProfile);
         } else {
           cb && cb(null);
         }
@@ -71,11 +101,11 @@ loadSupabase(function(sb) {
     if (session) {
       window._blUser = session.user;
       updateNavUser(session.user);
-      // Pull profile from Supabase if localStorage is empty
-      if (!localStorage.getItem('bl_profile')) {
-        window.BL.loadProfile(null);
-      }
+      // Always verify localStorage profile matches the logged-in user
+      // This catches: stale cache, device sharing, account switching
+      window.BL.loadProfile(null);
     } else {
+      window._blUser = null;
       updateNavLoggedOut();
     }
   });
@@ -84,12 +114,18 @@ loadSupabase(function(sb) {
     if (event === 'SIGNED_IN' && session) {
       window._blUser = session.user;
       updateNavUser(session.user);
-      var local = localStorage.getItem('bl_profile');
-      if (local) {
-        try { window.BL.saveProfile(JSON.parse(local)); } catch(e) {}
-      } else {
-        window.BL.loadProfile(null);
-      }
+      // ALWAYS load from Supabase on sign-in to ensure correct user's profile
+      // This handles: Shane signs in on Sven's device, or switching accounts
+      window.BL.loadProfile(function(serverProfile) {
+        if (!serverProfile) {
+          // No server profile yet — user is new, save whatever is local
+          var local = localStorage.getItem('bl_profile');
+          if (local) {
+            try { window.BL.saveProfile(JSON.parse(local)); } catch(e) {}
+          }
+        }
+        // Profile loaded from server and set in localStorage — page is now correct
+      });
     }
     if (event === 'SIGNED_OUT') {
       window._blUser = null;
