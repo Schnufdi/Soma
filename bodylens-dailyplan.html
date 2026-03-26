@@ -126,6 +126,7 @@ body {
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
+  --sticky-top: 212px; /* nav + banner + week + macro */
 }
 
 /* ── Navigation ────────────────────────────────────────────────────── */
@@ -175,9 +176,11 @@ body {
 
 /* ── Prog banner (session count / week / phase) ────────────────────── */
 .prog-banner {
+  position: sticky; top: 52px; z-index: 50;
   display: flex; align-items: center; gap: 0;
   height: 44px; padding: 0 24px;
-  background: var(--ink);
+  background: rgba(12,16,16,.97);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255,255,255,.05);
   overflow-x: auto; scrollbar-width: none;
 }
@@ -224,7 +227,9 @@ body {
 
 /* ── Week strip ────────────────────────────────────────────────────── */
 .week-strip {
-  background: var(--ink);
+  position: sticky; top: 96px; z-index: 49;
+  background: rgba(12,16,16,.97);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255,255,255,.05);
   padding: 10px 24px;
   display: flex; gap: 4px;
@@ -270,7 +275,7 @@ body {
 
 /* ── Macro bar (sticky progress) ───────────────────────────────────── */
 .macro-bar {
-  position: sticky; top: 52px; z-index: 40;
+  position: sticky; top: 168px; z-index: 40;
   background: rgba(12,16,16,.96);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255,255,255,.05);
@@ -297,7 +302,30 @@ body {
 .mb-target { font-size: 10px; font-weight: 300; color: var(--dk-3); margin-left: auto; flex-shrink: 0; }
 
 /* ── Day page layout ───────────────────────────────────────────────── */
-.day-page { max-width: 680px; margin: 0 auto; padding: 28px 24px 120px; }
+/* ── Two-column layout ─────────────────────────────── */
+.day-outer {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 0;
+  align-items: start;
+}
+.day-sidebar {
+  position: sticky;
+  top: var(--sticky-top);
+  width: 280px;
+  padding: 24px 0 120px 0;
+  max-height: calc(100vh - var(--sticky-top));
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.day-sidebar::-webkit-scrollbar { display: none; }
+.day-page {
+  padding: 28px 0 120px 32px;
+  min-width: 0;
+}
 
 /* ── Day hero ──────────────────────────────────────────────────────── */
 .day-hero { padding: 4px 0 24px; }
@@ -989,6 +1017,47 @@ body {
 /* ── SOS modal ──────────────────────────────────────────────────────── */
 .sos-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 500; align-items: flex-end; justify-content: center; }
 .sos-overlay.open { display: flex; }
+
+/* ── Guided coaching session overlay ─────────────────────────── */
+#gc-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 800;
+  background: var(--ink);
+  flex-direction: column;
+  overflow: hidden;
+}
+#gc-overlay.open { display: flex; }
+#gc-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 20px; border-bottom: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+#gc-session-label { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--dk-3); flex: 1; }
+#gc-progress-dots { display: flex; gap: 5px; align-items: center; }
+#gc-pause-btn { background: none; border: 1px solid var(--bd); color: var(--dk-3); width: 32px; height: 32px; border-radius: 7px; cursor: pointer; font-size: 14px; font-family: var(--sans); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .1s; }
+#gc-close { background: none; border: none; color: var(--dk-3); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 7px; transition: color .12s; flex-shrink: 0; }
+#gc-close:hover { color: var(--dk-1); }
+#gc-main { flex: 1; overflow-y: auto; padding: 20px; }
+#gc-card { max-width: 560px; margin: 0 auto; }
+#gc-footer {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 20px; border-top: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+#gc-timer-display { font-size: 13px; font-weight: 600; color: var(--dk-2); font-variant-numeric: tabular-nums; min-width: 48px; }
+#gc-primary-btn {
+  flex: 1; background: var(--jade); border: none; color: var(--ink);
+  padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; cursor: pointer; font-family: var(--sans);
+  transition: opacity .12s;
+}
+#gc-primary-btn:hover { opacity: .88; }
+#gc-secondary-btn {
+  background: transparent; border: 1px solid var(--bd); color: var(--dk-2);
+  padding: 12px 18px; border-radius: 10px; font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: var(--sans); transition: all .12s; white-space: nowrap;
+}
+#gc-secondary-btn:hover { border-color: rgba(255,255,255,.18); color: var(--dk-1); }
 .sos-panel { background: var(--ink-1); border-radius: 20px 20px 0 0; border: 1px solid rgba(255,255,255,.08); width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 0); }
 .sos-hd { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 14px; border-bottom: 1px solid rgba(255,255,255,.06); position: sticky; top: 0; background: var(--ink-1); }
 .sos-title { font-family: var(--serif); font-size: 24px; font-weight: 300; color: var(--dk-1); }
@@ -1034,7 +1103,9 @@ body {
 
 /* ── Responsive ─────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .day-page { padding: 20px 16px 100px; }
+  .day-page { padding: 20px 0 100px 16px; }
+  .day-outer { grid-template-columns: 1fr; padding: 0 16px; }
+  .day-sidebar { position: static; width: 100%; max-height: none; padding: 16px 0; }
   .day-title { font-size: 38px; }
   .day-title-type { font-size: 30px; }
   .macro-tiles { grid-template-columns: repeat(2,1fr); }
@@ -1251,6 +1322,37 @@ body {
 .pb-session-btn-wrap {
   margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-left: 12px;
 }
+
+/* ── Collapsed block summary line ─────────────────────────────── */
+.ptl-summary {
+  font-size: 10px; font-weight: 300; color: var(--dk-3);
+  margin-top: 2px; line-height: 1.4;
+  display: none; /* only visible when collapsed */
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px;
+}
+.ptl-block.collapsed .ptl-summary { display: block; }
+
+/* Suppress dur when collapsed */
+.ptl-block.collapsed .ptl-dur { display: none; }
+
+/* ── Supplement row checkbox ───────────────────────────────────── */
+.supp-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  cursor: pointer; transition: opacity .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.supp-row:last-child { border-bottom: none; }
+.supp-row:hover { opacity: .8; }
+.supp-name { font-size: 13px; font-weight: 500; color: var(--dk-1); flex: 1; }
+.supp-dose { font-size: 13px; font-weight: 600; color: var(--amber); margin-right: 8px; font-variant-numeric: tabular-nums; }
+.supp-timing { font-size: 10px; font-weight: 300; color: var(--dk-3); }
+
+/* ── Sleep log buttons ─────────────────────────────────────────── */
+.sleep-confirm { font-size:11px; font-weight:300; color:var(--jade); margin-top:8px; }
+
+/* ── Cardio tag colour ─────────────────────────────────────────── */
+.ptl-tag.cardio { color: var(--jade); background: rgba(0,200,160,.08); border: 1px solid rgba(0,200,160,.18); }
 </style>
 
 <script src="activitylog.js"></script>
@@ -1945,21 +2047,50 @@ function applyOptimisations(blocks, p, today) {
 
   // ── TRAINING OPTIMISATIONS ────────────────────────
 
-  if (ids.has('zone2') && !isTraining) {
-    var z2Mins = wMins + 240;
+  if (!isTraining) {
+    // Zone 2 is ALWAYS prescribed on rest days — not opt-in.
+    // This is a core pillar of body recomposition at 40+: active recovery,
+    // mitochondrial density, fat oxidation without muscle breakdown.
+    var z2Mins = wMins + 240; // ~4h after wake, mid-morning
     var z2Lo = Math.round((220 - age) * 0.65);
     var z2Hi = Math.round((220 - age) * 0.70);
     insertBlockBeforeType('recovery', {
       time: fmt(z2Mins), type: 'training', tag: 'Zone 2', tagColor: 'jade',
       durationMins: 45,
-      title: 'Zone 2 cardio — 45 min',
-      subtitle: 'Mitochondrial density · fat oxidation · active recovery',
-      coachNote: benefit(
-        'Zone 2 builds mitochondrial density and aerobic base. Hold a conversational pace throughout.',
-        'Zone 2 on a rest day is one of the most intelligent recomp tools available. It burns fat without creating additional recovery demand on your muscles, and — critically at ' + age + ' — it drives mitochondrial biogenesis, improving the rate at which your cells oxidise fat at rest. Target ' + z2Lo + '–' + z2Hi + ' bpm. You should be able to hold a conversation throughout.'
-      ),
+      title: 'Zone 2 — 45 min',
+      subtitle: z2Lo + '–' + z2Hi + ' bpm · conversational pace',
+      coachNote: 'Zone 2 on a rest day is one of the most intelligent recomp tools available. It burns fat without creating additional recovery demand on your muscles. At ' + age + ', mitochondrial density is a primary lever — this directly improves the rate at which your cells oxidise fat at rest. ' + z2Lo + '–' + z2Hi + ' bpm. You should be able to hold a full sentence throughout.',
+      cardio: true,
+      cardioType: 'zone2',
+      cardioTargetLo: z2Lo,
+      cardioTargetHi: z2Hi,
+      cardioDuration: 45,
+      cardioOptions: ['Bike (recommended)', 'Row', 'Brisk walk', 'Incline treadmill'],
       exercises: [],
-      optNotes: ['🫀 ' + z2Lo + '–' + z2Hi + ' bpm for your age. Bike, row, or brisk walk. 45 min continuous. Recovery, not fatigue.']
+      optNotes: ['\uD83E\uDEC0 ' + z2Lo + '\u2013' + z2Hi + ' bpm for your age. If you cannot hold a conversation, slow down.']
+    });
+  }
+
+  // VO2max intervals — always on one training day per week (Wednesday = pull day)
+  // This is the highest-return longevity and performance investment available.
+  // 4x4 protocol: 4 sets of 4 min at 90-95% max HR, 3 min active recovery.
+  if (isTraining && today.idx === 2) { // Wednesday — pull day, lowest fatigue risk
+    var vo2Lo = Math.round((220 - age) * 0.90);
+    var vo2Hi = Math.round((220 - age) * 0.95);
+    insertBlockBeforeType('training', {
+      time: fmt(trainMins - 20), type: 'training', tag: 'Cardio', tagColor: 'jade',
+      durationMins: 28,
+      title: 'VO₂max intervals — 4×4',
+      subtitle: vo2Lo + '–' + vo2Hi + ' bpm · before weights',
+      coachNote: 'VO₂max is the single strongest predictor of longevity. At ' + age + ', 4×4 intervals done once per week drive significant VO₂max gains within 6 weeks. Do these before weights — fresh legs, maximum cardiac output. Not a warm-up: this is a separate performance block.',
+      cardio: true,
+      cardioType: 'vo2max',
+      cardioTargetLo: vo2Lo,
+      cardioTargetHi: vo2Hi,
+      cardioDuration: 28,
+      cardioProtocol: '4 sets × 4 min at ' + vo2Lo + '–' + vo2Hi + ' bpm. Rest 3 min between sets (active: walk or easy pedal). Total: 28 min.',
+      cardioOptions: ['Bike (recommended)', 'Row', 'Ski erg', 'Assault bike'],
+      exercises: []
     });
   }
 
@@ -2489,6 +2620,7 @@ function jumpDay(i) {
   // Build the plan for the browsed day (no cache needed — instant from profile data)
   var dayCtx = getDayCtx(p, i);
   var plan = buildPlan(p, dayCtx);
+  window._lastPlan = plan; // stored for glance card refresh after sleep log
 
   // Render with browsing mode (suppresses coach prose, SOS, macro ticks)
   renderPlan(plan, true);
@@ -3025,15 +3157,24 @@ function renderPlan(plan, browsing){
   }
 
   // ── Build supplement rows ─────────────────────────
-  function suppRows(suppList){
+  function getSuppLog() {
+    try { var l=loadDayLog(_rDate)||{}; return l.suppLog||{}; } catch(e){return{};}
+  }
+  function suppRows(suppList, blockIdx){
     if(!suppList||!suppList.length) return '';
-    return '<div style="margin-top:8px;">'
-      +suppList.map(function(s){
-        return '<div class="supp-row">'
+    var suppLog = getSuppLog();
+    var bi = blockIdx || 0;
+    return '<div style="margin-top:2px;">'
+      +suppList.map(function(s,i){
+        var done = !!suppLog[s.name];
+        return '<div class="supp-row" id="sr-'+bi+'-'+i+'" onclick="event.stopPropagation();toggleSupp(\'' + s.name.replace(/'/g,'') + '\',' + bi + ',' + i + ')">'
+          +'<div style="width:22px;height:22px;border-radius:6px;border:1.5px solid '+(done?'var(--jade)':'rgba(255,255,255,.15)')+';background:'+(done?'var(--jade)':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">'
+            +(done?'<span style="color:var(--ink);font-size:11px;font-weight:700;">&#10003;</span>':'')
+          +'</div>'
           +'<span class="supp-name">'+s.name+'</span>'
-          +'<span class="supp-dose">'+(s.dose||'')+'</span>'
+          +'<span class="supp-dose" style="color:'+(done?'var(--jade)':'var(--amber)')+'">'+(s.dose||'')+'</span>'
           +(s.timing?'<span class="supp-timing">'+s.timing+'</span>':'')
-          +'</div>';
+        +'</div>';
       }).join('')
       +'</div>';
   }
@@ -3124,9 +3265,11 @@ function renderPlan(plan, browsing){
       +'<div class="ptl-title"'+(titleId?' id="'+titleId+'"':'')+'>'+b.title+'</div>'
       +(b.subtitle?'<div class="ptl-sub" id="sub-'+(b.mealSlot||i)+'">'+b.subtitle+'</div>':'')
       +(b.durationMins&&b.durationMins>20?'<div class="ptl-dur">~'+b.durationMins+' min</div>':'')
+      +buildBlockSummary(b)
       +'</div>'
       +(b.tag?'<span class="ptl-tag '+tagCls+'">'+b.tag+'</span>':'')
       +(isMeal && !isBrowsing?'<div class="ptl-tick'+(eaten?' done':'')+'" data-slot="'+b.mealSlot+'" onclick="event.stopPropagation();quickTick(\''+b.mealSlot+'\','+i+')" title="'+(eaten?'Tap to untick':'Mark eaten')+'">&#10003;</div>':'')
+      +'<span class="ptl-collapse-hint">&#8250;</span>'
       +'</div>';
 
     // Body content
@@ -3134,6 +3277,7 @@ function renderPlan(plan, browsing){
 
     if(isTrain){
       body+='<div class="ptl-body">'
+        +(b.cardio ? renderCardioBlock(b) : '')
         +exRows(b.exercises)
         +'<div style="margin-top:10px;font-size:11px;font-weight:300;color:var(--dk-3);">10 min warm-up · Cool down 5-10 min · Track every load</div>'
         +(b.injNote?'<div style="margin-top:6px;font-size:11px;color:rgba(255,140,100,.8);">⚠ '+b.injNote+'</div>':'')
@@ -3161,7 +3305,7 @@ function renderPlan(plan, browsing){
         + '</div>';
     } else if(isMeal){
       var slot=b.mealSlot;
-      var cachedRecipe=_recipes[slot];
+      var cachedRecipe=(typeof getTodayMeal==='function') ? getTodayMeal(slot) : (_recipes[slot]||null);
       var mealCount=p.mealCount||3;
       var dayKcal=(typeof getDayKcal==="function")?getDayKcal(p,t.isTraining):(t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91));
       var mt={calories:Math.round(dayKcal/mealCount),protein:Math.round((p.protein||140)/mealCount),carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25)};
@@ -3188,10 +3332,22 @@ function renderPlan(plan, browsing){
         +'<div id="dev-'+i+'"></div>'
         +'</div>';
     } else if(isSupp){
-      body+='<div class="ptl-body">'+suppRows(b.suppList)+'</div>';
+      body+='<div class="ptl-body">'+suppRows(b.suppList, i)+'</div>';
     } else if(isSleep){
+      var _sl=loadDayLog(_rDate)||{};
+      var _slVal=_sl.sleepActual||0;
       body+='<div class="ptl-body">'
-        +'<div style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.6;">'+b.science+'</div>'
+        +'<div style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.6;margin-bottom:14px;">'+b.science+'</div>'
+        +'<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;">'
+          +'<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;">How many hours last night?</div>'
+          +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">'
+            +[5,6,7,8,9].map(function(h){
+              var sel=_slVal==h;
+              return '<button onclick="event.stopPropagation();logSleepHours('+h+')" style="width:44px;height:44px;border-radius:10px;border:1.5px solid '+(sel?'var(--jade)':'rgba(255,255,255,.1)')+';background:'+(sel?'rgba(0,200,160,.12)':'transparent')+';color:'+(sel?'var(--jade)':'var(--dk-2)')+';font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .12s;">'+h+'h</button>';
+            }).join('')
+          +'</div>'
+          +(_slVal?'<div class="sleep-confirm">&#10003; Logged: '+_slVal+'h &mdash; readiness updated</div>':'<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:8px;">Tap to log &rarr; feeds your readiness score in the sidebar</div>')
+        +'</div>'
         +'</div>';
     } else {
       // Wake / generic
@@ -3229,9 +3385,18 @@ function renderPlan(plan, browsing){
     ? plan.dayTitle.split(' \u2014 ')[0]
     : d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
 
+  // Build sidebar HTML
+  var sidebarHtml = !isBrowsing ? (
+    renderGlanceCard(p, t, plan)
+    + renderChallengeGrid()
+  ) : '';
+
   root.innerHTML=
-    // Hero
-    '<div class="day-hero">'
+    // Two-column wrapper
+    '<div class="day-outer">'    // LEFT SIDEBAR — sticky control panel
+    +'<div class="day-sidebar" id="day-sidebar">'    +sidebarHtml    +'</div>'    // MAIN CONTENT
+    +'<div class="day-page">'    // Hero
+    +'<div class="day-hero">'
     +'<div class="day-kicker">'+dateStr+'</div>'
     +(isBrowsing
       ? '<div style="display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:rgba(196,124,24,.07);border:1px solid rgba(196,124,24,.2);border-radius:14px;padding:4px 12px;margin-bottom:12px;">Browsing <span style="opacity:.4;">·</span> <button onclick="backToToday()" style="background:none;border:none;color:var(--jade);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);padding:0;">Back to today \u21a9</button></div>'
@@ -3253,8 +3418,7 @@ function renderPlan(plan, browsing){
     +'<div id="day-macro-progress"></div>'
     // Week tabs + programme context
     +weekTabsHtml
-    // TODAY AT A GLANCE — compact status card before coach narrative
-    +(!isBrowsing ? renderGlanceCard(p, t, plan) : '')
+    // TODAY AT A GLANCE — moved to left sidebar (see renderSidebar)
     // Coach narrative — today only, appears before timeline
     +(!isBrowsing
       ? '<div id="coach-narrative-body" class="coach-narrative">'
@@ -3287,10 +3451,10 @@ function renderPlan(plan, browsing){
       +'</div>'
       : '')
     +(!isBrowsing ? '<div id="day-capture-zone"></div>' : '')
-    // CHALLENGE GRID — replaces old SOS strip
-    +(!isBrowsing ? renderChallengeGrid() : '')
+    // CHALLENGE GRID — moved to left sidebar (see renderSidebar)
     +'<button class="regen-btn" onclick="'+(isBrowsing ? 'backToToday()' : 'regen()')+'">'+( isBrowsing ? '\u21a9 Back to today' : '\u8635 Rebuild today')+'</button>'
-    +'</div>';
+    +'</div>'  // close .day-page
+    +'</div>'; // close .day-outer
 
   // Programme strip
   var ps=document.getElementById('prog-strip-slot');
@@ -3317,6 +3481,119 @@ function togglePtlBlock(el) {
     event.target.closest('.ptl-tick')
   )) return;
   el.classList.toggle('collapsed');
+}
+
+
+// ── CARDIO BLOCK RENDERER ─────────────────────────────────────────────
+function renderCardioBlock(b) {
+  if (!b.cardio) return '';
+  var isZone2 = b.cardioType === 'zone2';
+  var bpmColor = 'var(--jade)';
+  var protocol = b.cardioProtocol || (
+    isZone2
+      ? b.cardioDuration + ' min continuous at ' + b.cardioTargetLo + '\u2013' + b.cardioTargetHi + ' bpm. Conversational pace. If HR drifts above ' + b.cardioTargetHi + ', slow down.'
+      : b.cardioProtocol || ''
+  );
+  var options = (b.cardioOptions || []).join(' &middot; ');
+  return '<div style="margin-bottom:14px;background:rgba(0,200,160,.04);border:1px solid rgba(0,200,160,.15);border-radius:12px;padding:14px 16px;">'
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+      + '<div style="font-size:22px;">\uD83E\uDEC0</div>'
+      + '<div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--jade);">' + b.cardioDuration + ' min</div>'
+        + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">' + (isZone2 ? 'Zone 2' : 'VO\u2082max') + ' effort</div>'
+      + '</div>'
+      + '<div style="margin-left:auto;text-align:right;">'
+        + '<div style="font-size:18px;font-weight:700;color:' + bpmColor + ';font-variant-numeric:tabular-nums;">' + b.cardioTargetLo + '\u2013' + b.cardioTargetHi + '</div>'
+        + '<div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);">BPM target</div>'
+      + '</div>'
+    + '</div>'
+    + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;margin-bottom:8px;">' + protocol + '</div>'
+    + (options ? '<div style="font-size:10px;font-weight:300;color:var(--dk-3);">Options: ' + options + '</div>' : '')
+    + '</div>';
+}
+
+// ── COLLAPSED BLOCK SUMMARY ────────────────────────────────────────────
+function buildBlockSummary(b) {
+  if (!b) return '';
+  var parts = [];
+  // Supplement block: list items
+  if (b.type === 'supp' && b.suppList && b.suppList.length) {
+    parts = b.suppList.slice(0,3).map(function(s){ return s.name + (s.dose ? ' ' + s.dose : ''); });
+  }
+  // Meal block: show planned meal name if known
+  if (b.mealSlot) {
+    var meal = (typeof getTodayMeal === 'function') ? getTodayMeal(b.mealSlot) : null;
+    if (meal && meal.name) parts = [meal.name, meal.protein + 'g P'];
+    else if (b.items && b.items.length) parts = b.items.slice(0,2).map(function(it){ return it.name + (it.meta ? ' ' + it.meta : ''); });
+  }
+  // Wake block: list items
+  if (b.type === 'wake' && b.items && b.items.length) {
+    parts = b.items.slice(0,2).map(function(it){ return it.name + (it.meta ? ' ' + it.meta : ''); });
+  }
+  // Cardio: show bpm
+  if (b.cardio) {
+    parts = [b.cardioTargetLo + '\u2013' + b.cardioTargetHi + ' bpm', b.cardioDuration + ' min'];
+  }
+  if (!parts.length) return '';
+  return '<div class="ptl-summary">' + parts.join(' \u00B7 ') + '</div>';
+}
+
+// ── SUPPLEMENT CHECKBOX TOGGLE ─────────────────────────────────────────
+function toggleSupp(name, blockIdx, itemIdx) {
+  var log = loadDayLog(_rDate) || {};
+  if (!log.suppLog) log.suppLog = {};
+  log.suppLog[name] = !log.suppLog[name];
+  saveDayLog(_rDate, log);
+  // Update the row in place
+  var row = document.getElementById('sr-' + blockIdx + '-' + itemIdx);
+  if (!row) return;
+  var done = log.suppLog[name];
+  row.style.opacity = done ? '0.5' : '1';
+  var check = row.querySelector('div[style*="border-radius:6px"]');
+  if (check) {
+    check.style.border = '1.5px solid ' + (done ? 'var(--jade)' : 'rgba(255,255,255,.15)');
+    check.style.background = done ? 'var(--jade)' : 'transparent';
+    check.innerHTML = done ? '<span style="color:var(--ink);font-size:11px;font-weight:700;">\u2713</span>' : '';
+  }
+  var dose = row.querySelector('.supp-dose');
+  if (dose) dose.style.color = done ? 'var(--jade)' : 'var(--amber)';
+}
+
+// ── SLEEP INLINE LOGGER ────────────────────────────────────────────────
+function logSleepHours(h) {
+  var log = loadDayLog(_rDate) || {};
+  log.sleepActual = h;
+  saveDayLog(_rDate, log);
+  // Re-render glance card readiness
+  var glance = document.querySelector('.glance-card');
+  if (glance && window.P && window.TODAY && window._lastPlan) {
+    glance.outerHTML = renderGlanceCard(window.P, window.TODAY, window._lastPlan);
+  }
+  // Update button states
+  document.querySelectorAll('[onclick*="logSleepHours"]').forEach(function(btn) {
+    var btnH = parseInt(btn.textContent);
+    var sel = btnH === h;
+    btn.style.border = '1.5px solid ' + (sel ? 'var(--jade)' : 'rgba(255,255,255,.1)');
+    btn.style.background = sel ? 'rgba(0,200,160,.12)' : 'transparent';
+    btn.style.color = sel ? 'var(--jade)' : 'var(--dk-2)';
+  });
+  // Show confirmation
+  var confirmEl = document.querySelector('[onclick*="logSleepHours"]');
+  if (confirmEl) {
+    var parent = confirmEl.closest('[style*="border-radius:12px"]');
+    if (parent) {
+      var existing = parent.querySelector('.sleep-confirm');
+      if (!existing) {
+        var msg = document.createElement('div');
+        msg.className = 'sleep-confirm';
+        msg.style.cssText = 'font-size:11px;font-weight:300;color:var(--jade);margin-top:8px;';
+        msg.textContent = '\u2713 Logged: ' + h + 'h \u2014 feeding your readiness score';
+        parent.appendChild(msg);
+      } else {
+        existing.textContent = '\u2713 Logged: ' + h + 'h \u2014 feeding your readiness score';
+      }
+    }
+  }
 }
 
 function renderGlanceCard(p, t, plan) {
