@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0c1010">
+<title>BodyLens &mdash; Goal Translation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.gt-page { max-width:780px; margin:0 auto; padding:36px 24px 140px; }
+
+/* Hero */
+.gt-hero { padding-bottom:28px; border-bottom:1px solid var(--bd); margin-bottom:32px; }
+.gt-kicker { font-size:9px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--jade); margin-bottom:12px; }
+.gt-title { font-family:var(--serif); font-size:44px; font-weight:300; line-height:.92; letter-spacing:-.03em; color:var(--dk-1); margin-bottom:12px; }
+.gt-title em { font-style:italic; color:var(--dk-3); }
+.gt-desc { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; max-width:560px; }
+
+/* Inputs section */
+.gt-inputs { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:32px; }
+@media(max-width:580px){ .gt-inputs { grid-template-columns:1fr; } }
+.gt-input-col { }
+.gt-col-label { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; margin-bottom:14px; }
+.gt-col-label.jade { color:var(--jade); }
+.gt-col-label.amber { color:var(--amber); }
+
+/* Upload zone */
+.gt-upload-zone {
+  border:1px dashed rgba(255,255,255,.12); border-radius:12px;
+  background:var(--ink-1); min-height:160px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px; cursor:pointer;
+  transition:all .2s; overflow:hidden; position:relative; margin-bottom:10px;
+}
+.gt-upload-zone:hover { border-color:rgba(0,200,160,.3); background:rgba(0,200,160,.03); }
+.gt-upload-zone.has-img { min-height:auto; border-style:solid; border-color:rgba(0,200,160,.2); }
+.gt-upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
+.gt-preview { width:100%; max-height:220px; object-fit:contain; border-radius:10px; display:block; }
+.gt-upload-hint { font-size:11px; font-weight:300; color:var(--dk-3); text-align:center; max-width:180px; line-height:1.5; }
+.gt-upload-cta { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--jade); padding:5px 14px; border:1px solid rgba(0,200,160,.25); border-radius:16px; background:rgba(0,200,160,.06); }
+
+/* Input fields */
+.gt-field { margin-bottom:10px; }
+.gt-field-label { font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--dk-3); margin-bottom:6px; }
+.gt-textarea { width:100%; box-sizing:border-box; background:var(--ink-1); border:1px solid var(--bd); border-radius:8px; padding:10px 12px; font-size:12px; font-family:var(--sans); color:var(--dk-1); outline:none; resize:none; line-height:1.6; transition:border-color .12s; }
+.gt-textarea:focus { border-color:rgba(0,200,160,.3); }
+.gt-input { width:100%; box-sizing:border-box; background:var(--ink-1); border:1px solid var(--bd); border-radius:8px; padding:9px 12px; font-size:12px; font-family:var(--sans); color:var(--dk-1); outline:none; transition:border-color .12s; }
+.gt-input:focus { border-color:rgba(0,200,160,.3); }
+
+/* Data summary rows */
+.gt-data-row { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:12px; }
+.gt-data-row:last-child { border-bottom:none; }
+.gt-data-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.gt-data-dot.filled { background:var(--jade); }
+.gt-data-dot.empty { background:rgba(255,255,255,.12); }
+.gt-data-key { color:var(--dk-3); font-weight:300; min-width:120px; }
+.gt-data-val { color:var(--dk-1); font-weight:500; }
+.gt-data-link { font-size:10px; font-weight:600; color:var(--jade); text-decoration:none; margin-left:auto; }
+
+/* CTA */
+.gt-run-btn {
+  width:100%; padding:15px; background:var(--jade); border:none; border-radius:11px;
+  font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink); cursor:pointer; font-family:var(--sans); margin-bottom:8px;
+  transition:all .15s; display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.gt-run-btn:hover { opacity:.88; }
+.gt-run-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* Loading */
+.gt-loading { display:none; text-align:center; padding:60px 20px; }
+.gt-loading.show { display:block; }
+.gt-spinner { width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,.08); border-top-color:var(--jade); animation:spin .8s linear infinite; margin:0 auto 16px; }
+.gt-loading-phase { font-size:13px; font-weight:300; color:var(--dk-2); margin-bottom:4px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Result sections */
+.gt-result { display:none; }
+.gt-result.show { display:block; animation:fadeUp .3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.gt-stage {
+  margin-bottom:32px;
+  padding-bottom:32px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.gt-stage:last-child { border-bottom:none; padding-bottom:0; }
+.gt-stage-num { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:6px; }
+.gt-stage-title { font-family:var(--serif); font-size:26px; font-weight:300; color:var(--dk-1); line-height:1.1; margin-bottom:14px; }
+.gt-stage-body { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.85; font-family:var(--serif); }
+.gt-stage-body strong { font-weight:500; color:var(--dk-1); font-family:var(--sans); font-size:13px; }
+
+/* Gap visual - side by side */
+.gt-compare { display:grid; grid-template-columns:1fr 2px 1fr; gap:0; margin:16px 0; }
+.gt-compare-col { padding:14px 16px; background:var(--ink-1); border:1px solid rgba(255,255,255,.07); }
+.gt-compare-col.now { border-radius:10px 0 0 10px; border-right:none; }
+.gt-compare-col.target { border-radius:0 10px 10px 0; }
+.gt-compare-divider { background:rgba(255,255,255,.06); }
+.gt-compare-label { font-size:9px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
+.gt-compare-label.jade { color:var(--jade); }
+.gt-compare-label.amber { color:var(--amber); }
+.gt-compare-item { font-size:12px; font-weight:300; color:var(--dk-2); padding:3px 0; display:flex; gap:6px; }
+.gt-compare-item::before { content:'·'; color:var(--dk-3); flex-shrink:0; }
+
+/* Programme implications */
+.gt-implications { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+@media(max-width:540px){ .gt-implications { grid-template-columns:1fr; } }
+.gt-impl-card { background:var(--ink-1); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:14px 16px; }
+.gt-impl-label { font-size:9px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px; }
+.gt-impl-label.jade { color:var(--jade); }
+.gt-impl-label.amber { color:var(--amber); }
+.gt-impl-label.slate { color:var(--dk-3); }
+.gt-impl-body { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65; }
+.gt-impl-body strong { color:var(--dk-1); font-weight:600; }
+
+/* Callout */
+.gt-callout {
+  padding:16px 20px; border-radius:10px; margin-top:16px;
+  border-left:3px solid var(--jade); background:rgba(0,200,160,.04);
+}
+.gt-callout.amber { border-color:var(--amber); background:rgba(196,124,24,.04); }
+.gt-callout-label { font-size:9px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--jade); margin-bottom:6px; }
+.gt-callout.amber .gt-callout-label { color:var(--amber); }
+.gt-callout-text { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.75; font-family:var(--serif); }
+
+/* Actions */
+.gt-actions { display:flex; gap:8px; margin-top:24px; flex-wrap:wrap; }
+.gt-action-btn {
+  padding:10px 18px; border-radius:9px; font-size:11px; font-weight:700; letter-spacing:.06em;
+  text-transform:uppercase; cursor:pointer; font-family:var(--sans); transition:all .15s;
+}
+.gt-action-btn.primary { background:var(--jade); border:none; color:var(--ink); }
+.gt-action-btn.secondary { background:transparent; border:1px solid var(--bd); color:var(--dk-2); }
+.gt-action-btn.secondary:hover { border-color:rgba(0,200,160,.3); color:var(--jade); }
+</style>
+</head>
+<body>
+<script src="nav.js"></script>
+<div class="gt-page">
+
+  <div class="gt-hero">
+    <div class="gt-kicker">Goal translation</div>
+    <div class="gt-title">Where you are.<br><em>Where you're going.</em></div>
+    <div class="gt-desc">
+      This isn't goal-setting. It's a translation engine. You put in what you have and what you want.
+      It tells you exactly what the gap is and what your plan needs to do to close it.
+    </div>
+  </div>
+
+  <!-- Inputs -->
+  <div class="gt-inputs" id="gt-inputs">
+
+    <!-- Current state -->
+    <div class="gt-input-col">
+      <div class="gt-col-label jade">Current state</div>
+
+      <div class="gt-field">
+        <div class="gt-field-label">Current photo</div>
+        <div class="gt-upload-zone" id="gt-zone-current">
+          <input type="file" id="gt-file-current" accept="image/*" onchange="gtHandleCurrent(this.files[0])">
+          <div style="font-size:22px;opacity:.35;">&#128247;</div>
+          <div class="gt-upload-hint">Front-on photo. Good light.</div>
+          <div class="gt-upload-cta">Choose photo</div>
+        </div>
+      </div>
+
+      <!-- Data already on file -->
+      <div id="gt-current-data"></div>
+
+    </div>
+
+    <!-- Target state -->
+    <div class="gt-input-col">
+      <div class="gt-col-label amber">Target state</div>
+
+      <div class="gt-field">
+        <div class="gt-field-label">Goal physique photo</div>
+        <div class="gt-upload-zone" id="gt-zone-target">
+          <input type="file" id="gt-file-target" accept="image/*" onchange="gtHandleTarget(this.files[0])">
+          <div style="font-size:22px;opacity:.35;">&#127919;</div>
+          <div class="gt-upload-hint">The physique you are building toward.</div>
+          <div class="gt-upload-cta">Choose photo</div>
+        </div>
+      </div>
+
+      <div class="gt-field">
+        <div class="gt-field-label">Stated goal</div>
+        <div id="gt-goal-display" style="font-size:13px;font-weight:300;color:var(--dk-2);padding:8px 0;"></div>
+      </div>
+
+      <div class="gt-field">
+        <div class="gt-field-label">Visual preferences <span style="font-weight:300;text-transform:none;letter-spacing:0;">(optional)</span></div>
+        <textarea id="gt-visual-prefs" class="gt-textarea" rows="2" placeholder="e.g. visible abs but not stage-lean, athletic shoulders, minimal bulk"></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <button class="gt-run-btn" id="gt-run-btn" onclick="gtRun()">
+    Analyse the gap &rarr;
+  </button>
+
+  <!-- Loading -->
+  <div class="gt-loading" id="gt-loading">
+    <div class="gt-spinner"></div>
+    <div class="gt-loading-phase" id="gt-phase">Reading current state&hellip;</div>
+    <div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:4px;">Building your gap analysis</div>
+  </div>
+
+  <!-- Result -->
+  <div class="gt-result" id="gt-result"></div>
+
+</div>
+<script src="pwa.js"></script>
+<script>
+'use strict';
+
+const API = '/api/chat';
+const MODEL = 'claude-sonnet-4-20250514';
+const GT_KEY = 'bl_goal_translation';
+
+const _p = (function(){ try{ return JSON.parse(localStorage.getItem('bl_profile')||'null'); }catch(e){return null;} })();
+const navMeta = document.getElementById('nav-meta');
+if (navMeta && _p) navMeta.innerHTML = '<span class="nav-tag nt-jade">'+(_p.name||'You')+'</span>';
+
+var gtCurrentBase64 = null, gtCurrentType = 'image/jpeg';
+var gtTargetBase64 = null,  gtTargetType  = 'image/jpeg';
+
+// ── Populate goal display ────────────────────────────────────
+(function() {
+  var goalEl = document.getElementById('gt-goal-display');
+  if (goalEl && _p) {
+    goalEl.innerHTML = (_p.goal||'Body recomposition') + (_p.target ? '<br><span style="font-size:11px;color:var(--dk-3);">' + _p.target + '</span>' : '');
+  }
+
+  // Show existing data on file
+  var dataEl = document.getElementById('gt-current-data');
+  if (!dataEl || !_p) return;
+
+  var sbData = JSON.parse(localStorage.getItem('bl_strength_baseline')||'{}');
+  var loggedLifts = Object.keys(sbData).filter(function(k){ return sbData[k]&&sbData[k].entries&&sbData[k].entries.length; });
+
+  var rows = [
+    { key:'Body scan', val:_p.bodyScan ? (_p.bodyScan.bodyFatPct+'% BF · '+(_p.bodyScan.leanMass||'?')+'kg lean') : null, link:'bodylens-bodyscan.html' },
+    { key:'Photo analysis', val:_p.bodyPhotoAnalysis ? (_p.bodyPhotoAnalysis.bodyFatRange+' estimated BF') : null, link:'bodylens-bodyscan.html' },
+    { key:'Strength baseline', val:loggedLifts.length ? loggedLifts.length+' lifts logged' : null, link:'bodylens-strength.html' },
+    { key:'Training programme', val:_p.weekPlan&&_p.weekPlan.length ? _p.trainingDays+'x/week, '+(_p.weekPlan.filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).slice(0,2).join(', ')||'—') : null, link:'bodylens-programme.html' },
+  ];
+
+  var html = '<div style="margin-bottom:12px;">';
+  rows.forEach(function(r) {
+    var filled = !!r.val;
+    html += '<div class="gt-data-row">'
+      + '<div class="gt-data-dot '+(filled?'filled':'empty')+'"></div>'
+      + '<div class="gt-data-key">'+r.key+'</div>'
+      + (filled ? '<div class="gt-data-val">'+r.val+'</div>' : '<div style="font-size:11px;font-weight:300;color:var(--dk-3);">Not set</div>')
+      + '<a href="'+r.link+'" class="gt-data-link">'+( filled ? 'Update' : 'Add')+'&rarr;</a>'
+      + '</div>';
+  });
+  html += '</div>';
+  dataEl.innerHTML = html;
+
+  // Pre-fill photo if we have one
+  if (_p.bodyPhotoAnalysis) {
+    var zone = document.getElementById('gt-zone-current');
+    zone.innerHTML = '<div style="padding:12px 14px;background:rgba(0,200,160,.06);border-radius:8px;font-size:12px;font-weight:300;color:var(--dk-2);">Using saved analysis from '+ (_p.bodyPhotoAnalysis.date||'previous scan') +'. <a href=\"bodylens-bodyscan.html\" style=\"color:var(--jade);\">Update &rarr;</a></div>';
+  }
+})();
+
+// ── File handlers ────────────────────────────────────────────
+function gtHandleCurrent(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  gtCurrentType = file.type;
+  var r = new FileReader();
+  r.onload = function(e) {
+    gtCurrentBase64 = e.target.result.split(',')[1];
+    var zone = document.getElementById('gt-zone-current');
+    zone.classList.add('has-img');
+    zone.innerHTML = '<input type="file" accept="image/*" onchange="gtHandleCurrent(this.files[0])">'
+      + '<img class="gt-preview" src="'+e.target.result+'">';
+  };
+  r.readAsDataURL(file);
+}
+
+function gtHandleTarget(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  gtTargetType = file.type;
+  var r = new FileReader();
+  r.onload = function(e) {
+    gtTargetBase64 = e.target.result.split(',')[1];
+    var zone = document.getElementById('gt-zone-target');
+    zone.classList.add('has-img');
+    zone.innerHTML = '<input type="file" accept="image/*" onchange="gtHandleTarget(this.files[0])">'
+      + '<img class="gt-preview" src="'+e.target.result+'">';
+  };
+  r.readAsDataURL(file);
+}
+
+// ── Run the analysis ─────────────────────────────────────────
+async function gtRun() {
+  document.getElementById('gt-inputs').style.opacity = '0.4';
+  document.getElementById('gt-run-btn').disabled = true;
+  var loading = document.getElementById('gt-loading');
+  loading.classList.add('show');
+
+  var phases = [
+    'Reading current state\u2026',
+    'Analysing target physique\u2026',
+    'Mapping the gap\u2026',
+    'Translating into your programme\u2026',
+    'Building actionable implications\u2026',
+  ];
+  var pi = 0, pel = document.getElementById('gt-phase');
+  var timer = setInterval(function(){ pi=(pi+1)%phases.length; pel.textContent=phases[pi]; }, 3500);
+
+  try {
+    // Build context from all available data
+    var sbData = JSON.parse(localStorage.getItem('bl_strength_baseline')||'{}');
+    var topLifts = [];
+    Object.keys(sbData).forEach(function(k) {
+      if (sbData[k]&&sbData[k].entries&&sbData[k].entries.length) {
+        topLifts.push(k+': '+sbData[k].entries[0].weight+'kg x'+sbData[k].entries[0].reps+' (1RM est: '+sbData[k].entries[0].e1rm+'kg)');
+      }
+    });
+
+    var ctx = [];
+    if (_p) {
+      ctx.push('PERSON: '+_p.name+', '+_p.age+'yo male, '+_p.weight+'kg, '+_p.height+'cm');
+      ctx.push('STATED GOAL: '+(_p.goal||'Body recomposition')+' — '+(_p.target||''));
+      ctx.push('TRAINING: '+(_p.trainingDays||4)+' days/week — '+((_p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return d.type;}).join(', ')||'programme set'));
+      ctx.push('MACROS: '+_p.calories+' kcal | '+_p.protein+'g protein | '+_p.carbs+'g carbs | '+_p.fat+'g fat');
+      if (_p.bodyScan) ctx.push('BODY SCAN: '+_p.bodyScan.bodyFatPct+'% BF, '+(_p.bodyScan.leanMass||'?')+'kg lean mass, BMR '+(_p.bodyScan.bmr||'?'));
+      if (_p.bodyPhotoAnalysis) {
+        ctx.push('PHOTO ANALYSIS: '+_p.bodyPhotoAnalysis.bodyFatRange+' estimated, '+_p.bodyPhotoAnalysis.muscleBase+' muscle base');
+        ctx.push('IDENTIFIED GAPS: '+(_p.bodyPhotoAnalysis.gaps||[]).join(', '));
+        ctx.push('KEY LEVER: '+(_p.bodyPhotoAnalysis.keyLever||''));
+      }
+      if (topLifts.length) ctx.push('STRENGTH BASELINE: '+topLifts.join(' | '));
+    }
+    var visualPrefs = document.getElementById('gt-visual-prefs').value.trim();
+    if (visualPrefs) ctx.push('VISUAL PREFERENCES: '+visualPrefs);
+
+    // Build messages array — with images if available
+    var contentParts = [];
+
+    if (gtCurrentBase64) {
+      contentParts.push({ type:'image', source:{ type:'base64', media_type:gtCurrentType, data:gtCurrentBase64 } });
+      contentParts.push({ type:'text', text:'[CURRENT STATE PHOTO — analyse this physique. This is where the person is now.]' });
+    }
+    if (gtTargetBase64) {
+      contentParts.push({ type:'image', source:{ type:'base64', media_type:gtTargetType, data:gtTargetBase64 } });
+      contentParts.push({ type:'text', text:'[TARGET STATE PHOTO — analyse this physique. This is where the person wants to get to.]' });
+    }
+
+    var prompt = 'You are an intelligent performance coach running a gap analysis. Your job is NOT to motivate. It is to analyse with precision and translate the gap into concrete programming implications.\n\n'
+      + 'FULL CONTEXT:\n' + ctx.join('\n') + '\n\n'
+      + (gtCurrentBase64 || gtTargetBase64 ? 'Photo inputs have been provided — use them to anchor your visual assessment.\n\n' : '')
+      + 'Generate a structured gap translation with EXACTLY this JSON format:\n'
+      + '{\n'
+      + '  "stage1_now": {\n'
+      + '    "headline": "Direct one-sentence read of current physique state",\n'
+      + '    "bodyFat": "e.g. 18-22% estimated",\n'
+      + '    "muscleBase": "e.g. Moderate — reasonably developed but lacking posterior chain depth",\n'
+      + '    "trainingReality": "2 sentences. What the current programme is building. What it is missing.",\n'
+      + '    "honestRead": "2-3 sentences. What this body and this programme tell you about training history, consistency, and what has been prioritised. Direct — not harsh, not soft.",\n'
+      + '    "currentMarkers": ["specific observation 1","specific observation 2","specific observation 3"]\n'
+      + '  },\n'
+      + '  "stage2_target": {\n'
+      + '    "headline": "Direct one-sentence read of the target physique",\n'
+      + '    "bodyFat": "e.g. 10-13% — visibly lean with muscle separation",\n'
+      + '    "muscleBase": "What muscle development this target represents",\n'
+      + '    "whatItTook": "2 sentences. What someone with this physique is doing — training frequency, structure, nutrition discipline, recovery. Be specific.",\n'
+      + '    "targetMarkers": ["what defines this target physique — 3 specific characteristics"]\n'
+      + '  },\n'
+      + '  "stage3_gap": {\n'
+      + '    "headline": "The gap in one direct sentence",\n'
+      + '    "bodyFatGap": "Precise description of the fat loss component",\n'
+      + '    "muscleGap": "Precise description of the muscle development gap — which groups, how much",\n'
+      + '    "structuralGap": "What structural / postural / pattern differences exist between now and target",\n'
+      + '    "gapSize": "small|medium|large|significant",\n'
+      + '    "gapSummary": ["gap 1 — specific","gap 2 — specific","gap 3 — specific"]\n'
+      + '  },\n'
+      + '  "stage4_implies": {\n'
+      + '    "headline": "What closing this gap requires — in one analytical sentence",\n'
+      + '    "trainingBehaviour": "2 sentences. What someone with this target trains like. Session quality, frequency, RPE, progression style.",\n'
+      + '    "nutritionBehaviour": "2 sentences. What their nutrition looks like. Precision, timing, caloric relationship to training.",\n'
+      + '    "recoveryBehaviour": "1-2 sentences. Sleep, stress, non-training movement.",\n'
+      + '    "consistencyRequired": "1 sentence. What level of consistency and timeline is realistic.",\n'
+      + '    "keyDifference": "The single biggest behavioural or structural difference between where they are and where they are going."\n'
+      + '  },\n'
+      + '  "stage5_plan": {\n'
+      + '    "headline": "What your plan needs to do from this point — in one direct sentence",\n'
+      + '    "exerciseEmphasis": {\n'
+      + '      "prioritise": ["muscle group or pattern 1","muscle group or pattern 2","muscle group or pattern 3"],\n'
+      + '      "maintain": ["what to keep"],\n'
+      + '      "reduce": ["what to reduce or defer"],\n'
+      + '      "reasoning": "2 sentences explaining the emphasis shift"\n'
+      + '    },\n'
+      + '    "loadStyle": "What rep ranges, RPE targets, and progression style this goal requires. Specific numbers.",\n'
+      + '    "cardioRole": "What cardio should be doing in this plan — frequency, type, timing, purpose. Not generic.",\n'
+      + '    "foodStructure": "How nutrition needs to be structured — caloric periodisation, protein targets, meal timing relative to training.",\n'
+      + '    "recoveryPriorities": "Top 2-3 recovery priorities given this gap.",\n'
+      + '    "immediateShifts": ["The 3 most important changes to make in the next 4 weeks — specific, actionable"],\n'
+      + '    "timeline": "Honest timeline with phases — e.g. Phase 1 (months 1-4): X. Phase 2 (months 5-10): Y."\n'
+      + '  }\n'
+      + '}\n'
+      + 'Return ONLY valid JSON. No markdown. Be specific — reference actual numbers, muscle groups, movements. This is an analytical document not a motivational one.';
+
+    contentParts.push({ type:'text', text:prompt });
+
+    var res = await fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:MODEL, max_tokens:2500, messages:[{ role:'user', content:contentParts }] })
+    });
+    if (!res.ok) throw new Error('API '+res.status);
+    var data = await res.json();
+    var raw = (data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var result = JSON.parse(raw.replace(/```json|```/g,'').trim());
+
+    clearInterval(timer);
+    loading.classList.remove('show');
+    document.getElementById('gt-inputs').style.opacity = '1';
+    document.getElementById('gt-run-btn').disabled = false;
+
+    // Save to profile
+    if (_p) {
+      _p.gapBridge = {
+        generatedAt: new Date().toISOString().slice(0,10),
+        source: (gtCurrentBase64&&gtTargetBase64)?'both':gtCurrentBase64?'current-photo':gtTargetBase64?'target-photo':'data-only',
+        currentPhase: result.stage5_plan && result.stage5_plan.timeline ? result.stage5_plan.timeline.split('.')[0] : 'Phase 1',
+        primaryGaps: result.stage3_gap && result.stage3_gap.gapSummary || [],
+        weeklyFocus: result.stage5_plan && result.stage5_plan.immediateShifts && result.stage5_plan.immediateShifts[0] || '',
+        coachContext: result.stage4_implies && result.stage4_implies.keyDifference || '',
+        training: (result.stage5_plan && result.stage5_plan.exerciseEmphasis && result.stage5_plan.exerciseEmphasis.prioritise || []).map(function(p){ return {change:p,action:'note'}; }),
+        timeline: result.stage5_plan && result.stage5_plan.timeline || '',
+        honestTake: result.stage4_implies && result.stage4_implies.headline || '',
+      };
+      try { localStorage.setItem('bl_profile', JSON.stringify(_p)); } catch(e) {}
+    }
+
+    gtRenderResult(result);
+
+    // Bust daily plan cache
+    try { localStorage.removeItem('dayplan_v6r3_'+new Date().toISOString().slice(0,10)); } catch(e) {}
+
+  } catch(err) {
+    clearInterval(timer);
+    loading.classList.remove('show');
+    document.getElementById('gt-inputs').style.opacity = '1';
+    document.getElementById('gt-run-btn').disabled = false;
+    document.getElementById('gt-result').innerHTML = '<div style="padding:16px;background:rgba(220,80,60,.06);border:1px solid rgba(220,80,60,.2);border-radius:8px;font-size:13px;color:var(--dk-2);">Analysis failed: '+err.message+'</div>';
+    document.getElementById('gt-result').classList.add('show');
+  }
+}
+
+function gtRenderResult(r) {
+  var el = document.getElementById('gt-result');
+
+  function markers(arr, colorVar) {
+    return (arr||[]).map(function(m) {
+      return '<div style="display:flex;gap:8px;padding:4px 0;">'
+        + '<div style="color:'+colorVar+';flex-shrink:0;margin-top:2px;">&#9670;</div>'
+        + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">'+m+'</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  var s1 = r.stage1_now || {}, s2 = r.stage2_target || {}, s3 = r.stage3_gap || {},
+      s4 = r.stage4_implies || {}, s5 = r.stage5_plan || {};
+
+  var html = '';
+
+  // ── Stage 1: Where you are ───────────────────────────────
+  html += '<div class="gt-stage">'
+    + '<div class="gt-stage-num">Stage 1</div>'
+    + '<div class="gt-stage-title">Where you are now</div>'
+    + '<div class="gt-callout"><div class="gt-callout-label">Honest read</div><div class="gt-callout-text">'+(s1.headline||'')+'</div></div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;">'
+      + '<div style="background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:12px;">'
+        + '<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:5px;">Body fat</div>'
+        + '<div style="font-size:15px;font-weight:700;color:var(--jade);">'+(s1.bodyFat||'—')+'</div>'
+      + '</div>'
+      + '<div style="background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:12px;">'
+        + '<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:5px;">Muscle base</div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--dk-1);">'+(s1.muscleBase||'—')+'</div>'
+      + '</div>'
+    + '</div>'
+    + '<div class="gt-stage-body" style="margin-bottom:12px;">'+(s1.trainingReality||'')+'</div>'
+    + '<div class="gt-stage-body">'+(s1.honestRead||'')+'</div>'
+    + (s1.currentMarkers ? '<div style="margin-top:12px;">'+markers(s1.currentMarkers,'var(--jade)')+'</div>' : '')
+  + '</div>';
+
+  // ── Stage 2: Where you want to get to ────────────────────
+  html += '<div class="gt-stage">'
+    + '<div class="gt-stage-num">Stage 2</div>'
+    + '<div class="gt-stage-title">Where you want to get to</div>'
+    + '<div class="gt-callout amber"><div class="gt-callout-label">Target read</div><div class="gt-callout-text">'+(s2.headline||'')+'</div></div>'
+    + '<div style="margin:14px 0;"><div class="gt-stage-body">'+(s2.whatItTook||'')+'</div></div>'
+    + (s2.targetMarkers ? '<div>'+markers(s2.targetMarkers,'var(--amber)')+'</div>' : '')
+  + '</div>';
+
+  // ── Stage 3: The gap ─────────────────────────────────────
+  html += '<div class="gt-stage">'
+    + '<div class="gt-stage-num">Stage 3</div>'
+    + '<div class="gt-stage-title">What the gap is</div>'
+    + '<div class="gt-callout amber"><div class="gt-callout-label">Gap summary</div><div class="gt-callout-text">'+(s3.headline||'')+'</div></div>'
+    + '<div class="gt-compare" style="margin-top:16px;">'
+      + '<div class="gt-compare-col now">'
+        + '<div class="gt-compare-label jade">Now</div>'
+        + '<div class="gt-compare-item">'+(s1.bodyFat||'—')+'</div>'
+        + '<div class="gt-compare-item">'+((s1.muscleBase||'').split(' ')[0]||'—')+'</div>'
+      + '</div>'
+      + '<div class="gt-compare-divider"></div>'
+      + '<div class="gt-compare-col target">'
+        + '<div class="gt-compare-label amber">Target</div>'
+        + '<div class="gt-compare-item">'+(s2.bodyFat||'—')+'</div>'
+        + '<div class="gt-compare-item">'+((s2.muscleBase||'').split(' ')[0]||'—')+'</div>'
+      + '</div>'
+    + '</div>'
+    + '<div style="margin-top:16px;">'
+      + (s3.bodyFatGap ? '<div class="gt-data-row"><div class="gt-data-dot" style="background:rgba(220,80,60,.6);"></div><div class="gt-data-key">Body fat</div><div class="gt-data-val" style="flex:1;color:var(--dk-2);font-weight:300;">'+s3.bodyFatGap+'</div></div>' : '')
+      + (s3.muscleGap ? '<div class="gt-data-row"><div class="gt-data-dot" style="background:var(--amber);"></div><div class="gt-data-key">Muscle</div><div class="gt-data-val" style="flex:1;color:var(--dk-2);font-weight:300;">'+s3.muscleGap+'</div></div>' : '')
+      + (s3.structuralGap ? '<div class="gt-data-row"><div class="gt-data-dot" style="background:rgba(255,255,255,.2);"></div><div class="gt-data-key">Structure</div><div class="gt-data-val" style="flex:1;color:var(--dk-2);font-weight:300;">'+s3.structuralGap+'</div></div>' : '')
+    + '</div>'
+  + '</div>';
+
+  // ── Stage 4: What the gap implies ───────────────────────
+  html += '<div class="gt-stage">'
+    + '<div class="gt-stage-num">Stage 4</div>'
+    + '<div class="gt-stage-title">What that gap implies</div>'
+    + '<div class="gt-callout"><div class="gt-callout-label">What it requires</div><div class="gt-callout-text">'+(s4.headline||'')+'</div></div>'
+    + '<div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">'
+      + (s4.trainingBehaviour ? '<div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:5px;">Training</div><div class="gt-stage-body">'+s4.trainingBehaviour+'</div></div>' : '')
+      + (s4.nutritionBehaviour ? '<div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:5px;">Nutrition</div><div class="gt-stage-body">'+s4.nutritionBehaviour+'</div></div>' : '')
+      + (s4.recoveryBehaviour ? '<div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:5px;">Recovery</div><div class="gt-stage-body">'+s4.recoveryBehaviour+'</div></div>' : '')
+      + (s4.consistencyRequired ? '<div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:5px;">Consistency</div><div class="gt-stage-body">'+s4.consistencyRequired+'</div></div>' : '')
+    + '</div>'
+    + (s4.keyDifference ? '<div class="gt-callout amber" style="margin-top:16px;"><div class="gt-callout-label">The key difference</div><div class="gt-callout-text">'+s4.keyDifference+'</div></div>' : '')
+  + '</div>';
+
+  // ── Stage 5: What this means for your plan ───────────────
+  var ex = s5.exerciseEmphasis || {};
+  html += '<div class="gt-stage">'
+    + '<div class="gt-stage-num">Stage 5</div>'
+    + '<div class="gt-stage-title">What this means for your plan</div>'
+    + '<div class="gt-callout"><div class="gt-callout-label">Programme directive</div><div class="gt-callout-text">'+(s5.headline||'')+'</div></div>'
+    + '<div class="gt-implications">'
+      + '<div class="gt-impl-card">'
+        + '<div class="gt-impl-label jade">Exercise emphasis</div>'
+        + '<div class="gt-impl-body">'
+          + (ex.prioritise&&ex.prioritise.length ? '<strong>Prioritise:</strong> '+ex.prioritise.join(', ')+'<br>' : '')
+          + (ex.maintain&&ex.maintain.length ? '<strong>Maintain:</strong> '+ex.maintain.join(', ')+'<br>' : '')
+          + (ex.reduce&&ex.reduce.length ? '<strong>Reduce:</strong> '+ex.reduce.join(', ') : '')
+          + (ex.reasoning ? '<div style="margin-top:8px;font-size:11px;">'+ex.reasoning+'</div>' : '')
+        + '</div>'
+      + '</div>'
+      + '<div class="gt-impl-card">'
+        + '<div class="gt-impl-label amber">Load &amp; rep style</div>'
+        + '<div class="gt-impl-body">'+(s5.loadStyle||'—')+'</div>'
+      + '</div>'
+      + '<div class="gt-impl-card">'
+        + '<div class="gt-impl-label slate">Cardio role</div>'
+        + '<div class="gt-impl-body">'+(s5.cardioRole||'—')+'</div>'
+      + '</div>'
+      + '<div class="gt-impl-card">'
+        + '<div class="gt-impl-label amber">Food structure</div>'
+        + '<div class="gt-impl-body">'+(s5.foodStructure||'—')+'</div>'
+      + '</div>'
+    + '</div>'
+    + (s5.recoveryPriorities ? '<div style="margin-top:10px;padding:12px 14px;background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:9px;font-size:12px;font-weight:300;color:var(--dk-2);">&#128308; Recovery: '+s5.recoveryPriorities+'</div>' : '')
+    + (s5.immediateShifts&&s5.immediateShifts.length
+        ? '<div style="margin-top:16px;">'
+            + '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;">Next 4 weeks — immediate shifts</div>'
+            + s5.immediateShifts.map(function(shift,i){
+                return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+                  + '<div style="width:20px;height:20px;border-radius:50%;background:var(--jade);color:var(--ink);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(i+1)+'</div>'
+                  + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">'+shift+'</div>'
+                + '</div>';
+              }).join('')
+          + '</div>'
+        : '')
+    + (s5.timeline ? '<div class="gt-callout" style="margin-top:16px;"><div class="gt-callout-label">Timeline</div><div class="gt-callout-text">'+s5.timeline+'</div></div>' : '')
+    + '<div class="gt-actions">'
+      + '<button class="gt-action-btn primary" onclick="window.location.href=\'bodylens-dailyplan.html\'">Go to today &rarr;</button>'
+      + '<button class="gt-action-btn secondary" onclick="document.getElementById(\'gt-result\').innerHTML=\'\';document.getElementById(\'gt-result\').classList.remove(\'show\');">Run again</button>'
+    + '</div>'
+  + '</div>';
+
+  el.innerHTML = html;
+  el.classList.add('show');
+  el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// Load saved result if it exists
+(function() {
+  if (_p && _p.gapBridge && _p.gapBridge.generatedAt) {
+    // Show a "last analysis" indicator
+    var runBtn = document.getElementById('gt-run-btn');
+    if (runBtn) {
+      runBtn.insertAdjacentHTML('afterend', '<div style="text-align:center;margin-top:6px;font-size:11px;font-weight:300;color:var(--dk-3);">Last analysis: '+_p.gapBridge.generatedAt+' &mdash; <a href="#" onclick="event.preventDefault();document.getElementById(\'gt-run-btn\').click()" style="color:var(--jade);">Refresh</a></div>');
+    }
+  }
+})();
+</script>
+</body>
+</html>

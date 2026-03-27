@@ -2,116 +2,181 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0c1010">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>BodyLens — Deep Stack</title>
+<meta name="theme-color" content="#0c1010">
+<title>BodyLens &mdash; Stack</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-body { background:var(--ink); color:var(--dk-1); }
-.sp-page { max-width:800px; margin:0 auto; padding:0 28px 100px; }
-
-/* Hero */
-.sp-hero { padding:44px 0 28px; border-bottom:1px solid var(--bd); margin-bottom:32px; }
-.sp-kicker { font-size:10px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--dk-3); margin-bottom:10px; }
-.sp-title { font-family:var(--serif); font-size:52px; font-weight:300; line-height:.93; letter-spacing:-.02em; color:var(--dk-1); margin-bottom:12px; }
+.sp-page { max-width:760px; margin:0 auto; padding:32px 24px 120px; }
+.sp-hero { padding-bottom:24px; border-bottom:1px solid var(--bd); margin-bottom:28px; }
+.sp-kicker { font-size:9px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; }
+.sp-title { font-family:var(--serif); font-size:40px; font-weight:300; line-height:.95; letter-spacing:-.03em; color:var(--dk-1); margin-bottom:10px; }
 .sp-title em { font-style:italic; color:var(--dk-3); }
-.sp-sub { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.75; max-width:520px; }
+.sp-sub { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; max-width:540px; }
 
-/* Category filter */
-.sp-filter { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:28px; }
-.sp-filter-btn {
-  padding:5px 14px; border-radius:14px; border:1px solid var(--bd);
-  background:transparent; font-size:10px; font-weight:600;
-  letter-spacing:.06em; text-transform:uppercase;
-  color:var(--dk-3); cursor:pointer; font-family:var(--sans); transition:all .1s;
+/* Section labels */
+.sp-section-label {
+  font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--dk-3); margin-bottom:14px; display:flex; align-items:center;
+  justify-content:space-between; gap:10px;
 }
-.sp-filter-btn:hover { border-color:rgba(255,255,255,.1); color:var(--dk-2); }
-.sp-filter-btn.active { background:var(--ink-1); border-color:rgba(200,148,30,.3); color:var(--amber); }
+.sp-section-label::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.06); }
+.sp-section-action { font-size:10px; font-weight:600; color:var(--jade); cursor:pointer; white-space:nowrap; letter-spacing:.06em; text-transform:uppercase; margin-left:10px; }
 
-/* Section label */
-.sp-sec { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--dk-3);
-  margin:28px 0 14px; display:flex; align-items:center; gap:10px; }
-.sp-sec::after { content:''; flex:1; height:1px; background:var(--bd); }
+/* Active stack */
+.sp-stack-empty {
+  padding:20px; background:var(--ink-1); border:1px dashed rgba(255,255,255,.1);
+  border-radius:10px; font-size:13px; font-weight:300; color:var(--dk-3);
+  text-align:center; margin-bottom:28px;
+}
+.sp-stack-grid { display:flex; flex-direction:column; gap:6px; margin-bottom:28px; }
+.sp-stack-row {
+  display:flex; align-items:center; gap:12px; padding:12px 16px;
+  background:var(--ink-1); border:1px solid rgba(255,255,255,.07); border-radius:10px;
+  transition:all .12s;
+}
+.sp-stack-row:hover { border-color:rgba(255,255,255,.12); }
+.sp-stack-icon { font-size:20px; flex-shrink:0; width:32px; text-align:center; }
+.sp-stack-info { flex:1; min-width:0; }
+.sp-stack-name { font-size:13px; font-weight:600; color:var(--dk-1); }
+.sp-stack-meta { font-size:11px; font-weight:300; color:var(--dk-3); margin-top:2px; }
+.sp-stack-timing {
+  font-size:10px; font-weight:600; letter-spacing:.04em; color:var(--jade);
+  white-space:nowrap; flex-shrink:0;
+}
+.sp-stack-remove {
+  width:26px; height:26px; border-radius:6px; border:1px solid rgba(255,255,255,.08);
+  background:none; color:var(--dk-3); cursor:pointer; font-size:13px;
+  display:flex; align-items:center; justify-content:center; font-family:var(--sans);
+  transition:all .12s; flex-shrink:0;
+}
+.sp-stack-remove:hover { border-color:rgba(220,80,60,.3); color:rgba(220,80,60,.7); }
+.sp-stack-baseline-badge {
+  font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  padding:2px 7px; border-radius:10px; background:rgba(0,200,160,.08);
+  border:1px solid rgba(0,200,160,.2); color:var(--jade); flex-shrink:0;
+}
 
-/* Supplement cards */
-.sp-card {
-  background:var(--ink-1); border:1px solid var(--bd);
-  border-radius:10px; overflow:hidden; margin-bottom:8px;
-  transition:border-color .12s;
+/* Goal match panel */
+.sp-goal-panel {
+  background:var(--ink-1); border:1px solid rgba(255,255,255,.07); border-radius:12px;
+  padding:18px 20px; margin-bottom:28px;
 }
-.sp-card:hover { border-color:rgba(255,255,255,.08); }
-.sp-card.open { border-color:rgba(200,148,30,.25); }
-
-.sp-card-hd {
-  display:flex; align-items:center; gap:12px;
-  padding:14px 18px; cursor:pointer;
+.sp-goal-title {
+  font-size:12px; font-weight:700; color:var(--dk-1); margin-bottom:4px;
+  display:flex; align-items:center; gap:8px;
 }
-.sp-icon { font-size:18px; flex-shrink:0; width:24px; text-align:center; }
-.sp-info { flex:1; min-width:0; }
-.sp-name { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:2px; }
-.sp-card.open .sp-name { color:var(--amber); }
-.sp-tagline { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.4; }
-.sp-badges { display:flex; gap:5px; align-items:center; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
-.sp-badge {
-  font-size:8px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-  padding:3px 8px; border-radius:8px;
-}
-.sp-badge.evidence-strong { background:rgba(0,200,160,.1); border:1px solid var(--jade-br); color:var(--jade); }
-.sp-badge.evidence-moderate { background:rgba(200,148,30,.08); border:1px solid rgba(200,148,30,.25); color:var(--amber); }
-.sp-badge.evidence-emerging { background:rgba(255,255,255,.04); border:1px solid var(--bd); color:var(--dk-3); }
-.sp-badge.cat { background:var(--ink-2); border:1px solid var(--bd); color:var(--dk-3); }
-.sp-chevron { color:var(--dk-3); font-size:10px; transition:transform .15s; flex-shrink:0; }
-.sp-card.open .sp-chevron { transform:rotate(180deg); color:var(--amber); }
-
-/* Card body */
-.sp-body {
-  display:none; border-top:1px solid var(--bd);
-  padding:16px 18px; background:var(--ink-2);
-}
-.sp-card.open .sp-body { display:block; }
-.sp-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
-.sp-field-label { font-size:8px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--dk-3); margin-bottom:4px; }
-.sp-field-val { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.6; }
-.sp-mechanism { font-family:var(--serif); font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.85; margin-bottom:12px; }
-.sp-relevance {
-  background:rgba(0,200,160,.04); border:1px solid var(--jade-br);
-  border-radius:6px; padding:10px 14px; margin-bottom:12px;
-}
-.sp-relevance-label { font-size:8px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--jade); margin-bottom:4px; }
-.sp-relevance-text { font-size:11px; font-weight:300; color:var(--dk-2); line-height:1.65; }
-.sp-warn {
-  background:rgba(200,148,30,.05); border:1px solid rgba(200,148,30,.2);
-  border-radius:6px; padding:8px 12px; margin-bottom:12px;
-}
-.sp-warn-text { font-size:10px; font-weight:300; color:var(--amber); line-height:1.6; }
-.sp-add-btn {
-  display:inline-block; background:transparent; border:1px solid var(--bd);
-  border-radius:7px; padding:7px 16px; font-size:10px; font-weight:600;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--dk-3);
+.sp-goal-desc { font-size:12px; font-weight:300; color:var(--dk-3); margin-bottom:14px; line-height:1.6; }
+.sp-goal-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.sp-goal-chip {
+  padding:6px 12px; border-radius:20px; border:1px solid rgba(255,255,255,.1);
+  background:var(--ink-2); font-size:11px; font-weight:600; color:var(--dk-3);
   cursor:pointer; font-family:var(--sans); transition:all .12s;
 }
-.sp-add-btn:hover { border-color:var(--jade-br); color:var(--jade); }
-.sp-add-btn.saved { background:var(--jade); border-color:var(--jade); color:var(--ink); cursor:default; }
-.sp-stack-note { font-size:10px; font-weight:300; color:var(--dk-3); margin-top:6px; line-height:1.5; }
+.sp-goal-chip:hover { border-color:rgba(0,200,160,.3); color:var(--jade); }
+.sp-goal-chip.active { border-color:rgba(0,200,160,.35); background:rgba(0,200,160,.08); color:var(--jade); }
+.sp-reco-grid { display:flex; flex-direction:column; gap:8px; }
+.sp-reco-card {
+  display:flex; align-items:flex-start; gap:12px; padding:12px 14px;
+  background:var(--ink-2); border:1px solid rgba(255,255,255,.06); border-radius:9px;
+}
+.sp-reco-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.sp-reco-info { flex:1; min-width:0; }
+.sp-reco-name { font-size:12px; font-weight:700; color:var(--dk-1); margin-bottom:2px; }
+.sp-reco-why { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.5; }
+.sp-reco-evidence { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--amber); margin-top:4px; }
+.sp-reco-add {
+  padding:7px 12px; border-radius:7px; border:1px solid rgba(0,200,160,.25);
+  background:rgba(0,200,160,.06); color:var(--jade); font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans);
+  white-space:nowrap; transition:all .12s; flex-shrink:0;
+}
+.sp-reco-add:hover { background:rgba(0,200,160,.12); }
+.sp-reco-add.in-stack { background:rgba(0,200,160,.1); border-color:var(--jade); cursor:default; }
+
+/* Divider */
+.sp-divider {
+  display:flex; align-items:center; gap:10px; margin:28px 0 20px;
+}
+.sp-divider-line { flex:1; height:1px; background:rgba(255,255,255,.06); }
+.sp-divider-label {
+  font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--dk-3); flex-shrink:0;
+}
+
+/* Filter */
+.sp-filter { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
+.sp-filter-btn {
+  padding:5px 12px; border-radius:20px; border:1px solid rgba(255,255,255,.08);
+  background:var(--ink-1); color:var(--dk-3); font-size:11px; font-weight:600;
+  cursor:pointer; font-family:var(--sans); transition:all .12s;
+}
+.sp-filter-btn:hover { border-color:rgba(255,255,255,.15); }
+.sp-filter-btn.active { border-color:rgba(0,200,160,.3); color:var(--jade); background:rgba(0,200,160,.06); }
+
+/* Supplement cards */
+.sp-cat-label {
+  font-size:9px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--dk-3); margin:20px 0 10px; padding-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.sp-card {
+  background:var(--ink-1); border:1px solid rgba(255,255,255,.07); border-radius:12px;
+  margin-bottom:8px; overflow:hidden; transition:border-color .12s;
+}
+.sp-card:hover { border-color:rgba(255,255,255,.12); }
+.sp-card-hd {
+  display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer;
+}
+.sp-icon { font-size:22px; flex-shrink:0; width:32px; text-align:center; }
+.sp-info { flex:1; min-width:0; }
+.sp-name { font-size:13px; font-weight:700; color:var(--dk-1); margin-bottom:2px; }
+.sp-tagline { font-size:11px; font-weight:300; color:var(--dk-3); }
+.sp-badges { display:flex; gap:6px; align-items:center; flex-shrink:0; }
+.sp-badge {
+  font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  padding:3px 8px; border-radius:10px; border:1px solid;
+  background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.1); color:var(--dk-3);
+  white-space:nowrap;
+}
+.sp-badge.strong { background:rgba(0,200,160,.08); border-color:rgba(0,200,160,.2); color:var(--jade); }
+.sp-badge.moderate { background:rgba(196,124,24,.08); border-color:rgba(196,124,24,.2); color:var(--amber); }
+.sp-badge.emerging { background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.1); color:var(--dk-3); }
+.sp-badge.in-stack { background:rgba(0,200,160,.08); border-color:var(--jade-br); color:var(--jade); }
+.sp-chevron { color:var(--dk-3); font-size:14px; transition:transform .2s; flex-shrink:0; }
+.sp-card.open .sp-chevron { transform:rotate(90deg); }
+
+.sp-card-body { display:none; padding:0 16px 16px; border-top:1px solid rgba(255,255,255,.05); }
+.sp-card.open .sp-card-body { display:block; }
+.sp-detail-row { display:flex; gap:8px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:12px; }
+.sp-detail-row:last-of-type { border-bottom:none; }
+.sp-detail-key { font-weight:300; color:var(--dk-3); min-width:80px; flex-shrink:0; }
+.sp-detail-val { font-weight:400; color:var(--dk-2); flex:1; line-height:1.5; }
+.sp-mechanism { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.75; padding:10px 0 8px; }
+.sp-add-btn {
+  width:100%; padding:11px; background:rgba(0,200,160,.08); border:1px solid rgba(0,200,160,.25);
+  border-radius:9px; font-size:11px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--jade); cursor:pointer; font-family:var(--sans);
+  margin-top:10px; transition:all .15s;
+}
+.sp-add-btn:hover { background:rgba(0,200,160,.14); }
+.sp-add-btn.saved { background:rgba(0,200,160,.12); border-color:var(--jade); cursor:default; }
 </style>
 </head>
 <body>
 <script src="nav.js"></script>
-
 <div class="sp-page">
+
   <div class="sp-hero">
-    <div class="sp-kicker">Advanced Supplementation</div>
-    <div class="sp-title">The deep<br><em>stack.</em></div>
-    <div class="sp-sub">Beyond the basics. Compounds with real mechanisms, honest evidence ratings, and specific relevance to your goal. Not mainstream. Not hype.</div>
+    <div class="sp-kicker">Supplementation</div>
+    <div class="sp-title">Your<br><em>stack.</em></div>
+    <div class="sp-sub">Manage everything here. Your baseline is locked in. Add from the deep stack below — this is the only place supplements are managed.</div>
   </div>
 
   <div id="sp-root"></div>
 </div>
-
 <script>
 var SUPPS = [
   // ── HORMONAL / TESTOSTERONE ──────────────────────────────────────
@@ -329,27 +394,98 @@ var SUPPS = [
     warn: 'Expensive. Human evidence, while growing, is not yet definitive for the claimed longevity benefits. Some people experience mild flushing (less than niacin). Choose sublingual NMN or liposomal NR for absorption.',
     stacks: 'Longevity stack: NMN + Resveratrol + Quercetin (the Sinclair protocol). This is a separate track from the performance-focused items above.'
   }
+]
+var GOALS_MAP = {
+  'tongkat-ali':      ['body recomposition','muscle gain','testosterone','fat loss'],
+  'fadogia-agrestis': ['testosterone','muscle gain'],
+  'shilajit':         ['energy','testosterone','body recomposition','recovery'],
+  'ashwagandha':      ['stress reduction','muscle gain','sleep','body recomposition','recovery'],
+  'lions-mane':       ['cognitive performance','recovery','brain'],
+  'rhodiola':         ['endurance','stress reduction','training performance','recovery'],
+  'apigenin':         ['sleep','recovery','testosterone'],
+  'glycine':          ['sleep','joint health','recovery','collagen'],
+  'tart-cherry':      ['recovery','sleep','muscle soreness'],
+  'berberine':        ['fat loss','metabolic health','body recomposition'],
+  'citrulline':       ['training performance','pump','endurance'],
+  'beta-alanine':     ['training performance','endurance','lactate'],
+  'nmn':              ['longevity','energy','metabolic health'],
+};
+
+var GOAL_CHIPS = [
+  { id:'recomp',      label:'Body recomposition',   keys:['body recomposition','fat loss','muscle gain'] },
+  { id:'muscle',      label:'Build muscle',          keys:['muscle gain','training performance','testosterone'] },
+  { id:'fatloss',     label:'Fat loss',              keys:['fat loss','metabolic health','body recomposition'] },
+  { id:'recovery',    label:'Recovery',              keys:['recovery','sleep','muscle soreness'] },
+  { id:'hormones',    label:'Hormonal support',      keys:['testosterone','body recomposition','energy'] },
+  { id:'performance', label:'Training performance',  keys:['training performance','endurance','pump'] },
+  { id:'sleep',       label:'Sleep & stress',        keys:['sleep','stress reduction','recovery'] },
+  { id:'longevity',   label:'Longevity',             keys:['longevity','energy','metabolic health'] },
 ];
 
-var _openCard = null;
 var _activeFilter = 'All';
+var _openCard = null;
+var _activeGoals = [];
 
 function getProfile() {
   try { return JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) { return null; }
 }
 
-function isInStack(id) {
+function isBaseline(id) {
   var p = getProfile();
-  if (!p) return false;
-  var supps = (p.supplements || []).map(function(s){ return (s.name||s).toLowerCase(); });
-  var supp = SUPPS.find(function(s){ return s.id === id; });
-  if (!supp) return false;
-  return supps.some(function(s){ return s.includes(supp.name.toLowerCase().split(' ')[0]); });
+  if (!p || !p.supplements) return false;
+  return p.supplements.some(function(s) {
+    return (s.name||s).toLowerCase().includes(id.replace(/-/g,' ').slice(0,6));
+  });
 }
 
-function isSaved(id) {
+function isInDeepStack(id) {
   var p = getProfile();
-  return p && (p.deepStack || []).includes(id);
+  return p && (p.deepStack||[]).includes(id);
+}
+
+function addToStack(id) {
+  var p = getProfile();
+  if (!p) return;
+  if (!p.deepStack) p.deepStack = [];
+  if (!p.deepStack.includes(id)) p.deepStack.push(id);
+  localStorage.setItem('bl_profile', JSON.stringify(p));
+  render();
+}
+
+function removeFromStack(id) {
+  var p = getProfile();
+  if (!p) return;
+  p.deepStack = (p.deepStack||[]).filter(function(x){ return x !== id; });
+  localStorage.setItem('bl_profile', JSON.stringify(p));
+  render();
+}
+
+function getOptimisedTiming(name, isTraining) {
+  var nl = (name||'').toLowerCase();
+  if (nl.includes('creatine')) return isTraining ? 'Post-training' : 'Morning';
+  if (nl.includes('omega')) return 'With largest meal';
+  if (nl.includes('d3')||nl.includes('vitamin d')) return 'Morning, with fat';
+  if (nl.includes('magnesium')) return 'Before bed';
+  if (nl.includes('theanine')) return isTraining ? 'Pre-session' : 'With coffee';
+  if (nl.includes('tongkat')||nl.includes('fadogia')||nl.includes('shilajit')) return 'Morning, with food';
+  if (nl.includes('ashwagandha')) return 'With dinner';
+  if (nl.includes('apigenin')||nl.includes('glycine')) return 'Before bed';
+  if (nl.includes('tart cherry')) return 'Post-training';
+  if (nl.includes('berberine')) return 'With meals';
+  if (nl.includes('citrulline')||nl.includes('beta-alanine')) return '30 min pre-training';
+  return 'With food';
+}
+
+function toggleGoal(id) {
+  var idx = _activeGoals.indexOf(id);
+  if (idx >= 0) _activeGoals.splice(idx, 1);
+  else _activeGoals.push(id);
+  render();
+}
+
+function setFilter(cat) {
+  _activeFilter = cat;
+  render();
 }
 
 function toggleCard(id) {
@@ -363,27 +499,13 @@ function toggleCard(id) {
   }
 }
 
-function addToStack(id, btn) {
-  var p = getProfile();
-  if (!p) return;
-  if (!p.deepStack) p.deepStack = [];
-  if (!p.deepStack.includes(id)) p.deepStack.push(id);
-  localStorage.setItem('bl_profile', JSON.stringify(p));
-  if (btn) { btn.textContent = '✓ In your deep stack'; btn.className = 'sp-add-btn saved'; btn.disabled = true; }
-}
-
 function scrollToDeep(id) {
   var el = document.getElementById('sp-card-' + id);
   if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    el.style.border = '1px solid rgba(0,200,160,.4)';
-    setTimeout(function(){ el.style.border = ''; }, 2000);
+    el.scrollIntoView({ behavior:'smooth', block:'start' });
+    el.style.borderColor = 'rgba(0,200,160,.4)';
+    setTimeout(function(){ el.style.borderColor = ''; }, 2000);
   }
-}
-
-function setFilter(cat) {
-  _activeFilter = cat;
-  render();
 }
 
 function render() {
@@ -396,16 +518,112 @@ function render() {
     if (nm) nm.innerHTML = '<span class="nav-tag nt-jade">' + p.name + '</span>';
   }
 
-  var cats = ['All', 'Hormonal', 'Adaptogenic', 'Cognitive', 'Sleep', 'Recovery', 'Metabolic', 'Performance', 'Longevity'];
-  var filterHtml = '<div class="sp-filter">'
-    + cats.map(function(c) {
-        return '<button class="sp-filter-btn' + (_activeFilter===c?' active':'') + '" onclick="setFilter(\'' + c + '\')">' + c + '</button>';
-      }).join('')
-    + '</div>';
+  var isTraining = false;
+  try {
+    var tLog = JSON.parse(localStorage.getItem('bl_daylog_' + new Date().toISOString().slice(0,10)) || '{}');
+    isTraining = tLog.dayType && tLog.dayType.toLowerCase().includes('train');
+  } catch(e) {}
+
+  var html = '';
+
+  // ── 1. ACTIVE STACK ─────────────────────────────────────────────
+  html += '<div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--jade);margin-bottom:14px;">Your active stack</div>';
+
+  var baselineSupps = p ? (p.supplements || []) : [];
+  var deepStackIds = p ? (p.deepStack || []) : [];
+  var deepStackSupps = SUPPS.filter(function(s){ return deepStackIds.includes(s.id); });
+  var totalCount = baselineSupps.length + deepStackSupps.length;
+
+  if (totalCount === 0) {
+    html += '<div class="sp-stack-empty">No supplements yet. Complete onboarding to add your baseline, or select from below.</div>';
+  } else {
+    html += '<div class="sp-stack-grid">';
+    // Baseline first
+    baselineSupps.forEach(function(s) {
+      var name = s.name || s;
+      var timing = getOptimisedTiming(name, isTraining);
+      html += '<div class="sp-stack-row">'
+        + '<div class="sp-stack-icon">&#128138;</div>'
+        + '<div class="sp-stack-info">'
+          + '<div class="sp-stack-name">' + name + '</div>'
+          + '<div class="sp-stack-meta">' + (s.dose||'') + (s.dose&&timing?' &mdash; ':' ') + timing + '</div>'
+        + '</div>'
+        + '<span class="sp-stack-baseline-badge">Baseline</span>'
+        + '</div>';
+    });
+    // Deep stack
+    deepStackSupps.forEach(function(s) {
+      var timing = getOptimisedTiming(s.name, isTraining);
+      var evClass = s.evidence === 'strong' ? 'strong' : s.evidence === 'moderate' ? 'moderate' : 'emerging';
+      html += '<div class="sp-stack-row">'
+        + '<div class="sp-stack-icon">' + s.icon + '</div>'
+        + '<div class="sp-stack-info">'
+          + '<div class="sp-stack-name">' + s.name + '</div>'
+          + '<div class="sp-stack-meta">' + s.dose + ' &mdash; ' + timing + '</div>'
+        + '</div>'
+        + '<span class="sp-badge ' + evClass + '" style="flex-shrink:0;">' + s.evidence + '</span>'
+        + '<button class="sp-stack-remove" data-rid="' + s.id + '" onclick="removeFromStack(this.dataset.rid)" title="Remove from stack">&times;</button>';
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  // ── 2. GOAL MATCH ────────────────────────────────────────────────
+  html += '<div class="sp-goal-panel">'
+    + '<div class="sp-goal-title">&#127919; Match supplements to your goals</div>'
+    + '<div class="sp-goal-desc">Select what you are working on and get recommendations from the stack below. Only shows supplements not already in your stack.</div>'
+    + '<div class="sp-goal-chips">';
+  GOAL_CHIPS.forEach(function(g) {
+    var active = _activeGoals.includes(g.id);
+    html += '<button class="sp-goal-chip' + (active?' active':'') + '" data-gid="' + g.id + '" onclick="toggleGoal(this.dataset.gid)">' + g.label + '</button>';
+  });
+  html += '</div>';
+
+  if (_activeGoals.length > 0) {
+    // Find matching supplements not already in stack
+    var matchedKeys = [];
+    _activeGoals.forEach(function(goalId) {
+      var chip = GOAL_CHIPS.find(function(g){ return g.id === goalId; });
+      if (chip) matchedKeys = matchedKeys.concat(chip.keys);
+    });
+    var matches = SUPPS.filter(function(s) {
+      if (isBaseline(s.id) || isInDeepStack(s.id)) return false;
+      var suppGoals = GOALS_MAP[s.id] || [];
+      return suppGoals.some(function(g){ return matchedKeys.includes(g); });
+    });
+    if (matches.length) {
+      html += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;">' + matches.length + ' match' + (matches.length>1?'es':'') + ' for your goals</div>';
+      html += '<div class="sp-reco-grid">';
+      matches.forEach(function(s) {
+        var evClass = s.evidence === 'strong' ? 'strong' : s.evidence === 'moderate' ? 'moderate' : 'emerging';
+        html += '<div class="sp-reco-card">'
+          + '<div class="sp-reco-icon">' + s.icon + '</div>'
+          + '<div class="sp-reco-info">'
+            + '<div class="sp-reco-name">' + s.name + '</div>'
+            + '<div class="sp-reco-why">' + s.tagline + '</div>'
+            + '<div class="sp-reco-evidence">' + s.evidence + ' evidence &mdash; ' + s.dose + '</div>'
+          + '</div>'
+          + '<button class="sp-reco-add" data-rid="' + s.id + '" onclick="addToStack(this.dataset.rid);this.textContent=\'\u2713 Added\';this.className=\'sp-reco-add in-stack\'">+ Add</button>';
+        + '</div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div style="font-size:12px;font-weight:300;color:var(--dk-3);padding:8px 0;">All matching supplements for these goals are already in your stack.</div>';
+    }
+  }
+  html += '</div>';
+
+  // ── 3. BROWSE ALL ────────────────────────────────────────────────
+  html += '<div class="sp-divider"><div class="sp-divider-line"></div><div class="sp-divider-label">Browse all</div><div class="sp-divider-line"></div></div>';
+
+  var cats = ['All','Hormonal','Adaptogenic','Cognitive','Sleep','Recovery','Metabolic','Performance','Longevity'];
+  html += '<div class="sp-filter">';
+  cats.forEach(function(c) {
+    html += '<button class="sp-filter-btn' + (_activeFilter===c?' active':'') + '" data-cat="' + c + '" onclick="setFilter(this.dataset.cat)">' + c + '</button>';
+  });
+  html += '</div>';
 
   var filtered = _activeFilter === 'All' ? SUPPS : SUPPS.filter(function(s){ return s.cat === _activeFilter; });
-
-  // Group by category
   var groups = {};
   filtered.forEach(function(s) {
     if (!groups[s.cat]) groups[s.cat] = [];
@@ -413,160 +631,47 @@ function render() {
   });
 
   var CAT_LABELS = {
-    Hormonal: 'Hormonal & testosterone',
-    Adaptogenic: 'Adaptogenic',
-    Cognitive: 'Cognitive',
-    Sleep: 'Sleep & recovery',
-    Recovery: 'Recovery',
-    Metabolic: 'Metabolic & body composition',
-    Performance: 'Training performance',
-    Longevity: 'Longevity'
+    Hormonal:'Hormonal & testosterone', Adaptogenic:'Adaptogenic',
+    Cognitive:'Cognitive', Sleep:'Sleep & recovery', Recovery:'Recovery',
+    Metabolic:'Metabolic & body composition', Performance:'Training performance', Longevity:'Longevity'
   };
 
-  var html = filterHtml;
-
-  // ── BASELINE STACK ─────────────────────────────────────────────
-  // Define timing slots based on training/rest day
-  var isTrainingDay = false;
-  try {
-    var todayLog = JSON.parse(localStorage.getItem('bl_daylog_' + new Date().toISOString().slice(0,10)) || '{}');
-    isTrainingDay = todayLog.dayType && todayLog.dayType.toLowerCase().includes('train');
-  } catch(e) {}
-
-  // Optimise timing for each baseline supplement
-  function getOptimisedTiming(supp, isTraining) {
-    var name = (supp.name || '').toLowerCase();
-    var timing = (supp.timing || '').toLowerCase();
-    if (name.includes('creatine')) return isTraining ? 'Post-training with protein' : 'Morning with food';
-    if (name.includes('omega') || name.includes('fish oil')) return 'With largest meal (lunch or dinner)';
-    if (name.includes('vitamin d') || name.includes('d3')) return 'Morning with fat-containing meal';
-    if (name.includes('magnesium')) return '30-60 min before bed';
-    if (name.includes('theanine') || name.includes('l-theanine')) return isTraining ? '30 min pre-session (with caffeine)' : 'With morning coffee';
-    if (name.includes('zinc')) return 'Bedtime — away from calcium';
-    if (name.includes('ashwagandha')) return 'With dinner or before bed';
-    if (name.includes('vitamin c')) return 'Morning — NOT immediately post-training';
-    if (name.includes('b12') || name.includes('b-12')) return 'Morning';
-    if (name.includes('collagen')) return '30 min pre-training with vitamin C';
-    return supp.timing || 'With food';
-  }
-
-  // Build baseline section
-  html += '<div style="margin-bottom:28px;">'
-    + '<div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--jade);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">'
-      + 'Your baseline stack'
-      + '<span style="font-weight:300;text-transform:none;letter-spacing:0;font-size:11px;color:var(--dk-3);">'
-        + (isTrainingDay ? 'Training day timing' : 'Rest day timing')
-      + '</span>'
-    + '</div>';
-
-  if (p && p.supplements && p.supplements.length) {
-    html += '<div style="display:flex;flex-direction:column;gap:8px;">';
-    p.supplements.forEach(function(s) {
-      var sName = s.name || s;
-      var sDose = s.dose || '';
-      var sTiming = getOptimisedTiming(s, isTrainingDay);
-      var deepMatch = SUPPS.find(function(ds){ return ds.name.toLowerCase().includes(sName.toLowerCase().slice(0,8)); });
-      html += '<div style="background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;">'
-        + '<div style="width:8px;height:8px;border-radius:50%;background:var(--jade);flex-shrink:0;"></div>'
-        + '<div style="flex:1;">'
-          + '<div style="font-size:13px;font-weight:600;color:var(--dk-1);">' + sName + '</div>'
-          + '<div style="display:flex;gap:10px;margin-top:3px;flex-wrap:wrap;">'
-            + (sDose ? '<span style="font-size:11px;font-weight:600;color:var(--jade);">' + sDose + '</span>' : '')
-            + '<span style="font-size:11px;font-weight:300;color:var(--dk-3);">' + sTiming + '</span>'
-          + '</div>'
-        + '</div>'
-        + (deepMatch ? '<a data-deep="' + deepMatch.id + '" href="#" onclick="event.preventDefault();scrollToDeep(this.dataset.deep)" style="font-size:10px;font-weight:600;color:var(--dk-3);text-decoration:none;white-space:nowrap;">Evidence &#8594;</a>' : '')
-      + '</div>';
-    });
-    html += '</div>';
-  } else {
-    html += '<div style="padding:20px;background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:10px;font-size:13px;font-weight:300;color:var(--dk-3);">'
-      + 'No supplements in your profile yet. <a href="bodylens-programme.html" style="color:var(--jade);">Add them in your programme</a>.'
-    + '</div>';
-  }
-
-  html += '</div>';
-
-  // Deep stack divider
-  html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">'
-    + '<div style="flex:1;height:1px;background:var(--bd);"></div>'
-    + '<div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--dk-3);">Deep stack — select to add</div>'
-    + '<div style="flex:1;height:1px;background:var(--bd);"></div>'
-  + '</div>';
-
-
   Object.keys(groups).forEach(function(cat) {
-    html += '<div class="sp-sec">' + (CAT_LABELS[cat] || cat) + '</div>';
-    groups[cat].forEach(function(s, idx) {
-      var isOpen = _openCard === s.id;
-      var inStack = isInStack(s.id);
-      var saved = isSaved(s.id);
-      var evClass = 'evidence-' + s.evidence;
+    html += '<div class="sp-cat-label">' + (CAT_LABELS[cat]||cat) + '</div>';
+    groups[cat].forEach(function(s) {
+      var inStack = isBaseline(s.id) || isInDeepStack(s.id);
+      var evClass = s.evidence === 'strong' ? 'strong' : s.evidence === 'moderate' ? 'moderate' : 'emerging';
       var evLabel = s.evidence === 'strong' ? 'Strong evidence' : s.evidence === 'moderate' ? 'Moderate evidence' : 'Emerging evidence';
-
-      html += '<div id="sp-card-'+s.id+'" class="sp-card' + (isOpen?' open':'') + '" id="sp-card-' + s.id + '">';
-
-      // Header
-      html += '<div class="sp-card-hd" onclick="toggleCard(\'' + s.id + '\')">'
-        + '<div class="sp-icon">' + s.icon + '</div>'
-        + '<div class="sp-info">'
-          + '<div class="sp-name">' + s.name + '</div>'
-          + '<div class="sp-tagline">' + s.tagline + '</div>'
-        + '</div>'
-        + '<div class="sp-badges">'
-          + '<div class="sp-badge ' + evClass + '">' + evLabel + '</div>'
-          + (inStack ? '<div class="sp-badge" style="background:rgba(0,200,160,.08);border-color:var(--jade-br);color:var(--jade);">In stack</div>' : '')
-          + (saved && !inStack ? '<div class="sp-badge" style="background:rgba(200,148,30,.06);border-color:rgba(200,148,30,.2);color:var(--amber);">Saved</div>' : '')
-        + '</div>'
-        + '<div class="sp-chevron">▾</div>'
+      var isOpen = _openCard === s.id;
+      html += '<div class="sp-card' + (isOpen?' open':'') + '" id="sp-card-' + s.id + '">'
+        + '<div class="sp-card-hd" data-cid="' + s.id + '" onclick="toggleCard(this.dataset.cid)">';
+          + '<div class="sp-icon">' + s.icon + '</div>'
+          + '<div class="sp-info">'
+            + '<div class="sp-name">' + s.name + '</div>'
+            + '<div class="sp-tagline">' + s.tagline + '</div>'
+          + '</div>'
+          + '<div class="sp-badges">'
+            + '<div class="sp-badge ' + evClass + '">' + evLabel + '</div>'
+            + (inStack ? '<div class="sp-badge in-stack">In stack</div>' : '')
+          + '</div>'
+          + '<div class="sp-chevron">&#8250;</div>'
         + '</div>';
-
-      // Body
-      html += '<div class="sp-body">';
-      html += '<div class="sp-mechanism">' + s.mechanism + '</div>';
-
-      // Relevance to you
-      if (s.relevance) {
-        html += '<div class="sp-relevance">'
-          + '<div class="sp-relevance-label">Relevance to you</div>'
-          + '<div class="sp-relevance-text">' + s.relevance + '</div>'
-          + '</div>';
+      if (isOpen) {
+        html += '<div class="sp-card-body">'
+          + '<div class="sp-mechanism">' + s.mechanism + '</div>';
+        if (s.relevance) html += '<div class="sp-detail-row"><div class="sp-detail-key">Relevance</div><div class="sp-detail-val">' + s.relevance + '</div></div>';
+        html += '<div class="sp-detail-row"><div class="sp-detail-key">Dose</div><div class="sp-detail-val">' + s.dose + '</div></div>';
+        html += '<div class="sp-detail-row"><div class="sp-detail-key">Form</div><div class="sp-detail-val">' + (s.form||'—') + '</div></div>';
+        html += '<div class="sp-detail-row"><div class="sp-detail-key">Timing</div><div class="sp-detail-val">' + s.timing + '</div></div>';
+        if (s.cycle) html += '<div class="sp-detail-row"><div class="sp-detail-key">Cycle</div><div class="sp-detail-val">' + s.cycle + '</div></div>';
+        if (s.warn) html += '<div class="sp-detail-row"><div class="sp-detail-key">Caution</div><div class="sp-detail-val" style="color:rgba(220,140,80,.8);">' + s.warn + '</div></div>';
+        if (s.stacks) html += '<div class="sp-detail-row"><div class="sp-detail-key">Stacks with</div><div class="sp-detail-val">' + s.stacks + '</div></div>';
+        if (!inStack) {
+          html += '<button class="sp-add-btn" data-aid="' + s.id + '" onclick="addToStack(this.dataset.aid);this.textContent=\'\u2713 Added to stack\';this.className=\'sp-add-btn saved\';this.disabled=true;">+ Add to stack</button>';
+        }
+        html += '</div>';
       }
-
-      // Dose grid
-      html += '<div class="sp-grid">'
-        + '<div><div class="sp-field-label">Dose</div><div class="sp-field-val">' + s.dose + '</div></div>'
-        + '<div><div class="sp-field-label">Timing</div><div class="sp-field-val">' + s.timing + '</div></div>'
-        + '<div><div class="sp-field-label">Form</div><div class="sp-field-val">' + s.form + '</div></div>'
-        + '<div><div class="sp-field-label">Cycling</div><div class="sp-field-val">' + s.cycle + '</div></div>'
-        + '</div>';
-
-      // Stacking notes
-      if (s.stacks) {
-        html += '<div style="margin-bottom:12px;">'
-          + '<div class="sp-field-label" style="margin-bottom:4px;">Stacking</div>'
-          + '<div class="sp-field-val">' + s.stacks + '</div>'
-          + '</div>';
-      }
-
-      // Warning
-      if (s.warn) {
-        html += '<div class="sp-warn"><div class="sp-warn-text">⚠ ' + s.warn + '</div></div>';
-      }
-
-      // Add button
-      if (!inStack) {
-        html += '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
-          + '<button class="sp-add-btn' + (saved?' saved':'') + '" '
-          + (saved ? 'disabled ' : '')
-          + 'onclick="event.stopPropagation();addToStack(\'' + s.id + '\',this)">'
-          + (saved ? '✓ Saved to deep stack' : '+ Save to deep stack')
-          + '</button>'
-          + '</div>';
-      }
-
-      html += '</div>'; // end body
-      html += '</div>'; // end card
+      html += '</div>';
     });
   });
 
