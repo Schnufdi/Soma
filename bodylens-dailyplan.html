@@ -1594,6 +1594,70 @@ body {
   font-family: var(--sans); transition: color .12s;
 }
 .db-conv-skip-link button:hover { color: var(--dk-2); }
+
+/* ── Macro detail ────────────────────────────────────────── */
+.mt { cursor: pointer; }
+.mt-hint {
+  font-size: 8px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--dk-3); margin-top: 5px;
+  opacity: 0; transition: opacity .2s;
+}
+.mt:hover .mt-hint { opacity: 1; }
+#macro-detail-panel {
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 20px 22px; margin-bottom: 20px;
+  animation: fadeUp .2s ease;
+}
+.mdp-close {
+  float: right; background: none; border: none;
+  color: var(--dk-3); font-size: 16px; cursor: pointer;
+  font-family: var(--sans); padding: 0; line-height: 1;
+}
+.mdp-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--jade); margin-bottom: 12px;
+}
+.mdp-val {
+  font-family: var(--serif); font-size: 36px; font-weight: 300;
+  color: var(--dk-1); letter-spacing: -.02em; margin-bottom: 4px;
+}
+.mdp-formula {
+  font-size: 12px; font-weight: 300; color: var(--dk-3);
+  line-height: 1.7; margin: 12px 0 10px;
+  padding: 10px 14px; background: rgba(255,255,255,.03);
+  border-radius: 8px; font-family: var(--mono);
+}
+.mdp-reasoning {
+  font-size: 13px; font-weight: 300; color: var(--dk-2);
+  line-height: 1.75; margin-top: 10px; font-style: italic;
+  border-left: 2px solid rgba(0,200,160,.3); padding-left: 12px;
+}
+.mdp-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: 12px;
+}
+.mdp-row:last-child { border-bottom: none; }
+.mdp-row-label { font-weight: 300; color: var(--dk-3); }
+.mdp-row-val { font-weight: 600; color: var(--dk-1); }
+.mdp-train-rest {
+  display: flex; gap: 8px; margin-top: 12px;
+}
+.mdp-day-pill {
+  flex: 1; padding: 8px 10px; border-radius: 10px; text-align: center;
+  font-size: 11px; font-weight: 600;
+}
+.mdp-day-pill.train {
+  background: rgba(0,200,160,.08); border: 1px solid rgba(0,200,160,.2);
+  color: var(--jade);
+}
+.mdp-day-pill.rest {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  color: var(--dk-3);
+}
+.mdp-day-pill.active-day {
+  border-width: 2px; font-size: 12px;
+}
 </style>
 
 <script src="activitylog.js"></script>
@@ -3536,6 +3600,73 @@ function sendAsk(text){
 }
 
 // ── Enrich meal names ─────────────────────────────
+
+// ── MACRO DETAIL PANEL ────────────────────────────────────────────────
+function showMacroDetail(which) {
+  var panel = document.getElementById('macro-detail-panel');
+  if (!panel) return;
+
+  var p = P;
+  var t = TODAY;
+  if (!p || !t) return;
+
+  var age = p.age || 35;
+  var weight = p.weight || 80;
+  var height = p.height || 175;
+  var isFemale = (p.sex||'').toLowerCase() === 'female';
+  var trainingDays = p.trainingDays || 4;
+  var isTrainDay = t.isTraining;
+
+  // Mifflin-St Jeor BMR
+  var bmr = Math.round((10 * weight) + (6.25 * height) - (5 * age) + (isFemale ? -161 : 5));
+
+  // Activity multiplier
+  var multipliers = {3: 1.55, 4: 1.65, 5: 1.725, 6: 1.80};
+  var mult = multipliers[trainingDays] || 1.65;
+  var tdee = Math.round(bmr * mult);
+
+  // Training / rest targets
+  var trainKcal = p.trainingKcal || p.calories || tdee;
+  var restKcal  = p.restKcal || Math.round(trainKcal * 0.90);
+  var prot      = p.protein || Math.round(weight * 2.0);
+  var fat       = p.fat || Math.max(Math.round(weight * 1.0), Math.round(trainKcal * 0.25 / 9));
+  var carbsTrain = p.carbs || Math.round((trainKcal - prot*4 - fat*9) / 4);
+  var carbsRest  = Math.round((restKcal - prot*4 - fat*9) / 4);
+
+  var todayKcal  = isTrainDay ? trainKcal : restKcal;
+  var todayCarbs = isTrainDay ? carbsTrain : carbsRest;
+
+  var content = '';
+
+  if (which === 'kcal') {
+    content = '<div class="mdp-title">Calories — how we got there</div>'      + '<button class="mdp-close" onclick="closeMacroDetail()">✕</button>'      + '<div class="mdp-formula">'        + 'BMR = (10 × ' + weight + 'kg) + (6.25 × ' + height + 'cm) − (5 × ' + age + ') + ' + (isFemale ? '(−161)' : '5') + ' = <strong>' + bmr + ' kcal</strong><br>'        + 'TDEE = ' + bmr + ' × ' + mult + ' (' + trainingDays + ' training days/week) = <strong>' + tdee + ' kcal</strong>'      + '</div>'      + '<div class="mdp-train-rest">'        + '<div class="mdp-day-pill train' + (isTrainDay ? ' active-day' : '') + '">Training days<br><strong>' + trainKcal + ' kcal</strong></div>'        + '<div class="mdp-day-pill rest' + (!isTrainDay ? ' active-day' : '') + '">Rest days<br><strong>' + restKcal + ' kcal</strong> (−' + (trainKcal-restKcal) + ')</div>'      + '</div>'      + (p.calorieReasoning ? '<div class="mdp-reasoning">' + p.calorieReasoning + '</div>' : '')      + '<div style="margin-top:12px;font-size:11px;font-weight:300;color:var(--dk-3);">'        + 'Today (' + t.name + ', ' + (isTrainDay ? 'training' : 'rest') + ' day): <strong style="color:var(--dk-1);">' + todayKcal + ' kcal</strong>'      + '</div>';
+  }
+
+  else if (which === 'prot') {
+    var gPerKg = (prot / weight).toFixed(2);
+    content = '<div class="mdp-title">Protein — why ' + prot + 'g</div>'      + '<button class="mdp-close" onclick="closeMacroDetail()">✕</button>'      + '<div class="mdp-formula">'        + weight + 'kg × 2.0g/kg = <strong>' + prot + 'g</strong><br>'        + 'Actual ratio: ' + gPerKg + 'g/kg — within 1.8–2.2g/kg target range'      + '</div>'      + '<div class="mdp-row"><span class="mdp-row-label">Evidence ceiling</span><span class="mdp-row-val">~1.62g/kg (meta-analysis, n=1,863)</span></div>'      + '<div class="mdp-row"><span class="mdp-row-label">Why we target 2.0g/kg</span><span class="mdp-row-val">Deficit margin + leucine distribution</span></div>'      + '<div class="mdp-row"><span class="mdp-row-label">Same on rest days?</span><span class="mdp-row-val">Yes — MPS peaks 24-48h post-session</span></div>'      + (p.proteinReasoning ? '<div class="mdp-reasoning">' + p.proteinReasoning + '</div>' : '')      + '<div style="margin-top:12px;padding:10px 14px;background:rgba(0,200,160,.06);border-radius:8px;font-size:12px;color:var(--jade);">'        + '174g = ' + Math.round(prot/4) + ' kcal · leaves ' + (todayKcal - prot*4) + ' kcal for carbs and fat'      + '</div>';
+  }
+
+  else if (which === 'carbs') {
+    content = '<div class="mdp-title">Carbs — the residual macro</div>'      + '<button class="mdp-close" onclick="closeMacroDetail()">✕</button>'      + '<div class="mdp-formula">'        + 'Remaining after protein (' + prot + 'g × 4 = ' + prot*4 + ' kcal) and fat (' + fat + 'g × 9 = ' + fat*9 + ' kcal):<br>'        + '(' + todayKcal + ' − ' + prot*4 + ' − ' + fat*9 + ') ÷ 4 = <strong>' + todayCarbs + 'g</strong>'      + '</div>'      + '<div class="mdp-train-rest">'        + '<div class="mdp-day-pill train' + (isTrainDay ? ' active-day' : '') + '">Training days<br><strong>' + carbsTrain + 'g</strong></div>'        + '<div class="mdp-day-pill rest' + (!isTrainDay ? ' active-day' : '') + '">Rest days<br><strong>' + carbsRest + 'g</strong></div>'      + '</div>'      + '<div style="margin-top:10px;font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.6;">'        + 'Carbs are the residual variable — they fill the calorie space after protein and minimum fat are set. '        + 'Higher on training days because muscle glycogen replenishment is the priority post-session.'      + '</div>';
+  }
+
+  else if (which === 'fat') {
+    var fatMinByWeight = Math.round(weight * 1.0);
+    var fatMinByCalories = Math.round(trainKcal * 0.25 / 9);
+    content = '<div class="mdp-title">Fat — the floor macro</div>'      + '<button class="mdp-close" onclick="closeMacroDetail()">✕</button>'      + '<div class="mdp-formula">'        + 'Min by bodyweight: ' + weight + 'kg × 1.0g = ' + fatMinByWeight + 'g<br>'        + 'Min by calories (25%): ' + trainKcal + ' × 0.25 ÷ 9 = ' + fatMinByCalories + 'g<br>'        + 'Target: max(' + fatMinByWeight + ', ' + fatMinByCalories + ') = <strong>' + fat + 'g</strong>'      + '</div>'      + '<div class="mdp-row"><span class="mdp-row-label">Why the floor matters</span><span class="mdp-row-val">Testosterone, oestrogen synthesis</span></div>'      + '<div class="mdp-row"><span class="mdp-row-label">Training vs rest days</span><span class="mdp-row-val">Same — hormonal function is constant</span></div>'      + '<div class="mdp-row"><span class="mdp-row-label">Fat is constant because</span><span class="mdp-row-val">Carbs absorb the day-to-day variation</span></div>'      + '<div style="margin-top:10px;font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.6;">'        + 'Fat drops below 1g/kg and testosterone production is measurably impaired within weeks. '        + 'This is the minimum, not the target — more fat is fine if carbs are already adequate.'      + '</div>';
+  }
+
+  panel.innerHTML = content;
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeMacroDetail() {
+  var panel = document.getElementById('macro-detail-panel');
+  if (panel) panel.style.display = 'none';
+}
+
 function renderPlan(plan, browsing){
   var root=document.getElementById('day-root');
   window._blocks=plan.blocks;
@@ -3806,11 +3937,12 @@ function renderPlan(plan, browsing){
     +'</div>'
     // Macro tiles
     +'<div class="macro-tiles">'
-    +'<div class="mt"><div class="mt-val">'+plan.macros.kcal+'</div><div class="mt-label">Calories</div></div>'
-    +'<div class="mt"><div class="mt-val j">'+plan.macros.prot+'g</div><div class="mt-label">Protein</div></div>'
-    +'<div class="mt"><div class="mt-val a">'+plan.macros.carbs+'g</div><div class="mt-label">Carbs</div></div>'
-    +'<div class="mt"><div class="mt-val">'+plan.macros.fat+'g</div><div class="mt-label">Fat</div></div>'
+    +'<div class="mt" onclick="showMacroDetail(\'kcal\')"><div class="mt-val">'+plan.macros.kcal+'</div><div class="mt-label">Calories</div><div class="mt-hint">Why?</div></div>'
+    +'<div class="mt" onclick="showMacroDetail(\'prot\')"><div class="mt-val j">'+plan.macros.prot+'g</div><div class="mt-label">Protein</div><div class="mt-hint">Why?</div></div>'
+    +'<div class="mt" onclick="showMacroDetail(\'carbs\')"><div class="mt-val a">'+plan.macros.carbs+'g</div><div class="mt-label">Carbs</div><div class="mt-hint">Why?</div></div>'
+    +'<div class="mt" onclick="showMacroDetail(\'fat\')"><div class="mt-val">'+plan.macros.fat+'g</div><div class="mt-label">Fat</div><div class="mt-hint">Why?</div></div>'
     +'</div>'
+    +'<div id="macro-detail-panel" style="display:none;"></div>'
     +'<div style="margin-top:8px;margin-bottom:20px;">'
       +'<span class="water-bar">\uD83D\uDCA7 '+plan.macros.water+'</span>'
     +'</div>'

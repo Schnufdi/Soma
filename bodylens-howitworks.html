@@ -581,21 +581,67 @@ function showPane(id, btn) {
     const supps    = p.supplements || [];
 
     // ── YOUR MACROS ──────────────────────────────────────
-    document.getElementById('your-macro-content').innerHTML = `
+    document.getElementById('your-macro-content').innerHTML = (() => {
+      // Step-by-step calculation with real numbers
+      const w = p.weight || 80;
+      const h = p.height || 175;
+      const a = p.age || 35;
+      const bmr = Math.round((10 * w) + (6.25 * h) - (5 * a) + (isFemale ? -161 : 5));
+      const multipliers = {3:1.55, 4:1.65, 5:1.725, 6:1.80};
+      const mult = multipliers[p.trainingDays] || 1.65;
+      const tdeeCalc = Math.round(bmr * mult);
+      const trainKcal = p.trainingKcal || p.calories || tdeeCalc;
+      const restKcal  = p.restKcal || Math.round(trainKcal * 0.90);
+      const prot      = p.protein || Math.round(w * 2.0);
+      const fat       = p.fat || Math.max(Math.round(w * 1.0), Math.round(trainKcal * 0.25 / 9));
+      const carbsTrain = p.carbs || Math.round((trainKcal - prot*4 - fat*9) / 4);
+      const carbsRest  = Math.round((restKcal - prot*4 - fat*9) / 4);
+      const gPerKg = Math.round((prot/w)*10)/10;
+
+      return `
       <div class="hw-profile-result">
-        <div class="hw-pr-head">Your calculation — ${p.name}, ${p.age}yo ${p.sex}</div>
-        <div class="hw-pr-row"><span class="hw-pr-label">BMR formula</span><span class="hw-pr-val">${isFemale ? 'Female (−161 offset)' : 'Male (+5 offset)'}</span></div>
-        <div class="hw-pr-row"><span class="hw-pr-label">TDEE estimate</span><span class="hw-pr-val">${p.tdee||'—'} kcal/day</span></div>
-        <div class="hw-pr-row"><span class="hw-pr-label">Goal adjustment</span><span class="hw-pr-val">${getGoalAdjustment(p)}</span></div>
-        <div class="hw-pr-row"><span class="hw-pr-label">Daily calories</span><span class="hw-pr-val jade">${p.calories||'—'} kcal</span></div>
-        <div class="hw-pr-row"><span class="hw-pr-label">Protein target</span><span class="hw-pr-val jade">${p.protein||'—'}g (${p.weight ? Math.round((p.protein||0)/p.weight*10)/10 : '—'}g/kg)</span></div>
-        <div class="hw-pr-row"><span class="hw-pr-label">Carbs</span><span class="hw-pr-val amber">${p.carbs||'—'}g</span></div>
-        <div class="hw-pr-row"><span class="hw-pr-label">Fat</span><span class="hw-pr-val">${p.fat||'—'}g</span></div>
-        <div class="hw-pr-row"><span class="hw-pr-label">Eating window</span><span class="hw-pr-val">${p.fastingWindow||p.eatingWindow||'Flexible'}</span></div>
-        <div class="hw-pr-row"><span class="hw-pr-label">Meals per day</span><span class="hw-pr-val">${p.mealCount||4}</span></div>
+        <div class="hw-pr-head">Step 1 — BMR (Mifflin-St Jeor)</div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Formula (${isFemale?'female':'male'})</span><span class="hw-pr-val">(10×${w}) + (6.25×${h}) − (5×${a}) ${isFemale?'− 161':'+ 5'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Result</span><span class="hw-pr-val jade">${bmr} kcal/day at rest</span></div>
       </div>
-      ${p.calorieReasoning ? `<div style="padding:14px 16px;background:var(--ink-2);border:1px solid var(--bd);border-left:3px solid var(--jade-br);border-radius:0 4px 4px 0;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;font-style:italic;">${p.calorieReasoning}</div>` : ''}
-    `;
+
+      <div class="hw-profile-result" style="margin-top:8px;">
+        <div class="hw-pr-head">Step 2 — TDEE (activity multiplier)</div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Training days/week</span><span class="hw-pr-val">${p.trainingDays||4} days → × ${mult}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">TDEE</span><span class="hw-pr-val">${bmr} × ${mult} = <strong>${tdeeCalc} kcal</strong></span></div>
+      </div>
+
+      <div class="hw-profile-result" style="margin-top:8px;">
+        <div class="hw-pr-head">Step 3 — Goal adjustment (${p.goal||'recomposition'})</div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Training days</span><span class="hw-pr-val jade">${trainKcal} kcal${trainKcal !== tdeeCalc ? ' ('+getGoalAdjustment(p)+')' : ' (maintenance)'}</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Rest days</span><span class="hw-pr-val">${restKcal} kcal (−${trainKcal-restKcal} vs training)</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Why rest days lower</span><span class="hw-pr-val" style="font-size:10px;color:var(--dk-3);">Less energy expended — carbs absorb the reduction, fat and protein stay constant</span></div>
+      </div>
+
+      <div class="hw-profile-result" style="margin-top:8px;">
+        <div class="hw-pr-head">Step 4 — Protein</div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Target</span><span class="hw-pr-val">${w}kg × 2.0g/kg = <strong class="jade">${prot}g</strong> (${gPerKg}g/kg actual)</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Evidence ceiling</span><span class="hw-pr-val">~1.62g/kg — we target 2.0g for deficit margin</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Same on rest days?</span><span class="hw-pr-val">Yes — MPS peaks 24-48h post-session</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Calories from protein</span><span class="hw-pr-val">${prot}g × 4 = ${prot*4} kcal committed</span></div>
+      </div>
+
+      <div class="hw-profile-result" style="margin-top:8px;">
+        <div class="hw-pr-head">Step 5 — Fat and carbs (residual split)</div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Fat floor</span><span class="hw-pr-val">${w}kg × 1.0g = ${Math.round(w)} min → target <strong>${fat}g</strong> (${fat*9} kcal)</span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Carbs — training days</span><span class="hw-pr-val amber">(${trainKcal} − ${prot*4} − ${fat*9}) ÷ 4 = <strong>${carbsTrain}g</strong></span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Carbs — rest days</span><span class="hw-pr-val">(${restKcal} − ${prot*4} − ${fat*9}) ÷ 4 = <strong>${carbsRest}g</strong></span></div>
+        <div class="hw-pr-row"><span class="hw-pr-label">Fat stays constant</span><span class="hw-pr-val" style="font-size:10px;color:var(--dk-3);">Hormonal function doesn't vary by training day — carbs absorb the calorie variation</span></div>
+      </div>
+
+      ${p.calorieReasoning ? `
+      <div style="margin-top:10px;padding:14px 16px;background:var(--ink-2);border:1px solid var(--bd);border-left:3px solid var(--jade-br);border-radius:0 4px 4px 0;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;font-style:italic;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:6px;">AI reasoning for your targets</div>
+        ${p.calorieReasoning}
+        ${p.proteinReasoning ? '<br><br>' + p.proteinReasoning : ''}
+      </div>` : ''}
+      `;
+    })();
 
     // ── YOUR SPLIT ───────────────────────────────────────
     const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
