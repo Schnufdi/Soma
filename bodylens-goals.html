@@ -133,6 +133,242 @@
 .gt-action-btn.primary { background:var(--jade); border:none; color:var(--ink); }
 .gt-action-btn.secondary { background:transparent; border:1px solid var(--bd); color:var(--dk-2); }
 .gt-action-btn.secondary:hover { border-color:rgba(0,200,160,.3); color:var(--jade); }
+
+/* ── Progression bridge ──────────────────────────────────── */
+.gt-bridge {
+  margin-top: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.gt-bridge-hd {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.gt-bridge-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--dk-1);
+  line-height: 1.1;
+}
+.gt-save-plan-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,200,160,.3);
+  background: rgba(0,200,160,.07);
+  color: var(--jade);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .15s;
+  white-space: nowrap;
+}
+.gt-save-plan-btn:hover { background: rgba(0,200,160,.14); }
+.gt-save-plan-btn.saved { background: rgba(0,200,160,.12); border-color: var(--jade); cursor: default; }
+
+/* Phase track */
+.gt-phase-track {
+  position: relative;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+}
+.gt-phase-spine {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  right: 22px;
+  height: 2px;
+  background: rgba(255,255,255,.07);
+  border-radius: 1px;
+}
+.gt-phase-fill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  background: linear-gradient(to right, var(--jade), rgba(0,200,160,.3));
+  border-radius: 1px;
+  width: 0%;
+  transition: width .8s ease;
+}
+.gt-phase-nodes {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+.gt-phase-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  flex: 1;
+  max-width: 120px;
+}
+.gt-phase-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.12);
+  background: var(--ink-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dk-3);
+  transition: all .2s;
+  margin-bottom: 8px;
+  position: relative;
+}
+.gt-phase-node.current .gt-phase-dot {
+  border-color: var(--jade);
+  background: rgba(0,200,160,.08);
+  color: var(--jade);
+  box-shadow: 0 0 0 4px rgba(0,200,160,.1);
+}
+.gt-phase-node.target .gt-phase-dot {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: rgba(196,124,24,.06);
+}
+.gt-phase-node.active .gt-phase-dot {
+  border-color: rgba(255,255,255,.3);
+  color: var(--dk-1);
+  background: rgba(255,255,255,.06);
+}
+.gt-phase-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--dk-3);
+  text-align: center;
+  line-height: 1.3;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.gt-phase-node.current .gt-phase-name { color: var(--jade); }
+.gt-phase-node.target .gt-phase-name { color: var(--amber); }
+.gt-phase-node.active .gt-phase-name { color: var(--dk-1); }
+.gt-phase-time {
+  font-size: 9px;
+  font-weight: 300;
+  color: var(--dk-3);
+  margin-top: 2px;
+  text-align: center;
+}
+
+/* Phase detail card */
+.gt-phase-detail {
+  background: var(--ink-1);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 8px;
+  display: none;
+  animation: fadeUp .2s ease;
+}
+.gt-phase-detail.show { display: block; }
+.gt-phase-detail-hd {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+.gt-phase-detail-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--dk-1);
+  line-height: 1.2;
+}
+.gt-phase-detail-sub {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-3);
+  margin-top: 3px;
+}
+.gt-phase-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.gt-phase-badge.now  { background: rgba(0,200,160,.1); color: var(--jade); border: 1px solid rgba(0,200,160,.25); }
+.gt-phase-badge.next { background: rgba(255,255,255,.05); color: var(--dk-3); border: 1px solid rgba(255,255,255,.1); }
+.gt-phase-badge.goal { background: rgba(196,124,24,.1); color: var(--amber); border: 1px solid rgba(196,124,24,.25); }
+
+/* Target grids */
+.gt-targets-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.gt-target-block {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.gt-target-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  margin-bottom: 6px;
+}
+.gt-target-label.jade { color: var(--jade); }
+.gt-target-label.amber { color: var(--amber); }
+.gt-target-items { display: flex; flex-direction: column; gap: 4px; }
+.gt-target-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.gt-target-item-key { font-weight: 300; color: var(--dk-3); }
+.gt-target-item-val { font-weight: 600; color: var(--dk-1); }
+.gt-target-item-val.jade { color: var(--jade); }
+.gt-target-item-val.amber { color: var(--amber); }
+
+/* Training focus in phase */
+.gt-phase-focus {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.75;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-left: 2px solid rgba(0,200,160,.3);
+  background: rgba(0,200,160,.03);
+  border-radius: 0 6px 6px 0;
+}
+.gt-phase-milestone {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--jade);
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.gt-phase-milestone-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  margin-bottom: 4px;
+}
 </style>
 </head>
 <body>
@@ -402,7 +638,21 @@ async function gtRun() {
       + '    "foodStructure": "How nutrition needs to be structured — caloric periodisation, protein targets, meal timing relative to training.",\n'
       + '    "recoveryPriorities": "Top 2-3 recovery priorities given this gap.",\n'
       + '    "immediateShifts": ["The 3 most important changes to make in the next 4 weeks — specific, actionable"],\n'
-      + '    "timeline": "Honest timeline with phases — e.g. Phase 1 (months 1-4): X. Phase 2 (months 5-10): Y."\n'
+      + '    "timeline": "Honest timeline with phases — e.g. Phase 1 (months 1-4): X. Phase 2 (months 5-10): Y.",\n'
+      + '    "phases": [\n'
+      + '      {\n'
+      + '        "id": "phase-1",\n'
+      + '        "name": "Phase name e.g. Foundation",\n'
+      + '        "timeframe": "e.g. Weeks 1-12",\n'
+      + '        "focus": "2 sentences. What this phase is building. The specific adaptations targeted.",\n'
+      + '        "bodyComposition": { "bodyFatTarget": "e.g. 17-18%", "weightTarget": "e.g. 85-87kg" },\n'
+      + '        "strengthTargets": [{ "lift": "lift name", "target": "e.g. 100kg x6", "current": "e.g. 80kg x8" }],\n'
+      + '        "trainingStructure": "Sessions per week, volume, intensity range (RPE), key movements to prioritise.",\n'
+      + '        "nutritionTarget": { "calories": "e.g. 2600-2800 training / 2300 rest", "protein": "e.g. 170g daily minimum" },\n'
+      + '        "weeklyTarget": "The single most important metric to hit every week in this phase.",\n'
+      + '        "successSignal": "How you know this phase is complete and you are ready to move to the next."\n'
+      + '      }\n'
+      + '    ]\n'
       + '  }\n'
       + '}\n'
       + 'Return ONLY valid JSON. No markdown. Be specific — reference actual numbers, muscle groups, movements. This is an analytical document not a motivational one.';
@@ -411,7 +661,7 @@ async function gtRun() {
 
     var res = await fetch(API, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:MODEL, max_tokens:2500, messages:[{ role:'user', content:contentParts }] })
+      body: JSON.stringify({ model:MODEL, max_tokens:4000, messages:[{ role:'user', content:contentParts }] })
     });
     if (!res.ok) throw new Error('API '+res.status);
     var data = await res.json();
@@ -454,6 +704,207 @@ async function gtRun() {
   }
 }
 
+
+// ── Progression bridge renderer ──────────────────────────────
+var _activePhase = 0;
+var _savedPhases = null;
+
+function gtRenderBridge(phases, immediateShifts, fullResult) {
+  _savedPhases = phases;
+
+  // Build the node track
+  var nodesHtml = '<div class="gt-phase-track">'
+    + '<div class="gt-phase-spine"><div class="gt-phase-fill" id="gt-phase-fill" style="width:0%"></div></div>'
+    + '<div class="gt-phase-nodes" id="gt-phase-nodes">';
+
+  // Prepend "Now" node
+  var allNodes = [{
+    id: 'now', name: 'Now', timeframe: 'Today', isCurrent: true,
+  }].concat(phases).concat([{
+    id: 'goal', name: 'Goal', timeframe: 'Target', isGoal: true,
+  }]);
+
+  allNodes.forEach(function(ph, i) {
+    var cls = ph.isCurrent ? 'current' : ph.isGoal ? 'target' : '';
+    nodesHtml += '<div class="gt-phase-node ' + cls + '" onclick="gtShowPhase(' + i + ')">'
+      + '<div class="gt-phase-dot">' + (ph.isCurrent ? 'NOW' : ph.isGoal ? 'GOAL' : 'P' + i) + '</div>'
+      + '<div class="gt-phase-name">' + (ph.name||'') + '</div>'
+      + '<div class="gt-phase-time">' + (ph.timeframe||'') + '</div>'
+    + '</div>';
+  });
+  nodesHtml += '</div></div>';
+
+  // Phase detail panel (shows Phase 1 by default)
+  var detailHtml = '<div class="gt-phase-detail show" id="gt-phase-detail">'
+    + gtBuildPhaseCard(phases[0], 0, allNodes)
+  + '</div>';
+
+  var bridgeHtml = '<div class="gt-bridge">'
+    + '<div class="gt-bridge-hd">'
+      + '<div>'
+        + '<div class="gt-stage-num">Your progression map</div>'
+        + '<div class="gt-bridge-title">From where you are<br>to where you're going.</div>'
+      + '</div>'
+      + '<button class="gt-save-plan-btn" id="gt-save-btn" onclick="gtSavePlan()">Save as goal plan &#8594;</button>'
+    + '</div>'
+    + nodesHtml
+    + detailHtml;
+
+  // Immediate shifts
+  if (immediateShifts && immediateShifts.length) {
+    bridgeHtml += '<div style="margin-top:20px;">'
+      + '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:10px;">Start here — next 4 weeks</div>'
+      + immediateShifts.map(function(shift, i) {
+          return '<div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+            + '<div style="width:22px;height:22px;border-radius:50%;background:var(--jade);color:var(--ink);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + (i+1) + '</div>'
+            + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;">' + shift + '</div>'
+          + '</div>';
+        }).join('')
+    + '</div>';
+  }
+
+  bridgeHtml += '</div>';
+  return bridgeHtml;
+}
+
+function gtBuildPhaseCard(ph, phaseIdx, allNodes) {
+  if (!ph) return '';
+  var isCurrent = ph.isCurrent;
+  var isGoal = ph.isGoal;
+  var badgeCls = isCurrent ? 'now' : isGoal ? 'goal' : 'next';
+  var badgeLabel = isCurrent ? 'Where you are' : isGoal ? 'Target' : 'Phase ' + phaseIdx;
+
+  var html = '<div class="gt-phase-detail-hd">'
+    + '<div>'
+      + '<div class="gt-phase-detail-title">' + (ph.name||'') + '</div>'
+      + '<div class="gt-phase-detail-sub">' + (ph.timeframe||'') + '</div>'
+    + '</div>'
+    + '<div class="gt-phase-badge ' + badgeCls + '">' + badgeLabel + '</div>'
+  + '</div>';
+
+  if (ph.focus) {
+    html += '<div class="gt-phase-focus">' + ph.focus + '</div>';
+  }
+
+  // Targets grid
+  html += '<div class="gt-targets-grid">';
+
+  // Body composition
+  if (ph.bodyComposition) {
+    var bc = ph.bodyComposition;
+    html += '<div class="gt-target-block">'
+      + '<div class="gt-target-label amber">Body composition</div>'
+      + '<div class="gt-target-items">'
+        + (bc.bodyFatTarget ? '<div class="gt-target-item"><span class="gt-target-item-key">Body fat</span><span class="gt-target-item-val amber">' + bc.bodyFatTarget + '</span></div>' : '')
+        + (bc.weightTarget ? '<div class="gt-target-item"><span class="gt-target-item-key">Weight</span><span class="gt-target-item-val">' + bc.weightTarget + '</span></div>' : '')
+      + '</div>'
+    + '</div>';
+  }
+
+  // Nutrition
+  if (ph.nutritionTarget) {
+    var nt = ph.nutritionTarget;
+    html += '<div class="gt-target-block">'
+      + '<div class="gt-target-label amber">Nutrition</div>'
+      + '<div class="gt-target-items">'
+        + (nt.calories ? '<div class="gt-target-item"><span class="gt-target-item-key">Calories</span><span class="gt-target-item-val">' + nt.calories + '</span></div>' : '')
+        + (nt.protein ? '<div class="gt-target-item"><span class="gt-target-item-key">Protein</span><span class="gt-target-item-val jade">' + nt.protein + '</span></div>' : '')
+      + '</div>'
+    + '</div>';
+  }
+
+  html += '</div>'; // close targets-grid
+
+  // Strength targets
+  if (ph.strengthTargets && ph.strengthTargets.length) {
+    html += '<div class="gt-target-block" style="margin-bottom:10px;">'
+      + '<div class="gt-target-label jade">Strength targets</div>'
+      + '<div class="gt-target-items">';
+    ph.strengthTargets.forEach(function(st) {
+      html += '<div class="gt-target-item">'
+        + '<span class="gt-target-item-key">' + (st.lift||'') + '</span>'
+        + '<div style="display:flex;gap:8px;align-items:center;">'
+          + (st.current ? '<span style="font-size:10px;font-weight:300;color:var(--dk-3);">' + st.current + '</span>' : '')
+          + (st.current && st.target ? '<span style="color:rgba(255,255,255,.15);font-size:10px;">&rarr;</span>' : '')
+          + '<span class="gt-target-item-val jade">' + (st.target||'') + '</span>'
+        + '</div>'
+      + '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Training structure
+  if (ph.trainingStructure) {
+    html += '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;margin-bottom:10px;">' + ph.trainingStructure + '</div>';
+  }
+
+  // Success signal
+  if (ph.successSignal) {
+    html += '<div class="gt-phase-milestone">'
+      + '<div class="gt-phase-milestone-label">Ready for next phase when</div>'
+      + ph.successSignal
+    + '</div>';
+  }
+
+  // Weekly target
+  if (ph.weeklyTarget) {
+    html += '<div style="margin-top:10px;padding:9px 12px;background:rgba(0,200,160,.04);border:1px solid rgba(0,200,160,.1);border-radius:8px;font-size:11px;font-weight:300;color:var(--dk-2);">&#127919; Weekly target: <strong style="color:var(--jade);">' + ph.weeklyTarget + '</strong></div>';
+  }
+
+  return html;
+}
+
+function gtShowPhase(nodeIdx) {
+  if (!_savedPhases) return;
+  _activePhase = nodeIdx;
+
+  // Build allNodes the same way as in gtRenderBridge
+  var allNodes = [{id:'now', name:'Now', timeframe:'Today', isCurrent:true}]
+    .concat(_savedPhases)
+    .concat([{id:'goal', name:'Goal', timeframe:'Target', isGoal:true}]);
+
+  var ph = allNodes[nodeIdx];
+  var detail = document.getElementById('gt-phase-detail');
+  if (detail) {
+    detail.innerHTML = gtBuildPhaseCard(ph, nodeIdx, allNodes);
+    detail.classList.add('show');
+  }
+
+  // Update node active states
+  var nodes = document.querySelectorAll('.gt-phase-node');
+  nodes.forEach(function(n, i) {
+    n.classList.toggle('active', i === nodeIdx && !n.classList.contains('current') && !n.classList.contains('target'));
+    // Bold the selected node
+    n.style.fontWeight = i === nodeIdx ? '700' : '';
+  });
+
+  // Animate fill bar to show progress
+  var fill = document.getElementById('gt-phase-fill');
+  if (fill) fill.style.width = Math.round((nodeIdx / (allNodes.length-1)) * 100) + '%';
+}
+
+function gtSavePlan() {
+  if (!_savedPhases || !_p) return;
+  _p.goalPlan = {
+    savedAt: new Date().toISOString(),
+    phases: _savedPhases,
+    source: 'goal-translation',
+  };
+  try { localStorage.setItem('bl_profile', JSON.stringify(_p)); } catch(e) {}
+  var btn = document.getElementById('gt-save-btn');
+  if (btn) { btn.textContent = '\u2713 Saved as goal plan'; btn.className = 'gt-save-plan-btn saved'; }
+
+  // Also push the first phase targets as the active focus into gapBridge
+  var ph1 = _savedPhases[0];
+  if (ph1) {
+    _p.gapBridge = _p.gapBridge || {};
+    _p.gapBridge.currentPhase = ph1.name;
+    _p.gapBridge.weeklyFocus = ph1.weeklyTarget || '';
+    _p.gapBridge.phaseMilestone = ph1.successSignal || '';
+    _p.gapBridge.strengthTargets = ph1.strengthTargets || [];
+    try { localStorage.setItem('bl_profile', JSON.stringify(_p)); } catch(e) {}
+  }
+}
 function gtRenderResult(r) {
   var el = document.getElementById('gt-result');
 
