@@ -6,19 +6,17 @@
   <div class="nav-brand">Body<em>Lens</em></div>
   <div class="nav-links">
     <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
-    <a class="nav-link" href="/bodylens-plan.html">Plan</a>
-    <a class="nav-link" href="/bodylens-food.html">Food</a>
-    <a class="nav-link" href="/bodylens-meals.html">Meals</a>
-    <a class="nav-link" href="/bodylens-fridge.html">Fridge</a>
-    <a class="nav-link" href="/bodylens-science.html">Science</a>
-    <a class="nav-link" href="/bodylens-supplements.html">Stack</a>
-    <a class="nav-link" href="/bodylens-accelerators.html">Accelerators</a>
-    <a class="nav-link" href="/bodylens-bodymapper.html">Body Mapper</a>
-    <a class="nav-link" href="/bodylens-goals.html">Goals</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
     <a class="nav-link" href="/bodylens-checkin.html">Week</a>
-    <a class="nav-link" href="/bodylens-podcast.html">Podcast</a>
-    <a class="nav-link" href="/bodylens-instructions.html">Report</a>
+    <span class="nav-divider"></span>
+    <a class="nav-link" href="/bodylens-food.html">Food</a>
+    <a class="nav-link" href="/bodylens-meals.html">Meals</a>
+    <a class="nav-link" href="/bodylens-supplements.html">Stack</a>
+    <a class="nav-link" href="/bodylens-goals.html">Goals</a>
+    <span class="nav-divider"></span>
+    <a class="nav-link nav-inform" href="/bodylens-science.html">Science</a>
+    <a class="nav-link nav-inform" href="/bodylens-accelerators.html">Accelerators</a>
+    <a class="nav-link nav-inform" href="/bodylens-bodymapper.html">Body Mapper</a>
   </div>
   <div class="nav-right-group">
     <a class="nav-right" href="/bodylens-guide.html">Guide</a>
@@ -45,23 +43,21 @@
     <div class="mm-brand">Body<em>Lens</em></div>
     <button class="mm-close" onclick="closeMobileMenu()">&#10005;</button>
   </div>
-  <div class="mm-section-label">Daily</div>
+  <div class="mm-section-label">Execution</div>
   <a class="mm-link" href="/bodylens-dailyplan.html">Today</a>
-  <a class="mm-link" href="/bodylens-plan.html">Plan</a>
+  <a class="mm-link" href="/bodylens-programme.html">My programme</a>
   <a class="mm-link" href="/bodylens-checkin.html">Week review</a>
   <div class="mm-section-label">Food</div>
   <a class="mm-link" href="/bodylens-food.html">Food hub</a>
   <a class="mm-link" href="/bodylens-meals.html">Meal planner</a>
-  <a class="mm-link" href="/bodylens-fridge.html">Fridge overhaul</a>
-  <div class="mm-section-label">Optimise</div>
-  <a class="mm-link" href="/bodylens-accelerators.html">Accelerators</a>
+  <a class="mm-link" href="/bodylens-fridge.html">Fridge</a>
+  <div class="mm-section-label">Stack &amp; Goals</div>
   <a class="mm-link" href="/bodylens-supplements.html">Stack</a>
+  <a class="mm-link" href="/bodylens-goals.html">Goals</a>
   <a class="mm-link" href="/bodylens-bodymapper.html">Body Mapper</a>
-  <a class="mm-link" href="/bodylens-science.html">Science</a>
-  <div class="mm-section-label">Programme</div>
-  <a class="mm-link" href="/bodylens-programme.html">My programme</a>
-  <a class="mm-link" href="/bodylens-podcast.html">Podcast</a>
-  <a class="mm-link" href="/bodylens-instructions.html">Report</a>
+  <div class="mm-section-label mm-inform-label">Inform &amp; Optimise</div>
+  <a class="mm-link mm-inform" href="/bodylens-science.html">Science</a>
+  <a class="mm-link mm-inform" href="/bodylens-accelerators.html">Accelerators</a>
   <div class="mm-section-label">More</div>
   <a class="mm-link" href="/bodylens-guide.html">Guide</a>
   <a class="mm-link" href="/bodylens-howitworks.html">How it works</a>

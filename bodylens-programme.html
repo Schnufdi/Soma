@@ -295,6 +295,51 @@ if (!profile) {
   render(profile);
 }
 
+
+function buildNutritionNarrative(p) {
+  const weight = p.weight || 87;
+  const goal = (p.goal || '').toLowerCase();
+  const isRecomp = goal.includes('recomp');
+  const isLoss = goal.includes('loss') || goal.includes('cut');
+  const isMuscle = goal.includes('muscle') || goal.includes('bulk') || goal.includes('gain');
+  const trainingDays = p.trainingDays || 4;
+  const tdee = p.tdee || Math.round(weight * 28);
+  const trainingKcal = p.trainingKcal || p.calories || tdee;
+  const restKcal = p.restKcal || Math.round(trainingKcal * 0.9);
+  const protein = p.protein || Math.round(weight * 2.0);
+  const fat = p.fat || Math.round(trainingKcal * 0.28 / 9);
+  const carbs = p.carbs || Math.round((trainingKcal - (protein * 4) - (fat * 9)) / 4);
+
+  const deficit = tdee - trainingKcal;
+  const deficitLine = deficit > 50
+    ? `${deficit} kcal below TDEE — a controlled deficit that preserves muscle while reducing fat.`
+    : deficit < -50
+    ? `${Math.abs(deficit)} kcal above TDEE — a modest surplus that supports muscle synthesis.`
+    : `At maintenance — supporting recomposition without a clear deficit or surplus.`;
+
+  const proteinRationale = protein >= weight * 2.0
+    ? `${protein}g is set at 2g per kg of bodyweight — the minimum threshold for muscle preservation during a deficit. At ${weight}kg, this is non-negotiable.`
+    : `${protein}g provides sufficient amino acid availability for your training volume. Every gram above 1.6g per kg adds marginal benefit — this sits at the practical optimum.`;
+
+  const carbRationale = isRecomp || isLoss
+    ? `${carbs}g of carbohydrates are timed around training to fuel performance without excess — higher on training days to refuel muscle glycogen, lower on rest days.`
+    : `${carbs}g provides fuel for ${trainingDays} weekly training sessions. Carbohydrates are your primary performance substrate — this allocation reflects your training load.`;
+
+  const fatRationale = `${fat}g of dietary fat covers hormonal production (testosterone, cortisol regulation) and fat-soluble vitamin absorption. Below 0.7g/kg and hormonal function is compromised.`;
+
+  const trainingVsRest = (trainingKcal !== restKcal)
+    ? `<br><strong>Training days:</strong> ${trainingKcal} kcal &nbsp;·&nbsp; <strong>Rest days:</strong> ${restKcal} kcal — periodised to match energy expenditure.`
+    : '';
+
+  return `<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;">Why these numbers</div>
+    <div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.8;">
+      <div style="margin-bottom:8px;"><strong style="color:var(--dk-1);font-weight:600;">Calories — ${trainingKcal} kcal</strong><br>${deficitLine}${trainingVsRest}</div>
+      <div style="margin-bottom:8px;"><strong style="color:var(--jade);font-weight:600;">Protein — ${protein}g</strong><br>${proteinRationale}</div>
+      <div style="margin-bottom:8px;"><strong style="color:var(--amber);font-weight:600;">Carbs — ${carbs}g</strong><br>${carbRationale}</div>
+      <div><strong style="color:var(--dk-2);font-weight:600;">Fat — ${fat}g</strong><br>${fatRationale}</div>
+    </div>`;
+}
+
 function render(p) {
   const injuries  = p.injuryAssessments || [];
   const supps     = p.supplements || [];
@@ -314,7 +359,8 @@ function render(p) {
       <div class="prog-hero-actions">
         <div class="prog-meta">Generated ${genDate}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <a href="bodylens-day.html" class="prog-btn jade">Today's plan →</a>
+          <a href="bodylens-dailyplan.html" class="prog-btn jade">Today's plan →</a>
+          <a href="bodylens-checkin.html" class="prog-btn" style="background:transparent;border:1px solid var(--bd);color:var(--dk-2);">Week review →</a>
           <button onclick="location.href='bodylens-reset.html'" class="prog-btn red">Reset</button>
         </div>
       </div>
@@ -351,9 +397,9 @@ function render(p) {
       <button class="prog-tab active" onclick="switchTab('overview',this)">Overview</button>
       <button class="prog-tab" onclick="switchTab('week',this)">Week plan</button>
       <button class="prog-tab" onclick="switchTab('nutrition',this)">Nutrition</button>
-      <button class="prog-tab" onclick="switchTab('supplements',this)">Supplements</button>
+      <button class="prog-tab" onclick="switchTab('supplements',this)">Stack</button>
       ${injuries.length ? `<button class="prog-tab" onclick="switchTab('injuries',this)">Injuries</button>` : ''}
-      <button class="prog-tab" onclick="switchTab('instructions',this)">Instructions</button>
+      <button class="prog-tab" onclick="switchTab('instructions',this)">Coaching brief</button>
       <button class="prog-tab" onclick="switchTab('notes',this)">Optimise</button>
       <button class="prog-tab" onclick="switchTab('data',this)">Data</button>
       <button class="prog-tab" onclick="switchTab('settings',this)">Settings</button>
@@ -572,7 +618,9 @@ function render(p) {
           <div class="prog-macro"><div class="prog-macro-val amber">${p.carbs||'—'}g</div><div class="prog-macro-label">Carbs</div></div>
           <div class="prog-macro"><div class="prog-macro-val slate">${p.fat||'—'}g</div><div class="prog-macro-label">Fat</div></div>
         </div>
-        ${p.calorieReasoning?`<div style="padding:14px 18px;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;font-style:italic;border-top:1px solid var(--bd);">${p.calorieReasoning}</div>`:''}
+        <div style="padding:14px 18px;border-top:1px solid var(--bd);">
+          ${buildNutritionNarrative(p)}
+        </div>
         <div class="prog-row"><span class="prog-row-label">TDEE</span><span class="prog-row-val">${p.tdee||'—'} kcal</span></div>
         <div class="prog-row"><span class="prog-row-label">Eating window</span><span class="prog-row-val">${p.fastingWindow||p.eatingWindow||'Flexible'}</span></div>
         <div class="prog-row"><span class="prog-row-label">Meals / day</span><span class="prog-row-val">${p.mealCount||4}</span></div>

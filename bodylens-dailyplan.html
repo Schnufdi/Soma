@@ -4589,10 +4589,7 @@ function renderPlan(plan, browsing){
         + '<div class="ed-eod-row"><span class="ed-eod-key">Supplements taken</span><span class="ed-eod-val">'+suppsDone+' / '+allSupps.length+'</span></div>'
         + (swaps.length ? '<div class="ed-eod-row"><span class="ed-eod-key">Substituted</span><span class="ed-eod-val">' + swaps.length + ' item'+( swaps.length>1?'s':'')+'</span></div>' : '')
         + '<textarea class="ed-notes-inp" rows="2" placeholder="Notes for tomorrow..." onchange="edSaveNotes(this.value)" onblur="edSaveNotes(this.value)">' + savedNotes + '</textarea>'
-        + '<div class="ed-eod-score">'
-          + '<div class="ed-eod-score-num" id="ed-score-num">' + score + '</div>'
-          + '<div class="ed-eod-score-label">Day score</div>'
-        + '</div>'
+        + '<div class="ed-eod-score">'          + '<div class="ed-eod-score-num" id="ed-score-num">' + score + '</div>'          + '<div class="ed-eod-score-label">Day score / 100</div>'          + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:8px;line-height:1.6;" id="ed-score-breakdown">' + edScoreBreakdown(log, mealBlocks, allSupps) + '</div>'        + '</div>'
         + '<button class="ed-save-day-btn" onclick="edSaveDay()">Save &amp; log this day \u2192</button>'
       + '</div>'
     + '</div>';
@@ -4803,23 +4800,138 @@ function edUpdateStrip(log) {
   var valEl = document.querySelector('.ed-strip-item:last-child .ed-strip-val');
   if (valEl) valEl.textContent = pct+'%';
   // Update score
-  var score = edCalcScore(log, [], []);
+  var score = edCalcScore(log,
+    (window._blocks||[]).filter(function(b){return !!b.mealSlot;}),
+    (P&&P.supplements||[]));
   var scoreEl = document.getElementById('ed-score-num');
   if (scoreEl) scoreEl.textContent = score;
+  var breakdownEl = document.getElementById('ed-score-breakdown');
+  if (breakdownEl) breakdownEl.textContent = edScoreBreakdown(log,
+    (window._blocks||[]).filter(function(b){return !!b.mealSlot;}),
+    (P&&P.supplements||[]));
+}
+
+
+function edScoreBreakdown(log, mealBlocks, allSupps) {
+  var p = P || {};
+  var isTraining = TODAY && TODAY.isTraining;
+  var parts = [];
+
+  // Training
+  if (isTraining) {
+    if (log.trainStatus === 'done') parts.push('Training ✓');
+    else if (log.trainStatus === 'modified') parts.push('Training ~');
+    else parts.push('Training —');
+  }
+
+  // Protein
+  var proteinTarget = p.protein || 0;
+  var proteinEaten = (log.actual && log.actual.prot) || (MACROS && MACROS.eaten && (MACROS.eaten.prot || MACROS.eaten.protein)) || 0;
+  if (proteinTarget > 0) {
+    var protPct = Math.round(Math.min(100, (proteinEaten / proteinTarget) * 100));
+    parts.push(proteinEaten + 'g / ' + proteinTarget + 'g protein (' + protPct + '%)');
+  }
+
+  // Meals
+  var mealsLogged = log.meals ? Object.keys(log.meals).filter(function(k){ return log.meals[k]&&(log.meals[k].logged||log.meals[k].actual); }).length : 0;
+  var mealCount = mealBlocks ? mealBlocks.length : 3;
+  parts.push(mealsLogged + '/' + mealCount + ' meals');
+
+  // Sleep
+  if (log.sleepActual) parts.push(log.sleepActual + 'h sleep');
+
+  // Cardio bonus
+  if (log.cardioLogged && log.cardioLogged.name) parts.push(log.cardioLogged.name + ' +5');
+
+  return parts.join(' · ');
 }
 
 function edCalcScore(log, mealBlocks, allSupps) {
-  var score = 50; // base
-  if (log.trainStatus==='done') score += 25;
-  else if (log.trainStatus==='modified') score += 15;
-  else if (log.trainStatus==='skipped') score -= 10;
-  if (log.sleepActual) score += log.sleepActual >= 7 ? 10 : log.sleepActual >= 6 ? 5 : 0;
-  if (log.meals) {
-    var mCount = Object.keys(log.meals).filter(function(k){ return log.meals[k]&&log.meals[k].logged; }).length;
-    score += Math.min(15, mCount * 5);
+  // ── 100-point day score ─────────────────────────────────
+  // Every target for the day has a defined weight.
+  // Score = sum of achieved targets / sum of possible targets × 100
+  //
+  // Distribution (training day):
+  //   Training completed    : 35 pts
+  //   Protein target hit    : 25 pts
+  //   Meals followed        : 20 pts  (÷ meal count)
+  //   Supplements taken     : 10 pts
+  //   Sleep ≥ 7h logged     : 10 pts
+  //   Bonus: cardio done    :  5 pts (over 100 cap)
+
+  var p = P || {};
+  var isTraining = TODAY && TODAY.isTraining;
+
+  var earned = 0;
+  var possible = 0;
+
+  // ── Training (35 pts) ───────────────────────────────────
+  if (isTraining) {
+    possible += 35;
+    if (log.trainStatus === 'done')         earned += 35;
+    else if (log.trainStatus === 'modified') earned += 22; // partial credit
+    else if (log.trainStatus === 'skipped')  earned += 0;
+    // Rest day: training block doesn't apply — skip this category
   }
-  return Math.min(100, Math.max(0, score));
+
+  // ── Protein target (25 pts) ─────────────────────────────
+  // Read from log.actual (synced from MACROS) or from MACROS directly
+  possible += 25;
+  var proteinTarget = p.protein || 0;
+  var proteinEaten = 0;
+  if (log.actual && log.actual.prot) {
+    proteinEaten = log.actual.prot;
+  } else if (MACROS && MACROS.eaten) {
+    proteinEaten = MACROS.eaten.prot || MACROS.eaten.protein || 0;
+  }
+  if (proteinTarget > 0 && proteinEaten > 0) {
+    var protPct = Math.min(1, proteinEaten / proteinTarget);
+    earned += Math.round(25 * protPct);
+  }
+
+  // ── Meals followed (20 pts, split across planned meals) ──
+  var mealCount = mealBlocks ? mealBlocks.length : 3;
+  if (mealCount > 0) {
+    possible += 20;
+    var ptsPerMeal = 20 / mealCount;
+    var mealsLogged = 0;
+    if (log.meals) {
+      mealsLogged = Object.keys(log.meals).filter(function(k) {
+        return log.meals[k] && (log.meals[k].logged || log.meals[k].actual);
+      }).length;
+    }
+    earned += Math.round(ptsPerMeal * Math.min(mealCount, mealsLogged));
+  }
+
+  // ── Supplements (10 pts) ────────────────────────────────
+  var totalSupps = allSupps ? allSupps.length : (p.supplements ? p.supplements.length : 0);
+  if (totalSupps > 0) {
+    possible += 10;
+    var suppLog = log.suppLog || {};
+    var suppsDone = Object.keys(suppLog).filter(function(k) { return suppLog[k]; }).length;
+    earned += Math.round(10 * Math.min(1, suppsDone / totalSupps));
+  }
+
+  // ── Sleep (10 pts) ──────────────────────────────────────
+  possible += 10;
+  if (log.sleepActual) {
+    if (log.sleepActual >= 7)      earned += 10;
+    else if (log.sleepActual >= 6) earned += 6;
+    else if (log.sleepActual >= 5) earned += 3;
+  }
+
+  // ── Bonus: cardio (5 pts, can push over 100) ────────────
+  var cardioBonus = 0;
+  if (log.cardioLogged && log.cardioLogged.name && log.cardioLogged.mins >= 15) {
+    cardioBonus = 5;
+  }
+
+  // ── Calculate final score ────────────────────────────────
+  if (possible === 0) return 0;
+  var raw = Math.round((earned / possible) * 100) + cardioBonus;
+  return Math.min(100, Math.max(0, raw));
 }
+
 
 function edSaveNotes(val) {
   var log = loadDayLog(_rDate) || initDayLog();
