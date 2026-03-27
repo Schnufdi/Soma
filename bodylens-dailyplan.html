@@ -2947,6 +2947,62 @@ body {
   color: rgba(220,100,80,.7);
   margin-right: 8px;
 }
+
+/* ── Guided voice CSS ─────────────────────────────────────── */
+.vlg-guided-hd {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.vlg-guided-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--dk-3); flex: 1;
+}
+.vlg-guided-progress {
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  flex-shrink: 0;
+}
+.vlg-guided-bar {
+  height: 3px; background: rgba(255,255,255,.07);
+  border-radius: 2px; overflow: hidden; margin-bottom: 16px;
+}
+.vlg-guided-bar-fill {
+  height: 100%; background: var(--jade);
+  border-radius: 2px; transition: width .4s ease;
+}
+.vlg-guided-q {
+  font-family: var(--serif); font-size: 17px; font-weight: 300;
+  color: var(--dk-1); line-height: 1.55; margin-bottom: 8px;
+}
+.vlg-guided-hint {
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  margin-bottom: 12px; font-style: italic;
+}
+.vlg-guided-log {
+  max-height: 100px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 3px;
+  margin-bottom: 4px;
+}
+.vlg-g-log-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 8px; background: var(--ink-2);
+  border-radius: 7px; font-size: 11px;
+  border: 1px solid rgba(255,255,255,.05);
+}
+.vlg-g-log-type {
+  font-size: 8px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--dk-3);
+  min-width: 44px; flex-shrink: 0;
+}
+.vlg-g-log-result { color: var(--dk-1); font-weight: 400; }
+.vlg-guided-trigger {
+  position: fixed; bottom: 136px; right: 14px;
+  font-size: 8px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--dk-3);
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px; padding: 4px 9px; cursor: pointer;
+  z-index: 200; transition: all .15s;
+}
+.vlg-guided-trigger:hover { color: var(--jade); border-color: rgba(0,200,160,.3); }
 </style>
 
 <script src="activitylog.js"></script>
@@ -5785,6 +5841,7 @@ function renderPlan(plan, browsing) {
     + '<line x1="8" y1="22" x2="16" y2="22"/>'
     + '</svg>'
   + '</div>'
+  + '<div id="vlg-guided-btn" class="vlg-guided-trigger" onclick="vlgGuidedStart()" title="Guided daily log">Log day</div>'
   + '<div class="vlg-modal" id="vlg-modal">'
     + '<div class="vlg-panel">'
       + '<div class="vlg-panel-hd">'
@@ -9203,6 +9260,458 @@ function vlgToast(results, transcript) {
   setTimeout(function() { toast.classList.remove('show'); }, 4000);
   _vlg.processing = false;
 }
+
+
+// ══════════════════════════════════════════════════════════════
+//  GUIDED VOICE LOGGING — structured daily interview
+//  Walks the user through each loggable item in today's plan
+// ══════════════════════════════════════════════════════════════
+
+var _vlgGuided = {
+  active: false,
+  steps: [],
+  stepIdx: 0,
+  stepAnswers: [],
+  recognition: null,
+  listening: false,
+};
+
+// Build the question sequence from today's blocks
+function vlgBuildSteps() {
+  var blocks = window._blocks || [];
+  var log = loadDayLog(_rDate) || {};
+  var p = P || {};
+  var steps = [];
+
+  blocks.forEach(function(block, idx) {
+    if (block.type === 'sleep') return;
+
+    if (block.type === 'training') {
+      steps.push({
+        blockIdx: idx,
+        type: 'training',
+        prompt: 'Training — ' + (block.title || 'session') + '. Did you complete the session? And how did it go?',
+        hint: 'Say "done", "skipped", "modified", or describe what you changed.',
+        field: 'trainStatus',
+      });
+      // Individual exercises if session done
+      var exercises = (block.exercises || []).filter(function(e){ return e !== 'Track loads'; });
+      exercises.forEach(function(exStr, ei) {
+        var px = { name: exStr.replace(/\d+x[\d\-]+(.*)/i,'').replace(/\s*\([^)]*\)/g,'').trim() };
+        steps.push({
+          blockIdx: idx,
+          type: 'exercise',
+          exIdx: ei,
+          exKey: 'ex_' + idx + '_' + ei,
+          prompt: px.name + ' — what weight did you use, and how many sets did you complete?',
+          hint: 'e.g. "100 kilos, 4 sets" or "bodyweight, got all sets"',
+          field: 'exercise',
+        });
+      });
+    }
+
+    if (block.mealSlot) {
+      var slotLabels = {
+        'pre-training': 'Pre-training meal',
+        'post-training': 'Post-training nutrition',
+        'midday': 'Midday meal',
+        'evening': 'Evening meal',
+      };
+      steps.push({
+        blockIdx: idx,
+        type: 'meal',
+        slot: block.mealSlot,
+        prompt: (slotLabels[block.mealSlot] || block.title) + ' — did you have it, and how much protein roughly?',
+        hint: 'e.g. "yes, about 50 grams" or "skipped it" or "had chicken and rice, around 45 grams"',
+        field: 'meal',
+      });
+    }
+
+    if (block.type === 'supp' || (block.type === 'recovery' && block.suppList && block.suppList.length)) {
+      var suppNames = (block.suppList || []).map(function(s){ return s.name || s; }).join(', ');
+      if (suppNames) {
+        steps.push({
+          blockIdx: idx,
+          type: 'supps',
+          suppList: block.suppList || [],
+          prompt: suppNames + ' — did you take them?',
+          hint: 'Say "yes", "all done", "forgot creatine", etc.',
+          field: 'supps',
+        });
+      }
+    }
+  });
+
+  // Add energy and sleep at the end
+  steps.push({
+    type: 'energy',
+    prompt: 'How is your energy today — high, medium, or low?',
+    hint: 'One to five, or just say high, medium, or low.',
+    field: 'energy',
+  });
+
+  steps.push({
+    type: 'notes',
+    prompt: 'Anything else to note for tomorrow — how you feel, what to adjust, anything to remember?',
+    hint: 'Or just say "nothing" to finish.',
+    field: 'notes',
+  });
+
+  return steps;
+}
+
+function vlgGuidedStart() {
+  _vlgGuided.steps = vlgBuildSteps();
+  _vlgGuided.stepIdx = 0;
+  _vlgGuided.stepAnswers = [];
+  _vlgGuided.active = true;
+
+  // Switch modal to guided mode
+  var modal = document.getElementById('vlg-modal');
+  var panel = document.getElementById('vlg-panel');
+  if (!modal || !panel) return;
+
+  panel.innerHTML = vlgGuidedBuildPanel();
+  modal.classList.add('open');
+
+  var micBtn = document.getElementById('vlg-mic-btn');
+  if (micBtn) micBtn.classList.add('listening');
+
+  vlgGuidedAskStep(0);
+}
+
+function vlgGuidedBuildPanel() {
+  var steps = _vlgGuided.steps;
+  var total = steps.length;
+  return '<div class="vlg-guided-hd">'
+    + '<div class="vlg-guided-title">Daily log</div>'
+    + '<div class="vlg-guided-progress"><span id="vlg-g-step">1</span> of ' + total + '</div>'
+    + '<button class="vlg-btn-cancel" onclick="vlgGuidedCancel()" style="padding:4px 10px;font-size:10px;">Exit</button>'
+  + '</div>'
+  + '<div class="vlg-guided-bar"><div class="vlg-guided-bar-fill" id="vlg-g-bar" style="width:0%"></div></div>'
+  + '<div class="vlg-guided-q" id="vlg-g-q"></div>'
+  + '<div class="vlg-guided-hint" id="vlg-g-hint"></div>'
+  + '<div class="vlg-transcript-box" id="vlg-transcript-box" style="min-height:56px;margin-bottom:10px;">'
+    + '<span class="vlg-transcript-placeholder" id="vlg-placeholder">Listening\u2026</span>'
+  + '</div>'
+  + '<div class="vlg-guided-log" id="vlg-g-log"></div>'
+  + '<div class="vlg-panel-btns" style="margin-top:10px;">'
+    + '<button class="vlg-btn-ok" id="vlg-btn-ok" onclick="vlgGuidedNext()" disabled>Next \u2192</button>'
+    + '<button class="vlg-btn-cancel" onclick="vlgGuidedSkip()">Skip</button>'
+  + '</div>';
+}
+
+function vlgGuidedAskStep(idx) {
+  var steps = _vlgGuided.steps;
+  if (idx >= steps.length) { vlgGuidedFinish(); return; }
+
+  _vlgGuided.stepIdx = idx;
+  _vlg.transcript = '';
+
+  var step = steps[idx];
+  var total = steps.length;
+  var pct = Math.round((idx / total) * 100);
+
+  // Update UI
+  var qEl = document.getElementById('vlg-g-q');
+  var hintEl = document.getElementById('vlg-g-hint');
+  var stepEl = document.getElementById('vlg-g-step');
+  var barEl = document.getElementById('vlg-g-bar');
+  var okBtn = document.getElementById('vlg-btn-ok');
+  var placeholder = document.getElementById('vlg-placeholder');
+  var box = document.getElementById('vlg-transcript-box');
+
+  if (qEl) qEl.textContent = step.prompt;
+  if (hintEl) hintEl.textContent = step.hint;
+  if (stepEl) stepEl.textContent = (idx + 1);
+  if (barEl) barEl.style.width = pct + '%';
+  if (okBtn) { okBtn.disabled = true; okBtn.textContent = 'Next \u2192'; }
+  if (placeholder) { placeholder.style.display = ''; placeholder.textContent = 'Listening\u2026'; }
+  if (box) { while (box.childNodes.length > 1) box.removeChild(box.lastChild); }
+
+  // Speak the question using TTS if available
+  vlgGuidedSpeak(step.prompt);
+
+  // Start listening
+  vlgGuidedListen();
+}
+
+function vlgGuidedSpeak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  var utt = new window.SpeechSynthesisUtterance(text);
+  utt.lang = 'en-GB';
+  utt.rate = 1.05;
+  utt.pitch = 1.0;
+  utt.volume = 0.9;
+  // Start listening after TTS finishes
+  utt.onend = function() { vlgGuidedListen(); };
+  window.speechSynthesis.speak(utt);
+}
+
+function vlgGuidedListen() {
+  if (!_vlg.recognition) vlgInit();
+  if (!_vlg.recognition) return;
+
+  _vlg.listening = true;
+  _vlg.transcript = '';
+
+  // Re-bind result handler for guided mode
+  _vlg.recognition.onresult = function(e) {
+    var interim = '', final = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      var t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    if (final) _vlg.transcript += (_vlg.transcript ? ' ' : '') + final.trim();
+    var displayText = _vlg.transcript + (interim ? ' ' + interim : '');
+
+    var placeholder = document.getElementById('vlg-placeholder');
+    var box = document.getElementById('vlg-transcript-box');
+    var okBtn = document.getElementById('vlg-btn-ok');
+    if (placeholder) placeholder.style.display = 'none';
+    if (box) {
+      while (box.childNodes.length > 1) box.removeChild(box.lastChild);
+      box.appendChild(document.createTextNode(displayText));
+    }
+    if (okBtn && _vlg.transcript.trim().length > 1) okBtn.disabled = false;
+  };
+
+  _vlg.recognition.onend = function() {
+    if (!_vlg.listening || !_vlgGuided.active) return;
+    try { _vlg.recognition.start(); } catch(e) {}
+  };
+
+  try { _vlg.recognition.start(); } catch(e) {}
+}
+
+function vlgGuidedNext() {
+  var transcript = _vlg.transcript.trim();
+  if (!transcript) return;
+
+  // Stop listening while we process
+  _vlg.listening = false;
+  try { _vlg.recognition && _vlg.recognition.stop(); } catch(e) {}
+  window.speechSynthesis && window.speechSynthesis.cancel();
+
+  var step = _vlgGuided.steps[_vlgGuided.stepIdx];
+  var okBtn = document.getElementById('vlg-btn-ok');
+  if (okBtn) { okBtn.disabled = true; okBtn.textContent = 'Logging\u2026'; }
+
+  // Apply the answer immediately using simple pattern matching
+  vlgGuidedApply(step, transcript, function(result) {
+    // Log this answer in the running log
+    _vlgGuided.stepAnswers.push({ step: step, transcript: transcript, result: result });
+    vlgGuidedAddToLog(step, result);
+    // Move to next step
+    vlgGuidedAskStep(_vlgGuided.stepIdx + 1);
+  });
+}
+
+function vlgGuidedSkip() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  _vlgGuided.stepAnswers.push({ step: _vlgGuided.steps[_vlgGuided.stepIdx], skipped: true });
+  vlgGuidedAskStep(_vlgGuided.stepIdx + 1);
+}
+
+function vlgGuidedApply(step, transcript, cb) {
+  var t = transcript.toLowerCase();
+  var log = loadDayLog(_rDate) || initDayLog();
+  var result = '';
+
+  if (step.type === 'training') {
+    var status = 'done';
+    if (t.includes('skip') || t.includes('didn') || t.includes('missed') || t.includes('no')) status = 'skipped';
+    else if (t.includes('modif') || t.includes('changed') || t.includes('different') || t.includes('adjusted')) status = 'modified';
+    log.trainStatus = status;
+    log.trainNote = transcript;
+    saveDayLog(_rDate, log);
+    dpRefreshScore && dpRefreshScore();
+    result = status === 'done' ? '\u2713 Session logged as done'
+           : status === 'skipped' ? '\u2715 Session skipped'
+           : '\u007e Session modified \u2014 ' + transcript.slice(0,50);
+    cb(result);
+  }
+
+  else if (step.type === 'exercise') {
+    // Parse weight and sets from transcript
+    var weightM = t.match(/(\d+\.?\d*)\s*(kg|kilo|k\b)/i);
+    var weight = weightM ? weightM[1] : '';
+    var setsM = t.match(/(\d+)\s*sets?/i) || t.match(/all\s*(\d+)/i);
+    var sets = setsM ? setsM[1] : '';
+    var skipped = t.includes('skip') || t.includes('miss') || t.includes('no');
+
+    if (!log.exercises) log.exercises = {};
+    log.exercises[step.exKey] = {
+      weight: weight,
+      actual: sets ? sets + ' sets' : transcript.slice(0,30),
+      status: skipped ? '' : 'done',
+      loggedAt: new Date().toISOString(),
+    };
+    saveDayLog(_rDate, log);
+    result = weight ? weight + 'kg' + (sets ? ' \u00d7 ' + sets + ' sets' : '') : transcript.slice(0,40);
+    cb(result);
+  }
+
+  else if (step.type === 'meal') {
+    var skipped = t.includes('skip') || t.includes('no') || t.includes('didn') || t.includes('missed') || t.includes('nothing');
+    var protM = t.match(/(\d+)\s*g/) || t.match(/(\d+)\s*gram/);
+    var prot = protM ? parseInt(protM[1]) : 0;
+
+    if (!log.meals) log.meals = {};
+    if (!log.meals[step.slot]) log.meals[step.slot] = {};
+    log.meals[step.slot].note = transcript;
+    log.meals[step.slot].logged = !skipped;
+    if (prot > 0) {
+      log.meals[step.slot].prot = prot;
+      // Update macro totals
+      if (window.MACROS && window.MACROS.eaten) {
+        var totalProt = 0;
+        Object.keys(log.meals).forEach(function(s){ totalProt += (log.meals[s].prot || 0); });
+        window.MACROS.eaten.prot = totalProt;
+      }
+    }
+    saveDayLog(_rDate, log);
+    dpRefreshScore && dpRefreshScore();
+    refreshUnifiedMacros && refreshUnifiedMacros();
+    result = skipped ? '\u2715 Skipped' : '\u2713 Logged' + (prot > 0 ? ' \u2014 ' + prot + 'g protein' : '');
+    cb(result);
+  }
+
+  else if (step.type === 'supps') {
+    var all = t.includes('yes') || t.includes('all') || t.includes('done') || t.includes('took') || t.includes('taken');
+    var none = t.includes('no') || t.includes('forgot') || t.includes('didn') || t.includes('miss');
+
+    if (!log.suppLog) log.suppLog = {};
+    var taken = [];
+    var missed = [];
+    (step.suppList || []).forEach(function(s) {
+      var name = s.name || s;
+      var nameLower = name.toLowerCase().split(' ')[0];
+      var mentioned = t.includes(nameLower);
+      var skippedThis = mentioned && (t.includes('no ' + nameLower) || t.includes('forgot ' + nameLower) || t.includes('miss ' + nameLower));
+      if (all || (mentioned && !skippedThis)) {
+        log.suppLog[name] = true;
+        taken.push(name.split(' ')[0]);
+      } else if (none) {
+        missed.push(name.split(' ')[0]);
+      }
+    });
+    saveDayLog(_rDate, log);
+    dpRefreshScore && dpRefreshScore();
+    result = taken.length ? '\u2713 ' + taken.join(', ')
+           : missed.length ? '\u2715 Missed'
+           : '\u2713 Logged';
+    cb(result);
+  }
+
+  else if (step.type === 'energy') {
+    var level = 3;
+    if (t.includes('high') || t.includes('great') || t.includes('strong') || t.includes('five') || t === '5') level = 5;
+    else if (t.includes('good') || t.includes('four') || t === '4') level = 4;
+    else if (t.includes('low') || t.includes('tired') || t.includes('one') || t.includes('two') || t === '1' || t === '2') level = 2;
+    else if (t.includes('medium') || t.includes('ok') || t.includes('fine') || t.includes('average') || t.includes('three') || t === '3') level = 3;
+    log.energy = level;
+    saveDayLog(_rDate, log);
+    var label = ['', 'Very low', 'Low', 'Medium', 'Good', 'High'][level] || 'Medium';
+    result = '\u2713 Energy: ' + label;
+    cb(result);
+  }
+
+  else if (step.type === 'notes') {
+    var nothing = t.includes('nothing') || t.includes('no') || t.includes('nope') || t.length < 4;
+    if (!nothing) {
+      log.tomorrowNotes = transcript;
+      saveDayLog(_rDate, log);
+    }
+    result = nothing ? 'Nothing to add' : '\u2713 Noted';
+    cb(result);
+  }
+
+  else {
+    cb('\u2713 Logged');
+  }
+}
+
+function vlgGuidedAddToLog(step, result) {
+  var logEl = document.getElementById('vlg-g-log');
+  if (!logEl) return;
+  var item = document.createElement('div');
+  item.className = 'vlg-g-log-item';
+  var typeLabel = step.type === 'training' ? 'Training'
+    : step.type === 'exercise' ? (step.exKey ? 'Exercise' : 'Exercise')
+    : step.type === 'meal' ? 'Meal'
+    : step.type === 'supps' ? 'Stack'
+    : step.type === 'energy' ? 'Energy'
+    : 'Note';
+  item.innerHTML = '<span class="vlg-g-log-type">' + typeLabel + '</span>'
+    + '<span class="vlg-g-log-result">' + result + '</span>';
+  logEl.appendChild(item);
+  // Scroll to show latest
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function vlgGuidedFinish() {
+  _vlgGuided.active = false;
+  _vlg.listening = false;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  try { _vlg.recognition && _vlg.recognition.stop(); } catch(e) {}
+
+  var panel = document.getElementById('vlg-panel');
+  var micBtn = document.getElementById('vlg-mic-btn');
+  if (micBtn) micBtn.classList.remove('listening');
+
+  // Show completion screen
+  var answered = _vlgGuided.stepAnswers.filter(function(a){ return !a.skipped; }).length;
+  var total = _vlgGuided.steps.length;
+
+  if (panel) {
+    panel.innerHTML = '<div style="text-align:center;padding:20px 0;">'
+      + '<div style="font-size:36px;margin-bottom:12px;">\u2713</div>'
+      + '<div style="font-family:var(--serif);font-size:22px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Day logged</div>'
+      + '<div style="font-size:13px;font-weight:300;color:var(--dk-3);margin-bottom:24px;">' + answered + ' of ' + total + ' items recorded</div>'
+      + '<button class="vlg-btn-ok" onclick="vlgGuidedCancel()" style="width:auto;padding:12px 28px;">Done</button>'
+    + '</div>';
+  }
+
+  // Trigger score refresh
+  dpRefreshScore && dpRefreshScore();
+}
+
+function vlgGuidedCancel() {
+  _vlgGuided.active = false;
+  _vlg.listening = false;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  try { _vlg.recognition && _vlg.recognition.stop(); } catch(e) {}
+  var modal = document.getElementById('vlg-modal');
+  var micBtn = document.getElementById('vlg-mic-btn');
+  if (modal) modal.classList.remove('open');
+  if (micBtn) micBtn.classList.remove('listening');
+
+  // Restore normal panel for free-form mode
+  var panel = document.getElementById('vlg-panel');
+  if (panel) panel.innerHTML = vlgBuildNormalPanel();
+}
+
+function vlgBuildNormalPanel() {
+  return '<div class="vlg-panel-hd">'
+    + '<span class="vlg-panel-title">Voice log</span>'
+    + '<div class="vlg-panel-status" id="vlg-status"><div class="vlg-status-dot"></div>Listening</div>'
+  + '</div>'
+  + '<div class="vlg-transcript-box" id="vlg-transcript-box">'
+    + '<span class="vlg-transcript-placeholder" id="vlg-placeholder">Speak now\u2026</span>'
+  + '</div>'
+  + '<div class="vlg-result-box" id="vlg-result-box">'
+    + '<div class="vlg-result-label">Logged</div>'
+    + '<div class="vlg-result-actions" id="vlg-result-actions"></div>'
+  + '</div>'
+  + '<div class="vlg-panel-btns">'
+    + '<button class="vlg-btn-ok" id="vlg-btn-ok" onclick="vlgCommit()" disabled>Process</button>'
+    + '<button class="vlg-btn-cancel" onclick="vlgCancel()">Cancel</button>'
+  + '</div>';
+}
+
 
 // Init on load
 (function() {

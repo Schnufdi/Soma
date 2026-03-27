@@ -163,6 +163,26 @@
 }
 .sp-add-btn:hover { background:rgba(0,200,160,.14); }
 .sp-add-btn.saved { background:rgba(0,200,160,.12); border-color:var(--jade); cursor:default; }
+
+/* ── Reco card redesign ─────────────────────────────── */
+.sp-reco-lead { display:flex; align-items:flex-start; gap:12px; }
+.sp-reco-name-row { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px; }
+.sp-reco-name { font-size:13px; font-weight:700; color:var(--dk-1); }
+.sp-reco-ev {
+  font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  padding:2px 7px; border-radius:8px; flex-shrink:0;
+}
+.sp-reco-ev-strong   { background:rgba(0,200,160,.12); color:var(--jade); }
+.sp-reco-ev-moderate { background:rgba(196,124,24,.1);  color:var(--amber); }
+.sp-reco-ev-emerging { background:rgba(255,255,255,.07); color:var(--dk-3); }
+.sp-reco-meta { font-size:10px; font-weight:300; color:var(--dk-3); margin-top:3px; }
+.sp-reco-tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+.sp-reco-tag {
+  font-size:8px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+  padding:2px 7px; border-radius:8px;
+  background:rgba(255,255,255,.05); color:var(--dk-3);
+  border:1px solid rgba(255,255,255,.07);
+}
 </style>
 </head>
 <body>
@@ -598,14 +618,24 @@ function render() {
       html += '<div class="sp-reco-grid">';
       matches.forEach(function(s) {
         var evClass = s.evidence === 'strong' ? 'strong' : s.evidence === 'moderate' ? 'moderate' : 'emerging';
+        var evLabel = { strong: 'Strong evidence', moderate: 'Moderate', emerging: 'Emerging' }[evClass] || s.evidence;
+        var topGoals = (GOALS_MAP[s.id]||[]).slice(0,3).map(function(g){
+          return '<span class="sp-reco-tag">' + g + '</span>';
+        }).join('');
         html += '<div class="sp-reco-card">'
-          + '<div class="sp-reco-icon">' + s.icon + '</div>'
-          + '<div class="sp-reco-info">'
-            + '<div class="sp-reco-name">' + s.name + '</div>'
-            + '<div class="sp-reco-why">' + s.tagline + '</div>'
-            + '<div class="sp-reco-evidence">' + s.evidence + ' evidence &mdash; ' + s.dose + '</div>'
+          + '<div class="sp-reco-lead">'
+            + '<span class="sp-reco-icon">' + s.icon + '</span>'
+            + '<div class="sp-reco-info">'
+              + '<div class="sp-reco-name-row">'
+                + '<span class="sp-reco-name">' + s.name + '</span>'
+                + '<span class="sp-reco-ev sp-reco-ev-' + evClass + '">' + evLabel + '</span>'
+              + '</div>'
+              + '<div class="sp-reco-why">' + s.tagline + '</div>'
+              + '<div class="sp-reco-meta">' + s.dose + ' · ' + s.timing + '</div>'
+              + (topGoals ? '<div class="sp-reco-tags">' + topGoals + '</div>' : '')
+            + '</div>'
+            + '<button class="sp-reco-add" data-aid="' + s.id + '" onclick="spAddToStack(this)">Add</button>'
           + '</div>'
-          + '<button class="sp-reco-add" data-rid="' + s.id + '" onclick="addToStack(this.dataset.rid);this.textContent=\'\u2713 Added\';this.className=\'sp-reco-add in-stack\'">+ Add</button>';
         + '</div>';
       });
       html += '</div>';

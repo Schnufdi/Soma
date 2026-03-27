@@ -7,7 +7,7 @@
   <div class="nav-links">
     <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
-    <a class="nav-link" href="/bodylens-checkin.html">Week</a>
+    <a class="nav-link" href="/bodylens-week.html">Week</a>
     <span class="nav-divider"></span>
     <a class="nav-link" href="/bodylens-food.html">Food</a>
     <a class="nav-link" href="/bodylens-meals.html">Meals</a>
@@ -17,6 +17,7 @@
     <a class="nav-link nav-inform" href="/bodylens-science.html">Science</a>
     <a class="nav-link nav-inform" href="/bodylens-accelerators.html">Accelerators</a>
     <a class="nav-link nav-inform" href="/bodylens-bodymapper.html">Body Mapper</a>
+    <a class="nav-link nav-inform" href="/bodylens-podcast.html">Podcast</a>
   </div>
   <div class="nav-right-group">
     <a class="nav-right" href="/bodylens-guide.html">Guide</a>
@@ -46,6 +47,7 @@
   <div class="mm-section-label">Execution</div>
   <a class="mm-link" href="/bodylens-dailyplan.html">Today</a>
   <a class="mm-link" href="/bodylens-programme.html">My programme</a>
+  <a class="mm-link" href="/bodylens-week.html">This week</a>
   <a class="mm-link" href="/bodylens-checkin.html">Week review</a>
   <div class="mm-section-label">Food</div>
   <a class="mm-link" href="/bodylens-food.html">Food hub</a>
@@ -58,6 +60,7 @@
   <div class="mm-section-label mm-inform-label">Inform &amp; Optimise</div>
   <a class="mm-link mm-inform" href="/bodylens-science.html">Science</a>
   <a class="mm-link mm-inform" href="/bodylens-accelerators.html">Accelerators</a>
+  <a class="mm-link mm-inform" href="/bodylens-podcast.html">Podcast</a>
   <div class="mm-section-label">More</div>
   <a class="mm-link" href="/bodylens-guide.html">Guide</a>
   <a class="mm-link" href="/bodylens-howitworks.html">How it works</a>
