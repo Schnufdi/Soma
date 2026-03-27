@@ -77,112 +77,109 @@
 }
 .sp-goal-chip:hover { border-color:rgba(0,200,160,.3); color:var(--jade); }
 .sp-goal-chip.active { border-color:rgba(0,200,160,.35); background:rgba(0,200,160,.08); color:var(--jade); }
-.sp-reco-grid { display:flex; flex-direction:column; gap:8px; }
+.sp-reco-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
 .sp-reco-card {
-  display:flex; align-items:flex-start; gap:12px; padding:12px 14px;
-  background:var(--ink-2); border:1px solid rgba(255,255,255,.06); border-radius:9px;
+  padding: 13px 14px;
+  background: var(--ink-2);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 9px;
+  transition: border-color .15s;
 }
-.sp-reco-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
-.sp-reco-info { flex:1; min-width:0; }
-.sp-reco-name { font-size:12px; font-weight:700; color:var(--dk-1); margin-bottom:2px; }
-.sp-reco-why { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.5; }
-.sp-reco-evidence { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--amber); margin-top:4px; }
-.sp-reco-add {
-  padding:7px 12px; border-radius:7px; border:1px solid rgba(0,200,160,.25);
-  background:rgba(0,200,160,.06); color:var(--jade); font-size:10px; font-weight:700;
-  letter-spacing:.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans);
-  white-space:nowrap; transition:all .12s; flex-shrink:0;
+.sp-reco-card:hover { border-color: rgba(255,255,255,.12); }
+.sp-reco-lead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
 }
-.sp-reco-add:hover { background:rgba(0,200,160,.12); }
-.sp-reco-add.in-stack { background:rgba(0,200,160,.1); border-color:var(--jade); cursor:default; }
-
-/* Divider */
-.sp-divider {
-  display:flex; align-items:center; gap:10px; margin:28px 0 20px;
+.sp-reco-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  width: 24px;
+  text-align: center;
 }
-.sp-divider-line { flex:1; height:1px; background:rgba(255,255,255,.06); }
-.sp-divider-label {
-  font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
-  color:var(--dk-3); flex-shrink:0;
+.sp-reco-info {
+  flex: 1;
+  min-width: 0;
 }
-
-/* Filter */
-.sp-filter { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
-.sp-filter-btn {
-  padding:5px 12px; border-radius:20px; border:1px solid rgba(255,255,255,.08);
-  background:var(--ink-1); color:var(--dk-3); font-size:11px; font-weight:600;
-  cursor:pointer; font-family:var(--sans); transition:all .12s;
+.sp-reco-name-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
 }
-.sp-filter-btn:hover { border-color:rgba(255,255,255,.15); }
-.sp-filter-btn.active { border-color:rgba(0,200,160,.3); color:var(--jade); background:rgba(0,200,160,.06); }
-
-/* Supplement cards */
-.sp-cat-label {
-  font-size:9px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
-  color:var(--dk-3); margin:20px 0 10px; padding-bottom:8px;
-  border-bottom:1px solid rgba(255,255,255,.05);
+.sp-reco-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dk-1);
+  line-height: 1.2;
 }
-.sp-card {
-  background:var(--ink-1); border:1px solid rgba(255,255,255,.07); border-radius:12px;
-  margin-bottom:8px; overflow:hidden; transition:border-color .12s;
-}
-.sp-card:hover { border-color:rgba(255,255,255,.12); }
-.sp-card-hd {
-  display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer;
-}
-.sp-icon { font-size:22px; flex-shrink:0; width:32px; text-align:center; }
-.sp-info { flex:1; min-width:0; }
-.sp-name { font-size:13px; font-weight:700; color:var(--dk-1); margin-bottom:2px; }
-.sp-tagline { font-size:11px; font-weight:300; color:var(--dk-3); }
-.sp-badges { display:flex; gap:6px; align-items:center; flex-shrink:0; }
-.sp-badge {
-  font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-  padding:3px 8px; border-radius:10px; border:1px solid;
-  background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.1); color:var(--dk-3);
-  white-space:nowrap;
-}
-.sp-badge.strong { background:rgba(0,200,160,.08); border-color:rgba(0,200,160,.2); color:var(--jade); }
-.sp-badge.moderate { background:rgba(196,124,24,.08); border-color:rgba(196,124,24,.2); color:var(--amber); }
-.sp-badge.emerging { background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.1); color:var(--dk-3); }
-.sp-badge.in-stack { background:rgba(0,200,160,.08); border-color:var(--jade-br); color:var(--jade); }
-.sp-chevron { color:var(--dk-3); font-size:14px; transition:transform .2s; flex-shrink:0; }
-.sp-card.open .sp-chevron { transform:rotate(90deg); }
-
-.sp-card-body { display:none; padding:0 16px 16px; border-top:1px solid rgba(255,255,255,.05); }
-.sp-card.open .sp-card-body { display:block; }
-.sp-detail-row { display:flex; gap:8px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:12px; }
-.sp-detail-row:last-of-type { border-bottom:none; }
-.sp-detail-key { font-weight:300; color:var(--dk-3); min-width:80px; flex-shrink:0; }
-.sp-detail-val { font-weight:400; color:var(--dk-2); flex:1; line-height:1.5; }
-.sp-mechanism { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.75; padding:10px 0 8px; }
-.sp-add-btn {
-  width:100%; padding:11px; background:rgba(0,200,160,.08); border:1px solid rgba(0,200,160,.25);
-  border-radius:9px; font-size:11px; font-weight:700; letter-spacing:.08em;
-  text-transform:uppercase; color:var(--jade); cursor:pointer; font-family:var(--sans);
-  margin-top:10px; transition:all .15s;
-}
-.sp-add-btn:hover { background:rgba(0,200,160,.14); }
-.sp-add-btn.saved { background:rgba(0,200,160,.12); border-color:var(--jade); cursor:default; }
-
-/* ── Reco card redesign ─────────────────────────────── */
-.sp-reco-lead { display:flex; align-items:flex-start; gap:12px; }
-.sp-reco-name-row { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px; }
-.sp-reco-name { font-size:13px; font-weight:700; color:var(--dk-1); }
 .sp-reco-ev {
-  font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
-  padding:2px 7px; border-radius:8px; flex-shrink:0;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
-.sp-reco-ev-strong   { background:rgba(0,200,160,.12); color:var(--jade); }
-.sp-reco-ev-moderate { background:rgba(196,124,24,.1);  color:var(--amber); }
-.sp-reco-ev-emerging { background:rgba(255,255,255,.07); color:var(--dk-3); }
-.sp-reco-meta { font-size:10px; font-weight:300; color:var(--dk-3); margin-top:3px; }
-.sp-reco-tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+.sp-reco-ev-strong   { background: rgba(0,200,160,.12);  color: var(--jade); }
+.sp-reco-ev-moderate { background: rgba(196,124,24,.1);   color: var(--amber); }
+.sp-reco-ev-emerging { background: rgba(255,255,255,.07); color: var(--dk-3); }
+.sp-reco-why {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.55;
+  margin-bottom: 3px;
+}
+.sp-reco-meta {
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--dk-3);
+  margin-top: 4px;
+}
+.sp-reco-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 7px;
+}
 .sp-reco-tag {
-  font-size:8px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
-  padding:2px 7px; border-radius:8px;
-  background:rgba(255,255,255,.05); color:var(--dk-3);
-  border:1px solid rgba(255,255,255,.07);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.05);
+  color: var(--dk-3);
+  border: 1px solid rgba(255,255,255,.07);
 }
+.sp-reco-add {
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 1px solid rgba(0,200,160,.3);
+  background: rgba(0,200,160,.06);
+  color: var(--jade);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .12s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.sp-reco-add:hover { background: rgba(0,200,160,.12); }
+.sp-reco-add.saved { border-color: rgba(255,255,255,.1); color: var(--dk-3); cursor: default; }
 </style>
 </head>
 <body>
