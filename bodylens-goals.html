@@ -36,7 +36,26 @@
 .gt-upload-zone:hover { border-color:rgba(0,200,160,.3); background:rgba(0,200,160,.03); }
 .gt-upload-zone.has-img { min-height:auto; border-style:solid; border-color:rgba(0,200,160,.2); }
 .gt-upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
-.gt-preview { width:100%; max-height:220px; object-fit:contain; border-radius:10px; display:block; }
+.gt-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 11px;
+  display: block;
+  z-index: 1;
+}
+.gt-upload-zone.has-img { min-height: 180px; border-color: rgba(0,200,160,.25); }
+.gt-upload-zone.has-img .gt-upload-hint,
+.gt-upload-zone.has-img .gt-upload-cta { display: none; }
+.gt-upload-zone input { z-index: 3; } /* above the preview img */
+.gt-upload-zone .gt-photo-change {
+  position: absolute; bottom: 8px; right: 8px; z-index: 4;
+  padding: 4px 10px; background: rgba(0,0,0,.6); border-radius: 12px;
+  font-size: 10px; font-weight: 600; color: rgba(255,255,255,.8);
+  pointer-events: none;
+}
 .gt-upload-hint { font-size:11px; font-weight:300; color:var(--dk-3); text-align:center; max-width:180px; line-height:1.5; }
 .gt-upload-cta { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--jade); padding:5px 14px; border:1px solid rgba(0,200,160,.25); border-radius:16px; background:rgba(0,200,160,.06); }
 
@@ -135,6 +154,36 @@
 .gt-action-btn.secondary:hover { border-color:rgba(0,200,160,.3); color:var(--jade); }
 
 /* ── Progression bridge ──────────────────────────────────── */
+.gt-save-plan-btn {
+  padding: 10px 18px;
+  border-radius: 9px;
+  background: var(--jade);
+  border: none;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.gt-save-plan-btn:hover { opacity: .88; }
+.gt-save-plan-btn.saved {
+  background: rgba(0,200,160,.1);
+  border: 1px solid rgba(0,200,160,.3);
+  color: var(--jade);
+}
+.gt-bridge-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 300;
+  color: var(--dk-1);
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  margin-top: 6px;
+}
 .gt-bridge {
   margin-top: 32px;
   padding-bottom: 32px;
@@ -376,15 +425,31 @@
 <div class="gt-page">
 
   <div class="gt-hero">
-    <div class="gt-kicker">Goal translation</div>
+    <div class="gt-kicker">Goal translation engine</div>
     <div class="gt-title">Where you are.<br><em>Where you're going.</em></div>
     <div class="gt-desc">
-      This isn't goal-setting. It's a translation engine. You put in what you have and what you want.
-      It tells you exactly what the gap is and what your plan needs to do to close it.
+      Upload where you are now. Upload where you want to get to.
+      This reads both, maps the gap between them, and translates that gap into a phased programme — 
+      specific exercises, rep ranges, nutrition targets, and a timeline.
+      The output becomes your programme.
     </div>
   </div>
 
   <!-- Inputs -->
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:160px;padding:12px 14px;background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:10px;">
+      <div style="font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:5px;">1 — Comparison</div>
+      <div style="font-size:11px;font-weight:300;color:var(--dk-3);">Current state vs target — honest read of both physiques</div>
+    </div>
+    <div style="flex:1;min-width:160px;padding:12px 14px;background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:10px;">
+      <div style="font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:5px;">2 — The gap</div>
+      <div style="font-size:11px;font-weight:300;color:var(--dk-3);">What separates now from target — body fat, muscle, structure</div>
+    </div>
+    <div style="flex:1;min-width:160px;padding:12px 14px;background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:10px;">
+      <div style="font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:5px;">3 — Programme</div>
+      <div style="font-size:11px;font-weight:300;color:var(--dk-3);">Phase-by-phase plan to close the gap — becomes your programme</div>
+    </div>
+  </div>
   <div class="gt-inputs" id="gt-inputs">
 
     <!-- Current state -->
@@ -398,6 +463,7 @@
           <div style="font-size:22px;opacity:.35;">&#128247;</div>
           <div class="gt-upload-hint">Front-on photo. Good light.</div>
           <div class="gt-upload-cta">Choose photo</div>
+          <div class="gt-photo-change">Change</div>
         </div>
       </div>
 
@@ -417,6 +483,7 @@
           <div style="font-size:22px;opacity:.35;">&#127919;</div>
           <div class="gt-upload-hint">The physique you are building toward.</div>
           <div class="gt-upload-cta">Choose photo</div>
+          <div class="gt-photo-change">Change</div>
         </div>
       </div>
 
@@ -433,6 +500,7 @@
     </div>
   </div>
 
+  </div>
   <button class="gt-run-btn" id="gt-run-btn" onclick="gtRun()">
     Analyse the gap &rarr;
   </button>
@@ -513,8 +581,19 @@ function gtHandleCurrent(file) {
     gtCurrentBase64 = e.target.result.split(',')[1];
     var zone = document.getElementById('gt-zone-current');
     zone.classList.add('has-img');
-    zone.innerHTML = '<input type="file" accept="image/*" onchange="gtHandleCurrent(this.files[0])">'
-      + '<img class="gt-preview" src="'+e.target.result+'">';
+    // Show image as background — keep input clickable on top
+    var existing = zone.querySelector('.gt-preview');
+    if (existing) { existing.src = e.target.result; }
+    else {
+      var img = document.createElement('img');
+      img.className = 'gt-preview';
+      img.src = e.target.result;
+      // Insert BEFORE the input so input stays on top (z-index)
+      var inp = zone.querySelector('input');
+      zone.insertBefore(img, inp);
+    }
+    // Hide placeholder text
+    zone.querySelectorAll('.gt-upload-hint,.gt-upload-cta').forEach(function(el){ el.style.display='none'; });
   };
   r.readAsDataURL(file);
 }
@@ -527,8 +606,16 @@ function gtHandleTarget(file) {
     gtTargetBase64 = e.target.result.split(',')[1];
     var zone = document.getElementById('gt-zone-target');
     zone.classList.add('has-img');
-    zone.innerHTML = '<input type="file" accept="image/*" onchange="gtHandleTarget(this.files[0])">'
-      + '<img class="gt-preview" src="'+e.target.result+'">';
+    var existing = zone.querySelector('.gt-preview');
+    if (existing) { existing.src = e.target.result; }
+    else {
+      var img = document.createElement('img');
+      img.className = 'gt-preview';
+      img.src = e.target.result;
+      var inp = zone.querySelector('input');
+      zone.insertBefore(img, inp);
+    }
+    zone.querySelectorAll('.gt-upload-hint,.gt-upload-cta').forEach(function(el){ el.style.display='none'; });
   };
   r.readAsDataURL(file);
 }
@@ -743,7 +830,7 @@ function gtRenderBridge(phases, immediateShifts, fullResult) {
     + '<div class="gt-bridge-hd">'
       + '<div>'
         + '<div class="gt-stage-num">Your progression map</div>'
-        + '<div class="gt-bridge-title">From where you are<br>to where you're going.</div>'
+        + '<div class="gt-bridge-title">From where you are<br>to where you\u2019re going.</div>'
       + '</div>'
       + '<button class="gt-save-plan-btn" id="gt-save-btn" onclick="gtSavePlan()">Save as goal plan &#8594;</button>'
     + '</div>'
@@ -1037,6 +1124,11 @@ function gtRenderResult(r) {
       + '<button class="gt-action-btn secondary" onclick="document.getElementById(\'gt-result\').innerHTML=\'\';document.getElementById(\'gt-result\').classList.remove(\'show\');">Run again</button>'
     + '</div>'
   + '</div>';
+
+  // Progression bridge injected inline after s5
+  if (s5.phases && s5.phases.length) {
+    html += gtRenderBridge(s5.phases, s5.immediateShifts, r);
+  }
 
   el.innerHTML = html;
   el.classList.add('show');
