@@ -149,6 +149,14 @@ window.BL.restoreHistory = function() {
         _orig('bl_weekly_meals_' + row.week_start, JSON.stringify(row.data));
       });
     });
+
+  // Activities (last 30 days)
+  sb.from('activities').select('date,data').eq('user_id', userId)
+    .gte('date', cutoff).then(function(r) {
+      if (r.data) r.data.forEach(function(row) {
+        _orig('bl_activities_' + row.date, JSON.stringify(row.data));
+      });
+    });
 };
 
 // Init on every page
@@ -349,6 +357,54 @@ localStorage.setItem = function(key, value) {
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id,week_start' }).then(function(r) {
         if (r.error) console.warn('meal_plans upsert error:', r.error.message);
+      });
+    }
+
+    // Activities — workout log entries
+    else if (key.startsWith('bl_activities_')) {
+      var actDate = key.replace('bl_activities_', '');
+      sb.from('activities').upsert({
+        user_id: userId,
+        date: actDate,
+        data: JSON.parse(value),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,date' }).then(function(r) {
+        if (r.error) console.warn('activities upsert error:', r.error.message);
+      });
+    }
+
+    // Strength baselines — 1RM and performance benchmarks
+    else if (key === 'bl_strength_baseline') {
+      sb.from('profiles').upsert({
+        id: userId,
+        strength_baseline: JSON.parse(value),
+        updated_at: new Date().toISOString()
+      }).then(function(r) {
+        if (r.error) console.warn('strength_baseline upsert error:', r.error.message);
+      });
+    }
+
+    // Body scan history
+    else if (key === 'bl_scan_history' || key === 'bl_scan_raw_text') {
+      var scanData = {};
+      try { scanData = JSON.parse(value); } catch(e) { scanData = { raw: value }; }
+      sb.from('profiles').upsert({
+        id: userId,
+        scan_data: scanData,
+        updated_at: new Date().toISOString()
+      }).then(function(r) {
+        if (r.error) console.warn('scan_data upsert error:', r.error.message);
+      });
+    }
+
+    // Podcast history
+    else if (key === 'bl_podcast_history') {
+      sb.from('profiles').upsert({
+        id: userId,
+        podcast_history: JSON.parse(value),
+        updated_at: new Date().toISOString()
+      }).then(function(r) {
+        if (r.error) console.warn('podcast_history upsert error:', r.error.message);
       });
     }
 
