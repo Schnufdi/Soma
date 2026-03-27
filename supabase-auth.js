@@ -70,6 +70,14 @@ window.BL.loadProfile = function(cb) {
             localProfile.name !== serverProfile.name;
 
           // Set the correct profile in localStorage
+          // Ensure calories alias exists for backward compatibility
+          if (serverProfile.trainingKcal && !serverProfile.calories) {
+            serverProfile.calories = serverProfile.trainingKcal;
+          }
+          if (!serverProfile.generatedAt && serverProfile.weekPlan && serverProfile.weekPlan.length > 0) {
+            serverProfile.generatedAt = new Date().toISOString();
+          }
+          if (!serverProfile.wakeTime) serverProfile.wakeTime = '07:00';
           localStorage.setItem('bl_profile', JSON.stringify(serverProfile));
 
           if (isDifferentUser) {

@@ -7933,7 +7933,13 @@ function preloadRecipes(p, t){
 
   // Incomplete profile
   TODAY = getTodayCtx(P);
-  var ok = P.calories > 0 && P.weekPlan && P.weekPlan.length === 7;
+  // Auto-repair missing fields before check
+  if (!P.generatedAt && P.weekPlan && P.weekPlan.length > 0) {
+    P.generatedAt = new Date().toISOString();
+    try { localStorage.setItem('bl_profile', JSON.stringify(P)); } catch(e) {}
+  }
+  if (!P.wakeTime) P.wakeTime = '07:00';
+  var ok = (P.trainingKcal > 0 || P.calories > 0) && P.weekPlan && P.weekPlan.length >= 5;
   if(!ok){
     root.innerHTML = '<div style="text-align:center;padding:60px 24px;max-width:480px;margin:0 auto;">'
       +'<div style="font-size:32px;margin-bottom:12px;">&#9881;&#65039;</div>'
