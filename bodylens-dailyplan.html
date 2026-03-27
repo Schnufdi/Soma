@@ -1603,7 +1603,7 @@ body {
 // BodyLens Daily Plan v5 — clean rebuild
 // PLAN_VERSION: bump this whenever renderPlan or buildPlan changes
 // Old cache keys with a different version are automatically purged on load.
-var PLAN_VERSION = 'v6r2';
+var PLAN_VERSION = 'v6r3';
 var API   = '/api/chat';
 var MODEL = 'claude-sonnet-4-20250514';
 var MODEL_FAST = 'claude-haiku-4-5-20251001'; // Simple tasks: estimations, summaries, short outputs
@@ -4121,7 +4121,7 @@ function applyRecovery(p, missedSession, targetDayIdx) {
   
   // Bust the day plan cache for today so it rebuilds with new session
   var todayDate = new Date().toISOString().slice(0,10);
-  try { localStorage.removeItem('dayplan_v6r2_' + todayDate); } catch(e) {}
+  try { localStorage.removeItem('dayplan_v6r3_' + todayDate); } catch(e) {}
   // Also bust the generic cache
   if (window.TODAY && window.TODAY.cacheKey) {
     try { localStorage.removeItem(window.TODAY.cacheKey); } catch(e) {}
