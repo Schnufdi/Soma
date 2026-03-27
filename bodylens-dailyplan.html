@@ -8063,15 +8063,16 @@ function preloadRecipes(p, t){
   var nm = document.getElementById('nav-meta');
   if(nm) nm.innerHTML = '<span class="nav-tag nt-jade">'+P.name+'</span>';
 
-  // Incomplete profile
-  TODAY = getTodayCtx(P);
-  // Auto-repair missing fields before check
-  if (!P.generatedAt && P.weekPlan && P.weekPlan.length > 0) {
-    P.generatedAt = new Date().toISOString();
-    try { localStorage.setItem('bl_profile', JSON.stringify(P)); } catch(e) {}
-  }
+  // Auto-repair BEFORE getTodayCtx — prevents crashes on incomplete profiles
   if (!P.wakeTime) P.wakeTime = '07:00';
-  var ok = (P.trainingKcal > 0 || P.calories > 0) && P.weekPlan && P.weekPlan.length >= 5;
+  if (!P.calories && P.trainingKcal) P.calories = P.trainingKcal;
+  if (!P.generatedAt && P.weekPlan && P.weekPlan.length > 0) P.generatedAt = new Date().toISOString();
+  if (!P.weekPlan || !Array.isArray(P.weekPlan)) P.weekPlan = [];
+  if (!P.trainingDays) P.trainingDays = 4;
+  try { localStorage.setItem('bl_profile', JSON.stringify(P)); } catch(e) {}
+
+  TODAY = getTodayCtx(P);
+  var ok = (P.trainingKcal > 0 || P.calories > 0) && P.weekPlan.length >= 5;
   if(!ok){
     root.innerHTML = '<div style="text-align:center;padding:60px 24px;max-width:480px;margin:0 auto;">'
       +'<div style="font-size:32px;margin-bottom:12px;">&#9881;&#65039;</div>'
