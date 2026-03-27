@@ -3003,6 +3003,41 @@ body {
   z-index: 200; transition: all .15s;
 }
 .vlg-guided-trigger:hover { color: var(--jade); border-color: rgba(0,200,160,.3); }
+
+/* ── Calorie reasoning panel additions ─────────────────── */
+.dp2-cal-section-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-top: 14px;
+  margin-bottom: 5px;
+  opacity: .8;
+}
+.dp2-cal-formula {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  font-family: var(--serif);
+  font-style: italic;
+  margin-bottom: 6px;
+  padding: 5px 8px;
+  background: rgba(255,255,255,.03);
+  border-radius: 5px;
+  border-left: 2px solid rgba(255,255,255,.08);
+}
+.dp2-cal-why {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  line-height: 1.7;
+  font-family: var(--serif);
+  font-style: italic;
+  margin: 4px 0 6px;
+  padding-left: 4px;
+  border-left: 1px solid rgba(255,255,255,.08);
+}
 </style>
 
 <script src="activitylog.js"></script>
@@ -5348,6 +5383,103 @@ function renderPlan(plan, browsing) {
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Carbs</span><span class="dp2-cal-val amber">' + p.carbs + 'g — ' + (isTraining ? 'training day allocation, fuels session and replenishes glycogen' : 'reduced on rest day, glycogen stays full from yesterday') + '</span></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Fat</span><span class="dp2-cal-val">' + p.fat + 'g — hormonal floor (testosterone, cortisol regulation)</span></div>'
     + '</div>';
+
+  
+  // ── Full calorie & macro derivation ────────────────────────────
+  // Shows the complete calculation chain on the page
+  var w2 = p.weight || 87;
+  var h2 = p.height || 181;
+  var age2 = p.age || 35;
+  var isFemale2 = (p.sex||'').toLowerCase() === 'female';
+  var bmr2 = isFemale2
+    ? Math.round(10*w2 + 6.25*h2 - 5*age2 - 161)
+    : Math.round(10*w2 + 6.25*h2 - 5*age2 + 5);
+  var actStr2 = (p.activityLevel||'').toLowerCase();
+  var actMult2 = actStr2.includes('sedentary') ? 1.25
+    : actStr2.includes('lightly') ? 1.375
+    : actStr2.includes('very active') ? 1.80
+    : 1.55;
+  var actLabel2 = actStr2.includes('sedentary') ? 'Sedentary (desk job, minimal movement)'
+    : actStr2.includes('lightly') ? 'Lightly active (some walking, light exercise)'
+    : actStr2.includes('very active') ? 'Very active (physical job or heavy daily training)'
+    : 'Moderately active (' + (p.trainingDays||4) + ' training days/week)';
+  var tdee2 = p.tdee || Math.round(bmr2 * actMult2);
+  var deficit2 = tdee2 - dayKcal;
+  var adjLabel2 = Math.abs(deficit2) <= 80
+    ? 'At maintenance — no adjustment'
+    : deficit2 > 0
+    ? '−' + deficit2 + ' kcal below TDEE'
+    : '+' + Math.abs(deficit2) + ' kcal above TDEE';
+  var adjWhy2 = Math.abs(deficit2) <= 80
+    ? 'Body recomposition works best at maintenance on training days. The calorie deficit comes from rest days (' + (p.restKcal||Math.round(dayKcal*0.9)) + ' kcal), not from cutting training fuel.'
+    : deficit2 > 0
+    ? 'Controlled deficit drives fat loss. Set conservatively to preserve muscle mass during recomposition.'
+    : 'Mild surplus supports muscle building while body fat is managed through training stimulus.';
+  var protPerKg2 = (p.protein / Math.max(1, w2)).toFixed(1);
+  var protKcal2 = (p.protein||0) * 4;
+  var fatKcal2 = (p.fat||0) * 9;
+  var carbKcal2 = (p.carbs||0) * 4;
+  var macroTotal2 = protKcal2 + fatKcal2 + carbKcal2;
+
+  var calorieReasonHtml = '<div class="dp2-cal-reason">'
+    // ── Step 1: BMR ─────────────────────────────────────────────
+    + '<div class="dp2-cal-section-label">Step 1 — Basal Metabolic Rate</div>'
+    + '<div class="dp2-cal-formula">Mifflin–St Jeor: (10 × ' + w2 + 'kg) + (6.25 × ' + h2 + 'cm) − (5 × ' + age2 + ') + 5</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">BMR</span>'
+      + '<span class="dp2-cal-val">' + bmr2 + ' kcal — energy burned completely at rest, organs only</span>'
+    + '</div>'
+    // ── Step 2: TDEE ─────────────────────────────────────────────
+    + '<div class="dp2-cal-section-label" style="margin-top:10px;">Step 2 — Total Daily Energy Expenditure</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">Activity</span>'
+      + '<span class="dp2-cal-val">' + actLabel2 + ' × ' + actMult2 + '</span>'
+    + '</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">TDEE</span>'
+      + '<span class="dp2-cal-val jade">' + tdee2 + ' kcal — your maintenance point</span>'
+    + '</div>'
+    // ── Step 3: Goal adjustment ───────────────────────────────────
+    + '<div class="dp2-cal-section-label" style="margin-top:10px;">Step 3 — Goal Adjustment</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">Goal</span>'
+      + '<span class="dp2-cal-val">' + (p.goal||'Body recomposition') + '</span>'
+    + '</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">Adjustment</span>'
+      + '<span class="dp2-cal-val">' + adjLabel2 + '</span>'
+    + '</div>'
+    + '<div class="dp2-cal-why">' + adjWhy2 + '</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">Training day</span>'
+      + '<span class="dp2-cal-val jade">' + dayKcal + ' kcal</span>'
+    + '</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">Rest day</span>'
+      + '<span class="dp2-cal-val">' + (p.restKcal||Math.round(dayKcal*0.9)) + ' kcal — 10% reduction, no training fuel needed</span>'
+    + '</div>'
+    // ── Step 4: Macro splits ──────────────────────────────────────
+    + '<div class="dp2-cal-section-label" style="margin-top:10px;">Step 4 — Macro Splits</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">Protein</span>'
+      + '<span class="dp2-cal-val jade">' + (p.protein||0) + 'g × 4 = ' + protKcal2 + ' kcal (' + protPerKg2 + 'g/kg body weight)</span>'
+    + '</div>'
+    + '<div class="dp2-cal-why">Minimum floor for recomposition. At ' + protPerKg2 + 'g/kg, muscle protein synthesis is fully saturated — you preserve lean mass while the deficit operates. Below this, the body cannibilises muscle.</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">Fat</span>'
+      + '<span class="dp2-cal-val">' + (p.fat||0) + 'g × 9 = ' + fatKcal2 + ' kcal (' + ((p.fat||0)/Math.max(1,w2)).toFixed(1) + 'g/kg)</span>'
+    + '</div>'
+    + '<div class="dp2-cal-why">Hormonal floor. Dietary fat is required for testosterone synthesis, cortisol regulation, and fat-soluble vitamin absorption (D3, K2). Below ~0.8g/kg, testosterone production drops measurably.</div>'
+    + '<div class="dp2-cal-row">'
+      + '<span class="dp2-cal-key">Carbs</span>'
+      + '<span class="dp2-cal-val amber">' + (p.carbs||0) + 'g × 4 = ' + carbKcal2 + ' kcal (remainder)</span>'
+    + '</div>'
+    + '<div class="dp2-cal-why">Fills the remaining calorie budget after protein and fat are set. ' + (isTraining ? 'On training days carbs fuel the session (glycolysis) and replenish muscle glycogen post-session.' : 'On rest days carbs are slightly lower (' + (p.restCarbs || Math.round((p.carbs||0)*0.85)) + 'g) since glycogen stays full from yesterday.') + '</div>'
+    + '<div class="dp2-cal-row" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">'
+      + '<span class="dp2-cal-key">Total</span>'
+      + '<span class="dp2-cal-val">' + macroTotal2 + ' kcal from macros vs ' + dayKcal + ' kcal target (' + (macroTotal2 > dayKcal ? '+' : '') + (macroTotal2-dayKcal) + ' kcal)</span>'
+    + '</div>'
+  + '</div>';
 
   
   // ── Calorie & macro reasoning panel ─────────────────────────
