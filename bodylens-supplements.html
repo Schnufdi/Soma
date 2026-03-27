@@ -372,6 +372,15 @@ function addToStack(id, btn) {
   if (btn) { btn.textContent = '✓ In your deep stack'; btn.className = 'sp-add-btn saved'; btn.disabled = true; }
 }
 
+function scrollToDeep(id) {
+  var el = document.getElementById('sp-card-' + id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.style.border = '1px solid rgba(0,200,160,.4)';
+    setTimeout(function(){ el.style.border = ''; }, 2000);
+  }
+}
+
 function setFilter(cat) {
   _activeFilter = cat;
   render();
@@ -416,14 +425,75 @@ function render() {
 
   var html = filterHtml;
 
-  // Your existing stack note
-  if (p && p.supplements && p.supplements.length) {
-    html += '<div style="background:var(--ink-1);border:1px solid var(--jade-br);border-radius:8px;padding:12px 16px;margin-bottom:24px;">'
-      + '<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:5px;">Your current stack</div>'
-      + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">' + p.supplements.map(function(s){ return s.name||s; }).join(' · ') + '</div>'
-      + '<div style="font-size:10px;font-weight:300;color:var(--dk-3);margin-top:4px;">The compounds below are additions — don\'t stack everything at once. Add one at a time, 4 weeks apart.</div>'
-      + '</div>';
+  // ── BASELINE STACK ─────────────────────────────────────────────
+  // Define timing slots based on training/rest day
+  var isTrainingDay = false;
+  try {
+    var todayLog = JSON.parse(localStorage.getItem('bl_daylog_' + new Date().toISOString().slice(0,10)) || '{}');
+    isTrainingDay = todayLog.dayType && todayLog.dayType.toLowerCase().includes('train');
+  } catch(e) {}
+
+  // Optimise timing for each baseline supplement
+  function getOptimisedTiming(supp, isTraining) {
+    var name = (supp.name || '').toLowerCase();
+    var timing = (supp.timing || '').toLowerCase();
+    if (name.includes('creatine')) return isTraining ? 'Post-training with protein' : 'Morning with food';
+    if (name.includes('omega') || name.includes('fish oil')) return 'With largest meal (lunch or dinner)';
+    if (name.includes('vitamin d') || name.includes('d3')) return 'Morning with fat-containing meal';
+    if (name.includes('magnesium')) return '30-60 min before bed';
+    if (name.includes('theanine') || name.includes('l-theanine')) return isTraining ? '30 min pre-session (with caffeine)' : 'With morning coffee';
+    if (name.includes('zinc')) return 'Bedtime — away from calcium';
+    if (name.includes('ashwagandha')) return 'With dinner or before bed';
+    if (name.includes('vitamin c')) return 'Morning — NOT immediately post-training';
+    if (name.includes('b12') || name.includes('b-12')) return 'Morning';
+    if (name.includes('collagen')) return '30 min pre-training with vitamin C';
+    return supp.timing || 'With food';
   }
+
+  // Build baseline section
+  html += '<div style="margin-bottom:28px;">'
+    + '<div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--jade);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">'
+      + 'Your baseline stack'
+      + '<span style="font-weight:300;text-transform:none;letter-spacing:0;font-size:11px;color:var(--dk-3);">'
+        + (isTrainingDay ? 'Training day timing' : 'Rest day timing')
+      + '</span>'
+    + '</div>';
+
+  if (p && p.supplements && p.supplements.length) {
+    html += '<div style="display:flex;flex-direction:column;gap:8px;">';
+    p.supplements.forEach(function(s) {
+      var sName = s.name || s;
+      var sDose = s.dose || '';
+      var sTiming = getOptimisedTiming(s, isTrainingDay);
+      var deepMatch = SUPPS.find(function(ds){ return ds.name.toLowerCase().includes(sName.toLowerCase().slice(0,8)); });
+      html += '<div style="background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;">'
+        + '<div style="width:8px;height:8px;border-radius:50%;background:var(--jade);flex-shrink:0;"></div>'
+        + '<div style="flex:1;">'
+          + '<div style="font-size:13px;font-weight:600;color:var(--dk-1);">' + sName + '</div>'
+          + '<div style="display:flex;gap:10px;margin-top:3px;flex-wrap:wrap;">'
+            + (sDose ? '<span style="font-size:11px;font-weight:600;color:var(--jade);">' + sDose + '</span>' : '')
+            + '<span style="font-size:11px;font-weight:300;color:var(--dk-3);">' + sTiming + '</span>'
+          + '</div>'
+        + '</div>'
+        + (deepMatch ? '<a data-deep="' + deepMatch.id + '" href="#" onclick="event.preventDefault();scrollToDeep(this.dataset.deep)" style="font-size:10px;font-weight:600;color:var(--dk-3);text-decoration:none;white-space:nowrap;">Evidence &#8594;</a>' : '')
+      + '</div>';
+    });
+    html += '</div>';
+  } else {
+    html += '<div style="padding:20px;background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:10px;font-size:13px;font-weight:300;color:var(--dk-3);">'
+      + 'No supplements in your profile yet. <a href="bodylens-programme.html" style="color:var(--jade);">Add them in your programme</a>.'
+    + '</div>';
+  }
+
+  html += '</div>';
+
+  // Deep stack divider
+  html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">'
+    + '<div style="flex:1;height:1px;background:var(--bd);"></div>'
+    + '<div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--dk-3);">Deep stack — select to add</div>'
+    + '<div style="flex:1;height:1px;background:var(--bd);"></div>'
+  + '</div>';
+
 
   Object.keys(groups).forEach(function(cat) {
     html += '<div class="sp-sec">' + (CAT_LABELS[cat] || cat) + '</div>';
@@ -434,7 +504,7 @@ function render() {
       var evClass = 'evidence-' + s.evidence;
       var evLabel = s.evidence === 'strong' ? 'Strong evidence' : s.evidence === 'moderate' ? 'Moderate evidence' : 'Emerging evidence';
 
-      html += '<div class="sp-card' + (isOpen?' open':'') + '" id="sp-card-' + s.id + '">';
+      html += '<div id="sp-card-'+s.id+'" class="sp-card' + (isOpen?' open':'') + '" id="sp-card-' + s.id + '">';
 
       // Header
       html += '<div class="sp-card-hd" onclick="toggleCard(\'' + s.id + '\')">'

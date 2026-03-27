@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0c1010">
+<title>BodyLens &mdash; Strength Baseline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.sb-page { max-width:760px; margin:0 auto; padding:36px 24px 120px; }
+.sb-hero { padding-bottom:24px; border-bottom:1px solid var(--bd); margin-bottom:28px; }
+.sb-kicker { font-size:9px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; }
+.sb-title { font-family:var(--serif); font-size:40px; font-weight:300; line-height:.95; letter-spacing:-.03em; color:var(--dk-1); margin-bottom:10px; }
+.sb-desc { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; max-width:540px; }
+
+/* Assessment section */
+.sb-assessment { background:var(--ink-1); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:18px 20px; margin-bottom:28px; }
+.sb-assess-label { font-size:9px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--jade); margin-bottom:12px; }
+.sb-assess-row { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.sb-assess-row:last-child { border-bottom:none; }
+.sb-assess-key { font-size:12px; font-weight:300; color:var(--dk-3); min-width:140px; }
+.sb-assess-val { font-size:13px; font-weight:700; color:var(--jade); }
+.sb-assess-tier { font-size:10px; font-weight:600; padding:2px 8px; border-radius:12px; margin-left:6px; }
+.sb-assess-tier.b { background:rgba(255,255,255,.05); color:var(--dk-3); }
+.sb-assess-tier.i { background:rgba(196,124,24,.1); color:var(--amber); }
+.sb-assess-tier.a { background:rgba(0,200,160,.1); color:var(--jade); }
+
+/* Exercise sections */
+.sb-section { margin-bottom:28px; }
+.sb-section-label { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
+.sb-section-label span { font-weight:300; text-transform:none; letter-spacing:0; font-size:11px; color:var(--dk-3); }
+
+.sb-lift-card { background:var(--ink-1); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:16px 18px; margin-bottom:10px; }
+.sb-lift-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px; }
+.sb-lift-name { font-size:14px; font-weight:600; color:var(--dk-1); }
+.sb-lift-sub { font-size:11px; font-weight:300; color:var(--dk-3); margin-top:2px; }
+.sb-lift-1rm { text-align:right; }
+.sb-lift-1rm-val { font-family:var(--serif); font-size:28px; font-weight:300; color:var(--jade); line-height:1; }
+.sb-lift-1rm-label { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--dk-3); margin-top:2px; }
+
+/* Input row */
+.sb-inputs { display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:8px; align-items:end; margin-bottom:8px; }
+.sb-input-group { }
+.sb-input-label { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:5px; }
+.sb-input { width:100%; box-sizing:border-box; background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:9px 12px; font-size:13px; font-family:var(--sans); color:var(--dk-1); outline:none; transition:border-color .12s; }
+.sb-input:focus { border-color:rgba(0,200,160,.3); }
+.sb-log-btn { padding:9px 14px; background:rgba(0,200,160,.08); border:1px solid rgba(0,200,160,.2); border-radius:8px; color:var(--jade); font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; font-family:var(--sans); white-space:nowrap; transition:all .12s; }
+.sb-log-btn:hover { background:rgba(0,200,160,.14); }
+
+/* History rows */
+.sb-history { margin-top:8px; }
+.sb-history-row { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:12px; }
+.sb-history-row:last-child { border-bottom:none; }
+.sb-history-date { color:var(--dk-3); min-width:70px; font-weight:300; }
+.sb-history-weight { color:var(--dk-1); font-weight:600; min-width:60px; }
+.sb-history-sets { color:var(--dk-3); font-weight:300; flex:1; }
+.sb-history-1rm { color:var(--jade); font-weight:700; min-width:60px; text-align:right; }
+.sb-est-label { font-size:10px; color:var(--dk-3); }
+
+/* Standards bar */
+.sb-standards { margin-top:10px; }
+.sb-std-label { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
+.sb-std-row { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+.sb-std-tier-label { font-size:10px; font-weight:600; color:var(--dk-3); min-width:80px; }
+.sb-std-bar-wrap { flex:1; height:4px; background:rgba(255,255,255,.06); border-radius:2px; position:relative; }
+.sb-std-bar { height:100%; border-radius:2px; background:rgba(255,255,255,.12); }
+.sb-std-marker { position:absolute; top:-4px; width:2px; height:12px; border-radius:1px; background:var(--jade); transform:translateX(-50%); transition:left .4s; }
+.sb-std-kg { font-size:10px; font-weight:300; color:var(--dk-3); min-width:45px; text-align:right; }
+
+/* Implied badge */
+.sb-implied { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; background:rgba(196,124,24,.07); border:1px solid rgba(196,124,24,.15); border-radius:10px; font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--amber); }
+</style>
+</head>
+<body>
+<script src="nav.js"></script>
+<div class="sb-page">
+  <div class="sb-hero">
+    <div class="sb-kicker">Strength repository</div>
+    <div class="sb-title">Your lifting<br>baseline.</div>
+    <div class="sb-desc">
+      Log your working weights and reps for core exercises. BodyLens estimates your 1RM using the Epley formula
+      and uses this to calibrate difficulty across every session. Missing lifts are implied from your assessment.
+    </div>
+  </div>
+
+  <div class="sb-assessment" id="assessment-card">
+    <div class="sb-assess-label">Overall assessment</div>
+    <div id="assess-rows">
+      <div style="font-size:12px;font-weight:300;color:var(--dk-3);">Loading your profile...</div>
+    </div>
+  </div>
+
+  <div id="lifts-container"></div>
+</div>
+<script src="pwa.js"></script>
+<script>
+'use strict';
+const SB_KEY = 'bl_strength_baseline';
+
+const _p = (function(){ try { return JSON.parse(localStorage.getItem('bl_profile')||'null'); } catch(e){ return null; } })();
+const navMeta = document.getElementById('nav-meta');
+if (navMeta && _p) navMeta.innerHTML = '<span class="nav-tag nt-jade">'+(_p.name||'You')+'</span>';
+
+const BW = _p ? (_p.weight || 80) : 80;
+
+// ── Core exercises ──────────────────────────────────────────
+const LIFTS = [
+  {
+    id: 'squat', name: 'Back Squat / Leg Press', group: 'Lower',
+    sub: 'Working set weight. Machine totals OK.',
+    standards: { novice: Math.round(BW*0.75), intermediate: Math.round(BW*1.25), advanced: Math.round(BW*1.75), elite: Math.round(BW*2.25) },
+  },
+  {
+    id: 'deadlift', name: 'Deadlift / RDL', group: 'Lower / Posterior',
+    sub: 'Romanian deadlift working weight counts.',
+    standards: { novice: Math.round(BW*0.9), intermediate: Math.round(BW*1.5), advanced: Math.round(BW*2.0), elite: Math.round(BW*2.5) },
+  },
+  {
+    id: 'hip-thrust', name: 'Hip Thrust', group: 'Posterior / Glutes',
+    sub: 'Priority lift — log even bodyweight.',
+    standards: { novice: Math.round(BW*0.5), intermediate: Math.round(BW*1.0), advanced: Math.round(BW*1.5), elite: Math.round(BW*2.0) },
+  },
+  {
+    id: 'bench', name: 'Bench Press / DB Press', group: 'Push / Chest',
+    sub: 'Dumbbell: enter combined weight.',
+    standards: { novice: Math.round(BW*0.5), intermediate: Math.round(BW*0.8), advanced: Math.round(BW*1.1), elite: Math.round(BW*1.4) },
+  },
+  {
+    id: 'row', name: 'Barbell Row / Cable Row', group: 'Pull / Back',
+    sub: 'Any rowing pattern. Enter working weight.',
+    standards: { novice: Math.round(BW*0.5), intermediate: Math.round(BW*0.8), advanced: Math.round(BW*1.1), elite: Math.round(BW*1.4) },
+  },
+  {
+    id: 'ohp', name: 'Overhead Press', group: 'Push / Shoulders',
+    sub: 'Standing or seated. Barbell or dumbbell.',
+    standards: { novice: Math.round(BW*0.3), intermediate: Math.round(BW*0.55), advanced: Math.round(BW*0.75), elite: Math.round(BW*1.0) },
+  },
+  {
+    id: 'pullup', name: 'Pull-up / Lat Pulldown', group: 'Pull / Lats',
+    sub: 'Pull-up: enter 0 weight + reps. Pulldown: weight.',
+    standards: { novice: 0, intermediate: 5, advanced: 10, elite: 15, isReps: true },
+  },
+  {
+    id: 'bulgarian', name: 'Bulgarian Split Squat', group: 'Lower / Unilateral',
+    sub: 'Enter per-leg working weight (each dumbbell).',
+    standards: { novice: Math.round(BW*0.2), intermediate: Math.round(BW*0.4), advanced: Math.round(BW*0.6), elite: Math.round(BW*0.8) },
+  },
+];
+
+// ── Epley 1RM formula ───────────────────────────────────────
+function epley(weight, reps) {
+  if (!weight || !reps) return 0;
+  if (reps === 1) return weight;
+  return Math.round(weight * (1 + reps / 30));
+}
+
+// ── Load / save ─────────────────────────────────────────────
+function loadBaseline() {
+  try { return JSON.parse(localStorage.getItem(SB_KEY) || '{}'); } catch(e) { return {}; }
+}
+
+function saveBaseline(data) {
+  try { localStorage.setItem(SB_KEY, JSON.stringify(data)); } catch(e) {}
+  // Also update profile fitnessLevel from baseline
+  syncToProfile(data);
+}
+
+function syncToProfile(data) {
+  if (!_p) return;
+  // Build a strength index from logged lifts
+  var scored = LIFTS.filter(function(l){ return data[l.id] && data[l.id].entries && data[l.id].entries.length; });
+  if (!scored.length) return;
+  
+  var totalScore = 0, count = 0;
+  scored.forEach(function(lift) {
+    var entry = data[lift.id].entries[0]; // most recent
+    var e1rm = epley(entry.weight, entry.reps);
+    var stds = lift.standards;
+    var score = e1rm >= stds.elite ? 0.9 :
+                e1rm >= stds.advanced ? 0.72 :
+                e1rm >= stds.intermediate ? 0.5 :
+                e1rm >= stds.novice ? 0.28 : 0.1;
+    totalScore += score; count++;
+  });
+  
+  _p.fitnessLevel = totalScore / count;
+  _p.strengthBaseline = data;
+  _p.lastUpdated = new Date().toISOString();
+  try { localStorage.setItem('bl_profile', JSON.stringify(_p)); } catch(e) {}
+}
+
+function logEntry(liftId, btn) {
+  var wInput = document.getElementById('sb-w-' + liftId);
+  var rInput = document.getElementById('sb-r-' + liftId);
+  var nInput = document.getElementById('sb-n-' + liftId);
+  if (!wInput || !rInput) return;
+  
+  var weight = parseFloat(wInput.value) || 0;
+  var reps = parseInt(rInput.value) || 0;
+  var note = nInput ? nInput.value : '';
+  if (!weight && !reps) return;
+  
+  var data = loadBaseline();
+  if (!data[liftId]) data[liftId] = { entries: [] };
+  data[liftId].entries.unshift({
+    date: new Date().toISOString().slice(0, 10),
+    weight: weight, reps: reps,
+    e1rm: epley(weight, reps),
+    note: note,
+  });
+  if (data[liftId].entries.length > 20) data[liftId].entries = data[liftId].entries.slice(0, 20);
+  saveBaseline(data);
+  
+  if (btn) { btn.textContent = '\u2713 Logged'; setTimeout(function(){ btn.textContent = 'Log'; }, 1500); }
+  wInput.value = ''; rInput.value = ''; if (nInput) nInput.value = '';
+  render();
+}
+
+// ── Render ──────────────────────────────────────────────────
+function render() {
+  var data = loadBaseline();
+  renderAssessment(data);
+  renderLifts(data);
+}
+
+function renderAssessment(data) {
+  var el = document.getElementById('assess-rows');
+  if (!el) return;
+  
+  var fitnessLevel = _p ? (_p.fitnessLevel !== undefined ? Math.round(_p.fitnessLevel * 100) : null) : null;
+  var loggedCount = LIFTS.filter(function(l){ return data[l.id] && data[l.id].entries && data[l.id].entries.length; }).length;
+  
+  // Build tier from fitness level
+  var tier = 'Beginner', tierCls = 'b';
+  if (fitnessLevel >= 60) { tier = 'Advanced'; tierCls = 'a'; }
+  else if (fitnessLevel >= 35) { tier = 'Intermediate'; tierCls = 'i'; }
+  
+  el.innerHTML =
+    '<div class="sb-assess-row"><span class="sb-assess-key">Overall tier</span><span class="sb-assess-val">' + tier + '</span><span class="sb-assess-tier ' + tierCls + '">' + (fitnessLevel !== null ? fitnessLevel + '/100' : 'Not yet assessed') + '</span></div>'
+    + '<div class="sb-assess-row"><span class="sb-assess-key">Lifts logged</span><span class="sb-assess-val">' + loggedCount + ' / ' + LIFTS.length + '</span></div>'
+    + '<div class="sb-assess-row"><span class="sb-assess-key">Bodyweight</span><span class="sb-assess-val">' + BW + ' kg</span></div>'
+    + '<div class="sb-assess-row"><span class="sb-assess-key">Standards based on</span><span class="sb-assess-val" style="font-size:11px;font-weight:300;color:var(--dk-3);">Age-adjusted relative bodyweight multipliers</span></div>';
+}
+
+function renderLifts(data) {
+  var container = document.getElementById('lifts-container');
+  if (!container) return;
+  
+  var grouped = {};
+  LIFTS.forEach(function(l){ if (!grouped[l.group.split(' / ')[0]]) grouped[l.group.split(' / ')[0]] = []; grouped[l.group.split(' / ')[0]].push(l); });
+  
+  var html = '';
+  var groupOrder = ['Lower', 'Push', 'Pull', 'Posterior'];
+  Object.keys(grouped).sort(function(a,b){ return (groupOrder.indexOf(a)+99) - (groupOrder.indexOf(b)+99); }).forEach(function(grp) {
+    html += '<div class="sb-section"><div class="sb-section-label">' + grp + ' <span>' + grouped[grp].length + ' exercises</span></div>';
+    grouped[grp].forEach(function(lift) {
+      html += renderLiftCard(lift, data[lift.id]);
+    });
+    html += '</div>';
+  });
+  
+  container.innerHTML = html;
+}
+
+function renderLiftCard(lift, liftData) {
+  var entries = (liftData && liftData.entries) || [];
+  var best1rm = entries.length ? entries.reduce(function(m, e){ return Math.max(m, e.e1rm || 0); }, 0) : 0;
+  var stds = lift.standards;
+  var isImplied = !entries.length && _p && _p.fitnessLevel !== undefined;
+  var implied1rm = isImplied ? impliedFrom1rm(lift) : 0;
+  var display1rm = best1rm || implied1rm;
+  
+  // Standards bar markers
+  var maxStd = stds.elite * 1.1;
+  var stdBars = ['novice', 'intermediate', 'advanced', 'elite'].map(function(t) {
+    var val = stds[t];
+    var pct = Math.min(100, Math.round(val / maxStd * 100));
+    var myPct = display1rm ? Math.min(100, Math.round(display1rm / maxStd * 100)) : -1;
+    return '<div class="sb-std-row">'
+      + '<div class="sb-std-tier-label">' + cap(t) + '</div>'
+      + '<div class="sb-std-bar-wrap">'
+        + '<div class="sb-std-bar" style="width:' + pct + '%"></div>'
+        + (myPct >= 0 && Math.abs(myPct - pct) < 8 ? '<div class="sb-std-marker" style="left:' + myPct + '%"></div>' : '')
+      + '</div>'
+      + '<div class="sb-std-kg">' + val + (stds.isReps ? ' reps' : 'kg') + '</div>'
+      + '</div>';
+  }).join('');
+  
+  if (display1rm > 0) {
+    var myPct = Math.min(100, Math.round(display1rm / maxStd * 100));
+    stdBars += '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;">'
+      + '<div style="width:12px;height:12px;background:var(--jade);border-radius:2px;flex-shrink:0;"></div>'
+      + '<div style="font-size:11px;font-weight:300;color:var(--dk-2);">Your 1RM est: <strong style="color:var(--jade);">' + display1rm + (stds.isReps ? ' reps' : 'kg') + '</strong></div>'
+      + (isImplied ? '<div class="sb-implied">implied</div>' : '')
+      + '</div>';
+  }
+  
+  var historyHtml = entries.slice(0, 4).map(function(e) {
+    return '<div class="sb-history-row">'
+      + '<div class="sb-history-date">' + e.date + '</div>'
+      + '<div class="sb-history-weight">' + (e.weight ? e.weight + 'kg' : '—') + '</div>'
+      + '<div class="sb-history-sets">' + e.reps + ' reps</div>'
+      + '<div class="sb-history-1rm">' + (e.e1rm || '—') + (stds.isReps ? '' : 'kg') + '</div>'
+      + '</div>';
+  }).join('');
+  
+  return '<div class="sb-lift-card">'
+    + '<div class="sb-lift-top">'
+      + '<div><div class="sb-lift-name">' + lift.name + '</div><div class="sb-lift-sub">' + lift.sub + '</div></div>'
+      + (display1rm > 0 ? '<div class="sb-lift-1rm"><div class="sb-lift-1rm-val">' + display1rm + '</div><div class="sb-lift-1rm-label">' + (stds.isReps ? 'max reps' : '1RM est') + '</div></div>' : '')
+    + '</div>'
+    // Input row
+    + '<div class="sb-inputs">'
+      + '<div class="sb-input-group"><div class="sb-input-label">Weight' + (stds.isReps ? '' : ' (kg)') + '</div><input type="number" id="sb-w-' + lift.id + '" class="sb-input" placeholder="' + (stds.isReps ? '0' : 'e.g. 80') + '" min="0" step="2.5"></div>'
+      + '<div class="sb-input-group"><div class="sb-input-label">Reps</div><input type="number" id="sb-r-' + lift.id + '" class="sb-input" placeholder="e.g. 8" min="1" max="50"></div>'
+      + '<div class="sb-input-group"><div class="sb-input-label">Note</div><input type="text" id="sb-n-' + lift.id + '" class="sb-input" placeholder="optional"></div>'
+      + '<button class="sb-log-btn" onclick="logEntry(\'' + lift.id + '\',this)">Log</button>'
+    + '</div>'
+    // Standards
+    + '<div class="sb-standards"><div class="sb-std-label">Standards for ' + BW + 'kg male</div>' + stdBars + '</div>'
+    // History
+    + (historyHtml ? '<div class="sb-history">' + historyHtml + '</div>' : '')
+  + '</div>';
+}
+
+function impliedFrom1rm(lift) {
+  if (!_p || _p.fitnessLevel === undefined) return 0;
+  var lv = _p.fitnessLevel;
+  var stds = lift.standards;
+  // Interpolate between novice and elite based on fitness level
+  var range = stds.elite - stds.novice;
+  return Math.round(stds.novice + range * lv);
+}
+
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+// ── Init ────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
