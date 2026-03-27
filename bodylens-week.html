@@ -103,6 +103,50 @@ body{background:var(--ink);color:var(--dk-1);}
 .ai-result-text{font-family:var(--serif);font-size:16px;font-weight:300;color:var(--dk-1);line-height:1.85;}
 .ai-spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.08);border-top-color:var(--jade);animation:wkspin .7s linear infinite;flex-shrink:0;}
 @keyframes wkspin{to{transform:rotate(360deg)}}
+
+/* ── Week meals section ────────────────────────────────────── */
+.wk-meal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 6px; margin-bottom: 8px;
+}
+.wkm-card {
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px; padding: 10px; overflow: hidden;
+  transition: border-color .12s;
+}
+.wkm-card:hover { border-color: rgba(255,255,255,.12); }
+.wkm-card.today { border-color: rgba(0,200,160,.25); background: rgba(0,200,160,.04); }
+.wkm-card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.wkm-day-name { font-size: 12px; font-weight: 700; color: var(--dk-1); letter-spacing: -.01em; }
+.wkm-card.today .wkm-day-name { color: var(--jade); }
+.wkm-day-full { font-weight: 300; color: var(--dk-3); font-size: 10px; }
+.wkm-train-pill {
+  font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 10px;
+  background: rgba(0,200,160,.1); color: var(--jade); border: 1px solid rgba(0,200,160,.2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px;
+}
+.wkm-rest-pill {
+  font-size: 8px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 10px;
+  background: rgba(255,255,255,.04); color: var(--dk-3); border: 1px solid rgba(255,255,255,.06);
+}
+.wkm-meal-row { display: flex; align-items: baseline; gap: 4px; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,.03); }
+.wkm-meal-row:last-child { border-bottom: none; }
+.wkm-slot-label { font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dk-3); flex-shrink: 0; width: 30px; }
+.wkm-meal-name { font-size: 10px; font-weight: 400; color: var(--dk-2); flex: 1; line-height: 1.3; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wkm-meal-prot { font-size: 9px; font-weight: 600; color: var(--jade); flex-shrink: 0; }
+.wkm-no-meals { font-size: 10px; font-weight: 300; color: var(--dk-3); padding: 4px 0; font-style: italic; }
+.wkm-footer { margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.04); }
+.wkm-macro-bar-wrap { height: 2px; background: rgba(255,255,255,.06); border-radius: 2px; margin-bottom: 4px; overflow: hidden; }
+.wkm-macro-bar { height: 100%; border-radius: 2px; transition: width .3s; }
+.wkm-macro-nums { font-size: 9px; font-weight: 300; color: var(--dk-3); }
+.wk-no-meals { text-align: center; padding: 24px; background: var(--ink-1); border: 1px dashed rgba(255,255,255,.08); border-radius: 10px; margin-bottom: 8px; }
+.wk-no-meals-icon { font-size: 24px; margin-bottom: 8px; }
+.wk-no-meals-text { font-size: 12px; font-weight: 300; color: var(--dk-3); margin-bottom: 12px; }
+.wk-no-meals-btn { display: inline-block; padding: 8px 18px; background: rgba(196,124,24,.08); border: 1px solid rgba(196,124,24,.2); border-radius: 20px; color: var(--amber); font-size: 11px; font-weight: 700; text-decoration: none; letter-spacing: .04em; }
+@media (max-width: 760px) { .wk-meal-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 500px) { .wk-meal-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
@@ -131,6 +175,97 @@ if(!p){
     +'</div>';
 } else {
   render(p);
+}
+
+
+// ── WEEK MEALS SECTION ─────────────────────────────────────────────────
+function buildWeekMealsSection(p) {
+  // Load the weekly meal plan
+  var wm = null;
+  try {
+    var d = new Date(), mon = new Date(d), wd = d.getDay();
+    mon.setDate(d.getDate() - (wd === 0 ? 6 : wd - 1));
+    mon.setHours(0,0,0,0);
+    var key = 'bl_weekly_meals_' + mon.toISOString().slice(0,10);
+    var raw = localStorage.getItem(key);
+    if (raw) wm = JSON.parse(raw);
+  } catch(e) {}
+
+  if (!wm || !wm.days) {
+    // No meal plan — show a prompt to build one
+    return '<div class="sec-label">This week\'s meals</div>'      + '<div class="wk-no-meals">'        + '<div class="wk-no-meals-icon">🍽</div>'        + '<div class="wk-no-meals-text">No meal plan for this week yet.</div>'        + '<a href="bodylens-meals.html" class="wk-no-meals-btn">Build your week of meals →</a>'      + '</div>'      + '<div style="height:28px;"></div>';
+  }
+
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var weekPlan = p.weekPlan || [];
+  var today = new Date().toLocaleDateString('en-GB', { weekday: 'long' });
+
+  // Build a card per day showing meals + training
+  var html = '<div class="sec-label">This week\'s meals</div>'    + '<div class="wk-meal-grid">';
+
+  DNS.forEach(function(day, i) {
+    var wp = weekPlan[i] || { type: 'Rest', priority: 'rest' };
+    var isTraining = wp.priority === 'training';
+    var isToday = day === today;
+    var dayMeals = wm.days[day] || {};
+    var slots = Object.keys(dayMeals).filter(function(s) {
+      return dayMeals[s] && dayMeals[s].name;
+    });
+
+    // Training pill
+    var trainingPill = isTraining
+      ? '<span class="wkm-train-pill">' + (wp.type || 'Training') + '</span>'
+      : '<span class="wkm-rest-pill">Rest</span>';
+
+    // Macro totals from meals
+    var totalProt = 0, totalKcal = 0;
+    slots.forEach(function(s) {
+      var m = dayMeals[s];
+      totalProt += (m.protein || 0);
+      totalKcal += (m.calories || 0);
+    });
+
+    // Meal rows
+    var mealRows = slots.length
+      ? slots.map(function(slot) {
+          var meal = dayMeals[slot];
+          var slotLabel = {
+            breakfast: 'AM', lunch: 'Lunch', dinner: 'Dinner',
+            snack1: 'Snack', snack2: 'Snack 2', midday: 'Midday', evening: 'Eve'
+          }[slot] || slot;
+          return '<div class="wkm-meal-row">'            + '<span class="wkm-slot-label">' + slotLabel + '</span>'            + '<span class="wkm-meal-name">' + meal.name + '</span>'            + '<span class="wkm-meal-prot">' + (meal.protein || 0) + 'g P</span>'            + '</div>';
+        }).join('')
+      : '<div class="wkm-no-meals">No meals planned</div>';
+
+    // Protein progress vs target
+    var protTarget = isTraining ? (p.protein || 174) : (p.protein || 174);
+    var protPct = totalProt > 0 ? Math.min(100, Math.round(totalProt / protTarget * 100)) : 0;
+    var protColor = protPct >= 90 ? 'var(--jade)' : protPct >= 70 ? 'var(--amber)' : 'rgba(220,80,60,.8)';
+
+    html += '<div class="wkm-card' + (isToday ? ' today' : '') + '">'
+      + '<div class="wkm-card-hd">'
+        + '<div class="wkm-day-name">' + day.slice(0,3) + '<span class="wkm-day-full">' + day.slice(3) + '</span></div>'
+        + trainingPill
+      + '</div>'
+      + '<div class="wkm-meals">' + mealRows + '</div>'
+      + (totalProt > 0
+        ? '<div class="wkm-footer">'
+            + '<div class="wkm-macro-bar-wrap">'
+              + '<div class="wkm-macro-bar" style="width:' + protPct + '%;background:' + protColor + ';"></div>'
+            + '</div>'
+            + '<div class="wkm-macro-nums">'
+              + '<span style="color:' + protColor + ';font-weight:600;">' + totalProt + 'g P</span>'
+              + ' · ' + totalKcal + ' kcal'
+            + '</div>'
+          + '</div>'
+        : '')
+      + '</div>';
+  });
+
+  html += '</div>'
+    + '<div style="text-align:right;margin-top:8px;">'      + '<a href="bodylens-meals.html" style="font-size:11px;font-weight:600;color:var(--amber);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;">Edit meal plan →</a>'    + '</div>'    + '<div style="height:28px;"></div>';
+
+  return html;
 }
 
 function render(p) {
@@ -263,6 +398,7 @@ function render(p) {
     +'<div class="sec-label">Week at a glance</div>'
     +cardsHtml
     +recsHtml
+    +buildWeekMealsSection(p)
     +'<div style="height:28px;"></div>'
     +rhythmHtml
     +'<div style="height:28px;"></div>'

@@ -148,7 +148,29 @@ Only add this tag if there is genuinely new information that would change the pr
 
     const dynamicBlock = `You are speaking directly with ${profile.name}.
 
-CLIENT PROFILE:
+${(function() {
+  try {
+    var mem = profile.behaviourMemory;
+    if (!mem) return '';
+    var lines = ['BEHAVIOUR MEMORY (AI-compressed history):'];
+    if (mem.complianceScore !== null && mem.complianceScore !== undefined) {
+      lines.push('Rolling compliance score: ' + mem.complianceScore + '/100');
+    }
+    if (mem.currentFlags && mem.currentFlags.length) {
+      lines.push('Current flags: ' + mem.currentFlags.join('; '));
+    }
+    if (mem.patterns && mem.patterns.length) {
+      lines.push('Known patterns: ' + mem.patterns.join('; '));
+    }
+    if (mem.weekSummaries && mem.weekSummaries.length) {
+      lines.push('Recent weeks:');
+      mem.weekSummaries.slice(0,2).forEach(function(w) {
+        if (w.summary) lines.push('  ' + w.week + ': ' + w.summary);
+      });
+    }
+    return lines.join('\n') + '\n\n';
+  } catch(e) { return ''; }
+})()}CLIENT PROFILE:
 Name: ${profile.name} | Age: ${profile.age} | Sex: ${profile.sex}
 Weight: ${profile.weight}kg | Height: ${profile.height}cm${profile.bodyFat ? ' | Body fat: ' + profile.bodyFat + '%' : ''}
 Goal: ${profile.goal}${profile.target ? ' — ' + profile.target : ''}

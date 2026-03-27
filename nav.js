@@ -25,9 +25,17 @@
     <a class="nav-right" href="/bodylens-bodyscan.html">Body scan</a>
     <div class="nav-meta" id="nav-meta"></div>
     <a class="nav-link nav-profiles" href="/bodylens-profiles.html" title="Profile Vault" style="margin-left:8px;opacity:0.6;font-size:11px;">⬡ Vault</a>
+    <a class="nav-pro-badge" href="/bodylens-pro.html" id="nav-pro-badge" title="BodyLens Pro">PRO</a>
     <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu">&#9776;</button>
   </div>
 </nav>
+
+<!-- Beta / security disclaimer -->
+<div class="site-disclaimer" id="site-disclaimer">
+  <span class="sd-icon">🔬</span>
+  <span class="sd-text">Beta &mdash; data stored locally in this browser. Not a medical service.</span>
+  <button class="sd-close" onclick="dismissDisclaimer()" aria-label="Dismiss">&#10005;</button>
+</div>
 
 <!-- MOBILE MENU OVERLAY -->
 <div class="mobile-menu-overlay" id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
@@ -58,6 +66,11 @@
   <a class="mm-link" href="/bodylens-howitworks.html">How it works</a>
   <a class="mm-link" href="/bodylens-bodyscan.html">Body scan</a>
   <a class="mm-link" href="/bodylens-profiles.html">⬡ Vault</a>
+  <div class="mm-section-label mm-pro-section">Upgrade</div>
+  <a class="mm-link mm-pro-link" href="/bodylens-pro.html">
+    <span class="mm-pro-badge">PRO</span>
+    Unlock the full engine
+  </a>
 </div>`;
 
   const BOTTOM_TAB_HTML = `<div class="mobile-tab-bar" id="mobile-tab-bar">
@@ -131,8 +144,25 @@
   document.addEventListener('DOMContentLoaded', function() {
     setTimeout(doInject, 50);
     setTimeout(doInject, 300);
+    // Show disclaimer unless dismissed
+    setTimeout(function() {
+      var el = document.getElementById('site-disclaimer');
+      if (!el) return;
+      var dismissed = localStorage.getItem('bl_disclaimer_dismissed');
+      if (dismissed) {
+        el.style.display = 'none';
+      } else {
+        el.classList.add('visible');
+      }
+    }, 400);
   });
 })();
+
+function dismissDisclaimer() {
+  var el = document.getElementById('site-disclaimer');
+  if (el) { el.classList.remove('visible'); el.classList.add('hiding'); setTimeout(function(){ el.style.display='none'; }, 300); }
+  try { localStorage.setItem('bl_disclaimer_dismissed', '1'); } catch(e) {}
+}
 
 // ════════════════════════════════════════════════════════
 //  BodyLens — nav.js  v2.0
@@ -610,6 +640,9 @@ window.saveOpt = function(id, name, icon, btn) {
       p.optimisations.push(id);
       if (!p.accelerators.includes(id)) p.accelerators.push(id);
       localStorage.setItem('bl_profile', JSON.stringify(p));
+      // Bust the daily plan cache so new optimisation fires on next load
+      var _today = new Date().toISOString().slice(0,10);
+      try { localStorage.removeItem('dayplan_v6r2_' + _today); } catch(e2) {}
     }
     if (btn) {
       btn.textContent = '✓ In your programme';

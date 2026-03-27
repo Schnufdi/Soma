@@ -2253,3 +2253,140 @@ body .body-xs { color: var(--dk-2); }
   }
   .nav-brand { font-size: 18px; }
 }
+
+/* ════════════════════════════════════════════════════════
+   PRO BADGE — nav top right
+   ════════════════════════════════════════════════════════ */
+.nav-pro-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background: linear-gradient(135deg, #c8941e 0%, #e8b84a 50%, #c8941e 100%);
+  background-size: 200% 200%;
+  border: none;
+  cursor: pointer;
+  transition: opacity .15s, transform .15s;
+  animation: pro-shimmer 3s ease-in-out infinite;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 4px;
+  position: relative;
+}
+.nav-pro-badge:hover {
+  opacity: .88;
+  transform: scale(1.05);
+}
+@keyframes pro-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+/* Pulsing dot on PRO badge */
+.nav-pro-badge::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--jade);
+  border: 1.5px solid var(--ink);
+  animation: pro-dot-pulse 2s ease-in-out infinite;
+}
+@keyframes pro-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .5; transform: scale(.75); }
+}
+
+/* Mobile menu Pro section */
+.mm-pro-section {
+  color: var(--gold) !important;
+  opacity: 1 !important;
+}
+.mm-pro-link {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+}
+.mm-pro-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  color: var(--ink);
+  background: linear-gradient(135deg, #c8941e, #e8b84a);
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════════════
+   SITE DISCLAIMER BANNER
+   ════════════════════════════════════════════════════════ */
+.site-disclaimer {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 9990;
+  background: rgba(19, 25, 24, .97);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding: 10px 20px;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  line-height: 1.4;
+}
+.site-disclaimer.visible {
+  display: flex;
+}
+.site-disclaimer.hiding {
+  animation: disclaimer-hide .3s ease forwards;
+}
+@keyframes disclaimer-hide {
+  to { opacity: 0; transform: translateY(100%); }
+}
+.sd-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  opacity: .7;
+}
+.sd-text {
+  flex: 1;
+  color: var(--dk-3);
+}
+.sd-text a {
+  color: var(--amber);
+  text-decoration: none;
+}
+.sd-text a:hover { text-decoration: underline; }
+.sd-close {
+  background: none;
+  border: none;
+  color: var(--dk-3);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: color .12s;
+  font-family: var(--sans);
+  line-height: 1;
+}
+.sd-close:hover { color: var(--dk-2); }
+
+/* Hide disclaimer when mobile bottom tab bar is present — avoid overlap */
+@media (max-width: 600px) {
+  .site-disclaimer { bottom: 56px; }
+}

@@ -74,24 +74,62 @@ window.BL.loadProfile = function(cb) {
 
           if (isDifferentUser) {
             // Wrong user was loaded — clear stale day logs and reload
-            // Clear only the volatile per-day data, keep the profile
             Object.keys(localStorage).forEach(function(k) {
               if (k.startsWith('dayplan_') || k.startsWith('bl_macros_') ||
-                  k.startsWith('bl_recipe_') || k.startsWith('bl_weekledger_')) {
+                  k.startsWith('bl_recipe_') || k.startsWith('bl_weekledger_') ||
+                  k.startsWith('bl_daylog_') || k.startsWith('bl_weekly_meals_')) {
                 localStorage.removeItem(k);
               }
             });
-            // Reload so every page renders with the correct user's data
             window.location.reload();
             return;
           }
 
+          // Restore history for this user (fills localStorage from Supabase)
+          setTimeout(function() { window.BL.restoreHistory && window.BL.restoreHistory(); }, 500);
           cb && cb(serverProfile);
         } else {
           cb && cb(null);
         }
       });
   });
+};
+
+// Restore last 30 days of history from Supabase to localStorage
+// Called after successful sign-in so the app works offline-first after first load
+window.BL.restoreHistory = function() {
+  if (!window._blUser || !window._sb) return;
+  var sb = window._sb;
+  var userId = window._blUser.id;
+  var thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  var cutoff = thirtyDaysAgo.toISOString().slice(0,10);
+
+  // Day logs
+  sb.from('day_logs').select('date,data').eq('user_id', userId)
+    .gte('date', cutoff).then(function(r) {
+      if (r.data) r.data.forEach(function(row) {
+        _orig('bl_daylog_' + row.date, JSON.stringify(row.data));
+      });
+    });
+
+  // Macros
+  sb.from('macros').select('date,data').eq('user_id', userId)
+    .gte('date', cutoff).then(function(r) {
+      if (r.data) r.data.forEach(function(row) {
+        _orig('bl_macros_' + row.date, JSON.stringify(row.data));
+      });
+    });
+
+  // Meal plans (last 8 weeks)
+  var eightWeeksAgo = new Date();
+  eightWeeksAgo.setDate(eightWeeksAgo.getDate() - 56);
+  sb.from('meal_plans').select('week_start,data').eq('user_id', userId)
+    .gte('week_start', eightWeeksAgo.toISOString().slice(0,10)).then(function(r) {
+      if (r.data) r.data.forEach(function(row) {
+        _orig('bl_weekly_meals_' + row.week_start, JSON.stringify(row.data));
+      });
+    });
 };
 
 // Init on every page
@@ -176,13 +214,62 @@ window.BL.showUserMenu = function() {
   }, 100);
 };
 
-// Auto-save to Supabase when profile is saved to localStorage
+// Auto-save to Supabase when key data is saved to localStorage
+// This is the pipe between the local-first architecture and the cloud.
+// Profile changes, day logs, macros, and meal plans all flow here.
 var _orig = localStorage.setItem.bind(localStorage);
 localStorage.setItem = function(key, value) {
   _orig(key, value);
-  if (key === 'bl_profile' && window._blUser) {
-    try { window.BL.saveProfile(JSON.parse(value)); } catch(e) {}
-  }
+  if (!window._blUser || !window._sb) return;
+  var sb = window._sb;
+  var userId = window._blUser.id;
+
+  try {
+    // Profile — static config + behaviourMemory (the AI rolling narrative)
+    if (key === 'bl_profile') {
+      window.BL.saveProfile(JSON.parse(value));
+    }
+
+    // Day log — training, sleep, energy, notes, debrief conversation
+    else if (key.startsWith('bl_daylog_')) {
+      var date = key.replace('bl_daylog_', '');
+      sb.from('day_logs').upsert({
+        user_id: userId,
+        date: date,
+        data: JSON.parse(value),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,date' }).then(function(r) {
+        if (r.error) console.warn('day_logs upsert error:', r.error.message);
+      });
+    }
+
+    // Macros — daily protein/kcal tracking
+    else if (key.startsWith('bl_macros_')) {
+      var date = key.replace('bl_macros_', '');
+      sb.from('macros').upsert({
+        user_id: userId,
+        date: date,
+        data: JSON.parse(value),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,date' }).then(function(r) {
+        if (r.error) console.warn('macros upsert error:', r.error.message);
+      });
+    }
+
+    // Weekly meal plan — generated meal plan for the week
+    else if (key.startsWith('bl_weekly_meals_')) {
+      var weekStart = key.replace('bl_weekly_meals_', '');
+      sb.from('meal_plans').upsert({
+        user_id: userId,
+        week_start: weekStart,
+        data: JSON.parse(value),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,week_start' }).then(function(r) {
+        if (r.error) console.warn('meal_plans upsert error:', r.error.message);
+      });
+    }
+
+  } catch(e) { /* silently fail — local-first */ }
 };
 
 // Styles
