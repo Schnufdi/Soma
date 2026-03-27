@@ -1538,6 +1538,62 @@ body {
 .glance-sleep-conf {
   width: 100%; font-size: 10px; font-weight: 300; color: var(--jade);
 }
+
+/* ── Debrief conversation ─────────────────────────────────── */
+.db-conv-msgs {
+  display: flex; flex-direction: column; gap: 10px;
+  max-height: 240px; overflow-y: auto;
+  margin-bottom: 12px; padding-right: 4px;
+}
+.db-conv-msg {
+  padding: 10px 14px; border-radius: 10px; font-size: 13px;
+  font-weight: 300; line-height: 1.6; max-width: 90%;
+}
+.db-conv-msg.coach {
+  background: rgba(0,200,160,.07);
+  border: 1px solid rgba(0,200,160,.15);
+  color: var(--dk-1); align-self: flex-start;
+}
+.db-conv-msg.user {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  color: var(--dk-2); align-self: flex-end;
+}
+.db-conv-msg.thinking {
+  background: rgba(0,200,160,.04);
+  border: 1px dashed rgba(0,200,160,.15);
+  color: var(--dk-3); font-style: italic;
+}
+.db-conv-input-row {
+  display: flex; gap: 8px; align-items: flex-end;
+}
+.db-conv-input {
+  flex: 1; background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 10px;
+  padding: 10px 14px; font-size: 13px; font-weight: 300;
+  color: var(--dk-1); font-family: var(--sans); resize: none;
+  min-height: 44px; max-height: 100px; outline: none;
+  transition: border-color .12s; line-height: 1.5;
+}
+.db-conv-input:focus { border-color: rgba(0,200,160,.3); }
+.db-conv-send {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: var(--jade); border: none; color: var(--ink);
+  font-size: 16px; cursor: pointer; flex-shrink: 0;
+  transition: opacity .12s; display: flex;
+  align-items: center; justify-content: center;
+}
+.db-conv-send:hover { opacity: .85; }
+.db-conv-send:disabled { opacity: .3; cursor: not-allowed; }
+.db-conv-skip-link {
+  text-align: center; margin-top: 10px;
+}
+.db-conv-skip-link button {
+  background: none; border: none; font-size: 11px;
+  font-weight: 500; color: var(--dk-3); cursor: pointer;
+  font-family: var(--sans); transition: color .12s;
+}
+.db-conv-skip-link button:hover { color: var(--dk-2); }
 </style>
 
 <script src="activitylog.js"></script>
@@ -1946,9 +2002,72 @@ function buildPlan(profile, today) {
       detail: 'Warm up 10 min. Working sets at RPE 7-9 — 1-3 reps from failure. Track every load.' + injNote + '\nCool down 5-10 min.',
       coachNote: trainCoachNote,
       science: 'The last 5 reps drive adaptation. Everything before is preparation.',
-      exercises: (plan.keyExercises||[]).slice(0,6),
-      items: ((plan.keyExercises||[]).slice(0,5).map(e => ({ name:e, meta:'' }))
-              .concat([{ name:'Track loads', meta:'progressive overload' }])).slice(0,5)
+      exercises: (plan.keyExercises||[]).slice(0,8),
+      items: ((plan.keyExercises||[]).slice(0,7).map(e => ({ name:e, meta:'' }))
+              .concat([{ name:'Track loads', meta:'progressive overload' }])).slice(0,8),
+      cardioRec: (function(sessionType) {
+        var age = p.age || 35;
+        var z2Lo = Math.round((220-age)*0.65);
+        var z2Hi = Math.round((220-age)*0.70);
+        var t = (sessionType||'').toLowerCase();
+        if (t.indexOf('posterior') >= 0 || t.indexOf('glute') >= 0 || t.indexOf('leg') >= 0) {
+          return {
+            when: 'Post-session only · low-impact',
+            why: 'Heavy posterior chain work already loads glutes and hamstrings hard. No running or rowing today — they extend the same pattern. Choose upper-body or unloaded cardio.',
+            options: [
+              { name: 'Swim', detail: '20–25 min easy, upper-body dominant', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Seated Bike', detail: '20 min Zone 2, low resistance', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Step Machine', detail: '15–20 min moderate pace', bpmLo: z2Lo, bpmHi: z2Hi }
+            ],
+            avoid: 'Running, rowing, box jumps — all extend posterior chain load'
+          };
+        } else if (t.indexOf('push') >= 0 || t.indexOf('chest') >= 0) {
+          return {
+            when: 'Pre or post-session · full freedom',
+            why: 'Upper body push day — lower body cardio is completely free. Zone 2 pre-session primes the cardiovascular system without competing with upper body work.',
+            options: [
+              { name: 'Run', detail: '20–25 min Zone 2', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Bike', detail: '20 min Zone 2', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Row', detail: '15 min Zone 2 — legs dominant today', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Swim', detail: '20 min easy', bpmLo: z2Lo, bpmHi: z2Hi }
+            ],
+            avoid: 'Nothing — full cardio freedom today'
+          };
+        } else if (t.indexOf('pull') >= 0) {
+          return {
+            when: 'Pre or post-session · lower body free',
+            why: 'Pull day taxes lats, rhomboids, and biceps. Lower body cardio is completely unaffected.',
+            options: [
+              { name: 'Run', detail: '20–25 min Zone 2', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Bike', detail: '20 min Zone 2', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Step Machine', detail: '15–20 min', bpmLo: z2Lo, bpmHi: z2Hi }
+            ],
+            avoid: 'Rowing — taxes same back muscles as the pull session'
+          };
+        } else if (t.indexOf('upper') >= 0) {
+          return {
+            when: 'Post-session · light only',
+            why: 'Saturday upper session accumulates fatigue across the week. Keep cardio short and Zone 2 only — recovery is the priority.',
+            options: [
+              { name: 'Walk', detail: '30 min brisk', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Bike', detail: '15 min easy', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Swim', detail: '20 min easy', bpmLo: z2Lo, bpmHi: z2Hi }
+            ],
+            avoid: 'High-intensity cardio \u2014 accumulated training load all week'
+          };
+        } else {
+          return {
+            when: 'Post-session · Zone 2',
+            why: 'Zone 2 cardio builds aerobic base and accelerates recovery via EPOC.',
+            options: [
+              { name: 'Bike', detail: '20 min Zone 2', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Swim', detail: '20 min easy', bpmLo: z2Lo, bpmHi: z2Hi },
+              { name: 'Walk', detail: '30 min brisk', bpmLo: z2Lo, bpmHi: z2Hi }
+            ],
+            avoid: ''
+          };
+        }
+      })(plan.type)
     });
 
     // POST-TRAINING
@@ -3560,6 +3679,7 @@ function renderPlan(plan, browsing){
         +exRows(b.exercises)
         +'<div style="margin-top:10px;font-size:11px;font-weight:300;color:var(--dk-3);">10 min warm-up · Cool down 5-10 min · Track every load</div>'
         +(b.injNote?'<div style="margin-top:6px;font-size:11px;color:rgba(255,140,100,.8);">⚠ '+b.injNote+'</div>':'')
+        +(b.cardioRec ? renderCardioRec(b.cardioRec) : '')
         +'<div style="margin-top:12px;">'
           +'<button onclick="event.stopPropagation();_gcLaunchFromBlock('+i+',window._blocks['+i+'])" '
             +'style="background:var(--jade);border:none;color:var(--ink);padding:10px 20px;border-radius:8px;'
@@ -4297,6 +4417,7 @@ function renderGlanceCard(p, t, plan, browsing) {
       +'</button>'
       +'<div class="glance-secondary-link" onclick="document.querySelector(\'.challenge-card\').scrollIntoView({behavior:\'smooth\'})" style="cursor:pointer;">'
         +(t.isTraining && trainStatus !== 'done' ? 'Not up for that? <span>Adjust the day &rarr;</span>' : 'Something in the way today? <span>Get a fix &rarr;</span>')
+      +'<div class="glance-debrief-link" onclick="openDebrief()" style="cursor:pointer;margin-top:6px;font-size:11px;font-weight:500;color:var(--dk-3);display:flex;align-items:center;gap:6px;">&#9998; <span style="color:var(--jade);">Log your day &rarr;</span></div>'
         +'</div>'
     +'</div>'
   +'</div>';
@@ -4471,8 +4592,69 @@ function handleChallengeCta(id) {
 function _dlKey(dateStr){ return 'bl_daylog_' + (dateStr || _rDate); }
 
 // Memoised — prevents 28x redundant localStorage reads per session
+
+// ── AUTO-EXPAND SPARSE EXERCISE LISTS ──────────────────────────────────
+var FULL_SESSIONS = {
+  'Push': ['Bench Press 4x6-8 (RPE 8)','Overhead Press 3x8-10 (RPE 7-8)','Incline DB Press 3x10 (RPE 7)','Cable Lateral Raise 3x15-20','Tricep Dips or Pushdown 3x12','Chest Fly 2x15'],
+  'Pull': ['Pull-Ups or Lat Pulldown 4x6-8 (RPE 8)','Barbell Row 4x6-8 (RPE 8)','Cable Row 3x10-12','Face Pull 3x15-20','Bicep Curl (supinated) 3x12','Hammer Curl 2x15'],
+  'Posterior Chain': ['Romanian Deadlift 4x8 (RPE 8)','Hip Thrust 4x10-12 (RPE 7-8)','Leg Curl (machine or Nordic) 3x10-12','Bulgarian Split Squat 3x8 each leg','Calf Raise 4x15-20','Back Extension 3x12'],
+  'Upper': ['Weighted Pull-Ups 4x5-6 (RPE 8-9)','DB Bench Press 3x10-12','Arnold Press 3x10-12','Cable Fly 3x15','Barbell or DB Curl 3x12','Overhead Tricep Extension 3x12'],
+  'Legs': ['Back Squat 4x6-8 (RPE 8)','Romanian Deadlift 3x10','Leg Extension 3x12-15','Leg Curl 3x12','Walking Lunges 3x12 each leg','Calf Raise 4x20']
+};
+
+(function expandSparseExercises() {
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
+    if (!p || !p.weekPlan) return;
+    var updated = false;
+    p.weekPlan.forEach(function(day) {
+      if (day.priority !== 'training') return;
+      var sessionType = day.type || '';
+      var fullEx = null;
+      Object.keys(FULL_SESSIONS).forEach(function(key) {
+        if (sessionType.toLowerCase().indexOf(key.toLowerCase()) >= 0 ||
+            key.toLowerCase().indexOf(sessionType.toLowerCase()) >= 0) {
+          fullEx = FULL_SESSIONS[key];
+        }
+      });
+      if (fullEx && (!day.keyExercises || day.keyExercises.length < 5)) {
+        day.keyExercises = fullEx;
+        updated = true;
+      }
+    });
+    if (updated) {
+      p.exercisesExpandedAt = new Date().toISOString();
+      localStorage.setItem('bl_profile', JSON.stringify(p));
+    }
+  } catch(e) {}
+})();
+
 var _dayLogCache = {};
 function clearDayLogCache(dateStr) { if(dateStr) delete _dayLogCache[dateStr]; else _dayLogCache={}; }
+
+// ── CARDIO RECOMMENDATION RENDERER ────────────────────────────────────
+// Shows on every training block — options calibrated by session type
+function renderCardioRec(rec) {
+  if (!rec) return '';
+  var options = (rec.options || []).map(function(opt) {
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+      + '<span style="font-size:12px;font-weight:600;color:var(--dk-1);min-width:80px;">' + opt.name + '</span>'
+      + '<span style="font-size:11px;font-weight:300;color:var(--dk-3);flex:1;">' + opt.detail + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:var(--jade);white-space:nowrap;">' + opt.bpmLo + '–' + opt.bpmHi + ' bpm</span>'
+      + '</div>';
+  }).join('');
+
+  return '<div style="margin-top:16px;padding:14px 16px;background:rgba(0,200,160,.04);border:1px solid rgba(0,200,160,.1);border-radius:10px;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+      + '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);">Cardio today</div>'
+      + '<div style="font-size:10px;font-weight:300;color:var(--dk-3);">' + (rec.when||'') + '</div>'
+    + '</div>'
+    + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-bottom:10px;line-height:1.5;">' + (rec.why||'') + '</div>'
+    + options
+    + (rec.avoid ? '<div style="margin-top:8px;font-size:10px;font-weight:300;color:rgba(220,80,60,.7);">Avoid: ' + rec.avoid + '</div>' : '')
+  + '</div>';
+}
+
 function loadDayLog(dateStr) {
   if (_dayLogCache[dateStr] !== undefined) return _dayLogCache[dateStr];
   try {
@@ -6119,10 +6301,203 @@ window._gcLaunchFromBlock = function(blockIdx, block) {
 // ═══════════════════════════════════════════════════════════════
 //  DEBRIEF SYSTEM
 // ═══════════════════════════════════════════════════════════════
+
+// ── BEHAVIOUR MEMORY ENGINE ────────────────────────────────────────────
+// Compresses daily debrief data into a rolling narrative on bl_profile.
+// This is the AI's long-term memory. It persists to Supabase automatically
+// via the localStorage.setItem intercept in supabase-auth.js.
+//
+// Structure of p.behaviourMemory:
+// {
+//   updatedAt: ISO string,
+//   weekSummaries: [  // last 4 weeks, newest first
+//     { week: 'YYYY-MM-DD', summary: '3-4 sentences', flags: ['missed Push x2'] }
+//   ],
+//   patterns: ['misses Wednesday sessions when work is busy', 'protein dips on rest days'],
+//   currentFlags: ['2 sessions missed this week', 'protein below target yesterday'],
+//   complianceScore: 72,  // 0-100, rolling 7-day
+// }
+
+function loadBehaviourMemory() {
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
+    return p && p.behaviourMemory ? p.behaviourMemory : null;
+  } catch(e) { return null; }
+}
+
+function saveBehaviourMemory(mem) {
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+    p.behaviourMemory = mem;
+    p.behaviourMemory.updatedAt = new Date().toISOString();
+    localStorage.setItem('bl_profile', JSON.stringify(p));
+    // Note: supabase-auth.js intercepts this setItem and syncs to Supabase automatically
+  } catch(e) {}
+}
+
+function buildDaySnapshot(log, p) {
+  // Build a rich text snapshot of today for the AI compression call
+  var lines = [];
+  var date = log.date || _rDate;
+  var dayType = log.dayType || (log.planType || 'Unknown');
+  lines.push('Date: ' + date + ' (' + (log.weekDay || '') + ', ' + dayType + ')');
+
+  // Training
+  if (log.trainStatus && log.trainStatus !== 'rest') {
+    lines.push('Training: ' + log.trainStatus);
+    var exLogs = log.exercises || {};
+    var exDone  = Object.values(exLogs).filter(function(e){return e.status==='done';}).length;
+    var exMod   = Object.values(exLogs).filter(function(e){return e.status==='modified';}).length;
+    var exSkip  = Object.values(exLogs).filter(function(e){return e.status==='skipped';}).length;
+    var exNotes = Object.values(exLogs).filter(function(e){return e.note;})
+      .map(function(e){return (e.name||'exercise')+': '+e.note;}).join(', ');
+    if (exDone || exMod || exSkip) {
+      lines.push('Exercises: ' + exDone + ' done, ' + exMod + ' modified, ' + exSkip + ' skipped');
+    }
+    if (exNotes) lines.push('Exercise notes: ' + exNotes);
+    if (log.trainNote) lines.push('Session note: ' + log.trainNote);
+  }
+
+  // Nutrition
+  var actual = log.actual || {};
+  var plan = log.plan || {};
+  if (actual.prot > 0) {
+    var protPct = Math.round(actual.prot / (plan.prot || p.protein || 174) * 100);
+    lines.push('Protein: ' + actual.prot + 'g of ' + (plan.prot || p.protein || 174) + 'g target (' + protPct + '%)');
+  } else {
+    lines.push('Protein: not tracked today');
+  }
+  if (actual.kcal > 0) lines.push('Calories: ' + actual.kcal + ' kcal');
+
+  // Recovery
+  if (log.sleepActual) lines.push('Sleep: ' + log.sleepActual + 'h');
+  if (log.energy) lines.push('Energy: ' + log.energy + '/5');
+  if (log.rating) lines.push('Day rating: ' + log.rating + '/5');
+  if (log.dayNote) lines.push('Note: "' + log.dayNote + '"');
+
+  // Supplements
+  var suppLog = log.suppLog || {};
+  var suppDone = Object.keys(suppLog).filter(function(k){return suppLog[k];});
+  if (suppDone.length) lines.push('Supplements taken: ' + suppDone.join(', '));
+
+  return lines.join('\n');
+}
+
+async function compressAndSaveMemory(log, p) {
+  if (!log || !p) return;
+
+  var snapshot = buildDaySnapshot(log, p);
+  var existing = loadBehaviourMemory() || {
+    weekSummaries: [], patterns: [], currentFlags: [], complianceScore: null
+  };
+
+  // Build context from existing memory
+  var memCtx = existing.weekSummaries.length
+    ? 'Previous week summaries:\n' + existing.weekSummaries.slice(0,2).map(function(w){
+        return w.week + ': ' + w.summary;
+      }).join('\n')
+    : 'No previous history yet.';
+
+  var existingPatterns = existing.patterns.length
+    ? 'Known patterns: ' + existing.patterns.join('; ')
+    : 'No patterns identified yet.';
+
+  var prompt = 'You are analysing a fitness day log for ' + p.name + ' (' + p.age + 'yo, goal: ' + (p.goal||'body recomposition') + ').\n\n'
+    + 'TODAY\'S DATA:\n' + snapshot + '\n\n'
+    + memCtx + '\n'
+    + existingPatterns + '\n\n'
+    + 'Return ONLY valid JSON in this exact structure:\n'
+    + '{\n'
+    + '  "daySummary": "2-3 sentences. What happened today. Be specific about numbers and what they mean. Honest, not cheerleader.",\n'
+    + '  "newFlags": ["short flag if something needs attention", "e.g. skipped 2 exercises", "protein 40% below target"],\n'
+    + '  "patternUpdate": "null, or one sentence if you spot a pattern across multiple days",\n'
+    + '  "complianceToday": 0-100\n'
+    + '}\n'
+    + 'Flags: only add if genuinely notable. Empty array is fine for a good day.\n'
+    + 'Return ONLY the JSON. No markdown.';
+
+  // Append conversation context if exists
+  if (log.conversation || (DB && DB.data && DB.data.conversation)) {
+    var convText = log.conversation || DB.data.conversation;
+    if (convText) {
+      prompt += '\n\nWHAT THEY SAID IN THEIR DEBRIEF CONVERSATION:\n' + convText
+        + '\n\nThis is their actual words — factor it heavily into daySummary and patternUpdate.';
+    }
+  }
+
+  try {
+    var res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        system: 'Performance coach analyst. Return ONLY valid JSON. No markdown.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    var raw = (data.content || []).map(function(b){return b.text||'';}).join('').trim();
+    var parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    // Update the memory object
+    var mem = existing;
+
+    // Add today's summary to current week (find or create week entry)
+    var weekStart = (function() {
+      var d = new Date(), wd = d.getDay();
+      var m = new Date(d); m.setDate(d.getDate() - (wd===0?6:wd-1));
+      return m.toISOString().slice(0,10);
+    })();
+
+    var weekEntry = mem.weekSummaries.find(function(w){ return w.week === weekStart; });
+    if (!weekEntry) {
+      weekEntry = { week: weekStart, summary: '', days: [], flags: [] };
+      mem.weekSummaries.unshift(weekEntry);
+      if (mem.weekSummaries.length > 8) mem.weekSummaries.pop(); // keep 8 weeks
+    }
+
+    // Append to week summary
+    var dayLabel = (log.weekDay||'') + ': ' + parsed.daySummary;
+    weekEntry.days = weekEntry.days || [];
+    weekEntry.days.push(dayLabel);
+    weekEntry.summary = weekEntry.days.slice(-3).join(' ');
+    if (parsed.newFlags && parsed.newFlags.length) {
+      weekEntry.flags = (weekEntry.flags||[]).concat(parsed.newFlags);
+    }
+
+    // Update current flags (this week's issues)
+    mem.currentFlags = weekEntry.flags || [];
+
+    // Update patterns
+    if (parsed.patternUpdate && parsed.patternUpdate !== 'null' && parsed.patternUpdate.length > 5) {
+      if (!mem.patterns.includes(parsed.patternUpdate)) {
+        mem.patterns.unshift(parsed.patternUpdate);
+        if (mem.patterns.length > 6) mem.patterns.pop();
+      }
+    }
+
+    // Rolling compliance score (simple average)
+    if (parsed.complianceToday !== undefined) {
+      var prev = mem.complianceScore || parsed.complianceToday;
+      mem.complianceScore = Math.round(prev * 0.7 + parsed.complianceToday * 0.3);
+    }
+
+    saveBehaviourMemory(mem);
+    return parsed;
+
+  } catch(e) {
+    console.warn('Memory compression failed:', e);
+    return null;
+  }
+}
+
 var DB = {
   step: 0,
   data: {},
-  dismissed: false
+  dismissed: false,
+  conversation: [],      // open debrief chat turns [{role,content}]
+  convBusy: false        // prevent double-sends
 };
 
 function checkDebriefNeeded() {
@@ -6176,6 +6551,169 @@ function openDebrief() {
 
 function closeDebrief() {
   document.getElementById('debrief-overlay').classList.remove('open');
+}
+
+async function dbFinalise() {
+  // Save all data to day log first
+  dbWriteToLog();
+  closeDebrief();
+
+  // Show memory compression indicator
+  var p = P;
+  var log = loadDayLog(_rDate) || {};
+  if (!p || !log.date) return;
+
+  // Fire AI compression in background — updates behaviourMemory on profile
+  // which auto-syncs to Supabase via the localStorage intercept
+  try {
+    var result = await compressAndSaveMemory(log, p);
+    if (result && result.newFlags && result.newFlags.length) {
+      // Refresh glance card to show new flags
+      var glanceCard = document.querySelector('.glance-card');
+      if (glanceCard && typeof renderGlanceCard === 'function' && typeof P !== 'undefined' && typeof TODAY !== 'undefined' && window._lastPlan) {
+        glanceCard.outerHTML = renderGlanceCard(P, TODAY, window._lastPlan);
+      }
+    }
+  } catch(e) {}
+}
+
+
+// ── DEBRIEF CONVERSATION ENGINE ───────────────────────────────────────
+// Fires on load of conversation step: AI reads the day and opens with
+// a context-aware question. User can respond 1-2 times before finishing.
+// All turns get passed to compressAndSaveMemory so the memory is rich.
+
+var DB_CONV_MAX_TURNS = 3; // max user turns before auto-Done
+
+async function dbConvInit() {
+  // Called when conversation step first renders
+  DB.conversation = [];
+  DB.convBusy = true;
+
+  var p = P;
+  var log = loadDayLog(_rDate) || {};
+  var snapshot = buildDaySnapshot(log, p);
+
+  // Build context from DB.data (what was entered in chips/text)
+  var ctx = [];
+  if (DB.data.trainStatus) ctx.push('Training: ' + DB.data.trainStatus);
+  if (DB.data.affectedExercises && DB.data.affectedExercises.length) {
+    ctx.push('Exercises affected: ' + DB.data.affectedExercises.join(', '));
+  }
+  if (DB.data.sleepActual) ctx.push('Sleep: ' + DB.data.sleepActual + 'h');
+  if (DB.data.energy) ctx.push('Energy: ' + DB.data.energy + '/5');
+  if (DB.data.dayNote) ctx.push('Note: "' + DB.data.dayNote + '"');
+
+  var mem = loadBehaviourMemory();
+  var memCtx = mem && mem.currentFlags && mem.currentFlags.length
+    ? '\nCurrent flags from history: ' + mem.currentFlags.join(', ')
+    : '';
+
+  var prompt = 'You are ' + p.name + '\'s performance coach. They just finished their end-of-day log.\n\n'
+    + 'WHAT THEY LOGGED TODAY:\n' + ctx.join('\n') + '\n\n'
+    + 'RAW DATA:\n' + snapshot
+    + memCtx + '\n\n'
+    + 'Open with ONE short, direct sentence acknowledging the most significant thing about today. '
+    + 'Then ask ONE specific question to get the story behind it — especially if something was skipped or energy was low. '
+    + 'Max 40 words total. Warm but direct. No fluff. No "Great job!" if they had a rough day.';
+
+  try {
+    var res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL_FAST,
+        max_tokens: 100,
+        system: 'You are a direct, warm performance coach. Short responses only. No markdown.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    var text = (data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    DB.conversation.push({ role: 'coach', content: text });
+  } catch(e) {
+    DB.conversation.push({ role: 'coach', content: 'How did the day actually feel \u2014 what\'s the story?' });
+  }
+
+  DB.convBusy = false;
+  dbRender(); // re-render with the coach message
+  // Scroll messages to bottom
+  setTimeout(function() {
+    var msgs = document.getElementById('db-conv-msgs');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  }, 50);
+}
+
+async function dbConvSend() {
+  if (DB.convBusy) return;
+  var inp = document.getElementById('db-conv-inp');
+  if (!inp) return;
+  var text = inp.value.trim();
+  if (!text) { dbConvDone(); return; }
+
+  DB.conversation.push({ role: 'user', content: text });
+  inp.value = '';
+  inp.style.height = 'auto';
+
+  // Count user turns
+  var userTurns = DB.conversation.filter(function(m){return m.role==='user';}).length;
+  if (userTurns >= DB_CONV_MAX_TURNS) {
+    dbConvDone();
+    return;
+  }
+
+  // Re-render with user message + thinking indicator
+  DB.conversation.push({ role: 'coach', content: '&#8943;' });
+  dbRender();
+  var msgs = document.getElementById('db-conv-msgs');
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
+
+  // Get coach reply
+  DB.convBusy = true;
+  var send = document.getElementById('db-conv-send');
+  if (send) send.disabled = true;
+
+  var p = P;
+  var messages = DB.conversation.slice(0,-1).map(function(m) {
+    return { role: m.role === 'coach' ? 'assistant' : 'user', content: m.content };
+  });
+  messages.push({ role: 'user', content: text });
+
+  try {
+    var res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL_FAST,
+        max_tokens: 80,
+        system: 'You are a direct, warm performance coach doing an end-of-day check-in. Keep responses under 30 words. One question or observation max. No lists. No markdown.',
+        messages: messages
+      })
+    });
+    var data = await res.json();
+    var reply = (data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    // Replace the thinking indicator
+    DB.conversation[DB.conversation.length-1] = { role: 'coach', content: reply };
+  } catch(e) {
+    DB.conversation[DB.conversation.length-1] = { role: 'coach', content: 'Got it.' };
+  }
+
+  DB.convBusy = false;
+  dbRender();
+  setTimeout(function() {
+    var msgs = document.getElementById('db-conv-msgs');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    if (send) send.disabled = false;
+  }, 50);
+}
+
+function dbConvDone() {
+  // Store conversation in DB.data so compressAndSaveMemory gets it
+  DB.data.conversation = DB.conversation
+    .filter(function(m){ return m.role === 'user'; })
+    .map(function(m){ return m.content; })
+    .join(' | ');
+  dbNext();
 }
 
 var DB_STEPS = [
@@ -6237,6 +6775,14 @@ var DB_STEPS = [
     q: 'Anything to note?',
     sub: 'Off-plan food, stress, injury, a win — optional',
     type: 'text',
+    skip: true,
+    condition: function() { return true; }
+  },
+  {
+    id: 'conversation',
+    q: 'Anything else on your mind?',
+    sub: 'Talk to your coach — optional but remembered',
+    type: 'conversation',
     skip: true,
     condition: function() { return true; }
   },
@@ -6303,6 +6849,22 @@ function dbRender() {
     html += '<button class="db-next-btn" style="margin-top:12px;" onclick="dbSaveNote();dbNext()">Done →</button>';
     if (step.skip) html += '<button class="db-skip-btn" onclick="dbSkip()">Skip</button>';
 
+  } else if (step.type === 'conversation') {
+    var msgsHtml = DB.conversation.map(function(m) {
+      return '<div class="db-conv-msg ' + m.role + '">' + m.content.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+    }).join('');
+    if (DB.conversation.length === 0) {
+      msgsHtml = '<div class="db-conv-msg thinking">&#8943; Coach is reading your day&#8230;</div>';
+    }
+    html += '<div class="db-conv-msgs" id="db-conv-msgs">' + msgsHtml + '</div>'
+      + '<div class="db-conv-input-row">'
+      + '<textarea id="db-conv-inp" class="db-conv-input" placeholder="What happened? Or skip." rows="1" '
+      + 'onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();dbConvSend();}" '
+      + 'oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,100)+\'px\';"></textarea>'
+      + '<button class="db-conv-send" id="db-conv-send" onclick="dbConvSend()">&#9654;</button>'
+      + '</div>'
+      + '<div class="db-conv-skip-link"><button onclick="dbConvDone()">Done — log my day &rarr;</button></div>';
+
   } else if (step.type === 'summary') {
     // Write to daylog first
     dbWriteToLog();
@@ -6322,6 +6884,11 @@ function dbRender() {
 
   html += '</div>';
   body.innerHTML = html;
+
+  // Auto-init conversation step
+  if (step && step.type === 'conversation' && DB.conversation.length === 0 && !DB.convBusy) {
+    dbConvInit();
+  }
 }
 
 function dbSelectChip(field, val, el) {
@@ -6351,7 +6918,11 @@ function dbSaveExNote() {
 function dbNext() {
   DB.step++;
   var steps = dbGetActiveSteps();
-  if (DB.step >= steps.length) { closeDebrief(); return; }
+  if (DB.step >= steps.length) {
+    // Last step done — finalise (save + compress + close)
+    dbFinalise();
+    return;
+  }
   dbRender();
 }
 
@@ -6365,6 +6936,11 @@ function dbWriteToLog() {
   if (DB.data.sleepActual)  log.sleepActual  = DB.data.sleepActual;
   if (DB.data.energy)       log.energy       = DB.data.energy;
   if (DB.data.dayNote)      log.dayNote      = DB.data.dayNote;
+  // Save debrief conversation so it persists and feeds future memory reads
+  if (DB.data.conversation)  log.conversation  = DB.data.conversation;
+  if (DB.conversation && DB.conversation.length) {
+    log.debriefChat = DB.conversation; // full turns for rich future reference
+  }
 
   // Write affected exercises
   if (DB.data.affectedExercises && DB.data.affectedExercises.length) {
@@ -6524,3 +7100,19 @@ setTimeout(function() {
 </script>
 </body>
 </html>
+  if (step.type === 'conversation') {
+    var msgsHtml = DB.conversation.map(function(m) {
+      return '<div class="db-conv-msg ' + m.role + '">' + m.content + '</div>';
+    }).join('');
+    if (DB.conversation.length === 0) {
+      msgsHtml = '<div class="db-conv-msg thinking">&#8943; Coach is reading your day&#8230;</div>';
+    }
+    html += '<div class="db-conv-msgs" id="db-conv-msgs">' + msgsHtml + '</div>'
+      + '<div class="db-conv-input-row">'
+      + '<textarea id="db-conv-inp" class="db-conv-input" placeholder="Type anything &#8212; or skip" rows="1" '
+      + 'onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();dbConvSend();}" '
+      + 'oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,100)+\'px\';"></textarea>'
+      + '<button class="db-conv-send" id="db-conv-send" onclick="dbConvSend()">&#9166;</button>'
+      + '</div>'
+      + '<div class="db-conv-skip-link"><button onclick="dbConvDone()">Done &#8212; log my day &rarr;</button></div>';
+  }
