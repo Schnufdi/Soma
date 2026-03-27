@@ -219,6 +219,45 @@ body { background: var(--ink); color: var(--dk-1); }
   .body-hero { padding:36px 20px 0; }
   .exb-body { grid-template-columns:1fr; }
 }
+
+/* ── Overlay protocol section ───────────────────────── */
+.dp-overlay-strip {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--bd);
+}
+.dp-overlay-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--jade); margin-bottom: 14px;
+}
+.dp-overlay-card {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 0; border-bottom: 1px solid var(--bd);
+}
+.dp-overlay-card:last-child { border-bottom: none; }
+.dp-overlay-info { flex: 1; }
+.dp-overlay-name {
+  font-size: 13px; font-weight: 600; color: var(--dk-1); margin-bottom: 3px;
+}
+.dp-overlay-meta {
+  font-size: 10px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--jade); margin-bottom: 5px;
+}
+.dp-overlay-desc {
+  font-size: 12px; font-weight: 300; color: var(--dk-3); line-height: 1.6;
+}
+.dp-overlay-btn {
+  padding: 8px 14px; border-radius: 8px; flex-shrink: 0;
+  border: 1px solid rgba(0,200,160,.25); background: rgba(0,200,160,.06);
+  font-size: 10px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--jade); cursor: pointer;
+  font-family: var(--sans); transition: all .15s; margin-top: 2px;
+}
+.dp-overlay-btn:hover { background: rgba(0,200,160,.12); }
+.dp-overlay-btn.added { 
+  background: var(--jade); color: var(--ink); border-color: var(--jade);
+  cursor: default;
+}
 </style>
 <script src="profile-inject.js"></script>
 </head>
@@ -342,6 +381,58 @@ body { background: var(--ink); color: var(--dk-1); }
 <script>
 
 // ─── MUSCLE DATA ─────────────────────────────────────────────────────────
+
+function addOverlayToPlan(overlayId, btn) {
+  // Get the overlay definition from OVERLAY_LIBRARY or build from muscle entry
+  var overlay = null;
+  
+  // Try to find in current muscle's overlayProtocols
+  var muscleName = document.querySelector('.dp-title');
+  var currentMuscle = Object.keys(MUSCLES).find(function(id) {
+    return MUSCLES[id].title === (muscleName ? muscleName.textContent : '');
+  });
+  
+  if (currentMuscle && MUSCLES[currentMuscle].overlayProtocols) {
+    overlay = MUSCLES[currentMuscle].overlayProtocols.find(function(op){ return op.id === overlayId; });
+  }
+  
+  if (!overlay) {
+    console.warn('Overlay not found:', overlayId);
+    return;
+  }
+  
+  // Save to profile
+  var p = null;
+  try { p = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) {}
+  if (!p) { alert('No profile found. Complete onboarding first.'); return; }
+  
+  if (!p.overlays) p.overlays = [];
+  var exists = p.overlays.some(function(o){ return o.id === overlay.id; });
+  
+  if (!exists) {
+    var toSave = Object.assign({}, overlay, {
+      date: new Date().toISOString().slice(0,10),
+      active: true,
+      addedBy: 'body-page'
+    });
+    p.overlays.push(toSave);
+    try { localStorage.setItem('bl_profile', JSON.stringify(p)); } catch(e) {}
+    
+    // Bust daily plan cache
+    var today = new Date().toISOString().slice(0,10);
+    ['dayplan_v6r3_','dayplan_v6r2_'].forEach(function(pfx){
+      try { localStorage.removeItem(pfx + today); } catch(e) {}
+    });
+  }
+  
+  // Update button state
+  if (btn) {
+    btn.textContent = '\u2713 Added to plan';
+    btn.classList.add('added');
+    btn.disabled = true;
+  }
+}
+
 const MUSCLES = {
 
 'glutes': {
@@ -387,7 +478,36 @@ const MUSCLES = {
     { icon:'🔴', title:'Resistance band warm-up protocol — non-negotiable before Friday', body:'3 × 15 clamshells + 2 × 20 banded lateral walks + 1 × 15 banded hip thrust at bodyweight. This activates glute med and establishes the neuromuscular connection before loaded work. <strong>Cold glutes on hip thrusts recruit hamstrings and lower back instead.</strong> The 6-minute warm-up changes the entire session.' },
     { icon:'🎯', title:'Progressive overload on the hip thrust — most important lift in the programme', body:'Add 5kg when you complete all prescribed reps at RPE 7 or below. Glutes respond to load progression more consistently than almost any other muscle group. <strong>Track your hip thrust weight weekly — this number going up is the single most reliable indicator that the knee protocol is working.</strong>' },
   ]
-},
+,
+  overlayProtocols: [
+    {
+      id: 'glute-activation',
+      name: 'Glute activation protocol',
+      trigger: 'daily',
+      duration: '5-8 min',
+      durationMins: 7,
+      items: ['Clamshells 2x15 each side', 'Glute bridge 2x20 (1 sec squeeze)', 'Donkey kick 1x15 each side', 'Fire hydrant 1x15 each side'],
+      reason: 'Daily low-load activation restores motor patterns and ensures glutes fire correctly during compound lifts. Not a gym exercise — do these anywhere.',
+    },
+    {
+      id: 'pre-session-activation',
+      name: 'Pre-session glute activation',
+      trigger: 'pre-training',
+      duration: '5 min',
+      durationMins: 5,
+      items: ['Band clamshells 2x15', 'Hip thrust bodyweight 2x15', 'Single-leg glute bridge 1x10 each'],
+      reason: 'Activating glutes before compound movements prevents hamstring and lower back compensation during hip thrusts and squats.',
+    },
+    {
+      id: 'desk-glutes',
+      name: 'Desk glute activation',
+      trigger: 'daily',
+      duration: '2 min',
+      durationMins: 2,
+      items: ['Seated squeeze: 10x5 sec holds', 'Standing calf raise 2x15 when making coffee', 'Single-leg balance 30 sec each while brushing teeth'],
+      reason: 'Long sitting inhibits glute function. These micro-movements maintain the neural connection between brain and glutes throughout the day.',
+    },
+  ]},
 
 'hamstrings': {
   title: 'Hamstrings',
@@ -1136,6 +1256,22 @@ function showMuscle(id) {
         </div>
       </div>`).join('')}
     </div>` : ''}
+
+    ${m.overlayProtocols && m.overlayProtocols.length ? `
+    <div class="dp-overlay-strip">
+      <div class="dp-overlay-label">Add to your daily plan</div>
+      ${m.overlayProtocols.map(op => `
+      <div class="dp-overlay-card">
+        <div class="dp-overlay-info">
+          <div class="dp-overlay-name">${op.name}</div>
+          <div class="dp-overlay-meta">${op.duration} · ${op.trigger === 'daily' ? 'every day' : op.trigger === 'pre-training' ? 'before sessions' : op.trigger}</div>
+          <div class="dp-overlay-desc">${op.reason || ''}</div>
+        </div>
+        <button class="dp-overlay-btn" id="ovbtn-${op.id}" onclick="addOverlayToplan('${op.id}', this)">
+          + Add to plan
+        </button>
+      </div>`).join('')}
+    </div>` : ''}
   </div>`;
 }
 
@@ -1146,8 +1282,20 @@ function switchDpTab(paneId, btn) {
   document.getElementById(paneId).classList.add('active');
 }
 
-// Auto-open glutes (your priority muscle)
-showMuscle('glutes');
+// Auto-open glutes (your priority muscle) unless URL param overrides
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var targetMuscle = params.get('muscle');
+  if (targetMuscle && typeof showMuscle === 'function') {
+    showMuscle(targetMuscle);
+    setTimeout(function() {
+      var panel = document.getElementById('detail-panel');
+      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  } else {
+    showMuscle('glutes');
+  }
+})();
 </script>
 <script>
 (function(){

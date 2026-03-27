@@ -221,6 +221,24 @@ ${(function() {
     if (found < 2) return '';
     return 'MULTI-WEEK TREND (use to spot patterns):\n' + lines.join('\n');
   } catch(e) { return ''; }
+})()}
+${(function() {
+  try {
+    var _ov = (profile.overlays || []).filter(function(o){ return o.active !== false; });
+    var _cn = profile.coachNotes || '';
+    if (!_ov.length && !_cn) return '';
+    var _out = [];
+    if (_ov.length) {
+      _out.push('ACTIVE DAILY OVERLAYS & MICRO-PROTOCOLS:');
+      _ov.forEach(function(o) {
+        var when = o.trigger==='rest-days'?'rest days':o.trigger==='pre-training'?'before sessions':o.trigger==='morning'?'every morning':'daily';
+        _out.push('\u2022 '+o.name+' — '+when+(o.duration?', '+o.duration:'')+(o.date?' [added '+o.date+']':''));
+        if (o.detail && o.detail!==o.name) _out.push('  Details: '+o.detail);
+      });
+    }
+    if (_cn) { _out.push('COACH NOTES:'); _out.push(_cn); }
+    return _out.join('\n')+'\n';
+  } catch(e){ return ''; }
 })()}`;
 
     return { static: STATIC_COACHING_INSTRUCTIONS, dynamic: dynamicBlock };
@@ -320,14 +338,26 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
       } else if (lower.includes('training') || lower.includes('exercise') || 
                  lower.includes('add this') || lower.includes('add to') ||
                  lower.includes('include') || lower.includes('programme') ||
-                 lower.includes('workout') || lower.includes('session')) {
-        // Training plan modification — goes to dedicated array, not coachNotes
-        if (!p.trainingModifications) p.trainingModifications = [];
-        p.trainingModifications.push({
-          note: newInfo,
+                 lower.includes('workout') || lower.includes('session') ||
+                 lower.includes('activation') || lower.includes('mobility') ||
+                 lower.includes('stretch') || lower.includes('glute') ||
+                 lower.includes('daily') || lower.includes('every day')) {
+        // Training/overlay modification — saved to p.overlays so it surfaces in the daily plan
+        if (!p.overlays) p.overlays = [];
+        const overlayId = 'coach-' + Date.now();
+        p.overlays.push({
+          id: overlayId,
+          name: newInfo.length > 40 ? newInfo.slice(0,40) + '…' : newInfo,
+          detail: newInfo,
+          trigger: lower.includes('rest') ? 'rest-days' : 
+                   lower.includes('morning') ? 'morning' :
+                   lower.includes('pre') || lower.includes('before') ? 'pre-training' : 'daily',
+          addedBy: 'coach',
           date: new Date().toISOString().slice(0,10),
-          addedViaCoach: true
+          active: true
         });
+        // Also keep in coachNotes as a log
+        p.coachNotes = (p.coachNotes || '') + '\n• Overlay added: ' + newInfo;
       } else {
         p.coachNotes = (p.coachNotes || '') + '\n• ' + newInfo;
       }

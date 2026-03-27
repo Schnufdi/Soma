@@ -1658,6 +1658,24 @@ body {
 .mdp-day-pill.active-day {
   border-width: 2px; font-size: 12px;
 }
+
+/* ── Overlay / daily protocol blocks ─────────────────── */
+.ptl-block.t-recovery.is-overlay .ptl-card {
+  border-color: rgba(0,200,160,.12);
+  background: rgba(0,200,160,.025);
+}
+.ptl-block.t-recovery.is-overlay .ptl-title {
+  color: var(--jade);
+}
+.overlay-remove-btn {
+  display: inline-block; margin-top: 8px;
+  font-size: 10px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--dk-3);
+  background: none; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 6px; padding: 4px 10px; cursor: pointer;
+  font-family: var(--sans); transition: all .12s;
+}
+.overlay-remove-btn:hover { border-color: rgba(220,80,60,.3); color: rgba(220,80,60,.6); }
 </style>
 
 <script src="activitylog.js"></script>
@@ -2732,6 +2750,52 @@ function applyOptimisations(blocks, p, today) {
       b.optBadge = b.optNotes; // stored separately for rendering
     }
   });
+
+  // ── DAILY OVERLAYS (micro-protocols from p.overlays) ─────────────────
+  // These are persistent protocols the coach or user has added:
+  // glute activations, mobility work, desk exercises, morning habits etc.
+  var activeOverlays = (p.overlays || []).filter(function(o){ return o.active !== false; });
+  activeOverlays.forEach(function(overlay) {
+    // Build the items list HTML
+    var items = overlay.items || [];
+    var itemsHtml = items.length
+      ? items.map(function(it){ return it; }).join(' · ')
+      : (overlay.detail || overlay.name);
+
+    var block = {
+      type: 'recovery',
+      tag: 'Daily',
+      tagColor: 'jade',
+      durationMins: overlay.durationMins || (overlay.duration ? parseInt(overlay.duration) : 5),
+      title: overlay.name,
+      subtitle: (overlay.trigger === 'rest-days' ? 'Rest days' :
+                 overlay.trigger === 'pre-training' ? 'Before your session' :
+                 overlay.trigger === 'morning' ? 'Every morning' : 'Every day')
+               + (overlay.duration ? ' · ' + overlay.duration : ''),
+      detail: itemsHtml,
+      coachNote: overlay.reason || ('Added ' + (overlay.addedBy === 'coach' ? 'by your coach' : 'to your programme') + (overlay.date ? ' on ' + overlay.date : '')),
+      science: overlay.science || '',
+      isOverlay: true,
+      overlayId: overlay.id,
+    };
+
+    // Insert based on trigger type
+    if (overlay.trigger === 'pre-training' && t.isTraining) {
+      insertBlockBeforeType('training', block);
+    } else if (overlay.trigger === 'rest-days' && !t.isTraining) {
+      // On rest days, insert after the wake block
+      insertBlockAfterType('wake', block);
+    } else if (overlay.trigger === 'morning') {
+      insertBlockAfterType('wake', block);
+    } else {
+      // 'daily' — insert after wake on rest days, before training on training days
+      if (t.isTraining) {
+        insertBlockBeforeType('training', block);
+      } else {
+        insertBlockAfterType('wake', block);
+      }
+    }
+  });
 }
 
 // ── Week strip ────────────────────────────────────
@@ -3667,6 +3731,97 @@ function closeMacroDetail() {
   if (panel) panel.style.display = 'none';
 }
 
+
+// ── SAVE OVERLAY ─────────────────────────────────────────────────────────
+// Called by coach, body page, or accelerators to add a micro-protocol
+// to the daily plan. Shows immediately on next render.
+window.saveOverlay = function(overlay) {
+  var p = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+  if (!p.overlays) p.overlays = [];
+  
+  // Don't duplicate
+  var exists = p.overlays.some(function(o){ return o.id === overlay.id; });
+  if (exists) return false;
+  
+  overlay.date = overlay.date || new Date().toISOString().slice(0,10);
+  overlay.active = true;
+  p.overlays.push(overlay);
+  localStorage.setItem('bl_profile', JSON.stringify(p));
+  
+  // Bust plan cache so overlay appears immediately
+  var today = new Date().toISOString().slice(0,10);
+  localStorage.removeItem('dayplan_v6r3_' + today);
+  
+  return true;
+};
+
+// Pre-built overlay library — these can be saved by any page
+window.OVERLAY_LIBRARY = {
+  'glute-activation': {
+    id: 'glute-activation',
+    name: 'Glute activation protocol',
+    trigger: 'daily',
+    duration: '5-8 min',
+    durationMins: 7,
+    items: [
+      'Clamshells 2x15 each side — feel the outer glute',
+      'Glute bridge 2x20 — 1 sec squeeze at top',
+      'Donkey kick 1x15 each side — slow and controlled',
+      'Fire hydrant 1x15 each side',
+    ],
+    reason: 'Corrective: weak glutes need daily activation, not just once a week in the gym. This fires the pattern before training and maintains neural drive on rest days.',
+    science: 'Glute amnesia (inhibition) is common in desk-bound people. Daily low-load activation restores motor patterns and protects the lower back and knees.',
+    addedBy: 'programme',
+    category: 'corrective',
+  },
+  'morning-mobility': {
+    id: 'morning-mobility',
+    name: 'Morning mobility routine',
+    trigger: 'morning',
+    duration: '5 min',
+    durationMins: 5,
+    items: [
+      '90-90 hip stretch 60 sec each side',
+      'Cat-cow 10 reps',
+      'Thoracic rotation 8 each side',
+      'World\u2019s greatest stretch 5 each side',
+    ],
+    reason: 'Daily mobility addresses postural patterns that limit training quality. 5 minutes every morning compounds dramatically.',
+    addedBy: 'programme',
+    category: 'mobility',
+  },
+  'desk-glutes': {
+    id: 'desk-glutes',
+    name: 'Desk glute activation',
+    trigger: 'daily',
+    duration: '2 min',
+    durationMins: 2,
+    items: [
+      'Seated glute squeeze: 10x5 sec holds — sitting, squeeze hard',
+      'Standing calf raise 2x15 — while making coffee',
+      'Single-leg balance 30 sec each while brushing teeth',
+    ],
+    reason: 'Long sitting inhibits glute function. These micro-movements throughout the day maintain neural connection.',
+    addedBy: 'programme',
+    category: 'corrective',
+  },
+  'pre-session-activation': {
+    id: 'pre-session-activation',
+    name: 'Pre-session glute activation',
+    trigger: 'pre-training',
+    duration: '5 min',
+    durationMins: 5,
+    items: [
+      'Band clamshells 2x15 — activate before compound lifts',
+      'Hip thrust with bodyweight 2x15 — prime the pattern',
+      'Single-leg glute bridge 1x10 each side',
+    ],
+    reason: 'Activating glutes before compound movements ensures they fire correctly during hip thrusts, squats and deadlifts. Skipping this means other muscles compensate.',
+    addedBy: 'programme',
+    category: 'activation',
+  },
+};
+
 function renderPlan(plan, browsing){
   var root=document.getElementById('day-root');
   window._blocks=plan.blocks;
@@ -3709,7 +3864,39 @@ function renderPlan(plan, browsing){
   }
 
   // ── Build exercise rows (interactive — tap to log status) ───────
-  function exRows(exercises){
+  
+// ── EXERCISE → MUSCLE GROUP MAP ─────────────────────────────────────────
+var EXERCISE_MUSCLE_MAP = {
+  'deadlift':'hamstrings','rdl':'hamstrings','romanian':'hamstrings',
+  'good morning':'hamstrings','leg curl':'hamstrings','nordic':'hamstrings',
+  'back extension':'glutes','hip thrust':'glutes','glute bridge':'glutes',
+  'pull-through':'glutes','squat':'quads','bulgarian':'quads',
+  'split squat':'quads','step-up':'quads','step up':'quads',
+  'lunge':'quads','leg press':'quads','leg extension':'quads',
+  'hack squat':'quads','calf':'calves','calf raise':'calves',
+  'bench press':'chest','db press':'chest','dumbbell press':'chest',
+  'incline press':'chest','chest fly':'chest','cable fly':'chest',
+  'push-up':'chest','overhead press':'chest','ohp':'chest',
+  'arnold':'chest','lateral raise':'chest','shoulder press':'chest',
+  'pushdown':'triceps','tricep':'triceps','skull':'triceps','dip':'triceps',
+  'pull-up':'lats','pullup':'lats','chin-up':'lats','lat pulldown':'lats',
+  'row':'lats','cable row':'lats','face pull':'lats','pulldown':'lats',
+  'curl':'biceps','bicep':'biceps','hammer curl':'biceps','preacher':'biceps',
+  'ab wheel':'abs','crunch':'abs','plank':'abs','cable crunch':'abs',
+  'hanging':'abs','leg raise':'abs','oblique':'obliques',
+  'adductor':'adductors','forearm':'forearms','wrist':'forearms'
+};
+
+function getExerciseMuscle(name) {
+  var lower = (name||'').toLowerCase();
+  var keys = Object.keys(EXERCISE_MUSCLE_MAP);
+  for (var i=0; i<keys.length; i++) {
+    if (lower.indexOf(keys[i]) >= 0) return EXERCISE_MUSCLE_MAP[keys[i]];
+  }
+  return null;
+}
+
+function exRows(exercises){
     if(!exercises||!exercises.length) return '';
     var log = loadDayLog(_rDate) || {};
     var exLogs = log.exercises || {};
@@ -3728,8 +3915,7 @@ function renderPlan(plan, browsing){
               +'display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:'+statusColor+';flex-shrink:0;cursor:pointer;transition:all .12s;"'
               +' onclick="cycleExStatus('+i+',\''+parsed.name+'\')" title="Tap to log">'
               +statusIcon+'</div>'
-            +'<span class="ex-row-name">'+parsed.name+'</span>'
-            +'<span class="ex-row-schema">'+parsed.sets+'×'+parsed.reps+'</span>'
+            +'<span class="ex-row-name">'+parsed.name+'</span>'            +(function(){              var muscle = getExerciseMuscle(parsed.name);              if(!muscle) return '';              return '<a href="bodylens-body.html?muscle='+muscle+'" '                +'onclick="event.stopPropagation()" '                +'title="How to do '+parsed.name+'" '                +'style="display:inline-flex;align-items:center;gap:3px;margin-left:4px;'                +'padding:2px 6px;border-radius:5px;font-size:9px;font-weight:700;'                +'letter-spacing:.06em;text-transform:uppercase;'                +'color:rgba(0,200,160,.7);border:1px solid rgba(0,200,160,.2);'                +'background:rgba(0,200,160,.04);text-decoration:none;flex-shrink:0;'                +'transition:all .12s;" '                +'onmouseover="this.style.background=\'rgba(0,200,160,.1)\';this.style.color=\'var(--jade)\'" '                +'onmouseout="this.style.background=\'rgba(0,200,160,.04)\';this.style.color=\'rgba(0,200,160,.7)\'" '                +'>&#9432;</a>';            })()            +'<span class="ex-row-schema">'+parsed.sets+'×'+parsed.reps+'</span>'
             +'<span class="ex-row-rpe">RPE 7-8</span>'
             +'<div style="margin-left:auto;display:flex;gap:5px;">'
               +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'done\')" style="min-width:40px;height:36px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='done'?'background:var(--jade);color:var(--ink);border:1px solid var(--jade);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">✓</button>'
@@ -3862,7 +4048,23 @@ function renderPlan(plan, browsing){
         +'<div id="dev-'+i+'"></div>'
         +'</div>';
     } else if(isSupp){
+      if (b.isOverlay) {
+      var items = b.detail ? b.detail.split(' · ') : [];
+      var itemsHtml = items.map(function(item) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+          + '<div style="width:5px;height:5px;border-radius:50%;background:var(--jade);flex-shrink:0;"></div>'
+          + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">'+item+'</div>'
+          + '</div>';
+      }).join('');
+      body += '<div class="ptl-body">'
+        + (itemsHtml || '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">'+b.detail+'</div>')
+        + '<button class="overlay-remove-btn" onclick="event.stopPropagation();removeOverlay(\''+b.overlayId+'\')">'
+        + 'Remove from programme'
+        + '</button>'
+        + '</div>';
+    } else {
       body+='<div class="ptl-body">'+suppRows(b.suppList, i)+'</div>';
+    }
     } else if(isSleep){
       var _sl=loadDayLog(_rDate)||{};
       var _slVal=_sl.sleepActual||0;
@@ -3898,7 +4100,7 @@ function renderPlan(plan, browsing){
         + '</div>';
     }
 
-    return '<div class="ptl-block t-'+(b.type||'supp')+(eaten?' eaten':'')+' collapsed'+'" onclick="togglePtlBlock(this)" style="min-height:'+h+'px;">'
+    return '<div class="ptl-block t-'+(b.type||'supp')+(eaten?' eaten':'')+(b.isOverlay?' is-overlay':'')+' collapsed'+'" onclick="togglePtlBlock(this)" style="min-height:'+h+'px;">'
       +'<div class="ptl-dot"></div>'
       +'<div class="ptl-card">'
       +hd+body+coachHtml+optHtml
@@ -4768,11 +4970,42 @@ function clearDayLogCache(dateStr) { if(dateStr) delete _dayLogCache[dateStr]; e
 // Shows on every training block — options calibrated by session type
 function renderCardioRec(rec) {
   if (!rec) return '';
+
+  // MET values for calorie burn estimates (kcal = MET × weight_kg × hours)
+  var CARDIO_METS = {
+    'Swim': 6.0, 'Seated Bike': 5.5, 'Bike': 6.8,
+    'Run': 9.0, 'Row': 7.0, 'Step Machine': 7.0,
+    'Walk': 4.3, 'Brisk walk': 4.3
+  };
+
+  var weight = (P && P.weight) || 80;
+  var durations = [15, 20, 25, 30];
+
   var optRows = (rec.options || []).map(function(opt) {
-    return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
-      + '<span style="font-size:12px;font-weight:600;color:var(--dk-1);min-width:90px;">' + opt.name + '</span>'
-      + '<span style="font-size:11px;font-weight:300;color:var(--dk-3);flex:1;">' + opt.detail + '</span>'
-      + '<span style="font-size:10px;font-weight:400;color:var(--dk-2);white-space:nowrap;">' + opt.bpmLo + '–' + opt.bpmHi + ' bpm</span>'
+    var met = CARDIO_METS[opt.name] || 6.0;
+    // Pre-calculate kcal for each duration
+    var kcalCells = durations.map(function(mins) {
+      return Math.round(met * weight * (mins / 60));
+    });
+
+    return '<div class="crd-opt-row" id="crd-' + opt.name.replace(/\s/g,'-') + '">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+        + '<span style="font-size:12px;font-weight:600;color:var(--dk-1);min-width:100px;">' + opt.name + '</span>'
+        + '<span style="font-size:11px;font-weight:300;color:var(--dk-3);flex:1;">' + opt.detail + '</span>'
+        + '<span style="font-size:10px;font-weight:500;color:var(--dk-2);white-space:nowrap;">' + opt.bpmLo + '\u2013' + opt.bpmHi + ' bpm</span>'
+      + '</div>'
+      // Duration selector buttons with inline kcal
+      + '<div style="display:flex;gap:5px;flex-wrap:wrap;">'
+        + durations.map(function(mins, idx) {
+            return '<button onclick="event.stopPropagation();selectCardio(\'' + opt.name + '\',' + mins + ',' + kcalCells[idx] + ',this)" '
+              + 'class="crd-dur-btn" '
+              + 'style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.1);'
+              + 'background:transparent;color:var(--dk-3);font-size:10px;font-weight:600;'
+              + 'cursor:pointer;font-family:var(--sans);transition:all .12s;">'
+              + mins + 'min <span style="color:var(--dk-3);font-weight:300;">~' + kcalCells[idx] + 'kcal</span>'
+              + '</button>';
+          }).join('')
+      + '</div>'
       + '</div>';
   }).join('');
 
@@ -4785,12 +5018,60 @@ function renderCardioRec(rec) {
       + '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);">Cardio options</div>'
       + '<div style="font-size:10px;font-weight:300;color:var(--dk-3);">' + (rec.when || '') + '</div>'
     + '</div>'
-    + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-bottom:10px;line-height:1.5;">' + (rec.why || '') + '</div>'
+    + '<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-bottom:12px;line-height:1.5;">' + (rec.why || '') + '</div>'
+    + '<div id="cardio-selected-banner" style="display:none;margin-bottom:10px;padding:8px 12px;'
+      + 'background:rgba(0,200,160,.08);border:1px solid rgba(0,200,160,.2);border-radius:8px;'
+      + 'font-size:12px;font-weight:600;color:var(--jade);"></div>'
     + optRows
     + (rec.avoid
-        ? '<div style="margin-top:8px;font-size:10px;font-weight:300;color:rgba(220,80,60,.6);">⚠ Avoid: ' + rec.avoid + '</div>'
+        ? '<div style="margin-top:10px;font-size:10px;font-weight:300;color:rgba(220,80,60,.6);">\u26a0 Avoid: ' + rec.avoid + '</div>'
         : '')
   + '</div>';
+}
+
+function selectCardio(name, mins, kcal, btn) {
+  // Update all duration buttons in this cardio option - deselect all first
+  var row = btn.closest('.crd-opt-row') || btn.parentElement.parentElement;
+  if (row) {
+    row.querySelectorAll('.crd-dur-btn').forEach(function(b) {
+      b.style.background = 'transparent';
+      b.style.borderColor = 'rgba(255,255,255,.1)';
+      b.style.color = 'var(--dk-3)';
+    });
+    // Select this one
+    btn.style.background = 'rgba(0,200,160,.1)';
+    btn.style.borderColor = 'rgba(0,200,160,.3)';
+    btn.style.color = 'var(--jade)';
+  }
+
+  // Show selection banner
+  var banner = document.getElementById('cardio-selected-banner');
+  if (banner) {
+    banner.style.display = 'block';
+    banner.innerHTML = '\u2713 ' + name + ' ' + mins + ' min selected'
+      + ' <span style="font-weight:300;color:var(--dk-2);">\u2014 ~' + kcal + ' kcal burn</span>'
+      + ' <span style="font-size:10px;font-weight:300;color:var(--dk-3);margin-left:8px;">'
+      + '(' + (P&&P.weight?P.weight:80) + 'kg MET estimate)</span>';
+  }
+
+  // Log to day log
+  try {
+    var log = loadDayLog(_rDate) || {};
+    log.cardioLogged = { name: name, mins: mins, kcal: kcal, loggedAt: new Date().toISOString() };
+    localStorage.setItem('bl_daylog_' + _rDate, JSON.stringify(log));
+  } catch(e) {}
+}
+
+
+
+function removeOverlay(overlayId) {
+  var p = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+  if (!p.overlays) return;
+  p.overlays = p.overlays.filter(function(o){ return o.id !== overlayId; });
+  localStorage.setItem('bl_profile', JSON.stringify(p));
+  // Bust plan cache and rebuild
+  localStorage.removeItem('dayplan_v6r3_' + _rDate);
+  location.reload();
 }
 
 function loadDayLog(dateStr) {
