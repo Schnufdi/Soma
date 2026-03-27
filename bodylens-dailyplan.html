@@ -6724,6 +6724,112 @@ function prefetchRecipes(p,t){
 }
 
 // Called when user taps the button
+
+// ── Missing function definitions ────────────────────────────────────
+// getSuppLog: reads supplement completion from today's day log
+function getSuppLog() {
+  var log = loadDayLog(_rDate) || {};
+  return log.suppLog || {};
+}
+
+// getDayKcal: returns today's calorie target
+function getDayKcal(p, isTraining) {
+  if (!p) return 2000;
+  return isTraining ? (p.trainingKcal || p.calories || 2000) : (p.restKcal || Math.round((p.calories||2000)*0.9));
+}
+
+// Activity tracking stubs (used by activity log / week banner)
+function saveActivity(date, activity) {
+  try {
+    var key = 'bl_activities_' + date;
+    var acts = JSON.parse(localStorage.getItem(key) || '[]');
+    acts.push(activity);
+    localStorage.setItem(key, JSON.stringify(acts));
+  } catch(e) {}
+}
+
+function loadActivities(date) {
+  try {
+    return JSON.parse(localStorage.getItem('bl_activities_' + date) || '[]');
+  } catch(e) { return []; }
+}
+
+function deleteActivity(date, idx) {
+  try {
+    var key = 'bl_activities_' + date;
+    var acts = JSON.parse(localStorage.getItem(key) || '[]');
+    acts.splice(idx, 1);
+    localStorage.setItem(key, JSON.stringify(acts));
+  } catch(e) {}
+}
+
+function loadWeekLedger() {
+  try {
+    var ledger = { days: [], summary: { sessionsPlanned: 0, sessionsDone: 0, fatigue: 0 } };
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(); d.setDate(d.getDate() - i);
+      var dateStr = d.toISOString().slice(0,10);
+      var log = loadDayLog(dateStr) || {};
+      ledger.days.push({ date: dateStr, log: log });
+      if (log.dayType && log.dayType.toLowerCase().includes('train')) {
+        ledger.summary.sessionsPlanned++;
+        if (log.trainStatus === 'done') ledger.summary.sessionsDone++;
+      }
+    }
+    return ledger;
+  } catch(e) { return null; }
+}
+
+function rebuildWeekLedger() {
+  return loadWeekLedger();
+}
+
+function suggestNextActivity(ledger) {
+  return [];
+}
+
+function assessSubstitution(classified, todayPlan) {
+  if (!classified || !todayPlan) return { level: 'unrelated', label: 'Unrelated', pct: 0, note: '' };
+  var cl = (classified.group || '').toLowerCase();
+  var tl = (todayPlan || '').toLowerCase();
+  if (cl === 'strength' && tl.includes('strength')) return { level: 'full', label: 'Full substitution', pct: 100, note: 'Counts as your session.' };
+  if (cl === 'strength') return { level: 'partial', label: 'Partial substitution', pct: 60, note: 'Counts as modified session.' };
+  if (cl === 'cardio') return { level: 'partial', label: 'Cardio substitute', pct: 40, note: 'Active recovery value.' };
+  return { level: 'unrelated', label: 'No substitution value', pct: 0, note: 'Logged as additional activity.' };
+}
+
+function classifyActivity(typeKey, durationMins, rpe) {
+  var TYPES = {
+    'strength-full': { group: 'strength', intensity: 'high' },
+    'strength-upper': { group: 'strength', intensity: 'moderate' },
+    'strength-lower': { group: 'strength', intensity: 'moderate' },
+    'strength-push': { group: 'strength', intensity: 'moderate' },
+    'strength-pull': { group: 'strength', intensity: 'moderate' },
+    'strength-circuit': { group: 'strength', intensity: 'high' },
+    'run': { group: 'cardio', intensity: 'high' },
+    'walk': { group: 'cardio', intensity: 'low' },
+    'cycle': { group: 'cardio', intensity: 'moderate' },
+    'swim': { group: 'cardio', intensity: 'moderate' },
+    'row': { group: 'cardio', intensity: 'high' },
+    'bike': { group: 'cardio', intensity: 'moderate' },
+    'steps': { group: 'cardio', intensity: 'moderate' },
+    'elliptical': { group: 'cardio', intensity: 'moderate' },
+    'stretch': { group: 'recovery', intensity: 'low' },
+    'yoga': { group: 'recovery', intensity: 'low' },
+  };
+  var type = TYPES[typeKey] || { group: 'other', intensity: 'moderate' };
+  var met = type.group === 'strength' ? 5.5 : type.group === 'cardio' ? 7.0 : 2.5;
+  var weight = P ? P.weight : 80;
+  var kcal = Math.round(met * weight * ((durationMins||30)/60));
+  return Object.assign({}, type, { typeKey: typeKey, durationMins: durationMins, rpe: rpe, kcal: kcal });
+}
+
+function renderSosResult(result, situation) {
+  var panel = document.getElementById('sos-result');
+  if (!panel || !result) return;
+  panel.innerHTML = '<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;">' + (result.response || result) + '</div>';
+}
+
 function buildDay(){
   var root = document.getElementById('day-root');
   root.innerHTML = '<div style="padding:60px 0;text-align:center;">'
@@ -7161,7 +7267,7 @@ function seReRenderTimeline() {
   } catch(e) {}
 
   // Full re-render
-  renderDay();
+  buildDay();
 }
 
 if('serviceWorker' in navigator){
