@@ -87,6 +87,7 @@ window.BL.loadProfile = function(cb) {
 
           // Restore history for this user (fills localStorage from Supabase)
           setTimeout(function() { window.BL.restoreHistory && window.BL.restoreHistory(); }, 500);
+          window._lastProfileState = serverProfile;
           cb && cb(serverProfile);
         } else {
           cb && cb(null);
@@ -214,6 +215,68 @@ window.BL.showUserMenu = function() {
   }, 100);
 };
 
+// Log significant profile changes to profile_history for changelog
+window.BL.logProfileChange = function(newProfile) {
+  if (!window._blUser || !window._sb) return;
+  var sb = window._sb;
+  var userId = window._blUser.id;
+
+  // Compare against last known state
+  var lastRaw = window._lastProfileState;
+  window._lastProfileState = newProfile;
+  if (!lastRaw) return; // first save, no diff yet
+
+  var changes = [];
+
+  // Weight change
+  if (lastRaw.weight !== newProfile.weight && newProfile.weight) {
+    changes.push({ change_type: 'weight_update',
+      payload: { from: lastRaw.weight, to: newProfile.weight, unit: 'kg' } });
+  }
+  // Supplement change
+  var oldSupps = (lastRaw.supplements||[]).map(function(s){return s.name||s;}).sort().join(',');
+  var newSupps = (newProfile.supplements||[]).map(function(s){return s.name||s;}).sort().join(',');
+  if (oldSupps !== newSupps) {
+    changes.push({ change_type: 'stack_change',
+      payload: { before: lastRaw.supplements, after: newProfile.supplements } });
+  }
+  // Macro recalibration
+  if (lastRaw.trainingKcal !== newProfile.trainingKcal && newProfile.trainingKcal) {
+    changes.push({ change_type: 'recalibration',
+      payload: { calories: newProfile.trainingKcal, protein: newProfile.protein,
+        carbs: newProfile.carbs, fat: newProfile.fat, tdee: newProfile.tdee } });
+  }
+  // Goal update
+  if (lastRaw.goal !== newProfile.goal || lastRaw.target !== newProfile.target) {
+    changes.push({ change_type: 'goal_update',
+      payload: { goal: newProfile.goal, target: newProfile.target } });
+  }
+  // Body scan
+  var oldScan = JSON.stringify(lastRaw.bodyScan||{});
+  var newScan = JSON.stringify(newProfile.bodyScan||{});
+  if (oldScan !== newScan && newProfile.bodyScan) {
+    changes.push({ change_type: 'body_scan',
+      payload: newProfile.bodyScan });
+  }
+  // Gap bridge / goal analysis
+  var oldBridge = (lastRaw.gapBridge||{}).generatedAt;
+  var newBridge = (newProfile.gapBridge||{}).generatedAt;
+  if (newBridge && oldBridge !== newBridge) {
+    changes.push({ change_type: 'goal_update',
+      payload: { gapBridge: newProfile.gapBridge, goalPlan: newProfile.goalPlan } });
+  }
+
+  changes.forEach(function(c) {
+    sb.from('profile_history').insert({
+      user_id: userId,
+      change_type: c.change_type,
+      payload: c.payload,
+    }).then(function(r) {
+      if (r.error) console.warn('profile_history insert error:', r.error.message);
+    });
+  });
+};
+
 // Auto-save to Supabase when key data is saved to localStorage
 // This is the pipe between the local-first architecture and the cloud.
 // Profile changes, day logs, macros, and meal plans all flow here.
@@ -227,7 +290,9 @@ localStorage.setItem = function(key, value) {
   try {
     // Profile — static config + behaviourMemory (the AI rolling narrative)
     if (key === 'bl_profile') {
-      window.BL.saveProfile(JSON.parse(value));
+      var newP = JSON.parse(value);
+      window.BL.saveProfile(newP);
+      window.BL.logProfileChange(newP);
     }
 
     // Day log — training, sleep, energy, notes, debrief conversation
