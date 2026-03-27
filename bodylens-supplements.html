@@ -643,8 +643,9 @@ function render() {
       var evClass = s.evidence === 'strong' ? 'strong' : s.evidence === 'moderate' ? 'moderate' : 'emerging';
       var evLabel = s.evidence === 'strong' ? 'Strong evidence' : s.evidence === 'moderate' ? 'Moderate evidence' : 'Emerging evidence';
       var isOpen = _openCard === s.id;
-      html += '<div class="sp-card' + (isOpen?' open':'') + '" id="sp-card-' + s.id + '">'
-        + '<div class="sp-card-hd" data-cid="' + s.id + '" onclick="toggleCard(this.dataset.cid)">';
+
+      html += '<div class="sp-card' + (isOpen ? ' open' : '') + '" id="sp-card-' + s.id + '">'
+        + '<div class="sp-card-hd" data-cid="' + s.id + '" onclick="toggleCard(this.dataset.cid)">'
           + '<div class="sp-icon">' + s.icon + '</div>'
           + '<div class="sp-info">'
             + '<div class="sp-name">' + s.name + '</div>'
@@ -656,6 +657,7 @@ function render() {
           + '</div>'
           + '<div class="sp-chevron">&#8250;</div>'
         + '</div>';
+
       if (isOpen) {
         html += '<div class="sp-card-body">'
           + '<div class="sp-mechanism">' + s.mechanism + '</div>';
@@ -667,13 +669,14 @@ function render() {
         if (s.warn) html += '<div class="sp-detail-row"><div class="sp-detail-key">Caution</div><div class="sp-detail-val" style="color:rgba(220,140,80,.8);">' + s.warn + '</div></div>';
         if (s.stacks) html += '<div class="sp-detail-row"><div class="sp-detail-key">Stacks with</div><div class="sp-detail-val">' + s.stacks + '</div></div>';
         if (!inStack) {
-          html += '<button class="sp-add-btn" data-aid="' + s.id + '" onclick="addToStack(this.dataset.aid);this.textContent=\'\u2713 Added to stack\';this.className=\'sp-add-btn saved\';this.disabled=true;">+ Add to stack</button>';
+          html += '<button class="sp-add-btn" data-aid="' + s.id + '" onclick="addToStack(this.dataset.aid);this.textContent='\u2713 Added to stack';this.className='sp-add-btn saved';this.disabled=true;">+ Add to stack</button>';
         }
         html += '</div>';
       }
+
       html += '</div>';
     });
-  });
+  }););
 
   root.innerHTML = html;
 }
