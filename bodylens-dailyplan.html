@@ -1853,6 +1853,291 @@ body {
 .al-sub-badge.low, .al-sub-badge.unrelated { background: rgba(255,255,255,.04); color: var(--dk-3); border: 1px solid var(--bd); }
 .al-save-btn { width: 100%; padding: 14px; background: var(--jade); border: none; border-radius: 10px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); cursor: pointer; font-family: var(--sans); margin-top: 8px; }
 .al-save-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════════════════════════
+   EXECUTION DASHBOARD — Daily Plan Redesign
+   ═══════════════════════════════════════════════════════════ */
+
+/* Summary strip */
+.ed-strip {
+  display: flex; align-items: stretch; gap: 0;
+  background: var(--ink-1);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.ed-strip::-webkit-scrollbar { display: none; }
+.ed-strip-item {
+  flex: 1; min-width: 120px; padding: 14px 16px;
+  border-right: 1px solid rgba(255,255,255,.06);
+  display: flex; flex-direction: column; gap: 3px;
+}
+.ed-strip-item:last-child { border-right: none; }
+.ed-strip-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--dk-3);
+}
+.ed-strip-val {
+  font-size: 13px; font-weight: 600; color: var(--dk-1);
+  line-height: 1.2;
+}
+.ed-strip-val.jade { color: var(--jade); }
+.ed-strip-val.amber { color: var(--amber); }
+.ed-strip-sub {
+  font-size: 10px; font-weight: 300; color: var(--dk-3);
+}
+.ed-progress-bar {
+  height: 3px; background: rgba(255,255,255,.06); border-radius: 2px;
+  margin-top: 4px;
+}
+.ed-progress-fill {
+  height: 100%; border-radius: 2px; background: var(--jade);
+  transition: width .4s ease;
+}
+
+/* Page layout */
+.ed-page {
+  max-width: 760px; margin: 0 auto; padding: 0 24px 120px;
+}
+.ed-date-row {
+  padding: 20px 0 14px; border-bottom: 1px solid rgba(255,255,255,.05);
+  margin-bottom: 0;
+}
+.ed-date-kicker {
+  font-size: 10px; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--dk-3); margin-bottom: 4px;
+}
+.ed-date-title {
+  font-family: var(--serif); font-size: 32px; font-weight: 300;
+  color: var(--dk-1); letter-spacing: -.02em; line-height: 1;
+  margin-bottom: 6px;
+}
+.ed-date-brief {
+  font-size: 12px; font-weight: 300; color: var(--dk-3); line-height: 1.5;
+}
+
+/* Coach note */
+.ed-coach-note {
+  margin: 16px 0;
+  padding: 12px 16px;
+  background: rgba(0,200,160,.04);
+  border-left: 2px solid rgba(0,200,160,.3);
+  border-radius: 0 8px 8px 0;
+  font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.7;
+  display: none;
+}
+.ed-coach-note.loaded { display: block; }
+.ed-coach-kicker {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--jade); margin-bottom: 6px;
+}
+
+/* Timeline */
+.ed-timeline {
+  padding: 8px 0;
+}
+.ed-tl-row {
+  display: flex; gap: 0; align-items: stretch;
+  padding: 0; margin-bottom: 2px;
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid transparent;
+  transition: border-color .15s;
+  cursor: default;
+}
+.ed-tl-row.done { opacity: .55; }
+.ed-tl-row.skipped { opacity: .35; }
+.ed-tl-row:hover { border-color: rgba(255,255,255,.07); }
+
+/* Time column */
+.ed-tl-time {
+  width: 52px; flex-shrink: 0; padding: 14px 0 14px 0;
+  text-align: right; padding-right: 14px;
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  line-height: 1; padding-top: 16px;
+}
+
+/* Type dot */
+.ed-tl-dot {
+  width: 2px; flex-shrink: 0; margin: 10px 0;
+  border-radius: 1px;
+}
+.ed-tl-dot.jade { background: rgba(0,200,160,.5); }
+.ed-tl-dot.amber { background: rgba(196,124,24,.5); }
+.ed-tl-dot.slate { background: rgba(255,255,255,.15); }
+.ed-tl-dot.blue  { background: rgba(100,160,255,.5); }
+.ed-tl-dot.rest  { background: rgba(255,255,255,.08); }
+
+/* Main content */
+.ed-tl-main {
+  flex: 1; padding: 12px 14px;
+  min-width: 0;
+}
+.ed-tl-title {
+  font-size: 13px; font-weight: 600; color: var(--dk-1);
+  margin-bottom: 2px; display: flex; align-items: center; gap: 8px;
+}
+.ed-tl-title-text { flex: 1; min-width: 0; }
+.ed-tl-desc {
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  line-height: 1.5;
+}
+.ed-tl-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; padding: 2px 7px; border-radius: 10px;
+  flex-shrink: 0;
+}
+.ed-tl-tag.training { background: rgba(0,200,160,.1); color: var(--jade); }
+.ed-tl-tag.meal { background: rgba(196,124,24,.1); color: var(--amber); }
+.ed-tl-tag.supp { background: rgba(255,255,255,.06); color: var(--dk-3); }
+.ed-tl-tag.cardio { background: rgba(100,160,255,.1); color: rgba(130,180,255,.9); }
+
+/* Actions */
+.ed-tl-actions {
+  display: flex; gap: 4px; align-items: center;
+  padding: 12px 12px 12px 0; flex-shrink: 0;
+}
+.ed-act {
+  width: 52px; height: 36px; border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.09);
+  background: transparent; cursor: pointer;
+  font-family: var(--sans); font-size: 10px; font-weight: 700;
+  letter-spacing: .04em; color: var(--dk-3);
+  transition: all .12s; display: flex; align-items: center;
+  justify-content: center; flex-direction: column; gap: 1px;
+}
+.ed-act-icon { font-size: 12px; line-height: 1; }
+.ed-act-label { font-size: 8px; letter-spacing: .06em; text-transform: uppercase; }
+.ed-act:hover { border-color: rgba(255,255,255,.18); color: var(--dk-1); }
+.ed-act.done-btn:hover { border-color: rgba(0,200,160,.4); color: var(--jade); background: rgba(0,200,160,.07); }
+.ed-act.swap-btn:hover { border-color: rgba(196,124,24,.4); color: var(--amber); background: rgba(196,124,24,.07); }
+.ed-act.skip-btn:hover { border-color: rgba(220,80,60,.3); color: rgba(220,80,60,.7); background: rgba(220,80,60,.06); }
+.ed-act.active-done { border-color: rgba(0,200,160,.4); color: var(--jade); background: rgba(0,200,160,.1); }
+.ed-act.active-swap { border-color: rgba(196,124,24,.4); color: var(--amber); background: rgba(196,124,24,.1); }
+.ed-act.active-skip { border-color: rgba(220,80,60,.3); color: rgba(220,80,60,.7); background: rgba(220,80,60,.07); }
+
+/* Section divider */
+.ed-divider {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0 6px;
+}
+.ed-divider-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--dk-3); flex-shrink: 0;
+}
+.ed-divider-line {
+  flex: 1; height: 1px; background: rgba(255,255,255,.05);
+}
+
+/* Detail drawers */
+.ed-drawers { margin-top: 32px; display: flex; flex-direction: column; gap: 8px; }
+.ed-drawer {
+  border: 1px solid rgba(255,255,255,.07); border-radius: 12px;
+  overflow: hidden; background: var(--ink-1);
+}
+.ed-drawer-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; cursor: pointer; user-select: none;
+  transition: background .12s;
+}
+.ed-drawer-hd:hover { background: rgba(255,255,255,.02); }
+.ed-drawer-title {
+  font-size: 12px; font-weight: 700; color: var(--dk-1);
+  display: flex; align-items: center; gap: 8px;
+}
+.ed-drawer-badge {
+  font-size: 10px; font-weight: 600; color: var(--dk-3);
+  background: rgba(255,255,255,.06); border-radius: 10px;
+  padding: 2px 8px;
+}
+.ed-drawer-chevron {
+  font-size: 12px; color: var(--dk-3); transition: transform .2s;
+}
+.ed-drawer.open .ed-drawer-chevron { transform: rotate(90deg); }
+.ed-drawer-body {
+  display: none; padding: 0 18px 16px;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.ed-drawer.open .ed-drawer-body { display: block; }
+
+/* Drawer content */
+.ed-exercise-row {
+  display: flex; align-items: center; gap: 10px; padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px;
+}
+.ed-exercise-row:last-child { border-bottom: none; }
+.ed-ex-num { width: 18px; font-size: 10px; font-weight: 700; color: var(--dk-3); flex-shrink: 0; }
+.ed-ex-name { flex: 1; font-weight: 500; color: var(--dk-1); }
+.ed-ex-scheme { font-size: 11px; font-weight: 300; color: var(--dk-3); }
+.ed-ex-link { font-size: 10px; color: rgba(0,200,160,.6); text-decoration: none; }
+.ed-ex-link:hover { color: var(--jade); }
+
+.ed-meal-row {
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.ed-meal-row:last-child { border-bottom: none; }
+.ed-meal-name { font-size: 12px; font-weight: 600; color: var(--dk-1); margin-bottom: 2px; }
+.ed-meal-meta { font-size: 11px; font-weight: 300; color: var(--dk-3); }
+
+.ed-supp-row {
+  display: flex; align-items: center; gap: 10px; padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.ed-supp-row:last-child { border-bottom: none; }
+.ed-supp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--jade); flex-shrink: 0; }
+.ed-supp-name { flex: 1; font-size: 12px; font-weight: 500; color: var(--dk-1); }
+.ed-supp-dose { font-size: 11px; font-weight: 600; color: var(--jade); }
+.ed-supp-when { font-size: 10px; font-weight: 300; color: var(--dk-3); }
+
+/* End of day card */
+.ed-eod {
+  margin-top: 32px; border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px; background: var(--ink-1); overflow: hidden;
+}
+.ed-eod-hd {
+  padding: 16px 18px 12px; border-bottom: 1px solid rgba(255,255,255,.05);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ed-eod-title {
+  font-size: 12px; font-weight: 700; color: var(--dk-1);
+}
+.ed-eod-date { font-size: 11px; font-weight: 300; color: var(--dk-3); }
+.ed-eod-body { padding: 16px 18px; }
+.ed-eod-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.ed-eod-row:last-of-type { border-bottom: none; }
+.ed-eod-key { font-size: 12px; font-weight: 300; color: var(--dk-3); }
+.ed-eod-val { font-size: 12px; font-weight: 600; color: var(--dk-1); }
+.ed-eod-val.done { color: var(--jade); }
+.ed-eod-val.miss { color: rgba(220,80,60,.7); }
+.ed-eod-score {
+  margin-top: 16px; padding: 14px; background: rgba(0,200,160,.04);
+  border: 1px solid rgba(0,200,160,.12); border-radius: 10px;
+  text-align: center;
+}
+.ed-eod-score-num {
+  font-family: var(--serif); font-size: 40px; font-weight: 300;
+  color: var(--jade); line-height: 1;
+}
+.ed-eod-score-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--dk-3); margin-top: 4px;
+}
+.ed-notes-inp {
+  width: 100%; box-sizing: border-box; background: var(--ink-2);
+  border: 1px solid var(--bd); border-radius: 8px;
+  padding: 10px 12px; font-size: 12px; font-family: var(--sans);
+  color: var(--dk-1); outline: none; resize: none; margin-top: 12px;
+}
+.ed-notes-inp:focus { border-color: rgba(0,200,160,.3); }
+.ed-save-day-btn {
+  width: 100%; margin-top: 12px; padding: 12px;
+  background: var(--jade); border: none; border-radius: 9px;
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink); cursor: pointer;
+  font-family: var(--sans); transition: opacity .15s;
+}
+.ed-save-day-btn:hover { opacity: .88; }
 </style>
 
 <script src="activitylog.js"></script>
@@ -4010,385 +4295,552 @@ window.OVERLAY_LIBRARY = {
 };
 
 function renderPlan(plan, browsing){
-  var root=document.getElementById('day-root');
-  window._blocks=plan.blocks;
-  var p=P,t=TODAY;
-  var progCtx=getProgCtx(p);
-  var prog={weekNum:progCtx.weekNum,phase:progCtx.phase};
+  var root = document.getElementById('day-root');
+  window._blocks = plan.blocks;
+  var p = P, t = TODAY;
+  var progCtx = getProgCtx(p);
   var isBrowsing = !!browsing;
+  var log = loadDayLog(_rDate) || {};
 
-  // ── Proportional height calculation ──────────────
-  // MIN_H=64px, PX_PER_MIN=1.4, sleep capped at 200px
-  var MIN_H=64, PX=1.4, SLEEP_CAP=200;
-  function blockHeight(b){
-    var d=b.durationMins||20;
-    var h=Math.max(MIN_H,Math.round(d*PX));
-    if(b.type==='sleep') h=Math.min(SLEEP_CAP,h);
-    return h;
+  // ── Helpers ──────────────────────────────────────────────
+  var EXERCISE_MUSCLE_MAP = {
+    'deadlift':'hamstrings','rdl':'hamstrings','romanian':'hamstrings',
+    'leg curl':'hamstrings','nordic':'hamstrings','good morning':'hamstrings',
+    'back extension':'glutes','hip thrust':'glutes','glute bridge':'glutes',
+    'squat':'quads','bulgarian':'quads','split squat':'quads',
+    'step-up':'quads','lunge':'quads','leg press':'quads','leg extension':'quads',
+    'calf':'calves','bench press':'chest','db press':'chest','dumbbell press':'chest',
+    'overhead press':'chest','ohp':'chest','push-up':'chest',
+    'pushdown':'triceps','tricep':'triceps',
+    'pull-up':'lats','pullup':'lats','chin-up':'lats','lat pulldown':'lats',
+    'row':'lats','cable row':'lats','pulldown':'lats',
+    'curl':'biceps','bicep':'biceps',
+    'plank':'abs','crunch':'abs','ab wheel':'abs',
+  };
+  function getMuscle(name) {
+    var l = (name||'').toLowerCase();
+    var keys = Object.keys(EXERCISE_MUSCLE_MAP);
+    for (var i=0;i<keys.length;i++) { if (l.indexOf(keys[i])>=0) return EXERCISE_MUSCLE_MAP[keys[i]]; }
+    return null;
+  }
+  function parseEx(str) {
+    var m = str.match(/(\d+)\s*[xX\u00d7]\s*([\d\-]+)/);
+    var name = str.replace(/\d+\s*[xX\u00d7]\s*[\d\-]+.*/, '').trim();
+    return { name:name, raw:str, sets:m?parseInt(m[1]):3, reps:m?m[2]:'8-12' };
   }
 
-  // ── Build supplement rows ─────────────────────────
-  function getSuppLog() {
-    try { var l=loadDayLog(_rDate)||{}; return l.suppLog||{}; } catch(e){return{};}
-  }
-  function suppRows(suppList, blockIdx){
-    if(!suppList||!suppList.length) return '';
-    var suppLog = getSuppLog();
-    var bi = blockIdx || 0;
-    return '<div style="margin-top:2px;">'
-      +suppList.map(function(s,i){
-        var done = !!suppLog[s.name];
-        return '<div class="supp-row" id="sr-'+bi+'-'+i+'" onclick="event.stopPropagation();toggleSupp(\'' + s.name.replace(/'/g,'') + '\',' + bi + ',' + i + ')">'
-          +'<div style="width:22px;height:22px;border-radius:6px;border:1.5px solid '+(done?'var(--jade)':'rgba(255,255,255,.15)')+';background:'+(done?'var(--jade)':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">'
-            +(done?'<span style="color:var(--ink);font-size:11px;font-weight:700;">&#10003;</span>':'')
-          +'</div>'
-          +'<span class="supp-name">'+s.name+'</span>'
-          +'<span class="supp-dose" style="color:'+(done?'var(--jade)':'var(--amber)')+'">'+(s.dose||'')+'</span>'
-          +(s.timing?'<span class="supp-timing">'+s.timing+'</span>':'')
-        +'</div>';
-      }).join('')
-      +'</div>';
-  }
+  // ── Collect summary stats ────────────────────────────────
+  var trainBlock = plan.blocks.find(function(b){ return b.type==='training'; });
+  var mealBlocks = plan.blocks.filter(function(b){ return !!b.mealSlot; });
+  var suppBlocks = plan.blocks.filter(function(b){ return b.type==='supp'||b.type==='recovery'; });
+  var allSupps = [];
+  suppBlocks.forEach(function(b){ (b.suppList||[]).forEach(function(s){ allSupps.push(s); }); });
+  var cardioRec = trainBlock && trainBlock.cardioRec;
+  var cardioNames = cardioRec ? (cardioRec.options||[]).map(function(o){ return o.name||o; }) : [];
 
-  // ── Build exercise rows (interactive — tap to log status) ───────
-  
-// ── EXERCISE → MUSCLE GROUP MAP ─────────────────────────────────────────
-var EXERCISE_MUSCLE_MAP = {
-  'deadlift':'hamstrings','rdl':'hamstrings','romanian':'hamstrings',
-  'good morning':'hamstrings','leg curl':'hamstrings','nordic':'hamstrings',
-  'back extension':'glutes','hip thrust':'glutes','glute bridge':'glutes',
-  'pull-through':'glutes','squat':'quads','bulgarian':'quads',
-  'split squat':'quads','step-up':'quads','step up':'quads',
-  'lunge':'quads','leg press':'quads','leg extension':'quads',
-  'hack squat':'quads','calf':'calves','calf raise':'calves',
-  'bench press':'chest','db press':'chest','dumbbell press':'chest',
-  'incline press':'chest','chest fly':'chest','cable fly':'chest',
-  'push-up':'chest','overhead press':'chest','ohp':'chest',
-  'arnold':'chest','lateral raise':'chest','shoulder press':'chest',
-  'pushdown':'triceps','tricep':'triceps','skull':'triceps','dip':'triceps',
-  'pull-up':'lats','pullup':'lats','chin-up':'lats','lat pulldown':'lats',
-  'row':'lats','cable row':'lats','face pull':'lats','pulldown':'lats',
-  'curl':'biceps','bicep':'biceps','hammer curl':'biceps','preacher':'biceps',
-  'ab wheel':'abs','crunch':'abs','plank':'abs','cable crunch':'abs',
-  'hanging':'abs','leg raise':'abs','oblique':'obliques',
-  'adductor':'adductors','forearm':'forearms','wrist':'forearms'
-};
+  // Completion
+  var totalItems = 0, doneItems = 0;
+  plan.blocks.forEach(function(b, bi) {
+    if (b.type==='sleep'||b.type==='wake') return;
+    totalItems++;
+    var st = edGetBlockStatus(b, bi, log);
+    if (st==='done') doneItems++;
+  });
+  var pct = totalItems > 0 ? Math.round(doneItems/totalItems*100) : 0;
 
-function getExerciseMuscle(name) {
-  var lower = (name||'').toLowerCase();
-  var keys = Object.keys(EXERCISE_MUSCLE_MAP);
-  for (var i=0; i<keys.length; i++) {
-    if (lower.indexOf(keys[i]) >= 0) return EXERCISE_MUSCLE_MAP[keys[i]];
-  }
-  return null;
-}
+  var gymMins = trainBlock ? (trainBlock.durationMins || 90) : 0;
+  var trainLabel = trainBlock ? (trainBlock.title||'').split(':')[0] : 'Rest day';
 
-function exRows(exercises){
-    if(!exercises||!exercises.length) return '';
-    var log = loadDayLog(_rDate) || {};
-    var exLogs = log.exercises || {};
-    return '<div style="margin-top:8px;" id="ex-rows-wrap">'
-      +exercises.map(function(ex, i){
-        var parsed = parseExercise(ex);
-        var key = 'ex_' + i;
-        var status = exLogs[key] && exLogs[key].status || '';
-        var statusColor = status==='done' ? 'var(--jade)' : status==='modified' ? 'var(--amber)' : status==='skipped' ? 'rgba(220,80,60,.7)' : 'transparent';
-        var statusBorder = status ? statusColor : 'var(--bd)';
-        var statusIcon = status==='done' ? '✓' : status==='modified' ? '~' : status==='skipped' ? '✗' : '·';
-        var note = exLogs[key] && exLogs[key].note || '';
-        return '<div class="ex-row" id="exr-'+i+'" style="flex-direction:column;align-items:stretch;gap:0;padding:8px 0;">'
-          +'<div style="display:flex;align-items:center;gap:8px;">'
-            +'<div style="width:28px;height:28px;border-radius:50%;border:1px solid '+statusBorder+';background:'+(status?'rgba(0,0,0,.15)':'transparent')+';'
-              +'display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:'+statusColor+';flex-shrink:0;cursor:pointer;transition:all .12s;"'
-              +' onclick="cycleExStatus('+i+',\''+parsed.name+'\')" title="Tap to log">'
-              +statusIcon+'</div>'
-            +'<span class="ex-row-name">'+parsed.name+'</span>'            +(function(){              var muscle = getExerciseMuscle(parsed.name);              if(!muscle) return '';              return '<a href="bodylens-body.html?muscle='+muscle+'" '                +'onclick="event.stopPropagation()" '                +'title="How to do '+parsed.name+'" '                +'style="display:inline-flex;align-items:center;gap:3px;margin-left:4px;'                +'padding:2px 6px;border-radius:5px;font-size:9px;font-weight:700;'                +'letter-spacing:.06em;text-transform:uppercase;'                +'color:rgba(0,200,160,.7);border:1px solid rgba(0,200,160,.2);'                +'background:rgba(0,200,160,.04);text-decoration:none;flex-shrink:0;'                +'transition:all .12s;" '                +'onmouseover="this.style.background=\'rgba(0,200,160,.1)\';this.style.color=\'var(--jade)\'" '                +'onmouseout="this.style.background=\'rgba(0,200,160,.04)\';this.style.color=\'rgba(0,200,160,.7)\'" '                +'>&#9432;</a>';            })()            +'<span class="ex-row-schema">'+parsed.sets+'×'+parsed.reps+'</span>'
-            +'<span class="ex-row-rpe">RPE 7-8</span>'
-            +'<div style="margin-left:auto;display:flex;gap:5px;">'
-              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'done\')" style="min-width:40px;height:36px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='done'?'background:var(--jade);color:var(--ink);border:1px solid var(--jade);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">✓</button>'
-              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'modified\')" style="min-width:40px;height:36px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='modified'?'background:var(--amber);color:var(--ink);border:1px solid var(--amber);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">~</button>'
-              +'<button onclick="cycleExStatus('+i+',\''+parsed.name+'\',\'skipped\')" style="min-width:40px;height:36px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .1s;'+(status==='skipped'?'background:rgba(220,80,60,.7);color:#fff;border:1px solid rgba(220,80,60,.7);':'background:transparent;color:var(--dk-3);border:1px solid var(--bd);')+'">✗</button>'
-            +'</div>'
-          +'</div>'
-          +(status && status !== 'done'
-            ? '<div style="margin-top:4px;margin-left:30px;">'
-                +'<input type="text" value="'+note.replace(/"/g,'&quot;')+'" '
-                +'placeholder="'+(status==='skipped'?'Why skipped?':'What changed?')+'" '
-                +'style="width:100%;box-sizing:border-box;background:var(--ink-1);border:1px solid var(--bd);border-radius:5px;padding:5px 8px;font-size:11px;color:var(--dk-2);font-family:var(--sans);outline:none;" '
-                +'oninput="setExNote('+i+',this.value)">'
-              +'</div>'
-            : '')
-          +'</div>';
-      }).join('')
-      +'</div>';
-  }
-
-  // ── Build inline ingredient display ──────────────
-  function ingDisplay(recipe, mt, slot, idx){
-    if(!recipe) {
-      return '<div class="recipe-loading" id="ri-'+idx+'">'
-        +'<div class="spin" style="width:12px;height:12px;"></div>'
-        +'<span>Loading recipe…</span>'
-        +'</div>';
+  // ── Build unified timeline items ─────────────────────────
+  // Map each block to a timeline row, combining supp timing into context
+  function edGetBlockStatus(block, idx, log) {
+    var k = 'block_'+idx;
+    if (block.mealSlot) {
+      return (log.meals && log.meals[block.mealSlot] && log.meals[block.mealSlot].actual) ? 'done'
+           : (log.blockStatus && log.blockStatus[k]) || '';
     }
-    var ings=(recipe.ingredients||[]).slice(0,6).map(function(x){
-      return '<span class="ing-pill">'+x.name+' <em>'+x.quantity+'</em></span>';
-    }).join('');
-    return '<div id="ri-'+idx+'">'
-      +'<div class="meal-macros">'
-      +'<span class="mm-pill p">'+recipe.protein+'g P</span>'
-      +'<span class="mm-pill a">'+recipe.carbs+'g C</span>'
-      +'<span class="mm-pill">'+recipe.fat+'g F</span>'
-      +'<span class="mm-pill">'+recipe.calories+' kcal</span>'
-      +(recipe.prepTime?'<span class="mm-pill">'+recipe.prepTime+'</span>':'')
-      +'</div>'
-      +'<div style="font-size:12px;font-weight:500;color:var(--dk-1);margin-bottom:4px;">'+recipe.name+'</div>'
-      +(ings?'<div class="ing-list">'+ings+'</div>':'')
-      +'<button class="meal-btn" style="margin-top:8px;" onclick="shuffleRecipe(\''+slot+'\','+idx+')">&#8635; Shuffle</button>'
-      +'</div>';
+    if (block.type==='training') {
+      return log.trainStatus || '';
+    }
+    return (log.blockStatus && log.blockStatus[k]) || '';
   }
 
-  // ── Render each block ─────────────────────────────
-  var blocksHtml=plan.blocks.map(function(b,i){
-    var h=blockHeight(b);
-    var isMeal=!!b.mealSlot;
-    var isTrain=b.type==='training';
-    var isSupp=b.type==='supp'||b.type==='recovery';
-    var isSleep=b.type==='sleep';
-    var tagColorMap={jade:'j',amber:'a',gold:'g',slate:'s'};
-    var tagCls=tagColorMap[b.tagColor]||'s';
-    var eaten=MACROS&&b.mealSlot&&MACROS.meals[b.mealSlot]&&MACROS.meals[b.mealSlot].logged;
+  function edBuildTimeline() {
+    var rows = '';
+    plan.blocks.forEach(function(block, idx) {
+      if (block.type==='sleep') return; // skip sleep row
+      var status = edGetBlockStatus(block, idx, log);
 
-    // Header
-    var titleId = isMeal ? 'meal-title-'+b.mealSlot : '';
-    var hd='<div class="ptl-hd">'
-      +'<div class="ptl-time">'+(b.time||'')+'</div>'
-      +'<div class="ptl-main">'
-      +'<div class="ptl-title"'+(titleId?' id="'+titleId+'"':'')+'>'+b.title+'</div>'
-      +(b.subtitle?'<div class="ptl-sub" id="sub-'+(b.mealSlot||i)+'">'+b.subtitle+'</div>':'')
-      +(b.durationMins&&b.durationMins>20?'<div class="ptl-dur">~'+b.durationMins+' min</div>':'')
-      +buildBlockSummary(b)
-      +'</div>'
-      +(b.tag?'<span class="ptl-tag '+tagCls+'">'+b.tag+'</span>':'')
-      +(isMeal && !isBrowsing?'<div class="ptl-tick'+(eaten?' done':'')+'" data-slot="'+b.mealSlot+'" onclick="event.stopPropagation();quickTick(\''+b.mealSlot+'\','+i+')" title="'+(eaten?'Tap to untick':'Mark eaten')+'">&#10003;</div>':'')
-      +'<span class="ptl-collapse-hint">&#8250;</span>'
-      +'</div>';
+      // Type colour
+      var dot='slate', tag='', tagLabel='';
+      if (block.type==='training')   { dot='jade'; tag='training'; tagLabel='Train'; }
+      else if (block.mealSlot)       { dot='amber'; tag='meal'; tagLabel='Meal'; }
+      else if (block.type==='supp')  { dot='slate'; tag='supp'; tagLabel='Supps'; }
+      else if (block.type==='recovery'&&(block.suppList&&block.suppList.length)) { dot='slate'; tag='supp'; tagLabel='Supps'; }
+      else if (block.type==='wake')  { dot='slate'; }
+      else if (block.type==='cardio'||block.isEditorCardio) { dot='blue'; tag='cardio'; tagLabel='Cardio'; }
 
-    // Body content
-    var body='';
-
-    if(isTrain){
-      body+='<div class="ptl-body">'
-        +(b.cardio ? renderCardioBlock(b) : '')
-        +exRows(b.exercises)
-        +'<div style="margin-top:10px;font-size:11px;font-weight:300;color:var(--dk-3);">10 min warm-up · Cool down 5-10 min · Track every load</div>'
-        +(b.injNote?'<div style="margin-top:6px;font-size:11px;color:rgba(255,140,100,.8);">⚠ '+b.injNote+'</div>':'')
-        +(b.cardioRec ? renderCardioRec(b.cardioRec) : '')
-        +'<div style="margin-top:12px;">'
-          +'<button onclick="event.stopPropagation();_gcLaunchFromBlock('+i+',window._blocks['+i+'])" '
-            +'style="background:var(--jade);border:none;color:var(--ink);padding:10px 20px;border-radius:8px;'
-            +'font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;'
-            +'font-family:var(--sans);display:inline-flex;align-items:center;gap:6px;">▶ Start with coach</button>'
-          +'<button onclick="event.stopPropagation();showSession('+i+',window._blocks['+i+'])" '
-            +'style="background:transparent;border:1px solid var(--bd);color:var(--dk-3);padding:10px 16px;border-radius:8px;'
-            +'font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);margin-left:8px;">View session →</button>'
-          +'<button onclick="event.stopPropagation();openSessionEditor('+i+',window._blocks['+i+'])" '
-            +'id="edit-session-btn-'+i+'" '
-            +'style="background:rgba(0,200,160,.07);border:1px solid rgba(0,200,160,.25);color:var(--jade);padding:10px 16px;border-radius:8px;'
-            +'font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);margin-left:8px;transition:all .12s;">&#9998; Edit session</button>'
-        +'</div>'
-        +'</div>';
-    } else if(b.isAcceleratorSummary && b.accList){
-      // Active accelerators summary block
-      body += '<div class="ptl-body ptl-acc-body">'
-        + b.accList.map(function(a) {
-            return '<div class="ptl-acc-row">'
-              + '<span class="ptl-acc-icon">'+a.icon+'</span>'
-              + '<span class="ptl-acc-name">'+a.name+'</span>'
-              + '<span class="ptl-acc-when">'+a.when+'</span>'
-              + '<span class="ptl-acc-benefit">'+a.benefit+'</span>'
-              + '</div>';
-          }).join('')
-        + '</div>';
-    } else if(isMeal){
-      var slot=b.mealSlot;
-      var cachedRecipe=(typeof getTodayMeal==='function') ? getTodayMeal(slot) : (_recipes[slot]||null);
-      var mealCount=p.mealCount||3;
-      var dayKcal=(typeof getDayKcal==="function")?getDayKcal(p,t.isTraining):(t.isTraining?(t.plan.kcal||p.calories||2000):Math.round((p.calories||2000)*0.91));
-      var mt={calories:Math.round(dayKcal/mealCount),protein:Math.round((p.protein||140)/mealCount),carbs:Math.round((p.carbs||160)*0.25),fat:Math.round((p.fat||60)*0.25)};
-      var mealSuppHtml='';
-      if(b.mealSuppList&&b.mealSuppList.length){
-        mealSuppHtml='<div style="margin:8px 0 4px;padding:8px 10px;background:rgba(196,124,24,.04);border:1px solid rgba(196,124,24,.12);border-radius:8px;">'
-          +'<div style="font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;">With this meal</div>'
-          +b.mealSuppList.map(function(s){
-            return '<div style="display:flex;align-items:baseline;gap:8px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
-              +'<span style="font-size:11px;font-weight:500;color:var(--dk-1);flex:1;">'+s.name+'</span>'
-              +'<span style="font-size:11px;font-weight:600;color:var(--amber);">'+(s.dose||'')+'</span>'
-              +(s.timing?'<span style="font-size:9px;font-weight:300;color:var(--dk-3);">'+s.timing+'</span>':'')
-            +'</div>';
-          }).join('')
-          +'</div>';
+      // Short description
+      var desc = '';
+      if (block.type==='training') {
+        var exNames = (block.exercises||[]).filter(function(e){ return e!=='Track loads'; }).slice(0,3).map(function(e){ return parseEx(e).name; });
+        desc = exNames.join(', ') + (block.exercises&&block.exercises.length>3 ? ' +' + (block.exercises.length-3) : '');
+      } else if (block.mealSlot) {
+        desc = block.subtitle || '';
+      } else if (block.type==='supp'||block.type==='recovery') {
+        var names = (block.suppList||[]).map(function(s){ return s.name||s; });
+        desc = names.length ? names.join(', ') : (block.subtitle||'');
+      } else if (block.type==='wake') {
+        desc = block.subtitle || '';
+      } else {
+        desc = block.subtitle || '';
       }
-      body+='<div class="ptl-body" data-slot="'+slot+'" id="meal-'+i+'">'
-        +ingDisplay(cachedRecipe, mt, slot, i)
-        +mealSuppHtml
-        +'<div class="meal-actions">'
-        +'<button class="meal-btn con" onclick="quickTick(\''+slot+'\','+i+')">&#10003; Ate this</button>'
-        +'<button class="meal-btn" onclick="showDevLogger(\''+slot+'\','+i+')">Something different</button>'
-        +'</div>'
-        +'<div id="dev-'+i+'"></div>'
-        +'</div>';
-    } else if(isSupp){
-      if (b.isOverlay) {
-      var items = b.detail ? b.detail.split(' · ') : [];
-      var itemsHtml = items.map(function(item) {
-        return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
-          + '<div style="width:5px;height:5px;border-radius:50%;background:var(--jade);flex-shrink:0;"></div>'
-          + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">'+item+'</div>'
-          + '</div>';
-      }).join('');
-      body += '<div class="ptl-body">'
-        + (itemsHtml || '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">'+b.detail+'</div>')
-        + '<button class="overlay-remove-btn" onclick="event.stopPropagation();removeOverlay(\''+b.overlayId+'\')">'
-        + 'Remove from programme'
-        + '</button>'
+
+      // Duration chip
+      var durChip = '';
+      if (block.durationMins && block.type!=='sleep' && block.type!=='wake') {
+        durChip = '<span style="font-size:10px;font-weight:300;color:var(--dk-3);margin-left:4px;">' + block.durationMins + 'm</span>';
+      }
+
+      var rowClass = 'ed-tl-row' + (status==='done'?' done':status==='skipped'?' skipped':'');
+
+      rows += '<div class="' + rowClass + '" id="ed-row-'+idx+'">'
+        + '<div class="ed-tl-time">' + (block.time||'') + '</div>'
+        + '<div class="ed-tl-dot ' + dot + '"></div>'
+        + '<div class="ed-tl-main">'
+          + '<div class="ed-tl-title">'
+            + '<span class="ed-tl-title-text">' + (block.title||'') + '</span>'
+            + (tag ? '<span class="ed-tl-tag '+tag+'">'+tagLabel+'</span>' : '')
+            + durChip
+          + '</div>'
+          + (desc ? '<div class="ed-tl-desc">' + desc + '</div>' : '')
+        + '</div>'
+        + '<div class="ed-tl-actions">'
+          + '<button class="ed-act done-btn' + (status==='done'?' active-done':'') + '" onclick="event.stopPropagation();edSetStatus('+idx+',\'done\')" title="Done">'
+            + '<span class="ed-act-icon">&#10003;</span>'
+            + '<span class="ed-act-label">Done</span>'
+          + '</button>'
+          + '<button class="ed-act swap-btn' + (status==='modified'?' active-swap':'') + '" onclick="event.stopPropagation();edSetStatus('+idx+',\'modified\')" title="Swapped">'
+            + '<span class="ed-act-icon">~</span>'
+            + '<span class="ed-act-label">Swap</span>'
+          + '</button>'
+          + '<button class="ed-act skip-btn' + (status==='skipped'?' active-skip':'') + '" onclick="event.stopPropagation();edSetStatus('+idx+',\'skipped\')" title="Skipped">'
+            + '<span class="ed-act-icon">&times;</span>'
+            + '<span class="ed-act-label">Skip</span>'
+          + '</button>'
+        + '</div>'
+      + '</div>';
+    });
+    return rows;
+  }
+
+  // ── Detail drawer: Training ──────────────────────────────
+  function edTrainingDrawer() {
+    if (!trainBlock) return '';
+    var exercises = (trainBlock.exercises||[]).filter(function(e){ return e!=='Track loads'; });
+    var exRows = exercises.map(function(e,i){
+      var px = parseEx(e);
+      var muscle = getMuscle(px.name);
+      var link = muscle ? '<a href="bodylens-body.html?muscle='+muscle+'" class="ed-ex-link" onclick="event.stopPropagation()">'+px.name+'</a>' : px.name;
+      return '<div class="ed-exercise-row">'
+        + '<div class="ed-ex-num">'+(i+1)+'</div>'
+        + '<div class="ed-ex-name">'+link+'</div>'
+        + '<div class="ed-ex-scheme">'+px.sets+'\u00d7'+px.reps+'</div>'
         + '</div>';
-    } else {
-      body+='<div class="ptl-body">'+suppRows(b.suppList, i)+'</div>';
-    }
-    } else if(isSleep){
-      var _sl=loadDayLog(_rDate)||{};
-      var _slVal=_sl.sleepActual||0;
-      body+='<div class="ptl-body">'
-        +'<div style="font-size:12px;font-weight:300;color:var(--dk-3);line-height:1.6;margin-bottom:14px;">'+b.science+'</div>'
-        +'<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;">'
-          +'<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;">How many hours last night?</div>'
-          +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">'
-            +[5,6,7,8,9].map(function(h){
-              var sel=_slVal==h;
-              return '<button onclick="event.stopPropagation();logSleepHours('+h+')" style="width:44px;height:44px;border-radius:10px;border:1.5px solid '+(sel?'var(--jade)':'rgba(255,255,255,.1)')+';background:'+(sel?'rgba(0,200,160,.12)':'transparent')+';color:'+(sel?'var(--jade)':'var(--dk-2)')+';font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .12s;">'+h+'h</button>';
-            }).join('')
-          +'</div>'
-          +(_slVal?'<div class="sleep-confirm">&#10003; Logged: '+_slVal+'h &mdash; readiness updated</div>':'<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:8px;">Tap to log &rarr; feeds your readiness score in the sidebar</div>')
-        +'</div>'
-        +'</div>';
-    } else {
-      // Wake / generic
-      var det=(b.detail||'').split('\n').filter(function(l){return l.trim();}).map(function(l){return '<div style="margin-bottom:4px;">'+l+'</div>';}).join('');
-      if(det) body+='<div class="ptl-body"><div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.6;">'+det+'</div></div>';
-    }
+    }).join('');
 
-    // Coach note
-    var coachHtml=b.coachNote?'<div class="ptl-coach">'+b.coachNote+'</div>':'';
-
-    // Optimisation notes strip
-    var optHtml = '';
-    if (b.optBadge && b.optBadge.length) {
-      optHtml = '<div class="ptl-opt-strip">'
-        + b.optBadge.map(function(n){
-            return '<div class="ptl-opt-note">'+n+'</div>';
+    var cardioHtml = '';
+    if (cardioNames.length) {
+      var when = cardioRec.when || 'Post-session';
+      cardioHtml = '<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);">'
+        + '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Cardio options &mdash; '+when+'</div>'
+        + cardioNames.map(function(n){
+            return '<div class="ed-exercise-row"><div class="ed-ex-name" style="color:rgba(130,180,255,.9);">'+n+'</div>'
+              + '<button onclick="event.stopPropagation();openSessionEditor(-1,null,\''+n+'\')" style="font-size:10px;font-weight:600;color:rgba(130,180,255,.7);background:none;border:1px solid rgba(130,180,255,.2);border-radius:6px;padding:3px 8px;cursor:pointer;font-family:var(--sans);">Add &rarr;</button></div>';
           }).join('')
         + '</div>';
     }
 
-    return '<div class="ptl-block t-'+(b.type||'supp')+(eaten?' eaten':'')+(b.isOverlay?' is-overlay':'')+' collapsed'+'" onclick="togglePtlBlock(this)" style="min-height:'+h+'px;">'
-      +'<div class="ptl-dot"></div>'
-      +'<div class="ptl-card">'
-      +hd+body+coachHtml+optHtml
-      +'</div>'
-      +'</div>';
-  }).join('');
+    var coach = trainBlock.coachNote || '';
+    var coachHtml = coach ? '<div style="margin-top:12px;padding:10px 12px;background:rgba(0,200,160,.04);border-left:2px solid rgba(0,200,160,.25);border-radius:0 6px 6px 0;font-size:12px;font-weight:300;color:var(--dk-2);">'+coach+'</div>' : '';
 
-  // Week tabs
-  var weekTabsHtml=renderWeekTabs(p,progCtx);
+    return '<div class="ed-drawer" id="drawer-training">'
+      + '<div class="ed-drawer-hd" onclick="edToggleDrawer(\'training\')">'
+        + '<div class="ed-drawer-title">&#127947; Training <span class="ed-drawer-badge">'+exercises.length+' exercises</span></div>'
+        + '<div class="ed-drawer-chevron">&#8250;</div>'
+      + '</div>'
+      + '<div class="ed-drawer-body">'
+        + '<div style="padding-top:10px;">' + exRows + '</div>'
+        + cardioHtml + coachHtml
+        + '<div style="margin-top:14px;display:flex;gap:8px;">'
+          + '<button onclick="event.stopPropagation();openSessionEditor(0,window._blocks.find(function(b){return b.type===\'training\'}))" style="padding:8px 14px;border-radius:8px;border:1px solid rgba(0,200,160,.25);background:rgba(0,200,160,.06);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--jade);cursor:pointer;font-family:var(--sans);">&#9998; Edit session</button>'
+          + '<button onclick="event.stopPropagation();var b=window._blocks.find(function(x){return x.type===\'training\'});if(b){var i=window._blocks.indexOf(b);_gcLaunchFromBlock(i,b);}" style="padding:8px 14px;border-radius:8px;border:1px solid var(--bd);background:transparent;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);cursor:pointer;font-family:var(--sans);">&#9654; Start with coach</button>'
+        + '</div>'
+      + '</div>'
+    + '</div>';
+  }
 
-  // Date — show browsed day name, not today's date
-  var d=new Date();
-  var dateStr=isBrowsing
+  // ── Detail drawer: Food ──────────────────────────────────
+  function edFoodDrawer() {
+    var dayKcal = typeof getDayKcal === 'function' ? getDayKcal(p, t.isTraining) : (p.calories||2000);
+    var mealCount = p.mealCount || 3;
+    var perMeal = { kcal: Math.round(dayKcal/mealCount), protein: Math.round(p.protein/mealCount) };
+    var mealRows = mealBlocks.map(function(b){
+      var slot = b.mealSlot;
+      var done = log.meals && log.meals[slot] && log.meals[slot].actual;
+      return '<div class="ed-meal-row">'
+        + '<div class="ed-meal-name" style="' + (done?'color:var(--jade);':'') + '">'
+          + (done?'\u2713 ':'') + b.title
+        + '</div>'
+        + '<div class="ed-meal-meta">' + b.subtitle + ' &mdash; ~'+perMeal.kcal+' kcal, '+perMeal.protein+'g protein</div>'
+        + '</div>';
+    }).join('');
+
+    var macroRow = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);">'
+      + [['Calories', dayKcal+' kcal','jade'],['Protein',p.protein+'g','jade'],['Carbs',p.carbs+'g','amber'],['Fat',p.fat+'g','']].map(function(m){
+          return '<div style="text-align:center;padding:8px;background:var(--ink-2);border-radius:8px;">'
+            + '<div style="font-size:14px;font-weight:700;color:'+(m[2]==='jade'?'var(--jade)':m[2]==='amber'?'var(--amber)':'var(--dk-1)')+';">'+m[1]+'</div>'
+            + '<div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);">'+m[0]+'</div>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+
+    return '<div class="ed-drawer" id="drawer-food">'
+      + '<div class="ed-drawer-hd" onclick="edToggleDrawer(\'food\')">'
+        + '<div class="ed-drawer-title">&#127860; Food <span class="ed-drawer-badge">'+mealBlocks.length+' meals</span></div>'
+        + '<div class="ed-drawer-chevron">&#8250;</div>'
+      + '</div>'
+      + '<div class="ed-drawer-body">'
+        + '<div style="padding-top:10px;">' + mealRows + '</div>'
+        + macroRow
+        + '<div style="margin-top:12px;">'
+          + '<a href="bodylens-food.html" style="font-size:11px;font-weight:600;color:var(--jade);text-decoration:none;">View meal plan &rarr;</a>'
+        + '</div>'
+      + '</div>'
+    + '</div>';
+  }
+
+  // ── Detail drawer: Supplements ───────────────────────────
+  function edSuppDrawer() {
+    var profileSupps = p.supplements || [];
+    var suppRows = profileSupps.map(function(s){
+      var name = s.name || s;
+      var dose = s.dose || '';
+      var timing = s.timing || '';
+      var isTraining = t.isTraining;
+      var optimisedTiming = timing;
+      var nl = name.toLowerCase();
+      if (nl.includes('creatine')) optimisedTiming = isTraining ? 'Post-training with protein' : 'Morning with food';
+      else if (nl.includes('omega')) optimisedTiming = 'With largest meal';
+      else if (nl.includes('d3')||nl.includes('vitamin d')) optimisedTiming = 'Morning with fat-containing meal';
+      else if (nl.includes('magnesium')) optimisedTiming = '30-60 min before bed';
+      else if (nl.includes('theanine')) optimisedTiming = isTraining ? '30 min pre-session' : 'With morning coffee';
+      return '<div class="ed-supp-row">'
+        + '<div class="ed-supp-dot"></div>'
+        + '<div class="ed-supp-name">' + name + '</div>'
+        + (dose ? '<div class="ed-supp-dose">' + dose + '</div>' : '')
+        + '<div class="ed-supp-when">' + optimisedTiming + '</div>'
+        + '</div>';
+    }).join('');
+
+    return '<div class="ed-drawer" id="drawer-supps">'
+      + '<div class="ed-drawer-hd" onclick="edToggleDrawer(\'supps\')">'
+        + '<div class="ed-drawer-title">&#128138; Supplements <span class="ed-drawer-badge">'+profileSupps.length+' today</span></div>'
+        + '<div class="ed-drawer-chevron">&#8250;</div>'
+      + '</div>'
+      + '<div class="ed-drawer-body">'
+        + '<div style="padding-top:10px;">' + suppRows + '</div>'
+        + '<div style="margin-top:12px;">'
+          + '<a href="bodylens-supplements.html" style="font-size:11px;font-weight:600;color:var(--jade);text-decoration:none;">Deep stack &rarr;</a>'
+        + '</div>'
+      + '</div>'
+    + '</div>';
+  }
+
+  // ── End of day card ──────────────────────────────────────
+  function edEodCard() {
+    var trainDone = log.trainStatus === 'done';
+    var cardioDone = !!(log.cardioLogged && log.cardioLogged.name);
+    var mealsFollowed = mealBlocks.filter(function(b){
+      return log.meals && log.meals[b.mealSlot] && log.meals[b.mealSlot].actual;
+    }).length;
+    var suppsDone = allSupps.filter(function(s){
+      var sl = getSuppLog();
+      return sl[(s.name||s)];
+    }).length;
+    var swaps = [];
+    if (log.blockStatus) {
+      Object.keys(log.blockStatus).forEach(function(k){
+        if (log.blockStatus[k]==='modified') swaps.push(k);
+      });
+    }
+    var savedNotes = (log.tomorrowNotes)||'';
+    var score = edCalcScore(log, mealBlocks, allSupps);
+
+    return '<div class="ed-eod" id="ed-eod-card">'
+      + '<div class="ed-eod-hd">'
+        + '<div class="ed-eod-title">End of day</div>'
+        + '<div class="ed-eod-date">' + new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) + '</div>'
+      + '</div>'
+      + '<div class="ed-eod-body">'
+        + '<div class="ed-eod-row"><span class="ed-eod-key">Training</span><span class="ed-eod-val '+(t.isTraining?(trainDone?'done':''):'done')+'">'+(t.isTraining?(trainDone?'\u2713 Completed':'Not yet'):'Rest day')+'</span></div>'
+        + '<div class="ed-eod-row"><span class="ed-eod-key">Cardio</span><span class="ed-eod-val '+(cardioDone?'done':'')+'">'+(cardioDone?'\u2713 '+log.cardioLogged.name+' '+log.cardioLogged.mins+'min':'Not logged')+'</span></div>'
+        + '<div class="ed-eod-row"><span class="ed-eod-key">Meals followed</span><span class="ed-eod-val '+((mealsFollowed===mealBlocks.length&&mealBlocks.length>0)?'done':'')+'">'+(mealsFollowed+' / '+mealBlocks.length)+'</span></div>'
+        + '<div class="ed-eod-row"><span class="ed-eod-key">Supplements taken</span><span class="ed-eod-val">'+suppsDone+' / '+allSupps.length+'</span></div>'
+        + (swaps.length ? '<div class="ed-eod-row"><span class="ed-eod-key">Substituted</span><span class="ed-eod-val">' + swaps.length + ' item'+( swaps.length>1?'s':'')+'</span></div>' : '')
+        + '<textarea class="ed-notes-inp" rows="2" placeholder="Notes for tomorrow..." onchange="edSaveNotes(this.value)" onblur="edSaveNotes(this.value)">' + savedNotes + '</textarea>'
+        + '<div class="ed-eod-score">'
+          + '<div class="ed-eod-score-num" id="ed-score-num">' + score + '</div>'
+          + '<div class="ed-eod-score-label">Day score</div>'
+        + '</div>'
+        + '<button class="ed-save-day-btn" onclick="edSaveDay()">Save &amp; log this day \u2192</button>'
+      + '</div>'
+    + '</div>';
+  }
+
+  // ── Macro progress bar HTML ──────────────────────────────
+  var macroProt = (MACROS && MACROS.eaten && p.protein) ? Math.round(MACROS.eaten.protein / p.protein * 100) : 0;
+  var macroBar = '<div id="ed-macro-bar" style="padding:10px 24px;background:var(--ink-1);border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:16px;align-items:center;">'
+    + [
+        ['P', (MACROS&&MACROS.eaten?MACROS.eaten.protein:0)+'g', p.protein+'g', 'var(--jade)'],
+        ['C', (MACROS&&MACROS.eaten?MACROS.eaten.carbs:0)+'g', p.carbs+'g', 'var(--amber)'],
+        ['F', (MACROS&&MACROS.eaten?MACROS.eaten.fat:0)+'g', p.fat+'g', 'var(--dk-3)'],
+        ['kcal', (MACROS&&MACROS.eaten?MACROS.eaten.kcal:0)+'', (t.isTraining?p.trainingKcal:p.restKcal||p.calories)+'', 'rgba(255,255,255,.5)'],
+      ].map(function(m){
+        var eaten = parseInt(m[1])||0, target = parseInt(m[2])||1;
+        var pct = Math.min(100, Math.round(eaten/target*100));
+        return '<div style="flex:1;min-width:40px;">'
+          + '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">'
+            + '<span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);">'+m[0]+'</span>'
+            + '<span style="font-size:9px;font-weight:600;color:'+m[3]+';">'+m[1]+'</span>'
+          + '</div>'
+          + '<div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px;">'
+            + '<div style="height:100%;width:'+pct+'%;background:'+m[3]+';border-radius:2px;"></div>'
+          + '</div>'
+        + '</div>';
+      }).join('')
+    + '</div>';
+
+  // ── Summary strip HTML ───────────────────────────────────
+  var summaryStrip = '<div class="ed-strip">'
+    + '<div class="ed-strip-item">'
+      + '<div class="ed-strip-label">Training</div>'
+      + '<div class="ed-strip-val jade">' + trainLabel + '</div>'
+      + '<div class="ed-strip-sub">' + (gymMins ? '~'+gymMins+' min' : 'Rest day') + '</div>'
+    + '</div>'
+    + '<div class="ed-strip-item">'
+      + '<div class="ed-strip-label">Cardio</div>'
+      + '<div class="ed-strip-val">' + (cardioNames.length ? cardioNames[0] : 'None planned') + '</div>'
+      + '<div class="ed-strip-sub">' + (cardioNames.length > 1 ? 'or '+cardioNames.slice(1).join(', ') : cardioRec ? (cardioRec.when||'Post-session') : '\u2014') + '</div>'
+    + '</div>'
+    + '<div class="ed-strip-item">'
+      + '<div class="ed-strip-label">Meals</div>'
+      + '<div class="ed-strip-val">' + mealBlocks.length + '</div>'
+      + '<div class="ed-strip-sub">' + (t.isTraining?p.trainingKcal:p.restKcal||p.calories) + ' kcal target</div>'
+    + '</div>'
+    + '<div class="ed-strip-item">'
+      + '<div class="ed-strip-label">Supplements</div>'
+      + '<div class="ed-strip-val">' + (p.supplements||[]).length + '</div>'
+      + '<div class="ed-strip-sub">' + allSupps.slice(0,2).map(function(s){ return s.name||s; }).join(', ') + (allSupps.length>2?'...':'') + '</div>'
+    + '</div>'
+    + '<div class="ed-strip-item">'
+      + '<div class="ed-strip-label">Progress</div>'
+      + '<div class="ed-strip-val">' + pct + '%</div>'
+      + '<div class="ed-progress-bar"><div class="ed-progress-fill" style="width:'+pct+'%"></div></div>'
+    + '</div>'
+  + '</div>';
+
+  // ── Assemble the page ────────────────────────────────────
+  var dateStr = isBrowsing
     ? plan.dayTitle.split(' \u2014 ')[0]
-    : d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+    : new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
 
-  // Build sidebar HTML
-  var sidebarHtml = !isBrowsing ? (
-    renderGlanceCard(p, t, plan, isBrowsing)
-    + renderChallengeGrid()
-  ) : '';
+  root.innerHTML =
+    summaryStrip
+    + macroBar
+    + '<div class="ed-page">'
+      // Date + title
+      + '<div class="ed-date-row">'
+        + '<div class="ed-date-kicker">' + dateStr + '</div>'
+        + '<div class="ed-date-title">' + plan.dayTitle + '</div>'
+        + '<div class="ed-date-brief">' + plan.dayBrief + '</div>'
+      + '</div>'
+      // Coach note
+      + '<div class="ed-coach-note" id="coach-narrative-body">'
+        + '<div class="ed-coach-kicker">Coach</div>'
+        + '<div class="coach-prose-spin" id="coach-prose-text"><span style="font-size:12px;color:var(--dk-3);">Reading your day\u2026</span></div>'
+      + '</div>'
+      // Timeline
+      + '<div style="margin-top:16px;">'
+        + edBuildTimeline()
+      + '</div>'
+      // Rebuild button (browsing or regen)
+      + (isBrowsing
+          ? '<div style="margin-top:20px;"><button onclick="backToToday()" style="font-size:11px;font-weight:600;color:var(--dk-3);background:none;border:1px solid var(--bd);border-radius:8px;padding:8px 16px;cursor:pointer;font-family:var(--sans);">\u21a9 Back to today</button></div>'
+          : '<div style="margin-top:20px;"><button onclick="regen()" style="font-size:10px;font-weight:600;color:var(--dk-3);background:none;border:none;cursor:pointer;font-family:var(--sans);letter-spacing:.06em;text-transform:uppercase;">\u8635 Rebuild today</button></div>')
+      // Detail drawers
+      + '<div class="ed-drawers">'
+        + edTrainingDrawer()
+        + edFoodDrawer()
+        + edSuppDrawer()
+      + '</div>'
+      // End of day
+      + edEodCard()
+    + '</div>';
 
-  root.innerHTML=
-    // Two-column wrapper
-    '<div class="day-outer">'    // LEFT SIDEBAR — sticky control panel
-    +'<div class="day-sidebar" id="day-sidebar">'    +sidebarHtml    +'</div>'    // MAIN CONTENT
-    +'<div class="day-page">'    // Hero
-    +'<div class="day-hero">'
-    +'<div class="day-kicker">'+dateStr+'</div>'
-    +(isBrowsing
-      ? '<div style="display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:rgba(196,124,24,.07);border:1px solid rgba(196,124,24,.2);border-radius:14px;padding:4px 12px;margin-bottom:12px;">Browsing <span style="opacity:.4;">·</span> <button onclick="backToToday()" style="background:none;border:none;color:var(--jade);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);padding:0;">Back to today \u21a9</button></div>'
-      : '')
-    +'<div class="day-title">'+plan.dayTitle+'</div>'
-    +'<div class="day-brief">'+plan.dayBrief+'</div>'
-    +(plan.priority?'<div class="day-priority">\u2022 '+plan.priority+'</div>':'')
-    +'</div>'
-    // Macro tiles
-    +'<div class="macro-tiles">'
-    +'<div class="mt" onclick="showMacroDetail(\'kcal\')"><div class="mt-val">'+plan.macros.kcal+'</div><div class="mt-label">Calories</div><div class="mt-hint">Why?</div></div>'
-    +'<div class="mt" onclick="showMacroDetail(\'prot\')"><div class="mt-val j">'+plan.macros.prot+'g</div><div class="mt-label">Protein</div><div class="mt-hint">Why?</div></div>'
-    +'<div class="mt" onclick="showMacroDetail(\'carbs\')"><div class="mt-val a">'+plan.macros.carbs+'g</div><div class="mt-label">Carbs</div><div class="mt-hint">Why?</div></div>'
-    +'<div class="mt" onclick="showMacroDetail(\'fat\')"><div class="mt-val">'+plan.macros.fat+'g</div><div class="mt-label">Fat</div><div class="mt-hint">Why?</div></div>'
-    +'</div>'
-    +'<div id="macro-detail-panel" style="display:none;"></div>'
-    +'<div style="margin-top:8px;margin-bottom:20px;">'
-      +'<span class="water-bar">\uD83D\uDCA7 '+plan.macros.water+'</span>'
-    +'</div>'
-    +'<div id="day-macro-progress"></div>'
-    // Week tabs + programme context
-    +weekTabsHtml
-    // TODAY AT A GLANCE — moved to left sidebar (see renderSidebar)
-    // Coach narrative — today only, appears before timeline
-    +(!isBrowsing
-      ? '<div id="coach-narrative-body" class="coach-narrative">'
-        +'<div class="coach-narrative-kicker">Coach</div>'
-        +'<div class="coach-prose-spin"><div class="spin" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:8px;border:1.5px solid rgba(255,255,255,.1);border-top-color:var(--jade);border-radius:50%;animation:spin .8s linear infinite;"></div>'
-        +'<span style="font-size:12px;color:var(--dk-3);">Reading your day\u2026</span></div>'
-        +'</div>'
-      : '')
-    // Timeline
-    +'<div>'
-    +'<div id="prog-strip-slot"></div>'
-    +'<div class="sec-label">Your day</div>'
-    +'<div class="ptl"><div class="ptl-line"></div>'+blocksHtml+'</div>'
-    +(!isBrowsing ? '<div id="al-week-banner" style="display:none;"></div>' : '')
-    +(!isBrowsing ? '<div id="al-logged-strip"></div>' : '')
-    +(!isBrowsing
-      ? '<div style="margin:0 0 14px;">'
-        +'<button onclick="openActivityLog()" style="'
-          +'display:flex;align-items:center;gap:8px;padding:10px 18px;'
-          +'background:transparent;border:1px solid var(--bd);border-radius:8px;'
-          +'font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;'
-          +'color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all .12s;'
-          +'width:100%;"'
-        +' onmouseover="this.style.borderColor=\'var(--jade-br)\';this.style.color=\'var(--jade)\'"'
-        +' onmouseout="this.style.borderColor=\'var(--bd)\';this.style.color=\'var(--dk-3)\'"'
-        +'>'
-        +'<span style="font-size:15px;">+</span>'
-        +'Log activity'
-        +'</button>'
-      +'</div>'
-      : '')
-    +(!isBrowsing ? '<div id="day-capture-zone"></div>' : '')
-    // CHALLENGE GRID — moved to left sidebar (see renderSidebar)
-    +'<button class="regen-btn" onclick="'+(isBrowsing ? 'backToToday()' : 'regen()')+'">'+( isBrowsing ? '\u21a9 Back to today' : '\u8635 Rebuild today')+'</button>'
-    +'</div>'  // close .day-page
-    +'</div>'; // close .day-outer
+  // Update macro bar when MACROS changes
+  var macroBarEl = document.getElementById('macro-bar');
+  if (macroBarEl) macroBarEl.style.display = 'none'; // hide old macro bar
 
-  // Programme strip
-  var ps=document.getElementById('prog-strip-slot');
-  if(ps){
-    var dots=[1,2,3,4].map(function(w){return '<div class="ps-dot'+(w<progCtx.weekNum?' done':w===progCtx.weekNum?' curr':'')+'"></div>';}).join('');
-    var acc=pickAcc(p,t);
-    ps.innerHTML='<div class="prog-strip"><div class="ps-left"><div class="ps-label">Programme</div><div class="ps-dots">'+dots+'</div></div><div class="ps-right"><div class="ps-week">Week '+progCtx.weekNum+' of 4</div><div class="ps-phase">'+progCtx.phase+'</div></div></div>'
-      +(acc?'<div class="acc-strip"><div class="acc-body"><div class="acc-kicker">\uD83D\uDCA1 Accelerator</div><div class="acc-title">'+acc.name+'</div><div class="acc-why">'+acc.why+'</div></div><a href="'+acc.url+'" class="acc-link">More \u2192</a></div>':'');
+  // Programme/week strip
+  var ps = document.getElementById('prog-strip-slot');
+  // prog-strip is now handled by week-strip rendered by renderProgBanner
+
+  // Post-render
+  if (!isBrowsing) {
+    setTimeout(function(){ renderDayCapture(); }, 100);
+    generateCoachNarrative(p, t, plan);
   }
 }
+
+// ── Ed helpers ────────────────────────────────────────────
+function edToggleDrawer(id) {
+  var d = document.getElementById('drawer-'+id);
+  if (d) d.classList.toggle('open');
+}
+
+function edSetStatus(blockIdx, status) {
+  if (navigator.vibrate) navigator.vibrate(6);
+  var block = window._blocks[blockIdx];
+  if (!block) return;
+  var log = loadDayLog(_rDate) || initDayLog();
+
+  // Training block
+  if (block.type === 'training') {
+    var current = log.trainStatus || '';
+    log.trainStatus = (current === status) ? '' : status;
+    if (status === 'done') {
+      log.trainStatus = 'done';
+      if (!log.trainDoneAt) log.trainDoneAt = new Date().toISOString();
+    }
+    saveDayLog(_rDate, log);
+  } else if (block.mealSlot) {
+    // Meal block
+    if (!log.meals) log.meals = {};
+    if (!log.meals[block.mealSlot]) log.meals[block.mealSlot] = {};
+    var cur = log.meals[block.mealSlot].actual ? 'done' : (log.blockStatus&&log.blockStatus['block_'+blockIdx]||'');
+    var next = (cur === status) ? '' : status;
+    if (status === 'done') {
+      log.meals[block.mealSlot].actual = next === '' ? null : block.mealSlot;
+      log.meals[block.mealSlot].logged = next !== '';
+      // Update MACROS
+      if (MACROS && next !== '') {
+        MACROS.meals[block.mealSlot] = MACROS.meals[block.mealSlot] || {};
+        MACROS.meals[block.mealSlot].logged = true;
+        var mealCount = p.mealCount || 3;
+        var dayKcal = typeof getDayKcal==='function' ? getDayKcal(P, TODAY.isTraining) : P.calories;
+        MACROS.eaten = MACROS.eaten || { kcal:0, protein:0, carbs:0, fat:0 };
+        MACROS.eaten.kcal += Math.round(dayKcal/mealCount);
+        MACROS.eaten.protein += Math.round(P.protein/mealCount);
+        MACROS.eaten.carbs += Math.round(P.carbs/mealCount);
+        MACROS.eaten.fat += Math.round(P.fat/mealCount);
+      }
+    } else {
+      if (!log.blockStatus) log.blockStatus = {};
+      var bs = log.blockStatus['block_'+blockIdx] || '';
+      log.blockStatus['block_'+blockIdx] = (bs === status) ? '' : status;
+    }
+    saveDayLog(_rDate, log);
+  } else {
+    // Generic block (supp, recovery, wake)
+    if (!log.blockStatus) log.blockStatus = {};
+    var curS = log.blockStatus['block_'+blockIdx] || '';
+    log.blockStatus['block_'+blockIdx] = (curS === status) ? '' : status;
+    saveDayLog(_rDate, log);
+  }
+
+  // Update this row's visual
+  edUpdateRow(blockIdx, log);
+  edUpdateStrip(log);
+}
+
+function edUpdateRow(idx, log) {
+  var row = document.getElementById('ed-row-'+idx);
+  if (!row) return;
+  var block = window._blocks[idx];
+  if (!block) return;
+  var status = '';
+  if (block.type==='training') {
+    status = log.trainStatus||'';
+  } else if (block.mealSlot) {
+    if (log.meals && log.meals[block.mealSlot] && log.meals[block.mealSlot].logged) status = 'done';
+    else status = (log.blockStatus&&log.blockStatus['block_'+idx])||'';
+  } else {
+    status = (log.blockStatus&&log.blockStatus['block_'+idx])||'';
+  }
+  row.className = 'ed-tl-row' + (status==='done'?' done':status==='skipped'?' skipped':'');
+  var btns = row.querySelectorAll('.ed-act');
+  btns[0] && (btns[0].className = 'ed-act done-btn' + (status==='done'?' active-done':''));
+  btns[1] && (btns[1].className = 'ed-act swap-btn' + (status==='modified'?' active-swap':''));
+  btns[2] && (btns[2].className = 'ed-act skip-btn' + (status==='skipped'?' active-skip':''));
+}
+
+function edUpdateStrip(log) {
+  var blocks = window._blocks || [];
+  var total = 0, done = 0;
+  blocks.forEach(function(b, bi) {
+    if (b.type==='sleep'||b.type==='wake') return;
+    total++;
+    var st = '';
+    if (b.type==='training') st = log.trainStatus||'';
+    else if (b.mealSlot) st = (log.meals&&log.meals[b.mealSlot]&&log.meals[b.mealSlot].logged)?'done':((log.blockStatus&&log.blockStatus['block_'+bi])||'');
+    else st = (log.blockStatus&&log.blockStatus['block_'+bi])||'';
+    if (st==='done') done++;
+  });
+  var pct = total>0 ? Math.round(done/total*100) : 0;
+  var fill = document.querySelector('.ed-progress-fill');
+  if (fill) fill.style.width = pct+'%';
+  var valEl = document.querySelector('.ed-strip-item:last-child .ed-strip-val');
+  if (valEl) valEl.textContent = pct+'%';
+  // Update score
+  var score = edCalcScore(log, [], []);
+  var scoreEl = document.getElementById('ed-score-num');
+  if (scoreEl) scoreEl.textContent = score;
+}
+
+function edCalcScore(log, mealBlocks, allSupps) {
+  var score = 50; // base
+  if (log.trainStatus==='done') score += 25;
+  else if (log.trainStatus==='modified') score += 15;
+  else if (log.trainStatus==='skipped') score -= 10;
+  if (log.sleepActual) score += log.sleepActual >= 7 ? 10 : log.sleepActual >= 6 ? 5 : 0;
+  if (log.meals) {
+    var mCount = Object.keys(log.meals).filter(function(k){ return log.meals[k]&&log.meals[k].logged; }).length;
+    score += Math.min(15, mCount * 5);
+  }
+  return Math.min(100, Math.max(0, score));
+}
+
+function edSaveNotes(val) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.tomorrowNotes = val;
+  saveDayLog(_rDate, log);
+}
+
+function edSaveDay() {
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.dayComplete = true;
+  log.completedAt = new Date().toISOString();
+  saveDayLog(_rDate, log);
+  var btn = document.querySelector('.ed-save-day-btn');
+  if (btn) { btn.textContent = '\u2713 Day logged'; btn.style.background='var(--jade)'; btn.disabled=true; }
+  // Trigger memory compression if available
+  if (typeof compressAndSaveMemory === 'function') {
+    setTimeout(function(){ compressAndSaveMemory(); }, 500);
+  }
+}
+
+
 
 function regen(keepRecipes) {
   try { localStorage.removeItem(TODAY.cacheKey); } catch(e) {}
