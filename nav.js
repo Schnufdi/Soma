@@ -129,7 +129,7 @@
       const p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
       if (p && p.name) {
         const meta = document.getElementById('nav-meta');
-        if (meta) meta.innerHTML = '<span class="nav-tag nt-jade">' + p.name + '</span>';
+        if (meta) meta.innerHTML = '<a href="/bodylens-coachplan.html" class="nav-tag nt-jade" style="text-decoration:none;cursor:pointer;" title="Your coaching plan">' + p.name + '</a>';
       }
     } catch(e) {}
   }
