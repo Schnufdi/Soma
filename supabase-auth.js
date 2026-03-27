@@ -80,6 +80,16 @@ window.BL.loadProfile = function(cb) {
           if (!serverProfile.wakeTime) serverProfile.wakeTime = '07:00';
           localStorage.setItem('bl_profile', JSON.stringify(serverProfile));
 
+          // If the daily plan is open and showed "Profile incomplete",
+          // re-run init() now that we have the full profile from Supabase
+          if (!isDifferentUser && typeof window._blInit === 'function') {
+            // Only re-run if the page currently shows the incomplete screen
+            var dayRoot = document.getElementById('day-root');
+            if (dayRoot && dayRoot.innerHTML.includes('Profile incomplete')) {
+              window._blInit();
+            }
+          }
+
           if (isDifferentUser) {
             // Wrong user was loaded — clear stale day logs and reload
             Object.keys(localStorage).forEach(function(k) {
