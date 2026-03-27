@@ -157,6 +157,27 @@ window.BL.restoreHistory = function() {
         _orig('bl_activities_' + row.date, JSON.stringify(row.data));
       });
     });
+
+  // Week ledger (last 8 weeks)
+  sb.from('week_ledger').select('week_start,data').eq('user_id', userId)
+    .gte('week_start', eightWeeksAgo.toISOString().slice(0,10)).then(function(r) {
+      if (r.data) r.data.forEach(function(row) {
+        _orig('bl_weekledger_' + row.week_start, JSON.stringify(row.data));
+      });
+    });
+
+  // Restore extra profile columns to localStorage
+  sb.from('profiles')
+    .select('scan_history,strength_baseline,latest_report,podcast_history,fridge_data,shop_data')
+    .eq('id', userId).single().then(function(r) {
+      if (!r.data) return;
+      if (r.data.scan_history)       _orig('bl_scan_history',        JSON.stringify(r.data.scan_history));
+      if (r.data.strength_baseline)  _orig('bl_strength_baseline',   JSON.stringify(r.data.strength_baseline));
+      if (r.data.latest_report)      _orig('bl_report_restored',     JSON.stringify(r.data.latest_report));
+      if (r.data.podcast_history)    _orig('bl_podcast_history',     JSON.stringify(r.data.podcast_history));
+      if (r.data.fridge_data)        _orig('bl_fridge_restock',      JSON.stringify(r.data.fridge_data));
+      if (r.data.shop_data)          _orig('bl_shop_checks',         JSON.stringify(r.data.shop_data));
+    });
 };
 
 // Init on every page
@@ -390,7 +411,7 @@ localStorage.setItem = function(key, value) {
       try { scanData = JSON.parse(value); } catch(e) { scanData = { raw: value }; }
       sb.from('profiles').upsert({
         id: userId,
-        scan_data: scanData,
+        scan_history: scanData,
         updated_at: new Date().toISOString()
       }).then(function(r) {
         if (r.error) console.warn('scan_data upsert error:', r.error.message);
@@ -405,6 +426,46 @@ localStorage.setItem = function(key, value) {
         updated_at: new Date().toISOString()
       }).then(function(r) {
         if (r.error) console.warn('podcast_history upsert error:', r.error.message);
+      });
+    }
+
+    // Week ledger — training week view data
+    else if (key.startsWith('bl_weekledger_')) {
+      var weekStart = key.replace('bl_weekledger_', '');
+      sb.from('week_ledger').upsert({
+        user_id: userId,
+        week_start: weekStart,
+        data: JSON.parse(value),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,week_start' }).then(function(r) {
+        if (r.error) console.warn('week_ledger upsert error:', r.error.message);
+      });
+    }
+
+    // Coaching report — the full generated programme report
+    else if (key.startsWith('bl_report_')) {
+      // Store latest report inside profile — it is tied to the user
+      try {
+        var reportData = JSON.parse(value);
+        sb.from('profiles').upsert({
+          id: userId,
+          latest_report: reportData,
+          updated_at: new Date().toISOString()
+        }).then(function(r) {
+          if (r.error) console.warn('report upsert error:', r.error.message);
+        });
+      } catch(e) {}
+    }
+
+    // Fridge / shopping state
+    else if (key === 'bl_fridge_restock' || key === 'bl_shop_checks') {
+      var shopKey = key === 'bl_fridge_restock' ? 'fridge_data' : 'shop_data';
+      var shopPayload = {};
+      shopPayload[shopKey] = JSON.parse(value);
+      shopPayload.id = userId;
+      shopPayload.updated_at = new Date().toISOString();
+      sb.from('profiles').upsert(shopPayload).then(function(r) {
+        if (r.error) console.warn(shopKey + ' upsert error:', r.error.message);
       });
     }
 
