@@ -274,7 +274,9 @@
     </div>
 
     <!-- Step 3: Gap result -->
-    <div id="ph-step-3" style="display:none;">
+    <div id="bridge-section" style="display:none;margin-top:24px;padding-top:24px;border-top:1px solid var(--bd);"></div>
+
+  <div id="ph-step-3" style="display:none;">
       <div class="ph-result show" id="ph-result-gap"></div>
       <div style="display:flex;gap:8px;margin-top:20px;">
         <button class="bs-save-btn" onclick="phSaveAndReset()" style="flex:1;background:transparent;border:1px solid var(--bd);color:var(--dk-3);">Save &amp; start over</button>
@@ -488,8 +490,13 @@ function saveScan() {
   _profile = p;
   try { localStorage.setItem('bl_profile', JSON.stringify(p)); } catch(e) {}
   var btn = document.querySelector('.bs-confirm-btn');
-  if (btn) { btn.textContent = '\u2713 Saved \u2014 updating your report\u2026'; btn.style.background = 'var(--jade)'; }
-  setTimeout(function(){ location.href = 'bodylens-instructions.html'; }, 1200);
+  if (btn) { btn.textContent = '\u2713 Saved'; btn.style.background = 'var(--jade)'; }
+  if (_profile && (_profile.bodyPhotoAnalysis || _profile.bodyPhotoGap)) {
+    switchTab('photo');
+    setTimeout(function() { generateGapBridge(); }, 400);
+  } else {
+    setTimeout(function(){ location.href = 'bodylens-instructions.html'; }, 1200);
+  }
 }
 
 function renderHistory() {
@@ -785,6 +792,8 @@ function phRenderGap(r) {
   if (_profile) {
     _profile.bodyPhotoGap = { date:new Date().toISOString().slice(0,10), goalHeadline:ga.headline, timeline:road.realisticTimeline, honestTake:r.honestTake };
     try { localStorage.setItem('bl_profile', JSON.stringify(_profile)); } catch(e) {}
+    // Build programme bridge from the gap analysis
+    setTimeout(function() { generateGapBridge(); }, 600);
   }
   // Save to photo history
   if (phCurrentAnalysis) {
