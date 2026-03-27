@@ -23,6 +23,7 @@
     <a class="nav-right" href="/bodylens-guide.html">Guide</a>
     <a class="nav-right" href="/bodylens-howitworks.html">How it works</a>
     <a class="nav-right" href="/bodylens-bodyscan.html">Body scan</a>
+    <a class="nav-right" href="/bodylens-sync.html" style="color:var(--amber)">Data sync</a>
     <div class="nav-meta" id="nav-meta"></div>
     <a class="nav-link nav-profiles" href="/bodylens-profiles.html" title="Profile Vault" style="margin-left:8px;opacity:0.6;font-size:11px;">⬡ Vault</a>
     <a class="nav-pro-badge" href="/bodylens-pro.html" id="nav-pro-badge" title="BodyLens Pro">PRO</a>
@@ -62,6 +63,7 @@
   <a class="mm-link mm-inform" href="/bodylens-accelerators.html">Accelerators</a>
   <a class="mm-link mm-inform" href="/bodylens-podcast.html">Podcast</a>
   <div class="mm-section-label">More</div>
+  <a class="mm-link" href="/bodylens-sync.html" style="color:var(--amber)">Data sync</a>
   <a class="mm-link" href="/bodylens-guide.html">Guide</a>
   <a class="mm-link" href="/bodylens-howitworks.html">How it works</a>
   <a class="mm-link" href="/bodylens-bodyscan.html">Body scan</a>
