@@ -652,6 +652,55 @@ const _todayCacheKey = 'bl_food_today_' + new Date().toISOString().slice(0,10);
 
 function loadToday() {
   _todayLoaded = true;
+
+  // 1. Check daily plan's cached recipes first (same slots, same data)
+  const recipeSlots = _isTrain
+    ? ['pre-training','post-training','midday','evening']
+    : ['midday','afternoon','evening'];
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  // 2. Check weekly meal plan (the single source of truth)
+  const weeklyMeals = (function() {
+    try {
+      const d = new Date(), wd = d.getDay();
+      const mon = new Date(d); mon.setDate(d.getDate()-(wd===0?6:wd-1));
+      const key = 'bl_weekly_meals_' + mon.toISOString().slice(0,10);
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const wm = JSON.parse(raw);
+      return wm && wm.days && wm.days[_todayName] ? wm.days[_todayName] : null;
+    } catch(e){ return null; }
+  })();
+
+  if (weeklyMeals && Object.keys(weeklyMeals).length >= 2) {
+    // Convert weekly plan slot format to food.html format
+    const slotOrder = _isTrain
+      ? ['breakfast','pre-training','lunch','post-training','dinner','midday','evening','snack1']
+      : ['breakfast','midday','lunch','dinner','evening','snack1'];
+    const meals = slotOrder
+      .filter(s => weeklyMeals[s] && weeklyMeals[s].name)
+      .map((s, i) => {
+        const m = weeklyMeals[s];
+        return {
+          time: m.time || (['07:00','09:00','12:00','15:00','18:00','20:00'][i] || '12:00'),
+          name: m.name,
+          purpose: m.reason || m.notes || '',
+          calories: m.calories || 0,
+          protein: m.protein || 0,
+          carbs: m.carbs || 0,
+          fat: m.fat || 0,
+          items: m.ingredients || m.items || []
+        };
+      });
+    if (meals.length >= 2) {
+      const data = { meals, dayNote: 'From your weekly meal plan', source: 'weekly_plan' };
+      localStorage.setItem(_todayCacheKey, JSON.stringify(data));
+      renderToday(data);
+      return;
+    }
+  }
+
+  // 3. Fall back to cached food.html data
   const cached = (() => { try { return JSON.parse(localStorage.getItem(_todayCacheKey)||'null'); } catch(e){return null;} })();
   if (cached && cached.meals && cached.meals.length) {
     renderToday(cached);
