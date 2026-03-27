@@ -2524,10 +2524,10 @@ body {
 
 .vlg-mic-btn {
   position: fixed;
-  bottom: 24px;
-  left: 20px;
-  width: 52px;
-  height: 52px;
+  bottom: 84px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--ink-1);
   border: 1px solid rgba(255,255,255,.12);
@@ -2538,86 +2538,180 @@ body {
   z-index: 200;
   box-shadow: 0 4px 20px rgba(0,0,0,.4);
   transition: all .2s;
-  font-size: 20px;
 }
-.vlg-mic-btn:hover {
-  border-color: rgba(0,200,160,.4);
-  transform: scale(1.06);
-}
+.vlg-mic-btn:hover { border-color: rgba(255,255,255,.25); transform: scale(1.05); }
 .vlg-mic-btn.listening {
-  background: rgba(220,60,60,.15);
   border-color: rgba(220,60,60,.6);
-  animation: vlg-pulse 1.2s ease-in-out infinite;
+  background: rgba(220,60,60,.08);
+  box-shadow: 0 0 0 4px rgba(220,60,60,.15), 0 4px 20px rgba(0,0,0,.4);
+  animation: vlgPulse 1.4s ease-in-out infinite;
 }
-.vlg-mic-btn.processing {
-  background: rgba(196,124,24,.1);
-  border-color: rgba(196,124,24,.4);
-  animation: vlg-spin-ring 1s linear infinite;
+@keyframes vlgPulse {
+  0%,100% { box-shadow: 0 0 0 4px rgba(220,60,60,.15), 0 4px 20px rgba(0,0,0,.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(220,60,60,.08), 0 4px 20px rgba(0,0,0,.4); }
 }
-@keyframes vlg-pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(220,60,60,.3), 0 4px 20px rgba(0,0,0,.4); }
-  50%      { box-shadow: 0 0 0 10px rgba(220,60,60,0), 0 4px 20px rgba(0,0,0,.4); }
-}
-@keyframes vlg-spin-ring {
-  to { transform: rotate(360deg); }
-}
+.vlg-mic-btn svg { pointer-events: none; }
 
-/* Transcript bubble */
-.vlg-bubble {
+/* VLG Modal */
+.vlg-modal {
+  display: none;
   position: fixed;
-  bottom: 88px;
-  left: 16px;
-  max-width: 320px;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px);
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0;
+}
+.vlg-modal.open { display: flex; }
+.vlg-panel {
+  width: 100%;
+  max-width: 560px;
   background: var(--ink-1);
   border: 1px solid rgba(255,255,255,.1);
-  border-radius: 12px 12px 4px 12px;
-  padding: 10px 14px;
-  font-size: 12px;
-  font-weight: 300;
-  color: var(--dk-2);
-  line-height: 1.5;
-  z-index: 201;
-  display: none;
-  box-shadow: 0 4px 24px rgba(0,0,0,.5);
-  max-height: 120px;
-  overflow: hidden;
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: 24px 24px 32px;
+  animation: vlgSlideUp .25s ease;
 }
-.vlg-bubble.show { display: block; }
-.vlg-bubble-label {
-  font-size: 8px;
+@keyframes vlgSlideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.vlg-panel-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.vlg-panel-title {
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--dk-3);
-  margin-bottom: 4px;
 }
-.vlg-bubble-text { font-style: italic; color: var(--dk-2); }
+.vlg-panel-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(220,60,60,.9);
+}
+.vlg-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(220,60,60,.9);
+  animation: vlgBlink .8s ease-in-out infinite;
+}
+@keyframes vlgBlink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.vlg-transcript-box {
+  min-height: 80px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 12px 14px;
+  background: var(--ink-2);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--dk-1);
+  line-height: 1.6;
+  font-family: var(--serif);
+  font-style: italic;
+}
+.vlg-transcript-placeholder {
+  color: var(--dk-3);
+  font-size: 13px;
+}
+.vlg-panel-btns {
+  display: flex;
+  gap: 8px;
+}
+.vlg-btn-ok {
+  flex: 1;
+  padding: 13px;
+  background: var(--jade);
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: opacity .15s;
+}
+.vlg-btn-ok:hover { opacity: .88; }
+.vlg-btn-ok:disabled { opacity: .4; cursor: default; }
+.vlg-btn-cancel {
+  padding: 13px 18px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dk-3);
+  cursor: pointer;
+  font-family: var(--sans);
+}
+.vlg-result-box {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: rgba(0,200,160,.04);
+  border: 1px solid rgba(0,200,160,.15);
+  border-radius: 10px;
+  display: none;
+}
+.vlg-result-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-bottom: 8px;
+}
+.vlg-result-actions { display: flex; flex-direction: column; gap: 4px; }
+.vlg-result-action {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--dk-1);
+  line-height: 1.5;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.vlg-result-action:last-child { border-bottom: none; }
+.vlg-result-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.vlg-result-txt strong { color: var(--jade); font-weight: 700; }
 
-/* Toast confirmation */
+/* Toast */
 .vlg-toast {
   position: fixed;
-  bottom: 88px;
-  left: 16px;
-  max-width: 340px;
+  bottom: 140px;
+  right: 16px;
+  max-width: 300px;
   background: var(--ink-1);
-  border: 1px solid rgba(0,200,160,.25);
+  border: 1px solid rgba(255,255,255,.1);
   border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 12px;
-  z-index: 202;
+  padding: 12px 14px;
+  z-index: 300;
   display: none;
-  box-shadow: 0 4px 24px rgba(0,0,0,.5);
-  animation: vlg-slide-in .2s ease;
+  animation: vlgSlideUp .2s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
 }
 .vlg-toast.show { display: block; }
-@keyframes vlg-slide-in {
-  from { opacity:0; transform:translateY(8px); }
-  to   { opacity:1; transform:translateY(0); }
-}
 .vlg-toast-label {
   font-size: 8px;
   font-weight: 700;
-  letter-spacing: .12em;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--jade);
   margin-bottom: 6px;
@@ -2628,23 +2722,15 @@ body {
   gap: 7px;
   padding: 4px 0;
   border-bottom: 1px solid rgba(255,255,255,.04);
-  font-size: 11px;
-  font-weight: 300;
-  color: var(--dk-2);
+  font-size: 12px;
+  color: var(--dk-1);
+  line-height: 1.5;
 }
 .vlg-action:last-child { border-bottom: none; }
 .vlg-action-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
-.vlg-nothing {
-  font-size: 12px;
-  font-weight: 300;
-  color: var(--dk-3);
-  font-style: italic;
-}
-.vlg-error {
-  font-size: 11px;
-  font-weight: 300;
-  color: rgba(220,100,80,.8);
-}
+.vlg-nothing { font-size: 12px; font-weight: 300; color: var(--dk-3); font-style: italic; }
+.vlg-error { font-size: 11px; font-weight: 300; color: rgba(220,100,80,.8); }
+
 
 /* ── Why-layer components ────────────────────────────────────── */
 .dp2-intel-header {
@@ -5200,7 +5286,7 @@ function renderPlan(plan, browsing) {
     : 'At TDEE maintenance — performance priority today';
   var calorieReasonHtml = '<div class="dp2-cal-reason">'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Baseline (TDEE)</span><span class="dp2-cal-val">' + tdee + ' kcal</span></div>'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Today's target</span><span class="dp2-cal-val jade">' + dayKcal + ' kcal</span></div>'
+    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Target</span><span class="dp2-cal-val jade">' + dayKcal + ' kcal</span></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Adjustment</span><span class="dp2-cal-val">' + deficitLabel + '</span></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Protein</span><span class="dp2-cal-val jade">' + p.protein + 'g — 2g/kg body weight, non-negotiable for recomp</span></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Carbs</span><span class="dp2-cal-val amber">' + p.carbs + 'g — ' + (isTraining ? 'training day allocation, fuels session and replenishes glycogen' : 'reduced on rest day, glycogen stays full from yesterday') + '</span></div>'
@@ -5221,7 +5307,7 @@ function renderPlan(plan, browsing) {
     : p.carbs + 'g — reduced on rest day, glycogen stays full from yesterday';
   var calorieReasonHtml = '<div class="dp2-cal-reason">'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Baseline TDEE</span><span class="dp2-cal-val">' + tdee2 + ' kcal</span></div>'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Today&#39;s target</span><span class="dp2-cal-val jade">' + dayKcal + ' kcal</span></div>'
+    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Target</span><span class="dp2-cal-val jade">' + dayKcal + ' kcal</span></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Adjustment</span><span class="dp2-cal-val">' + adjLabel + '</span></div>'
     + '<div class="dp2-cal-divider"></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Protein</span><span class="dp2-cal-val jade">' + p.protein + 'g &mdash; 2g/kg at ' + (p.weight||87) + 'kg, non-negotiable floor for recomposition</span></div>'
@@ -5690,10 +5776,35 @@ function renderPlan(plan, browsing) {
     +'<div class="dp2-float-label">/ 100</div>'
   +'</div>';
 
-  // ── Voice button ─────────────────────────────────────────
-  var voiceHtml = '<div id="vlg-mic-btn" class="vlg-mic-btn" title="Voice log">🎙️</div>'
-    +'<div id="vlg-bubble" class="vlg-bubble"><div class="vlg-bubble-label">Listening…</div><div class="vlg-bubble-text" id="vlg-bubble-text"></div></div>'
-    +'<div id="vlg-toast" class="vlg-toast"></div>';
+  // ── Voice button + modal ─────────────────────────────────
+  var voiceHtml = '<div id="vlg-mic-btn" class="vlg-mic-btn" title="Voice log (tap to start)" onclick="vlgToggle()">'
+    + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--dk-2)">'
+    + '<rect x="9" y="2" width="6" height="12" rx="3"/>'
+    + '<path d="M5 10a7 7 0 0 0 14 0"/>'
+    + '<line x1="12" y1="19" x2="12" y2="22"/>'
+    + '<line x1="8" y1="22" x2="16" y2="22"/>'
+    + '</svg>'
+  + '</div>'
+  + '<div class="vlg-modal" id="vlg-modal">'
+    + '<div class="vlg-panel">'
+      + '<div class="vlg-panel-hd">'
+        + '<span class="vlg-panel-title">Voice log</span>'
+        + '<div class="vlg-panel-status" id="vlg-status"><div class="vlg-status-dot"></div>Listening</div>'
+      + '</div>'
+      + '<div class="vlg-transcript-box" id="vlg-transcript-box">'
+        + '<span class="vlg-transcript-placeholder" id="vlg-placeholder">Speak now…</span>'
+      + '</div>'
+      + '<div class="vlg-result-box" id="vlg-result-box">'
+        + '<div class="vlg-result-label">Logged</div>'
+        + '<div class="vlg-result-actions" id="vlg-result-actions"></div>'
+      + '</div>'
+      + '<div class="vlg-panel-btns">'
+        + '<button class="vlg-btn-ok" id="vlg-btn-ok" onclick="vlgCommit()" disabled>Process</button>'
+        + '<button class="vlg-btn-cancel" onclick="vlgCancel()">Cancel</button>'
+      + '</div>'
+    + '</div>'
+  + '</div>'
+  + '<div id="vlg-toast" class="vlg-toast"></div>';
 
   // ── Assemble ─────────────────────────────────────────────
   root.innerHTML = '<div class="dp2-page">'
@@ -8663,105 +8774,167 @@ function seReRenderTimeline() {
 // VOICE LOGGING SYSTEM
 // ════════════════════════════════════════════════════════════
 
-var _vlg = {
-  recognition: null,
-  listening: false,
-  processing: false,
-  transcript: '',
-  toastTimer: null,
-};
+
+var _vlg = { recognition: null, listening: false, processing: false, transcript: '' };
 
 function vlgInit() {
-  var btn = document.getElementById('vlg-mic-btn');
-  if (!btn) return;
-
-  // Check browser support
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    btn.title = 'Voice logging not supported in this browser. Use Chrome.';
-    btn.style.opacity = '0.35';
-    btn.onclick = function(){ vlgToast([{icon:'ℹ️', text:'Voice logging requires Chrome. Please open in Chrome.'}]); };
+    var btn = document.getElementById('vlg-mic-btn');
+    if (btn) {
+      btn.style.opacity = '0.3';
+      btn.onclick = function() { vlgToast([{icon:'ℹ️', text:'Voice logging requires Chrome.'}]); };
+    }
     return;
   }
 
   var rec = new SpeechRecognition();
-  rec.continuous = false;
+  rec.continuous = true;
   rec.interimResults = true;
   rec.lang = 'en-GB';
   rec.maxAlternatives = 1;
   _vlg.recognition = rec;
 
-  // Show live transcript
   rec.onresult = function(e) {
-    var interim = '', final = '';
+    var interimText = '';
+    var finalText = '';
     for (var i = e.resultIndex; i < e.results.length; i++) {
       var t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) final += t;
-      else interim += t;
-    }
-    _vlg.transcript = final || interim;
-    var bubble = document.getElementById('vlg-bubble');
-    if (bubble) {
-      bubble.classList.add('show');
-      document.getElementById('vlg-bubble-text').textContent = _vlg.transcript;
-    }
-  };
-
-  rec.onend = function() {
-    if (_vlg.listening) {
-      // If we were listening, process now
-      _vlg.listening = false;
-      vlgSetState('processing');
-      var bubble = document.getElementById('vlg-bubble');
-      if (bubble) bubble.classList.remove('show');
-      if (_vlg.transcript.trim()) {
-        vlgProcess(_vlg.transcript.trim());
+      if (e.results[i].isFinal) {
+        finalText += t;
       } else {
-        vlgSetState('idle');
+        interimText += t;
       }
+    }
+    if (finalText) {
+      _vlg.transcript += (_vlg.transcript ? ' ' : '') + finalText.trim();
+    }
+    var displayText = _vlg.transcript + (interimText ? ' ' + interimText : '');
+
+    // Update the transcript box
+    var box = document.getElementById('vlg-transcript-box');
+    var placeholder = document.getElementById('vlg-placeholder');
+    var okBtn = document.getElementById('vlg-btn-ok');
+    if (placeholder) placeholder.style.display = 'none';
+    if (box) {
+      box.childNodes.forEach(function(n) {
+        if (n !== placeholder) box.removeChild(n);
+      });
+      var textNode = document.createTextNode(displayText);
+      box.appendChild(textNode);
+    }
+    if (okBtn && _vlg.transcript.trim().length > 3) {
+      okBtn.disabled = false;
+      okBtn.textContent = 'Process';
     }
   };
 
   rec.onerror = function(e) {
-    _vlg.listening = false;
-    vlgSetState('idle');
-    var bubble = document.getElementById('vlg-bubble');
-    if (bubble) bubble.classList.remove('show');
-    if (e.error === 'no-speech') {
-      vlgToast([{icon:'🎙️', text:'No speech detected. Try again.'}]);
-    } else if (e.error === 'not-allowed') {
-      vlgToast([{icon:'⚠️', text:'Microphone access denied. Allow mic in browser settings.'}]);
-    } else {
-      vlgToast([{icon:'⚠️', text:'Speech error: ' + e.error}]);
-    }
+    if (e.error === 'no-speech') return; // ignore silence
+    vlgSetStatus('Error: ' + e.error, false);
   };
 
-  btn.onclick = vlgToggle;
+  rec.onend = function() {
+    // If we stopped because user hit OK, don't restart
+    if (_vlg.processing || !_vlg.listening) return;
+    // Auto-restart to keep listening
+    try { rec.start(); } catch(err) {}
+  };
 }
 
 function vlgToggle() {
-  if (_vlg.processing) return;
+  if (!_vlg.recognition) vlgInit();
+  if (!_vlg.recognition) return;
+
   if (_vlg.listening) {
-    // Stop listening — this triggers rec.onend which processes
-    _vlg.recognition.stop();
-    // onend will call vlgProcess
+    // Already open — just stop
+    vlgStop();
   } else {
-    // Start listening
-    _vlg.transcript = '';
-    var bubble = document.getElementById('vlg-bubble');
-    if (bubble) {
-      document.getElementById('vlg-bubble-text').textContent = '';
-      bubble.classList.add('show');
-    }
-    try {
-      _vlg.recognition.start();
-      _vlg.listening = true;
-      vlgSetState('listening');
-    } catch(e) {
-      vlgToast([{icon:'⚠️', text:'Could not start microphone: ' + e.message}]);
-    }
+    vlgOpen();
   }
 }
+
+function vlgOpen() {
+  _vlg.transcript = '';
+  _vlg.listening = true;
+  _vlg.processing = false;
+
+  // Reset modal
+  var placeholder = document.getElementById('vlg-placeholder');
+  var box = document.getElementById('vlg-transcript-box');
+  var okBtn = document.getElementById('vlg-btn-ok');
+  var resultBox = document.getElementById('vlg-result-box');
+  var modal = document.getElementById('vlg-modal');
+  var micBtn = document.getElementById('vlg-mic-btn');
+
+  if (placeholder) {
+    placeholder.style.display = '';
+    placeholder.textContent = 'Speak now\u2026';
+  }
+  // Clear any old text nodes from transcript box
+  if (box) {
+    while (box.childNodes.length > 1) box.removeChild(box.lastChild);
+  }
+  if (okBtn) { okBtn.disabled = true; okBtn.textContent = 'Process'; }
+  if (resultBox) resultBox.style.display = 'none';
+  if (modal) modal.classList.add('open');
+  if (micBtn) micBtn.classList.add('listening');
+
+  vlgSetStatus('Listening', true);
+
+  try { _vlg.recognition.start(); } catch(e) {}
+}
+
+function vlgStop() {
+  _vlg.listening = false;
+  if (_vlg.recognition) {
+    try { _vlg.recognition.stop(); } catch(e) {}
+  }
+  var micBtn = document.getElementById('vlg-mic-btn');
+  if (micBtn) micBtn.classList.remove('listening');
+  vlgSetStatus('Ready', false);
+}
+
+function vlgCancel() {
+  _vlg.listening = false;
+  _vlg.processing = false;
+  if (_vlg.recognition) { try { _vlg.recognition.stop(); } catch(e) {} }
+  var modal = document.getElementById('vlg-modal');
+  var micBtn = document.getElementById('vlg-mic-btn');
+  if (modal) modal.classList.remove('open');
+  if (micBtn) micBtn.classList.remove('listening');
+}
+
+function vlgCommit() {
+  var transcript = _vlg.transcript.trim();
+  if (!transcript) return;
+
+  vlgStop();
+  _vlg.processing = true;
+
+  var okBtn = document.getElementById('vlg-btn-ok');
+  if (okBtn) { okBtn.textContent = 'Processing\u2026'; okBtn.disabled = true; }
+  vlgSetStatus('Processing', false);
+
+  vlgProcess(transcript);
+}
+
+function vlgSetStatus(text, isListening) {
+  var statusEl = document.getElementById('vlg-status');
+  if (!statusEl) return;
+  var dot = statusEl.querySelector('.vlg-status-dot');
+  statusEl.childNodes.forEach(function(n) {
+    if (n.nodeType === 3) statusEl.removeChild(n);
+  });
+  if (dot) {
+    dot.style.display = isListening ? '' : 'none';
+    statusEl.appendChild(document.createTextNode(text));
+    statusEl.style.color = isListening ? 'rgba(220,60,60,.9)' : 'var(--dk-3)';
+  }
+}
+
+
+
 
 function vlgSetState(state) {
   var btn = document.getElementById('vlg-mic-btn');
@@ -8981,29 +9154,54 @@ function vlgExecute(actions, transcript) {
 }
 
 function vlgToast(results, transcript) {
-  var toast = document.getElementById('vlg-toast');
-  if (!toast) return;
+  // Try to show in modal result box first
+  var resultBox = document.getElementById('vlg-result-box');
+  var resultActions = document.getElementById('vlg-result-actions');
+  var modal = document.getElementById('vlg-modal');
+  var okBtn = document.getElementById('vlg-btn-ok');
+  var isModalOpen = modal && modal.classList.contains('open');
 
-  var html = '<div class="vlg-toast-label">' + (transcript ? '&#8220;' + transcript.slice(0,60) + (transcript.length>60?'&#8230;':'') + '&#8221;' : 'Voice log') + '</div>';
-
-  if (!results || !results.length) {
-    html += '<div class="vlg-nothing">Nothing matched.</div>';
-  } else {
-    results.forEach(function(r) {
-      if (r.icon === '❓' || r.icon === '⚠️' || r.icon === 'ℹ️') {
-        html += '<div class="vlg-error">' + (r.icon||'') + ' ' + (r.text||'') + '</div>';
-      } else {
-        html += '<div class="vlg-action"><span class="vlg-action-icon">' + (r.icon||'') + '</span><span>' + (r.text||'') + '</span></div>';
-      }
-    });
+  if (isModalOpen && resultBox && resultActions) {
+    // Build formatted result in modal
+    var html = '';
+    if (!results || !results.length) {
+      html = '<div class="vlg-result-action"><span class="vlg-result-icon">ℹ️</span><span class="vlg-result-txt">Nothing matched. Try again.</span></div>';
+    } else {
+      results.forEach(function(r) {
+        var icon = (r.icon === '❓' || r.icon === '⚠️') ? r.icon : (r.icon || '✓');
+        // Bold key values in text
+        var txt = (r.text||'').replace(/(\d+g|\d+ kg|\d+x\d+|done|skipped|logged)/gi, '<strong>$1</strong>');
+        html += '<div class="vlg-result-action"><span class="vlg-result-icon">' + icon + '</span><span class="vlg-result-txt">' + txt + '</span></div>';
+      });
+    }
+    resultActions.innerHTML = html;
+    resultBox.style.display = 'block';
+    // Change OK button to Done
+    if (okBtn) {
+      okBtn.disabled = false;
+      okBtn.textContent = 'Done';
+      okBtn.onclick = vlgCancel;
+    }
+    _vlg.processing = false;
+    return;
   }
 
-  toast.innerHTML = html;
+  // Fallback: standard toast (modal is closed)
+  var toast = document.getElementById('vlg-toast');
+  if (!toast) return;
+  var html2 = '<div class="vlg-toast-label">' + (transcript ? '“' + transcript.slice(0,60) + (transcript.length>60?'…':'') + '”' : 'Voice log') + '</div>';
+  if (!results || !results.length) {
+    html2 += '<div class="vlg-nothing">Nothing matched.</div>';
+  } else {
+    results.forEach(function(r) {
+      var txt = (r.text||'').replace(/(\d+g|\d+ kg|\d+x\d+|done|skipped|logged)/gi, '<strong>$1</strong>');
+      html2 += '<div class="vlg-action"><span class="vlg-action-icon">' + (r.icon||'✓') + '</span><div>' + txt + '</div></div>';
+    });
+  }
+  toast.innerHTML = html2;
   toast.classList.add('show');
-  if (_vlg.toastTimer) clearTimeout(_vlg.toastTimer);
-  _vlg.toastTimer = setTimeout(function() {
-    toast.classList.remove('show');
-  }, 5000);
+  setTimeout(function() { toast.classList.remove('show'); }, 4000);
+  _vlg.processing = false;
 }
 
 // Init on load
