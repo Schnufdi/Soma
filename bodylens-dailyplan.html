@@ -2144,640 +2144,464 @@ body {
    ════════════════════════════════════════════════════════ */
 
 /* ── Progress header ───────────────────────────────────── */
-.dp-header {
-  position: sticky;
-  top: var(--sticky-top, 52px);
-  z-index: 90;
-  background: var(--ink);
-  border-bottom: 1px solid rgba(255,255,255,.06);
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  height: 52px;
-}
-.dp-score-ring {
-  flex-shrink: 0;
-  position: relative;
-  width: 36px; height: 36px;
-}
-.dp-score-ring svg { transform: rotate(-90deg); }
-.dp-score-ring-bg { stroke: rgba(255,255,255,.07); fill: none; }
-.dp-score-ring-fill {
-  stroke: var(--jade); fill: none;
-  stroke-linecap: round;
-  transition: stroke-dashoffset .5s ease;
-}
-.dp-score-num {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700; color: var(--jade);
-  font-family: var(--sans);
-}
-.dp-macro-row {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-.dp-macro {
-  flex: 1;
-  min-width: 0;
-}
-.dp-macro-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 3px;
-}
-.dp-macro-key {
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--dk-3);
-}
-.dp-macro-val {
-  font-size: 9px;
-  font-weight: 600;
-}
-.dp-macro-track {
-  height: 2px;
-  background: rgba(255,255,255,.07);
-  border-radius: 1px;
-  overflow: hidden;
-}
-.dp-macro-fill {
-  height: 100%;
-  border-radius: 1px;
-  transition: width .4s ease;
-}
-.dp-header-right {
-  flex-shrink: 0;
-  text-align: right;
-}
-.dp-day-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--dk-1);
-  letter-spacing: .02em;
-}
-.dp-time-now {
-  font-size: 9px;
-  font-weight: 300;
-  color: var(--dk-3);
-  margin-top: 1px;
-}
+/* ═══════════════════════════════════════════════════════════════
+   BODYLENS DAILY PLAN  —  THREE-ACT EXECUTION ENGINE
+   Mission Brief + Zoned Day + Rail Execution
+═══════════════════════════════════════════════════════════════ */
 
-/* ── Page ──────────────────────────────────────────────── */
-.dp-page {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 20px 160px;
-}
-.dp-date-block {
-  padding: 18px 0 12px;
-}
-.dp-date-kicker {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--dk-3);
-  margin-bottom: 5px;
-}
-.dp-date-title {
-  font-family: var(--serif);
-  font-size: 30px;
-  font-weight: 300;
-  color: var(--dk-1);
-  letter-spacing: -.02em;
-  line-height: 1;
-  margin-bottom: 5px;
-}
-.dp-date-brief {
-  font-size: 12px;
-  font-weight: 300;
-  color: var(--dk-3);
-  line-height: 1.5;
-}
+/* ── Page ─────────────────────────────────────────────────── */
+.dp2-page { max-width: 760px; margin: 0 auto; padding: 0 20px 120px; box-sizing: border-box; }
 
-/* ── Coach note ────────────────────────────────────────── */
-.dp-coach {
-  margin: 10px 0 16px;
-  padding: 11px 14px;
-  border-left: 2px solid rgba(0,200,160,.35);
-  background: rgba(0,200,160,.03);
+/* ── Mission brief ─────────────────────────────────────────── */
+.dp2-mission { padding: 22px 0 20px; border-bottom: 1px solid rgba(255,255,255,.07); margin-bottom: 10px; }
+.dp2-mission-kicker {
+  font-size: 9px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--dk-3); margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+}
+.dp2-mission-kicker::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.06); }
+.dp2-mission-headline {
+  font-family: var(--serif); font-size: 32px; font-weight: 300;
+  color: var(--dk-1); letter-spacing: -.02em; line-height: 1.05; margin-bottom: 10px;
+}
+.dp2-mission-headline em { color: var(--jade); font-style: italic; }
+.dp2-mission-objective {
+  font-size: 13px; font-weight: 300; color: var(--dk-2);
+  line-height: 1.65; max-width: 560px; margin-bottom: 18px;
+}
+.dp2-mission-objective strong { color: var(--dk-1); font-weight: 600; }
+
+/* Signals row */
+.dp2-signals { display: flex; gap: 10px; flex-wrap: wrap; }
+.dp2-signal {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; background: var(--ink-1);
+  border: 1px solid rgba(255,255,255,.07); border-radius: 20px;
+}
+.dp2-signal-val { font-size: 15px; font-weight: 700; line-height: 1; }
+.dp2-signal-label { font-size: 10px; font-weight: 300; color: var(--dk-3); line-height: 1.2; }
+.dp2-signal.jade .dp2-signal-val  { color: var(--jade); }
+.dp2-signal.amber .dp2-signal-val { color: var(--amber); }
+.dp2-signal.slate .dp2-signal-val { color: var(--dk-1); }
+
+/* Macro bars in signal */
+.dp2-macro-signal { display: flex; flex-direction: column; gap: 3px; min-width: 150px; }
+.dp2-macro-bars { display: flex; flex-direction: column; gap: 4px; }
+.dp2-macro-bar-row { display: flex; align-items: center; gap: 6px; }
+.dp2-macro-bar-key { width: 12px; font-size: 9px; font-weight: 700; color: var(--dk-3); }
+.dp2-macro-bar-track { flex: 1; height: 3px; background: rgba(255,255,255,.07); border-radius: 2px; overflow: hidden; }
+.dp2-macro-bar-fill { height: 100%; border-radius: 2px; transition: width .5s ease; }
+.dp2-macro-bar-val { font-size: 9px; color: var(--dk-3); min-width: 42px; text-align: right; }
+
+/* Score ring in signal */
+.dp2-score-signal { position: relative; width: 40px; height: 40px; flex-shrink: 0; }
+.dp2-score-signal svg { transform: rotate(-90deg); }
+.dp2-score-signal-label {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: var(--jade); line-height: 1;
+}
+.dp2-score-signal-sub { font-size: 7px; font-weight: 400; color: var(--dk-3); margin-top: 1px; }
+
+/* ── Acts ──────────────────────────────────────────────────── */
+.dp2-acts { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+.dp2-act {
+  border: 1px solid rgba(255,255,255,.07); border-radius: 12px;
+  overflow: hidden; background: var(--ink-1); transition: border-color .2s;
+}
+.dp2-act.open { border-color: rgba(255,255,255,.12); }
+.dp2-act.act-train { border-left: 3px solid rgba(0,200,160,.35); }
+.dp2-act.act-fuel  { border-left: 3px solid rgba(196,124,24,.3); }
+.dp2-act.act-close { border-left: 3px solid rgba(255,255,255,.1); }
+
+/* Act header */
+.dp2-act-hd {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; cursor: pointer; user-select: none;
+}
+.dp2-act-hd:hover { background: rgba(255,255,255,.02); }
+.dp2-act-icon { font-size: 18px; flex-shrink: 0; width: 32px; text-align: center; }
+.dp2-act-meta { flex: 1; min-width: 0; }
+.dp2-act-title { font-size: 13px; font-weight: 700; color: var(--dk-1); margin-bottom: 2px; }
+.dp2-act-why { font-size: 11px; font-weight: 300; color: var(--dk-3); line-height: 1.5; }
+.dp2-act-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.dp2-act-status {
+  font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 10px;
+  background: rgba(255,255,255,.05); color: var(--dk-3);
+}
+.dp2-act-status.done  { background: rgba(0,200,160,.1);  color: var(--jade); }
+.dp2-act-status.part  { background: rgba(196,124,24,.1); color: var(--amber); }
+.dp2-act-chevron {
+  font-size: 14px; color: var(--dk-3); transition: transform .25s; opacity: .5;
+}
+.dp2-act.open .dp2-act-chevron { transform: rotate(90deg); }
+
+/* Act progress bar */
+.dp2-act-prog { height: 2px; background: rgba(255,255,255,.04); margin: 0 18px; border-radius: 1px; overflow: hidden; display: none; }
+.dp2-act.open .dp2-act-prog { display: block; }
+.dp2-act-prog-fill { height: 100%; border-radius: 1px; background: var(--jade); transition: width .4s ease; }
+
+/* Act body */
+.dp2-act-body { display: none; padding: 4px 0 12px; }
+.dp2-act.open .dp2-act-body { display: block; }
+
+/* Why panel inside act */
+.dp2-why {
+  margin: 2px 12px 8px; padding: 10px 14px;
+  background: rgba(0,200,160,.03); border-left: 2px solid rgba(0,200,160,.18);
   border-radius: 0 8px 8px 0;
-  font-size: 12px;
-  font-weight: 300;
-  color: var(--dk-2);
-  line-height: 1.7;
-  display: none;
-}
-.dp-coach.loaded { display: block; }
-.dp-coach-label {
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--jade);
-  margin-bottom: 4px;
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  line-height: 1.7; font-style: italic;
 }
 
-/* ── Timeline ──────────────────────────────────────────── */
-.dp-timeline { padding: 4px 0; }
+/* ── Item rail ─────────────────────────────────────────────── */
+.dp2-item {
+  display: flex; gap: 0; margin: 0 12px 2px;
+  border-radius: 9px; overflow: hidden; transition: background .12s;
+}
+.dp2-item:hover { background: rgba(255,255,255,.02); }
+.dp2-item.logged  { opacity: .45; }
+.dp2-item.skipped { opacity: .25; }
 
-.dp-block {
-  margin-bottom: 2px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  overflow: hidden;
-  transition: border-color .15s;
+.dp2-item-time {
+  width: 46px; flex-shrink: 0; font-size: 10px; font-weight: 300;
+  color: var(--dk-3); text-align: right;
+  padding: 13px 10px 12px 0; align-self: flex-start;
 }
-.dp-block:hover { border-color: rgba(255,255,255,.07); }
-.dp-block.done { opacity: .5; }
-.dp-block.skipped { opacity: .3; }
-.dp-block.expanded { border-color: rgba(255,255,255,.1); }
-.dp-block.expanded.train-block { border-color: rgba(0,200,160,.2); }
-.dp-block.expanded.meal-block  { border-color: rgba(196,124,24,.2); }
+.dp2-item-bar {
+  width: 2px; flex-shrink: 0; border-radius: 1px;
+  margin: 10px 0; align-self: stretch; min-height: 20px;
+}
+.dp2-item-bar.jade  { background: rgba(0,200,160,.5); }
+.dp2-item-bar.amber { background: rgba(196,124,24,.5); }
+.dp2-item-bar.slate { background: rgba(255,255,255,.15); }
+.dp2-item-bar.blue  { background: rgba(100,160,255,.4); }
+.dp2-item-bar.dim   { background: rgba(255,255,255,.08); }
 
-.dp-row {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  cursor: pointer;
-  user-select: none;
-  padding: 10px 0 10px 0;
+.dp2-item-main { flex: 1; min-width: 0; padding: 10px 12px; cursor: pointer; }
+.dp2-item-top { display: flex; align-items: center; gap: 7px; margin-bottom: 2px; }
+.dp2-item-title { font-size: 13px; font-weight: 600; color: var(--dk-1); flex: 1; min-width: 0; }
+.dp2-item-tag {
+  font-size: 8px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; padding: 2px 7px; border-radius: 8px; flex-shrink: 0;
 }
-.dp-row-time {
-  width: 50px;
-  flex-shrink: 0;
-  font-size: 10px;
-  font-weight: 300;
-  color: var(--dk-3);
-  text-align: right;
-  padding-right: 12px;
-  padding-top: 2px;
-  align-self: flex-start;
+.dp2-item-tag.train  { background: rgba(0,200,160,.12);  color: var(--jade); }
+.dp2-item-tag.meal   { background: rgba(196,124,24,.12); color: var(--amber); }
+.dp2-item-tag.supp   { background: rgba(255,255,255,.07); color: var(--dk-3); }
+.dp2-item-tag.cardio { background: rgba(100,160,255,.1);  color: rgba(140,180,255,.9); }
+.dp2-item-dur { font-size: 9px; color: var(--dk-3); font-weight: 300; flex-shrink: 0; }
+.dp2-item-sub {
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  line-height: 1.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.dp-row-bar {
-  width: 2px;
-  align-self: stretch;
-  border-radius: 1px;
-  flex-shrink: 0;
-  margin: 2px 0;
-  min-height: 24px;
+.dp2-item-chevron {
+  font-size: 11px; color: var(--dk-3); padding: 14px 6px;
+  transition: transform .2s; opacity: .4; flex-shrink: 0; align-self: flex-start;
 }
-.dp-row-bar.jade  { background: rgba(0,200,160,.5); }
-.dp-row-bar.amber { background: rgba(196,124,24,.5); }
-.dp-row-bar.slate { background: rgba(255,255,255,.12); }
-.dp-row-bar.blue  { background: rgba(100,160,255,.45); }
-.dp-row-bar.dim   { background: rgba(255,255,255,.07); }
 
-.dp-row-content {
-  flex: 1;
-  padding: 0 12px;
-  min-width: 0;
+/* Fixed / flex / optional badges */
+.dp2-flex-badge {
+  font-size: 7px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; padding: 1px 6px; border-radius: 8px; margin-left: 4px;
 }
-.dp-row-title-line {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 1px;
-}
-.dp-row-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--dk-1);
-  flex: 1;
-  min-width: 0;
-}
-.dp-row-tag {
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-.dp-row-tag.train { background: rgba(0,200,160,.1); color: var(--jade); }
-.dp-row-tag.meal  { background: rgba(196,124,24,.1); color: var(--amber); }
-.dp-row-tag.supp  { background: rgba(255,255,255,.06); color: var(--dk-3); }
-.dp-row-tag.cardio{ background: rgba(100,160,255,.1); color: rgba(130,180,255,.9); }
-.dp-row-sub {
-  font-size: 11px;
-  font-weight: 300;
-  color: var(--dk-3);
-}
-.dp-row-chevron {
-  font-size: 11px;
-  color: var(--dk-3);
-  transition: transform .2s;
-  padding: 0 8px;
-  flex-shrink: 0;
-  opacity: 0.5;
-}
-.dp-block.expanded .dp-row-chevron { transform: rotate(90deg); }
+.dp2-flex-badge.fixed    { background: rgba(220,80,60,.08);  color: rgba(220,100,80,.65); }
+.dp2-flex-badge.flex     { background: rgba(255,255,255,.05); color: var(--dk-3); }
+.dp2-flex-badge.optional { background: rgba(100,160,255,.08); color: rgba(130,170,255,.65); }
 
-/* Status buttons */
-.dp-row-actions {
-  display: flex;
-  gap: 3px;
-  padding-right: 8px;
-  flex-shrink: 0;
+/* Quick-log buttons */
+.dp2-item-actions {
+  display: flex; gap: 3px; padding: 10px 8px 10px 0;
+  flex-shrink: 0; align-self: flex-start;
 }
-.dp-btn {
-  width: 42px;
-  height: 30px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: transparent;
-  cursor: pointer;
-  font-family: var(--sans);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .04em;
-  color: var(--dk-3);
-  transition: all .1s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
+.dp2-qbtn {
+  width: 34px; height: 28px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.08); background: transparent;
+  cursor: pointer; font-family: var(--sans); font-size: 10px; color: var(--dk-3);
+  transition: all .1s; display: flex; align-items: center; justify-content: center;
 }
-.dp-btn-icon { font-size: 11px; line-height: 1; }
-.dp-btn-label { font-size: 7px; letter-spacing: .06em; text-transform: uppercase; }
-.dp-btn:hover { border-color: rgba(255,255,255,.18); color: var(--dk-1); }
-.dp-btn.done:hover,.dp-btn.done-active  { border-color: rgba(0,200,160,.5); color: var(--jade); background: rgba(0,200,160,.08); }
-.dp-btn.swap:hover,.dp-btn.swap-active  { border-color: rgba(196,124,24,.5); color: var(--amber); background: rgba(196,124,24,.08); }
-.dp-btn.skip:hover,.dp-btn.skip-active  { border-color: rgba(220,80,60,.4); color: rgba(220,80,60,.8); background: rgba(220,80,60,.06); }
+.dp2-qbtn:hover { border-color: rgba(255,255,255,.18); color: var(--dk-1); }
+.dp2-qbtn.done-active  { border-color: rgba(0,200,160,.5);  color: var(--jade);  background: rgba(0,200,160,.08); }
+.dp2-qbtn.swap-active  { border-color: rgba(196,124,24,.5); color: var(--amber); background: rgba(196,124,24,.08); }
+.dp2-qbtn.skip-active  { border-color: rgba(220,80,60,.4);  color: rgba(220,80,60,.8); background: rgba(220,80,60,.06); }
 
-/* ── Expanded block detail ─────────────────────────────── */
-.dp-detail {
-  display: none;
-  border-top: 1px solid rgba(255,255,255,.05);
-  padding: 12px 14px 14px 64px;
-}
-.dp-block.expanded .dp-detail { display: block; }
-
-/* Individual supplement pills */
-.dp-supp-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-.dp-supp-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: var(--ink-1);
-  cursor: pointer;
-  transition: all .12s;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--dk-2);
-}
-.dp-supp-pill:hover { border-color: rgba(0,200,160,.3); }
-.dp-supp-pill.taken {
-  border-color: rgba(0,200,160,.4);
-  background: rgba(0,200,160,.08);
-  color: var(--jade);
-}
-.dp-supp-check {
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255,255,255,.2);
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 8px;
-}
-.dp-supp-pill.taken .dp-supp-check {
-  background: var(--jade);
-  border-color: var(--jade);
-  color: var(--ink);
-}
-.dp-supp-dose { font-size: 10px; font-weight: 300; color: var(--dk-3); margin-left: 2px; }
+/* Item detail panel */
+.dp2-item-detail { display: none; padding: 0 12px 12px 62px; border-top: 1px solid rgba(255,255,255,.04); margin-top: 2px; }
+.dp2-item.open .dp2-item-detail { display: block; }
 
 /* Exercise rows */
-.dp-ex-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-.dp-ex-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  background: var(--ink-1);
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,.06);
+.dp2-exlist { display: flex; flex-direction: column; gap: 5px; padding: 10px 0; }
+.dp2-exrow {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; background: var(--ink-2);
+  border-radius: 8px; border: 1px solid rgba(255,255,255,.05);
 }
-.dp-ex-num {
-  font-size: 9px; font-weight: 700; color: var(--dk-3);
-  min-width: 16px; flex-shrink: 0;
+.dp2-ex-num { font-size: 9px; font-weight: 700; color: var(--dk-3); min-width: 14px; }
+.dp2-ex-name { flex: 1; font-size: 12px; font-weight: 500; color: var(--dk-1); min-width: 0; }
+.dp2-ex-base { font-size: 10px; color: var(--dk-3); white-space: nowrap; }
+.dp2-ex-inp {
+  width: 40px; background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 5px;
+  padding: 4px 5px; font-size: 11px; font-family: var(--sans);
+  color: var(--dk-1); text-align: center; outline: none;
 }
-.dp-ex-name { flex: 1; font-size: 12px; font-weight: 500; color: var(--dk-1); min-width: 0; }
-.dp-ex-baseline {
-  font-size: 10px; font-weight: 300; color: var(--dk-3);
-  white-space: nowrap;
+.dp2-ex-inp:focus { border-color: rgba(0,200,160,.35); }
+.dp2-ex-inp::placeholder { color: rgba(255,255,255,.18); font-size: 9px; }
+.dp2-ex-sep { font-size: 10px; color: var(--dk-3); }
+.dp2-ex-done {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.1); background: transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--dk-3); transition: all .1s; flex-shrink: 0;
 }
-.dp-ex-log {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-.dp-ex-inp {
-  width: 44px;
-  background: var(--ink-2);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 5px;
-  padding: 4px 6px;
-  font-size: 11px;
-  font-family: var(--sans);
-  color: var(--dk-1);
-  text-align: center;
-  outline: none;
-  transition: border-color .1s;
-}
-.dp-ex-inp:focus { border-color: rgba(0,200,160,.35); }
-.dp-ex-inp::placeholder { color: rgba(255,255,255,.2); font-size: 10px; }
-.dp-ex-sep { font-size: 10px; color: var(--dk-3); }
-.dp-ex-done-btn {
-  width: 24px; height: 24px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: transparent;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: var(--dk-3);
-  transition: all .1s;
-  flex-shrink: 0;
-}
-.dp-ex-done-btn.done { background: rgba(0,200,160,.1); border-color: rgba(0,200,160,.4); color: var(--jade); }
-.dp-ex-done-btn:hover { border-color: rgba(0,200,160,.3); color: var(--jade); }
+.dp2-ex-done.done { background: rgba(0,200,160,.1); border-color: rgba(0,200,160,.4); color: var(--jade); }
 
-/* Swap input */
-.dp-swap-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255,255,255,.05);
+/* Supplement pills */
+.dp2-pills { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; }
+.dp2-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.1); background: var(--ink-2);
+  cursor: pointer; transition: all .12s;
+  font-size: 11px; font-weight: 500; color: var(--dk-2);
 }
-.dp-swap-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--amber);
-  flex-shrink: 0;
+.dp2-pill:hover { border-color: rgba(0,200,160,.3); }
+.dp2-pill.taken { border-color: rgba(0,200,160,.4); background: rgba(0,200,160,.08); color: var(--jade); }
+.dp2-pill-check {
+  width: 13px; height: 13px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 7px; flex-shrink: 0;
 }
-.dp-swap-inp {
-  flex: 1;
-  background: var(--ink-1);
-  border: 1px solid rgba(196,124,24,.25);
-  border-radius: 7px;
-  padding: 7px 10px;
-  font-size: 12px;
-  font-family: var(--sans);
-  color: var(--dk-1);
-  outline: none;
-}
-.dp-swap-inp:focus { border-color: rgba(196,124,24,.5); }
-.dp-swap-inp::placeholder { color: rgba(255,255,255,.2); }
+.dp2-pill.taken .dp2-pill-check { background: var(--jade); border-color: var(--jade); color: var(--ink); }
+.dp2-pill-dose { font-size: 9px; color: var(--dk-3); }
 
 /* Meal log */
-.dp-meal-log {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 8px;
+.dp2-meal-log { display: flex; gap: 8px; align-items: center; padding: 10px 0; }
+.dp2-meal-prot {
+  width: 66px; background: rgba(0,200,160,.05);
+  border: 1px solid rgba(0,200,160,.2); border-radius: 7px;
+  padding: 7px 8px; font-size: 13px; font-family: var(--sans);
+  color: var(--jade); text-align: center; outline: none;
 }
-.dp-meal-prot-inp {
-  width: 70px;
-  background: var(--ink-1);
-  border: 1px solid rgba(0,200,160,.2);
-  border-radius: 7px;
-  padding: 7px 10px;
-  font-size: 12px;
-  font-family: var(--sans);
-  color: var(--jade);
-  outline: none;
-  text-align: center;
+.dp2-meal-prot:focus { border-color: rgba(0,200,160,.5); }
+.dp2-meal-note {
+  flex: 1; background: var(--ink-2); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 7px; padding: 7px 10px; font-size: 12px;
+  font-family: var(--sans); color: var(--dk-1); outline: none;
 }
-.dp-meal-prot-inp:focus { border-color: rgba(0,200,160,.5); }
-.dp-meal-note-inp {
-  flex: 1;
-  background: var(--ink-1);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 7px;
-  padding: 7px 10px;
-  font-size: 12px;
-  font-family: var(--sans);
-  color: var(--dk-1);
-  outline: none;
-}
-.dp-meal-note-inp:focus { border-color: rgba(255,255,255,.15); }
-.dp-meal-note-inp::placeholder { color: rgba(255,255,255,.2); }
+.dp2-meal-note:focus { border-color: rgba(255,255,255,.15); }
+.dp2-meal-note::placeholder { color: rgba(255,255,255,.18); }
 
-/* Detail footer actions */
-.dp-detail-actions {
-  display: flex;
-  gap: 6px;
-  margin-top: 10px;
+/* Swap row */
+.dp2-swap-row { display: flex; align-items: center; gap: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.05); margin-top: 6px; }
+.dp2-swap-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--amber); flex-shrink: 0; }
+.dp2-swap-inp {
+  flex: 1; background: rgba(196,124,24,.05); border: 1px solid rgba(196,124,24,.2);
+  border-radius: 7px; padding: 7px 10px; font-size: 12px; font-family: var(--sans);
+  color: var(--dk-1); outline: none;
 }
-.dp-detail-btn {
-  padding: 7px 12px;
-  border-radius: 7px;
-  border: 1px solid var(--bd);
-  background: transparent;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--dk-3);
-  cursor: pointer;
-  font-family: var(--sans);
-  transition: all .12s;
-}
-.dp-detail-btn:hover { border-color: rgba(255,255,255,.2); color: var(--dk-1); }
-.dp-detail-btn.jade { border-color: rgba(0,200,160,.3); color: var(--jade); background: rgba(0,200,160,.06); }
-.dp-detail-btn.jade:hover { background: rgba(0,200,160,.12); }
+.dp2-swap-inp:focus { border-color: rgba(196,124,24,.45); }
+.dp2-swap-inp::placeholder { color: rgba(255,255,255,.18); }
 
-/* ── Section divider ───────────────────────────────────── */
-.dp-sec-div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 0 6px;
-  margin: 4px 0;
+/* Detail buttons */
+.dp2-detail-btns { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.dp2-dbtn {
+  padding: 6px 12px; border-radius: 7px; border: 1px solid rgba(255,255,255,.07);
+  background: transparent; font-size: 10px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--dk-3); cursor: pointer;
+  font-family: var(--sans); transition: all .12s; text-decoration: none;
+  display: inline-flex; align-items: center;
 }
-.dp-sec-div-label {
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,.2);
-  flex-shrink: 0;
-}
-.dp-sec-div-line { flex: 1; height: 1px; background: rgba(255,255,255,.04); }
+.dp2-dbtn:hover { border-color: rgba(255,255,255,.2); color: var(--dk-1); }
+.dp2-dbtn.jade { border-color: rgba(0,200,160,.3); color: var(--jade); background: rgba(0,200,160,.05); }
+.dp2-dbtn.jade:hover { background: rgba(0,200,160,.1); }
 
-/* ── Floating score ────────────────────────────────────── */
-.dp-float-score {
+/* ── End of day ─────────────────────────────────────────────── */
+.dp2-eod {
+  margin-top: 28px; padding: 20px; background: var(--ink-1);
+  border: 1px solid rgba(255,255,255,.07); border-radius: 14px;
+}
+.dp2-eod-hd { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+.dp2-eod-title { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dk-1); }
+.dp2-eod-date { font-size: 11px; font-weight: 300; color: var(--dk-3); }
+.dp2-eod-rows { display: flex; flex-direction: column; gap: 1px; margin-bottom: 14px; }
+.dp2-eod-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px;
+}
+.dp2-eod-row:last-child { border-bottom: none; }
+.dp2-eod-key { font-weight: 300; color: var(--dk-3); }
+.dp2-eod-val { font-weight: 600; color: var(--dk-1); }
+.dp2-eod-val.jade  { color: var(--jade); }
+.dp2-eod-val.amber { color: var(--amber); }
+.dp2-eod-score-wrap {
+  margin: 14px 0; padding: 16px; background: rgba(0,200,160,.04);
+  border: 1px solid rgba(0,200,160,.12); border-radius: 10px; text-align: center;
+}
+.dp2-eod-score-big {
+  font-family: var(--serif); font-size: 52px; font-weight: 300;
+  color: var(--jade); line-height: 1;
+}
+.dp2-eod-score-tag { font-size: 9px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--dk-3); margin-top: 5px; }
+.dp2-eod-breakdown { font-size: 11px; font-weight: 300; color: var(--dk-3); margin-top: 7px; line-height: 1.65; }
+.dp2-notes {
+  width: 100%; box-sizing: border-box; background: var(--ink-2);
+  border: 1px solid rgba(255,255,255,.07); border-radius: 8px;
+  padding: 10px 12px; font-size: 12px; font-family: var(--sans);
+  color: var(--dk-1); outline: none; resize: none; margin-bottom: 12px; line-height: 1.65;
+}
+.dp2-notes:focus { border-color: rgba(0,200,160,.3); }
+.dp2-notes::placeholder { color: rgba(255,255,255,.2); }
+.dp2-save-btn {
+  width: 100%; padding: 13px; background: var(--jade); border: none;
+  border-radius: 9px; font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink); cursor: pointer;
+  font-family: var(--sans); transition: opacity .15s;
+}
+.dp2-save-btn:hover { opacity: .88; }
+.dp2-rebuild-btn {
+  font-size: 9px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--dk-3); background: none;
+  border: none; cursor: pointer; font-family: var(--sans); padding: 10px 0;
+  transition: color .12s; display: block; margin: 10px auto 0;
+}
+.dp2-rebuild-btn:hover { color: var(--dk-1); }
+
+/* ── Floating score ─────────────────────────────────────────── */
+.dp2-float-score {
+  position: fixed; bottom: 24px; right: 20px; width: 52px; height: 52px;
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; box-shadow: 0 4px 20px rgba(0,0,0,.5); z-index: 80;
+  transition: transform .2s;
+}
+.dp2-float-score:hover { transform: scale(1.08); }
+.dp2-float-num { font-family: var(--serif); font-size: 15px; font-weight: 300; color: var(--jade); line-height: 1; }
+.dp2-float-label { font-size: 7px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dk-3); margin-top: 1px; }
+
+.vlg-mic-btn {
   position: fixed;
   bottom: 24px;
-  right: 20px;
+  left: 20px;
   width: 52px;
   height: 52px;
-  background: var(--ink-1);
-  border: 1px solid rgba(255,255,255,.1);
   border-radius: 50%;
+  background: var(--ink-1);
+  border: 1px solid rgba(255,255,255,.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
+  cursor: pointer;
+  z-index: 200;
   box-shadow: 0 4px 20px rgba(0,0,0,.4);
-  z-index: 80;
-  cursor: default;
   transition: all .2s;
+  font-size: 20px;
 }
-.dp-float-score:hover { transform: scale(1.08); }
-.dp-float-score-num {
-  font-family: var(--serif);
-  font-size: 16px;
-  font-weight: 300;
-  color: var(--jade);
-  line-height: 1;
+.vlg-mic-btn:hover {
+  border-color: rgba(0,200,160,.4);
+  transform: scale(1.06);
 }
-.dp-float-score-label {
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--dk-3);
-  margin-top: 1px;
+.vlg-mic-btn.listening {
+  background: rgba(220,60,60,.15);
+  border-color: rgba(220,60,60,.6);
+  animation: vlg-pulse 1.2s ease-in-out infinite;
+}
+.vlg-mic-btn.processing {
+  background: rgba(196,124,24,.1);
+  border-color: rgba(196,124,24,.4);
+  animation: vlg-spin-ring 1s linear infinite;
+}
+@keyframes vlg-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(220,60,60,.3), 0 4px 20px rgba(0,0,0,.4); }
+  50%      { box-shadow: 0 0 0 10px rgba(220,60,60,0), 0 4px 20px rgba(0,0,0,.4); }
+}
+@keyframes vlg-spin-ring {
+  to { transform: rotate(360deg); }
 }
 
-/* ── EOD section ───────────────────────────────────────── */
-.dp-eod {
-  margin-top: 28px;
-  padding: 18px 20px;
+/* Transcript bubble */
+.vlg-bubble {
+  position: fixed;
+  bottom: 88px;
+  left: 16px;
+  max-width: 320px;
   background: var(--ink-1);
-  border: 1px solid rgba(255,255,255,.07);
-  border-radius: 12px;
-}
-.dp-eod-hd {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-.dp-eod-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--dk-1);
-  letter-spacing: .04em;
-}
-.dp-eod-date { font-size: 11px; font-weight: 300; color: var(--dk-3); }
-.dp-eod-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 7px 0;
-  border-bottom: 1px solid rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px 12px 4px 12px;
+  padding: 10px 14px;
   font-size: 12px;
-}
-.dp-eod-row:last-of-type { border-bottom: none; }
-.dp-eod-key { font-weight: 300; color: var(--dk-3); }
-.dp-eod-val { font-weight: 600; color: var(--dk-1); }
-.dp-eod-val.jade { color: var(--jade); }
-.dp-eod-val.amber { color: var(--amber); }
-.dp-eod-score-wrap {
-  margin-top: 14px;
-  padding: 14px;
-  background: rgba(0,200,160,.04);
-  border: 1px solid rgba(0,200,160,.12);
-  border-radius: 10px;
-  text-align: center;
-}
-.dp-eod-score-big {
-  font-family: var(--serif);
-  font-size: 44px;
   font-weight: 300;
-  color: var(--jade);
-  line-height: 1;
+  color: var(--dk-2);
+  line-height: 1.5;
+  z-index: 201;
+  display: none;
+  box-shadow: 0 4px 24px rgba(0,0,0,.5);
+  max-height: 120px;
+  overflow: hidden;
 }
-.dp-eod-score-tag {
-  font-size: 9px;
+.vlg-bubble.show { display: block; }
+.vlg-bubble-label {
+  font-size: 8px;
   font-weight: 700;
-  letter-spacing: .14em;
+  letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--dk-3);
-  margin-top: 4px;
+  margin-bottom: 4px;
 }
-.dp-eod-score-breakdown {
-  font-size: 11px;
-  font-weight: 300;
-  color: var(--dk-3);
-  margin-top: 6px;
-  line-height: 1.6;
-}
-.dp-notes-inp {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--ink-2);
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 12px;
-  font-family: var(--sans);
-  color: var(--dk-1);
-  outline: none;
-  resize: none;
-  margin-top: 12px;
-  line-height: 1.6;
-}
-.dp-notes-inp:focus { border-color: rgba(0,200,160,.3); }
-.dp-notes-inp::placeholder { color: rgba(255,255,255,.18); }
-.dp-save-btn {
-  width: 100%;
-  margin-top: 12px;
-  padding: 13px;
-  background: var(--jade);
-  border: none;
-  border-radius: 9px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--ink);
-  cursor: pointer;
-  font-family: var(--sans);
-  transition: opacity .15s;
-}
-.dp-save-btn:hover { opacity: .88; }
+.vlg-bubble-text { font-style: italic; color: var(--dk-2); }
 
-/* Rebuild btn */
-.dp-rebuild-btn {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--dk-3);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--sans);
-  padding: 8px 0;
-  transition: color .12s;
-  display: block;
-  margin: 12px auto 0;
+/* Toast confirmation */
+.vlg-toast {
+  position: fixed;
+  bottom: 88px;
+  left: 16px;
+  max-width: 340px;
+  background: var(--ink-1);
+  border: 1px solid rgba(0,200,160,.25);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 12px;
+  z-index: 202;
+  display: none;
+  box-shadow: 0 4px 24px rgba(0,0,0,.5);
+  animation: vlg-slide-in .2s ease;
 }
-.dp-rebuild-btn:hover { color: var(--dk-1); }
+.vlg-toast.show { display: block; }
+@keyframes vlg-slide-in {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.vlg-toast-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-bottom: 6px;
+}
+.vlg-action {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-2);
+}
+.vlg-action:last-child { border-bottom: none; }
+.vlg-action-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+.vlg-nothing {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-3);
+  font-style: italic;
+}
+.vlg-error {
+  font-size: 11px;
+  font-weight: 300;
+  color: rgba(220,100,80,.8);
+}
 </style>
 
 <script src="activitylog.js"></script>
@@ -4934,15 +4758,15 @@ window.OVERLAY_LIBRARY = {
   },
 };
 
-function renderPlan(plan, browsing){
+function renderPlan(plan, browsing) {
   var root = document.getElementById('day-root');
   window._blocks = plan.blocks;
   var p = P, t = TODAY;
   var log = loadDayLog(_rDate) || {};
   var isBrowsing = !!browsing;
 
-  // ── Helpers ─────────────────────────────────────────────
-  function getBlockStatus(block, idx) {
+  // ── Helpers ──────────────────────────────────────────────
+  function blockStatus(block, idx) {
     if (block.type === 'training') return log.trainStatus || '';
     if (block.mealSlot) {
       if (log.meals && log.meals[block.mealSlot] && log.meals[block.mealSlot].logged) return 'done';
@@ -4953,583 +4777,684 @@ function renderPlan(plan, browsing){
 
   function parseEx(str) {
     var clean = (str||'').replace(/\s*\(RPE[^)]+\)/i,'').trim();
-    var mSets = clean.match(/(\d+)\s*[xX\u00d7]\s*([\d\-]+)/);
-    var name = clean.replace(/\d+\s*[xX\u00d7]\s*[\d\-]+.*/, '').trim();
-    return { name: name||clean, sets: mSets?parseInt(mSets[1]):3, reps: mSets?mSets[2]:'8-12', full: clean };
+    var m = clean.match(/(\d+)\s*[xX×]\s*([\d\-]+)/);
+    var name = clean.replace(/\d+\s*[xX×]\s*[\d\-]+.*/, '').trim();
+    return { name: name||clean, sets: m?parseInt(m[1]):3, reps: m?m[2]:'8-12' };
   }
 
-  // ── Collect data ─────────────────────────────────────────
-  var trainBlock = plan.blocks.find(function(b){ return b.type === 'training'; });
+  // ── Data ─────────────────────────────────────────────────
+  var suppLog = getSuppLog();
+  var profileSupps = p.supplements || [];
   var mealBlocks = plan.blocks.filter(function(b){ return !!b.mealSlot; });
   var suppBlocks = plan.blocks.filter(function(b){ return b.type==='supp'||b.type==='recovery'; });
-  var allSuppItems = [];
-  suppBlocks.forEach(function(b){ (b.suppList||[]).forEach(function(s){ allSuppItems.push({name:s.name||s, blockIdx: plan.blocks.indexOf(b)}); }); });
-  var profileSupps = p.supplements || [];
-  var suppLog = getSuppLog();
-  var cardioRec = trainBlock && trainBlock.cardioRec;
-
-  // ── Macro state ──────────────────────────────────────────
+  var allSuppNames = [];
+  suppBlocks.forEach(function(b){ (b.suppList||[]).forEach(function(s){ allSuppNames.push(s.name||s); }); });
+  var trainBlock = plan.blocks.find(function(b){ return b.type==='training'; });
   var eaten = (MACROS && MACROS.eaten) || {prot:0,carbs:0,fat:0,kcal:0};
   var dayKcal = typeof getDayKcal==='function' ? getDayKcal(p, t.isTraining) : (p.trainingKcal||p.calories||2000);
+  var score = edCalcScore(log, mealBlocks, allSuppNames);
 
-  // ── Completion for score ring ────────────────────────────
-  var total = 0, done = 0;
-  plan.blocks.forEach(function(b,i){
-    if (b.type==='sleep'||b.type==='wake') return;
-    total++;
-    if (getBlockStatus(b,i)==='done') done++;
-  });
-  var pct = total>0 ? Math.round(done/total*100) : 0;
-  var score = edCalcScore(log, mealBlocks, allSuppItems.map(function(s){return s.name;}));
-
-  // ── Score ring SVG ────────────────────────────────────────
-  var r = 15, circ = 2*Math.PI*r;
-  var offset = circ * (1 - pct/100);
-  var ringHtml = '<div class="dp-score-ring">'
-    + '<svg viewBox="0 0 36 36" width="36" height="36">'
-      + '<circle class="dp-score-ring-bg" cx="18" cy="18" r="'+r+'" stroke-width="2.5"/>'
-      + '<circle class="dp-score-ring-fill" cx="18" cy="18" r="'+r+'" stroke-width="2.5"'
-        + ' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'"/>'
-    + '</svg>'
-    + '<div class="dp-score-num" id="dp-score-num">'+pct+'%</div>'
-  + '</div>';
-
-  // ── Macro row ─────────────────────────────────────────────
-  var macros = [
-    { key:'P', eaten: eaten.prot||0, target: p.protein||174, color:'#00c8a0' },
-    { key:'C', eaten: eaten.carbs||0, target: p.carbs||323,  color:'#c47c18' },
-    { key:'F', eaten: eaten.fat||0,   target: p.fat||87,     color:'rgba(255,255,255,.4)' },
-    { key:'kcal', eaten: eaten.kcal||0, target: dayKcal,     color:'rgba(255,255,255,.3)' },
-  ];
-  var macroRowHtml = macros.map(function(m){
-    var pctFill = Math.min(100, Math.round((m.eaten/Math.max(1,m.target))*100));
-    var valStr = m.key==='kcal' ? (m.eaten||0)+'' : (m.eaten||0)+'g';
-    var tgtStr = m.key==='kcal' ? m.target+'' : m.target+'g';
-    return '<div class="dp-macro">'
-      + '<div class="dp-macro-labels">'
-        + '<span class="dp-macro-key">'+m.key+'</span>'
-        + '<span class="dp-macro-val" style="color:'+m.color+';">'+valStr+'<span style="color:rgba(255,255,255,.2);font-weight:300;">/'+tgtStr+'</span></span>'
-      + '</div>'
-      + '<div class="dp-macro-track"><div class="dp-macro-fill" id="dp-fill-'+m.key+'" style="width:'+pctFill+'%;background:'+m.color+';"></div></div>'
-    + '</div>';
-  }).join('');
-
-  // ── Time now ──────────────────────────────────────────────
-  var now = new Date();
-  var timeNow = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-  var dayLabel = t.isTraining ? (trainBlock ? (trainBlock.title||'').split(':')[0] : 'Training') : 'Rest day';
-
-  // ── Progress header ───────────────────────────────────────
-  var headerHtml = '<div class="dp-header" id="dp-header">'
-    + ringHtml
-    + '<div class="dp-macro-row" id="dp-macro-row">'+macroRowHtml+'</div>'
-    + '<div class="dp-header-right">'
-      + '<div class="dp-day-label">'+dayLabel+'</div>'
-      + '<div class="dp-time-now" id="dp-time-now">'+timeNow+'</div>'
-    + '</div>'
-  + '</div>';
-
-  // ── Build timeline ─────────────────────────────────────────
-  function buildTimeline() {
-    var html = '<div class="dp-timeline" id="dp-timeline">';
-    var lastSection = '';
-
-    plan.blocks.forEach(function(block, idx) {
-      if (block.type === 'sleep') return;
-
-      // Section divider
-      var section = '';
-      if (block.type === 'training' || block.mealSlot === 'pre-training') section = 'morning';
-      else if (block.mealSlot === 'post-training' || block.mealSlot === 'midday') section = 'afternoon';
-      else if (block.mealSlot === 'evening' || block.type === 'recovery') section = 'evening';
-
-      var status = getBlockStatus(block, idx);
-      var statusCls = status==='done'?' done':status==='skipped'?' skipped':'';
-      var isExpanded = false; // start collapsed; expand on click
-
-      // Color
-      var barColor = 'slate';
-      if (block.type==='training') barColor='jade';
-      else if (block.mealSlot) barColor='amber';
-      else if (block.isEditorCardio) barColor='blue';
-      else if (block.type==='wake') barColor='dim';
-
-      // Tag
-      var tag='', tagLabel='';
-      if (block.type==='training'){ tag='train'; tagLabel='Train'; }
-      else if (block.mealSlot){ tag='meal'; tagLabel='Eat'; }
-      else if (block.type==='supp'||(block.type==='recovery'&&block.suppList&&block.suppList.length)){ tag='supp'; tagLabel='Supps'; }
-      else if (block.isEditorCardio){ tag='cardio'; tagLabel='Cardio'; }
-
-      // Sub description
-      var sub = '';
-      if (block.type==='training') {
-        var exes = (block.exercises||[]).filter(function(e){return e!=='Track loads';}).slice(0,3).map(function(e){return parseEx(e).name;});
-        sub = exes.join(' · ') + (block.exercises&&block.exercises.length>3?' +'+( block.exercises.filter(function(e){return e!=='Track loads';}).length-3):'');
-      } else if (block.mealSlot) {
-        sub = block.subtitle || '';
-      } else if (block.suppList) {
-        sub = block.suppList.map(function(s){return s.name||s;}).join(', ');
-      } else {
-        sub = block.subtitle || '';
-      }
-
-      // Status buttons
-      var doneActive = status==='done' ? ' done-active' : '';
-      var swapActive = status==='modified' ? ' swap-active' : '';
-      var skipActive = status==='skipped' ? ' skip-active' : '';
-
-      var actions = '<div class="dp-row-actions">'
-        + '<button class="dp-btn done'+doneActive+'" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')" title="Done"><span class="dp-btn-icon">&#10003;</span><span class="dp-btn-label">Done</span></button>'
-        + '<button class="dp-btn swap'+swapActive+'" onclick="event.stopPropagation();dpToggleSwap('+idx+',this)" title="Swapped"><span class="dp-btn-icon">~</span><span class="dp-btn-label">Swap</span></button>'
-        + '<button class="dp-btn skip'+skipActive+'" onclick="event.stopPropagation();dpSetStatus('+idx+',\'skipped\')" title="Skip"><span class="dp-btn-icon">&times;</span><span class="dp-btn-label">Skip</span></button>'
-      + '</div>';
-
-      // Block type class
-      var blockTypeCls = block.type==='training'?' train-block':block.mealSlot?' meal-block':'';
-
-      html += '<div class="dp-block'+statusCls+blockTypeCls+'" id="dp-block-'+idx+'">'
-        + '<div class="dp-row" onclick="dpToggleBlock('+idx+')">'
-          + '<div class="dp-row-time">'+( block.time||'')+'</div>'
-          + '<div class="dp-row-bar '+barColor+'"></div>'
-          + '<div class="dp-row-content">'
-            + '<div class="dp-row-title-line">'
-              + '<span class="dp-row-title">'+( block.title||'')+'</span>'
-              + (tag ? '<span class="dp-row-tag '+tag+'">'+tagLabel+'</span>' : '')
-              + (block.durationMins && block.type!=='wake' ? '<span style="font-size:9px;font-weight:300;color:var(--dk-3);">'+block.durationMins+'m</span>' : '')
-            + '</div>'
-            + (sub ? '<div class="dp-row-sub">'+sub+'</div>' : '')
-          + '</div>'
-          + actions
-          + '<div class="dp-row-chevron">&#8250;</div>'
-        + '</div>'
-        + '<div class="dp-detail" id="dp-detail-'+idx+'">'
-          + buildDetail(block, idx, log, profileSupps, suppLog)
-        + '</div>'
-      + '</div>';
-    });
-
-    html += '</div>';
-    return html;
+  // ── Score ring ───────────────────────────────────────────
+  function scoreRing(val, r, stroke, id) {
+    var circ = 2*Math.PI*r;
+    var offset = circ*(1-val/100);
+    return '<svg viewBox="0 0 '+(r*2+stroke)+' '+(r*2+stroke)+'" width="'+(r*2+stroke)+'" height="'+(r*2+stroke)+'" style="transform:rotate(-90deg)">'
+      +'<circle cx="'+(r+stroke/2)+'" cy="'+(r+stroke/2)+'" r="'+r+'" stroke="rgba(255,255,255,.07)" stroke-width="'+stroke+'" fill="none"/>'
+      +'<circle id="'+(id||'')+'" cx="'+(r+stroke/2)+'" cy="'+(r+stroke/2)+'" r="'+r+'" stroke="var(--day-jade)" stroke-width="'+stroke+'" fill="none" stroke-linecap="round"'
+      +' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'"/>'
+      +'</svg>';
   }
 
-  // ── Build detail panel per block ──────────────────────────
-  function buildDetail(block, idx, log, profileSupps, suppLog) {
+  // ── Mission brief ────────────────────────────────────────
+  var isTraining = t.isTraining;
+  var dayType = isTraining
+    ? (trainBlock ? trainBlock.title : 'Training day')
+    : 'Rest & recovery';
+
+  // Why-today narrative
+  var calorieVerb = dayKcal >= (p.tdee||2769) ? 'At maintenance' : 'In a controlled deficit';
+  var calorieWhy = calorieVerb + ' today at ' + dayKcal + ' kcal — '
+    + (isTraining ? 'fuelling the session without surplus.' : 'accelerating fat metabolism on a rest day.');
+  var proteinWhy = p.protein + 'g protein is the non-negotiable. At ' + (p.weight||87) + 'kg that is 2g/kg — the floor for preserving muscle while the deficit does its work.';
+  var trainingWhy = isTraining
+    ? 'Posterior chain today because glutes and hamstrings are your structural foundation — they anchor posture, power, and metabolic output. Signal them hard.'
+    : 'Rest is part of the programme. Adaptation happens here. Keep protein high, activity low, and let the system repair.';
+
+  // Critical signals
+  var macroFills = [
+    { key:'P', eaten:eaten.prot||0, target:p.protein||174, color:'#00c8a0' },
+    { key:'C', eaten:eaten.carbs||0, target:p.carbs||323, color:'#c47c18' },
+    { key:'F', eaten:eaten.fat||0, target:p.fat||87, color:'rgba(255,255,255,.35)' },
+  ];
+  var macroBarHtml = macroFills.map(function(m){
+    var pct = Math.min(100, Math.round((m.eaten/Math.max(1,m.target))*100));
+    return '<div class="dp2-macro-bar-row">'
+      +'<div class="dp2-macro-bar-key">'+m.key+'</div>'
+      +'<div class="dp2-macro-bar-track"><div class="dp2-macro-bar-fill" id="dp2f-'+m.key+'" style="width:'+pct+'%;background:'+m.color+';"></div></div>'
+      +'<div class="dp2-macro-bar-val" style="color:'+m.color+';">'+(m.eaten||0)+'<span style="color:var(--day-text3);font-weight:300;">/'+(m.target)+'g</span></div>'
+    +'</div>';
+  }).join('');
+
+  var sessionLabel = isTraining ? (trainBlock ? '~'+(trainBlock.durationMins||90)+'min' : '—') : 'Rest';
+  var sessionDone = log.trainStatus === 'done';
+
+  var missionHtml = '<div class="dp2-mission">'
+    +'<div class="dp2-mission-kicker">'
+      + new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})
+      + (isBrowsing ? ' &nbsp;·&nbsp; Browsing' : '')
+    +'</div>'
+    +'<div class="dp2-mission-headline">'+dayType+'.<br><em>'+(isTraining?'Signal. Feed. Recover.':'Recover. Repair. Reset.')+'</em></div>'
+    +'<div class="dp2-mission-objective">'
+      +(isTraining
+        ? '<strong>Priority:</strong> Hit the posterior chain session, close at <strong>'+p.protein+'g protein</strong>, take your stack at the right times. Everything else is flexible.'
+        : '<strong>Priority:</strong> <strong>'+p.protein+'g protein</strong> even without training. Metabolism stays active on rest days — nutrition discipline here matters.')
+    +'</div>'
+    +'<div class="dp2-signals">'
+      // Macro signal
+      +'<div class="dp2-signal slate" style="flex:1;min-width:200px;">'
+        +'<div class="dp2-macro-signal">'
+          +'<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'
+            +'<span style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--day-text3);">Nutrition</span>'
+            +'<span style="font-size:10px;color:var(--day-text2);">'+dayKcal+' kcal target</span>'
+          +'</div>'
+          +'<div class="dp2-macro-bars">'+macroBarHtml+'</div>'
+        +'</div>'
+      +'</div>'
+      // Session signal
+      +(isTraining
+        ? '<div class="dp2-signal '+(sessionDone?'jade':'slate')+'" style="flex-direction:column;align-items:flex-start;gap:2px;min-width:110px;">'
+            +'<div class="dp2-signal-val">'+(sessionDone?'✓ Done':sessionLabel)+'</div>'
+            +'<div class="dp2-signal-label">'+(trainBlock?trainBlock.title.split(':')[0]:'Session')+'</div>'
+          +'</div>'
+        : '')
+      // Score signal
+      +'<div class="dp2-signal slate" style="gap:12px;">'
+        +'<div class="dp2-score-signal">'
+          +scoreRing(score, 17, 3, 'dp2-ring-fill')
+          +'<div class="dp2-score-signal-label">'
+            +'<span id="dp2-score-top">'+score+'</span>'
+            +'<span class="dp2-score-signal-sub">/100</span>'
+          +'</div>'
+        +'</div>'
+        +'<div><div class="dp2-signal-val" style="color:var(--day-text1);">Day score</div><div class="dp2-signal-label">Updates live</div></div>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+
+  // ── Act builder ──────────────────────────────────────────
+  // Divide blocks into three acts
+  // Morning: wake through training
+  // Recovery: post-train through afternoon
+  // Close: evening through sleep
+
+  function blockBarColor(block) {
+    if (block.type==='training') return 'jade';
+    if (block.mealSlot) return 'amber';
+    if (block.type==='supp'||(block.type==='recovery'&&block.suppList)) return 'slate';
+    if (block.type==='wake') return 'dim';
+    return 'dim';
+  }
+  function blockTag(block) {
+    if (block.type==='training') return {cls:'train',label:'Train'};
+    if (block.mealSlot) return {cls:'meal',label:'Eat'};
+    if (block.type==='supp'||(block.type==='recovery'&&block.suppList&&block.suppList.length)) return {cls:'supp',label:'Stack'};
+    if (block.isEditorCardio) return {cls:'cardio',label:'Cardio'};
+    return null;
+  }
+  function blockSub(block) {
+    if (block.type==='training') {
+      var exes = (block.exercises||[]).filter(function(e){return e!=='Track loads';}).slice(0,3).map(function(e){return parseEx(e).name;});
+      return exes.join(' · ') + ((block.exercises||[]).filter(function(e){return e!=='Track loads';}).length>3?' +'+((block.exercises||[]).filter(function(e){return e!=='Track loads';}).length-3):'');
+    }
+    if (block.mealSlot) return block.subtitle||'';
+    if (block.suppList) return (block.suppList||[]).map(function(s){return s.name||s;}).join(', ');
+    return block.subtitle||'';
+  }
+
+  function buildItemDetail(block, idx) {
     var html = '';
     var swapVal = (log.blockSwaps && log.blockSwaps['swap_'+idx]) || '';
+    var exLog = log.exercises || {};
 
-    // Training block — individual exercise logging
-    if (block.type === 'training') {
+    if (block.type==='training') {
       var exercises = (block.exercises||[]).filter(function(e){return e!=='Track loads';});
-      var exLog = log.exercises || {};
-
-      html += '<div class="dp-ex-list">';
+      html += '<div class="dp2-exlist">';
       exercises.forEach(function(exStr, i) {
         var px = parseEx(exStr);
         var key = 'ex_'+idx+'_'+i;
         var exData = exLog[key] || {};
-        var isDone = exData.status === 'done';
-
-        html += '<div class="dp-ex-row" id="dp-ex-'+key+'">'
-          + '<div class="dp-ex-num">'+(i+1)+'</div>'
-          + '<div class="dp-ex-name">'+px.name+'</div>'
-          + '<div class="dp-ex-baseline">'+px.sets+'×'+px.reps+'</div>'
-          + '<div class="dp-ex-log">'
-            + '<input class="dp-ex-inp" type="number" placeholder="kg" min="0" step="2.5" value="'+(exData.weight||'')+'" onchange="dpLogEx(\''+key+'\',this.value,null,null)" title="Weight">'
-            + '<span class="dp-ex-sep">×</span>'
-            + '<input class="dp-ex-inp" type="text" placeholder="'+px.sets+'×'+px.reps+'" value="'+(exData.actual||'')+'" onchange="dpLogEx(\''+key+'\',null,this.value,null)" title="Sets×reps" style="width:52px;">'
-            + '<button class="dp-ex-done-btn'+(isDone?' done':'')+'" onclick="dpToggleExDone(\''+key+'\','+idx+',this)" title="Mark done">&#10003;</button>'
-          + '</div>'
-        + '</div>';
+        var isDone = exData.status==='done';
+        html += '<div class="dp2-exrow" id="dp2-ex-'+key+'">'
+          +'<div class="dp2-ex-num">'+(i+1)+'</div>'
+          +'<div class="dp2-ex-name">'+px.name+'</div>'
+          +'<div class="dp2-ex-base">'+px.sets+'×'+px.reps+'</div>'
+          +'<input class="dp2-ex-inp" type="number" placeholder="kg" value="'+(exData.weight||'')+'" min="0" step="2.5" onchange="dpLogEx(\''+key+'\',this.value,null,null)">'
+          +'<span class="dp2-ex-sep">×</span>'
+          +'<input class="dp2-ex-inp" type="text" placeholder="'+px.sets+'×'+px.reps+'" value="'+(exData.actual||'')+'" onchange="dpLogEx(\''+key+'\',null,this.value,null)" style="width:48px;">'
+          +'<button class="dp2-ex-done'+(isDone?' done':'')+'" onclick="dpToggleExDone(\''+key+'\','+idx+',this)">✓</button>'
+        +'</div>';
       });
       html += '</div>';
-
-      // Cardio options
-      if (block.cardioRec) {
-        var opts = (block.cardioRec.options||[]).map(function(o){return o.name||o;});
-        html += '<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;">Cardio options</div>'
-          + '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
-          + opts.map(function(name){
-              return '<button onclick="openSessionEditor(-1,null,\''+name+'\')" style="padding:5px 10px;border-radius:16px;border:1px solid rgba(130,180,255,.25);background:rgba(130,180,255,.06);color:rgba(130,180,255,.8);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--sans);">+'+name+'</button>';
-            }).join('')
-          + '</div><br>';
-      }
-
-      html += '<div class="dp-detail-actions">'
-        + '<button class="dp-detail-btn jade" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')">&#10003; Session done</button>'
-        + '<button class="dp-detail-btn" onclick="event.stopPropagation();openSessionEditor('+idx+',window._blocks['+idx+'])">Edit session</button>'
-        + '<button class="dp-detail-btn" onclick="event.stopPropagation();var b=window._blocks['+idx+'];_gcLaunchFromBlock('+idx+',b)">&#9654; Start with coach</button>'
-      + '</div>';
+      html += '<div class="dp2-detail-btns">'
+        +'<button class="dp2-dbtn jade" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')">✓ Session done</button>'
+        +'<button class="dp2-dbtn" onclick="event.stopPropagation();openSessionEditor('+idx+',window._blocks['+idx+'])">Edit</button>'
+      +'</div>';
     }
-
-    // Supplement block — individual pill toggles
     else if (block.type==='supp' || (block.type==='recovery' && block.suppList && block.suppList.length)) {
       var suppItems = block.suppList || [];
-      html += '<div class="dp-supp-pills">';
+      html += '<div class="dp2-pills">';
       suppItems.forEach(function(s, si) {
-        var name = s.name || s;
-        var isTaken = !!suppLog[name];
-        var safeId = 'dp-sp-'+idx+'-'+si;
-        html += '<div class="dp-supp-pill'+(isTaken?' taken':'')+'" id="'+safeId+'" onclick="dpToggleSupp(\''+name.replace(/'/g,"\\'")+'\',\''+safeId+'\')">'
-          + '<div class="dp-supp-check">'+(isTaken?'&#10003;':'')+'</div>'
-          + '<span>'+name+'</span>'
-          + (s.dose ? '<span class="dp-supp-dose">'+s.dose+'</span>' : '')
-        + '</div>';
+        var name = s.name||s;
+        var taken = !!suppLog[name];
+        var pid = 'dp2-p-'+idx+'-'+si;
+        html += '<div class="dp2-pill'+(taken?' taken':'')+'" id="'+pid+'" onclick="dpToggleSupp(\''+name.replace(/'/g,"\\'")+'\',\''+pid+'\')">'
+          +'<div class="dp2-pill-check">'+(taken?'✓':'')+'</div>'
+          +'<span>'+name+'</span>'
+          +(s.dose?'<span class="dp2-pill-dose">'+s.dose+'</span>':'')
+        +'</div>';
       });
-      // Also show profile supplements not in this block (if morning block)
+      // Add profile supps not shown yet (first supp block only)
       if (block.type==='supp') {
         profileSupps.forEach(function(ps, psi) {
-          var pname = ps.name || ps;
-          var alreadyShown = (suppItems||[]).some(function(s){ return (s.name||s)===pname; });
-          if (alreadyShown) return;
-          var isTaken = !!suppLog[pname];
-          var safeId = 'dp-psp-'+idx+'-'+psi;
-          html += '<div class="dp-supp-pill'+(isTaken?' taken':'')+'" id="'+safeId+'" onclick="dpToggleSupp(\''+pname.replace(/'/g,"\\'")+'\',\''+safeId+'\')" style="opacity:.7;">'
-            + '<div class="dp-supp-check">'+(isTaken?'&#10003;':'')+'</div>'
-            + '<span>'+pname+'</span>'
-            + (ps.dose ? '<span class="dp-supp-dose">'+ps.dose+'</span>' : '')
-          + '</div>';
+          var pname = ps.name||ps;
+          if ((suppItems||[]).some(function(s){return (s.name||s)===pname;})) return;
+          var taken = !!suppLog[pname];
+          var pid = 'dp2-pp-'+idx+'-'+psi;
+          html += '<div class="dp2-pill'+(taken?' taken':'')+'" id="'+pid+'" onclick="dpToggleSupp(\''+pname.replace(/'/g,"\\'")+'\',\''+pid+'\')" style="opacity:.7;">'
+            +'<div class="dp2-pill-check">'+(taken?'✓':'')+'</div>'
+            +'<span>'+pname+'</span>'
+            +(ps.dose?'<span class="dp2-pill-dose">'+ps.dose+'</span>':'')
+          +'</div>';
         });
       }
-      html += '</div>';
-
-      html += '<div class="dp-detail-actions">'
-        + '<button class="dp-detail-btn jade" onclick="event.stopPropagation();dpMarkAllSupps(\''+idx+'\')">Mark all taken</button>'
-        + '<a href="bodylens-supplements.html" class="dp-detail-btn" style="text-decoration:none;display:inline-flex;align-items:center;">Manage stack &#8594;</a>'
-      + '</div>';
+      html += '</div>'
+        +'<div class="dp2-detail-btns">'
+          +'<button class="dp2-dbtn jade" onclick="event.stopPropagation();dpMarkAllSupps(\''+idx+'\')">Mark all taken</button>'
+          +'<a href="bodylens-supplements.html" class="dp2-dbtn">Manage stack →</a>'
+        +'</div>';
     }
-
-    // Meal block — protein quick-log
     else if (block.mealSlot) {
       var mealLog = (log.meals && log.meals[block.mealSlot]) || {};
-      var savedProt = mealLog.prot || '';
-      var savedNote = mealLog.note || '';
       var mealPct = Math.round(p.protein / Math.max(1, mealBlocks.length));
-
-      html += '<div style="font-size:10px;font-weight:300;color:var(--dk-3);margin-bottom:8px;">Target ~'+mealPct+'g protein per meal</div>'
-        + '<div class="dp-meal-log">'
-          + '<input class="dp-meal-prot-inp" type="number" placeholder="0g P" value="'+(savedProt)+'" onchange="dpLogMealProt(\''+block.mealSlot+'\',this.value)" min="0" max="200">'
-          + '<input class="dp-meal-note-inp" type="text" placeholder="What did you eat?" value="'+(savedNote.replace(/"/g,'&quot;'))+'" onchange="dpLogMealNote(\''+block.mealSlot+'\',this.value)">'
-        + '</div>'
-        + '<div class="dp-detail-actions">'
-          + '<button class="dp-detail-btn jade" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')">&#10003; Logged</button>'
-          + '<a href="bodylens-meals.html" class="dp-detail-btn" style="text-decoration:none;display:inline-flex;align-items:center;">Meal plan &#8594;</a>'
-        + '</div>';
+      html += '<div style="font-size:10px;color:var(--day-text3);padding:8px 0 4px;">Target ~'+mealPct+'g protein this meal</div>'
+        +'<div class="dp2-meal-log">'
+          +'<input class="dp2-meal-prot" type="number" placeholder="0g" min="0" max="200" value="'+(mealLog.prot||'')+'" onchange="dpLogMealProt(\''+block.mealSlot+'\',this.value)">'
+          +'<input class="dp2-meal-note" type="text" placeholder="What did you eat?" value="'+(mealLog.note||'').replace(/"/g,'&quot;')+'" onchange="dpLogMealNote(\''+block.mealSlot+'\',this.value)">'
+        +'</div>'
+        +'<div class="dp2-detail-btns">'
+          +'<button class="dp2-dbtn jade" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')">✓ Logged</button>'
+          +'<a href="bodylens-meals.html" class="dp2-dbtn">Meal plan →</a>'
+        +'</div>';
     }
-
-    // Generic block
     else {
-      html += '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;">'+(block.detail||block.subtitle||'')+'</div>';
-      if (block.coachNote) {
-        html += '<div style="margin-top:8px;font-size:11px;font-weight:300;color:var(--dk-3);font-style:italic;">'+block.coachNote+'</div>';
+      if (block.detail||block.subtitle) {
+        html += '<div style="font-size:12px;font-weight:300;color:var(--day-text2);line-height:1.7;padding:8px 0;">'+(block.detail||block.subtitle)+'</div>';
       }
     }
 
-    // Swap row — always available
-    html += '<div class="dp-swap-row" id="dp-swap-'+idx+'" style="display:'+(swapVal?'flex':'none')+'">'
-      + '<span class="dp-swap-label">Swapped</span>'
-      + '<input class="dp-swap-inp" type="text" placeholder="What did you do instead?" value="'+(swapVal.replace(/"/g,'&quot;'))+'" onchange="dpSaveSwap('+idx+',this.value)">'
-    + '</div>';
+    // Swap row always available
+    html += '<div class="dp2-swap-row" id="dp2-swap-'+idx+'" style="display:'+(swapVal?'flex':'none')+'">'
+      +'<span class="dp2-swap-label">Swapped</span>'
+      +'<input class="dp2-swap-inp" type="text" placeholder="What did you do instead?" value="'+(swapVal.replace(/"/g,'&quot;'))+'" onchange="dpSaveSwap('+idx+',this.value)">'
+    +'</div>';
 
     return html;
   }
 
-  // ── EOD card ───────────────────────────────────────────────
-  function buildEod() {
-    var trainDone = log.trainStatus === 'done';
-    var trainMod  = log.trainStatus === 'modified';
-    var cardioDone = !!(log.cardioLogged && log.cardioLogged.name);
-    var mealsLogged = mealBlocks.filter(function(b){ return log.meals && log.meals[b.mealSlot] && log.meals[b.mealSlot].logged; }).length;
-    var totalSupps = profileSupps.length || 0;
-    var suppsDone = Object.keys(suppLog).filter(function(k){ return suppLog[k]; }).length;
-    var savedNotes = log.tomorrowNotes || '';
-    var scoreVal = edCalcScore(log, mealBlocks, allSuppItems.map(function(s){return s.name;}));
-    var breakdownStr = edScoreBreakdown(log, mealBlocks, allSuppItems.map(function(s){return s.name;}));
+  function buildItem(block, idx) {
+    if (block.type === 'sleep') return '';
+    var st = blockStatus(block, idx);
+    var stCls = st==='done'?' logged':st==='skipped'?' skipped':'';
+    var tag = blockTag(block);
+    var bar = blockBarColor(block);
+    var sub = blockSub(block);
+    var swapVal = (log.blockSwaps && log.blockSwaps['swap_'+idx]) || '';
+    var isFixed = block.type==='training' || block.mealSlot==='pre-training' || block.mealSlot==='post-training';
+    var isOptional = block.isEditorCardio;
+    var doneA = st==='done' ? ' done-active':'';
+    var swapA = st==='modified' ? ' swap-active':'';
+    var skipA = st==='skipped' ? ' skip-active':'';
 
-    var trainValStr = !t.isTraining ? 'Rest day' : trainDone ? '\u2713 Done' : trainMod ? '~ Modified' : 'Not logged';
-    var trainCls = !t.isTraining ? 'jade' : trainDone ? 'jade' : trainMod ? 'amber' : '';
-
-    return '<div class="dp-eod" id="dp-eod">'
-      + '<div class="dp-eod-hd">'
-        + '<div class="dp-eod-title">End of day</div>'
-        + '<div class="dp-eod-date">'+new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</div>'
-      + '</div>'
-      + '<div class="dp-eod-row"><span class="dp-eod-key">Training</span><span class="dp-eod-val '+trainCls+'">'+trainValStr+'</span></div>'
-      + '<div class="dp-eod-row"><span class="dp-eod-key">Cardio</span><span class="dp-eod-val '+(cardioDone?'jade':'')+'">'+(cardioDone?'\u2713 '+log.cardioLogged.name+' '+log.cardioLogged.mins+'min':'Not logged')+'</span></div>'
-      + '<div class="dp-eod-row"><span class="dp-eod-key">Meals</span><span class="dp-eod-val '+(mealsLogged===mealBlocks.length&&mealBlocks.length?'jade':'')+'">'+(mealsLogged+' / '+mealBlocks.length)+'</span></div>'
-      + '<div class="dp-eod-row"><span class="dp-eod-key">Supplements</span><span class="dp-eod-val">'+(suppsDone+' / '+totalSupps)+'</span></div>'
-      + '<textarea class="dp-notes-inp" rows="2" placeholder="Notes for tomorrow..." onchange="dpSaveNotes(this.value)" onblur="dpSaveNotes(this.value)">'+( savedNotes)+'</textarea>'
-      + '<div class="dp-eod-score-wrap">'
-        + '<div class="dp-eod-score-big" id="dp-eod-score">'+scoreVal+'</div>'
-        + '<div class="dp-eod-score-tag">Day score / 100</div>'
-        + '<div class="dp-eod-score-breakdown" id="dp-eod-breakdown">'+( breakdownStr||'Log your day to build your score')+'</div>'
-      + '</div>'
-      + '<button class="dp-save-btn" onclick="dpSaveDay()">Save & close the day &#8594;</button>'
-    + '</div>';
+    return '<div class="dp2-item'+stCls+'" id="dp2-item-'+idx+'">'
+      +'<div class="dp2-item-time">'+(block.time||'')+'</div>'
+      +'<div class="dp2-item-bar '+bar+'"></div>'
+      +'<div class="dp2-item-main" onclick="dp2ToggleItem('+idx+')">'
+        +'<div class="dp2-item-top">'
+          +'<span class="dp2-item-title">'+block.title
+            +(isFixed?'<span class="dp2-flex-badge fixed">Fixed</span>':isOptional?'<span class="dp2-flex-badge optional">Optional</span>':'<span class="dp2-flex-badge flex">Flex</span>')
+          +'</span>'
+          +(tag?'<span class="dp2-item-tag '+tag.cls+'">'+tag.label+'</span>':'')
+          +(block.durationMins&&block.type!=='wake'?'<span class="dp2-item-dur">'+block.durationMins+'m</span>':'')
+        +'</div>'
+        +(sub?'<div class="dp2-item-sub">'+sub+'</div>':'')
+      +'</div>'
+      +'<div class="dp2-item-actions">'
+        +'<button class="dp2-qbtn'+doneA+'" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')" title="Done">✓</button>'
+        +'<button class="dp2-qbtn'+swapA+'" onclick="event.stopPropagation();dp2ShowSwap('+idx+')" title="Swapped">~</button>'
+        +'<button class="dp2-qbtn'+skipA+'" onclick="event.stopPropagation();dpSetStatus('+idx+',\'skipped\')" title="Skip">×</button>'
+      +'</div>'
+      +'<div class="dp2-item-chevron">›</div>'
+      +'<div class="dp2-item-detail" id="dp2-detail-'+idx+'">'
+        +buildItemDetail(block, idx)
+      +'</div>'
+    +'</div>';
   }
 
-  // ── Floating score widget ──────────────────────────────────
-  var floatScore = '<div class="dp-float-score" id="dp-float" title="Day score">'
-    + '<div class="dp-float-score-num" id="dp-float-num">'+score+'</div>'
-    + '<div class="dp-float-score-label">/ 100</div>'
-  + '</div>';
+  // ── Build three acts ─────────────────────────────────────
+  var acts = isTraining
+    ? [
+        {
+          id: 'morning',
+          icon: '⚡',
+          title: 'Morning window',
+          why: calorieWhy + ' ' + proteinWhy,
+          actClass: 'act-train',
+          filter: function(b,i){ return ['wake','supp'].includes(b.type) || b.mealSlot==='pre-training' || b.type==='training'; },
+        },
+        {
+          id: 'recovery',
+          icon: '🔄',
+          title: 'Recovery window',
+          why: 'Post-training nutrition is the highest-leverage meal of the day. The anabolic window is real — protein within 30 minutes signals repair. Midday locks in your second protein anchor.',
+          actClass: 'act-fuel',
+          filter: function(b,i){ return b.mealSlot==='post-training' || b.mealSlot==='midday'; },
+        },
+        {
+          id: 'close',
+          icon: '🌙',
+          title: 'Close the day',
+          why: 'Evening meal closes your protein target. Magnesium 30 minutes before sleep improves deep sleep architecture — where growth hormone peaks and repair runs. Consistent sleep timing matters as much as duration.',
+          actClass: 'act-close',
+          filter: function(b,i){ return b.mealSlot==='evening' || b.type==='recovery' || b.type==='sleep'; },
+        },
+      ]
+    : [
+        {
+          id: 'morning',
+          icon: '☀️',
+          title: 'Morning foundation',
+          why: proteinWhy + ' Rest days are when your stack matters most — no training to mask deficiencies.',
+          actClass: 'act-fuel',
+          filter: function(b){ return ['wake','supp'].includes(b.type) || b.mealSlot==='pre-training'; },
+        },
+        {
+          id: 'afternoon',
+          icon: '⚖️',
+          title: 'Midday anchor',
+          why: 'Keep protein high and carbs moderate on rest days. Your TDEE drops ~15% — so do your calories, not your protein.',
+          actClass: 'act-fuel',
+          filter: function(b){ return b.mealSlot==='midday'; },
+        },
+        {
+          id: 'close',
+          icon: '🌙',
+          title: 'Evening & recovery',
+          why: 'Final protein window. Recovery sleep is where adaptation happens — the training from Monday, Wednesday, and Friday is being processed tonight.',
+          actClass: 'act-close',
+          filter: function(b){ return b.mealSlot==='evening' || b.type==='recovery' || b.type==='sleep'; },
+        },
+      ];
 
-  // ── Assemble page ──────────────────────────────────────────
-  var dateStr = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  var actsHtml = '<div class="dp2-acts">';
+  acts.forEach(function(act, ai) {
+    var actBlocks = [];
+    plan.blocks.forEach(function(b, idx) {
+      if (act.filter(b, idx)) actBlocks.push({block:b, idx:idx});
+    });
+    if (!actBlocks.length) return;
 
-  root.innerHTML = headerHtml
-    + '<div class="dp-page">'
-      + '<div class="dp-date-block">'
-        + '<div class="dp-date-kicker">'+(isBrowsing ? plan.dayTitle.split(' \u2014')[0] : dateStr)+'</div>'
-        + '<div class="dp-date-title">'+plan.dayTitle+'</div>'
-        + '<div class="dp-date-brief">'+plan.dayBrief+'</div>'
-      + '</div>'
-      + '<div class="dp-coach" id="coach-narrative-body">'
-        + '<div class="dp-coach-label">Coach</div>'
-        + '<div id="coach-prose-text"><span style="font-size:11px;color:var(--dk-3);">Reading your day\u2026</span></div>'
-      + '</div>'
-      + buildTimeline()
-      + (isBrowsing
-          ? '<button class="dp-rebuild-btn" onclick="backToToday()">&#8617; Back to today</button>'
-          : '<button class="dp-rebuild-btn" onclick="regen()" id="dp-rebuild-btn">&#8635; Rebuild</button>')
-      + buildEod()
-    + '</div>'
-    + floatScore;
+    var doneCount = actBlocks.filter(function(x){
+      var st = blockStatus(x.block, x.idx);
+      return st==='done';
+    }).length;
+    var skippedCount = actBlocks.filter(function(x){
+      var st = blockStatus(x.block, x.idx);
+      return st==='skipped';
+    }).length;
+    var total = actBlocks.filter(function(x){ return x.block.type!=='sleep'; }).length;
+    var doneReal = actBlocks.filter(function(x){ return blockStatus(x.block,x.idx)==='done' && x.block.type!=='sleep'; }).length;
 
-  // Hide old macro bar
+    var statusLabel = doneReal===0 ? 'Not started' : doneReal===total ? 'Complete' : doneReal+'/'+total;
+    var statusCls = doneReal===total ? 'done' : doneReal>0 ? 'part' : '';
+    var progPct = total > 0 ? Math.round((doneReal/total)*100) : 0;
+    var isOpen = ai === 0; // first act open by default
+
+    actsHtml += '<div class="dp2-act '+(isOpen?'open ':'')+(act.actClass||'')+'" id="dp2-act-'+act.id+'">'
+      +'<div class="dp2-act-hd" onclick="dp2ToggleAct(\''+act.id+'\')">'
+        +'<div class="dp2-act-icon">'+act.icon+'</div>'
+        +'<div class="dp2-act-meta">'
+          +'<div class="dp2-act-title">'+act.title+'</div>'
+          +'<div class="dp2-act-why">'+act.why.slice(0,90)+(act.why.length>90?'…':'')+'</div>'
+        +'</div>'
+        +'<div class="dp2-act-right">'
+          +'<div class="dp2-act-status '+statusCls+'">'+statusLabel+'</div>'
+          +'<div class="dp2-act-chevron">›</div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="dp2-act-prog"><div class="dp2-act-prog-fill" style="width:'+progPct+'%"></div></div>'
+      +'<div class="dp2-act-body">'
+        +'<div class="dp2-why">'+act.why+'</div>'
+        +actBlocks.map(function(x){ return buildItem(x.block, x.idx); }).join('')
+      +'</div>'
+    +'</div>';
+  });
+  actsHtml += '</div>';
+
+  // ── EOD card ─────────────────────────────────────────────
+  var trainDone = log.trainStatus==='done';
+  var trainMod  = log.trainStatus==='modified';
+  var mealsLogged = mealBlocks.filter(function(b){ return log.meals&&log.meals[b.mealSlot]&&log.meals[b.mealSlot].logged; }).length;
+  var suppsDone = Object.keys(suppLog).filter(function(k){ return suppLog[k]; }).length;
+  var savedNotes = log.tomorrowNotes || '';
+  var breakdown = edScoreBreakdown(log, mealBlocks, allSuppNames);
+
+  var eodHtml = '<div class="dp2-eod" id="dp2-eod">'
+    +'<div class="dp2-eod-hd">'
+      +'<div class="dp2-eod-title">End of day</div>'
+      +'<div class="dp2-eod-date">'+new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</div>'
+    +'</div>'
+    +'<div class="dp2-eod-rows">'
+      +(isTraining?'<div class="dp2-eod-row"><span class="dp2-eod-key">Training</span><span class="dp2-eod-val '+(trainDone?'jade':trainMod?'amber':'')+'">'+(!isTraining?'Rest day':trainDone?'✓ Done':trainMod?'~ Modified':'Not logged')+'</span></div>':'')
+      +'<div class="dp2-eod-row"><span class="dp2-eod-key">Meals</span><span class="dp2-eod-val '+(mealsLogged===mealBlocks.length&&mealBlocks.length?'jade':'')+'">'+mealsLogged+' / '+mealBlocks.length+'</span></div>'
+      +'<div class="dp2-eod-row"><span class="dp2-eod-key">Stack</span><span class="dp2-eod-val">'+suppsDone+' / '+(profileSupps.length||0)+'</span></div>'
+    +'</div>'
+    +'<textarea class="dp2-notes" rows="2" placeholder="Notes for tomorrow…" onchange="dpSaveNotes(this.value)" onblur="dpSaveNotes(this.value)">'+savedNotes+'</textarea>'
+    +'<div class="dp2-eod-score-wrap">'
+      +'<div class="dp2-eod-score-big" id="dp2-eod-score">'+score+'</div>'
+      +'<div class="dp2-eod-score-tag">Day score / 100</div>'
+      +'<div class="dp2-eod-breakdown" id="dp2-eod-breakdown">'+( breakdown||'Log your day to build your score')+'</div>'
+    +'</div>'
+    +'<button class="dp2-save-btn" onclick="dpSaveDay()">Save & close the day →</button>'
+  +'</div>';
+
+  // ── Floating score ───────────────────────────────────────
+  var floatHtml = '<div class="dp2-float-score" id="dp2-float">'
+    +'<div class="dp2-float-num" id="dp2-float-num">'+score+'</div>'
+    +'<div class="dp2-float-label">/ 100</div>'
+  +'</div>';
+
+  // ── Voice button ─────────────────────────────────────────
+  var voiceHtml = '<div id="vlg-mic-btn" class="vlg-mic-btn" title="Voice log">🎙️</div>'
+    +'<div id="vlg-bubble" class="vlg-bubble"><div class="vlg-bubble-label">Listening…</div><div class="vlg-bubble-text" id="vlg-bubble-text"></div></div>'
+    +'<div id="vlg-toast" class="vlg-toast"></div>';
+
+  // ── Assemble ─────────────────────────────────────────────
+  root.innerHTML = '<div class="dp2-page">'
+    + missionHtml
+    + actsHtml
+    + (isBrowsing
+        ? '<button class="dp2-rebuild-btn" onclick="backToToday()">← Back to today</button>'
+        : '<button class="dp2-rebuild-btn" onclick="regen()" id="dp2-rebuild-btn">↺ Rebuild plan</button>')
+    + eodHtml
+    +'</div>'
+    + floatHtml
+    + voiceHtml;
+
+  // ── Post-render ──────────────────────────────────────────
   var oldBar = document.getElementById('macro-bar');
   if (oldBar) oldBar.style.display = 'none';
 
-  // Live clock
-  setInterval(function(){
-    var el = document.getElementById('dp-time-now');
-    if (el) el.textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-  }, 30000);
+  setInterval(function(){}, 60000); // keep alive
 
-  // Post-render
   if (!isBrowsing) {
-    setTimeout(function(){ renderDayCapture(); }, 100);
+    setTimeout(function(){ renderDayCapture && renderDayCapture(); }, 100);
     generateCoachNarrative(p, t, plan);
   }
 }
 
-// ════════════════════════════════════════════════════════════
-// NEW DP INTERACTION FUNCTIONS
-// ════════════════════════════════════════════════════════════
-
-function dpToggleBlock(idx) {
-  var block = document.getElementById('dp-block-'+idx);
-  if (block) block.classList.toggle('expanded');
+// ── Act toggle ───────────────────────────────────────────────
+function dp2ToggleAct(actId) {
+  var el = document.getElementById('dp2-act-'+actId);
+  if (el) el.classList.toggle('open');
 }
 
+// ── Item toggle ──────────────────────────────────────────────
+function dp2ToggleItem(idx) {
+  var el = document.getElementById('dp2-item-'+idx);
+  if (!el) return;
+  el.classList.toggle('open');
+  // Also toggle chevron
+  var chev = el.querySelector('.dp2-item-chevron');
+  if (chev) chev.style.transform = el.classList.contains('open') ? 'rotate(90deg)' : '';
+}
+
+// ── Show swap ───────────────────────────────────────────────
+function dp2ShowSwap(idx) {
+  var item = document.getElementById('dp2-item-'+idx);
+  if (item && !item.classList.contains('open')) {
+    item.classList.add('open');
+    var chev = item.querySelector('.dp2-item-chevron');
+    if (chev) chev.style.transform = 'rotate(90deg)';
+  }
+  var row = document.getElementById('dp2-swap-'+idx);
+  if (row) {
+    row.style.display = 'flex';
+    var inp = row.querySelector('input');
+    if (inp) setTimeout(function(){ inp.focus(); }, 60);
+  }
+  dpSetStatus(idx, 'modified');
+}
+
+// ── Score refresh ────────────────────────────────────────────
+function dpRefreshScore() {
+  var log2 = loadDayLog(_rDate) || {};
+  var mealBlocks2 = (window._blocks||[]).filter(function(b){return !!b.mealSlot;});
+  var suppNames2 = [];
+  (window._blocks||[]).forEach(function(b){
+    if (b.type==='supp'||b.type==='recovery') (b.suppList||[]).forEach(function(s){ suppNames2.push(s.name||s); });
+  });
+  var score2 = edCalcScore(log2, mealBlocks2, suppNames2);
+  var breakdown2 = edScoreBreakdown(log2, mealBlocks2, suppNames2);
+
+  ['dp2-float-num','dp2-eod-score','dp2-score-top'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.textContent = score2;
+  });
+  var bd = document.getElementById('dp2-eod-breakdown');
+  if (bd) bd.textContent = breakdown2;
+
+  // Update ring
+  var r = 17, circ = 2*Math.PI*r;
+  var fill = document.getElementById('dp2-ring-fill');
+  if (fill) fill.style.strokeDashoffset = (circ*(1-score2/100)).toFixed(1);
+}
+
+// ── Macro refresh ────────────────────────────────────────────
+function dpRefreshMacros() {
+  var eaten2 = (MACROS && MACROS.eaten) || {prot:0,carbs:0,fat:0,kcal:0};
+  var p2 = P||{};
+  var t2 = TODAY||{};
+  var dayKcal2 = typeof getDayKcal==='function' ? getDayKcal(p2, t2.isTraining) : (p2.trainingKcal||2000);
+  var macros2 = [
+    {key:'P', eaten:eaten2.prot||0, target:p2.protein||174},
+    {key:'C', eaten:eaten2.carbs||0, target:p2.carbs||323},
+    {key:'F', eaten:eaten2.fat||0, target:p2.fat||87},
+  ];
+  macros2.forEach(function(m){
+    var fill = document.getElementById('dp2f-'+m.key);
+    if (fill) fill.style.width = Math.min(100,Math.round((m.eaten/Math.max(1,m.target))*100))+'%';
+  });
+}
+
+// ── dpSetStatus (wraps edSetStatus + visual update) ──────────
 function dpSetStatus(blockIdx, status) {
   if (navigator.vibrate) navigator.vibrate(6);
-  // Reuse existing edSetStatus logic
   edSetStatus(blockIdx, status);
-  // Visual update on this block
-  var block = window._blocks[blockIdx];
-  var log = loadDayLog(_rDate) || {};
-  var st = '';
-  if (block.type==='training') st = log.trainStatus||'';
-  else if (block.mealSlot) st = (log.meals&&log.meals[block.mealSlot]&&log.meals[block.mealSlot].logged)?'done':((log.blockStatus&&log.blockStatus['block_'+blockIdx])||'');
-  else st = (log.blockStatus&&log.blockStatus['block_'+blockIdx])||'';
-  var el = document.getElementById('dp-block-'+blockIdx);
-  if (el) {
-    el.classList.remove('done','skipped');
-    if (st==='done') el.classList.add('done');
-    if (st==='skipped') el.classList.add('skipped');
-    // Update buttons
-    var btns = el.querySelectorAll('.dp-btn');
-    if (btns[0]) btns[0].className = 'dp-btn done'+(st==='done'?' done-active':'');
-    if (btns[1]) btns[1].className = 'dp-btn swap'+(st==='modified'?' swap-active':'');
-    if (btns[2]) btns[2].className = 'dp-btn skip'+(st==='skipped'?' skip-active':'');
+  var log3 = loadDayLog(_rDate) || {};
+  var block3 = window._blocks[blockIdx];
+  var st3 = '';
+  if (block3.type==='training') st3 = log3.trainStatus||'';
+  else if (block3.mealSlot) st3 = (log3.meals&&log3.meals[block3.mealSlot]&&log3.meals[block3.mealSlot].logged)?'done':((log3.blockStatus&&log3.blockStatus['block_'+blockIdx])||'');
+  else st3 = (log3.blockStatus&&log3.blockStatus['block_'+blockIdx])||'';
+  var el3 = document.getElementById('dp2-item-'+blockIdx);
+  if (el3) {
+    el3.classList.remove('logged','skipped');
+    if (st3==='done') el3.classList.add('logged');
+    if (st3==='skipped') el3.classList.add('skipped');
+    var btns = el3.querySelectorAll('.dp2-qbtn');
+    if (btns[0]) btns[0].className='dp2-qbtn'+(st3==='done'?' done-active':'');
+    if (btns[1]) btns[1].className='dp2-qbtn'+(st3==='modified'?' swap-active':'');
+    if (btns[2]) btns[2].className='dp2-qbtn'+(st3==='skipped'?' skip-active':'');
   }
+  // Update act progress bars
+  dp2RefreshActProgress();
   dpRefreshScore();
 }
 
-function dpToggleSwap(blockIdx, swapBtn) {
-  var swapRow = document.getElementById('dp-swap-'+blockIdx);
-  var block = document.getElementById('dp-block-'+blockIdx);
-  if (!block) return;
-  // Expand block if not expanded
-  if (!block.classList.contains('expanded')) block.classList.add('expanded');
-  // Toggle swap row visibility
-  if (swapRow) {
-    var showing = swapRow.style.display !== 'none';
-    swapRow.style.display = showing ? 'none' : 'flex';
-    if (!showing) {
-      var inp = swapRow.querySelector('input');
-      if (inp) setTimeout(function(){ inp.focus(); }, 50);
+function dp2RefreshActProgress() {
+  var log4 = loadDayLog(_rDate) || {};
+  var actEls = document.querySelectorAll('.dp2-act');
+  actEls.forEach(function(actEl) {
+    var items = actEl.querySelectorAll('.dp2-item');
+    var total = items.length;
+    var done = 0;
+    items.forEach(function(item) { if (item.classList.contains('logged')) done++; });
+    var pct = total>0 ? Math.round((done/total)*100) : 0;
+    var fill = actEl.querySelector('.dp2-act-prog-fill');
+    if (fill) fill.style.width = pct+'%';
+    var statusEl = actEl.querySelector('.dp2-act-status');
+    if (statusEl) {
+      statusEl.textContent = done===0?'Not started':done===total?'Complete':done+'/'+total;
+      statusEl.className = 'dp2-act-status'+(done===total?' done':done>0?' part':'');
     }
-    // Mark as modified if showing
-    if (!showing) dpSetStatus(blockIdx, 'modified');
-  }
-}
-
-function dpSaveSwap(blockIdx, val) {
-  var log = loadDayLog(_rDate) || initDayLog();
-  if (!log.blockSwaps) log.blockSwaps = {};
-  log.blockSwaps['swap_'+blockIdx] = val;
-  saveDayLog(_rDate, log);
+  });
 }
 
 function dpToggleSupp(name, elId) {
   if (navigator.vibrate) navigator.vibrate(6);
-  var log = loadDayLog(_rDate) || initDayLog();
-  if (!log.suppLog) log.suppLog = {};
-  log.suppLog[name] = !log.suppLog[name];
-  saveDayLog(_rDate, log);
-  var el = document.getElementById(elId);
-  if (el) {
-    el.classList.toggle('taken', !!log.suppLog[name]);
-    var check = el.querySelector('.dp-supp-check');
-    if (check) check.innerHTML = log.suppLog[name] ? '&#10003;' : '';
+  var log5 = loadDayLog(_rDate) || initDayLog();
+  if (!log5.suppLog) log5.suppLog = {};
+  log5.suppLog[name] = !log5.suppLog[name];
+  saveDayLog(_rDate, log5);
+  var el5 = document.getElementById(elId);
+  if (el5) {
+    el5.classList.toggle('taken', !!log5.suppLog[name]);
+    var check = el5.querySelector('.dp2-pill-check');
+    if (check) check.innerHTML = log5.suppLog[name]?'✓':'';
   }
   dpRefreshScore();
 }
 
 function dpMarkAllSupps(blockIdx) {
-  var block = window._blocks[parseInt(blockIdx)];
-  if (!block) return;
-  var suppItems = block.suppList || [];
-  var log = loadDayLog(_rDate) || initDayLog();
-  if (!log.suppLog) log.suppLog = {};
-  suppItems.forEach(function(s){ log.suppLog[s.name||s] = true; });
-  saveDayLog(_rDate, log);
-  // Refresh pills
-  var detail = document.getElementById('dp-detail-'+blockIdx);
-  if (detail) {
-    detail.querySelectorAll('.dp-supp-pill').forEach(function(pill){
-      pill.classList.add('taken');
-      var check = pill.querySelector('.dp-supp-check');
-      if (check) check.innerHTML = '&#10003;';
-    });
-  }
+  var block6 = window._blocks[parseInt(blockIdx)];
+  if (!block6) return;
+  var log6 = loadDayLog(_rDate) || initDayLog();
+  if (!log6.suppLog) log6.suppLog = {};
+  (block6.suppList||[]).forEach(function(s){ log6.suppLog[s.name||s] = true; });
+  saveDayLog(_rDate, log6);
+  var detail = document.getElementById('dp2-detail-'+blockIdx);
+  if (detail) detail.querySelectorAll('.dp2-pill').forEach(function(p6){
+    p6.classList.add('taken');
+    var c = p6.querySelector('.dp2-pill-check'); if(c) c.innerHTML='✓';
+  });
   dpRefreshScore();
 }
 
-function dpLogEx(key, weight, actual, rpe) {
-  var log = loadDayLog(_rDate) || initDayLog();
-  if (!log.exercises) log.exercises = {};
-  if (!log.exercises[key]) log.exercises[key] = {};
-  if (weight !== null && weight !== undefined) log.exercises[key].weight = weight;
-  if (actual !== null && actual !== undefined) log.exercises[key].actual = actual;
-  if (rpe !== null && rpe !== undefined) log.exercises[key].rpe = rpe;
-  log.exercises[key].loggedAt = new Date().toISOString();
-  saveDayLog(_rDate, log);
+function dpLogEx(key, weight, actual) {
+  var log7 = loadDayLog(_rDate) || initDayLog();
+  if (!log7.exercises) log7.exercises = {};
+  if (!log7.exercises[key]) log7.exercises[key] = {};
+  if (weight!==null&&weight!==undefined) log7.exercises[key].weight = weight;
+  if (actual!==null&&actual!==undefined) log7.exercises[key].actual = actual;
+  log7.exercises[key].loggedAt = new Date().toISOString();
+  saveDayLog(_rDate, log7);
 }
 
 function dpToggleExDone(key, blockIdx, btn) {
-  var log = loadDayLog(_rDate) || initDayLog();
-  if (!log.exercises) log.exercises = {};
-  if (!log.exercises[key]) log.exercises[key] = {};
-  var isDone = log.exercises[key].status === 'done';
-  log.exercises[key].status = isDone ? '' : 'done';
-  saveDayLog(_rDate, log);
+  var log8 = loadDayLog(_rDate) || initDayLog();
+  if (!log8.exercises) log8.exercises = {};
+  if (!log8.exercises[key]) log8.exercises[key] = {};
+  var isDone = log8.exercises[key].status === 'done';
+  log8.exercises[key].status = isDone ? '' : 'done';
+  saveDayLog(_rDate, log8);
   if (btn) btn.classList.toggle('done', !isDone);
-  // If all exercises in this block are done, mark block done
-  var block = window._blocks[blockIdx];
-  if (block && block.exercises) {
-    var allExDone = true;
-    block.exercises.filter(function(e){return e!=='Track loads';}).forEach(function(e,i){
+  var block9 = window._blocks[blockIdx];
+  if (block9 && block9.exercises) {
+    var allDone = true;
+    block9.exercises.filter(function(e){return e!=='Track loads';}).forEach(function(e,i){
       var k = 'ex_'+blockIdx+'_'+i;
-      if (!log.exercises[k] || log.exercises[k].status !== 'done') allExDone = false;
+      if (!log8.exercises[k]||log8.exercises[k].status!=='done') allDone = false;
     });
-    if (allExDone) dpSetStatus(blockIdx, 'done');
+    if (allDone) dpSetStatus(blockIdx, 'done');
   }
 }
 
 function dpLogMealProt(slot, val) {
-  var log = loadDayLog(_rDate) || initDayLog();
-  if (!log.meals) log.meals = {};
-  if (!log.meals[slot]) log.meals[slot] = {};
-  log.meals[slot].prot = parseFloat(val) || 0;
-  // Update MACROS
+  var log9 = loadDayLog(_rDate) || initDayLog();
+  if (!log9.meals) log9.meals = {};
+  if (!log9.meals[slot]) log9.meals[slot] = {};
+  log9.meals[slot].prot = parseFloat(val)||0;
   if (MACROS && MACROS.eaten) {
-    // Recalculate from all meals
     var totalProt = 0;
-    Object.keys(log.meals).forEach(function(s){ totalProt += (log.meals[s].prot||0); });
+    Object.keys(log9.meals).forEach(function(s){ totalProt += (log9.meals[s].prot||0); });
     MACROS.eaten.prot = totalProt;
   }
-  saveDayLog(_rDate, log);
+  saveDayLog(_rDate, log9);
   dpRefreshMacros();
 }
 
 function dpLogMealNote(slot, val) {
-  var log = loadDayLog(_rDate) || initDayLog();
-  if (!log.meals) log.meals = {};
-  if (!log.meals[slot]) log.meals[slot] = {};
-  log.meals[slot].note = val;
-  saveDayLog(_rDate, log);
+  var log10 = loadDayLog(_rDate) || initDayLog();
+  if (!log10.meals) log10.meals = {};
+  if (!log10.meals[slot]) log10.meals[slot] = {};
+  log10.meals[slot].note = val;
+  saveDayLog(_rDate, log10);
 }
 
 function dpSaveNotes(val) {
-  var log = loadDayLog(_rDate) || initDayLog();
-  log.tomorrowNotes = val;
-  saveDayLog(_rDate, log);
+  var log11 = loadDayLog(_rDate) || initDayLog();
+  log11.tomorrowNotes = val;
+  saveDayLog(_rDate, log11);
 }
 
 function dpSaveDay() {
-  var log = loadDayLog(_rDate) || initDayLog();
-  log.dayComplete = true;
-  log.completedAt = new Date().toISOString();
-  saveDayLog(_rDate, log);
-  var btn = document.querySelector('.dp-save-btn');
-  if (btn) { btn.textContent = '\u2713 Day logged'; btn.disabled = true; }
-  if (typeof compressAndSaveMemory === 'function') setTimeout(compressAndSaveMemory, 500);
+  var log12 = loadDayLog(_rDate) || initDayLog();
+  log12.dayComplete = true;
+  log12.completedAt = new Date().toISOString();
+  saveDayLog(_rDate, log12);
+  var btn12 = document.querySelector('.dp2-save-btn');
+  if (btn12) { btn12.textContent = '✓ Day logged'; btn12.disabled = true; }
+  if (typeof compressAndSaveMemory==='function') setTimeout(compressAndSaveMemory, 500);
 }
 
-function dpRefreshScore() {
-  var log = loadDayLog(_rDate) || {};
-  var mealBlocks = (window._blocks||[]).filter(function(b){return !!b.mealSlot;});
-  var suppItems = [];
-  (window._blocks||[]).forEach(function(b){
-    if (b.type==='supp'||b.type==='recovery') (b.suppList||[]).forEach(function(s){ suppItems.push(s.name||s); });
-  });
-  var score = edCalcScore(log, mealBlocks, suppItems);
-  var breakdown = edScoreBreakdown(log, mealBlocks, suppItems);
-
-  // Update all score displays
-  var nums = ['dp-float-num','dp-eod-score'];
-  nums.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=score; });
-  var bd = document.getElementById('dp-eod-breakdown');
-  if (bd) bd.textContent = breakdown;
-
-  // Update ring
-  var total = 0, done = 0;
-  (window._blocks||[]).forEach(function(b,i){
-    if (b.type==='sleep'||b.type==='wake') return;
-    total++;
-    var st = '';
-    if (b.type==='training') st = log.trainStatus||'';
-    else if (b.mealSlot) st = (log.meals&&log.meals[b.mealSlot]&&log.meals[b.mealSlot].logged)?'done':((log.blockStatus&&log.blockStatus['block_'+i])||'');
-    else st = (log.blockStatus&&log.blockStatus['block_'+i])||'';
-    if (st==='done') done++;
-  });
-  var pct = total>0 ? Math.round(done/total*100) : 0;
-  var r = 15, circ = 2*Math.PI*r;
-  var fill = document.querySelector('.dp-score-ring-fill');
-  if (fill) fill.style.strokeDashoffset = (circ*(1-pct/100)).toFixed(1);
-  var ringNum = document.getElementById('dp-score-num');
-  if (ringNum) ringNum.textContent = pct+'%';
+function dpSaveSwap(blockIdx, val) {
+  var log13 = loadDayLog(_rDate) || initDayLog();
+  if (!log13.blockSwaps) log13.blockSwaps = {};
+  log13.blockSwaps['swap_'+blockIdx] = val;
+  saveDayLog(_rDate, log13);
 }
 
-function dpRefreshMacros() {
-  var eaten = (MACROS && MACROS.eaten) || {prot:0,carbs:0,fat:0,kcal:0};
-  var p = P||{};
-  var t = TODAY||{};
-  var dayKcal = typeof getDayKcal==='function' ? getDayKcal(p, t.isTraining) : (p.trainingKcal||p.calories||2000);
-  var macros = [
-    { key:'P', eaten:eaten.prot||0, target:p.protein||174 },
-    { key:'C', eaten:eaten.carbs||0, target:p.carbs||323 },
-    { key:'F', eaten:eaten.fat||0, target:p.fat||87 },
-    { key:'kcal', eaten:eaten.kcal||0, target:dayKcal },
-  ];
-  macros.forEach(function(m){
-    var fill = document.getElementById('dp-fill-'+m.key);
-    if (fill) fill.style.width = Math.min(100, Math.round((m.eaten/Math.max(1,m.target))*100))+'%';
-  });
-}
+
+// ════════════════════════════════════════════════════════════
+// NEW DP INTERACTION FUNCTIONS
+// ════════════════════════════════════════════════════════════
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // ── Ed helpers ────────────────────────────────────────────
@@ -8213,6 +8138,365 @@ function seReRenderTimeline() {
   // Full re-render
   buildDay();
 }
+
+
+// ════════════════════════════════════════════════════════════
+// VOICE LOGGING SYSTEM
+// ════════════════════════════════════════════════════════════
+
+var _vlg = {
+  recognition: null,
+  listening: false,
+  processing: false,
+  transcript: '',
+  toastTimer: null,
+};
+
+function vlgInit() {
+  var btn = document.getElementById('vlg-mic-btn');
+  if (!btn) return;
+
+  // Check browser support
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    btn.title = 'Voice logging not supported in this browser. Use Chrome.';
+    btn.style.opacity = '0.35';
+    btn.onclick = function(){ vlgToast([{icon:'ℹ️', text:'Voice logging requires Chrome. Please open in Chrome.'}]); };
+    return;
+  }
+
+  var rec = new SpeechRecognition();
+  rec.continuous = false;
+  rec.interimResults = true;
+  rec.lang = 'en-GB';
+  rec.maxAlternatives = 1;
+  _vlg.recognition = rec;
+
+  // Show live transcript
+  rec.onresult = function(e) {
+    var interim = '', final = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      var t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    _vlg.transcript = final || interim;
+    var bubble = document.getElementById('vlg-bubble');
+    if (bubble) {
+      bubble.classList.add('show');
+      document.getElementById('vlg-bubble-text').textContent = _vlg.transcript;
+    }
+  };
+
+  rec.onend = function() {
+    if (_vlg.listening) {
+      // If we were listening, process now
+      _vlg.listening = false;
+      vlgSetState('processing');
+      var bubble = document.getElementById('vlg-bubble');
+      if (bubble) bubble.classList.remove('show');
+      if (_vlg.transcript.trim()) {
+        vlgProcess(_vlg.transcript.trim());
+      } else {
+        vlgSetState('idle');
+      }
+    }
+  };
+
+  rec.onerror = function(e) {
+    _vlg.listening = false;
+    vlgSetState('idle');
+    var bubble = document.getElementById('vlg-bubble');
+    if (bubble) bubble.classList.remove('show');
+    if (e.error === 'no-speech') {
+      vlgToast([{icon:'🎙️', text:'No speech detected. Try again.'}]);
+    } else if (e.error === 'not-allowed') {
+      vlgToast([{icon:'⚠️', text:'Microphone access denied. Allow mic in browser settings.'}]);
+    } else {
+      vlgToast([{icon:'⚠️', text:'Speech error: ' + e.error}]);
+    }
+  };
+
+  btn.onclick = vlgToggle;
+}
+
+function vlgToggle() {
+  if (_vlg.processing) return;
+  if (_vlg.listening) {
+    // Stop listening — this triggers rec.onend which processes
+    _vlg.recognition.stop();
+    // onend will call vlgProcess
+  } else {
+    // Start listening
+    _vlg.transcript = '';
+    var bubble = document.getElementById('vlg-bubble');
+    if (bubble) {
+      document.getElementById('vlg-bubble-text').textContent = '';
+      bubble.classList.add('show');
+    }
+    try {
+      _vlg.recognition.start();
+      _vlg.listening = true;
+      vlgSetState('listening');
+    } catch(e) {
+      vlgToast([{icon:'⚠️', text:'Could not start microphone: ' + e.message}]);
+    }
+  }
+}
+
+function vlgSetState(state) {
+  var btn = document.getElementById('vlg-mic-btn');
+  if (!btn) return;
+  _vlg.listening = state === 'listening';
+  _vlg.processing = state === 'processing';
+  btn.classList.remove('listening', 'processing');
+  if (state === 'listening') { btn.classList.add('listening'); btn.textContent = '🔴'; }
+  else if (state === 'processing') { btn.classList.add('processing'); btn.textContent = '⏳'; }
+  else { btn.textContent = '🎙️'; }
+}
+
+async function vlgProcess(transcript) {
+  // Build context: what's in today's plan
+  var p = P || {};
+  var t = TODAY || {};
+  var log = loadDayLog(_rDate) || {};
+  var blocks = window._blocks || [];
+
+  // Build a compact description of today's plan for the AI
+  var planDesc = [];
+  blocks.forEach(function(b, i) {
+    if (b.type === 'sleep') return;
+    var entry = i + ': ';
+    if (b.type === 'training') {
+      entry += 'Training (' + (b.title||'') + ') — exercises: ' +
+        (b.exercises||[]).filter(function(e){return e!=='Track loads';}).map(function(e,ei){return ei+') '+e;}).join(', ');
+    } else if (b.mealSlot) {
+      entry += 'Meal (' + b.mealSlot + '): ' + (b.title||'');
+    } else if (b.type === 'supp' || b.type === 'recovery') {
+      entry += 'Supplements: ' + (b.suppList||[]).map(function(s){return s.name||s;}).join(', ');
+    } else {
+      entry += (b.title||b.type||'');
+    }
+    planDesc.push(entry);
+  });
+
+  var profileSupps = (p.supplements||[]).map(function(s){return s.name||s;}).join(', ');
+  var suppLog = getSuppLog();
+  var suppState = (p.supplements||[]).map(function(s){
+    var n = s.name||s; return n + ': ' + (suppLog[n]?'taken':'not taken');
+  }).join(', ');
+
+  var trainStatus = log.trainStatus || 'not logged';
+  var exLog = log.exercises || {};
+
+  var context = [
+    'Date: ' + _rDate + ', ' + (t.isTraining?'Training day':'Rest day'),
+    'Session: ' + (t.plan&&t.plan.type||'—'),
+    'Training status: ' + trainStatus,
+    'Today\'s plan blocks: ' + planDesc.join(' | '),
+    'Profile supplements: ' + profileSupps,
+    'Supplement log: ' + suppState,
+    'Protein target: ' + (p.protein||174) + 'g',
+    'Meals planned: ' + (blocks.filter(function(b){return b.mealSlot;}).length),
+  ].join('\n');
+
+  var prompt = 'You are interpreting a voice log entry for a fitness tracking app.\n\n'
+    + 'TODAY\'S CONTEXT:\n' + context + '\n\n'
+    + 'USER SAID: "' + transcript + '"\n\n'
+    + 'Parse what the user said and return a JSON array of log actions to execute.\n'
+    + 'Each action must have a "type" and relevant fields.\n\n'
+    + 'Available action types and their fields:\n'
+    + '- {"type":"set_block_status", "blockIdx":N, "status":"done"|"modified"|"skipped"}\n'
+    + '- {"type":"log_exercise", "blockIdx":N, "exerciseIdx":N, "weight":N, "actual":"NxN", "done":true|false}\n'
+    + '- {"type":"log_meal_protein", "mealSlot":"pre-training"|"post-training"|"midday"|"evening", "protein":N}\n'
+    + '- {"type":"log_meal_note", "mealSlot":"...", "note":"string"}\n'
+    + '- {"type":"toggle_supplement", "name":"exact supplement name"}\n'
+    + '- {"type":"mark_all_supplements_taken"}\n'
+    + '- {"type":"save_swap", "blockIdx":N, "note":"what they swapped to"}\n'
+    + '- {"type":"save_sleep", "hours":N}\n'
+    + '- {"type":"save_energy", "score":1-5}\n'
+    + '- {"type":"save_notes", "text":"notes for tomorrow"}\n'
+    + '- {"type":"nothing", "reason":"why nothing matched"}\n\n'
+    + 'Rules:\n'
+    + '- Match exercises by name similarity — "deadlift" matches "Romanian Deadlift", "hip thrust" matches "Hip Thrust"\n'
+    + '- Match supplements by name — "creatine" matches "Creatine monohydrate"\n'
+    + '- blockIdx is the index from the plan blocks list above (0-based)\n'
+    + '- exerciseIdx is the index within that block\'s exercise list (0-based)\n'
+    + '- For weights: "80 kilos" = 80, "80kg" = 80\n'
+    + '- For sets×reps: "4 sets of 8" = "4x8", "three by ten" = "3x10"\n'
+    + '- If user says "done training" or "finished my session" → set_block_status on the training block\n'
+    + '- If user says "took my X" or "had my X" for a supplement → toggle_supplement\n'
+    + '- If no match possible → type "nothing"\n\n'
+    + 'Return ONLY a valid JSON array. No markdown, no explanation.\n'
+    + 'Example: [{"type":"set_block_status","blockIdx":3,"status":"done"},{"type":"log_exercise","blockIdx":3,"exerciseIdx":0,"weight":80,"actual":"4x8","done":true}]';
+
+  try {
+    var res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 600,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    var raw = (data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var actions = JSON.parse(raw.replace(/```json|```/g,'').trim());
+
+    vlgSetState('idle');
+    vlgExecute(actions, transcript);
+  } catch(err) {
+    vlgSetState('idle');
+    vlgToast([{icon:'⚠️', text:'Could not interpret: ' + (err.message||'unknown error')}]);
+  }
+}
+
+function vlgExecute(actions, transcript) {
+  var results = [];
+  var blocks = window._blocks || [];
+
+  actions.forEach(function(action) {
+    try {
+      if (action.type === 'set_block_status') {
+        dpSetStatus(action.blockIdx, action.status);
+        var block = blocks[action.blockIdx];
+        var bname = block ? (block.title||block.type) : 'Block '+action.blockIdx;
+        var statusLabel = action.status==='done'?'✓ Done':action.status==='modified'?'~ Modified':'✗ Skipped';
+        results.push({ icon: action.status==='done'?'✅':'⚠️', text: bname + ' — ' + statusLabel });
+
+      } else if (action.type === 'log_exercise') {
+        var key = 'ex_'+action.blockIdx+'_'+action.exerciseIdx;
+        var block2 = blocks[action.blockIdx];
+        var exes = (block2&&block2.exercises||[]).filter(function(e){return e!=='Track loads';});
+        var exName = exes[action.exerciseIdx] ? exName = exes[action.exerciseIdx].split(' ')[0]+' '+exes[action.exerciseIdx].split(' ')[1]||'' : 'Exercise '+action.exerciseIdx;
+        if (action.weight !== undefined && action.weight !== null) {
+          dpLogEx(key, action.weight, null, null);
+        }
+        if (action.actual) {
+          dpLogEx(key, null, action.actual, null);
+        }
+        if (action.done) {
+          dpToggleExDone(key, action.blockIdx, document.querySelector('#dp-ex-'+key+' .dp-ex-done-btn'));
+        }
+        var desc = exName.trim();
+        if (action.weight) desc += ' — ' + action.weight + 'kg';
+        if (action.actual) desc += ' ' + action.actual;
+        results.push({ icon: '🏋️', text: desc });
+
+      } else if (action.type === 'log_meal_protein') {
+        dpLogMealProt(action.mealSlot, action.protein);
+        results.push({ icon: '🥩', text: action.mealSlot.replace('-',' ') + ' — ' + action.protein + 'g protein' });
+
+      } else if (action.type === 'log_meal_note') {
+        dpLogMealNote(action.mealSlot, action.note);
+        results.push({ icon: '🍽️', text: action.mealSlot.replace('-',' ') + ': ' + action.note });
+
+      } else if (action.type === 'toggle_supplement') {
+        var log = loadDayLog(_rDate) || {};
+        if (!log.suppLog) log.suppLog = {};
+        log.suppLog[action.name] = true; // always mark taken via voice
+        saveDayLog(_rDate, log);
+        // Update pill UI if visible
+        document.querySelectorAll('.dp-supp-pill').forEach(function(pill) {
+          if (pill.textContent.toLowerCase().includes(action.name.toLowerCase().slice(0,6))) {
+            pill.classList.add('taken');
+            var check = pill.querySelector('.dp-supp-check');
+            if (check) check.innerHTML = '&#10003;';
+          }
+        });
+        results.push({ icon: '💊', text: action.name + ' — taken' });
+        dpRefreshScore();
+
+      } else if (action.type === 'mark_all_supplements_taken') {
+        var log2 = loadDayLog(_rDate) || {};
+        if (!log2.suppLog) log2.suppLog = {};
+        (P.supplements||[]).forEach(function(s){ log2.suppLog[s.name||s] = true; });
+        saveDayLog(_rDate, log2);
+        document.querySelectorAll('.dp-supp-pill').forEach(function(pill){
+          pill.classList.add('taken');
+          var check = pill.querySelector('.dp-supp-check');
+          if (check) check.innerHTML = '&#10003;';
+        });
+        results.push({ icon: '💊', text: 'All supplements marked taken' });
+        dpRefreshScore();
+
+      } else if (action.type === 'save_swap') {
+        dpSaveSwap(action.blockIdx, action.note);
+        var swapRow = document.getElementById('dp-swap-'+action.blockIdx);
+        if (swapRow) {
+          swapRow.style.display = 'flex';
+          var inp = swapRow.querySelector('input');
+          if (inp) inp.value = action.note;
+        }
+        results.push({ icon: '🔄', text: 'Swapped: ' + action.note });
+
+      } else if (action.type === 'save_sleep') {
+        var log3 = loadDayLog(_rDate) || {};
+        log3.sleepActual = action.hours;
+        saveDayLog(_rDate, log3);
+        results.push({ icon: '😴', text: 'Sleep logged: ' + action.hours + 'h' });
+        dpRefreshScore();
+
+      } else if (action.type === 'save_energy') {
+        var log4 = loadDayLog(_rDate) || {};
+        log4.energy = action.score;
+        saveDayLog(_rDate, log4);
+        results.push({ icon: '⚡', text: 'Energy: ' + action.score + '/5' });
+
+      } else if (action.type === 'save_notes') {
+        dpSaveNotes(action.text);
+        var notesInp = document.querySelector('.dp-notes-inp');
+        if (notesInp) notesInp.value = action.text;
+        results.push({ icon: '📝', text: 'Notes: ' + action.text });
+
+      } else if (action.type === 'nothing') {
+        results.push({ icon: '❓', text: action.reason || 'Could not match anything in your plan' });
+      }
+    } catch(execErr) {
+      results.push({ icon: '⚠️', text: 'Error: ' + execErr.message });
+    }
+  });
+
+  vlgToast(results, transcript);
+}
+
+function vlgToast(results, transcript) {
+  var toast = document.getElementById('vlg-toast');
+  if (!toast) return;
+
+  var html = '<div class="vlg-toast-label">' + (transcript ? '&#8220;' + transcript.slice(0,60) + (transcript.length>60?'&#8230;':'') + '&#8221;' : 'Voice log') + '</div>';
+
+  if (!results || !results.length) {
+    html += '<div class="vlg-nothing">Nothing matched.</div>';
+  } else {
+    results.forEach(function(r) {
+      if (r.icon === '❓' || r.icon === '⚠️' || r.icon === 'ℹ️') {
+        html += '<div class="vlg-error">' + (r.icon||'') + ' ' + (r.text||'') + '</div>';
+      } else {
+        html += '<div class="vlg-action"><span class="vlg-action-icon">' + (r.icon||'') + '</span><span>' + (r.text||'') + '</span></div>';
+      }
+    });
+  }
+
+  toast.innerHTML = html;
+  toast.classList.add('show');
+  if (_vlg.toastTimer) clearTimeout(_vlg.toastTimer);
+  _vlg.toastTimer = setTimeout(function() {
+    toast.classList.remove('show');
+  }, 5000);
+}
+
+// Init on load
+(function() {
+  // Wait for renderPlan to inject the button
+  var initCheck = setInterval(function() {
+    if (document.getElementById('vlg-mic-btn')) {
+      clearInterval(initCheck);
+      vlgInit();
+    }
+  }, 200);
+})();
 
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
