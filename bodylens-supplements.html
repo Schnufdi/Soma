@@ -443,6 +443,8 @@ function isInDeepStack(id) {
   return p && (p.deepStack||[]).includes(id);
 }
 
+function spAddToStack(btn) { var id = btn.dataset.aid; addToStack(id); btn.textContent = '\u2713 Added'; btn.className = 'sp-add-btn saved'; btn.disabled = true; }
+
 function addToStack(id) {
   var p = getProfile();
   if (!p) return;
@@ -669,14 +671,14 @@ function render() {
         if (s.warn) html += '<div class="sp-detail-row"><div class="sp-detail-key">Caution</div><div class="sp-detail-val" style="color:rgba(220,140,80,.8);">' + s.warn + '</div></div>';
         if (s.stacks) html += '<div class="sp-detail-row"><div class="sp-detail-key">Stacks with</div><div class="sp-detail-val">' + s.stacks + '</div></div>';
         if (!inStack) {
-          html += '<button class="sp-add-btn" data-aid="' + s.id + '" onclick="addToStack(this.dataset.aid);this.textContent='\u2713 Added to stack';this.className='sp-add-btn saved';this.disabled=true;">+ Add to stack</button>';
+          html += '<button class="sp-add-btn" data-aid="' + s.id + '" onclick="spAddToStack(this)">+ Add to stack</button>';
         }
         html += '</div>';
       }
 
       html += '</div>';
     });
-  }););
+  });
 
   root.innerHTML = html;
 }
