@@ -274,12 +274,26 @@ var _userEmail = null;
 function getToken() {
   for (var i = 0; i < localStorage.length; i++) {
     var k = localStorage.key(i);
-    if (k && k.includes('supabase') && k.includes('auth')) {
-      try {
-        var v = JSON.parse(localStorage.getItem(k));
-        if (v && v.access_token) return { token: v.access_token, userId: v.user?.id, email: v.user?.email };
-      } catch(e) {}
-    }
+    if (!k) continue;
+    // Match both 'supabase'/'auth' keys AND 'sb-' prefixed keys
+    var isAuthKey = (k.includes('supabase') && k.includes('auth'))
+                 || k.startsWith('sb-')
+                 || k.includes('-auth-token');
+    if (!isAuthKey) continue;
+    try {
+      var raw = localStorage.getItem(k);
+      if (!raw) continue;
+      var v = JSON.parse(raw);
+      // Handle both {access_token} and {session:{access_token}} shapes
+      var session = v && v.access_token ? v : (v && v.session ? v.session : null);
+      if (session && session.access_token) {
+        return {
+          token:  session.access_token,
+          userId: session.user ? session.user.id : null,
+          email:  session.user ? session.user.email : null,
+        };
+      }
+    } catch(e) {}
   }
   return null;
 }
@@ -797,6 +811,16 @@ async function runReconciliation() {
 
 // ── Init ──────────────────────────────────────────────────
 runReconciliation();
+
+// Re-run after Supabase auth resolves (async, ~500ms after page load)
+setTimeout(function() {
+  var auth = getToken();
+  if (auth && !_token) { console.log('Auth found after delay — re-running reconciliation'); runReconciliation(); }
+}, 1500);
+setTimeout(function() {
+  var auth = getToken();
+  if (auth && !_token) runReconciliation();
+}, 3000);
 </script>
 </body>
 </html>
