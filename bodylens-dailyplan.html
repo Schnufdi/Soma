@@ -175,113 +175,161 @@ body {
 .nt-jade { background: rgba(0,200,160,.1); color: var(--jade); border: 1px solid rgba(0,200,160,.2); }
 
 /* ── Prog banner (session count / week / phase) ────────────────────── */
-.prog-banner {
-  position: sticky; top: 52px; z-index: 50;
-  display: flex; align-items: center; gap: 0;
-  height: 44px; padding: 0 24px;
-  background: rgba(12,16,16,.97);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255,255,255,.05);
-  overflow-x: auto; scrollbar-width: none;
-}
-.prog-banner::-webkit-scrollbar { display: none; }
-.pb-item {
-  display: flex; flex-direction: column; justify-content: center;
-  padding: 0 20px 0 0; border-right: 1px solid rgba(255,255,255,.06);
-  margin-right: 20px; flex-shrink: 0;
-}
-.pb-item:last-child { border-right: none; }
-.pb-val {
-  font-size: 15px; font-weight: 600; color: var(--dk-1);
-  letter-spacing: -.02em; line-height: 1;
-}
-.pb-val.jade { color: var(--jade); }
-.pb-val.amber { color: var(--amber); }
-.pb-label {
-  font-size: 9px; font-weight: 600; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--dk-3); margin-top: 2px;
-}
-.pb-phase {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--amber); background: rgba(196,124,24,.08);
-  border: 1px solid rgba(196,124,24,.18); border-radius: 20px;
-  padding: 3px 10px; white-space: nowrap;
-}
-.pb-dots { display: flex; gap: 4px; align-items: center; }
-.pb-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.12);
-}
-.pb-dot.done { background: var(--jade); border-color: var(--jade); }
-.pb-dot.curr { background: var(--amber); border-color: var(--amber); box-shadow: 0 0 6px rgba(196,124,24,.4); }
-.pb-session-btn {
-  margin-left: auto; display: flex; align-items: center; gap: 7px;
-  background: rgba(0,200,160,.1); border: 1px solid rgba(0,200,160,.2);
-  color: var(--jade); padding: 6px 14px; border-radius: 20px;
-  font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  cursor: pointer; font-family: var(--sans); white-space: nowrap;
-  transition: all .12s; flex-shrink: 0;
-}
-.pb-session-btn:hover { background: rgba(0,200,160,.16); border-color: rgba(0,200,160,.35); }
 
-/* ── Week strip ────────────────────────────────────────────────────── */
-.week-strip {
-  position: sticky; top: 96px; z-index: 49;
-  background: rgba(12,16,16,.97);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255,255,255,.05);
-  padding: 10px 24px;
-  display: flex; gap: 4px;
-  overflow-x: auto; scrollbar-width: none;
+/* ════════════════════════════════════════════════════════
+   UNIFIED HEADER STRIP — single 44px bar
+════════════════════════════════════════════════════════ */
+.prog-banner {
+  position: sticky;
+  top: 52px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  background: rgba(10,14,14,.98);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  gap: 0;
 }
-.week-strip::-webkit-scrollbar { display: none; }
-.week-tabs { display: flex; gap: 4px; width: 100%; }
-.wt {
-  flex: 1; min-width: 52px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 8px 6px; border-radius: 10px;
-  background: transparent; border: 1px solid transparent;
-  cursor: pointer; text-decoration: none; transition: all .12s;
-  gap: 3px;
+
+/* Day context — left */
+.pb-ctx {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-right: 16px;
 }
-.wt:hover { background: rgba(255,255,255,.03); }
-.wt.active {
-  background: rgba(0,200,160,.07);
-  border-color: rgba(0,200,160,.2);
+.pb-day-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dk-1);
+  letter-spacing: -.01em;
 }
-.wt-day {
-  font-size: 8px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+.pb-sep { color: rgba(255,255,255,.15); font-size: 11px; }
+.pb-phase {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--jade);
+  padding: 2px 7px;
+  border: 1px solid rgba(0,200,160,.25);
+  border-radius: 10px;
+  background: rgba(0,200,160,.06);
+}
+.pb-sessions {
+  font-size: 10px;
+  font-weight: 300;
   color: var(--dk-3);
 }
-.wt.active .wt-day { color: var(--jade); }
-.wt-num {
-  font-size: 16px; font-weight: 600; color: var(--dk-2);
-  line-height: 1; letter-spacing: -.02em;
-}
-.wt.active .wt-num { color: var(--dk-1); }
-.wt-type {
-  font-size: 9px; font-weight: 500; color: var(--dk-3);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 100%; text-align: center;
-}
-.wt.active .wt-type { color: var(--jade); }
-.wt-rest .wt-type { opacity: .5; }
-.wt-dot {
-  width: 4px; height: 4px; border-radius: 50%;
-  background: rgba(255,255,255,.08);
-}
-.wt.active .wt-dot { background: var(--jade); }
 
-/* ── Macro bar (sticky progress) ───────────────────────────────────── */
-.macro-bar {
-  position: sticky; top: 168px; z-index: 40;
-  background: rgba(12,16,16,.96);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,.05);
-  padding: 10px 24px;
-  display: flex; gap: 16px; align-items: center;
+/* Week chips — centre */
+.pb-week {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
 }
+.pb-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .12s;
+  min-width: 32px;
+}
+.pb-chip:hover { background: rgba(255,255,255,.05); }
+.pb-chip-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  line-height: 1;
+}
+.pb-chip-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.1);
+}
+.pb-chip.train .pb-chip-label { color: var(--dk-2); }
+.pb-chip.train .pb-chip-dot   { background: rgba(0,200,160,.3); }
+.pb-chip.today .pb-chip-label { color: var(--dk-1); font-weight: 800; }
+.pb-chip.today .pb-chip-dot   { background: var(--jade); box-shadow: 0 0 4px rgba(0,200,160,.5); }
+.pb-chip.done  .pb-chip-dot   { background: var(--jade); }
+.pb-chip.done  .pb-chip-label { color: var(--jade); }
+.pb-chip.missed .pb-chip-dot  { background: rgba(220,80,60,.4); }
+.pb-chip.missed .pb-chip-label{ color: rgba(220,100,80,.6); }
+
+/* Macro row — right */
+.pb-macros {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+.pb-macro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 44px;
+}
+.pb-macro-label {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  line-height: 1;
+}
+.pb-macro-vals {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+}
+.pb-macro-eaten {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+.pb-macro-target {
+  font-size: 9px;
+  font-weight: 300;
+  color: var(--dk-3);
+  line-height: 1;
+}
+.pb-macro-track {
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,.07);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.pb-macro-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width .4s ease;
+}
+.pb-macro.prot .pb-macro-eaten { color: var(--jade); }
+.pb-macro.prot .pb-macro-fill  { background: var(--jade); }
+.pb-macro.carb .pb-macro-eaten { color: var(--amber); }
+.pb-macro.carb .pb-macro-fill  { background: var(--amber); }
+.pb-macro.fat  .pb-macro-eaten { color: rgba(255,255,255,.45); }
+.pb-macro.fat  .pb-macro-fill  { background: rgba(255,255,255,.3); }
+
+/* ── HIDE the old week-strip and macro-bar entirely ── */
+.week-strip { display: none !important; }
+.macro-bar  { display: none !important; }
+
 .mb-group { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
 .mb-label {
   font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
@@ -2764,7 +2812,7 @@ function logMealMacros(slot,m){
   MACROS.meals[slot]=m;
   MACROS.eaten={kcal:0,prot:0,carbs:0,fat:0};
   Object.values(MACROS.meals).forEach(function(x){if(x&&x.logged){MACROS.eaten.kcal+=x.kcal||0;MACROS.eaten.prot+=x.prot||0;MACROS.eaten.carbs+=x.carbs||0;MACROS.eaten.fat+=x.fat||0;}});
-  saveMacros();updateMacroBar();adjustRemaining();
+  saveMacros();refreshUnifiedMacros();adjustRemaining();
   // Sync to day log (defined later in file — safe to call via setTimeout)
   if(typeof syncMacrosToLog==='function') setTimeout(syncMacrosToLog, 50);
 }
@@ -3764,6 +3812,98 @@ function renderWeekStrip(p,t){
   }).join('');
 }
 
+function renderUnifiedHeader(p, t) {
+  var el = document.getElementById('prog-banner');
+  if (!el || !p) return;
+
+  var log = loadDayLog(_rDate) || {};
+  var progCtx = typeof getProgCtx === 'function' ? getProgCtx(p) : { weekNum: 1, phase: 'Foundation', dayNum: 1, totalDays: 28 };
+  var sessions = typeof getWeekSessions === 'function' ? getWeekSessions(p) : { done: 0, total: p.trainingDays || 4 };
+  var sessionsDone = sessions ? sessions.done : 0;
+  var sessionsTotal = sessions ? sessions.total : (p.trainingDays || 4);
+
+  // ── Week chips ─────────────────────────────────────────────
+  var DAY_LETTERS = ['M','T','W','T','F','S','S'];
+  var now = new Date();
+  var wd = now.getDay();
+  var monday = new Date(now);
+  monday.setDate(now.getDate() - (wd === 0 ? 6 : wd - 1));
+  monday.setHours(0,0,0,0);
+
+  var chipsHtml = DAY_LETTERS.map(function(letter, i) {
+    var dayPlan = typeof getEffectiveDayPlan === 'function'
+      ? getEffectiveDayPlan(p, i)
+      : ((p.weekPlan || [])[i] || {type:'Rest', priority:'rest'});
+    var isTrain = dayPlan.priority === 'training';
+    var isToday = i === t.idx;
+    var dayDate = new Date(monday);
+    dayDate.setDate(monday.getDate() + i);
+    var logKey = 'bl_daylog_' + dayDate.toISOString().slice(0,10);
+    var isDone = false;
+    try { var lg = JSON.parse(localStorage.getItem(logKey)||'null'); isDone = !!(lg && lg.trainStatus === 'done'); } catch(e){}
+    var isPast = !isToday && dayDate < new Date(now.toDateString());
+    var isMissed = isTrain && isPast && !isDone;
+    var cls = [isTrain?'train':'', isToday?'today':'', isDone?'done':'', isMissed?'missed':''].filter(Boolean).join(' ');
+    return '<div class="pb-chip ' + cls + '" onclick="wsDayClick(' + i + ')" title="' + (dayPlan.type||'Rest') + '">'
+      + '<div class="pb-chip-label">' + letter + '</div>'
+      + '<div class="pb-chip-dot"></div>'
+    + '</div>';
+  }).join('');
+
+  // ── Macros ─────────────────────────────────────────────────
+  var macros = MACROS || { target: {prot: p.protein||174, carbs: p.carbs||323, fat: p.fat||87}, eaten: {prot:0, carbs:0, fat:0} };
+  var e = macros.eaten || {};
+  var tgt = macros.target || {};
+
+  function pct(v, mx) { return Math.min(100, Math.round((v||0) / Math.max(1, mx||1) * 100)); }
+
+  var macroHtml = [
+    { cls:'prot', label:'P', eaten: e.prot||0, target: tgt.prot||p.protein||174 },
+    { cls:'carb', label:'C', eaten: e.carbs||0, target: tgt.carbs||p.carbs||323 },
+    { cls:'fat',  label:'F', eaten: e.fat||0,  target: tgt.fat||p.fat||87 },
+  ].map(function(m) {
+    var p2 = pct(m.eaten, m.target);
+    return '<div class="pb-macro ' + m.cls + '">'
+      + '<div class="pb-macro-label">' + m.label + '</div>'
+      + '<div class="pb-macro-vals">'
+        + '<span class="pb-macro-eaten" id="pbm-' + m.cls + '">' + (m.eaten||0) + 'g</span>'
+        + '<span class="pb-macro-target">/' + m.target + '</span>'
+      + '</div>'
+      + '<div class="pb-macro-track"><div class="pb-macro-fill" id="pbf-' + m.cls + '" style="width:' + p2 + '%"></div></div>'
+    + '</div>';
+  }).join('');
+
+  el.innerHTML = '<div class="pb-ctx">'
+    + '<span class="pb-day-num">Day ' + (progCtx.dayNum||1) + '</span>'
+    + '<span class="pb-sep">·</span>'
+    + '<span class="pb-phase">WK' + (progCtx.weekNum||1) + ' · ' + (progCtx.phase||'Foundation').toUpperCase().slice(0,5) + '</span>'
+    + '<span class="pb-sep">·</span>'
+    + '<span class="pb-sessions">' + sessionsDone + '/' + sessionsTotal + ' sessions</span>'
+  + '</div>'
+  + '<div class="pb-week">' + chipsHtml + '</div>'
+  + '<div class="pb-macros">' + macroHtml + '</div>';
+}
+
+// Refresh just the macro numbers without full rebuild
+function refreshUnifiedMacros() {
+  if (!MACROS) return;
+  var e = MACROS.eaten || {};
+  var tgt = MACROS.target || {};
+  function pct(v, mx) { return Math.min(100, Math.round((v||0) / Math.max(1, mx||1) * 100)); }
+  var macros = [
+    { cls:'prot', eaten: e.prot||0, target: tgt.prot||174 },
+    { cls:'carb', eaten: e.carbs||0, target: tgt.carbs||323 },
+    { cls:'fat',  eaten: e.fat||0,  target: tgt.fat||87 },
+  ];
+  macros.forEach(function(m) {
+    var valEl = document.getElementById('pbm-' + m.cls);
+    var fillEl = document.getElementById('pbf-' + m.cls);
+    if (valEl) valEl.textContent = (m.eaten||0) + 'g';
+    if (fillEl) fillEl.style.width = pct(m.eaten, m.target) + '%';
+  });
+}
+
+
 function renderProgressBanner(p, t) {
   var el = document.getElementById('prog-banner');
   if (!el || !p) return;
@@ -4092,7 +4232,7 @@ function backToToday() {
   try { var c = localStorage.getItem(t.cacheKey); if(c) cached = JSON.parse(c); } catch(e) {}
   if (cached && cached.blocks && cached.blocks.length >= 3) {
     renderPlan(cached, false);
-    updateMacroBar();
+    refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, cached);
   } else {
@@ -4382,7 +4522,7 @@ function quickTick(slot,i){
     MACROS.eaten={kcal:0,prot:0,carbs:0,fat:0};
     Object.values(MACROS.meals).forEach(function(x){if(x&&x.logged){MACROS.eaten.kcal+=x.kcal||0;MACROS.eaten.prot+=x.prot||0;MACROS.eaten.carbs+=x.carbs||0;MACROS.eaten.fat+=x.fat||0;}});
     saveMacros();
-    updateMacroBar();
+    refreshUnifiedMacros();
     adjustRemaining();
     if(typeof syncMacrosToLog==='function') setTimeout(syncMacrosToLog, 50);
     // Reset block UI
@@ -4845,16 +4985,7 @@ function renderPlan(plan, browsing) {
         : '<strong>Priority:</strong> <strong>'+p.protein+'g protein</strong> even without training. Metabolism stays active on rest days — nutrition discipline here matters.')
     +'</div>'
     +'<div class="dp2-signals">'
-      // Macro signal
-      +'<div class="dp2-signal slate" style="flex:1;min-width:200px;">'
-        +'<div class="dp2-macro-signal">'
-          +'<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'
-            +'<span style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--day-text3);">Nutrition</span>'
-            +'<span style="font-size:10px;color:var(--day-text2);">'+dayKcal+' kcal target</span>'
-          +'</div>'
-          +'<div class="dp2-macro-bars">'+macroBarHtml+'</div>'
-        +'</div>'
-      +'</div>'
+      // Macro signal moved to unified header
       // Session signal
       +(isTraining
         ? '<div class="dp2-signal '+(sessionDone?'jade':'slate')+'" style="flex-direction:column;align-items:flex-start;gap:2px;min-width:110px;">'
@@ -5255,6 +5386,8 @@ function dpRefreshScore() {
 
 // ── Macro refresh ────────────────────────────────────────────
 function dpRefreshMacros() {
+  refreshUnifiedMacros();
+
   var eaten2 = (MACROS && MACROS.eaten) || {prot:0,carbs:0,fat:0,kcal:0};
   var p2 = P||{};
   var t2 = TODAY||{};
@@ -6094,7 +6227,7 @@ function markAllSkippedAndClose() {
   });
   closeRecoveryModal();
   renderWeekStrip(P, TODAY);
-  renderProgressBanner(P, TODAY);
+  renderUnifiedHeader(P, TODAY);
 }
 
 function closeRecoveryModal() {
@@ -7257,7 +7390,7 @@ function preloadRecipes(p, t){
   _rLoad();
   initMacros(P, TODAY);
   renderWeekStrip(P, TODAY);
-  renderProgressBanner(P, TODAY);
+  renderUnifiedHeader(P, TODAY);
 
   // Start weekly meal plan build in background — silent, no blocking
   // Runs once per week; subsequent loads use cache
@@ -7287,7 +7420,7 @@ function preloadRecipes(p, t){
   if(cached && cached.blocks && cached.blocks.length >= 3){
     // Plan already built today — show immediately, no interaction needed
     renderPlan(cached);
-    updateMacroBar();
+    refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, cached);
     setTimeout(initDayCapture, 100);
@@ -7704,7 +7837,7 @@ function buildDay(){
     var plan = buildPlan(P, TODAY);
     try { localStorage.setItem(TODAY.cacheKey, JSON.stringify(plan)); } catch(e){}
     renderPlan(plan);
-    updateMacroBar();
+    refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, plan);
     setTimeout(initDayCapture, 100);
@@ -9093,7 +9226,7 @@ function gcSaveToLog() {
     log.trainStatus = 'done';
   }
   saveDayLog(log);
-  renderProgressBanner(P, TODAY);
+  renderUnifiedHeader(P, TODAY);
 }
 
 async function gcGeneratePostSessionNote() {
@@ -9804,7 +9937,7 @@ function dbWriteToLog() {
   }
 
   saveDayLog(log);
-  renderProgressBanner(P, TODAY);
+  renderUnifiedHeader(P, TODAY);
 }
 
 
