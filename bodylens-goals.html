@@ -26,10 +26,10 @@
 .gl-panel-hd { padding: 14px 16px 0; }
 .gl-panel-label { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 3px; }
 .gl-panel-title { font-size: 14px; font-weight: 400; color: var(--dk-1); }
-.gl-upload-zone { position: relative; height: 200px; margin: 12px; border-radius: 8px; border: 1px dashed rgba(255,255,255,.12); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: border-color .2s, background .2s; overflow: hidden; }
+.gl-upload-zone { position: relative; aspect-ratio: 3/4; margin: 12px; border-radius: 8px; border: 1px dashed rgba(255,255,255,.12); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: border-color .2s, background .2s; overflow: hidden; }
 .gl-upload-zone:hover { border-color: var(--jade); background: rgba(0,196,160,.04); }
 .gl-upload-zone.has-image { border-style: solid; border-color: rgba(255,255,255,.1); cursor: default; }
-.gl-upload-zone img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 7px; }
+.gl-upload-zone img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--ink-1); border-radius: 7px; }
 .gl-upload-icon { font-size: 24px; color: var(--dk-3); }
 .gl-upload-text { font-size: 11px; font-weight: 300; color: var(--dk-3); }
 .gl-upload-change { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,.7); border: none; color: var(--dk-2); font-size: 10px; font-weight: 600; font-family: var(--sans); padding: 5px 10px; border-radius: 4px; cursor: pointer; letter-spacing: .04em; }
@@ -822,8 +822,105 @@ function renderArc(s5, s6) {
     h += '</div></div>';
   }
 
+  // ── BEFORE / AFTER programme comparison ─────────────────────────────────
+  if (audit.topThreeChanges && audit.topThreeChanges.length) {
+    var _p = null;
+    try { _p = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) {}
+    if (_p) {
+      var curCalories = (_p.trainingKcal||_p.calories) ? (_p.trainingKcal||_p.calories) + ' / ' + (_p.restKcal||Math.round((_p.calories||2000)*0.9)) + ' kcal' : 'Not set';
+      var curProtein  = _p.protein ? _p.protein + 'g / day' : 'Not set';
+      var curDays     = _p.trainingDays ? _p.trainingDays + 'x / week' : 'Not set';
+      var ex = (s5 && s5.exerciseEmphasis) || {};
+
+      h += '<div style="margin-top:28px;background:var(--ink-1);border:1px solid rgba(255,255,255,.09);border-radius:12px;overflow:hidden;">';
+      h += '<div style="padding:14px 18px 10px;border-bottom:1px solid rgba(255,255,255,.06);">';
+      h += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:2px;">Programme comparison</div>';
+      h += '<div style="font-family:var(--serif);font-size:17px;font-weight:300;color:var(--dk-1);">Before vs after this analysis</div>';
+      h += '</div>';
+
+      // Headers
+      h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:rgba(0,0,0,.2);">';
+      ['Dimension','Current','Recommended'].forEach(function(label, i) {
+        h += '<div style="padding:8px 14px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:' + (i===2?'var(--jade)':'var(--dk-3)') + ';' + (i>0?'border-left:1px solid rgba(255,255,255,.05);':'') + '">' + label + '</div>';
+      });
+      h += '</div>';
+
+      var rows = [
+        ['Calories',         curCalories,  s5.foodStructure ? s5.foodStructure.split(',')[0] : '—'],
+        ['Protein target',   curProtein,   s5.foodStructure && s5.foodStructure.match(/(\d{3})g/) ? s5.foodStructure.match(/(\d{3})g/)[1] + 'g / day' : '—'],
+        ['Training days',    curDays,      s5.loadStyle ? s5.loadStyle.split('.')[0].slice(0,40) : '—'],
+        ['Cardio',           'Not structured', s5.cardioRole ? s5.cardioRole.slice(0,40) : '—'],
+        ['Primary emphasis', 'Current split', ex.prioritise ? ex.prioritise.slice(0,2).join(', ') : '—'],
+      ];
+
+      rows.forEach(function(row, i) {
+        var isLast = i === rows.length - 1;
+        h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;' + (!isLast?'border-bottom:1px solid rgba(255,255,255,.04);':'') + '">';
+        h += '<div style="padding:9px 14px;font-size:11px;font-weight:500;color:var(--dk-2);">' + esc(row[0]) + '</div>';
+        h += '<div style="padding:9px 14px;font-size:11px;font-weight:300;color:var(--dk-3);border-left:1px solid rgba(255,255,255,.04);">' + esc(row[1]) + '</div>';
+        h += '<div style="padding:9px 14px;font-size:11px;font-weight:600;color:var(--jade);border-left:1px solid rgba(255,255,255,.04);">' + esc(row[2]) + '</div>';
+        h += '</div>';
+      });
+
+      h += '<div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:14px;">';
+      h += '<button id="gl-apply-btn" onclick="glApplyProgrammeChanges()" style="background:var(--jade);color:#0c1010;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px;border:none;border-radius:6px;cursor:pointer;flex-shrink:0;">Apply to my programme &#8594;</button>';
+      h += '<span style="font-size:11px;font-weight:300;color:var(--dk-3);">Updates your coaching context and daily plan</span>';
+      h += '</div>';
+      h += '</div>'; // end comparison card
+    }
+  }
+
   h += '</div></div>';
   return h;
+}
+
+// Apply programme changes from goal analysis to profile
+function glApplyProgrammeChanges() {
+  var btn = document.getElementById('gl-apply-btn');
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+    if (!p) { alert('No profile found.'); return; }
+
+    var gb = p.gapBridge || {};
+    var changes = [];
+
+    // Apply top 3 changes as coach context
+    if (gb.topThreeChanges && gb.topThreeChanges.length) {
+      p.gapBridge.applied = true;
+      p.gapBridge.appliedAt = new Date().toISOString();
+    }
+
+    // Parse and apply nutrition from foodStructure
+    // e.g. "2800/2400 training/rest, 185g protein" 
+    var fs = p.gapBridge && p.gapBridge.weeklyFocus || '';
+    // Apply training emphasis to weekPlan as a note
+    if (gb.training && gb.training.length) {
+      p.trainingEmphasis = gb.training.map(function(t){ return t.change; });
+      changes.push('Training emphasis updated');
+    }
+
+    // Mark as applied so daily plan coach uses new context
+    p.goalPlanApplied = new Date().toISOString().slice(0,10);
+
+    // Clear the daily plan cache so it regenerates with new context
+    try { 
+      var todayKey = 'dayplan_v6r3_' + new Date().toISOString().slice(0,10);
+      localStorage.removeItem(todayKey); 
+    } catch(e) {}
+
+    localStorage.setItem('bl_profile', JSON.stringify(p));
+    
+    if (btn) { 
+      btn.textContent = '\u2713 Applied — daily plan will regenerate with new context';
+      btn.style.background = 'rgba(0,196,160,.15)';
+      btn.style.color = 'var(--jade)';
+      btn.style.border = '1px solid rgba(0,196,160,.3)';
+      btn.disabled = true;
+    }
+  } catch(e) {
+    if (btn) btn.textContent = 'Error applying — ' + e.message;
+    console.error('Apply failed:', e);
+  }
 }
 </script>
 
