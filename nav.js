@@ -686,16 +686,18 @@ window.closeMobileMenu = function() {
 // Public pages are whitelisted and never gated.
 (function() {
   var WHITELISTED = [
+    // Auth pages — must always be public
     'bodylens-login.html',
     'bodylens-onboard.html',
+    // Marketing / public info
     'bodylens-guide.html',
     'bodylens-howitworks.html',
     'bodylens-story.html',
-    'bodylens-science.html',
     'bodylens-viability.html',
-    'bodylens-ideas.html',
-    'bodylens-sync.html',
-    // science sub-pages
+    'bodylens-viability2.html',
+    'bodylens-viability3.html',
+    // Science library — read-only, no user data, good for SEO/sharing
+    'bodylens-science.html',
     'bodylens-alcohol.html',
     'bodylens-hunger.html',
     'bodylens-weightloss.html',
@@ -703,13 +705,12 @@ window.closeMobileMenu = function() {
     'bodylens-attia.html',
     'bodylens-longevity.html',
     'bodylens-body.html',
-    'bodylens-fuel.html',
     'bodylens-insulin.html',
-    'bodylens-strength.html',
     'bodylens-training.html',
     'bodylens-optimal.html',
     'bodylens-synthesis.html',
-    'bodylens-accelerators.html',
+    // Note: fuel, strength, accelerators, supplements, ideas, sync are NOW PROTECTED
+    // They use profile data and require login
   ];
 
   var path = window.location.pathname;
