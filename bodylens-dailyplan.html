@@ -4580,10 +4580,13 @@ function renderPlan(plan, browsing) {
     : deficit < -100
     ? (Math.abs(deficit) + ' kcal above TDEE — mild surplus for muscle support')
     : 'At TDEE maintenance — performance priority today';
+  var carbLogic = isTraining
+    ? (p.carbs || 323) + 'g — training day allocation, fuels session + replenishes glycogen'
+    : Math.round((p.carbs || 323) * 0.75) + 'g — rest day reduction, less glycogen demand';
   var calorieReasonHtml = '<div class="dp2-cal-reason">'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Baseline TDEE</span><span class="dp2-cal-val">' + tdee2 + ' kcal</span></div>'
+    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Baseline TDEE</span><span class="dp2-cal-val">' + tdee + ' kcal</span></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Target</span><span class="dp2-cal-val jade">' + dayKcal + ' kcal</span></div>'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Adjustment</span><span class="dp2-cal-val">' + adjLabel + '</span></div>'
+    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Adjustment</span><span class="dp2-cal-val">' + deficitLabel + '</span></div>'
     + '<div class="dp2-cal-divider"></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Protein</span><span class="dp2-cal-val jade">' + p.protein + 'g &mdash; 2g/kg at ' + (p.weight||87) + 'kg, non-negotiable floor for recomposition</span></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Carbs</span><span class="dp2-cal-val amber">' + carbLogic + '</span></div>'
