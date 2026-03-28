@@ -273,6 +273,32 @@ ${(function() {
     return '\n' + wLines.join('\n') + '\n';
   } catch(e) { return ''; }
 })()}
+
+${(function() {
+  try {
+    // Read strength baseline: profile takes priority over raw key
+    var _sb = profile.strengthBaseline;
+    if (!_sb) {
+      var _raw = localStorage.getItem('bl_strength_baseline');
+      _sb = _raw ? JSON.parse(_raw) : null;
+    }
+    if (!_sb) return '';
+    var _liftNames = {
+      'back-squat':'Back squat','deadlift':'Deadlift','bench-press':'Bench press',
+      'ohp':'Overhead press','bent-over-row':'Bent-over row','pull-up':'Pull-up',
+      'rdl':'Romanian deadlift','hip-thrust':'Hip thrust'
+    };
+    var _lifts = [];
+    Object.keys(_sb).forEach(function(id) {
+      var lift = _sb[id];
+      if (!lift || !lift.entries || !lift.entries.length) return;
+      var e = lift.entries[0];
+      _lifts.push((_liftNames[id]||id) + ': ' + e.weight + 'kg \xd7 ' + e.reps + 'reps (e1RM ~' + Math.round(e.e1rm||0) + 'kg)');
+    });
+    if (!_lifts.length) return '';
+    return '\nSTRENGTH BASELINE (use for load prescriptions — these are their actual working weights):\n' + _lifts.join('\n') + '\n';
+  } catch(e) { return ''; }
+})()}
 `;
 
     // ── Risk-aware instruction injection ──────────────────────────────────

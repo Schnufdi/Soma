@@ -172,7 +172,17 @@ window.BL.restoreHistory = function() {
     .eq('id', userId).single().then(function(r) {
       if (!r.data) return;
       if (r.data.scan_history)       _orig('bl_scan_history',        JSON.stringify(r.data.scan_history));
-      if (r.data.strength_baseline)  _orig('bl_strength_baseline',   JSON.stringify(r.data.strength_baseline));
+      if (r.data.strength_baseline) {
+        _orig('bl_strength_baseline',   JSON.stringify(r.data.strength_baseline));
+        // Backfill profile.strengthBaseline so coaching prompts have real lift data
+        try {
+          var _bp = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+          if (_bp && !_bp.strengthBaseline) {
+            _bp.strengthBaseline = r.data.strength_baseline;
+            _orig('bl_profile', JSON.stringify(_bp));
+          }
+        } catch(e) {}
+      }
       if (r.data.latest_report)      _orig('bl_report_restored',     JSON.stringify(r.data.latest_report));
       if (r.data.podcast_history)    _orig('bl_podcast_history',     JSON.stringify(r.data.podcast_history));
       if (r.data.fridge_data)        _orig('bl_fridge_restock',      JSON.stringify(r.data.fridge_data));

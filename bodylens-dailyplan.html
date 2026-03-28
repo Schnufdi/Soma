@@ -7250,6 +7250,43 @@ async
 // ── MULTI-WEEK CONTEXT ────────────────────────────────────────────────────
 // Reads behaviourMemory weekSummaries + raw ledger keys.
 // Called by coach.js dynamicBlock AND generateCoachNarrative.
+
+// ── STRENGTH CONTEXT ──────────────────────────────────────────────────────
+// Reads bl_strength_baseline + profile.strengthBaseline, returns top lifts
+// formatted for AI prompts. Called by generateCoachNarrative + buildWeekContext.
+function _buildStrengthContext() {
+  try {
+    // Try profile first (always most recent after a log), fall back to raw key
+    var p = window.P || JSON.parse(localStorage.getItem('bl_profile') || '{}');
+    var sbRaw = p.strengthBaseline || null;
+    if (!sbRaw) {
+      var stored = localStorage.getItem('bl_strength_baseline');
+      sbRaw = stored ? JSON.parse(stored) : null;
+    }
+    if (!sbRaw) return '';
+
+    // Format top lifts: name → weight × reps (e1RM est)
+    var lines = [];
+    var liftNames = {
+      'back-squat': 'Back squat', 'deadlift': 'Deadlift',
+      'bench-press': 'Bench press', 'ohp': 'Overhead press',
+      'bent-over-row': 'Bent-over row', 'pull-up': 'Pull-up',
+      'rdl': 'Romanian deadlift', 'hip-thrust': 'Hip thrust'
+    };
+
+    Object.keys(sbRaw).forEach(function(id) {
+      var lift = sbRaw[id];
+      if (!lift || !lift.entries || !lift.entries.length) return;
+      var e = lift.entries[0]; // most recent
+      var name = liftNames[id] || id;
+      lines.push(name + ': ' + e.weight + 'kg × ' + e.reps + 'reps (e1RM ~' + Math.round(e.e1rm) + 'kg)');
+    });
+
+    if (!lines.length) return '';
+    return 'STRENGTH BASELINE (use for load prescriptions):\n' + lines.join('\n') + '\n';
+  } catch(e) { return ''; }
+}
+
 function buildWeekContext(ledger) {
   try {
     var lines = [];
@@ -7348,6 +7385,10 @@ function buildWeekContext(ledger) {
       lines = lines.concat(directLines.map(function(l){ return '  ' + l; }));
     }
 
+    // Add strength baseline to week context
+    var _sc = _buildStrengthContext();
+    if (_sc) lines.push(_sc.trim());
+
     if (!lines.length) return '';
     return lines.join('\n') + '\n';
   } catch(e) {
@@ -7422,6 +7463,14 @@ async function generateCoachNarrative(p, t, plan) {
     + ' Time: ' + _snap.hour + ':00.'
     + _weekCtx
     + (injuries ? ' Injuries: ' + injuries + '.' : '')
+    + (function(){
+      var sc = typeof _buildStrengthContext === 'function' ? _buildStrengthContext() : '';
+      if (!sc) return '';
+      // Extract just the key lifts relevant to today's session
+      var t = sc.split('\n').filter(function(l){return l.trim();});
+      if (t.length <= 1) return '';
+      return ' KEY LIFTS: ' + t.slice(1, 4).join(', ') + '.';
+    })()
     + _multiWeekSignal
     + '\n\nOne paragraph. Direct, personal, specific to their actual numbers right now. Reference trend data only if it materially affects today. Max 60 words.';
 
