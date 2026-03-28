@@ -27,7 +27,7 @@
 .gt-desc { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:520px; margin-bottom:24px; }
 
 /* Inputs section */
-.gt-inputs { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:32px; }
+.gt-inputs { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:0; }
 @media(max-width:580px){ .gt-inputs { grid-template-columns:1fr; } }
 .gt-input-col { }
 .gt-col-label { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; margin-bottom:14px; }
@@ -87,9 +87,9 @@
 
 /* CTA */
 .gt-run-btn {
-  width:100%; padding:15px; background:var(--jade); border:none; border-radius:11px;
+  width:100%; padding:16px; background:var(--jade); border:none; border-radius:11px;
   font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-  color:var(--ink); cursor:pointer; font-family:var(--sans); margin-bottom:8px;
+  color:var(--ink); cursor:pointer; font-family:var(--sans); margin-top:4px;
   transition:all .15s; display:flex; align-items:center; justify-content:center; gap:8px;
 }
 .gt-run-btn:hover { opacity:.88; }
@@ -733,12 +733,17 @@
     </div>
   </div>
 
+    <!-- Analyse button — spans both columns -->
+    <div style="grid-column:1 / -1;">
+      <button class="gt-run-btn" id="gt-run-btn" onclick="gtRun()">
+        Analyse the gap &rarr;
+      </button>
+    </div>
+
   </div>
-  <button class="gt-run-btn" id="gt-run-btn" onclick="gtRun()">
-    Analyse the gap &rarr;
-  </button>
 
   <!-- Loading -->
+  <div style="margin-top:24px;"></div>
   <div class="gt-loading" id="gt-loading">
     <div class="gt-spinner"></div>
     <div class="gt-loading-phase" id="gt-phase">Reading current state&hellip;</div>
