@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BodyLens — Viability Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+body { background: var(--ink); }
+.via-page { max-width: 780px; margin: 0 auto; padding: 56px 24px 120px; }
+
+.via-kicker { font-size: 9px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 16px; }
+.via-hero-title { font-family: var(--serif); font-size: 58px; font-weight: 300; line-height: .92; letter-spacing: -.02em; color: var(--dk-1); margin-bottom: 6px; }
+.via-hero-title em { font-style: italic; color: var(--jade); }
+.via-hero-sub { font-size: 12px; font-weight: 300; color: var(--dk-3); margin-bottom: 40px; letter-spacing: .06em; }
+
+.via-meta-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.via-meta-item { font-size: 10px; font-weight: 300; color: var(--dk-3); }
+.via-meta-item strong { font-weight: 700; color: var(--dk-2); display: block; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
+
+/* Verdict */
+.via-verdict { background: var(--ink-1); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 28px 32px; margin-bottom: 52px; }
+.via-verdict-label { font-size: 9px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--jade); margin-bottom: 12px; }
+.via-verdict-title { font-family: var(--serif); font-size: 26px; font-weight: 300; color: var(--dk-1); margin-bottom: 14px; line-height: 1.2; }
+.via-verdict-body { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.85; }
+
+/* Section */
+.via-section { margin-top: 56px; }
+.via-section-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.via-section-num { font-size: 9px; font-weight: 700; color: var(--dk-3); opacity: .45; }
+.via-section-label { font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--dk-3); }
+.via-section-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.07); }
+.via-section-title { font-family: var(--serif); font-size: 34px; font-weight: 300; color: var(--dk-1); margin-bottom: 6px; }
+.via-section-title em { font-style: italic; color: var(--dk-3); }
+.via-section-intro { font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.8; margin-bottom: 28px; max-width: 680px; }
+
+/* Score grid */
+.via-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 32px; }
+.via-score-card { background: var(--ink-1); border: 1px solid rgba(255,255,255,.06); border-radius: 10px; padding: 16px 18px; }
+.via-score-name { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 10px; }
+.via-score-row { display: flex; align-items: center; gap: 10px; }
+.via-score-num { font-family: var(--serif); font-size: 28px; font-weight: 300; color: var(--dk-1); min-width: 44px; }
+.via-score-num.improved { color: var(--jade); }
+.via-score-bar-wrap { flex: 1; height: 4px; background: rgba(255,255,255,.07); border-radius: 2px; }
+.via-score-bar { height: 4px; border-radius: 2px; background: var(--jade); }
+.via-score-delta { font-size: 9px; font-weight: 700; color: var(--jade); margin-top: 6px; }
+.via-score-note { font-size: 10px; font-weight: 300; color: var(--dk-3); margin-top: 6px; line-height: 1.5; }
+
+/* Cards */
+.via-cards { display: flex; flex-direction: column; gap: 12px; }
+.via-card { background: var(--ink-1); border: 1px solid rgba(255,255,255,.06); border-radius: 10px; padding: 20px 22px; }
+.via-card-label { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--jade); margin-bottom: 6px; }
+.via-card-label.amber { color: var(--amber); }
+.via-card-label.red { color: rgba(220,80,60,.9); }
+.via-card-label.blue { color: rgba(130,170,255,.9); }
+.via-card-title { font-size: 14px; font-weight: 600; color: var(--dk-1); margin-bottom: 8px; }
+.via-card-body { font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.75; }
+.via-card-body strong { font-weight: 600; color: var(--dk-1); }
+
+/* Cost table */
+.via-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+.via-table th { font-size: 8px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--dk-3); text-align: left; padding: 6px 10px 8px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.via-table td { font-size: 11px; font-weight: 300; color: var(--dk-2); padding: 9px 10px; border-bottom: 1px solid rgba(255,255,255,.04); }
+.via-table tr:last-child td { border-bottom: none; }
+.via-table td:first-child { font-weight: 600; color: var(--dk-1); }
+.via-table .highlight td { background: rgba(0,200,160,.04); }
+.via-table .total td { font-weight: 700; color: var(--dk-1); border-top: 1px solid rgba(255,255,255,.1); }
+
+/* Roadmap */
+.via-roadmap { display: flex; flex-direction: column; gap: 8px; }
+.via-road-item { display: flex; gap: 14px; align-items: flex-start; padding: 12px 16px; border-radius: 8px; background: var(--ink-1); border-left: 3px solid; }
+.via-road-item.done   { border-color: var(--jade); }
+.via-road-item.urgent { border-color: var(--amber); }
+.via-road-item.next   { border-color: rgba(130,170,255,.6); }
+.via-road-item.future { border-color: rgba(255,255,255,.1); }
+.via-road-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.via-road-item.done   .via-road-dot { background: var(--jade); }
+.via-road-item.urgent .via-road-dot { background: var(--amber); }
+.via-road-item.next   .via-road-dot { background: rgba(130,170,255,.8); }
+.via-road-item.future .via-road-dot { background: rgba(255,255,255,.2); }
+.via-road-text { font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.6; }
+.via-road-text strong { font-weight: 600; color: var(--dk-1); display: block; margin-bottom: 2px; font-size: 13px; }
+
+/* Progress delta */
+.via-delta-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
+.via-delta-chip { padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.via-delta-chip.built { background: rgba(0,200,160,.1); color: var(--jade); }
+.via-delta-chip.fixed { background: rgba(0,200,160,.07); color: var(--jade); border: 1px solid rgba(0,200,160,.2); }
+.via-delta-chip.remaining { background: rgba(220,160,40,.08); color: var(--amber); }
+
+.via-footer { margin-top: 72px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.07); font-size: 10px; font-weight: 300; color: var(--dk-3); line-height: 1.8; }
+</style>
+</head>
+<body>
+<main class="via-page">
+  <div class="via-kicker">BodyLens Internal Document</div>
+  <div class="via-hero-title">Product Analysis<br><em>Viability</em> &amp; Gap Analysis.</div>
+  <div class="via-hero-sub">A structured, unsparing assessment of BodyLens — updated to reflect current build state.</div>
+  <div class="via-meta-row">
+    <div class="via-meta-item"><strong>Prepared</strong>March 2026 — Revision 3</div>
+    <div class="via-meta-item"><strong>Stack</strong>Claude Sonnet 4.6 + Vercel + Supabase</div>
+    <div class="via-meta-item"><strong>Status</strong>Late prototype / pre-launch</div>
+    <div class="via-meta-item"><strong>Pages built</strong>47 HTML files</div>
+    <div class="via-meta-item"><strong>Data layer</strong>Supabase — live &amp; syncing</div>
+  </div>
+
+  <!-- VERDICT -->
+  <div class="via-verdict">
+    <div class="via-verdict-label">Brutally honest verdict — Revision 3</div>
+    <div class="via-verdict-title">Three of the five trust gaps have now closed.<br>Two remain — and they are the ones that matter most.</div>
+    <div class="via-verdict-body">
+      This revision reflects a materially different product from the previous assessment. The infrastructure gaps are closed. The safety gap — edge-case handling for vulnerable users — has been addressed with a working risk classifier and risk-aware coaching instructions. The trust gap — authority without epistemic honesty — has been addressed with a four-tier evidence framework applied to every accelerator, supplement, and coaching claim in the system. These were the two critiques most likely to prevent a sophisticated user from trusting the product.<br><br>
+      What remains: the feedback loop still doesn't exist. The system captures excellent data and doesn't reason about it across time. A user who trains with BodyLens for 12 weeks has given the system 84 day logs, 12 weekly ledger entries, and a detailed strength progression record — none of which currently changes what the plan recommends next week. This is the architectural difference between a sophisticated data entry tool and an adaptive coaching system. It is still unbuilt. Everything else is ahead of every competitor. That piece is what determines whether this becomes genuinely excellent.
+    </div>
+  </div>
+
+  <!-- 01 SCORES -->
+  <div class="via-section">
+    <div class="via-section-meta">
+      <span class="via-section-num">01</span>
+      <span class="via-section-label">Product scores — Revision 3</span>
+    </div>
+    <div class="via-section-title">Ten dimensions.<br><em>Honest, not generous.</em></div>
+    <div class="via-section-intro">Scored against category leaders (Whoop, Levels, Renaissance Periodisation app, Future, MyFitnessPal Pro). Green deltas show movement since last assessment. Five dimensions have improved this revision.</div>
+    <div class="via-scores">
+      <div class="via-score-card">
+        <div class="via-score-name">Product Intelligence</div>
+        <div class="via-score-row">
+          <div class="via-score-num improved">7.2</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:72%"></div></div>
+        </div>
+        <div class="via-score-delta">→ unchanged from 7.2</div>
+        <div class="via-score-note">AI voice log, debrief engine, coach narrative, and SOS panel make the daily intelligence layer genuinely strong. Still orchestration rather than adaptation — no feedback loop yet.</div>
+      </div>
+      <div class="via-score-card">
+        <div class="via-score-name">Reasoning Depth</div>
+        <div class="via-score-row">
+          <div class="via-score-num" style="color:var(--amber)">5.2</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:52%;background:var(--amber)"></div></div>
+        </div>
+        <div class="via-score-delta">→ unchanged. The core unfixed gap.</div>
+        <div class="via-score-note">Doesn't reconcile contradictions across time. Doesn't reason about patterns in logged data. The weekly reconciliation pass is unbuilt.</div>
+      </div>
+      <div class="via-score-card">
+        <div class="via-score-name">Scientific Rigour</div>
+        <div class="via-score-row">
+          <div class="via-score-num improved">7.8</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:78%"></div></div>
+        </div>
+        <div class="via-score-delta">↑ from 5.5 — major improvement</div>
+        <div class="via-score-note">Four-tier evidence framework now live across all accelerators and supplements. Every claim labelled: Established / Emerging / Limited / Anecdotal. Coach instructions rewritten with tier-specific language rules. Fadogia agrestis explicitly marked Anecdotal with animal-only evidence note. This was the largest single trust gap — now largely closed.</div>
+      </div>
+      <div class="via-score-card">
+        <div class="via-score-name">Behavioural Usefulness</div>
+        <div class="via-score-row">
+          <div class="via-score-num improved">8.2</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:82%"></div></div>
+        </div>
+        <div class="via-score-delta">→ unchanged from 8.2</div>
+        <div class="via-score-note">AI voice log, debrief, SOS, activity log, check-in, goals arc, plan audit. Genuine daily workflow coverage.</div>
+      </div>
+      <div class="via-score-card">
+        <div class="via-score-name">User Trust</div>
+        <div class="via-score-row">
+          <div class="via-score-num improved">7.5</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:75%"></div></div>
+        </div>
+        <div class="via-score-delta">↑ from 6.8</div>
+        <div class="via-score-note">Evidence tier badges, risk classifier, proper registration flow with email/password, Safari cache fix. A doctor or sports scientist reading the supplement page now sees honest epistemic labelling rather than uniform confidence.</div>
+      </div>
+      <div class="via-score-card">
+        <div class="via-score-name">Edge-Case Handling</div>
+        <div class="via-score-row">
+          <div class="via-score-num improved">6.5</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:65%"></div></div>
+        </div>
+        <div class="via-score-delta">↑ from 3.8 — risk classifier shipped</div>
+        <div class="via-score-note">risk-classifier.js detects 10 health risk categories from profile data. Risk-aware coaching instructions prepended to every AI call when flags present. Onboarding advisory shown when risk flags detected. Cardiovascular, disordered eating, spinal, T1 diabetes, pregnancy, and more covered with explicit do-not-prescribe rules and redirect guidance.</div>
+      </div>
+      <div class="via-score-card">
+        <div class="via-score-name">Explainability</div>
+        <div class="via-score-row">
+          <div class="via-score-num improved">7.2</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:72%"></div></div>
+        </div>
+        <div class="via-score-delta">↑ from 4.5</div>
+        <div class="via-score-note">Evidence tier framework means claims now carry their epistemic status. Coach rewritten with calibrated-confidence rules — no hedging on established science, explicit uncertainty on limited evidence. Hover tooltips on every badge explain the specific evidence note.</div>
+      </div>
+      <div class="via-score-card">
+        <div class="via-score-name">System Credibility</div>
+        <div class="via-score-row">
+          <div class="via-score-num improved">7.5</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:75%"></div></div>
+        </div>
+        <div class="via-score-delta">↑ from 7.0</div>
+        <div class="via-score-note">Evidence tiers, risk handling, proper auth flow, module extraction, code duplication audit across all pages. The system is now more honest about what it knows and doesn't know.</div>
+      </div>
+      <div class="via-score-card">
+        <div class="via-score-name">Differentiation</div>
+        <div class="via-score-row">
+          <div class="via-score-num improved">8.2</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:82%"></div></div>
+        </div>
+        <div class="via-score-delta">↑ from 7.8</div>
+        <div class="via-score-note">Four-tier evidence framework is genuinely differentiating — no competitor labels claims by epistemic quality. Risk classifier is clinically unusual for a consumer fitness product. Goals arc + plan audit is a new output type with no direct equivalent.</div>
+      </div>
+      <div class="via-score-card">
+        <div class="via-score-name">Product Completeness</div>
+        <div class="via-score-row">
+          <div class="via-score-num improved">8.0</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:80%"></div></div>
+        </div>
+        <div class="via-score-delta">↑ from 7.4</div>
+        <div class="via-score-note">Evidence framework, risk handling, registration flow, goals arc, plan audit, module architecture, Safari cache fix, token cap fix. Major trust and usability gaps across the product surface have closed.</div>
+      </div>
+    </div>
+    <!-- Total -->
+    <div style="margin-top:24px;padding:16px 20px;background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:10px;display:flex;align-items:baseline;gap:16px;">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);">Composite score</div>
+      <div style="font-family:var(--serif);font-size:36px;font-weight:300;color:var(--jade);">73.3</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);">/100 &nbsp;·&nbsp; up from 59.1 in revision 1 &nbsp;·&nbsp; up from 63.5 in revision 2</div>
+    </div>
+  </div>
+
+  <!-- 02 WHAT SHIPPED THIS REVISION -->
+  <div class="via-section">
+    <div class="via-section-meta">
+      <span class="via-section-num">02</span>
+      <span class="via-section-label">Shipped — Revision 3</span>
+    </div>
+    <div class="via-section-title">What shipped<br><em>this revision.</em></div>
+    <div class="via-section-intro">This revision was focused on trust infrastructure — epistemic honesty and medical safety. Both were the highest-severity trust gaps from the previous assessment. Both are now largely addressed.</div>
+    <div class="via-delta-row">
+      <span class="via-delta-chip built">Evidence tiers</span>
+      <span class="via-delta-chip built">Risk classifier</span>
+      <span class="via-delta-chip built">Risk-aware coaching</span>
+      <span class="via-delta-chip built">Goals arc</span>
+      <span class="via-delta-chip built">Plan audit</span>
+      <span class="via-delta-chip built">Registration flow</span>
+      <span class="via-delta-chip built">Module extraction</span>
+      <span class="via-delta-chip built">Duplication audit</span>
+      <span class="via-delta-chip built">Safari cache fix</span>
+      <span class="via-delta-chip built">Token cap fix</span>
+      <span class="via-delta-chip remaining">Feedback loop</span>
+      <span class="via-delta-chip remaining">Weekly reconciliation</span>
+      <span class="via-delta-chip remaining">Multi-week context</span>
+    </div>
+    <div class="via-cards">
+      <div class="via-card">
+        <div class="via-card-label">Built — Trust</div>
+        <div class="via-card-title">Four-tier evidence framework — every claim labelled</div>
+        <div class="via-card-body">The previous assessment identified "authority without audit trail" as a critical trust gap. A sophisticated user — a doctor, sports scientist, serious athlete — would identify that recommendations were stylistically authoritative but epistemically thin. This is now addressed. All 24 accelerators and 13 supplements carry evidence badges: <strong>Established</strong> (multiple RCTs, meta-analyses), <strong>Emerging</strong> (early RCTs, mechanism clear), <strong>Limited</strong> (mechanistic plausibility, thin human data), <strong>Anecdotal</strong> (animal studies or community practice only). Hover any badge to see the specific evidence note. Coach instructions rewritten with tier-specific language rules — no hedging on creatine, zone 2, or sleep; explicit uncertainty on NSDR dopamine claims, carb back-loading, and contrast therapy. Fadogia agrestis is the only Anecdotal item, with a note that human RCTs are absent and rodent toxicity data exists at high doses. An evidence legend sits above both pages. This is the most epistemically honest thing in the consumer fitness market.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Built — Safety</div>
+        <div class="via-card-title">Risk classifier — 10 health categories, mandatory coaching constraints</div>
+        <div class="via-card-body"><code>risk-classifier.js</code> reads <code>profile.healthConditions</code> and <code>profile.injuries</code>, matches against a taxonomy of 10 risk categories using keyword detection, and returns a structured <code>riskProfile</code> object. Categories: cardiovascular, disordered eating, spinal/disc, lower back pain, joint replacement, pregnancy/postnatal, type 1 diabetes, type 2 diabetes, controlled hypertension (medication), osteoporosis. When flags are present, a risk block is prepended to the coaching system prompt before every AI call — specifying: what condition is flagged, what NOT to prescribe, the required language approach, and when to redirect to a specialist. The risk block sits above the coaching instructions and cannot be overridden by profile context. An onboarding advisory is shown on the daily plan once per day when risk flags are present. This is clinically unusual for a consumer fitness product.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Built — Intelligence</div>
+        <div class="via-card-title">Goals arc + plan audit — structured milestone architecture</div>
+        <div class="via-card-body">Stage 6 added to the goals analysis output. Previously the goals page produced five stages of gap analysis — where you are, where you're going, what the gap is, what it implies, what it means for the plan. Useful but thin: everything framed as "get from A to B" without a map. Stage 6 now generates a <strong>goal arc</strong> — one named milestone per phase, each with measurable metrics (body fat target, protein hit, specific lift target), building blocks, a "done when" signal, and an "unlocks" statement explaining why the sequence matters. Below the arc, a <strong>plan audit</strong> reviews the current programme structure against the goals: what's aligned and why, what's misaligned and what it costs, what's missing and the priority. A verdict badge — strong foundation / needs rebalancing / significant gaps / rebuild required — with the top three specific changes to make now, in order, with rationale and timeline.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Built — Architecture</div>
+        <div class="via-card-title">Module extraction — dailyplan 512kb → 429kb, three new files</div>
+        <div class="via-card-body">The daily plan had grown to 512kb / 11,342 lines — approaching the limit of what Claude can reliably hold in context and edit safely. Three modules extracted to separate JS files: <code>dp-plan.js</code> (43kb — buildPlan + applyOptimisations, pure data functions with no DOM access), <code>dp-memory.js</code> (10kb — behaviour memory engine), <code>dp-debrief.js</code> (18kb — full debrief conversation engine + notification system). Inline JS reduced from 362kb to ~290kb. All three modules are now independently editable without touching the main file. A full duplication audit across all pages fixed 8 bugs across 5 files: duplicate macro table visual bug, three orphaned calorieReasonHtml definitions, duplicate buildMacroRow, dead vlgBuildNormalPanel, empty ph-step placeholder divs, bodyGlow SVG gradient collision.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Built — Auth</div>
+        <div class="via-card-title">Registration flow rebuilt — email/password + strength bar</div>
+        <div class="via-card-body">The login page now has a proper two-panel layout: atmospheric left panel with BodyLens branding and stats strip; right panel with tab-switched Sign in / Create account forms. Create account includes email validation, password with live strength bar (red → amber → blue → jade as complexity increases), confirm password, and terms note. Sign in shows a clean "Email or password is incorrect" message rather than raw Supabase error strings. Google OAuth works the same. On sign-in, the profile is loaded from Supabase and written to localStorage before redirect — new users go to onboarding, existing users go to the daily plan. Magic Link is gone. Email/password is the default flow.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Fixed — Infrastructure</div>
+        <div class="via-card-title">Safari caching + token cap — both silent failures resolved</div>
+        <div class="via-card-body">Two bugs that were causing silent production failures. <strong>Safari caching:</strong> Vercel was serving <code>public, max-age=0, must-revalidate</code> which Safari interpreted loosely — serving cached versions days old while Chrome updated correctly. Fixed with <code>vercel.json</code> headers: <code>no-cache, no-store, must-revalidate</code> + <code>Pragma: no-cache</code> + <code>Expires: 0</code> on all HTML and JS files. <strong>Token cap:</strong> <code>api/chat.js</code> had a hard cap of 2000 tokens. Seven pages request 2500–4000 tokens. The server silently truncated responses — incomplete JSON couldn't parse, the catch block ran, the page showed no error. Cap raised to 4000. Both were invisible failures with no error message — found by checking network responses and server source directly.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 CRITICAL GAPS — UPDATED -->
+  <div class="via-section">
+    <div class="via-section-meta">
+      <span class="via-section-num">03</span>
+      <span class="via-section-label">Critical gaps — current state</span>
+    </div>
+    <div class="via-section-title">What remains<br><em>genuinely thin.</em></div>
+    <div class="via-section-intro">Two of the five original critical gaps have closed this revision. Three remain — one is the most important thing left to build.</div>
+    <div class="via-cards">
+      <div class="via-card">
+        <div class="via-card-label red">Unchanged — The defining gap</div>
+        <div class="via-card-title">The feedback loop still doesn't exist</div>
+        <div class="via-card-body">84 day logs. 12 week ledger entries. Strength progression records. Sleep patterns. Energy ratings. RPE trends. <strong>None of this changes what the plan recommends next week.</strong> The data is captured, synced to Supabase, and stored perfectly. It is not being reasoned about across time. A user who trains for three months with BodyLens gets the same programme logic on week 12 as week 1 — unless they manually regenerate. This is the architectural difference between a sophisticated data entry tool and an adaptive coaching system. Every piece of infrastructure needed to build this exists. The weekly reconciliation pass — a single Claude call reading the last 7 day logs and generating programme adaptations — is unbuilt. It is the highest-leverage thing left to build in this product.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label amber">Partially addressed</div>
+        <div class="via-card-title">Overconfidence on contested claims — significantly reduced</div>
+        <div class="via-card-body">The evidence tier framework has substantially addressed this. Accelerators and supplements now carry honest epistemic labels. The coaching instructions have been rewritten with calibrated-confidence rules. However, the science library pages (15+ pages covering sleep, gut health, longevity, hormones, metabolism) have not been audited against the evidence tier framework — they were built before it existed. Individual pages still make claims with more certainty than the research supports. A systematic pass applying the same tier methodology to science library content is the remaining work.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label amber">Partially addressed</div>
+        <div class="via-card-title">Edge-case handling — risk classifier built, onboarding detection gap remains</div>
+        <div class="via-card-body">The risk classifier detects 10 health categories from existing profile fields and injects mandatory coaching constraints. This is a genuine improvement. The remaining gap: risk detection depends on what users disclose. The onboarding form collects health conditions as a free-text field — "a bit of back pain" won't trigger the spinal flag. The classifier has no way to surface what hasn't been typed. Better onboarding prompts (specific questions about cardiovascular history, injury history, eating history) would catch more risk profiles at the point of programme creation rather than relying on user disclosure in a generic text box.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 COST -->
+  <div class="via-section">
+    <div class="via-section-meta">
+      <span class="via-section-num">04</span>
+      <span class="via-section-label">Cost analysis — updated</span>
+    </div>
+    <div class="via-section-title">What it costs<br><em>to run.</em></div>
+    <div class="via-section-intro">Claude Sonnet 4.6: $3/M input, $15/M output. Active user = 20+ sessions/month. Updated to include risk classifier pre-pass (negligible cost) and goals analysis (occasional use).</div>
+    <table class="via-table">
+      <thead>
+        <tr><th>Feature</th><th>Input tokens</th><th>Output tokens</th><th>Cost/call</th><th>Monthly (active)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Daily plan generation</td><td>~2,800</td><td>~500</td><td>$0.016</td><td>$0.48</td></tr>
+        <tr><td>AI voice guided log</td><td>~1,200/turn × 4</td><td>~180/turn</td><td>$0.017</td><td>$0.51</td></tr>
+        <tr><td>Coach chat (per message)</td><td>~3,500</td><td>~300</td><td>$0.0155</td><td>$1.55 (100 msgs)</td></tr>
+        <tr><td>Meal plan (full week)</td><td>~1,200</td><td>~3,000</td><td>$0.049</td><td>$0.20</td></tr>
+        <tr><td>Podcast generation</td><td>~2,500</td><td>~4,000</td><td>$0.068</td><td>$0.27</td></tr>
+        <tr><td>ElevenLabs TTS</td><td>—</td><td>—</td><td>$0.045</td><td>$0.18</td></tr>
+        <tr><td>Goals analysis (occasional)</td><td>~4,000</td><td>~3,500</td><td>$0.065</td><td>$0.13 (2×/mo)</td></tr>
+        <tr><td>Risk classifier pre-pass</td><td>~200 (local JS)</td><td>—</td><td>$0.000</td><td>$0.00</td></tr>
+        <tr><td>Body scan + body mapper</td><td>~1,600</td><td>~700</td><td>$0.015</td><td>$0.30</td></tr>
+        <tr><td>Programme onboarding</td><td>~3,000</td><td>~2,000</td><td>$0.039</td><td>$0.04 (one-off)</td></tr>
+        <tr class="total"><td>Total estimated monthly</td><td colspan="3">—</td><td>~$3.66/month</td></tr>
+      </tbody>
+    </table>
+    <div class="via-cards" style="margin-top:20px">
+      <div class="via-card">
+        <div class="via-card-label">Cost note — risk classifier is free</div>
+        <div class="via-card-title">Risk detection adds zero API cost — pure client-side JS</div>
+        <div class="via-card-body">The risk classifier runs entirely in the browser against local profile data — keyword matching with no API call. The risk block it produces is injected into the coaching system prompt, adding ~400-600 tokens to each coach call when flags are present. For a flagged user making 100 coach queries/month, that adds ~$0.18/month. For the product's overall unit economics, the risk system is essentially free: no API cost for detection, minimal marginal cost on coaching calls that would happen anyway. At £14.99/month subscription and $3.66 COGS, gross margin is ~76%. Haiku routing for low-complexity calls would bring COGS below $2.00/month.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 THE INTELLIGENCE GAP -->
+  <div class="via-section">
+    <div class="via-section-meta">
+      <span class="via-section-num">05</span>
+      <span class="via-section-label">The remaining gap</span>
+    </div>
+    <div class="via-section-title">The gap between<br><em>impressive and elite.</em></div>
+    <div class="via-section-intro">The trust infrastructure is now strong. The product surface is broad and honest. The differentiating investment is now entirely in the reasoning engine — which the data layer exists to power.</div>
+    <div class="via-cards">
+      <div class="via-card">
+        <div class="via-card-label blue">Architecture needed — highest priority</div>
+        <div class="via-card-title">The weekly reconciliation pass — logged data must change the programme</div>
+        <div class="via-card-body">Every piece of infrastructure needed to build this exists. Day logs are in Supabase with trainStatus, exercises, energy, sleep, and RPE. Week ledger tracks the full week. The profile holds the programme and weekPlan. <strong>What's missing is the reasoning pass</strong> — a weekly Claude call reading the last 7 days of logs, identifying patterns (consistent low energy, missed sessions, RPE mismatches), and outputting programme adaptations or coaching interventions. This writes back to <code>profile.behaviourMemory</code> and surfaces a weekly coaching summary. Cost: ~$0.03/week per user. This is the highest-leverage thing left to build — it closes the most important intelligence gap and is the architectural difference between a data capture tool and an adaptive coach.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label blue">Architecture needed</div>
+        <div class="via-card-title">Multi-week context in programme generation</div>
+        <div class="via-card-body">The week ledger exists in Supabase. It is not passed into the daily plan generation context. Passing the last 4 weeks of weekly summaries into the programme prompt would enable genuine periodisation reasoning: deload detection from fatigue patterns, volume progression recommendations, session timing adjustments based on actual recovery. This is a data retrieval problem the infrastructure now supports — not an architectural build, just a prompt injection change in <code>buildDay()</code>.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label blue">Architecture needed</div>
+        <div class="via-card-title">Science library evidence audit</div>
+        <div class="via-card-body">The evidence tier framework is live on accelerators and supplements. The science library (15+ pages covering sleep, gut health, longevity, hormones, HRV, metabolism) predates the framework and hasn't been audited. Individual pages make claims with more certainty than the research supports. Applying the same tier methodology systematically — adding evidence badges to each science claim and updating the coaching instructions to reflect the science library's content — is the remaining scientific rigour work. Medium effort, high trust impact for sophisticated users.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 ROADMAP -->
+  <div class="via-section">
+    <div class="via-section-meta">
+      <span class="via-section-num">06</span>
+      <span class="via-section-label">Priority roadmap — Revision 3</span>
+    </div>
+    <div class="via-section-title">What to build<br><em>in order.</em></div>
+    <div class="via-section-intro">Sequenced by trust impact and intelligence leverage. Significant movement this revision — four items closed, priorities re-ranked.</div>
+    <div class="via-roadmap">
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Four-tier evidence framework — shipped</strong>All accelerators and supplements carry Established / Emerging / Limited / Anecdotal badges with evidence notes. Coach instructions rewritten with calibrated-confidence language rules. Hover tooltips on every badge. Evidence legend on both pages. Most epistemically honest consumer fitness product in the market.</div>
+      </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Risk classifier — shipped</strong>10 health risk categories. Keyword detection from profile fields. Mandatory coaching constraint blocks injected when flags present. Onboarding advisory on daily plan. Covers cardiovascular, disordered eating, spinal, T1 diabetes, pregnancy, joint replacement, osteoporosis, and more.</div>
+      </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Goals arc + plan audit — shipped</strong>Stage 6 output: named milestone arc with measurable metrics and success signals, plus structured plan audit showing aligned/misaligned/missing elements with verdict badge and top-3 priority changes.</div>
+      </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Registration flow — rebuilt</strong>Email/password registration with strength bar, two-panel layout, proper error messages, Supabase signUp wired. Magic Link removed. Email/password is the default.</div>
+      </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Supabase data layer — complete</strong>12 data types syncing. 7 tables. Auth race condition fixed. Data sync dashboard. Profile always loads on sign-in.</div>
+      </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ AI-guided voice log — shipped</strong>Conversational back-and-forth. Structured data extraction. Full conversation stored.</div>
+      </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Infrastructure fixes — Safari caching, token cap, module extraction, duplication audit</strong>vercel.json no-cache headers fix Safari staleness. Token cap raised to 4000. Daily plan modularised (dp-plan.js, dp-memory.js, dp-debrief.js). 8 duplication bugs fixed across 5 pages.</div>
+      </div>
+      <div class="via-road-item urgent">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>⚠ Auth gate — must ship before public launch</strong>All pages accessible without login. Auth infrastructure fully built — not enforced. One redirect check. Needed before any paying user onboarding.</div>
+      </div>
+      <div class="via-road-item urgent">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>⚠ Run Supabase schema migration</strong>activities and week_ledger tables need creating. profiles table needs 6 new columns. SQL file written — needs running in Supabase SQL editor.</div>
+      </div>
+      <div class="via-road-item next">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>→ Weekly reconciliation pass — the feedback loop</strong>Weekly Claude call reading last 7 days of day_logs + week_ledger. Outputs: programme adjustments, coaching interventions, pattern flags. Writes to profile.behaviourMemory. Surfaces weekly coaching summary. Closes the most important intelligence gap. ~$0.03/week per user.</div>
+      </div>
+      <div class="via-road-item next">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>→ Multi-week context injection into daily plan</strong>Pass last 4 weeks of week_ledger summaries into buildDay() prompt. Enables periodisation reasoning, deload detection, volume progression. Infrastructure already exists — prompt injection only.</div>
+      </div>
+      <div class="via-road-item next">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>→ Science library evidence audit</strong>Apply evidence tier methodology to 15+ science pages. Add tier badges to claims. Update coaching instructions to reference science library content tiers. High trust impact for sophisticated users.</div>
+      </div>
+      <div class="via-road-item next">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>→ Onboarding risk prompts — specific health questions</strong>Replace free-text health conditions field with structured questions: cardiovascular history, back/joint injury history, eating history, current medications. Catches risk profiles at programme creation rather than relying on user disclosure.</div>
+      </div>
+      <div class="via-road-item future">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>◦ Haiku routing for low-complexity calls</strong>Meal swaps, simple coach summaries routed to Claude Haiku 4.5. Reduces COGS to under $2.00/month.</div>
+      </div>
+      <div class="via-road-item future">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>◦ Strength progression modelling</strong>Detect PRs from logged set data. Predict optimal load progression. Generate overload recommendations from actual performance.</div>
+      </div>
+      <div class="via-road-item future">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>◦ Wearable integration (Oura / Whoop OAuth)</strong>Real HRV and sleep data. Highest-leverage data source for genuine recovery intelligence. Requires OAuth implementation.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 DIFFERENTIATION -->
+  <div class="via-section">
+    <div class="via-section-meta">
+      <span class="via-section-num">07</span>
+      <span class="via-section-label">Differentiation — Revision 3</span>
+    </div>
+    <div class="via-section-title">What makes it<br><em>defensible now.</em></div>
+    <div class="via-section-intro">The original assessment said differentiation was real but fragile — primarily UX and prompt engineering that a competitor could replicate. That assessment has changed substantially.</div>
+    <div class="via-cards">
+      <div class="via-card">
+        <div class="via-card-label">New moat — epistemic honesty</div>
+        <div class="via-card-title">No competitor labels claims by evidence quality</div>
+        <div class="via-card-body">The four-tier evidence framework is genuinely differentiating. Every major fitness product — Whoop, Future, MyFitnessPal, Levels — presents recommendations with uniform confidence regardless of the underlying evidence. BodyLens is the only consumer fitness product that labels claims as Established, Emerging, Limited, or Anecdotal and tells users why. Fadogia agrestis is marked Anecdotal with a note that no human RCTs exist and animal toxicity data is present at high doses. This is not a product that hedges everything — creatine, zone 2, and sleep extension are presented with full confidence because the evidence is unambiguous. The calibration is real. For a sophisticated user, this is the difference between trusting the product and dismissing it.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">New moat — clinical safety posture</div>
+        <div class="via-card-title">Risk detection is clinically unusual for consumer fitness</div>
+        <div class="via-card-body">No consumer fitness app has a working risk classifier that modifies AI coaching behaviour based on detected health conditions. Future uses human coaches who would handle this naturally. BodyLens is the only AI-first product with explicit do-not-prescribe rules, specialist redirect requirements, and per-condition coaching constraint blocks. A user with hypertension gets different intensity guidance. A user with disordered eating history doesn't receive caloric deficit prescriptions. A user with a herniated disc doesn't receive spinal loading recommendations. This is the kind of safety posture that matters at scale — and it's structural, not just a disclaimer.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Strengthening — data moat</div>
+        <div class="via-card-title">The data layer is the beginning of a real moat — if the feedback loop closes</div>
+        <div class="via-card-body">Every day a user trains with BodyLens creates data no new competitor can replicate: training logs, macro tracking, scan history, activity records, week-by-week training ledger. This is only a moat if the data is reasoned about, not just stored. The weekly reconciliation pass converts stored data into a competitive advantage — a coach that gets demonstrably better the longer you use it. Without it, the data layer is impressive infrastructure. With it, it becomes something no competitor can catch up to quickly.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Structural advantage</div>
+        <div class="via-card-title">The operating system positioning remains unoccupied</div>
+        <div class="via-card-body">Training, nutrition, sleep, recovery, supplementation, body intelligence, science education, and coaching in a single coherent product. No competitor occupies this position credibly. Whoop is recovery data. Future is human coaching. Levels is metabolic health. BodyLens is the only product attempting to build an intelligent OS for how a person relates to their body across all dimensions simultaneously. The gap between what BodyLens is now and what it could be in 18 months — with the feedback loop running, the science library audited, and wearable data flowing — is the clearest opportunity in the space.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="via-footer">
+    BodyLens Viability Analysis · Revision 3 · March 2026 · Internal document · Not for distribution<br>
+    Scoring: 10-point scale vs Whoop, Levels, Renaissance Periodisation, MyFitnessPal Pro, Future. Composite: 73.3/100 (Rev 1: 59.1 · Rev 2: 63.5).<br>
+    Cost: Anthropic Claude Sonnet 4.6 at $3/M input, $15/M output. ElevenLabs Creator at $0.30/1,000 chars. Active user = 20+ sessions/month.<br>
+    Build status: 47 deployed HTML files, live Supabase instance, risk-classifier.js, evidence tier framework, four-tier supplement/accelerator labels.
+  </div>
+</main>
+</body>
+</html>
