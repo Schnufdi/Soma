@@ -7644,6 +7644,9 @@ function buildDay(){
     refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, plan);
+    // ── Weekly reconciliation pass (once/week, async) ──────────
+    if (typeof checkAndRunReconciliation === 'function') checkAndRunReconciliation();
+    if (typeof showExistingReconciliation === 'function') showExistingReconciliation();
     setTimeout(initDayCapture, 100);
   } catch(e){
     root.innerHTML = '<div style="text-align:center;padding:60px;">'
@@ -9601,6 +9604,7 @@ window._gcLaunchFromBlock = function(blockIdx, block) {
 </script>
 <script src="/dp-memory.js"></script>
 <script src="/dp-debrief.js"></script>
+<script src="/dp-reconcile.js"></script>
 
 <!-- ── Session Editor Drawer ─────────────────────────── -->
 <div id="se-overlay" onclick="closeSessionEditor()"></div>
