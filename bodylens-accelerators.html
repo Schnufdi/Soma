@@ -172,6 +172,18 @@ body { background:var(--ink); color:var(--dk-1); }
     <button class="gf-btn" data-filter="easy" onclick="filterGoal('easy',this)">Easy wins only</button>
   </div>
 
+  <!-- Evidence tier legend -->
+  <div style="margin-bottom:28px;padding:14px 18px;background:var(--ink-2,#141e1b);border:1px solid rgba(255,255,255,.07);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3,#3e504a);flex-shrink:0;">Evidence tiers</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+      <span title="Multiple RCTs, meta-analyses, strong independent consensus" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(0,200,160,.3);border-radius:4px;padding:3px 8px;color:var(--jade,#00c8a0);cursor:help;"><span style="width:5px;height:5px;border-radius:50%;background:var(--jade,#00c8a0);display:inline-block;"></span>Established</span>
+      <span title="RCTs exist but limited in scale; mechanism clear, effect size not fully characterised" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(196,124,24,.3);border-radius:4px;padding:3px 8px;color:var(--amber,#c47c18);cursor:help;"><span style="width:5px;height:5px;border-radius:50%;background:var(--amber,#c47c18);display:inline-block;"></span>Emerging</span>
+      <span title="Mechanistic plausibility; small studies or data extrapolated from adjacent literature" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(160,168,152,.25);border-radius:4px;padding:3px 8px;color:rgba(160,168,152,.8);cursor:help;"><span style="width:5px;height:5px;border-radius:50%;background:rgba(160,168,152,.8);display:inline-block;"></span>Limited</span>
+      <span title="Animal studies or community practice only; minimal peer-reviewed human evidence" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(180,100,80,.25);border-radius:4px;padding:3px 8px;color:rgba(200,120,100,.8);cursor:help;"><span style="width:5px;height:5px;border-radius:50%;background:rgba(200,120,100,.8);display:inline-block;"></span>Anecdotal</span>
+    </div>
+    <div style="font-size:10px;font-weight:300;color:var(--dk-3,#3e504a);margin-left:auto;">Hover any badge for notes</div>
+  </div>
+
   <!-- NUTRITION ACCELERATORS -->
   <div class="acc-sec gold">Nutrition & fasting</div>
   <div class="acc-grid" id="grid-nutrition"></div>
@@ -208,7 +220,7 @@ const _p = (() => { try { return JSON.parse(localStorage.getItem('bl_profile')||
 const ACCELERATORS = {
   nutrition: [
     {
-      id:'fast-16-8', icon:'⏰', name:'Extended overnight fast',
+      id:'fast-16-8', evidence:{tier:'emerging', note:'Multiple RCTs show fat loss and metabolic benefit; effects vs. matched caloric restriction still debated'}, icon:'⏰', name:'Extended overnight fast',
       tagline:'Eat noon to 8pm. The most researched fat loss protocol — and the most painless to start.',
       badge:'easy', color:'gold', goals:['fat-loss','recomp','longevity'],
       mechanism:`When you stop eating at 8pm and don't eat until noon, insulin stays low for 16 hours straight. Fat oxidation is highest when insulin is lowest — it's a hormonal gate. After around 14 hours, autophagy accelerates: your cells start clearing damaged proteins. Growth hormone pulses significantly during extended fasts, protecting muscle while fat burns. The protocol doesn't reduce calories by itself — but it reorganises when you eat in a way that changes hormonal context completely.`,
@@ -222,7 +234,7 @@ const ACCELERATORS = {
       warn:'If you train in the morning, eat something small beforehand until you are adapted to fasted training. Headaches on day 1 are normal — electrolytes help.',
     },
     {
-      id:'psmf', icon:'🧬', name:'Protein-sparing modified fast',
+      id:'psmf', evidence:{tier:'emerging', note:'Small RCTs in clinical populations; limited general population data'}, icon:'🧬', name:'Protein-sparing modified fast',
       tagline:'600 kcal, protein only, once a week. Bigger deficit than daily restriction without metabolic adaptation.',
       badge:'mod', color:'gold', goals:['fat-loss'],
       mechanism:`One day per week eating only around 600 kcal from lean protein sources. Muscle is preserved via the leucine signal — your body won't break down muscle if protein intake is sufficient. Fat oxidation runs at maximum throughout the day. The weekly deficit created is equivalent to 3-4 days of mild restriction — but the metabolism doesn't adapt to a single hard day the way it does to chronic caloric restriction. Leptin barely drops over 24 hours. Hunger is manageable because protein is highly satiating.`,
@@ -237,7 +249,7 @@ const ACCELERATORS = {
       warn:'Not suitable if currently eating below 1,800 kcal daily. If lightheaded, add 500ml water with a pinch of salt and a small piece of protein.',
     },
     {
-      id:'carb-backload', icon:'⚡', name:'Carb back-loading',
+      id:'carb-backload', evidence:{tier:'limited', note:'Mechanistically plausible; direct comparative RCT evidence sparse'}, icon:'⚡', name:'Carb back-loading',
       tagline:'Minimal carbs until training. Maximum carbs post-session. The existing programme, optimised.',
       badge:'easy', color:'gold', goals:['muscle','recomp','fat-loss'],
       mechanism:`Muscle insulin sensitivity is dramatically elevated for 30-60 minutes after training. Carbohydrates consumed in this window go preferentially to glycogen — not fat storage. By holding carbs until post-training, insulin stays low during the day (promoting fat oxidation), then spikes at the moment of maximum muscle uptake. This is an amplification of what the programme already does — it just makes the timing more deliberate and aggressive.`,
@@ -251,7 +263,7 @@ const ACCELERATORS = {
       warn:'Not ideal on rest days — keep carbs moderate and spread through the day.',
     },
     {
-      id:'diet-break', icon:'🔄', name:'Diet break week',
+      id:'diet-break', evidence:{tier:'emerging', note:'Emerging RCT evidence (MATADOR trial) showing adherence and metabolic adaptation benefit'}, icon:'🔄', name:'Diet break week',
       tagline:'One week at maintenance every 6-8 weeks. Leptin restores. The brakes release.',
       badge:'easy', color:'gold', goals:['fat-loss'],
       mechanism:`After 6-8 weeks of caloric deficit, leptin drops significantly and the body actively resists further fat loss. One week at maintenance calories allows leptin to partially restore, cortisol to drop, and NEAT (unconscious movement) to recover. The fat lost stays off — these are physiological processes, not willpower failures. Counter-intuitively, this accelerates long-term fat loss by preventing the metabolic adaptation that makes extended cuts increasingly ineffective.`,
@@ -265,7 +277,7 @@ const ACCELERATORS = {
       warn:'This is not a cheat week. Alcohol and junk food will blunt the hormonal benefits.',
     },
     {
-      id:'fasted-coffee', icon:'☕', name:'Fasted morning training',
+      id:'fasted-coffee', evidence:{tier:'limited', note:'Mechanistic evidence for caffeine + fat oxidation; direct fasted-training RCTs limited'}, icon:'☕', name:'Fasted morning training',
       tagline:'Train before eating. Catecholamines peak. Fat oxidation measurably higher during the session.',
       badge:'easy', color:'gold', goals:['fat-loss','recomp'],
       mechanism:`In the fasted state, catecholamines (adrenaline, noradrenaline) are elevated. These directly mobilise fatty acids from adipose tissue. Training in this hormonal environment means fat is the primary substrate during the session. Post-training insulin spike is also more pronounced when training fasted — nutrients partition more aggressively to muscle rather than fat. Black coffee 30-45 minutes pre-session amplifies both effects.`,
@@ -279,7 +291,7 @@ const ACCELERATORS = {
       warn:'Not suitable for very heavy leg days or max-effort sessions until adapted. Performance dip is temporary.',
     },
     {
-      id:'monthly-36h', icon:'🌙', name:'Monthly 36-hour fast',
+      id:'monthly-36h', evidence:{tier:'limited', note:'Autophagy and metabolic effects extrapolated from longer fast literature; 36h-specific data sparse'}, icon:'🌙', name:'Monthly 36-hour fast',
       tagline:'Sunday dinner → Tuesday breakfast. Autophagy maximised. GH spikes significantly. Once a month.',
       badge:'mod', color:'gold', goals:['longevity','fat-loss'],
       mechanism:`A 36-hour fast is where autophagy — the cellular cleaning process — runs at its highest sustained rate. Growth hormone rises dramatically (compensating for the lack of protein ingestion). Insulin sensitivity resets profoundly. The gut microbiome shifts toward a more diverse, anti-inflammatory profile. Done once a month, there is no meaningful impact on muscle mass with sufficient protein in surrounding days. This is one of the most powerful longevity interventions known.`,
@@ -296,7 +308,7 @@ const ACCELERATORS = {
 
   training: [
     {
-      id:'zone2', icon:'🫀', name:'Zone 2 cardio blocks',
+      id:'zone2', evidence:{tier:'established', note:'Decades of endurance research; mitochondrial biogenesis and metabolic health well-established'}, icon:'🫀', name:'Zone 2 cardio blocks',
       tagline:'60-70% max HR, 3-4 hrs/week total. The highest-leverage longevity and recovery investment.',
       badge:'easy', color:'jade', goals:['longevity','fat-loss','muscle','recomp'],
       mechanism:`Zone 2 builds mitochondrial density in slow-twitch muscle fibres. More mitochondria means faster ATP regeneration between sets, faster lactate clearance, and quicker recovery between sessions. VO₂max — predicted almost entirely by mitochondrial density — is the single strongest predictor of longevity across all studies. A 20-minute walk after dinner qualifies. The gym is optional. The heart rate is not.`,
@@ -311,7 +323,7 @@ const ACCELERATORS = {
       warn:'Easy to go too hard. If you cannot talk in full sentences, you are in Zone 3-4. Slow down.',
     },
     {
-      id:'vo2max-intervals', icon:'🔥', name:'Weekly VO₂max intervals',
+      id:'vo2max-intervals', evidence:{tier:'established', note:'Strong RCT base for VO₂max improvement; 4×4 protocol extensively studied'}, icon:'🔥', name:'Weekly VO₂max intervals',
       tagline:'4×4 min at 90-95% max HR, once a week. 16 minutes of work. Outsized longevity return.',
       badge:'mod', color:'jade', goals:['longevity','fat-loss'],
       mechanism:`The Norwegian 4×4 protocol is the most studied VO₂max-elevating intervention. Four minutes at near-maximum intensity forces your cardiac output to ceiling — the stimulus for VO₂max adaptation. Four minutes recovery. Repeated four times. Done once per week, it produces VO₂max gains comparable to far more time-consuming programmes. VO₂max is the metric that predicts how well you function in your 60s and 70s.`,
@@ -326,7 +338,7 @@ const ACCELERATORS = {
       warn:'This is genuinely hard. Not suitable on consecutive days with heavy leg training.',
     },
     {
-      id:'post-meal-walks', icon:'🚶', name:'Post-meal walks',
+      id:'post-meal-walks', evidence:{tier:'established', note:'Multiple RCTs confirm postprandial glucose reduction; GLUT4 mechanism well-characterised'}, icon:'🚶', name:'Post-meal walks',
       tagline:'10 min after each meal. 30 min of Zone 2 you barely notice. Glucose down 20-30%.',
       badge:'easy', color:'jade', goals:['fat-loss','recomp','longevity','muscle'],
       mechanism:`Walking for 10 minutes after a meal recruits muscle glycogen uptake via GLUT4 transporters in a non-insulin-dependent pathway. Blood glucose drops 20-30% faster than at rest. GLP-1 — the satiety hormone that appetite-suppressing drugs target — is elevated. Over three meals, that is 30 minutes of moderate cardio, roughly 250-300 additional kcal burned, and substantially improved daily insulin sensitivity. It does not feel like exercise. The benefits are the same.`,
@@ -339,7 +351,7 @@ const ACCELERATORS = {
       readiness:'Start today. No prerequisites.',
     },
     {
-      id:'neat', icon:'📈', name:'NEAT maximisation',
+      id:'neat', evidence:{tier:'established', note:'Epidemiological and intervention evidence solid; energy expenditure contribution well-quantified'}, icon:'📈', name:'NEAT maximisation',
       tagline:'2,000-3,000 extra steps per day. 200-300 kcal daily without one more gym session.',
       badge:'easy', color:'jade', goals:['fat-loss','recomp'],
       mechanism:`Non-Exercise Activity Thermogenesis (NEAT) — all movement outside formal exercise — accounts for a surprisingly large portion of total daily energy expenditure, and it varies dramatically between people. Increasing it deliberately is the most accessible form of caloric deficit: 1,000 extra steps burns roughly 40-50 kcal. Adding 3,000 steps to a typical day creates a 120-150 kcal daily deficit without any perceived effort or hunger response from the body.`,
@@ -352,7 +364,7 @@ const ACCELERATORS = {
       readiness:'Start today. Works at any training level.',
     },
     {
-      id:'loaded-stretch', icon:'🧘', name:'Loaded stretching',
+      id:'loaded-stretch', evidence:{tier:'limited', note:'Hypertrophy in stretched position emerging; optimal load and duration parameters unclear'}, icon:'🧘', name:'Loaded stretching',
       tagline:'Hold a stretched position under load for 2 min. Fascia remodels. Hypertrophy stimulus without CNS cost.',
       badge:'easy', color:'jade', goals:['muscle','recomp'],
       mechanism:`Holding a muscle in a stretched position under tension generates a distinct hypertrophy stimulus through passive mechanical tension on the sarcomere. Fascia remodels toward greater extensibility. Range of motion improvements are faster than static stretching alone. Recent research suggests the stretched portion of a lift may drive more hypertrophy than the contracted position — making the bottom of every exercise more important than previously understood.`,
@@ -365,7 +377,7 @@ const ACCELERATORS = {
       readiness:'No prerequisites. Add to existing sessions.',
     },
     {
-      id:'bfr', icon:'🩸', name:'Blood flow restriction training',
+      id:'bfr', evidence:{tier:'emerging', note:'Growing RCT base; mechanisms clear; optimal protocols still being refined'}, icon:'🩸', name:'Blood flow restriction training',
       tagline:'20% of 1RM + partial occlusion. Same hypertrophy signal as heavy training. Zero CNS cost.',
       badge:'mod', color:'jade', goals:['muscle','recomp'],
       mechanism:`Wrapping a cuff around a limb and training at very light loads (20-30% of 1RM) to failure produces metabolic stress identical to heavy training. Lactate accumulates, GH spikes locally, mTOR activates. Hypertrophy response is equivalent to standard training at 70-80% 1RM. This is ideal for high-frequency training without accumulating fatigue, for training around injuries, or for adding volume on recovery days when heavy loading is not appropriate.`,
@@ -383,7 +395,7 @@ const ACCELERATORS = {
 
   recovery: [
     {
-      id:'sauna', icon:'🔥', name:'Sauna protocol',
+      id:'sauna', evidence:{tier:'emerging', note:'Laukkanen observational data strong; RCT intervention evidence for performance outcomes growing'}, icon:'🔥', name:'Sauna protocol',
       tagline:'80-100°C, 20 min, 4×/week. 40% lower all-cause mortality. Heat shock proteins. GH pulse.',
       badge:'easy', color:'blue', goals:['longevity','muscle','fat-loss','recomp'],
       mechanism:`The Laukkanen studies from Finland tracked 2,300 men over 20 years. Four or more sauna sessions per week at 80°C+ correlated with 40% lower all-cause mortality. Mechanisms: heat shock proteins repair damaged cells, plasma volume expands (a cardiac training effect), GH pulses significantly, and inflammatory markers drop. The cardiovascular adaptation from repeated heat stress is measurable and clinically meaningful.`,
@@ -398,7 +410,7 @@ const ACCELERATORS = {
       warn:'Not suitable immediately post-cold plunge for those new to heat exposure. Check with a doctor if you have blood pressure issues.',
     },
     {
-      id:'contrast', icon:'🧊', name:'Cold-hot contrast cycling',
+      id:'contrast', evidence:{tier:'limited', note:'Small RCTs; perceived recovery benefits clearer than objective biomarker improvements'}, icon:'🧊', name:'Cold-hot contrast cycling',
       tagline:'Sauna 15 min → cold 3 min → repeat 3 cycles. Noradrenaline spikes 300%. HRV improves in 48h.',
       badge:'mod', color:'blue', goals:['longevity','muscle','recomp'],
       mechanism:`The alternating vasodilation and vasoconstriction from contrast therapy creates a pumping effect that clears metabolic byproducts from muscle tissue faster than passive recovery. Noradrenaline — a primary driver of alertness, mood, and motivation — rises over 300% with cold exposure and stays elevated for hours. HRV (heart rate variability, the primary recovery metric) typically improves within 48 hours of starting a regular cold-hot protocol.`,
@@ -413,7 +425,7 @@ const ACCELERATORS = {
       warn:'Do not drive immediately after this protocol. The hormonal state can feel disorienting initially.',
     },
     {
-      id:'nsdr', icon:'🌊', name:'NSDR / Yoga Nidra',
+      id:'nsdr', evidence:{tier:'limited', note:'Huberman lab data + yoga nidra research; dopamine claim from single neuroimaging study; not replicated at scale'}, icon:'🌊', name:'NSDR / Yoga Nidra',
       tagline:'20 min body scan. Dopamine rises 65% in the striatum. Cognitive function restores as if you slept.',
       badge:'easy', color:'blue', goals:['longevity','fat-loss','muscle','recomp'],
       mechanism:`Non-Sleep Deep Rest protocols (body scan meditation, yoga nidra) produce a distinct neurological state different from sleep and standard wakefulness. Dopamine rises approximately 65% in the striatum — the brain region governing motivation, reward, and learning. Cognitive performance after a 20-minute NSDR session matches that after 90 minutes of sleep for many tasks. Cortisol drops significantly. The session takes exactly as long as it claims to.`,
@@ -426,7 +438,7 @@ const ACCELERATORS = {
       readiness:'Start today. No prerequisites.',
     },
     {
-      id:'sleep-extension', icon:'😴', name:'Sleep extension block',
+      id:'sleep-extension', evidence:{tier:'established', note:'Well-replicated; cognitive and physical performance benefits robust across populations'}, icon:'😴', name:'Sleep extension block',
       tagline:'Add 30-60 min for 2 weeks. Athletes show 9% sprint improvement. Cheapest performance enhancer available.',
       badge:'easy', color:'blue', goals:['muscle','fat-loss','recomp','longevity'],
       mechanism:`Deliberately sleeping more than your habitual amount — even by 30 minutes — produces measurable performance improvements within 2 weeks. The Mah et al. Stanford study with basketball players showed 9% sprint improvement, improved shooting accuracy, and better mood after a 5-6 week sleep extension block. GH is released almost entirely during deep sleep. Testosterone peaks during sleep. Cortisol clearance occurs overnight. Sleep is not passive recovery.`,
@@ -439,7 +451,7 @@ const ACCELERATORS = {
       readiness:'Start any time. Especially powerful if currently averaging under 7.5 hours.',
     },
     {
-      id:'creatine-load', icon:'💊', name:'Creatine loading phase',
+      id:'creatine-load', evidence:{tier:'established', note:'Most-studied supplement in sports science; strength and power benefits unambiguous'}, icon:'💊', name:'Creatine loading phase',
       tagline:'20g/day for 5 days. Full phosphocreatine saturation in 5 days instead of 28. Then maintain at 5g.',
       badge:'easy', color:'blue', goals:['muscle','recomp'],
       mechanism:`Creatine loading (20g/day in 4×5g doses) achieves full phosphocreatine saturation in approximately 5 days. The standard maintenance dose of 5g/day takes 28 days to reach the same saturation level. Both end at the same place — the loading phase simply gets you there faster. At full saturation, the benefits are available: 5-8% more work capacity in short maximal efforts, faster phosphocreatine resynthesis between sets, measurable cognitive improvements, and reduced inflammation markers.`,
@@ -453,7 +465,7 @@ const ACCELERATORS = {
       warn:'Some people experience mild GI discomfort during loading — take with food and split into smaller doses if needed.',
     },
     {
-      id:'morning-protocol', icon:'☀️', name:'Morning light + cold finish',
+      id:'morning-protocol', evidence:{tier:'limited', note:'Light entrainment evidence strong; cold shower component largely anecdotal for this use'}, icon:'☀️', name:'Morning light + cold finish',
       tagline:'10 min outside light → sets circadian. Cold shower finish → noradrenaline inoculates the stress response.',
       badge:'easy', color:'blue', goals:['longevity','fat-loss','muscle','recomp'],
       mechanism:`Morning light exposure (ideally before 9am) sets the circadian clock via the retinohypothalamic tract. This determines melatonin timing tonight — improving sleep onset and quality. The cold shower finish (30-60 seconds) spikes noradrenaline and adrenaline, which elevates mood and alertness for 2-4 hours. More relevantly: deliberate stress inoculation in the morning (voluntary discomfort) trains the nervous system's capacity to stay calm under later stress. It compounds.`,
@@ -469,7 +481,7 @@ const ACCELERATORS = {
 
   psychology: [
     {
-      id:'implementation-intent', icon:'🎯', name:'Implementation intentions',
+      id:'implementation-intent', evidence:{tier:'established', note:'Peter Gollwitzer research; replicated across hundreds of studies; effect sizes consistent'}, icon:'🎯', name:'Implementation intentions',
       tagline:'"When X happens, I will do Y." Replaces willpower with automatic response. 2-3× follow-through in research.',
       badge:'easy', color:'purple', goals:['fat-loss','muscle','recomp','longevity'],
       mechanism:`Gollwitzer's research on implementation intentions shows that specifying when, where, and how you will perform a behaviour increases follow-through by 200-300% compared to vague intentions. The mechanism: the if-then structure hijacks habitual behaviour pathways in the basal ganglia. The decision is made in advance and stored, not deliberated in the moment when motivation is low. "If I feel like skipping the gym, I will put on my shoes and drive to the car park" is not a motivational exercise — it is a neurological shortcut.`,
@@ -482,7 +494,7 @@ const ACCELERATORS = {
       readiness:'Do this today — before you need it.',
     },
     {
-      id:'dopamine-scheduling', icon:'🧠', name:'Dopamine scheduling',
+      id:'dopamine-scheduling', evidence:{tier:'limited', note:'Huberman-popularised framing; underlying dopamine biology real; specific protocol evidence limited'}, icon:'🧠', name:'Dopamine scheduling',
       tagline:'Remove low-effort dopamine before training. The gym hit feels larger. Motivation is neurochemistry.',
       badge:'easy', color:'purple', goals:['fat-loss','muscle','recomp','longevity'],
       mechanism:`Dopamine operates on contrast — the size of the reward feeling is relative to the recent baseline. If your dopamine baseline is elevated from social media, coffee, and convenience food before training, the gym provides a smaller reward signal. Keeping the pre-training period low-stimulation (no social media, no news, nothing passive) means the training dopamine hit is experienced as much larger. Motivation is not a personality trait. It is neurochemistry that can be designed.`,
@@ -495,7 +507,7 @@ const ACCELERATORS = {
       readiness:'Start the day of your next training session.',
     },
     {
-      id:'two-minute-rule', icon:'👟', name:'The two-minute rule',
+      id:'two-minute-rule', evidence:{tier:'limited', note:'GTD framework; habit literature supports implementation-intention mechanics; direct RCT evidence absent'}, icon:'👟', name:'The two-minute rule',
       tagline:'Commit only to starting. 90%+ of "I don\'t feel like training" sessions finish once started.',
       badge:'easy', color:'purple', goals:['fat-loss','muscle','recomp','longevity'],
       mechanism:`The hardest part of any training session is not the session — it is overcoming the activation energy to start. Once the body is moving and blood flow increases, the psychological resistance evaporates and the intrinsic drive of the activity takes over. Committing only to showing up and doing two minutes removes the mental load of the decision entirely. The intention is not to feel motivated — it is to make the first step so small that resistance disappears.`,
@@ -508,7 +520,7 @@ const ACCELERATORS = {
       readiness:'Use this the next time you don\'t feel like training.',
     },
     {
-      id:'training-log', icon:'📓', name:'Training log practice',
+      id:'training-log', evidence:{tier:'emerging', note:'Self-monitoring literature strong; training-log-specific performance RCTs limited but consistent'}, icon:'📓', name:'Training log practice',
       tagline:'Write every weight, every rep, every RPE. Progressive overload only happens if you know last week\'s numbers.',
       badge:'easy', color:'purple', goals:['muscle','recomp'],
       mechanism:`Progressive overload is the primary mechanism of hypertrophy. It requires knowing what you lifted last session. Without a log, you estimate — and humans systematically underestimate their previous performance, causing stagnation. A log also provides something more important: a record of improvement. Seeing the numbers go up is one of the most reliable sources of training motivation. Three months of consistent logs is the most honest mirror of adaptation available.`,
@@ -521,7 +533,7 @@ const ACCELERATORS = {
       readiness:'Start your next session.',
     },
     {
-      id:'body-composition-check', icon:'📊', name:'Weekly body composition check-in',
+      id:'body-composition-check', evidence:{tier:'limited', note:'Self-monitoring benefit established; weekly weigh-in frequency optimisation unstudied'}, icon:'📊', name:'Weekly body composition check-in',
       tagline:'Tape + scale, Monday morning only. One data point per week. Signal vs noise.',
       badge:'easy', color:'purple', goals:['fat-loss','recomp'],
       mechanism:`Daily weigh-ins introduce noise that drives counterproductive decisions. Body weight fluctuates 1-3kg within a single day based on hydration, food volume, and hormonal shifts. Weekly measurement under identical conditions (same morning, same time, post-toilet, pre-food) smooths the noise and shows the real trend. Waist measurement alongside scale weight distinguishes fat loss from muscle gain — a falling waist with stable scale weight is successful recomposition, not failure.`,
@@ -535,7 +547,7 @@ const ACCELERATORS = {
       readiness:'Start this Monday.',
     },
     {
-      id:'comfort-expansion', icon:'🌡️', name:'Deliberate discomfort practice',
+      id:'comfort-expansion', evidence:{tier:'limited', note:'Stress inoculation theory well-established; deliberate-discomfort-as-protocol evidence anecdotal'}, icon:'🌡️', name:'Deliberate discomfort practice',
       tagline:'Do something hard when you don\'t have to. Discomfort tolerance transfers everywhere.',
       badge:'mod', color:'purple', goals:['longevity','fat-loss','muscle','recomp'],
       mechanism:`Voluntary exposure to controlled discomfort — cold water, hard training, delayed gratification — trains the prefrontal cortex's capacity to override the immediate stress response. This is neurologically the same system that governs training motivation, dietary adherence, and cognitive performance under pressure. The adaptation is transferable: getting better at tolerating the cold shower makes you slightly better at tolerating the last set of squats. Discomfort tolerance is a trainable skill.`,
@@ -568,6 +580,13 @@ function isBadgeEasy(acc) { return acc.badge === 'easy'; }
 function renderCard(acc, profileGoal) {
   const isForGoal = acc.goals.includes(profileGoal) || profileGoal === 'all';
   const warnHtml  = acc.warn ? `<div class="ab-warn">${acc.warn}</div>` : '';
+  const tierLabels = { established: 'Established', emerging: 'Emerging evidence', limited: 'Limited evidence', anecdotal: 'Anecdotal' };
+  const tierColors = { established: 'var(--jade)', emerging: 'var(--amber)', limited: 'rgba(160,168,152,.7)', anecdotal: 'rgba(180,100,80,.7)' };
+  const evidenceHtml = acc.evidence
+    ? `<div class="acc-evidence-badge" style="border-color:${tierColors[acc.evidence.tier]};color:${tierColors[acc.evidence.tier]};" title="${acc.evidence.note}">
+        <span class="acc-ev-dot" style="background:${tierColors[acc.evidence.tier]};"></span>${tierLabels[acc.evidence.tier]}
+      </div>`
+    : '';
   const stepsHtml = (acc.protocol||[]).map((s,i)=>
     `<div class="ab-step"><div class="ab-step-n">${i+1}</div><div class="ab-step-t">${s}</div></div>`
   ).join('');
@@ -579,6 +598,7 @@ function renderCard(acc, profileGoal) {
     onclick="toggleCard('${acc.id}',this)">
 
     ${isForGoal && profileGoal !== 'all' ? '<div class="acc-badge yours">For your goal</div>' : `<div class="acc-badge ${acc.badge === 'easy' ? 'easy' : 'mod'}">${acc.badge === 'easy' ? 'Easy win' : 'Moderate'}</div>`}
+    ${evidenceHtml}
 
     <div class="acc-head">
       <span class="acc-icon">${acc.icon}</span>
@@ -628,7 +648,7 @@ function renderAll(goalFilter) {
 // ── FOOD ACCELERATORS ─────────────────────────────────────────────────────────
 const FOOD_ACCELERATORS = [
   {
-    id: 'post-meal-walks',
+    id: 'post-meal-walks', evidence:{tier:'established', note:'Multiple RCTs confirm postprandial glucose reduction; GLUT4 mechanism well-characterised'},
     icon: '🚶',
     color: 'gold',
     badge: 'easy',
@@ -835,6 +855,7 @@ if (_p) {
 renderAll(_activeFilter);
 </script>
 
+<script src="/risk-classifier.js"></script>
 <script src="coach.js"></script>
 </body>
 </html>

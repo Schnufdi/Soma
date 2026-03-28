@@ -180,6 +180,20 @@
 }
 .sp-reco-add:hover { background: rgba(0,200,160,.12); }
 .sp-reco-add.saved { border-color: rgba(255,255,255,.1); color: var(--dk-3); cursor: default; }
+
+.supp-ev-badge {
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid;border-radius:4px;padding:2px 7px;
+  margin-top:6px;cursor:help;opacity:.8;transition:opacity .15s;
+}
+.supp-ev-badge:hover{opacity:1;}
+.supp-ev-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+.sp-badge.established { background:rgba(0,200,160,.12); color:var(--jade,#00c8a0); border-color:rgba(0,200,160,.25); }
+.sp-badge.emerging    { background:rgba(196,124,24,.1);  color:var(--amber,#c47c18); border-color:rgba(196,124,24,.2); }
+.sp-badge.limited     { background:rgba(255,255,255,.04); color:rgba(160,168,152,.8); border-color:rgba(255,255,255,.1); }
+.sp-badge.anecdotal   { background:rgba(180,100,80,.08);  color:rgba(200,120,100,.8); border-color:rgba(180,100,80,.2); }
 </style>
 </head>
 <body>
@@ -192,6 +206,16 @@
     <div class="sp-sub">Manage everything here. Your baseline is locked in. Add from the deep stack below — this is the only place supplements are managed.</div>
   </div>
 
+  <div style="margin-bottom:24px;padding:14px 18px;background:var(--ink-2,#141e1b);border:1px solid rgba(255,255,255,.07);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3,#3e504a);flex-shrink:0;">Evidence tiers</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+      <span title="Multiple RCTs, meta-analyses, strong independent consensus" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(0,200,160,.3);border-radius:4px;padding:3px 8px;color:var(--jade,#00c8a0);cursor:help;"><span style="width:5px;height:5px;border-radius:50%;background:var(--jade,#00c8a0);display:inline-block;"></span>Established</span>
+      <span title="RCTs exist; mechanism clear, effect size not fully characterised" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(196,124,24,.3);border-radius:4px;padding:3px 8px;color:var(--amber,#c47c18);cursor:help;"><span style="width:5px;height:5px;border-radius:50%;background:var(--amber,#c47c18);display:inline-block;"></span>Emerging</span>
+      <span title="Mechanistic plausibility; small or extrapolated studies" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(160,168,152,.25);border-radius:4px;padding:3px 8px;color:rgba(160,168,152,.8);cursor:help;"><span style="width:5px;height:5px;border-radius:50%;background:rgba(160,168,152,.8);display:inline-block;"></span>Limited</span>
+      <span title="Animal studies or community practice only; no human RCTs" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(180,100,80,.25);border-radius:4px;padding:3px 8px;color:rgba(200,120,100,.8);cursor:help;"><span style="width:5px;height:5px;border-radius:50%;background:rgba(200,120,100,.8);display:inline-block;"></span>Anecdotal</span>
+    </div>
+    <div style="font-size:10px;font-weight:300;color:var(--dk-3,#3e504a);margin-left:auto;">Hover any badge for notes</div>
+  </div>
   <div id="sp-root"></div>
 </div>
 <script>
@@ -203,7 +227,7 @@ var SUPPS = [
     name: 'Tongkat Ali (LJ100)',
     tagline: 'Testosterone support via LH pathway — strongest evidence for men over 35',
     cat: 'Hormonal',
-    evidence: 'moderate',
+    evidence: 'emerging', evidenceNote: 'Multiple small RCTs on testosterone; LJ100 extract; studies mostly industry-funded',
     dose: '200–400mg/day',
     timing: 'Morning, with food',
     form: 'Standardised extract (LJ100 or 200:1)',
@@ -219,7 +243,7 @@ var SUPPS = [
     name: 'Fadogia Agrestis',
     tagline: 'LH stimulation, testosterone pathway — limited but growing evidence',
     cat: 'Hormonal',
-    evidence: 'emerging',
+    evidence: 'anecdotal', evidenceNote: 'Animal studies only; no human RCTs; toxicity at high doses in animal data',
     dose: '425–600mg/day',
     timing: 'Morning',
     form: 'Standardised extract',
@@ -235,7 +259,7 @@ var SUPPS = [
     name: 'Shilajit (Purified)',
     tagline: 'Mitochondrial energy, testosterone co-factor, particularly potent with zinc',
     cat: 'Hormonal',
-    evidence: 'moderate',
+    evidence: 'limited', evidenceNote: 'Small RCTs on testosterone and fatigue; quality control and heavy metal contamination concerns',
     dose: '250–500mg/day',
     timing: 'Morning, with water or warm milk',
     form: 'Purified resin or standardised extract (>40% fulvic acid)',
@@ -253,7 +277,7 @@ var SUPPS = [
     name: 'Ashwagandha (KSM-66)',
     tagline: 'Cortisol reduction, testosterone support, stress adaptation',
     cat: 'Adaptogenic',
-    evidence: 'strong',
+    evidence: 'emerging', evidenceNote: 'Multiple RCTs on stress, cortisol, and testosterone; effect sizes moderate; KSM-66 best studied form',
     dose: '300–600mg/day',
     timing: 'Evening — cortisol lowering works best at night',
     form: 'KSM-66 or Sensoril extract (standardised)',
@@ -269,7 +293,7 @@ var SUPPS = [
     name: 'Lion\'s Mane',
     tagline: 'NGF and BDNF upregulation — nerve growth, cognitive clarity, recovery signalling',
     cat: 'Cognitive',
-    evidence: 'moderate',
+    evidence: 'emerging', evidenceNote: 'NGF stimulation mechanistically supported; human cognitive RCTs small but promising',
     dose: '500–1000mg/day (fruiting body, not mycelium)',
     timing: 'Morning with food',
     form: 'Fruiting body extract (not grain/mycelium — check label carefully)',
@@ -285,7 +309,7 @@ var SUPPS = [
     name: 'Rhodiola Rosea',
     tagline: 'Reduces perceived exertion, mental fatigue, and cortisol spikes during training',
     cat: 'Adaptogenic',
-    evidence: 'moderate',
+    evidence: 'emerging', evidenceNote: 'Multiple RCTs on fatigue and stress; adaptogenic effects consistent; optimal dosing unclear',
     dose: '200–400mg/day',
     timing: '30–60 min before training or mentally demanding work',
     form: 'Standardised to 3% rosavins and 1% salidroside',
@@ -303,7 +327,7 @@ var SUPPS = [
     name: 'Apigenin',
     tagline: 'GABA-A modulator — sleep onset, anxiety reduction, natural sedative',
     cat: 'Sleep',
-    evidence: 'moderate',
+    evidence: 'limited', evidenceNote: 'CD38 inhibition mechanism sound; human NMN/NAD+ data extrapolated; direct human RCTs absent',
     dose: '50mg at night',
     timing: '30–60 min before sleep',
     form: 'Capsule — 50mg is the Andrew Huberman-popularised dose',
@@ -319,7 +343,7 @@ var SUPPS = [
     name: 'Glycine',
     tagline: 'Core body temperature drop for sleep depth, GH pulse support, anti-inflammatory',
     cat: 'Sleep',
-    evidence: 'strong',
+    evidence: 'emerging', evidenceNote: 'Sleep quality RCTs replicated; collagen synthesis evidence solid; longevity extrapolation speculative',
     dose: '3–5g at night',
     timing: 'Right before sleep',
     form: 'Powder (cheap, unflavoured) or capsules',
@@ -335,7 +359,7 @@ var SUPPS = [
     name: 'Tart Cherry Extract',
     tagline: 'Melatonin precursor, anti-inflammatory, reduces DOMS — strong evidence',
     cat: 'Recovery',
-    evidence: 'strong',
+    evidence: 'emerging', evidenceNote: 'Multiple RCTs on recovery and DOMS; anthocyanin mechanisms well-characterised',
     dose: '480mg extract or 240ml concentrate',
     timing: 'Post-training or with evening meal',
     form: 'Montmorency tart cherry — juice concentrate or capsule extract',
@@ -353,7 +377,7 @@ var SUPPS = [
     name: 'Berberine',
     tagline: 'AMPK activator, insulin sensitivity, glucose disposal — "natural metformin"',
     cat: 'Metabolic',
-    evidence: 'strong',
+    evidence: 'emerging', evidenceNote: 'Multiple RCTs on glucose regulation; AMPK mechanism solid; compared to metformin in small studies',
     dose: '500mg, 2–3x daily with meals',
     timing: 'With meals — especially carbohydrate-containing meals',
     form: 'Berberine HCl',
@@ -369,7 +393,7 @@ var SUPPS = [
     name: 'Citrulline Malate',
     tagline: 'Nitric oxide, pump, muscular endurance — better evidence than arginine',
     cat: 'Performance',
-    evidence: 'strong',
+    evidence: 'established', evidenceNote: 'Multiple RCTs on pump, blood flow, and performance; arginine conversion mechanism established',
     dose: '6–8g pre-training',
     timing: '45–60 min before training',
     form: '2:1 Citrulline Malate (6g = 4g citrulline + 2g malate)',
@@ -385,7 +409,7 @@ var SUPPS = [
     name: 'Beta-Alanine',
     tagline: 'Carnosine buffer — delays muscular acidosis, improves endurance sets',
     cat: 'Performance',
-    evidence: 'strong',
+    evidence: 'established', evidenceNote: 'Multiple RCTs on muscular endurance; carnosine buffering mechanism unambiguous',
     dose: '3.2–6.4g/day (split doses)',
     timing: 'Split across day — 1.6g doses to reduce paraesthesia',
     form: 'Beta-Alanine powder or capsules',
@@ -401,7 +425,7 @@ var SUPPS = [
     name: 'NMN / NR (NAD+ Precursors)',
     tagline: 'NAD+ restoration, mitochondrial function, metabolic rate — David Sinclair territory',
     cat: 'Longevity',
-    evidence: 'emerging',
+    evidence: 'limited', evidenceNote: 'NAD+ biology compelling; human RCTs emerging but small; longevity extrapolation from animal data',
     dose: 'NMN: 500mg–1g/day | NR: 300–500mg/day',
     timing: 'Morning — can disrupt sleep if taken late',
     form: 'Sublingual NMN (better absorption) or NR capsules',
@@ -573,7 +597,7 @@ function render() {
     // Deep stack
     deepStackSupps.forEach(function(s) {
       var timing = getOptimisedTiming(s.name, isTraining);
-      var evClass = s.evidence === 'strong' ? 'strong' : s.evidence === 'moderate' ? 'moderate' : 'emerging';
+      var evClass = s.evidence === 'established' ? 'established' : s.evidence === 'emerging' ? 'emerging' : s.evidence === 'anecdotal' ? 'anecdotal' : 'limited';
       html += '<div class="sp-stack-row">'
         + '<div class="sp-stack-icon">' + s.icon + '</div>'
         + '<div class="sp-stack-info">'
@@ -614,8 +638,8 @@ function render() {
       html += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:10px;">' + matches.length + ' match' + (matches.length>1?'es':'') + ' for your goals</div>';
       html += '<div class="sp-reco-grid">';
       matches.forEach(function(s) {
-        var evClass = s.evidence === 'strong' ? 'strong' : s.evidence === 'moderate' ? 'moderate' : 'emerging';
-        var evLabel = { strong: 'Strong evidence', moderate: 'Moderate', emerging: 'Emerging' }[evClass] || s.evidence;
+        var evClass = s.evidence === 'established' ? 'established' : s.evidence === 'emerging' ? 'emerging' : s.evidence === 'anecdotal' ? 'anecdotal' : 'limited';
+        var evLabel = { established: 'Established', emerging: 'Emerging evidence', limited: 'Limited evidence', anecdotal: 'Anecdotal' }[evClass] || s.evidence;
         var topGoals = (GOALS_MAP[s.id]||[]).slice(0,3).map(function(g){
           return '<span class="sp-reco-tag">' + g + '</span>';
         }).join('');
@@ -669,8 +693,8 @@ function render() {
     html += '<div class="sp-cat-label">' + (CAT_LABELS[cat]||cat) + '</div>';
     groups[cat].forEach(function(s) {
       var inStack = isBaseline(s.id) || isInDeepStack(s.id);
-      var evClass = s.evidence === 'strong' ? 'strong' : s.evidence === 'moderate' ? 'moderate' : 'emerging';
-      var evLabel = s.evidence === 'strong' ? 'Strong evidence' : s.evidence === 'moderate' ? 'Moderate evidence' : 'Emerging evidence';
+      var evClass = s.evidence === 'established' ? 'established' : s.evidence === 'emerging' ? 'emerging' : s.evidence === 'anecdotal' ? 'anecdotal' : 'limited';
+      var evLabel = s.evidence === 'established' ? 'Established' : s.evidence === 'emerging' ? 'Emerging evidence' : s.evidence === 'anecdotal' ? 'Anecdotal' : 'Emerging evidence';
       var isOpen = _openCard === s.id;
 
       html += '<div class="sp-card' + (isOpen ? ' open' : '') + '" id="sp-card-' + s.id + '">'
@@ -681,7 +705,7 @@ function render() {
             + '<div class="sp-tagline">' + s.tagline + '</div>'
           + '</div>'
           + '<div class="sp-badges">'
-            + '<div class="sp-badge ' + evClass + '">' + evLabel + '</div>'
+            + '<div class="sp-badge ' + evClass + '" title="' + (s.evidenceNote||'') + '">' + evLabel + '</div>'
             + (inStack ? '<div class="sp-badge in-stack">In stack</div>' : '')
           + '</div>'
           + '<div class="sp-chevron">&#8250;</div>'
