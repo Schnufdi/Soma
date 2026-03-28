@@ -7624,6 +7624,23 @@ function buildDay(){
     var plan = buildPlan(P, TODAY);
     try { localStorage.setItem(TODAY.cacheKey, JSON.stringify(plan)); } catch(e){}
     renderPlan(plan);
+    // ── Risk advisory banner (show once per day) ──────────
+    if (typeof BL_RISK !== 'undefined') {
+      var _seenKey = 'bl_risk_seen_' + new Date().toDateString();
+      if (!localStorage.getItem(_seenKey)) {
+        var _advisory = BL_RISK.buildOnboardingAdvisory(P);
+        if (_advisory) {
+          var _root = document.getElementById('day-root');
+          if (_root) {
+            var _wrap = document.createElement('div');
+            _wrap.style.cssText = 'max-width:640px;margin:0 auto;padding:0 16px;';
+            _wrap.innerHTML = _advisory;
+            _root.insertBefore(_wrap, _root.firstChild);
+            localStorage.setItem(_seenKey, '1');
+          }
+        }
+      }
+    }
     refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, plan);
@@ -7638,6 +7655,7 @@ function buildDay(){
 
 </script>
 <script src="pwa.js"></script>
+<script src="/risk-classifier.js"></script>
 <script src="coach.js"></script>
 <script>
 

@@ -239,9 +239,30 @@ ${(function() {
     if (_cn) { _out.push('COACH NOTES:'); _out.push(_cn); }
     return _out.join('\n')+'\n';
   } catch(e){ return ''; }
+})()}${(function() {
+  try {
+    var gb = profile.gapBridge;
+    if (!gb) return '';
+    var lines = ['GAP BRIDGE (body scan to programme translation):'];
+    lines.push('Current phase: ' + (gb.currentPhase||'unknown'));
+    lines.push('Phase rationale: ' + (gb.phaseRationale||''));
+    if (gb.primaryGaps && gb.primaryGaps.length) lines.push('Primary gaps: ' + gb.primaryGaps.join(', '));
+    if (gb.weeklyFocus) lines.push('This week: ' + gb.weeklyFocus);
+    if (gb.coachContext) lines.push('Coach framing: ' + gb.coachContext);
+    if (gb.successMetrics) lines.push('Success metrics: ' + gb.successMetrics.join(' | '));
+    return lines.join('\n') + '\n';
+  } catch(e) { return ''; }
 })()}`;
 
-    return { static: STATIC_COACHING_INSTRUCTIONS, dynamic: dynamicBlock };
+    // ── Risk-aware instruction injection ──────────────────────────────────
+    var riskBlock = (typeof BL_RISK !== 'undefined')
+      ? BL_RISK.buildRiskBlock(profile)
+      : '';
+    var staticWithRisk = riskBlock
+      ? riskBlock + STATIC_COACHING_INSTRUCTIONS
+      : STATIC_COACHING_INSTRUCTIONS;
+
+    return { static: staticWithRisk, dynamic: dynamicBlock };
   }
 
   // ── FOLLOW-UP PROMPT ──────────────────────────────────
