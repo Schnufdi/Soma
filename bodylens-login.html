@@ -209,7 +209,7 @@ function onSignedIn(session) {
         localStorage.setItem('bl_profile', JSON.stringify(res.data.profile));
         showSuccess('Welcome back, ' + name + '!');
         setTimeout(function() {
-          window.location.href = '/bodylens-dailyplan.html';
+          window.location.href = getPostLoginDest(true);
         }, 1200);
       } else {
         // New user or no saved profile — check localStorage
@@ -227,13 +227,13 @@ function onSignedIn(session) {
           } catch(e) {}
           showSuccess('Welcome back, ' + name + '!');
           setTimeout(function() {
-            window.location.href = '/bodylens-dailyplan.html';
+            window.location.href = getPostLoginDest(true);
           }, 1200);
         } else {
           // Genuinely new user — send to onboarding
           showSuccess('Welcome, ' + name + '! Let\'s build your programme.');
           setTimeout(function() {
-            window.location.href = '/bodylens-onboard.html';
+            window.location.href = getPostLoginDest(false);
           }, 1500);
         }
       }
@@ -242,7 +242,7 @@ function onSignedIn(session) {
       // DB error — just proceed to daily plan, localStorage will handle it
       showSuccess('Welcome, ' + name + '!');
       setTimeout(function() {
-        var dest = localStorage.getItem('bl_profile') ? '/bodylens-dailyplan.html' : '/bodylens-onboard.html';
+        var dest = localStorage.getItem('bl_profile') ? getPostLoginDest(true) : getPostLoginDest(false);
         window.location.href = dest;
       }, 1200);
     });
@@ -276,7 +276,7 @@ function signInGoogle() {
 
 // ── Guest / no sign-in ───────────────────────────
 function continueGuest() {
-  var dest = localStorage.getItem('bl_profile') ? '/bodylens-dailyplan.html' : '/bodylens-onboard.html';
+  var dest = localStorage.getItem('bl_profile') ? getPostLoginDest(true) : getPostLoginDest(false);
   window.location.href = dest;
 }
 
@@ -290,6 +290,23 @@ function checkExistingSession() {
       window.location.href = dest;
     }
   });
+}
+
+
+// ── Post-login destination — respects ?next= param ───────────────────────
+function getPostLoginDest(hasProfile) {
+  // Check for ?next= parameter set by the auth gate
+  var urlParams = new URLSearchParams(window.location.search);
+  var next = urlParams.get('next');
+  if (next) {
+    try {
+      var url = new URL(decodeURIComponent(next));
+      // Only redirect to same origin
+      if (url.origin === window.location.origin) return url.pathname + url.search;
+    } catch(e) {}
+  }
+  // Default flow
+  return hasProfile ? '/bodylens-dailyplan.html' : '/bodylens-onboard.html';
 }
 
 // ── Init ─────────────────────────────────────────

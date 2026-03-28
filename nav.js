@@ -573,13 +573,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(sb);
   }
 
-  // Load Supabase auth
-  if (!window._sbLoaded) {
-    window._sbLoaded = true;
-    const sb = document.createElement('script');
-    sb.src = '/supabase-auth.js';
-    document.head.appendChild(sb);
-  }
 });
 
 // ── GLOBAL CALORIE HELPERS ────────────────────────
@@ -686,3 +679,116 @@ window.closeMobileMenu = function() {
   if (overlay) overlay.classList.remove('open');
   document.body.style.overflow = '';
 };
+
+
+// ── AUTH GATE ────────────────────────────────────────────────────────────────
+// Protects all app pages. Fires after Supabase auth resolves (~600ms after load).
+// Public pages are whitelisted and never gated.
+(function() {
+  var WHITELISTED = [
+    'bodylens-login.html',
+    'bodylens-onboard.html',
+    'bodylens-guide.html',
+    'bodylens-howitworks.html',
+    'bodylens-story.html',
+    'bodylens-science.html',
+    'bodylens-viability.html',
+    'bodylens-ideas.html',
+    'bodylens-sync.html',
+    // science sub-pages
+    'bodylens-alcohol.html',
+    'bodylens-hunger.html',
+    'bodylens-weightloss.html',
+    'bodylens-mentalhealth.html',
+    'bodylens-attia.html',
+    'bodylens-longevity.html',
+    'bodylens-body.html',
+    'bodylens-fuel.html',
+    'bodylens-insulin.html',
+    'bodylens-strength.html',
+    'bodylens-training.html',
+    'bodylens-optimal.html',
+    'bodylens-synthesis.html',
+    'bodylens-accelerators.html',
+  ];
+
+  var path = window.location.pathname;
+  var page = path.split('/').pop() || '';
+
+  // Never gate whitelisted pages
+  if (!page || WHITELISTED.indexOf(page) >= 0) return;
+
+  // Inject a cover overlay immediately — prevents flash of protected content
+  var cover = document.createElement('div');
+  cover.id = 'bl-auth-cover';
+  cover.style.cssText = [
+    'position:fixed', 'inset:0', 'z-index:99999',
+    'background:var(--ink,#0c1010)',
+    'display:flex', 'align-items:center', 'justify-content:center',
+    'flex-direction:column', 'gap:12px',
+    'transition:opacity .3s ease',
+  ].join(';');
+  cover.innerHTML = '<div style="width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.1);border-top-color:#00c8a0;animation:bl-spin .7s linear infinite"></div>'
+    + '<div style="font-size:11px;font-weight:300;color:rgba(255,255,255,.25);letter-spacing:.08em">Loading…</div>';
+
+  // Inject keyframe if not already present
+  if (!document.getElementById('bl-auth-cover-style')) {
+    var style = document.createElement('style');
+    style.id = 'bl-auth-cover-style';
+    style.textContent = '@keyframes bl-spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+  }
+
+  document.body ? document.body.appendChild(cover) : document.addEventListener('DOMContentLoaded', function() { document.body.appendChild(cover); });
+
+  function liftCover() {
+    if (cover.parentNode) {
+      cover.style.opacity = '0';
+      setTimeout(function() { cover.parentNode && cover.parentNode.removeChild(cover); }, 320);
+    }
+  }
+
+  function redirectToLogin() {
+    var dest = encodeURIComponent(window.location.href);
+    window.location.replace('/bodylens-login.html?next=' + dest);
+  }
+
+  // Poll for auth resolution — _blUser is set by supabase-auth.js onAuthStateChange
+  var elapsed = 0;
+  var TIMEOUT = 2500;   // max wait before treating as signed-out
+  var POLL_MS  = 80;
+
+  var timer = setInterval(function() {
+    elapsed += POLL_MS;
+
+    if (window._blUser) {
+      // Authenticated — lift cover and let page render
+      clearInterval(timer);
+      liftCover();
+      return;
+    }
+
+    // supabase-auth.js sets _blAuthResolved = true after onAuthStateChange fires
+    // even if the user is signed out
+    if (window._blAuthResolved) {
+      clearInterval(timer);
+      if (window._blUser) {
+        liftCover();
+      } else {
+        redirectToLogin();
+      }
+      return;
+    }
+
+    if (elapsed >= TIMEOUT) {
+      clearInterval(timer);
+      // Timed out — if still no user, treat as logged out
+      if (window._blUser) {
+        liftCover();
+      } else {
+        redirectToLogin();
+      }
+    }
+  }, POLL_MS);
+
+})();

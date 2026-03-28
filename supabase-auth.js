@@ -197,8 +197,11 @@ loadSupabase(function(sb) {
   });
 
   sb.auth.onAuthStateChange(function(event, session) {
+    // Mark auth as resolved on any event (including NO_SESSION)
+    if (!window._blAuthResolved) window._blAuthResolved = !!(session) || (event === 'SIGNED_OUT') || (event === 'INITIAL_SESSION');
     if (event === 'SIGNED_IN' && session) {
       window._blUser = session.user;
+      window._blAuthResolved = true;
       updateNavUser(session.user);
       // ALWAYS load from Supabase on sign-in to ensure correct user's profile
       // This handles: Shane signs in on Sven's device, or switching accounts
@@ -215,6 +218,7 @@ loadSupabase(function(sb) {
     }
     if (event === 'SIGNED_OUT') {
       window._blUser = null;
+      window._blAuthResolved = true;
       updateNavLoggedOut();
     }
   });
@@ -406,16 +410,31 @@ localStorage.setItem = function(key, value) {
     }
 
     // Body scan history
-    else if (key === 'bl_scan_history' || key === 'bl_scan_raw_text') {
-      var scanData = {};
-      try { scanData = JSON.parse(value); } catch(e) { scanData = { raw: value }; }
-      sb.from('profiles').upsert({
-        id: userId,
-        scan_history: scanData,
-        updated_at: new Date().toISOString()
-      }).then(function(r) {
-        if (r.error) console.warn('scan_data upsert error:', r.error.message);
-      });
+    // Body scan history — save to profiles.scan_history column
+    else if (key === 'bl_scan_history') {
+      try {
+        sb.from('profiles').upsert({
+          id: userId,
+          scan_history: JSON.parse(value),
+          updated_at: new Date().toISOString()
+        }).then(function(r) {
+          if (r.error) console.warn('scan_history upsert error:', r.error.message);
+        });
+      } catch(e) {}
+    }
+    else if (key === 'bl_scan_raw_text') {
+      try {
+        var existingScan = {};
+        try { existingScan = JSON.parse(localStorage.getItem('bl_scan_history') || '{}'); } catch(e2) {}
+        existingScan.raw_text = value;
+        sb.from('profiles').upsert({
+          id: userId,
+          scan_history: existingScan,
+          updated_at: new Date().toISOString()
+        }).then(function(r) {
+          if (r.error) console.warn('scan raw_text upsert error:', r.error.message);
+        });
+      } catch(e) {}
     }
 
     // Podcast history
