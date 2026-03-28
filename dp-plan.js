@@ -852,3 +852,114 @@ function applyOptimisations(blocks, p, today) {
     }
   });
 }
+// ── CONTRADICTION DETECTION PRE-PASS ────────────────────────────────────────
+// Pure JS — no API call. Runs before generateCoachNarrative.
+// Detects tensions in the profile and recent log data.
+// Stores result as window._tensionFlags for the coach narrative to use.
+// Cost: $0.00 — enriches the existing coaching API call only.
+
+function detectTensions(p, today) {
+  var flags = [];
+  var warnings = [];
+
+  if (!p) return { flags: flags, warnings: warnings, hasTension: false };
+
+  try {
+    // ── 1. Caloric deficit + high training volume ─────────────────────────
+    var calories = p.calories || p.trainingKcal || 0;
+    var tdee = p.tdee || 0;
+    var deficit = tdee > 0 ? tdee - calories : 0;
+    var trainingDays = p.trainingDays || 4;
+
+    if (deficit > 400 && trainingDays >= 5) {
+      flags.push('high-deficit-high-volume');
+      warnings.push('Large deficit (' + deficit + ' kcal) with ' + trainingDays + ' training days/week — muscle loss risk elevated. Prioritise protein and consider rest day calorie increase.');
+    }
+
+    // ── 2. Sleep deprivation ───────────────────────────────────────────────
+    var avgSleep = 0;
+    var sleepCount = 0;
+    try {
+      for (var d = 1; d <= 7; d++) {
+        var date = new Date(); date.setDate(date.getDate() - d);
+        var log = JSON.parse(localStorage.getItem('bl_daylog_' + date.toISOString().slice(0,10)) || 'null');
+        if (log && log.sleepActual) { avgSleep += log.sleepActual; sleepCount++; }
+      }
+    } catch(e) {}
+    var effectiveSleep = sleepCount >= 3 ? avgSleep / sleepCount : (p.sleepHours || 7);
+
+    if (effectiveSleep < 6.5) {
+      flags.push('sleep-deprived');
+      warnings.push('Average sleep ' + (sleepCount >= 3 ? Math.round(effectiveSleep * 10)/10 + 'h (7-day avg)' : effectiveSleep + 'h (reported)') + ' — below recovery threshold. GH pulse suppressed, cortisol elevated. Heavy loading not advised today.');
+    } else if (effectiveSleep < 7.0 && trainingDays >= 4) {
+      flags.push('sleep-borderline');
+      warnings.push('Sleep averaging ' + Math.round(effectiveSleep * 10)/10 + 'h with ' + trainingDays + ' training days — borderline recovery. Watch RPE and skip optional volume if fatigue high.');
+    }
+
+    // ── 3. The full triad: deficit + high volume + poor sleep ─────────────
+    if (deficit > 300 && trainingDays >= 4 && effectiveSleep < 7.0) {
+      if (!flags.includes('triad')) {
+        flags.push('triad');
+        warnings.push('TRIAD DETECTED: Caloric deficit + ' + trainingDays + ' training days + ' + Math.round(effectiveSleep * 10)/10 + 'h sleep. This combination suppresses testosterone, elevates cortisol, and risks muscle loss. Reduce training intensity or increase calories on training days.');
+      }
+    }
+
+    // ── 4. High stress signal from logs ───────────────────────────────────
+    var avgEnergy = 0;
+    var energyCount = 0;
+    try {
+      for (var d2 = 1; d2 <= 5; d2++) {
+        var date2 = new Date(); date2.setDate(date2.getDate() - d2);
+        var log2 = JSON.parse(localStorage.getItem('bl_daylog_' + date2.toISOString().slice(0,10)) || 'null');
+        if (log2 && log2.energy) { avgEnergy += log2.energy; energyCount++; }
+      }
+    } catch(e) {}
+
+    if (energyCount >= 3 && (avgEnergy / energyCount) < 2.5) {
+      flags.push('low-energy-trend');
+      warnings.push('5-day energy average: ' + Math.round(avgEnergy / energyCount * 10)/10 + '/5 — consistently low. Check sleep quality, caloric intake, and stress levels. Consider reducing session intensity today.');
+    }
+
+    // ── 5. Protein significantly below target ─────────────────────────────
+    var protTarget = p.protein || 174;
+    var protMissedDays = 0;
+    try {
+      for (var d3 = 1; d3 <= 5; d3++) {
+        var date3 = new Date(); date3.setDate(date3.getDate() - d3);
+        var log3 = JSON.parse(localStorage.getItem('bl_daylog_' + date3.toISOString().slice(0,10)) || 'null');
+        if (log3 && log3.actual && log3.actual.prot > 0 && log3.actual.prot < protTarget * 0.75) protMissedDays++;
+      }
+    } catch(e) {}
+
+    if (protMissedDays >= 3 && deficit > 200) {
+      flags.push('protein-deficit-combined');
+      warnings.push('Protein missed by >25% for ' + protMissedDays + ' of last 5 days while in caloric deficit — acute muscle loss risk. First priority today: hit ' + protTarget + 'g protein before any other nutrition goal.');
+    }
+
+    // ── 6. Overreaching signal: high volume + missed sessions pattern ──────
+    var sessionsMissed = 0;
+    try {
+      for (var d4 = 1; d4 <= 7; d4++) {
+        var date4 = new Date(); date4.setDate(date4.getDate() - d4);
+        var log4 = JSON.parse(localStorage.getItem('bl_daylog_' + date4.toISOString().slice(0,10)) || 'null');
+        if (log4 && log4.planType && log4.planType.toLowerCase().includes('train') && log4.trainStatus === 'skipped') sessionsMissed++;
+      }
+    } catch(e) {}
+
+    if (sessionsMissed >= 2 && trainingDays >= 4) {
+      flags.push('overreach-signal');
+      warnings.push('Missed ' + sessionsMissed + ' of last 7 planned sessions — possible overreaching or schedule mismatch. Consider whether ' + trainingDays + ' training days/week is sustainable right now.');
+    }
+
+  } catch(e) {}
+
+  return {
+    flags: flags,
+    warnings: warnings,
+    hasTension: flags.length > 0,
+    // Formatted string for prompt injection
+    promptText: flags.length > 0
+      ? 'TENSION FLAGS — address these in your response if relevant:\n' + warnings.map(function(w){ return '- ' + w; }).join('\n')
+      : ''
+  };
+}

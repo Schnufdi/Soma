@@ -7472,7 +7472,14 @@ async function generateCoachNarrative(p, t, plan) {
       return ' KEY LIFTS: ' + t.slice(1, 4).join(', ') + '.';
     })()
     + _multiWeekSignal
-    + '\n\nOne paragraph. Direct, personal, specific to their actual numbers right now. Reference trend data only if it materially affects today. Max 60 words.';
+    + (function() {
+      try {
+        var tf = window._tensionResult;
+        if (!tf || !tf.hasTension || !tf.warnings.length) return '';
+        return '\n\nCONTRADICTION: ' + tf.warnings[0];
+      } catch(e) { return ''; }
+    })()
+    + '\n\nOne paragraph. Direct, personal. If a contradiction is flagged, name it — do not work around it. Max 60 words.';
 
   try {
     var res = await fetch('/api/chat', {
@@ -7818,6 +7825,45 @@ function buildDay(){
     }
     refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
+    // ── Contradiction detection pre-pass ($0 — pure JS) ─────────────
+    window._tensionResult = (typeof detectTensions === 'function')
+      ? detectTensions(P, TODAY) : { flags:[], warnings:[], hasTension:false, promptText:'' };
+    // Show tension banner if flags exist (once per day)
+    if (window._tensionResult && window._tensionResult.hasTension) {
+      (function() {
+        try {
+          var tf = window._tensionResult;
+          var seenKey = 'bl_tension_' + new Date().toDateString();
+          if (localStorage.getItem(seenKey)) return;
+          var root = document.getElementById('day-root');
+          if (!root) return;
+          var urgentFlags = ['triad','sleep-deprived','protein-deficit-combined'];
+          var isUrgent = urgentFlags.indexOf(tf.flags[0]) >= 0;
+          var color = isUrgent ? 'rgba(220,80,60,.85)' : 'var(--amber)';
+          var wrap = document.createElement('div');
+          wrap.id = 'bl-tension-banner';
+          wrap.style.cssText = 'max-width:640px;margin:0 auto 16px;padding:0 16px;';
+          wrap.innerHTML = '<div style="background:var(--ink-1);border:1px solid rgba(220,140,60,.25);border-left:3px solid ' + color + ';border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;">'
+            + '<div style="flex:1;">'
+            + '<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:' + color + ';margin-bottom:5px;">'
+            + (isUrgent ? '⚠ ' : '') + 'Training contradiction detected'
+            + '</div>'
+            + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.6;">' + (tf.warnings[0] || '') + '</div>'
+            + (tf.warnings.length > 1 ? '<div style="font-size:11px;color:var(--dk-3);margin-top:4px;">+'+(tf.warnings.length-1)+' more flag'+(tf.warnings.length>2?'s':'')+' — ask your coach</div>' : '')
+            + '</div>'
+            + '<button id="bl-tension-dismiss" style="background:none;border:none;color:var(--dk-3);cursor:pointer;font-size:18px;padding:0;flex-shrink:0;line-height:1;">&#215;</button>'
+            + '</div>';
+          root.insertBefore(wrap, root.firstChild);
+          var dismissBtn = document.getElementById('bl-tension-dismiss');
+          if (dismissBtn) dismissBtn.onclick = function() {
+            var el = document.getElementById('bl-tension-banner');
+            if (el) el.remove();
+            try { localStorage.setItem(seenKey, '1'); } catch(e) {}
+          };
+          localStorage.setItem(seenKey, '1');
+        } catch(e) {}
+      })();
+    }
     generateCoachNarrative(P, TODAY, plan);
     // ── Weekly reconciliation pass (once/week, async) ──────────
     if (typeof checkAndRunReconciliation === 'function') checkAndRunReconciliation();
