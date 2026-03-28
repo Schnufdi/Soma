@@ -909,6 +909,15 @@ function glApplyProgrammeChanges() {
     } catch(e) {}
 
     localStorage.setItem('bl_profile', JSON.stringify(p));
+
+    // Record decision in change log
+    if (typeof blRecordChange === 'function') {
+      var changes = [];
+      if (gb.weeklyFocus) changes.push({ field:'weeklyFocus', label:'Weekly focus', before:'—', after:gb.weeklyFocus });
+      if (gb.training && gb.training.length) changes.push({ field:'trainingEmphasis', label:'Training emphasis', before:'—', after:gb.training.map(function(t){return t.change;}).join(', ') });
+      changes.push({ field:'gapBridge.applied', label:'Goal coaching context', before:'Inactive', after:'Active' });
+      blRecordChange('goals-analysis', 'Goal plan applied from goals page', changes, 'Source: ' + (gb.generatedAt||'unknown date'));
+    }
     
     if (btn) { 
       btn.textContent = '\u2713 Applied — daily plan will regenerate with new context';
