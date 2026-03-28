@@ -7246,6 +7246,115 @@ function openSOSFromInput() {
 }
 
 // ── COACH NARRATIVE ─────────────────────────────
+async 
+// ── MULTI-WEEK CONTEXT ────────────────────────────────────────────────────
+// Reads behaviourMemory weekSummaries + raw ledger keys.
+// Called by coach.js dynamicBlock AND generateCoachNarrative.
+function buildWeekContext(ledger) {
+  try {
+    var lines = [];
+    var p = window.P || JSON.parse(localStorage.getItem('bl_profile') || '{}');
+
+    // ── Source 1: behaviourMemory weekSummaries (AI-compressed, richest) ──
+    var mem = p.behaviourMemory;
+    if (mem && mem.weekSummaries && mem.weekSummaries.length >= 1) {
+      lines.push('MULTI-WEEK HISTORY (AI-compressed):');
+      mem.weekSummaries.slice(0, 4).forEach(function(w, i) {
+        var label = i === 0 ? 'This week' : i === 1 ? 'Last week' : (i + ' weeks ago');
+        lines.push('  ' + label + ' (w/c ' + w.week + '): ' + w.summary);
+        if (w.flags && w.flags.length) {
+          lines.push('    Flags: ' + w.flags.slice(0, 3).join(', '));
+        }
+      });
+      if (mem.patterns && mem.patterns.length) {
+        lines.push('Detected patterns: ' + mem.patterns.slice(0, 4).join('; '));
+      }
+      if (mem.complianceScore != null) {
+        lines.push('Rolling compliance: ' + mem.complianceScore + '/100');
+      }
+    }
+
+    // ── Source 2: raw weekledger keys (structural data) ──────────────────
+    var structLines = [];
+    var now = new Date();
+    for (var w = 0; w < 4; w++) {
+      var wStart = new Date(now);
+      var wd = wStart.getDay();
+      wStart.setDate(now.getDate() - (wd === 0 ? 6 : wd - 1) - (w * 7));
+      var wKey = wStart.toISOString().slice(0, 10);
+      try {
+        var raw = localStorage.getItem('bl_weekledger_' + wKey);
+        if (!raw) continue;
+        var wl = JSON.parse(raw);
+        if (!wl) continue;
+        var s = wl.summary || wl;
+        var label = w === 0 ? 'This week' : w === 1 ? 'Last week' : w + ' weeks ago';
+        var parts = [];
+        if (s.sessionsDone != null && s.sessionsPlanned != null) {
+          parts.push(s.sessionsDone + '/' + s.sessionsPlanned + ' sessions');
+        }
+        if (s.fatigueLevel) parts.push('fatigue: ' + s.fatigueLevel);
+        if (s.avgEnergy) parts.push('avg energy: ' + s.avgEnergy + '/5');
+        if (s.avgSleep) parts.push('avg sleep: ' + s.avgSleep + 'h');
+        if (s.protHitDays != null) parts.push('protein hit: ' + s.protHitDays + ' days');
+        if (parts.length) structLines.push('  ' + label + ': ' + parts.join(' | '));
+      } catch(e) {}
+    }
+    if (structLines.length >= 2) {
+      lines.push('TRAINING STRUCTURE (last 4 weeks):');
+      lines = lines.concat(structLines);
+    }
+
+    // ── Source 3: scan day logs directly (fills gaps) ────────────────────
+    var energySum = 0, energyCount = 0;
+    var sleepSum = 0, sleepCount = 0;
+    var sessionsDone = 0, sessionsPlanned = 0;
+    var proteinMissedDays = 0;
+    var protTarget = p.protein || 174;
+    for (var d = 1; d <= 14; d++) {
+      var date = new Date(); date.setDate(date.getDate() - d);
+      var dateStr = date.toISOString().slice(0, 10);
+      try {
+        var log = JSON.parse(localStorage.getItem('bl_daylog_' + dateStr) || 'null');
+        if (!log) continue;
+        if (log.energy) { energySum += log.energy; energyCount++; }
+        if (log.sleepActual) { sleepSum += log.sleepActual; sleepCount++; }
+        if (log.planType && log.planType.toLowerCase().includes('train')) {
+          sessionsPlanned++;
+          if (log.trainStatus === 'done') sessionsDone++;
+        }
+        var prot = (log.actual || {}).prot || 0;
+        if (prot > 0 && prot < protTarget * 0.85) proteinMissedDays++;
+      } catch(e) {}
+    }
+    var directLines = [];
+    if (energyCount >= 4) {
+      var avgE = Math.round(energySum / energyCount * 10) / 10;
+      directLines.push('14-day avg energy: ' + avgE + '/5' + (avgE < 2.5 ? ' — LOW, consider deload' : avgE < 3.5 ? ' — moderate' : ' — good'));
+    }
+    if (sleepCount >= 4) {
+      var avgS = Math.round(sleepSum / sleepCount * 10) / 10;
+      directLines.push('14-day avg sleep: ' + avgS + 'h' + (avgS < 6.5 ? ' — recovery risk' : ''));
+    }
+    if (sessionsPlanned > 0) {
+      var compliance = Math.round(sessionsDone / sessionsPlanned * 100);
+      directLines.push('14-day training compliance: ' + sessionsDone + '/' + sessionsPlanned + ' sessions (' + compliance + '%)' + (compliance < 60 ? ' — consider volume reduction' : ''));
+    }
+    if (proteinMissedDays > 4) {
+      directLines.push('Protein target missed ' + proteinMissedDays + ' of last 14 days');
+    }
+    if (directLines.length) {
+      lines.push('14-DAY DIRECT SCAN:');
+      lines = lines.concat(directLines.map(function(l){ return '  ' + l; }));
+    }
+
+    if (!lines.length) return '';
+    return lines.join('\n') + '\n';
+  } catch(e) {
+    return '';
+  }
+}
+
 async function generateCoachNarrative(p, t, plan) {
   var box = document.getElementById('coach-narrative-body');
   if (!box) return;
@@ -7285,6 +7394,22 @@ async function generateCoachNarrative(p, t, plan) {
       + (trainingLeft > 0 ? 'recovery still possible.' : 'focus on what remains.');
   })();
 
+  // ── Multi-week trend signal for coaching brief ──────────────────────
+  var _multiWeekSignal = (function() {
+    try {
+      var wctx = typeof buildWeekContext === 'function' ? buildWeekContext(null) : '';
+      if (!wctx) return '';
+      var sigLines = wctx.split('\n').filter(function(l){ return l.trim(); });
+      // Deload signal takes priority
+      var deloadLine = sigLines.find(function(l){ return l.includes('deload') || l.includes('LOW') || l.includes('recovery risk'); });
+      if (deloadLine) return ' TREND: ' + deloadLine.trim().slice(0, 80) + '.';
+      // Then compliance
+      var compLine = sigLines.find(function(l){ return l.includes('compliance') && l.includes('%'); });
+      if (compLine) return ' ' + compLine.trim().slice(0, 80) + '.';
+      return '';
+    } catch(e) { return ''; }
+  })();
+
   var prompt = 'You are the coach for ' + p.name + '. Write ONE tight paragraph — max 60 words — for their daily briefing.'
     + ' Today: ' + t.name + (isTraining ? ', ' + trainType + ' day' : ', rest day') + '.'
     + ' Week ' + progCtx.weekNum + ' of 4 (' + progCtx.phase + ' phase).'
@@ -7297,7 +7422,8 @@ async function generateCoachNarrative(p, t, plan) {
     + ' Time: ' + _snap.hour + ':00.'
     + _weekCtx
     + (injuries ? ' Injuries: ' + injuries + '.' : '')
-    + '\n\nOne paragraph. Direct, personal, specific to their actual numbers right now. Tell them the one thing that matters most at this moment in their day. Max 60 words.';
+    + _multiWeekSignal
+    + '\n\nOne paragraph. Direct, personal, specific to their actual numbers right now. Reference trend data only if it materially affects today. Max 60 words.';
 
   try {
     var res = await fetch('/api/chat', {
