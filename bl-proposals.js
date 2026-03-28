@@ -375,27 +375,12 @@ function blRenderProposalLog(containerId) {
 function blHandleProposalAction(id, action) {
   if (action === 'commit') {
     var ok = blCommitProposal(id);
-    if (ok) {
-      // Refresh panels if they exist on page
-      if (typeof blRenderProposals === 'function') blRenderProposals('bl-proposals-panel');
-      if (typeof blRenderProposalLog === 'function') blRenderProposalLog('bl-proposal-log-panel');
-      // Reload if on week page to refresh the full render
-      if (document.querySelector('meta[content="week"]') || window.location.href.includes('week')) {
-        setTimeout(function() { window.location.reload(); }, 400);
-      }
-    }
+    if (ok && typeof blRefreshProposalUI === 'function') blRefreshProposalUI();
   } else if (action === 'dismiss') {
     blDismissProposal(id);
-    if (typeof blRenderProposals === 'function') blRenderProposals('bl-proposals-panel');
-    if (typeof blRenderProposalLog === 'function') blRenderProposalLog('bl-proposal-log-panel');
+    if (typeof blRefreshProposalUI === 'function') blRefreshProposalUI();
   } else if (action === 'revert') {
     var newId = blRevertProposal(id);
-    if (newId) {
-      if (typeof blRenderProposals === 'function') blRenderProposals('bl-proposals-panel');
-      if (typeof blRenderProposalLog === 'function') blRenderProposalLog('bl-proposal-log-panel');
-      if (document.querySelector('meta[content="week"]') || window.location.href.includes('week')) {
-        setTimeout(function() { window.location.reload(); }, 400);
-      }
-    }
+    if (newId && typeof blRefreshProposalUI === 'function') blRefreshProposalUI();
   }
 }
