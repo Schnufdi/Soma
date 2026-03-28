@@ -419,101 +419,37 @@ function render(p) {
     +'<div style="height:28px;"></div>'
     +rhythmHtml
     +'<div style="height:28px;"></div>'
-    /* ---- Proposed plan from goal analysis ---- */
-    var proposedHtml = '';
-    var gb = p.gapBridge;
-    if (gb && gb.generatedAt) {
-      // Build proposed week — show proposed changes alongside current
-      var propCards = '<div class="ledger-grid">';
-      DNS.forEach(function(dayName, i) {
-        var wp = weekPlan[i] || {type:'Rest', priority:'rest'};
-        var isTraining = wp.priority === 'training';
+    /* ---- Proposals panel ---- */
+    var pendingCount = 0;
+    if (typeof blGetPending === 'function') {
+      pendingCount = blGetPending().filter(function(p){ return p.status === 'pending'; }).length;
+    }
+    var logCount = 0;
+    if (typeof blGetProposalLog === 'function') {
+      logCount = blGetProposalLog().length;
+    }
 
-        // Determine if gap bridge specifically calls out changes
-        var propType = wp.type;
-        var propFocus = wp.focus || '';
-        var addNotes = [];
-
-        // Scan training emphasis for additions
-        if (isTraining && gb.training && gb.training.length) {
-          var focus = (propType + ' ' + propFocus).toLowerCase();
-          gb.training.forEach(function(t) {
-            var tc = (t.change || '').toLowerCase();
-            var relevant = (tc.includes('posterior') && (focus.includes('push') || focus.includes('upper')))
-                        || (tc.includes('lat') && focus.includes('push'))
-                        || (tc.includes('glute') && focus.includes('posterior'))
-                        || (tc.includes('core') && isTraining);
-            if (relevant) addNotes.push(t.change);
-          });
-        }
-
-        var isChanged = addNotes.length > 0;
-        var cardStyle = isChanged ? 'border-color:rgba(0,200,160,.5);background:rgba(0,200,160,.04);' : 'opacity:.35;';
-
-        propCards += '<div class="day-card ' + (isTraining ? '' : 'rest') + '" style="' + cardStyle + 'min-height:120px;">';
-        propCards += '<div class="day-card-day">' + dayName.slice(0,3) + '</div>';
-        propCards += '<div class="day-card-type">' + propType + '</div>';
-        if (propFocus) propCards += '<div style="font-size:10px;font-weight:300;color:var(--dk-3);margin-bottom:4px;line-height:1.3;">' + propFocus + '</div>';
-        addNotes.slice(0,2).forEach(function(n) {
-          propCards += '<div style="font-size:10px;font-weight:600;color:var(--jade);margin-top:3px;">&#43; ' + n + '</div>';
-        });
-        propCards += '</div>';
-      });
-      propCards += '</div>';
-
-      // Changes list
-      var propChangesList = '';
-      if (gb.topThreeChanges && gb.topThreeChanges.length) {
-        propChangesList = '<div style="margin:14px 0 0;">';
-        gb.topThreeChanges.forEach(function(c, i) {
-          propChangesList += '<div style="display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);">';
-          propChangesList += '<div style="width:22px;height:22px;border-radius:50%;background:var(--jade);color:#0c1010;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + (i+1) + '</div>';
-          propChangesList += '<div style="flex:1;">';
-          propChangesList += '<div style="font-size:13px;font-weight:500;color:var(--dk-1);">' + (c.change||'') + '</div>';
-          propChangesList += '<div style="font-size:11px;font-weight:300;color:var(--dk-3);margin-top:2px;">' + (c.rationale||'') + '</div>';
-          if (c.timeline) propChangesList += '<div style="font-size:10px;font-weight:700;color:var(--jade);margin-top:3px;">' + c.timeline + '</div>';
-          propChangesList += '</div></div>';
-        });
-        propChangesList += '</div>';
-      }
-
-      // Emphasis pills
-      var emphasisHtml = '';
-      if (gb.training && gb.training.length) {
-        emphasisHtml = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">';
-        gb.training.slice(0,4).forEach(function(t) {
-          emphasisHtml += '<span style="font-size:10px;font-weight:500;color:var(--jade);background:rgba(0,200,160,.08);border:1px solid rgba(0,200,160,.2);border-radius:4px;padding:3px 8px;">' + t.change + '</span>';
-        });
-        emphasisHtml += '</div>';
-      }
-
-      proposedHtml = '<div style="margin-bottom:28px;">'
-        + '<div class="sec-label">Goal plan <span style="color:rgba(0,200,160,.6);font-weight:300;text-transform:none;letter-spacing:0;font-size:10px;margin-left:4px;">from ' + (gb.generatedAt||'') + '</span></div>'
-        + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);margin-bottom:12px;">' + (gb.weeklyFocus || gb.honestTake || '') + '</div>'
-        + emphasisHtml
-        + '<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Proposed changes — jade cards change from current</div>'
-        + propCards
-        + propChangesList
-        + '<div style="margin-top:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">'
-        + '<button onclick="blApplyGoalPlan()" style="background:var(--jade);color:#0c1010;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">Apply to programme &#8594;</button>'
-        + '<span style="font-size:11px;font-weight:300;color:var(--dk-3);">Records a before/after snapshot. Fully reversible.</span>'
+    var proposalsHtml = '';
+    if (pendingCount > 0) {
+      proposalsHtml = '<div style="margin-bottom:28px;">'
+        + '<div class="sec-label">Pending changes '
+        + '<span style="background:rgba(0,200,160,.15);color:var(--jade);font-size:9px;font-weight:700;border-radius:10px;padding:2px 8px;margin-left:6px;letter-spacing:.06em;">' + pendingCount + ' to review</span>'
         + '</div>'
+        + '<div id="bl-proposals-panel"></div>'
         + '</div>';
     }
 
-    /* ---- Decision change log ---- */
-    var changeLogHtml = '';
-    if (typeof blGetChangeLog === 'function') {
-      var logEntries = blGetChangeLog();
-      if (logEntries.length) {
-        changeLogHtml = '<div style="margin-bottom:28px;">'
-          + '<div class="sec-label">Decision log <span style="color:var(--dk-3);font-weight:300;text-transform:none;letter-spacing:0;font-size:10px;margin-left:4px;">' + logEntries.length + ' recorded</span></div>'
-          + '<div id="bl-changelog-panel"></div>'
-          + '</div>';
-      }
+    var logHtml = '';
+    if (logCount > 0) {
+      logHtml = '<div style="margin-bottom:28px;">'
+        + '<div class="sec-label">Decision log '
+        + '<span style="color:var(--dk-3);font-weight:300;text-transform:none;letter-spacing:0;font-size:10px;margin-left:4px;">' + logCount + ' recorded</span>'
+        + '</div>'
+        + '<div id="bl-proposal-log-panel"></div>'
+        + '</div>';
     }
 
-    +aiHtml + proposedHtml + changeLogHtml;
+    +aiHtml + proposalsHtml + logHtml;
 }
 
 async function generateWeekAnalysis() {
@@ -572,81 +508,40 @@ async function generateWeekAnalysis() {
 
 // Apply goal plan changes to programme — with full change log
 function blApplyGoalPlan() {
-  var btn = event.target;
+  var btn = event && event.target;
   try {
     var p = JSON.parse(localStorage.getItem('bl_profile') || '{}');
     var gb = p.gapBridge;
-    if (!gb) { alert('No goal plan found. Run a goal analysis first.'); return; }
+    if (!gb) { alert('No goal plan found.'); return; }
 
-    // Snapshot before
-    var before = typeof blSnapshotProgramme === 'function' ? blSnapshotProgramme(p) : {};
-
-    // Apply: mark goal plan as applied
-    p.goalPlanApplied = new Date().toISOString().slice(0, 10);
-    p.trainingEmphasis = (gb.training || []).map(function(t){ return t.change; });
-
-    // Update coachContext so daily plan AI picks up new focus
-    p.gapBridge.applied = true;
-    p.gapBridge.appliedAt = new Date().toISOString();
-
-    localStorage.setItem('bl_profile', JSON.stringify(p));
-
-    // Snapshot after
-    var after = typeof blSnapshotProgramme === 'function' ? blSnapshotProgramme(p) : {};
-
-    // Diff and record
-    var changes = typeof blDiffSnapshots === 'function' ? blDiffSnapshots(before, after) : [];
-    // Always add the coaching context change
-    changes.push({
-      field: 'gapBridge.applied',
-      label: 'Goal plan coaching context',
-      before: 'Not applied',
-      after: 'Active — coaching AI now using goal analysis context'
-    });
-    if (gb.weeklyFocus) {
-      changes.push({
-        field: 'gapBridge.weeklyFocus',
-        label: 'Weekly focus',
-        before: '—',
-        after: gb.weeklyFocus
-      });
+    var changes = [];
+    if (gb.weeklyFocus) changes.push({ field:'gapBridge.applied', label:'Goal coaching context', before:'Inactive', after:'Active — ' + gb.weeklyFocus });
+    if (gb.training && gb.training.length) changes.push({ field:'coachNotes.append', label:'Training emphasis', before:'—', after:gb.training.map(function(t){return t.change;}).join(', ') });
+    if (gb.topThreeChanges && gb.topThreeChanges.length) {
+      gb.topThreeChanges.forEach(function(c,i){ changes.push({ field:'gapBridge.change'+(i+1), label:'Change '+(i+1)+': '+c.change, before:'Not implemented', after:c.rationale }); });
     }
 
-    if (typeof blRecordChange === 'function') {
-      blRecordChange(
-        'goals-analysis',
-        'Goal plan applied: ' + (gb.weeklyFocus || gb.honestTake || 'from ' + gb.generatedAt),
-        changes,
-        'Applied from week page. Goal analysis date: ' + (gb.generatedAt || '—')
-      );
+    if (typeof blPropose === 'function' && changes.length) {
+      blPropose('goals', (gb.weeklyFocus||gb.honestTake||'Goal analysis')+' — '+(gb.generatedAt||''), changes, 'Goal analysis from '+gb.generatedAt+'. Committed from Week page.');
+      // Commit immediately since user clicked Apply from Week page
+      var pending = blGetPending();
+      var latest = pending[pending.length-1];
+      if (latest) blCommitProposal(latest.id);
+      if (btn) { btn.textContent = '\u2713 Applied & logged'; btn.disabled = true; }
+      setTimeout(function(){ window.location.reload(); }, 600);
     }
-
-    // Clear day plan cache
-    try { localStorage.removeItem('dayplan_v6r3_' + new Date().toISOString().slice(0,10)); } catch(e) {}
-
-    btn.textContent = '\u2713 Applied — reloading';
-    btn.disabled = true;
-    btn.style.background = 'rgba(0,200,160,.15)';
-    btn.style.color = 'var(--jade)';
-    btn.style.border = '1px solid rgba(0,200,160,.3)';
-
-    setTimeout(function() { window.location.reload(); }, 800);
-
   } catch(e) {
-    alert('Failed: ' + e.message);
-    console.error('blApplyGoalPlan:', e);
+    if (btn) btn.textContent = 'Error: ' + e.message;
+    console.error(e);
   }
 }
 
 
 // Populate changelog panel after render
 document.addEventListener('DOMContentLoaded', function() {
-  // Re-render to pick up changelog after it loads
   setTimeout(function() {
-    var panel = document.getElementById('bl-changelog-panel');
-    if (panel && typeof blRenderChangeLog === 'function') {
-      blRenderChangeLog('bl-changelog-panel');
-    }
+    if (typeof blRenderProposals === 'function') blRenderProposals('bl-proposals-panel');
+    if (typeof blRenderProposalLog === 'function') blRenderProposalLog('bl-proposal-log-panel');
   }, 300);
 });
 </script>

@@ -879,56 +879,53 @@ function glApplyProgrammeChanges() {
   var btn = document.getElementById('gl-apply-btn');
   try {
     var p = JSON.parse(localStorage.getItem('bl_profile') || '{}');
-    if (!p) { alert('No profile found.'); return; }
+    var gb = p.gapBridge;
+    if (!gb) { alert('No goal plan found. Run a goal analysis first.'); return; }
 
-    var gb = p.gapBridge || {};
+    // Build structured changes for the proposal bus
     var changes = [];
-
-    // Apply top 3 changes as coach context
+    if (gb.weeklyFocus) {
+      changes.push({ field: 'gapBridge.applied', label: 'Goal coaching context', before: 'Inactive', after: 'Active — ' + gb.weeklyFocus });
+    }
+    if (gb.training && gb.training.length) {
+      changes.push({ field: 'coachNotes.append', label: 'Training emphasis', before: '—', after: gb.training.map(function(t){return t.change;}).join(', ') });
+    }
+    if (gb.primaryGaps && gb.primaryGaps.length) {
+      changes.push({ field: 'coachNotes.append', label: 'Primary gaps identified', before: '—', after: gb.primaryGaps.join(' | ') });
+    }
+    // Top 3 changes as individual proposals
     if (gb.topThreeChanges && gb.topThreeChanges.length) {
+      gb.topThreeChanges.forEach(function(c, i) {
+        changes.push({ field: 'gapBridge.change' + (i+1), label: 'Change ' + (i+1) + ': ' + c.change, before: 'Not implemented', after: c.rationale });
+      });
+    }
+
+    // Stage as a proposal — sends to Week page for review
+    if (typeof blPropose === 'function' && changes.length) {
+      blPropose(
+        'goals',
+        (gb.weeklyFocus || gb.honestTake || 'Goal analysis') + ' — ' + (gb.generatedAt || ''),
+        changes,
+        'From goal gap analysis on ' + (gb.generatedAt || 'unknown date') + '. Review on the Week page to apply.'
+      );
+      if (btn) {
+        btn.textContent = '\u2713 Staged — review on the Week page';
+        btn.style.background = 'rgba(0,200,160,.12)';
+        btn.style.color = 'var(--jade)';
+        btn.style.border = '1px solid rgba(0,200,160,.25)';
+        btn.disabled = true;
+      }
+    } else {
+      // Fallback: apply directly if bl-proposals not loaded
       p.gapBridge.applied = true;
       p.gapBridge.appliedAt = new Date().toISOString();
-    }
-
-    // Parse and apply nutrition from foodStructure
-    // e.g. "2800/2400 training/rest, 185g protein" 
-    var fs = p.gapBridge && p.gapBridge.weeklyFocus || '';
-    // Apply training emphasis to weekPlan as a note
-    if (gb.training && gb.training.length) {
-      p.trainingEmphasis = gb.training.map(function(t){ return t.change; });
-      changes.push('Training emphasis updated');
-    }
-
-    // Mark as applied so daily plan coach uses new context
-    p.goalPlanApplied = new Date().toISOString().slice(0,10);
-
-    // Clear the daily plan cache so it regenerates with new context
-    try { 
-      var todayKey = 'dayplan_v6r3_' + new Date().toISOString().slice(0,10);
-      localStorage.removeItem(todayKey); 
-    } catch(e) {}
-
-    localStorage.setItem('bl_profile', JSON.stringify(p));
-
-    // Record decision in change log
-    if (typeof blRecordChange === 'function') {
-      var changes = [];
-      if (gb.weeklyFocus) changes.push({ field:'weeklyFocus', label:'Weekly focus', before:'—', after:gb.weeklyFocus });
-      if (gb.training && gb.training.length) changes.push({ field:'trainingEmphasis', label:'Training emphasis', before:'—', after:gb.training.map(function(t){return t.change;}).join(', ') });
-      changes.push({ field:'gapBridge.applied', label:'Goal coaching context', before:'Inactive', after:'Active' });
-      blRecordChange('goals-analysis', 'Goal plan applied from goals page', changes, 'Source: ' + (gb.generatedAt||'unknown date'));
-    }
-    
-    if (btn) { 
-      btn.textContent = '\u2713 Applied — daily plan will regenerate with new context';
-      btn.style.background = 'rgba(0,196,160,.15)';
-      btn.style.color = 'var(--jade)';
-      btn.style.border = '1px solid rgba(0,196,160,.3)';
-      btn.disabled = true;
+      p.trainingEmphasis = (gb.training||[]).map(function(t){return t.change;});
+      localStorage.setItem('bl_profile', JSON.stringify(p));
+      if (btn) { btn.textContent = '\u2713 Applied'; btn.disabled = true; }
     }
   } catch(e) {
-    if (btn) btn.textContent = 'Error applying — ' + e.message;
-    console.error('Apply failed:', e);
+    if (btn) btn.textContent = 'Error: ' + e.message;
+    console.error('glApplyProgrammeChanges:', e);
   }
 }
 </script>

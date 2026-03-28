@@ -392,6 +392,13 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
       if (!raw) return false;
       const p = JSON.parse(raw);
 
+      // Snapshot before state for logging
+      const beforeSnap = {
+        coachNotes: p.coachNotes || '',
+        overlays: (p.overlays || []).slice(),
+        injuries: (p.injuries || []).slice(),
+      };
+
       // Classify what kind of update this is
       const lower = newInfo.toLowerCase();
       if (lower.includes('sleep') || lower.includes('hours')) {
@@ -431,7 +438,35 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
       }
 
       p.lastUpdated = new Date().toISOString();
+
+      // Capture after-state for logging
+      const afterSnap = {
+        coachNotes: p.coachNotes || '',
+        overlays: p.overlays || [],
+        injuries: p.injuries || [],
+      };
+
       localStorage.setItem('bl_profile', JSON.stringify(p));
+
+      // Log to proposal bus so it appears in the decision log
+      if (typeof blPropose === 'function') {
+        const changes = [];
+        if (afterSnap.coachNotes !== beforeSnap.coachNotes) {
+          changes.push({ field: 'coachNotes.append', label: 'Coach note', before: '—', after: newInfo });
+        }
+        if (afterSnap.overlays.length !== beforeSnap.overlays.length) {
+          changes.push({ field: 'overlays.push', label: 'Training overlay', before: 'Not set', after: newInfo });
+        }
+        if (afterSnap.injuries.length !== beforeSnap.injuries.length) {
+          changes.push({ field: 'injuries.push', label: 'Injury note', before: 'Not recorded', after: newInfo });
+        }
+        if (changes.length) {
+          // Commit directly (coach updates are already confirmed via Yes/No prompt)
+          const propId = blPropose('coach', 'Coach update: ' + newInfo.slice(0,60), changes, 'Confirmed in coach conversation');
+          if (propId) blCommitProposal(propId);
+        }
+      }
+
       return true;
     } catch(e) {
       console.error('Profile save error:', e);
