@@ -420,11 +420,9 @@ function render(p) {
     +'<div style="height:28px;"></div>'
     +rhythmHtml
     +'<div style="height:28px;"></div>'
-    /* ---- Proposals panel — always in DOM, populated after render ---- */
-    var proposalsHtml = '<div id="bl-proposals-section" style="margin-bottom:28px;display:none;"></div>';
-    var logHtml = '<div id="bl-log-section" style="margin-bottom:28px;display:none;"></div>';
-
-    +aiHtml + proposalsHtml + logHtml;
+    +aiHtml
+    +'<div id="bl-proposals-section" style="margin-bottom:28px;"></div>'
+    +'<div id="bl-log-section" style="margin-bottom:28px;"></div>';
 }
 
 async function generateWeekAnalysis() {
@@ -520,103 +518,101 @@ document.addEventListener('DOMContentLoaded', function() {
 function blRefreshProposalUI() {
   var pending = (typeof blGetPending === 'function') ? blGetPending() : [];
   var log = (typeof blGetProposalLog === 'function') ? blGetProposalLog() : [];
+  var srcMap = {
+    'goals':          {label:'Goal analysis',         color:'#00c8a0'},
+    'coach':          {label:'Coach',                 color:'rgba(120,180,255,.9)'},
+    'body-scan':      {label:'Body scan',             color:'#c4781a'},
+    'reconciliation': {label:'Weekly reconciliation', color:'rgba(180,130,255,.9)'},
+    'manual':         {label:'Manual',                color:'rgba(255,255,255,.4)'},
+  };
 
-  var pendingSection = document.getElementById('bl-proposals-section');
-  var logSection = document.getElementById('bl-log-section');
-
-  // ── Pending proposals ────────────────────────────────────────────
-  if (pendingSection) {
-    if (pending.length > 0) {
-      var src = {
-        'goals':          {label:'Goal analysis',         color:'#00c8a0'},
-        'coach':          {label:'Coach',                 color:'rgba(120,180,255,.9)'},
-        'body-scan':      {label:'Body scan',             color:'#c4781a'},
-        'reconciliation': {label:'Weekly reconciliation', color:'rgba(180,130,255,.9)'},
-        'manual':         {label:'Manual',                color:'rgba(255,255,255,.4)'},
+  // ── Pending proposals ───────────────────────────────────────────
+  var pSect = document.getElementById('bl-proposals-section');
+  if (pSect) {
+    if (pending.length) {
+      var pHTML = [];
+      pHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#00c8a0;margin-bottom:16px;display:flex;align-items:center;gap:10px;">');
+      pHTML.push('Pending changes');
+      pHTML.push('<span style="background:#00c8a0;color:#0c1010;font-size:10px;font-weight:800;border-radius:20px;padding:3px 10px;">' + pending.length + '</span>');
+      pHTML.push('</div>');
+      pending.forEach(function(prop) {
+        var s = srcMap[prop.source] || {label: prop.source, color:'rgba(255,255,255,.4)'};
+        pHTML.push('<div class="bl-prop-card" style="background:rgba(0,200,160,.06);border:2px solid rgba(0,200,160,.35);border-radius:12px;padding:20px;margin-bottom:12px;">');
+        pHTML.push('<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">');
+        pHTML.push('<span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:' + s.color + ';background:rgba(0,200,160,.1);padding:3px 10px;border-radius:4px;">' + s.label + '</span>');
+        pHTML.push('<span style="font-size:10px;color:rgba(255,255,255,.35);">' + prop.date + '</span>');
+        pHTML.push('</div>');
+        pHTML.push('<div style="font-family:var(--serif);font-size:22px;font-weight:300;color:#fff;line-height:1.2;margin-bottom:8px;">' + prop.title + '</div>');
+        if (prop.context) pHTML.push('<div style="font-size:12px;font-weight:300;color:rgba(255,255,255,.5);margin-bottom:14px;line-height:1.5;">' + prop.context + '</div>');
+        // Before/after table
+        pHTML.push('<div style="background:rgba(0,0,0,.3);border-radius:8px;overflow:hidden;margin-bottom:16px;">');
+        pHTML.push('<div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:7px 14px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,255,255,.08);">');
+        pHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);">What changes</div>');
+        pHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);">Before</div>');
+        pHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#00c8a0;">After</div>');
+        pHTML.push('</div>');
+        (prop.changes||[]).forEach(function(c, ci) {
+          var last = ci === prop.changes.length - 1;
+          pHTML.push('<div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 14px;' + (!last ? 'border-bottom:1px solid rgba(255,255,255,.05)' : '') + '">');
+          pHTML.push('<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);">' + (c.label||c.field) + '</div>');
+          pHTML.push('<div style="font-size:11px;font-weight:300;color:rgba(255,255,255,.35);text-decoration:line-through;">' + blFormatVal(c.before) + '</div>');
+          pHTML.push('<div style="font-size:12px;font-weight:700;color:#00c8a0;">' + blFormatVal(c.after) + '</div>');
+          pHTML.push('</div>');
+        });
+        pHTML.push('</div>');
+        // Buttons — use data attributes, delegated handler below
+        pHTML.push('<div style="display:flex;gap:10px;">');
+        pHTML.push('<button class="bl-prop-btn" data-pid="' + prop.id + '" data-action="commit" style="flex:1;background:#00c8a0;color:#0c1010;font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:14px 20px;border:none;border-radius:8px;cursor:pointer;">&#10003; Apply this change</button>');
+        pHTML.push('<button class="bl-prop-btn" data-pid="' + prop.id + '" data-action="dismiss" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-family:var(--sans);font-size:12px;font-weight:600;padding:14px 20px;border-radius:8px;cursor:pointer;">Dismiss</button>');
+        pHTML.push('</div>');
+        pHTML.push('</div>');
+      });
+      pSect.innerHTML = pHTML.join('');
+      pSect.style.display = 'block';
+      pSect.onclick = function(e) {
+        var btn = e.target.closest('.bl-prop-btn');
+        if (btn && btn.dataset.pid && btn.dataset.action) {
+          blHandleProposalAction(btn.dataset.pid, btn.dataset.action);
+        }
       };
-
-      var cards = pending.map(function(prop) {
-        var s = src[prop.source] || {label:prop.source, color:'rgba(255,255,255,.4)'};
-        var rows = (prop.changes||[]).map(function(c, i) {
-          var last = i === prop.changes.length - 1;
-          return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 14px;' + (!last?'border-bottom:1px solid rgba(255,255,255,.05)':'') + '">'
-            + '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);">' + (c.label||c.field) + '</div>'
-            + '<div style="font-size:11px;font-weight:300;color:rgba(255,255,255,.35);text-decoration:line-through;">' + blFormatVal(c.before) + '</div>'
-            + '<div style="font-size:12px;font-weight:700;color:#00c8a0;">' + blFormatVal(c.after) + '</div>'
-            + '</div>';
-        }).join('');
-
-        return '<div style="background:rgba(0,200,160,.06);border:2px solid rgba(0,200,160,.35);border-radius:12px;padding:20px;margin-bottom:12px;">'
-          // Source + date
-          + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
-          + '<span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:' + s.color + ';background:rgba(0,200,160,.1);padding:3px 10px;border-radius:4px;">' + s.label + '</span>'
-          + '<span style="font-size:10px;color:rgba(255,255,255,.35);">' + prop.date + '</span>'
-          + '</div>'
-          // Title
-          + '<div style="font-family:var(--serif);font-size:22px;font-weight:300;color:#fff;line-height:1.2;margin-bottom:8px;">' + prop.title + '</div>'
-          // Context
-          + (prop.context ? '<div style="font-size:12px;font-weight:300;color:rgba(255,255,255,.5);margin-bottom:14px;line-height:1.5;">' + prop.context + '</div>' : '')
-          // Before → After table
-          + '<div style="background:rgba(0,0,0,.3);border-radius:8px;overflow:hidden;margin-bottom:16px;">'
-          + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:7px 14px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,255,255,.08);">'
-          + '<div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);">What changes</div>'
-          + '<div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);">Before</div>'
-          + '<div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#00c8a0;">After</div>'
-          + '</div>'
-          + rows
-          + '</div>'
-          // Big buttons
-          + '<div style="display:flex;gap:10px;">'
-          + '<button onclick="blHandleProposalAction('' + prop.id + '','commit')" '
-          + 'style="flex:1;background:#00c8a0;color:#0c1010;font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:14px 20px;border:none;border-radius:8px;cursor:pointer;">'
-          + '&#10003; Apply this change</button>'
-          + '<button onclick="blHandleProposalAction('' + prop.id + '','dismiss')" '
-          + 'style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.04em;padding:14px 20px;border-radius:8px;cursor:pointer;">'
-          + 'Dismiss</button>'
-          + '</div>'
-          + '</div>';
-      }).join('');
-
-      pendingSection.innerHTML = '<div style="font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#00c8a0;margin-bottom:16px;display:flex;align-items:center;gap:10px;">'
-        + 'Pending changes'
-        + '<span style="background:#00c8a0;color:#0c1010;font-size:10px;font-weight:800;border-radius:20px;padding:3px 10px;">' + pending.length + '</span>'
-        + '</div>'
-        + cards;
-      pendingSection.style.display = 'block';
     } else {
-      pendingSection.style.display = 'none';
+      pSect.style.display = 'none';
     }
   }
 
   // ── Decision log ─────────────────────────────────────────────────
-  if (logSection) {
-    if (log.length > 0) {
-      var rows = log.slice().reverse().map(function(entry) {
-        var s = src[entry.source] || {label:entry.source||'—', color:'rgba(255,255,255,.4)'};
-        var isApplied = entry.status === 'committed';
-        var changes = (entry.changes||[]).map(function(c) {
-          return '<span style="font-size:10px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.05);border-radius:3px;padding:2px 7px;margin:2px;">'
-            + (c.label||c.field) + ': ' + blFormatVal(c.before) + ' → ' + blFormatVal(c.after) + '</span>';
+  var lSect = document.getElementById('bl-log-section');
+  if (lSect) {
+    if (log.length) {
+      var lHTML = [];
+      lHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px;">Decision log <span style="font-size:10px;font-weight:300;text-transform:none;letter-spacing:0;margin-left:4px;">' + log.length + ' entries</span></div>');
+      log.slice().reverse().forEach(function(entry) {
+        var s = srcMap[entry.source] || {label: entry.source||'—', color:'rgba(255,255,255,.4)'};
+        var applied = entry.status === 'committed';
+        lHTML.push('<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">');
+        lHTML.push('<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">');
+        lHTML.push('<span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:' + s.color + ';">' + s.label + '</span>');
+        lHTML.push('<span style="font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:3px;' + (applied ? 'background:rgba(0,200,160,.12);color:#00c8a0;' : 'background:rgba(255,255,255,.05);color:rgba(255,255,255,.3);') + '">' + (applied ? 'Applied' : 'Dismissed') + '</span>');
+        lHTML.push('<span style="font-size:10px;color:rgba(255,255,255,.3);">' + entry.date + '</span>');
+        if (applied) lHTML.push('<button class="bl-prop-btn" data-pid="' + entry.id + '" data-action="revert" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;cursor:pointer;">Revert</button>');
+        lHTML.push('</div>');
+        lHTML.push('<div style="font-size:12px;font-weight:500;color:rgba(255,255,255,.7);margin-bottom:5px;">' + entry.title + '</div>');
+        var chips = (entry.changes||[]).map(function(c) {
+          return '<span style="font-size:10px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.05);border-radius:3px;padding:2px 7px;margin:2px;display:inline-block;">' + (c.label||c.field) + ': ' + blFormatVal(c.before) + ' \u2192 ' + blFormatVal(c.after) + '</span>';
         }).join('');
-
-        return '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">'
-          + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'
-          + '<span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:' + s.color + ';">' + s.label + '</span>'
-          + '<span style="font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:3px;'
-          + (isApplied ? 'background:rgba(0,200,160,.12);color:#00c8a0;' : 'background:rgba(255,255,255,.05);color:rgba(255,255,255,.3);') + '">'
-          + (isApplied ? 'Applied' : 'Dismissed') + '</span>'
-          + '<span style="font-size:10px;color:rgba(255,255,255,.3);">' + entry.date + '</span>'
-          + (isApplied ? '<button onclick="blHandleProposalAction('' + entry.id + '','revert')" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;cursor:pointer;">Revert</button>' : '')
-          + '</div>'
-          + '<div style="font-size:12px;font-weight:500;color:rgba(255,255,255,.7);margin-bottom:5px;">' + entry.title + '</div>'
-          + '<div style="display:flex;flex-wrap:wrap;gap:3px;">' + changes + '</div>'
-          + '</div>';
-      }).join('');
-
-      logSection.innerHTML = '<div style="font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px;">Decision log <span style="font-size:10px;font-weight:300;text-transform:none;letter-spacing:0;margin-left:4px;">' + log.length + ' entries</span></div>' + rows;
-      logSection.style.display = 'block';
+        lHTML.push('<div>' + chips + '</div>');
+        lHTML.push('</div>');
+      });
+      lSect.innerHTML = lHTML.join('');
+      lSect.style.display = 'block';
+      lSect.onclick = function(e) {
+        var btn = e.target.closest('.bl-prop-btn');
+        if (btn && btn.dataset.pid && btn.dataset.action) {
+          blHandleProposalAction(btn.dataset.pid, btn.dataset.action);
+        }
+      };
     } else {
-      logSection.style.display = 'none';
+      lSect.style.display = 'none';
     }
   }
 }
