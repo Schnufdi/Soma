@@ -1215,6 +1215,163 @@ function gtRenderResult(r) {
 var _activePhase = 0;
 var _savedPhases = null;
 
+function gtRenderBridge(phases, immediateShifts, r) {
+  if (!phases || !phases.length) return '';
+
+  _savedPhases = phases;
+  _activePhase = 0;
+
+  // Phase nodes track
+  var nodeHTML = phases.map(function(ph, i) {
+    var isFirst = (i === 0);
+    var isLast  = (i === phases.length - 1);
+    var nodeCls = isFirst ? 'current' : isLast ? 'target' : '';
+    var badge   = isFirst ? 'now' : isLast ? 'goal' : 'next';
+    var dotIcon = isFirst ? 'N' : isLast ? '&#9670;' : (i + 1);
+    return '<div class="gt-phase-node ' + nodeCls + '" onclick="gtShowPhase(' + i + ')" data-idx="' + i + '">'
+      + '<div class="gt-phase-dot">' + dotIcon + '</div>'
+      + '<div class="gt-phase-name">' + (ph.name || 'Phase ' + (i+1)) + '</div>'
+      + '<div class="gt-phase-time">' + (ph.timeframe || '') + '</div>'
+      + '</div>';
+  }).join('');
+
+  var trackPct = phases.length > 1 ? Math.round(1 / (phases.length - 1) * 100) : 0;
+
+  var bridgeHTML = '<div class="gt-bridge">'
+    + '<div class="gt-bridge-hd">'
+      + '<div class="gt-bridge-title">Your progression map</div>'
+      + '<button onclick="gtSavePlan()" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;'
+        + 'color:var(--jade);background:none;border:1px solid rgba(0,200,160,.25);border-radius:6px;padding:6px 14px;cursor:pointer;font-family:var(--sans);">'
+        + 'Save as goal plan &#8594;</button>'
+    + '</div>'
+
+    // Phase spine with fill
+    + '<div class="gt-phase-track">'
+      + '<div class="gt-phase-spine">'
+        + '<div class="gt-phase-fill" style="width:' + trackPct + '%"></div>'
+      + '</div>'
+      + '<div class="gt-phase-nodes">' + nodeHTML + '</div>'
+    + '</div>'
+
+    // Phase detail panel (shows first phase by default)
+    + '<div id="gt-phase-detail" class="gt-phase-detail show">'
+      + gtBuildPhaseCard(phases[0], 0, phases.length)
+    + '</div>'
+
+  + '</div>';
+
+  return bridgeHTML;
+}
+
+function gtBuildPhaseCard(ph, idx, total) {
+  if (!ph) return '';
+  var isFirst = (idx === 0);
+  var isLast  = (idx === total - 1);
+  var badge   = isFirst ? 'now' : isLast ? 'goal' : 'next';
+  var badgeLabel = isFirst ? 'Start here' : isLast ? 'Goal state' : 'Phase ' + (idx + 1);
+
+  // Body composition targets
+  var bcHTML = '';
+  if (ph.bodyComposition) {
+    var bc = ph.bodyComposition;
+    bcHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">';
+    if (bc.bodyFatTarget) {
+      bcHTML += '<div style="background:var(--ink-2);border-radius:7px;padding:10px 12px;">'
+        + '<div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:4px;">Body fat</div>'
+        + '<div style="font-size:14px;font-weight:700;color:var(--jade);">' + bc.bodyFatTarget + '</div>'
+        + '</div>';
+    }
+    if (bc.weightTarget) {
+      bcHTML += '<div style="background:var(--ink-2);border-radius:7px;padding:10px 12px;">'
+        + '<div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:4px;">Weight</div>'
+        + '<div style="font-size:14px;font-weight:700;color:var(--dk-1);">' + bc.weightTarget + '</div>'
+        + '</div>';
+    }
+    bcHTML += '</div>';
+  }
+
+  // Nutrition targets
+  var nutriHTML = '';
+  if (ph.nutritionTarget) {
+    var nt = ph.nutritionTarget;
+    nutriHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">';
+    if (nt.calories) {
+      nutriHTML += '<div style="background:var(--ink-2);border-radius:7px;padding:10px 12px;">'
+        + '<div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:4px;">Calories</div>'
+        + '<div style="font-size:13px;font-weight:500;color:var(--dk-1);">' + nt.calories + '</div>'
+        + '</div>';
+    }
+    if (nt.protein) {
+      nutriHTML += '<div style="background:var(--ink-2);border-radius:7px;padding:10px 12px;">'
+        + '<div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:4px;">Protein</div>'
+        + '<div style="font-size:13px;font-weight:500;color:var(--amber);">' + nt.protein + '</div>'
+        + '</div>';
+    }
+    nutriHTML += '</div>';
+  }
+
+  // Strength targets
+  var strengthHTML = '';
+  if (ph.strengthTargets && ph.strengthTargets.length) {
+    strengthHTML = '<div style="margin-bottom:12px;">'
+      + '<div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;">Strength targets</div>';
+    ph.strengthTargets.forEach(function(st) {
+      strengthHTML += '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);">'
+        + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);">' + (st.lift || '') + '</div>'
+        + '<div style="font-size:12px;font-weight:700;color:var(--jade);">'
+          + (st.current ? '<span style="color:var(--dk-3);font-weight:300;">' + st.current + '</span> &#8594; ' : '')
+          + (st.target || '') + '</div>'
+        + '</div>';
+    });
+    strengthHTML += '</div>';
+  }
+
+  return '<div class="gt-phase-detail-hd">'
+      + '<div>'
+        + '<div class="gt-phase-detail-title">' + (ph.name || 'Phase ' + (idx+1)) + '</div>'
+        + '<div class="gt-phase-detail-sub">' + (ph.timeframe || '') + '</div>'
+      + '</div>'
+      + '<div class="gt-phase-badge ' + badge + '">' + badgeLabel + '</div>'
+    + '</div>'
+    + (ph.focus ? '<div class="gt-phase-focus">' + ph.focus + '</div>' : '')
+    + bcHTML
+    + nutriHTML
+    + strengthHTML
+    + (ph.trainingStructure ? '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.65;padding:8px 12px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:12px;">' + ph.trainingStructure + '</div>' : '')
+    + (ph.weeklyTarget ? '<div class="gt-phase-milestone"><div class="gt-phase-milestone-label">Weekly target</div>' + ph.weeklyTarget + '</div>' : '')
+    + (ph.successSignal ? '<div class="gt-phase-milestone" style="color:var(--amber);"><div class="gt-phase-milestone-label" style="color:var(--amber);">Ready for next phase when</div>' + ph.successSignal + '</div>' : '');
+}
+
+function gtShowPhase(idx) {
+  if (!_savedPhases || idx >= _savedPhases.length) return;
+  _activePhase = idx;
+
+  // Update active node styling
+  document.querySelectorAll('.gt-phase-node').forEach(function(el, i) {
+    el.classList.toggle('active', i === idx);
+  });
+
+  // Update detail panel
+  var detail = document.getElementById('gt-phase-detail');
+  if (detail) {
+    detail.innerHTML = gtBuildPhaseCard(_savedPhases[idx], idx, _savedPhases.length);
+  }
+}
+
+function gtSavePlan() {
+  if (!_savedPhases) return;
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+    p.goalPlan = {
+      savedAt: new Date().toISOString(),
+      phases: _savedPhases
+    };
+    localStorage.setItem('bl_profile', JSON.stringify(p));
+    var btn = document.querySelector('[onclick="gtSavePlan()"]');
+    if (btn) { btn.textContent = 'Saved ✓'; btn.style.color = 'var(--jade)'; }
+  } catch(e) {}
+}
+
 function gtRenderGoalArc(s6) {
   var arc = s6.arc || [];
   var audit = s6.planAudit || {};
