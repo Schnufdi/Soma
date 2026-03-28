@@ -286,7 +286,7 @@ function checkExistingSession() {
     var session = res.data && res.data.session;
     if (session && !hasOAuthCallback()) {
       // Already signed in, not a callback — go straight to daily plan
-      var dest = localStorage.getItem('bl_profile') ? '/bodylens-dailyplan.html' : '/bodylens-onboard.html';
+      var dest = getPostLoginDest(!!localStorage.getItem('bl_profile'));
       window.location.href = dest;
     }
   });

@@ -112,7 +112,7 @@ Auth banner, summary strip (4 cards), field-by-field profile diff, day log table
 
 | File | Purpose |
 |------|---------|
-| bodylens-dailyplan.html | **Core page.** Daily plan: week strip, training blocks, meal plan, supplements, macros bar, coach narrative, debrief, SOS panel. 505kb / 11,342 lines |
+| bodylens-dailyplan.html | **Core page.** Daily plan: week strip, training blocks, meal plan, supplements, macros bar, coach narrative, SOS panel. **429kb** (reduced from 512kb — plan builder, memory engine, and debrief extracted to separate files). |
 | bodylens-onboard.html | Onboarding form + AI follow-up chat + programme generation |
 | bodylens-instructions.html | Coaching report: 4 tabs (Coach Report, Programme Data, Full Brief, Logic & Calibration) |
 | bodylens-programme.html | 12-week training programme view |
@@ -150,11 +150,15 @@ Auth banner, summary strip (4 cards), field-by-field profile diff, day log table
 
 | File | Purpose | Size |
 |------|---------|------|
-| supabase-auth.js | Auth + localStorage intercept + Supabase sync + BL.* API | 20kb / 523 lines |
-| nav.js | Nav injection IIFE. Injects full nav into every page. | 28kb / 687 lines |
-| style.css | Global design system. CSS variables, jade/rose themes. | 78kb / 2,409 lines |
-| api/chat.js | Vercel serverless. Proxies all Claude API calls. Uses ANTHROPIC_API_KEY env var. | 4kb / 131 lines |
+| supabase-auth.js | Auth + localStorage intercept + Supabase sync + BL.* API | 20kb |
+| nav.js | Nav injection IIFE. Injects full nav into every page. Auth gate included. | 31kb |
+| style.css | Global design system. CSS variables, jade/rose themes. | 78kb |
+| api/chat.js | Vercel serverless. Proxies all Claude API calls. Uses ANTHROPIC_API_KEY env var. | 4kb |
 | sw.js | Service worker — PWA offline support | — |
+| dp-plan.js | **Extracted from dailyplan.** buildPlan() + applyOptimisations() + getOptIds(). Pure data, no DOM. | 43kb |
+| dp-memory.js | **Extracted from dailyplan.** Behaviour memory engine: compressAndSaveMemory, openDebrief, checkDebriefNeeded. | 10kb |
+| dp-debrief.js | **Extracted from dailyplan.** Debrief conversation engine: DB object, DB_STEPS, dbRender, dbNext, dbWriteToLog. Notification engine. | 18kb |
+| activitylog.js | Activity log overlay UI and logic. | 21kb |
 
 ---
 
@@ -239,11 +243,11 @@ view.dispatch(view.state.update({changes: {from: start, to: end, insert: newCode
 
 | # | Issue | Fix status |
 |---|-------|-----------|
-| 1 | `activities` + `week_ledger` tables don't exist in Supabase yet | Run supabase-schema-missing-tables.sql |
+| 1 | `activities` + `week_ledger` tables don't exist in Supabase yet | Run supabase-schema-missing-tables.sql in Supabase SQL editor |
 | 2 | `profiles` table missing columns: strength_baseline, scan_data, podcast_history, latest_report, fridge_data, shop_data | Same SQL file |
-| 3 | `bl_weekledger_*`, `bl_report_*`, `bl_fridge_restock`, `bl_shop_checks` not syncing | Fixed in supabase-auth.js — needs upload |
-| 4 | `bodylens-sync.html` getToken() uses wrong key pattern — auth not detected | Fixed — needs upload |
-| 5 | No auth gate — all pages accessible without login | Not yet built |
+| 3 | dp-plan.js, dp-memory.js, dp-debrief.js need uploading to GitHub root | New files — must be in repo or dailyplan will break |
+| 4 | Daily plan macro table renders twice (visual bug) | Fixed in bodylens-dailyplan.html — needs upload |
+| 5 | Auth gate redirect (`?next=`) not yet tested end-to-end | Built — needs deploy + test |
 
 ---
 
