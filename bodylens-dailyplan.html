@@ -2558,21 +2558,24 @@ body {
   position: fixed;
   inset: 0;
   z-index: 500;
-  background: rgba(0,0,0,.6);
-  backdrop-filter: blur(4px);
-  align-items: flex-end;
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(6px);
+  align-items: center;
   justify-content: center;
-  padding-bottom: 0;
+  padding: 20px;
 }
 .vlg-modal.open { display: flex; }
 .vlg-panel {
   width: 100%;
-  max-width: 560px;
+  max-width: 620px;
+  height: 80vh;
+  max-height: 700px;
   background: var(--ink-1);
   border: 1px solid rgba(255,255,255,.1);
-  border-bottom: none;
-  border-radius: 20px 20px 0 0;
-  padding: 24px 24px 32px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   animation: vlgSlideUp .25s ease;
 }
 @keyframes vlgSlideUp {
@@ -3272,17 +3275,6 @@ function logMealMacros(slot,m){
   // Sync to day log (defined later in file — safe to call via setTimeout)
   if(typeof syncMacrosToLog==='function') setTimeout(syncMacrosToLog, 50);
 }
-function buildMacroRow(label,eaten,target,color,unit){
-  var pct=Math.min(100,target>0?Math.round(eaten/target*100):0);
-  var over=eaten>target*1.1;
-  var barColor=over?'var(--amber)':color;
-  return '<div class="ms-row">'
-    +'<div class="ms-label">'+label+'</div>'
-    +'<div class="ms-track"><div class="ms-fill" style="width:'+pct+'%;background:'+barColor+';"></div></div>'
-    +'<div class="ms-val">'+eaten+(unit?unit:'')+'<span style="color:var(--dk-3);font-size:8px;"> /'+target+'</span></div>'
-    +'</div>';
-}
-
 function updateMacroBar(){
   var bar=document.getElementById('macro-bar');
   if(!bar||!MACROS)return;
@@ -5439,124 +5431,6 @@ function renderPlan(plan, browsing) {
     ? (Math.abs(deficit) + ' kcal above TDEE — mild surplus for muscle support')
     : 'At TDEE maintenance — performance priority today';
   var calorieReasonHtml = '<div class="dp2-cal-reason">'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Baseline (TDEE)</span><span class="dp2-cal-val">' + tdee + ' kcal</span></div>'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Target</span><span class="dp2-cal-val jade">' + dayKcal + ' kcal</span></div>'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Adjustment</span><span class="dp2-cal-val">' + deficitLabel + '</span></div>'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Protein</span><span class="dp2-cal-val jade">' + p.protein + 'g — 2g/kg body weight, non-negotiable for recomp</span></div>'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Carbs</span><span class="dp2-cal-val amber">' + p.carbs + 'g — ' + (isTraining ? 'training day allocation, fuels session and replenishes glycogen' : 'reduced on rest day, glycogen stays full from yesterday') + '</span></div>'
-    + '<div class="dp2-cal-row"><span class="dp2-cal-key">Fat</span><span class="dp2-cal-val">' + p.fat + 'g — hormonal floor (testosterone, cortisol regulation)</span></div>'
-    + '</div>';
-
-  
-  // ── Full calorie & macro derivation ────────────────────────────
-  // Shows the complete calculation chain on the page
-  var w2 = p.weight || 87;
-  var h2 = p.height || 181;
-  var age2 = p.age || 35;
-  var isFemale2 = (p.sex||'').toLowerCase() === 'female';
-  var bmr2 = isFemale2
-    ? Math.round(10*w2 + 6.25*h2 - 5*age2 - 161)
-    : Math.round(10*w2 + 6.25*h2 - 5*age2 + 5);
-  var actStr2 = (p.activityLevel||'').toLowerCase();
-  var actMult2 = actStr2.includes('sedentary') ? 1.25
-    : actStr2.includes('lightly') ? 1.375
-    : actStr2.includes('very active') ? 1.80
-    : 1.55;
-  var actLabel2 = actStr2.includes('sedentary') ? 'Sedentary (desk job, minimal movement)'
-    : actStr2.includes('lightly') ? 'Lightly active (some walking, light exercise)'
-    : actStr2.includes('very active') ? 'Very active (physical job or heavy daily training)'
-    : 'Moderately active (' + (p.trainingDays||4) + ' training days/week)';
-  var tdee2 = p.tdee || Math.round(bmr2 * actMult2);
-  var deficit2 = tdee2 - dayKcal;
-  var adjLabel2 = Math.abs(deficit2) <= 80
-    ? 'At maintenance — no adjustment'
-    : deficit2 > 0
-    ? '−' + deficit2 + ' kcal below TDEE'
-    : '+' + Math.abs(deficit2) + ' kcal above TDEE';
-  var adjWhy2 = Math.abs(deficit2) <= 80
-    ? 'Body recomposition works best at maintenance on training days. The calorie deficit comes from rest days (' + (p.restKcal||Math.round(dayKcal*0.9)) + ' kcal), not from cutting training fuel.'
-    : deficit2 > 0
-    ? 'Controlled deficit drives fat loss. Set conservatively to preserve muscle mass during recomposition.'
-    : 'Mild surplus supports muscle building while body fat is managed through training stimulus.';
-  var protPerKg2 = (p.protein / Math.max(1, w2)).toFixed(1);
-  var protKcal2 = (p.protein||0) * 4;
-  var fatKcal2 = (p.fat||0) * 9;
-  var carbKcal2 = (p.carbs||0) * 4;
-  var macroTotal2 = protKcal2 + fatKcal2 + carbKcal2;
-
-  var calorieReasonHtml = '<div class="dp2-cal-reason">'
-    // ── Step 1: BMR ─────────────────────────────────────────────
-    + '<div class="dp2-cal-section-label">Step 1 — Basal Metabolic Rate</div>'
-    + '<div class="dp2-cal-formula">Mifflin–St Jeor: (10 × ' + w2 + 'kg) + (6.25 × ' + h2 + 'cm) − (5 × ' + age2 + ') + 5</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">BMR</span>'
-      + '<span class="dp2-cal-val">' + bmr2 + ' kcal — energy burned completely at rest, organs only</span>'
-    + '</div>'
-    // ── Step 2: TDEE ─────────────────────────────────────────────
-    + '<div class="dp2-cal-section-label" style="margin-top:10px;">Step 2 — Total Daily Energy Expenditure</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">Activity</span>'
-      + '<span class="dp2-cal-val">' + actLabel2 + ' × ' + actMult2 + '</span>'
-    + '</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">TDEE</span>'
-      + '<span class="dp2-cal-val jade">' + tdee2 + ' kcal — your maintenance point</span>'
-    + '</div>'
-    // ── Step 3: Goal adjustment ───────────────────────────────────
-    + '<div class="dp2-cal-section-label" style="margin-top:10px;">Step 3 — Goal Adjustment</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">Goal</span>'
-      + '<span class="dp2-cal-val">' + (p.goal||'Body recomposition') + '</span>'
-    + '</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">Adjustment</span>'
-      + '<span class="dp2-cal-val">' + adjLabel2 + '</span>'
-    + '</div>'
-    + '<div class="dp2-cal-why">' + adjWhy2 + '</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">Training day</span>'
-      + '<span class="dp2-cal-val jade">' + dayKcal + ' kcal</span>'
-    + '</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">Rest day</span>'
-      + '<span class="dp2-cal-val">' + (p.restKcal||Math.round(dayKcal*0.9)) + ' kcal — 10% reduction, no training fuel needed</span>'
-    + '</div>'
-    // ── Step 4: Macro splits ──────────────────────────────────────
-    + '<div class="dp2-cal-section-label" style="margin-top:10px;">Step 4 — Macro Splits</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">Protein</span>'
-      + '<span class="dp2-cal-val jade">' + (p.protein||0) + 'g × 4 = ' + protKcal2 + ' kcal (' + protPerKg2 + 'g/kg body weight)</span>'
-    + '</div>'
-    + '<div class="dp2-cal-why">Minimum floor for recomposition. At ' + protPerKg2 + 'g/kg, muscle protein synthesis is fully saturated — you preserve lean mass while the deficit operates. Below this, the body cannibilises muscle.</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">Fat</span>'
-      + '<span class="dp2-cal-val">' + (p.fat||0) + 'g × 9 = ' + fatKcal2 + ' kcal (' + ((p.fat||0)/Math.max(1,w2)).toFixed(1) + 'g/kg)</span>'
-    + '</div>'
-    + '<div class="dp2-cal-why">Hormonal floor. Dietary fat is required for testosterone synthesis, cortisol regulation, and fat-soluble vitamin absorption (D3, K2). Below ~0.8g/kg, testosterone production drops measurably.</div>'
-    + '<div class="dp2-cal-row">'
-      + '<span class="dp2-cal-key">Carbs</span>'
-      + '<span class="dp2-cal-val amber">' + (p.carbs||0) + 'g × 4 = ' + carbKcal2 + ' kcal (remainder)</span>'
-    + '</div>'
-    + '<div class="dp2-cal-why">Fills the remaining calorie budget after protein and fat are set. ' + (isTraining ? 'On training days carbs fuel the session (glycolysis) and replenish muscle glycogen post-session.' : 'On rest days carbs are slightly lower (' + (p.restCarbs || Math.round((p.carbs||0)*0.85)) + 'g) since glycogen stays full from yesterday.') + '</div>'
-    + '<div class="dp2-cal-row" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">'
-      + '<span class="dp2-cal-key">Total</span>'
-      + '<span class="dp2-cal-val">' + macroTotal2 + ' kcal from macros vs ' + dayKcal + ' kcal target (' + (macroTotal2 > dayKcal ? '+' : '') + (macroTotal2-dayKcal) + ' kcal)</span>'
-    + '</div>'
-  + '</div>';
-
-  
-  // ── Calorie & macro reasoning panel ─────────────────────────
-  var tdee2 = p.tdee || 2769;
-  var deficit2 = tdee2 - dayKcal;
-  var adjLabel = (Math.abs(deficit2) <= 80)
-    ? 'At maintenance — training day, performance priority'
-    : deficit2 > 0
-    ? (deficit2 + ' kcal below TDEE — controlled deficit driving fat reduction')
-    : (Math.abs(deficit2) + ' kcal above TDEE — mild surplus supporting muscle retention');
-  var carbLogic = isTraining
-    ? p.carbs + 'g — training day allocation, fuels session + replenishes glycogen'
-    : p.carbs + 'g — reduced on rest day, glycogen stays full from yesterday';
-  var calorieReasonHtml = '<div class="dp2-cal-reason">'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Baseline TDEE</span><span class="dp2-cal-val">' + tdee2 + ' kcal</span></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Target</span><span class="dp2-cal-val jade">' + dayKcal + ' kcal</span></div>'
     + '<div class="dp2-cal-row"><span class="dp2-cal-key">Adjustment</span><span class="dp2-cal-val">' + adjLabel + '</span></div>'
@@ -5567,7 +5441,6 @@ function renderPlan(plan, browsing) {
     + '</div>';
 
   var missionHtml = '<div class="dp2-mission">'
-    +calorieReasonHtml
     +calorieReasonHtml
     +'<div class="dp2-mission-kicker">'
       + new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})
@@ -6038,7 +5911,7 @@ function renderPlan(plan, browsing) {
   + '</div>'
   + '<div id="vlg-guided-btn" class="vlg-guided-trigger" onclick="vlgGuidedStart()" title="Guided daily log">Log day</div>'
   + '<div class="vlg-modal" id="vlg-modal">'
-    + '<div class="vlg-panel">'
+    + '<div class="vlg-panel" id="vlg-panel">'
       + '<div class="vlg-panel-hd">'
         + '<span class="vlg-panel-title">Voice log</span>'
         + '<div class="vlg-panel-status" id="vlg-status"><div class="vlg-status-dot"></div>Listening</div>'
@@ -9549,6 +9422,20 @@ function vlgGuidedStart() {
 
   panel.innerHTML = vlgGuidedBuildPanel();
   modal.classList.add('open');
+
+  // Wire Enter key and input events after panel is in DOM
+  setTimeout(function() {
+    var inputEl = document.getElementById('vlg-g-input');
+    var sendBtn = document.getElementById('vlg-g-send');
+    if (inputEl) {
+      inputEl.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); vlgGuidedSend(); }
+      });
+      inputEl.addEventListener('input', function() {
+        if (sendBtn) sendBtn.disabled = !inputEl.textContent.trim();
+      });
+    }
+  }, 50);
   var micBtn = document.getElementById('vlg-mic-btn');
   if (micBtn) micBtn.classList.add('listening');
 
@@ -9681,14 +9568,13 @@ function vlgGuidedStartListening() {
 
   _vlg.transcript = '';
   _vlg.listening  = true;
+  _vlgGuided._silenceTimer = null;
 
-  // Update mic indicator
-  var micRow = document.getElementById('vlg-g-mic-row');
-  if (micRow) micRow.classList.add('active');
+  // Update mic toggle state
+  var micToggle = document.getElementById('vlg-g-mic-toggle');
+  if (micToggle) micToggle.classList.add('active');
 
-  try { _vlg.recognition.start(); } catch(e) {}
-
-  // Override onresult for guided mode
+  // Override onresult for guided conversation mode
   _vlg.recognition.onresult = function(e) {
     var interim = '', final = '';
     for (var i = e.resultIndex; i < e.results.length; i++) {
@@ -9696,30 +9582,52 @@ function vlgGuidedStartListening() {
       if (e.results[i].isFinal) final += t;
       else interim += t;
     }
-    if (final) _vlg.transcript += (_vlg.transcript ? ' ' : '') + final.trim();
+    if (final) {
+      _vlg.transcript += (_vlg.transcript ? ' ' : '') + final.trim();
+      // Reset silence timer on every new final word
+      clearTimeout(_vlgGuided._silenceTimer);
+      // Auto-send after 2.5s of silence following speech
+      _vlgGuided._silenceTimer = setTimeout(function() {
+        if (_vlg.transcript.trim() && _vlg.listening) {
+          vlgGuidedSend();
+        }
+      }, 2500);
+    }
 
-    // Show live transcript
+    // Show live transcript in input box
     var inputEl = document.getElementById('vlg-g-input');
-    if (inputEl) inputEl.textContent = _vlg.transcript + (interim ? ' ' + interim : '');
+    if (inputEl) inputEl.textContent = _vlg.transcript + (interim ? ' …' + interim : '');
 
-    // Enable send button once we have something
     var sendBtn = document.getElementById('vlg-g-send');
     if (sendBtn) sendBtn.disabled = !_vlg.transcript.trim();
   };
+
+  // Keep recognition alive between sentences
+  _vlg.recognition.onend = function() {
+    if (_vlg.listening && !_vlgGuided.busy) {
+      try { _vlg.recognition.start(); } catch(e) {}
+    }
+  };
+
+  try { _vlg.recognition.start(); } catch(e) {}
 }
 
 function vlgGuidedStopListening() {
   _vlg.listening = false;
+  clearTimeout(_vlgGuided._silenceTimer);
   try { _vlg.recognition && _vlg.recognition.stop(); } catch(e) {}
-  var micRow = document.getElementById('vlg-g-mic-row');
-  if (micRow) micRow.classList.remove('active');
+  var micToggle = document.getElementById('vlg-g-mic-toggle');
+  if (micToggle) micToggle.classList.remove('active');
 }
 
 // ── Send the current transcript ───────────────────────────────────────────
 function vlgGuidedSend() {
+  clearTimeout(_vlgGuided._silenceTimer);
   var text = _vlg.transcript.trim();
   var inputEl = document.getElementById('vlg-g-input');
   if (inputEl && inputEl.textContent.trim()) text = inputEl.textContent.trim();
+  // Remove trailing ellipsis from interim results
+  text = text.replace(/\s*….*$/, '').trim();
   if (!text) return;
 
   vlgGuidedStopListening();
@@ -9737,11 +9645,6 @@ function vlgGuidedToggleMic() {
     vlgGuidedStopListening();
   } else {
     vlgGuidedStartListening();
-  }
-  var micToggle = document.getElementById('vlg-g-mic-toggle');
-  if (micToggle) {
-    micToggle.classList.toggle('active', _vlg.listening);
-    micToggle.title = _vlg.listening ? 'Stop mic' : 'Start mic';
   }
 }
 
@@ -9824,27 +9727,28 @@ function vlgGuidedBuildPanel() {
   var t = TODAY || {};
   var dayType = t.isTraining ? (t.plan && t.plan.type ? t.plan.type : 'Training') : 'Rest';
 
-  return '<div class="vlg-guided-hd">'
-    + '<div class="vlg-guided-title">Daily Log</div>'
-    + '<div style="font-size:10px;font-weight:300;color:var(--dk-3)">' + (t.name||'Today') + ' · ' + dayType + '</div>'
-    + '<button onclick="vlgGuidedCancel()" style="margin-left:auto;background:none;border:none;color:var(--dk-3);cursor:pointer;font-size:18px;line-height:1;padding:0 2px">×</button>'
+  return '<div style="display:flex;align-items:center;gap:10px;padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;">'
+    + '<div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--jade)">Daily Log</div>'
+    + '<div style="font-size:10px;font-weight:300;color:var(--dk-3)">' + (t.name||'Today') + ' &nbsp;&middot;&nbsp; ' + dayType + '</div>'
+    + '<button onclick="vlgGuidedCancel()" style="margin-left:auto;background:none;border:none;color:var(--dk-3);cursor:pointer;font-size:22px;line-height:1;padding:0 4px">&times;</button>'
     + '</div>'
-
-    // Chat feed
     + '<div class="vlg-g-feed" id="vlg-g-feed">'
-    + '<div id="vlg-g-thinking" style="display:none;align-items:center;gap:6px;padding:8px 0;">'
-    +   '<div class="vlg-think-dot"></div><div class="vlg-think-dot"></div><div class="vlg-think-dot"></div>'
+    +   '<div id="vlg-g-thinking" style="display:none;align-items:center;gap:6px;padding:12px 4px;">'
+    +     '<div class="vlg-think-dot"></div><div class="vlg-think-dot"></div><div class="vlg-think-dot"></div>'
+    +   '</div>'
     + '</div>'
-    + '</div>'
-
-    // Input row
     + '<div class="vlg-g-input-row">'
-    +   '<button id="vlg-g-mic-toggle" class="vlg-g-mic-btn" onclick="vlgGuidedToggleMic()" title="Hold to speak">'
-    +     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>'
+    +   '<button id="vlg-g-mic-toggle" class="vlg-g-mic-btn" onclick="vlgGuidedToggleMic()" title="Tap to speak">'
+    +     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'
+    +       '<rect x="9" y="2" width="6" height="12" rx="3"/>'
+    +       '<path d="M5 10a7 7 0 0 0 14 0"/>'
+    +       '<line x1="12" y1="19" x2="12" y2="22"/>'
+    +       '<line x1="8" y1="22" x2="16" y2="22"/>'
+    +     '</svg>'
     +   '</button>'
-    +   '<div id="vlg-g-input" class="vlg-g-input-box" contenteditable="true" placeholder="Tap mic or type…" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();vlgGuidedSend();}" oninput="document.getElementById(\'vlg-g-send\').disabled=!this.textContent.trim()"></div>'
+    +   '<div id="vlg-g-input" class="vlg-g-input-box" contenteditable="true" placeholder="Tap mic or type…"></div>'
     +   '<button id="vlg-g-send" class="vlg-g-send-btn" onclick="vlgGuidedSend()" disabled>'
-    +     '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9-21-9v7l15 2-15 2z"/></svg>'
+    +     '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9-21-9v7l15 2-15 2z"/></svg>'
     +   '</button>'
     + '</div>';
 }
@@ -9853,25 +9757,6 @@ function vlgGuidedBuildPanel() {
 function vlgGuidedNext()  { vlgGuidedSend(); }
 function vlgGuidedSkip()  { vlgGuidedAI('skip', false); }
 function vlgBuildSteps()  { return []; }
-
-
-function vlgBuildNormalPanel() {
-  return '<div class="vlg-panel-hd">'
-    + '<span class="vlg-panel-title">Voice log</span>'
-    + '<div class="vlg-panel-status" id="vlg-status"><div class="vlg-status-dot"></div>Listening</div>'
-  + '</div>'
-  + '<div class="vlg-transcript-box" id="vlg-transcript-box">'
-    + '<span class="vlg-transcript-placeholder" id="vlg-placeholder">Speak now\u2026</span>'
-  + '</div>'
-  + '<div class="vlg-result-box" id="vlg-result-box">'
-    + '<div class="vlg-result-label">Logged</div>'
-    + '<div class="vlg-result-actions" id="vlg-result-actions"></div>'
-  + '</div>'
-  + '<div class="vlg-panel-btns">'
-    + '<button class="vlg-btn-ok" id="vlg-btn-ok" onclick="vlgCommit()" disabled>Process</button>'
-    + '<button class="vlg-btn-cancel" onclick="vlgCancel()">Cancel</button>'
-  + '</div>';
-}
 
 
 // Init on load

@@ -217,32 +217,49 @@
 
     <div class="ph-disclaimer">
       Photos are analysed in-session only and never stored on any server. Body fat estimates from photos are
-      indicative ranges &mdash; not measurements. Machine data (Tab 1) gives precise numbers; the photo gives
-      visual context and a muscle-group breakdown.
+      indicative ranges &mdash; not measurements. Upload both photos now to get the gap analysis and programme bridge in one step.
     </div>
 
-    <!-- Show scan data badge if machine data exists -->
     <div id="scan-data-badge" style="display:none;">
       <div class="ph-scan-badge">
-        &#128202; Machine data on file &mdash; photo analysis will incorporate your scan numbers
+        &#128202; Machine data on file &mdash; analysis will incorporate your scan numbers
       </div>
     </div>
 
-    <!-- Step 1: Current photo -->
-    <div id="ph-step-1">
-      <div class="ph-zone-label">Your current photo</div>
-      <div class="ph-upload-zone" id="ph-zone-current">
-        <input type="file" id="ph-file-current" accept="image/*" onchange="phHandleCurrent(this.files[0])">
-        <div style="font-size:26px;opacity:.4;">&#128247;</div>
-        <div class="ph-upload-hint">Front-on or front + side. Good light gives a better read.</div>
-        <div class="ph-upload-cta">Choose photo</div>
+    <!-- SIDE-BY-SIDE: current + goal uploaded simultaneously -->
+    <div id="ph-upload-both">
+      <div class="ph-two-up" style="margin-bottom:16px;">
+        <div>
+          <div class="ph-zone-label">You now</div>
+          <div class="ph-upload-zone" id="ph-zone-current" style="min-height:180px;">
+            <input type="file" id="ph-file-current" accept="image/*" onchange="phHandleCurrent(this.files[0])">
+            <div style="font-size:22px;opacity:.4;">&#128247;</div>
+            <div class="ph-upload-hint">Front-on. Good light.</div>
+            <div class="ph-upload-cta">Choose photo</div>
+          </div>
+        </div>
+        <div>
+          <div class="ph-zone-label amber">Goal physique <span style="font-weight:300;color:var(--dk-3);font-size:8px;text-transform:none;letter-spacing:0;">(optional)</span></div>
+          <div class="ph-upload-zone" id="ph-zone-goal" style="min-height:180px;">
+            <input type="file" id="ph-file-goal" accept="image/*" onchange="phHandleGoal(this.files[0])">
+            <div style="font-size:22px;opacity:.4;">&#127919;</div>
+            <div class="ph-upload-hint">The physique you&rsquo;re building toward.</div>
+            <div class="ph-upload-cta">Choose photo</div>
+          </div>
+        </div>
       </div>
-      <button class="bs-save-btn" id="ph-btn-analyse" onclick="phAnalyseCurrent()" disabled style="margin-top:0;">
-        Analyse my physique
+
+      <button class="bs-save-btn" id="ph-btn-analyse" onclick="phAnalyseAll()" disabled style="margin-top:0;">
+        Analyse &amp; build my programme bridge
       </button>
+      <div style="margin-top:8px;text-align:center;font-size:10px;font-weight:300;color:var(--dk-3);">
+        Upload your current photo to analyse now. Goal photo unlocks the gap analysis.
+      </div>
     </div>
 
-    <div class="ph-loading" id="ph-loading-current">
+    
+
+<div class="ph-loading" id="ph-loading-current">
       <div class="ph-spinner"></div>
       <div class="ph-phase" id="ph-phase-current">Reading body composition&hellip;</div>
     </div>
@@ -558,7 +575,27 @@ function phShowZone(zoneId, dataUrl, which) {
 
 function phCap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
-async function phAnalyseCurrent() {
+
+// ── Analyse both photos at once (new side-by-side flow) ─────────────
+async function phAnalyseAll() {
+  if (!phCurrentBase64) return;
+
+  document.getElementById('ph-upload-both').style.display = 'none';
+  const hasGoal = !!phGoalBase64;
+
+  // If both photos, do gap analysis directly
+  // If only current, do current analysis + skip gap
+  if (hasGoal) {
+    // Two-step: analyse current, then immediately analyse gap
+    document.getElementById('ph-loading-current').classList.add('show');
+    await phAnalyseCurrent(true); // silent mode - don't show step-2
+  } else {
+    document.getElementById('ph-loading-current').classList.add('show');
+    await phAnalyseCurrent(false);
+  }
+}
+
+async function phAnalyseCurrent(silentMode) {
   if (!phCurrentBase64) return;
   document.getElementById('ph-step-1').style.display = 'none';
   var loading = document.getElementById('ph-loading-current');
@@ -623,8 +660,13 @@ async function phAnalyseCurrent() {
     phCurrentAnalysis = JSON.parse(raw.replace(/```json|```/g,'').trim());
     loading.classList.remove('show');
     phRenderCurrent(phCurrentAnalysis);
-    document.getElementById('ph-step-2').style.display = 'block';
-    document.getElementById('ph-step-2').scrollIntoView({behavior:'smooth',block:'start'});
+    if (silentMode && phGoalBase64) {
+      // Both photos mode: immediately proceed to gap analysis
+      await phAnalyseGap();
+    } else {
+      document.getElementById('ph-step-2').style.display = 'block';
+      document.getElementById('ph-step-2').scrollIntoView({behavior:'smooth',block:'start'});
+    }
   } catch(err) {
     clearInterval(timer);
     loading.classList.remove('show');
