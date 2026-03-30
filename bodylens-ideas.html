@@ -140,16 +140,16 @@
 
   <div class="ideas-kicker">BodyLens Studio · Ideas Engine</div>
   <div class="ideas-hero-title">Think<br><em>bigger.</em></div>
-  <div class="ideas-hero-sub">What BodyLens becomes next. Based on the current build — 47 pages, live Supabase layer, AI-guided logging, full science library. These are the highest-leverage moves, in order.</div>
+  <div class="ideas-hero-sub">What BodyLens becomes next. Based on the current build — 49 pages, live Supabase layer, proposal bus, full decision audit trail, AI-guided logging, full science library. These are the highest-leverage moves, in order.</div>
 
   <!-- Stats -->
   <div class="ideas-stats">
     <div class="ideas-stat">
-      <div class="ideas-stat-num jade" id="count-all">24</div>
+      <div class="ideas-stat-num jade" id="count-all">25</div>
       <div class="ideas-stat-label">Total ideas</div>
     </div>
     <div class="ideas-stat">
-      <div class="ideas-stat-num jade" id="count-quickwin">7</div>
+      <div class="ideas-stat-num jade" id="count-quickwin">8</div>
       <div class="ideas-stat-label">Quick wins this week</div>
     </div>
     <div class="ideas-stat">
@@ -854,3 +854,80 @@ function toggleBuild(btn) {
 </script>
 </body>
 </html>
+
+      <!-- ═══ NEW IDEAS ══════════════════════════════════════════════════ -->
+
+      <div class="idea-card" data-accent="jade" data-tags="quickwin urgent">
+        <div class="idea-body">
+          <div class="idea-tags">
+            <span class="idea-tag tag-quickwin">Quick win</span>
+            <span class="idea-tag tag-urgent">Now</span>
+          </div>
+          <div class="idea-title">Decisions page in the nav</div>
+          <div class="idea-desc">bodylens-decisions.html is built and deployed. It shows every proposal, every applied change, every dismissed recommendation with full before/after. Nobody can find it. One line in nav.js fixes this.</div>
+          <button class="idea-why-btn" onclick="toggleWhy(this)">Why this matters ↓</button>
+          <div class="idea-why-more">
+            <p>The entire proposal bus — goal analysis staging, coach confirmations, future body scan and reconciliation updates — surfaces on the decisions page. Without a nav link, it's invisible. The trust architecture exists; the entry point doesn't. One anchor tag in nav.js, between WEEK and GOALS. Thirty seconds of work.</p>
+          </div>
+        </div>
+        <div class="idea-signals">
+          <span class="idea-signal">30 seconds to build</span>
+          <span class="idea-signal">Unlocks full audit trail visibility</span>
+        </div>
+        <button class="idea-build-btn" onclick="toggleBuild(this)">▶ How to build this</button>
+        <div class="idea-build-content">
+          <div class="idea-build-row"><strong>Tool:</strong> nav.js</div>
+          <div class="idea-build-row"><strong>Time to build:</strong> 30 seconds</div>
+          <div class="idea-build-steps">In nav.js, find the nav link array. Add one entry: <code>{ href: '/bodylens-decisions.html', label: 'Decisions' }</code> between Week and Goals. Done. The page is live at soma-two-chi.vercel.app/bodylens-decisions.html — it just has no entry point.</div>
+        </div>
+      </div>
+
+      <div class="idea-card" data-accent="jade" data-tags="intelligence">
+        <div class="idea-body">
+          <div class="idea-tags">
+            <span class="idea-tag tag-intelligence">Intelligence</span>
+            <span class="idea-tag tag-moat">Audit trail</span>
+          </div>
+          <div class="idea-title">Body scan → proposal bus</div>
+          <div class="idea-desc">When body scan updates weight, body fat, or measurements, it writes directly to the profile with no record. Route these through <code>blPropose('body-scan', ...)</code> so they appear on the decisions page with full before/after and can be reviewed before applying.</div>
+          <button class="idea-why-btn" onclick="toggleWhy(this)">Why this matters ↓</button>
+          <div class="idea-why-more">
+            <p>A user enters their body scan results and they silently change their macros and training targets. They have no record of what changed, why, or what the values were before. The proposal bus infrastructure exists — body scan just needs to call <code>blPropose('body-scan', title, changes, context)</code> instead of writing directly. Then the user sees the proposed changes on the decisions page, reviews the before/after, and commits or dismisses. Full auditability at the most important data entry point in the product.</p>
+          </div>
+        </div>
+        <div class="idea-signals">
+          <span class="idea-signal">2 hours to build</span>
+          <span class="idea-signal">Closes the biggest profile trust gap</span>
+        </div>
+        <button class="idea-build-btn" onclick="toggleBuild(this)">▶ How to build this</button>
+        <div class="idea-build-content">
+          <div class="idea-build-row"><strong>Tool:</strong> bodylens-bodyscan.html · bl-proposals.js</div>
+          <div class="idea-build-row"><strong>Time to build:</strong> 2 hours</div>
+          <div class="idea-build-steps">In bodylens-bodyscan.html, find the save function that writes to profile. Before the write: snapshot current profile values (weight, bodyFat, protein, trainingKcal, restKcal). After computing new values: call <code>blPropose('body-scan', 'Body scan update — ' + date, changes, 'Updated from body scan on ' + date)</code> where changes is the diff between old and new values. Remove the direct profile write. The user then reviews and commits from the decisions page. Pattern is identical to the goals page implementation.</div>
+        </div>
+      </div>
+
+      <div class="idea-card" data-accent="amber" data-tags="intelligence moat">
+        <div class="idea-body">
+          <div class="idea-tags">
+            <span class="idea-tag tag-intelligence">Intelligence</span>
+            <span class="idea-tag tag-moat">Moat</span>
+          </div>
+          <div class="idea-title">Weekly reconciliation → proposal bus</div>
+          <div class="idea-desc">The weekly reconciliation pass (when built) generates programme adjustments from actual training data. These should stage as proposals on the decisions page — not apply automatically. You see what the AI wants to change, why, and decide whether to commit.</div>
+          <button class="idea-why-btn" onclick="toggleWhy(this)">Why this matters ↓</button>
+          <div class="idea-why-more">
+            <p>The weekly reconciliation is the highest-leverage intelligence feature in the product — it's what makes BodyLens adaptive rather than generative. But if it applies changes automatically, users won't trust it. They'll see their programme shift and not know why. Routing reconciliation output through the proposal bus means: every Monday, the AI stages its proposed adjustments on the decisions page with explicit rationale. You see "Based on 3 missed Pull sessions — proposing to restructure Wednesday to include lat volume." You commit or dismiss. The adaptation happens with your knowledge and consent. This is the difference between an AI tool and an AI assistant.</p>
+          </div>
+        </div>
+        <div class="idea-signals">
+          <span class="idea-signal">4 hours to build</span>
+          <span class="idea-signal">Defines the intelligence moat</span>
+        </div>
+        <button class="idea-build-btn" onclick="toggleBuild(this)">▶ How to build this</button>
+        <div class="idea-build-content">
+          <div class="idea-build-row"><strong>Tool:</strong> dp-reconcile.js · bl-proposals.js · Vercel cron</div>
+          <div class="idea-build-row"><strong>Time to build:</strong> 4 hours</div>
+          <div class="idea-build-steps">Build the weekly reconciliation call first (Monday 6am Vercel cron, reads last 7 day_logs, outputs structured adjustments). Then in the output handler: instead of writing adjustments directly to profile, call <code>blPropose('reconciliation', 'Weekly adaptation — w/c ' + date, changes, rationale)</code> for each proposed change. Changes array should include specific field diffs: weekPlan day type changes, protein adjustments, calorie cycling changes. User sees these on the decisions page Monday morning. Commit applies them. Dismiss logs the refusal. Both outcomes inform future reconciliation logic.</div>
+        </div>
+      </div>
