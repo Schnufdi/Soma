@@ -240,8 +240,8 @@
         </div>
         <div>
           <div class="ph-zone-label amber">Goal physique <span style="font-weight:300;color:var(--dk-3);font-size:8px;text-transform:none;letter-spacing:0;">(optional)</span></div>
-          <div class="ph-upload-zone" id="ph-zone-goal" style="min-height:180px;">
-            <input type="file" id="ph-file-goal" accept="image/*" onchange="phHandleGoal(this.files[0])">
+          <div class="ph-upload-zone" id="ph-zone-goal-pre" style="min-height:180px;">
+            <input type="file" id="ph-file-goal-pre" accept="image/*" onchange="phHandleGoalZone(this.files[0], 'ph-zone-goal-pre')">
             <div style="font-size:22px;opacity:.4;">&#127919;</div>
             <div class="ph-upload-hint">The physique you&rsquo;re building toward.</div>
             <div class="ph-upload-cta">Choose photo</div>
@@ -470,6 +470,18 @@ function saveScan() {
   if (!_extracted) return;
   var p = _profile || {};
   var d = _extracted;
+
+  // Snapshot before values for the proposal bus
+  var beforeSnap = {
+    weight:      p.weight,
+    bodyFat:     p.bodyFat,
+    protein:     p.protein,
+    calories:    p.calories,
+    tdee:        p.tdee,
+    trainingKcal: p.trainingKcal,
+    restKcal:    p.restKcal,
+  };
+
   p.bodyScan = d;
   p.lastUpdated = new Date().toISOString();
   if (d.weight) p.weight = d.weight;
@@ -506,6 +518,30 @@ function saveScan() {
   });
   _profile = p;
   try { localStorage.setItem('bl_profile', JSON.stringify(p)); } catch(e) {}
+
+  // Log to proposal bus — body scan changes are applied immediately (user confirmed via Save button)
+  // but we record them so they appear in the decisions audit trail
+  if (typeof blPropose === 'function') {
+    var scanChanges = [];
+    var afterSnap = { weight:p.weight, bodyFat:p.bodyFat, protein:p.protein, calories:p.calories, tdee:p.tdee };
+    var fieldLabels = { weight:'Weight', bodyFat:'Body fat %', protein:'Protein target', calories:'Calories', tdee:'TDEE' };
+    Object.keys(afterSnap).forEach(function(f) {
+      if (afterSnap[f] !== beforeSnap[f] && (afterSnap[f] !== undefined || beforeSnap[f] !== undefined)) {
+        scanChanges.push({ field: f, label: fieldLabels[f]||f, before: beforeSnap[f], after: afterSnap[f] });
+      }
+    });
+    if (scanChanges.length) {
+      var propId = blPropose(
+        'body-scan',
+        'Body scan update — ' + new Date().toISOString().slice(0,10),
+        scanChanges,
+        'Applied from body scan. Values derived from DEXA/scan data.'
+      );
+      // Commit immediately — save button is the confirmation
+      if (propId && typeof blCommitProposal === 'function') blCommitProposal(propId);
+    }
+  }
+
   var btn = document.querySelector('.bs-confirm-btn');
   if (btn) { btn.textContent = '\u2713 Saved'; btn.style.background = 'var(--jade)'; }
   if (_profile && (_profile.bodyPhotoAnalysis || _profile.bodyPhotoGap)) {
@@ -550,6 +586,18 @@ function phHandleCurrent(file) {
   reader.readAsDataURL(file);
 }
 
+function phHandleGoalZone(file, zoneId) {
+  if (!file || !file.type.startsWith('image/')) return;
+  phGoalType = file.type || 'image/jpeg';
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    phGoalBase64 = e.target.result.split(',')[1];
+    phShowZone(zoneId || 'ph-zone-goal', e.target.result, 'goal');
+    var gapBtn = document.getElementById('ph-btn-gap');
+    if (gapBtn) gapBtn.disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
 function phHandleGoal(file) {
   if (!file || !file.type.startsWith('image/')) return;
   phGoalType = file.type || 'image/jpeg';

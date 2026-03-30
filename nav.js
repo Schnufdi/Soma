@@ -13,6 +13,7 @@
     <a class="nav-link" href="/bodylens-meals.html">Meals</a>
     <a class="nav-link" href="/bodylens-supplements.html">Stack</a>
     <a class="nav-link" href="/bodylens-goals.html">Goals</a>
+    <a class="nav-link" href="/bodylens-decisions.html">Decisions</a>
     <span class="nav-divider"></span>
     <a class="nav-link nav-inform" href="/bodylens-science.html">Science</a>
     <a class="nav-link nav-inform" href="/bodylens-accelerators.html">Accelerators</a>
