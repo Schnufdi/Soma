@@ -758,13 +758,25 @@ window.saveOpt = function(id, name, icon, btn) {
     // Also keep accelerators in sync
     if (!p.accelerators) p.accelerators = [];
     const existing = p.optimisations.map(function(o){ return typeof o === 'string' ? o : o.id; });
-    if (!existing.includes(id)) {
+    const isNew = !existing.includes(id);
+    if (isNew) {
       p.optimisations.push(id);
       if (!p.accelerators.includes(id)) p.accelerators.push(id);
       localStorage.setItem('bl_profile', JSON.stringify(p));
       // Bust the daily plan cache so new optimisation fires on next load
       var _today = new Date().toISOString().slice(0,10);
       try { localStorage.removeItem('dayplan_v6r2_' + _today); } catch(e2) {}
+      // ── Log to decision log (if blPropose available and not already handled by page) ──
+      // Only log from food accelerator cards (saveAcc on accelerators page logs itself)
+      // Use a flag to prevent double-logging
+      if (typeof blPropose === 'function' && !window._saveOptCalledFromAcc) {
+        blPropose(
+          'accelerator',
+          'Add to programme: ' + (name || id),
+          [{ field: 'accelerators.push', label: 'Accelerator added', before: null, after: name || id }],
+          'Added from ' + (document.title || 'BodyLens') + ' on ' + new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long' })
+        );
+      }
     }
     if (btn) {
       btn.textContent = '✓ In your programme';

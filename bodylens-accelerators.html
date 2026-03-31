@@ -828,8 +828,32 @@ function filterGoal(filter, btn) {
 function saveAcc(e, id, name) {
   e.stopPropagation();
   const btn = e.target;
-  window.saveOpt(id, name, '', btn);
+  // Find accelerator data for rich context
+  let accData = null;
+  for (const section of Object.values(ACCELERATORS)) {
+    const found = section.find(a => a.id === id);
+    if (found) { accData = found; break; }
+  }
+  if (!accData) {
+    accData = FOOD_ACCELERATORS.find(a => a.id === id) || null;
+  }
+  window._saveOptCalledFromAcc = true;
+  window.saveOpt(id, name, accData ? accData.icon : '', btn);
+  window._saveOptCalledFromAcc = false;
   btn.textContent = '✓ In your programme';
+  // ── Log to decision log ─────────────────────────────────
+  if (typeof blPropose === 'function') {
+    const tier = accData && accData.evidence ? accData.evidence.tier : '';
+    const context = accData
+      ? accData.tagline + (tier ? ' — ' + { established:'Established', emerging:'Emerging evidence', limited:'Limited evidence', anecdotal:'Anecdotal' }[tier] + ' evidence.' : '.') + (accData.readiness ? ' ' + accData.readiness : '')
+      : name;
+    blPropose(
+      'accelerator',
+      'Add accelerator: ' + name,
+      [{ field: 'accelerators.push', label: 'Accelerator added to programme', before: null, after: name }],
+      context
+    );
+  }
 }
 
 // ── INIT ──────────────────────────────────────────
@@ -856,6 +880,7 @@ renderAll(_activeFilter);
 </script>
 
 <script src="/risk-classifier.js"></script>
+<script src="bl-proposals.js"></script>
 <script src="coach.js"></script>
 </body>
 </html>
