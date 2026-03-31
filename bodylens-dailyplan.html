@@ -7244,7 +7244,7 @@ window._blInit = function init(){
     refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, cached);
-    renderRecentChangeBanner(P);
+    if (typeof renderRecentChangeBanner === 'function') renderRecentChangeBanner(P);
     setTimeout(initDayCapture, 100);
     return;
   }
@@ -7853,7 +7853,7 @@ function buildDay(){
     var plan = buildPlan(P, TODAY);
     try { localStorage.setItem(TODAY.cacheKey, JSON.stringify(plan)); } catch(e){}
     renderPlan(plan);
-    renderRecentChangeBanner(P);
+    if (typeof renderRecentChangeBanner === 'function') renderRecentChangeBanner(P);
     // ── Risk advisory banner (show once per day) ──────────
     if (typeof BL_RISK !== 'undefined') {
       var _seenKey = 'bl_risk_seen_' + new Date().toDateString();
