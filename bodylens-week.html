@@ -1,1 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0c1010">
+<title>BodyLens — Week</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body{background:var(--ink);color:var(--dk-1);}
+.page{max-width:980px;margin:0 auto;padding:0 24px 100px;}
+.wk-hero{padding:28px 0 24px;border-bottom:1px solid var(--bd);margin-bottom:28px;}
+.wk-kicker{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
+.wk-title{font-family:var(--serif);font-size:48px;font-weight:300;line-height:.93;color:var(--dk-1);margin-bottom:8px;}
+.wk-title em{font-style:italic;color:var(--dk-3);}
+.wk-sub{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:500px;}
+.missed-banner{display:flex;align-items:center;gap:12px;background:rgba(196,124,24,.07);border:1px solid rgba(196,124,24,.2);border-radius:10px;padding:14px 18px;margin-bottom:24px;cursor:pointer;}
+.missed-banner-icon{font-size:18px;}
+.missed-banner-text{flex:1;}
+.missed-banner-title{font-size:12px;font-weight:700;color:var(--amber);margin-bottom:2px;}
+.missed-banner-sub{font-size:11px;font-weight:300;color:var(--dk-3);}
+.missed-banner-cta{font-size:11px;font-weight:700;color:var(--amber);}
+.wk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:28px;}
+.wk-stat{background:var(--ink-1);padding:16px 18px;text-align:center;}
+.wk-stat-val{font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--dk-1);margin-bottom:3px;}
+.wk-stat-val.jade{color:var(--jade);}
+.wk-stat-val.amber{color:var(--amber);}
+.wk-stat-val.red{color:var(--red);}
+.wk-stat-val.slate{color:var(--dk-3);}
+.wk-stat-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--dk-3);margin:0 0 14px;display:flex;align-items:center;gap:10px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--bd);}
+.ledger-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:28px;}
+.day-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:12px 10px;position:relative;overflow:hidden;min-height:130px;}
+.day-card.training{border-top:2px solid rgba(0,200,160,.3);}
+.day-card.today{border-color:rgba(0,200,160,.35);background:rgba(0,200,160,.03);}
+.day-card.missed{border-top:2px solid rgba(220,80,60,.5);}
+.day-card.done{border-top:2px solid rgba(0,200,160,.6);}
+.day-card.reshuffled{border-top:2px solid rgba(196,124,24,.5);}
+.today-badge{position:absolute;top:8px;right:8px;font-size:7px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:var(--jade);color:var(--ink);padding:2px 6px;border-radius:3px;}
+.dc-day{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);margin-bottom:4px;}
+.dc-type{font-family:var(--serif);font-size:17px;font-weight:500;color:var(--dk-1);margin-bottom:4px;line-height:1.1;}
+.dc-focus{font-size:9px;font-weight:300;color:var(--dk-3);margin-bottom:6px;line-height:1.35;}
+.dc-status{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:8px;display:inline-block;margin-bottom:6px;}
+.dc-status.done{background:rgba(0,200,160,.1);color:var(--jade);}
+.dc-status.missed{background:rgba(220,80,60,.1);color:var(--red);}
+.dc-status.skipped{background:rgba(220,80,60,.08);color:rgba(220,80,60,.7);}
+.dc-status.upcoming,.dc-status.rest{background:rgba(255,255,255,.05);color:var(--dk-3);}
+.dc-status.today{background:rgba(0,200,160,.08);color:var(--jade);}
+.dc-status.reshuffled{background:rgba(196,124,24,.1);color:var(--amber);}
+.dc-ex{font-size:8px;font-weight:300;color:rgba(255,255,255,.28);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dc-reshuffle-note{font-size:8px;font-weight:600;color:var(--amber);margin-top:5px;}
+.reshuffle-trigger{display:none;width:100%;margin-top:8px;background:rgba(196,124,24,.1);border:1px solid rgba(196,124,24,.3);border-radius:5px;color:var(--amber);font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 6px;cursor:pointer;text-align:center;}
+.day-card.missed .reshuffle-trigger{display:block;}
+.rhythm-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.rhythm-day{font-size:10px;font-weight:600;color:var(--dk-3);width:28px;}
+.rhythm-track{flex:1;height:4px;background:var(--bd);border-radius:2px;overflow:hidden;}
+.rhythm-fill{height:100%;border-radius:2px;}
+.rhythm-fill.train{background:var(--jade);}
+.rhythm-fill.rest{background:var(--dk-3);opacity:.4;}
+.rhythm-val{font-size:10px;font-weight:600;color:var(--dk-2);width:48px;text-align:right;}
+.wk-coach-card{border-radius:10px;padding:16px 18px;margin-bottom:10px;border:1px solid var(--bd);background:var(--ink-1);}
+.wk-coach-card.red{border-color:rgba(220,80,60,.25);background:rgba(220,80,60,.04);}
+.wk-coach-card.positive{border-color:rgba(0,200,160,.25);background:rgba(0,200,160,.04);}
+.wk-coach-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;}
+.wk-coach-card.red .wk-coach-label{color:var(--red);}
+.wk-coach-card.positive .wk-coach-label{color:var(--jade);}
+.wk-coach-text{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.7;}
+.ai-gen-btn{width:100%;display:flex;align-items:center;gap:14px;background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:16px 18px;cursor:pointer;text-align:left;}
+.ai-gen-btn:hover{border-color:var(--jade);}
+.ai-gen-label{font-size:13px;font-weight:600;color:var(--dk-1);}
+.ai-gen-sub{font-size:11px;font-weight:300;color:var(--dk-3);margin-top:2px;}
+.ai-result{margin-top:12px;font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;}
+#rs-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-end;justify-content:center;z-index:9000;padding:0 16px;}
+@media(min-width:600px){#rs-overlay{align-items:center;}}
+.rs-modal{background:var(--ink-1);border:1px solid rgba(255,255,255,.1);border-radius:18px 18px 0 0;width:100%;max-width:540px;max-height:88vh;overflow-y:auto;padding:24px 22px 36px;}
+@media(min-width:600px){.rs-modal{border-radius:18px;}}
+.rs-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.rs-title{font-family:var(--serif);font-size:24px;font-weight:500;color:var(--dk-1);}
+.rs-close{background:none;border:none;color:var(--dk-3);font-size:18px;cursor:pointer;padding:4px;}
+.rs-section{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin:16px 0 10px;}
+.rs-missed-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.rs-missed-badge{font-size:8px;font-weight:700;text-transform:uppercase;background:rgba(220,80,60,.1);color:var(--red);border:1px solid rgba(220,80,60,.2);padding:2px 8px;border-radius:4px;}
+.rs-missed-name{font-size:13px;font-weight:600;color:var(--dk-1);}
+.rs-missed-day{font-size:12px;font-weight:300;color:var(--dk-3);}
+.rs-slots{display:flex;flex-wrap:wrap;gap:7px;}
+.rs-slot{border-radius:8px;padding:8px 14px;border:1px solid var(--bd);}
+.rs-slot.free{background:rgba(0,200,160,.05);border-color:rgba(0,200,160,.2);}
+.rs-slot.busy{background:rgba(255,255,255,.03);}
+.rs-slot-day{font-size:11px;font-weight:700;color:var(--dk-1);}
+.rs-slot-type{font-size:9px;font-weight:300;color:var(--dk-3);margin-top:1px;}
+.rs-note{font-size:11px;font-weight:300;color:var(--dk-3);line-height:1.6;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:8px;margin-top:16px;}
+.rs-btn{width:100%;margin-top:18px;background:var(--jade);color:var(--ink);border:none;border-radius:10px;font-family:var(--sans);font-size:13px;font-weight:700;padding:15px;cursor:pointer;}
+.rs-btn:disabled{opacity:.5;cursor:not-allowed;}
+.rs-result{margin-top:20px;}
+.rs-result-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:12px;}
+.rs-change-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:6px;border:1px solid var(--bd);}
+.rs-change-row.train{background:rgba(0,200,160,.05);border-color:rgba(0,200,160,.2);}
+.rs-change-day{font-size:11px;font-weight:700;color:var(--dk-2);width:90px;flex-shrink:0;}
+.rs-change-type{font-size:13px;font-weight:700;color:var(--dk-1);flex:1;}
+.rs-change-note{font-size:9px;color:var(--dk-3);}
+.rs-rationale{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.75;margin:14px 0;padding:12px 14px;background:rgba(255,255,255,.03);border-left:2px solid rgba(0,200,160,.3);border-radius:0 8px 8px 0;}
+.rs-warning{font-size:11px;color:var(--amber);padding:8px 12px;background:rgba(196,124,24,.08);border-radius:6px;margin-bottom:10px;}
+.rs-actions{display:flex;gap:8px;margin-top:16px;}
+.rs-apply{flex:1;background:var(--jade);color:var(--ink);border:none;border-radius:8px;padding:13px;font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer;}
+.rs-reject{background:none;border:1px solid var(--bd);color:var(--dk-3);font-family:var(--sans);font-size:12px;padding:13px 18px;border-radius:8px;cursor:pointer;}
+.rs-error{font-size:12px;color:var(--red);text-align:center;margin-top:12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,200,160,.2);border-top-color:var(--jade);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px;}
+.wk-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--jade);color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:700;padding:10px 22px;border-radius:20px;z-index:9999;pointer-events:none;transition:transform .25s ease;}
+.wk-toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="page" id="main-page"></div>
+<div class="wk-toast" id="wk-toast"></div>
+<script src="nav.js"></script>
+<script src="supabase-auth.js"></script>
+<script src="bl-proposals.js"></script>
+<script>
+'use strict';
+var DNS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+var DNS3=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
+function _ovKey(){
+  var d=new Date(),wd=d.getDay();
+  var mon=new Date(d);
+  mon.setDate(d.getDate()-(wd===0?6:wd-1));
+  mon.setHours(0,0,0,0);
+  return 'bl_week_override_'+mon.toISOString().slice(0,10);
+}
+function loadOverride(){
+  try{return JSON.parse(localStorage.getItem(_ovKey())||'{}');}catch(e){return {};}
+}
+function saveOverride(data){
+  try{localStorage.setItem(_ovKey(),JSON.stringify(data));}catch(e){}
+}
+function getEffDay(p,idx){
+  var ov=loadOverride();
+  if(ov[idx])return Object.assign({},(p.weekPlan||[])[idx]||{},ov[idx]);
+  return (p.weekPlan||[])[idx]||{type:'Rest',priority:'rest'};
+}
+function mondayDate(){
+  var d=new Date(),wd=d.getDay();
+  var mon=new Date(d);
+  mon.setDate(d.getDate()-(wd===0?6:wd-1));
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+function dayStr(i){
+  var mon=mondayDate();
+  var d=new Date(mon);
+  d.setDate(mon.getDate()+i);
+  return d.toISOString().slice(0,10);
+}
+function loadLog(ds){
+  try{var r=JSON.parse(localStorage.getItem('bl_daylog_'+ds)||'null');return(r&&typeof r==='object')?r:null;}catch(e){return null;}
+}
+function todayIdx(){var wd=new Date().getDay();return wd===0?6:wd-1;}
+function getProfile(){
+  try{return JSON.parse(localStorage.getItem('bl_profile')||'null');}catch(e){return null;}
+}
+function getMissed(p){
+  var ti=todayIdx();
+  var missed=[];
+  for(var i=0;i<ti;i++){
+    var plan=getEffDay(p,i);
+    if(plan.priority!=='training')continue;
+    var log=loadLog(dayStr(i));
+    if(!log||log.trainStatus!=='done'){
+      missed.push({idx:i,day:DNS[i],ds:dayStr(i),type:plan.type});
+    }
+  }
+  return missed;
+}
+
+function render(){
+  var p=getProfile();
+  if(!p){
+    document.getElementById('main-page').innerHTML='<div style="padding:80px 24px;text-align:center;color:var(--dk-3);">No profile found. <a href="/bodylens-onboard.html" style="color:var(--jade);">Complete onboarding</a></div>';
+    return;
+  }
+  var ti=todayIdx();
+  var missed=getMissed(p);
+  var ov=loadOverride();
+  var trainingDays=(p.weekPlan||[]).filter(function(d){return d.priority==='training';}).length;
+  var doneSessions=0;
+  for(var i=0;i<7;i++){var log=loadLog(dayStr(i));if(log&&log.trainStatus==='done')doneSessions++;}
+  var sessCol=doneSessions===trainingDays?'jade':doneSessions>0?'amber':'slate';
+  var wkStatus=missed.length===0&&doneSessions>=ti?'on track':missed.length>0?'off plan':'in progress';
+  var wkCol=wkStatus==='on track'?'jade':wkStatus==='off plan'?'red':'amber';
+
+  var statsHTML='<div class="wk-stats">'
+    +'<div class="wk-stat"><div class="wk-stat-val '+sessCol+'">'+doneSessions+' / '+trainingDays+'</div><div class="wk-stat-label">Sessions done</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val '+(missed.length?'red':'jade')+'">'+(missed.length||'&#10003;')+'</div><div class="wk-stat-label">Missed</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val slate">'+(trainingDays-doneSessions>0?trainingDays-doneSessions:'&#10003;')+'</div><div class="wk-stat-label">Remaining</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val '+wkCol+'">'+wkStatus+'</div><div class="wk-stat-label">Week status</div></div>'
+    +'</div>';
+
+  var bannerHTML='';
+  if(missed.length){
+    var names=missed.map(function(m){return m.type+' ('+m.day+')';}).join(', ');
+    bannerHTML='<div class="missed-banner" onclick="openReshuffle()">'
+      +'<div class="missed-banner-icon">&#9888;</div>'
+      +'<div class="missed-banner-text">'
+        +'<div class="missed-banner-title">'+missed.length+' session'+(missed.length>1?'s':'')+' missed</div>'
+        +'<div class="missed-banner-sub">'+names+' &mdash; tap to reshuffle your week</div>'
+      +'</div>'
+      +'<div class="missed-banner-cta">Reshuffle &rarr;</div>'
+    +'</div>';
+  }
+
+  var maxKcal=Math.max.apply(null,(p.weekPlan||[]).map(function(d){return d.kcal||0;}));
+  var cardsHTML='<div class="sec-label">Week at a glance</div><div class="ledger-grid">';
+  for(var i=0;i<7;i++){
+    var wp=getEffDay(p,i);
+    var ds=dayStr(i);
+    var log=loadLog(ds);
+    var isToday=(i===ti);
+    var isPast=(i<ti);
+    var isTraining=(wp.priority==='training');
+    var ovEntry=ov[i];
+    var wasReshuffled=(ovEntry&&ovEntry.source==='reshuffle');
+    var status,statusLabel,statusClass;
+    if(!isTraining){
+      statusLabel=isToday?'Today':isPast?'Rest':'Upcoming';
+      statusClass='rest';
+    } else if(log&&log.trainStatus==='done'){
+      statusLabel='Done'; statusClass='done';
+    } else if(log&&log.trainStatus==='skipped'){
+      statusLabel='Skipped'; statusClass='skipped';
+    } else if(isToday){
+      statusLabel='Today'; statusClass='today';
+    } else if(isPast){
+      statusLabel='Missed'; statusClass='missed';
+    } else {
+      statusLabel='Upcoming'; statusClass='upcoming';
+    }
+    if(wasReshuffled){statusClass='reshuffled';}
+
+    var cardCls='day-card';
+    if(isTraining&&statusClass==='done')cardCls+=' done';
+    else if(isTraining&&statusClass==='missed')cardCls+=' missed training';
+    else if(isTraining)cardCls+=' training';
+    if(isToday)cardCls+=' today';
+    if(wasReshuffled)cardCls+=' reshuffled';
+
+    var exHTML='';
+    if(isTraining&&wp.keyExercises&&wp.keyExercises.length){
+      exHTML='<div style="margin-top:6px;">';
+      wp.keyExercises.slice(0,4).forEach(function(ex){exHTML+='<div class="dc-ex">&middot; '+ex+'</div>';});
+      if(wp.keyExercises.length>4)exHTML+='<div class="dc-ex" style="opacity:.5;">+'+(wp.keyExercises.length-4)+' more</div>';
+      exHTML+='</div>';
+    }
+    var reshuffleNote=(wasReshuffled&&ovEntry.note)?'<div class="dc-reshuffle-note">&#8635; '+ovEntry.note+'</div>':'';
+    var reshuffleBtn=(statusClass==='missed'&&isTraining)?'<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffle()">&#8635; Reshuffle week</button>':'';
+
+    cardsHTML+='<div class="'+cardCls+'">'
+      +(isToday?'<div class="today-badge">Today</div>':'')
+      +'<div class="dc-day">'+DNS3[i]+'</div>'
+      +'<div class="dc-type">'+(wp.type||'Rest')+'</div>'
+      +(wp.focus&&isTraining?'<div class="dc-focus">'+wp.focus+'</div>':'')
+      +'<div class="dc-status '+statusClass+'">'+statusLabel+'</div>'
+      +exHTML+reshuffleNote+reshuffleBtn
+    +'</div>';
+  }
+  cardsHTML+='</div>';
+
+  var rhythmHTML='<div class="sec-label" style="margin-top:28px;">Calorie rhythm</div>';
+  (p.weekPlan||[]).forEach(function(day,i){
+    var effDay=getEffDay(p,i);
+    var isT=(effDay.priority==='training');
+    var kcal=effDay.kcal||(isT?(p.trainingKcal||p.calories):p.restKcal)||0;
+    var pct=maxKcal?Math.round(kcal/maxKcal*100):50;
+    rhythmHTML+='<div class="rhythm-row">'
+      +'<div class="rhythm-day">'+DNS3[i]+'</div>'
+      +'<div class="rhythm-track"><div class="rhythm-fill '+(isT?'train':'rest')+'" style="width:'+pct+'%"></div></div>'
+      +'<div class="rhythm-val">'+(kcal?kcal.toLocaleString():'&mdash;')+'</div>'
+    +'</div>';
+  });
+
+  var coachHTML='<div class="sec-label" style="margin-top:28px;">Coach read</div>';
+  if(missed.length){
+    coachHTML+='<div class="wk-coach-card red"><div class="wk-coach-label">Off plan</div><div class="wk-coach-text">'+missed.length+' missed session'+(missed.length>1?'s':'')+': '+missed.map(function(m){return m.type;}).join(', ')+'. '+(ti<6?'Tap the banner above to reshuffle.':'The week is over &mdash; focus on next week.')+'</div></div>';
+  } else if(doneSessions===trainingDays){
+    coachHTML+='<div class="wk-coach-card positive"><div class="wk-coach-label">On track</div><div class="wk-coach-text">All sessions completed. Recovery and nutrition take priority now.</div></div>';
+  } else {
+    coachHTML+='<div class="wk-coach-card"><div class="wk-coach-label">In progress</div><div class="wk-coach-text">'+doneSessions+' of '+trainingDays+' sessions done. '+(trainingDays-doneSessions)+' remaining.</div></div>';
+  }
+
+  var aiHTML='<div class="sec-label" style="margin-top:28px;">AI week analysis</div>'
+    +'<button class="ai-gen-btn" id="ai-gen-btn" onclick="generateWeekAnalysis()">'
+      +'<div id="ai-gen-icon" style="font-size:18px;">&#9889;</div>'
+      +'<div><div class="ai-gen-label">Generate full week analysis</div>'
+      +'<div class="ai-gen-sub">Coach reads your actual week and advises on what remains</div></div>'
+    +'</button>'
+    +'<div class="ai-result" id="ai-result-box"></div>';
+
+  document.getElementById('main-page').innerHTML=
+    '<div class="wk-hero">'
+      +'<div class="wk-kicker">Training ledger</div>'
+      +'<div class="wk-title">This<br><em>week.</em></div>'
+      +'<div class="wk-sub">Planned vs actual. Every session classified against your goals.</div>'
+    +'</div>'
+    +statsHTML+bannerHTML+cardsHTML+rhythmHTML+coachHTML+aiHTML
+    +'<div id="bl-proposals-section" style="margin-top:28px;"></div>'
+    +'<div id="bl-log-section" style="margin-top:14px;"></div>';
+
+  if(typeof blRefreshProposalUI==='function')blRefreshProposalUI();
+}
+
+async function generateWeekAnalysis(){
+  var p=getProfile();if(!p)return;
+  var btn=document.getElementById('ai-gen-btn');
+  var box=document.getElementById('ai-result-box');
+  if(btn){btn.disabled=true;btn.querySelector('#ai-gen-icon').innerHTML='<span class="spinner"></span>';}
+  var ti=todayIdx();
+  var lines=DNS.map(function(day,i){
+    var wp=getEffDay(p,i);
+    var log=loadLog(dayStr(i));
+    var ts=log?(log.trainStatus||'not logged'):'not logged';
+    return day+': '+wp.type+(i<ti?' - '+ts:i===ti?' (today)':' (upcoming)');
+  });
+  var prompt='You are a performance coach for '+(p.name||'the user')+', age '+(p.age||44)+', goal: '+(p.goal||'body recomposition')+'.\n\nThis week:\n'+lines.join('\n')+'\n\nWrite 2-3 concise sentences assessing the week and what to prioritise. No bullet points.';
+  try{
+    var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,messages:[{role:'user',content:prompt}]})});
+    var data=await res.json();
+    var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    if(box)box.innerHTML='<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Coach</div><div>'+text+'</div>';
+  }catch(e){
+    if(box)box.innerHTML='<div style="color:var(--dk-3);font-size:12px;">Could not load &mdash; try again</div>';
+  }
+  if(btn){btn.disabled=false;btn.querySelector('#ai-gen-icon').innerHTML='&#9889;';}
+}
+
+function openReshuffle(){
+  var p=getProfile();if(!p)return;
+  var missed=getMissed(p);if(!missed.length)return;
+  var ex=document.getElementById('rs-overlay');if(ex)ex.remove();
+  var ti=todayIdx();
+  var missedHTML=missed.map(function(m){
+    return '<div class="rs-missed-row"><span class="rs-missed-badge">Missed</span><span class="rs-missed-name">'+m.type+'</span><span class="rs-missed-day">('+m.day+')</span></div>';
+  }).join('');
+  var slotsHTML='';
+  for(var i=ti;i<7;i++){
+    var wp=getEffDay(p,i);
+    var isT=(wp.priority==='training');
+    var label=(i===ti?'Today ('+DNS[i]+')':DNS[i]);
+    var sub=(isT?'Planned: '+wp.type:'Rest &mdash; available');
+    slotsHTML+='<div class="rs-slot '+(isT?'busy':'free')+'"><div class="rs-slot-day">'+label+'</div><div class="rs-slot-type">'+sub+'</div></div>';
+  }
+  var el=document.createElement('div');
+  el.id='rs-overlay';
+  el.innerHTML='<div class="rs-modal">'
+    +'<div class="rs-hd"><div class="rs-title">Reshuffle week</div><button class="rs-close" onclick="closeReshuffle()">&#10005;</button></div>'
+    +'<div class="rs-section">Missed sessions</div>'+missedHTML
+    +'<div class="rs-section">Available slots this week</div><div class="rs-slots">'+slotsHTML+'</div>'
+    +'<div class="rs-note">AI will optimise for your age ('+(p.age||44)+'), recovery, and session sequencing. May drop a session if the week is too compressed.</div>'
+    +'<button class="rs-btn" id="rs-run-btn" onclick="runReshuffle()">&#9889; Let AI reshuffle my week</button>'
+    +'<div id="rs-result"></div>'
+  +'</div>';
+  el.addEventListener('click',function(e){if(e.target===el)closeReshuffle();});
+  document.body.appendChild(el);
+}
+
+function closeReshuffle(){
+  var el=document.getElementById('rs-overlay');if(el)el.remove();
+}
+
+async function runReshuffle(){
+  var p=getProfile();if(!p)return;
+  var missed=getMissed(p);
+  var ti=todayIdx();
+  var btn=document.getElementById('rs-run-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Thinking&hellip;';}
+  var lines=DNS.map(function(day,i){
+    var wp=getEffDay(p,i);
+    var marker=(i===ti?' <- TODAY':i<ti?(missed.find(function(m){return m.idx===i;})?'<- MISSED':'<- past'):'');
+    return day+': '+wp.type+' ('+wp.priority+')'+marker;
+  });
+  var missedStr=missed.map(function(m){return m.type+' ('+m.day+')';}).join(', ');
+  var prompt='Optimise a training week reshuffle for a '+(p.age||44)+'-year-old.\n\nCURRENT WEEK:\n'+lines.join('\n')+'\n\nMISSED: '+missedStr+'\nToday: '+DNS[ti]+'\nTraining days/week: '+(p.trainingDays||4)+'\nGoal: '+(p.goal||'Body recomposition')+'\n\nRULES:\n- Avoid 3 hard sessions back-to-back without rest\n- Posterior Chain needs 48h before pressing\n- Push and Pull can run consecutive\n- OK to drop a session if too compressed\n\nReturn ONLY valid JSON (no markdown):\n{"rationale":"one paragraph","schedule":[{"dayIdx":1,"day":"Tuesday","type":"Push","priority":"training","note":"Rescheduled from Monday"}],"dropped":[],"warning":""}\n\nOnly include CHANGED days. Return ONLY the JSON.';
+  try{
+    var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})});
+    var data=await res.json();
+    var raw=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var result=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    window._reshuffleResult=result;
+    showReshuffleResult(result);
+  }catch(e){
+    var rd=document.getElementById('rs-result');
+    if(rd)rd.innerHTML='<div class="rs-error">Something went wrong &mdash; try again.</div>';
+    if(btn){btn.disabled=false;btn.innerHTML='&#9889; Try again';}
+  }
+}
+
+function showReshuffleResult(result){
+  var btn=document.getElementById('rs-run-btn');if(btn)btn.style.display='none';
+  var rows=(result.schedule||[]).map(function(s){
+    return '<div class="rs-change-row '+(s.priority==='training'?'train':'')+'">'
+      +'<div class="rs-change-day">'+s.day+'</div>'
+      +'<div class="rs-change-type">'+s.type+'</div>'
+      +(s.note?'<div class="rs-change-note">'+s.note+'</div>':'')
+    +'</div>';
+  }).join('');
+  var warn=result.warning?'<div class="rs-warning">&#9888; '+result.warning+'</div>':'';
+  var dropped=(result.dropped&&result.dropped.length&&result.dropped[0])?'<div class="rs-warning">Session dropped: '+result.dropped.join(', ')+'</div>':'';
+  document.getElementById('rs-result').innerHTML=
+    '<div class="rs-result">'
+    +'<div class="rs-result-label">Proposed changes</div>'
+    +rows
+    +'<div class="rs-rationale">'+(result.rationale||'')+'</div>'
+    +warn+dropped
+    +'<div class="rs-actions">'
+      +'<button class="rs-apply" onclick="applyReshuffle()">Apply reshuffle</button>'
+      +'<button class="rs-reject" onclick="closeReshuffle()">Keep original</button>'
+    +'</div>'
+  +'</div>';
+}
+
+function applyReshuffle(){
+  var result=window._reshuffleResult;if(!result)return;
+  var p=getProfile();if(!p)return;
+  var ov=loadOverride();
+  (result.schedule||[]).forEach(function(s){
+    ov[s.dayIdx]={type:s.type,priority:s.priority,source:'reshuffle',note:s.note||'',reshuffledAt:new Date().toISOString()};
+  });
+  saveOverride(ov);
+  var missed=getMissed(p);
+  missed.forEach(function(m){
+    var existing=loadLog(m.ds)||{};
+    existing.trainStatus='skipped';
+    existing.trainNote='Missed - reshuffled '+new Date().toLocaleDateString('en-GB');
+    existing.updatedAt=new Date().toISOString();
+    try{localStorage.setItem('bl_daylog_'+m.ds,JSON.stringify(existing));}catch(e){}
+  });
+  var today=new Date().toISOString().slice(0,10);
+  ['dayplan_v6r3_','dayplan_v6r2_','bl_macros_'].forEach(function(k){
+    try{localStorage.removeItem(k+today);}catch(e){}
+  });
+  closeReshuffle();
+  render();
+  var t=document.getElementById('wk-toast');
+  t.textContent='Week reshuffled \u2014 open Today to regenerate your plan';
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3500);
+}
+
+render();
+</script>
+</body>
+</html>
