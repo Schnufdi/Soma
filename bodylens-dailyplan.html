@@ -9908,6 +9908,12 @@ function renderRecentChangeBanner(p) {
     else if (root) root.appendChild(el);
   } catch(e) {}
 }
+
+function _fmtVal(val) {
+  if (val === null || val === undefined) return '—';
+  if (typeof val === 'number') return val.toLocaleString();
+  return String(val).slice(0, 40);
+}
 </script>
 
 <!-- ── Session Editor Drawer ─────────────────────────── -->
