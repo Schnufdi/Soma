@@ -671,6 +671,8 @@ body.mode-meals .upload-icon-meals { display: inline; }
 </style>
 </head>
 <body>
+<div class="pro-page-banner" id="pro-page-banner">&#10022; PRO features are highlighted &mdash; <a href="/bodylens-pro.html">Founding member pricing available</a></div>
+<script>(function(){if(localStorage.getItem('bl_pro_status')!=='active'){var b=document.getElementById('pro-page-banner');if(b)b.style.display='block';}})();</script>
 
 <div class="fridge-page">
 
@@ -750,7 +752,7 @@ body.mode-meals .upload-icon-meals { display: inline; }
 
   <!-- Analyse button -->
   <button class="analyse-btn" id="analyse-btn" onclick="analyseFridge()" disabled>
-    <span id="analyse-icon">🔍</span> <span id="analyse-label">Analyse my fridge</span>
+    <span id="analyse-icon">🔍</span> <span id="analyse-label">Analyse my fridge</span><span class="pro-badge">PRO</span>
   </button>
 
   <!-- Scanning state -->
@@ -1035,7 +1037,7 @@ async function analyseFridge() {
     document.getElementById('preview-wrap').classList.add('active');
     btn.disabled = false;
     btn.classList.remove('loading');
-    btn.innerHTML = (_mode === 'meals' ? '<span>🍳</span> Build my meals' : '<span>🔍</span> Analyse my fridge');
+    btn.innerHTML = (_mode === 'meals' ? '<span>🍳</span> Build my meals' : '<span>🔍</span> Analyse my fridge') + '<span class="pro-badge">PRO</span>';
     alert('Could not analyse photo — check connection and try again.\n\n' + err.message);
   }
 }
