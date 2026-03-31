@@ -1101,7 +1101,7 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
         <div id="bl-coach-input-wrap">
           <textarea id="bl-coach-input" placeholder="Ask your coach…" rows="1"></textarea>
           <button id="bl-coach-mic" title="Tap to speak">🎤</button>
-          <button id="bl-coach-send">↑</button>
+          <button id="bl-coach-send">↑<span class="pro-badge">PRO</span></button>
         </div>
       </div>
 
