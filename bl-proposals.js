@@ -2,7 +2,7 @@
 // Every programme recommendation flows through here before being applied.
 // Surfaces on the Week page as a review queue. Full audit log on commit/dismiss.
 //
-// SOURCES: 'goals' | 'coach' | 'body-scan' | 'reconciliation' | 'accelerator' | 'programme' | 'manual'
+// SOURCES: 'goals' | 'coach' | 'body-scan' | 'reconciliation' | 'accelerator' | 'stack' | 'programme' | 'manual'
 //
 // FLOW:
 //   blPropose(source, title, changes, context, expires?)
@@ -25,6 +25,7 @@ var BL_PROPOSAL_SOURCES = {
   'body-scan':      { label: 'Body scan',             color: 'var(--amber)',             icon: '◉' },
   'reconciliation': { label: 'Weekly reconciliation', color: 'rgba(180,130,255,.85)',    icon: '◆' },
   'accelerator':    { label: 'Accelerator',           color: 'rgba(0,200,160,.7)',       icon: '◇' },
+  'stack':          { label: 'Stack change',          color: 'rgba(196,124,24,.85)',     icon: '◈' },
   'programme':      { label: 'Programme update',      color: 'var(--dk-3)',              icon: '○' },
   'manual':         { label: 'Manual edit',           color: 'var(--dk-3)',              icon: '○' },
 };
