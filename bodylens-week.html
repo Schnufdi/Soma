@@ -339,11 +339,29 @@ async function generateWeekAnalysis(){
     return day+': '+wp.type+(i<ti?' - '+ts:i===ti?' (today)':' (upcoming)');
   });
   var prompt='You are a performance coach for '+(p.name||'the user')+', age '+(p.age||44)+', goal: '+(p.goal||'body recomposition')+'.\n\nThis week:\n'+lines.join('\n')+'\n\nWrite 2-3 concise sentences assessing the week and what to prioritise. No bullet points.';
+
+  // 1-hour cache keyed to week start + profile hash to avoid re-calling on every page open
+  var weekStart=(function(){var d=new Date(),wd=d.getDay(),m=new Date(d);m.setDate(d.getDate()-(wd===0?6:wd-1));return m.toISOString().slice(0,10);})();
+  var pHash=(function(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return Math.abs(h).toString(36);})(lines.join('|'));
+  var cacheKey='bl_wk_assess_'+weekStart+'_'+pHash;
   try{
-    var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,messages:[{role:'user',content:prompt}]})});
+    var cached=JSON.parse(localStorage.getItem(cacheKey)||'null');
+    if(cached&&cached.text&&(Date.now()-cached.ts)<3600000){
+      if(box)box.innerHTML='<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Coach</div><div>'+cached.text+'</div>';
+      if(btn){btn.disabled=false;btn.querySelector('#ai-gen-icon').innerHTML='&#9889;';}
+      return;
+    }
+  }catch(e){}
+
+  try{
+    // Haiku is fast enough for a 2-3 sentence weekly summary
+    var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:200,messages:[{role:'user',content:prompt}]})});
     var data=await res.json();
     var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
-    if(box)box.innerHTML='<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Coach</div><div>'+text+'</div>';
+    if(text){
+      try{localStorage.setItem(cacheKey,JSON.stringify({text:text,ts:Date.now()}));}catch(e){}
+      if(box)box.innerHTML='<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Coach</div><div>'+text+'</div>';
+    }
   }catch(e){
     if(box)box.innerHTML='<div style="color:var(--dk-3);font-size:12px;">Could not load &mdash; try again</div>';
   }
