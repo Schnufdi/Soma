@@ -15,7 +15,7 @@ AI-native personalised health intelligence platform. NOT a fitness app. The prod
 **Co-founder:** Seamus (17+ years senior marketing).
 **Budget:** £5-10k. **Target:** £500k ARR = financial independence.
 
-**Demo user (Sven):** Male, 44, 181cm, 87kg, 18-22% BF, body recomposition, 4 days/week, full commercial gym, morning sessions, Mediterranean+Asian diet, moderate stress, 7-8h sleep. Training split: Mon Push / Wed Pull / Fri Posterior Chain / Sat Upper. Macros: 2769kcal training / 2492kcal rest, 174g protein, 323g carbs, 87g fat.
+**Demo user (Sven):** Male, 44, 181cm, 87kg, ~18% BF, body recomposition, 4 days/week, full commercial gym, morning sessions, Mediterranean+Asian diet, moderate stress, 7-8h sleep. Training split: Mon Push / Wed Pull / Fri Posterior Chain / Sat Upper. Macros (updated): **2400kcal training / 2200kcal rest** (reduced from 2769/2492 per goal analysis), 174g protein.
 
 ---
 
@@ -24,9 +24,11 @@ AI-native personalised health intelligence platform. NOT a fitness app. The prod
 - **Site:** https://soma-two-chi.vercel.app
 - **Repo:** https://github.com/Schnufdi/Soma (public, flat root)
 - **Daily plan:** https://soma-two-chi.vercel.app/bodylens-dailyplan.html
+- **Decisions log:** https://soma-two-chi.vercel.app/bodylens-decisions.html
+- **Week view:** https://soma-two-chi.vercel.app/bodylens-week.html
+- **Goals engine:** https://soma-two-chi.vercel.app/bodylens-goals.html
 - **Data sync:** https://soma-two-chi.vercel.app/bodylens-sync.html
 - **Onboarding:** https://soma-two-chi.vercel.app/bodylens-onboard.html
-- **Report:** https://soma-two-chi.vercel.app/bodylens-instructions.html
 
 ---
 
@@ -35,259 +37,266 @@ AI-native personalised health intelligence platform. NOT a fitness app. The prod
 | Layer | Detail |
 |-------|--------|
 | Frontend | Pure HTML/CSS/JS. No framework. Single-file pages. |
-| Styling | style.css — global design system (2409 lines, 78kb). Jade + rose themes. CSS variables. |
-| Navigation | nav.js — IIFE injected into every page. Single source of truth for all nav. |
+| Styling | style.css — global design system. Jade + amber themes. CSS variables. |
+| Navigation | nav.js — IIFE injected into every page. Includes: Today · Programme · Week · Food · Meals · Stack · Goals · **Decisions** |
 | AI | Claude Sonnet via /api/chat (Vercel serverless proxy). Model: claude-sonnet-4-20250514 |
-| Auth | Supabase Google OAuth — **live and integrated**. Session stored as `sb-[projectref]-auth-token` |
-| Storage | localStorage-first + Supabase sync via setItem intercept (see Data Storage below) |
-| Deployment | Vercel auto-deploys on GitHub main push |
+| Auth | Supabase Google OAuth — live and integrated. |
+| Storage | localStorage-first + Supabase sync via setItem intercept |
+| Deployment | Vercel auto-deploys on GitHub main push (~30 seconds) |
 | Supabase URL | https://ubbqyhkjijpjpqdhhhvp.supabase.co |
 | Supabase anon key | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYnF5aGtqaWpwanBxZGhoaHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTkxODEsImV4cCI6MjA4OTg3NTE4MX0.VK-AvEFr_cmXT7k44mvR9UxVlGRXL8Cu6mgXBQbQov8 |
 | Sven's user ID | e65eb373-0d2b-4aa0-bff8-6bf714eef16b |
 
 ---
 
-## Data Storage — Complete Picture
+## Decision Architecture — CRITICAL
 
-### Architecture: localStorage-first + Supabase sync
+BodyLens has a proposal bus that every programme change flows through. **Nothing should write directly to the profile without going through this system.**
 
-`supabase-auth.js` overrides `localStorage.setItem` globally. Every write to localStorage is intercepted and, if the user is signed in (`window._blUser` + `window._sb` exist), mirrored to Supabase immediately in the background. Local state is always the source of truth; Supabase is the persistence layer.
+### The flow
 
-On sign-in, `BL.restoreHistory()` pulls the last 30 days of data from Supabase back into localStorage.
+```
+Any surface (Goals, Coach, Body Scan, Reconciliation)
+  → blPropose(source, title, changes, context)         [bl-proposals.js]
+  → Staged in localStorage['bl_proposals']
+  → Visible on /bodylens-decisions.html and /bodylens-week.html
+  → User reviews before/after table
+  → blCommitProposal(id)  →  applies to profile + writes to bl_proposal_log
+  → blDismissProposal(id) →  logs dismissal, nothing applied
+  → blRevertProposal(id)  →  creates a new reverse proposal for review
+```
 
-### localStorage Keys → Supabase Mapping
+### Sources
 
-| localStorage key | Supabase destination | Notes |
-|-----------------|---------------------|-------|
-| `bl_profile` | `profiles.profile` (jsonb) | Full profile, programme, weekPlan, supplements, macros targets, behaviourMemory |
-| `bl_daylog_YYYY-MM-DD` | `day_logs` table | Training status, meals logged, supplement ticks, energy, notes, debrief |
-| `bl_macros_YYYY-MM-DD` | `macros` table | Daily protein/kcal eaten vs target |
-| `bl_weekly_meals_YYYY-MM-DD` | `meal_plans` table | Generated weekly meal plan |
-| `bl_activities_YYYY-MM-DD` | `activities` table | Activity log entries |
-| `bl_weekledger_YYYY-MM-DD` | `week_ledger` table | Training week view data |
-| `bl_strength_baseline` | `profiles.strength_baseline` | 1RM benchmarks and performance baselines |
-| `bl_scan_history` | `profiles.scan_data` | Body scan history |
-| `bl_scan_raw_text` | `profiles.scan_data` | Raw body scan text |
-| `bl_podcast_history` | `profiles.podcast_history` | Episode listening history |
-| `bl_report_*` | `profiles.latest_report` | Latest generated coaching report |
-| `bl_fridge_restock` | `profiles.fridge_data` | Fridge/pantry state |
-| `bl_shop_checks` | `profiles.shop_data` | Shopping checklist state |
+| Source key | Who calls it |
+|------------|-------------|
+| `'goals'` | bodylens-goals.html — goal gap analysis |
+| `'coach'` | coach.js — confirmed coach conversations |
+| `'body-scan'` | bodylens-bodyscan.html — measurement updates |
+| `'reconciliation'` | dp-reconcile.js — weekly adaptation pass (not yet built) |
+| `'manual'` | Direct edits / reverts |
 
-### LOCAL ONLY (intentionally not synced)
+### blApplyChanges field types
 
-| localStorage key | Reason |
-|-----------------|--------|
-| `dayplan_v6r3_YYYY-MM-DD` | AI-generated cache. Regeneratable from profile via API. |
-| `bl_recipe_{slot}_YYYY-MM-DD` | Same — regeneratable cache. |
-| `bl_pin_store` | Security. PIN→profile vault must stay local. |
-| `bl_formdata_backup` | Raw onboarding form answers. Recovery fallback only. |
-| `bl_theme` | UI preference only. |
-| `bl_current_pin` | UI state only. |
-| `bl_disclaimer_dismissed` | UI state only. |
+| Field pattern | What it does |
+|---------------|-------------|
+| `'protein'`, `'trainingKcal'`, `'restKcal'`, `'trainingDays'`, `'calories'`, `'goal'` | Direct scalar write to profile |
+| `'coachNotes.append'` | Appends `'\n• ' + val` to `p.coachNotes` — does NOT overwrite |
+| `'injuries.push'` | Appends to `p.injuries` array |
+| `'overlays.push'` | Appends to `p.overlays` array |
+| `'weekPlan[N].type'` | Updates that day's type and priority |
+| `'weekPlan[N].keyExercises'` | Updates that day's exercise list |
+| `'gapBridge.X'` | Writes to `p.gapBridge.X` sub-field |
 
-### Supabase Tables
+**Critical:** `coachNotes` is NOT in the scalars list. Always use `coachNotes.append`.
 
-| Table | Key columns | Purpose |
-|-------|-------------|---------|
-| `profiles` | `id`, `email`, `name`, `profile` (jsonb), `strength_baseline`, `scan_data`, `podcast_history`, `latest_report`, `fridge_data`, `shop_data` | User profile and all personal data blobs |
-| `day_logs` | `user_id`, `date`, `data` (jsonb) | One row per user per day |
-| `macros` | `user_id`, `date`, `data` (jsonb) | Daily macro tracking |
-| `meal_plans` | `user_id`, `week_start`, `data` (jsonb) | Weekly meal plans |
-| `activities` | `user_id`, `date`, `data` (jsonb) | Activity logs |
-| `week_ledger` | `user_id`, `week_start`, `data` (jsonb) | Weekly training ledger |
-| `profile_history` | `user_id`, `change_type`, `payload` | Append-only changelog of weight/profile changes |
+### How decisions flow downstream
 
-All tables have RLS enabled. Policy: `auth.uid() = user_id`.
+After `blCommitProposal()`:
+1. **Profile** — numeric fields written immediately
+2. **coachNotes** — appended; coach reads this in every conversation
+3. **Day plan cache cleared** — `dayplan_v6r3_YYYY-MM-DD` removed; next load regenerates
+4. **"Plan updated" banner** — appears on Today for 48h showing what changed
+5. **Coach narrative** — `generateCoachNarrative()` reads `coachNotes`, `gapBridge.weeklyFocus`, `gapBridge.training`, `gapBridge.primaryGaps`
+6. **Week page** — reads profile on every load; no cache; updates immediately
 
-### Data Sync Page
+### Decision log localStorage keys
 
-`/bodylens-sync.html` — real-time reconciliation view showing localStorage vs Supabase side by side.
-Auth banner, summary strip (4 cards), field-by-field profile diff, day log table, macro table, meal plan table. Push/pull per row and bulk push-all/pull-all.
-
----
-
-## All Pages
-
-### Primary App Pages
-
-| File | Purpose |
-|------|---------|
-| bodylens-dailyplan.html | **Core page.** Daily plan: week strip, training blocks, meal plan, supplements, macros bar, coach narrative, SOS panel. **429kb** (reduced from 512kb — plan builder, memory engine, and debrief extracted to separate files). |
-| bodylens-onboard.html | Onboarding form + AI follow-up chat + programme generation |
-| bodylens-instructions.html | Coaching report: 4 tabs (Coach Report, Programme Data, Full Brief, Logic & Calibration) |
-| bodylens-programme.html | 12-week training programme view |
-| bodylens-week.html | Training ledger — week view with per-session logs |
-| bodylens-meals.html | Meal planning and food log |
-| bodylens-food.html | Food tracking, recipe generation, macro tracker, shopping list |
-| bodylens-supplements.html | Supplement stack with goal-matching and timing guide |
-| bodylens-goals.html | Goal setting and progress tracking |
-| bodylens-checkin.html | Daily check-in (energy, sleep, mood, notes) |
-| bodylens-bodyscan.html | Body scan / measurements + coach analysis |
-| bodylens-bodymapper.html | Body mapper visual tool |
-| bodylens-podcast.html | AI podcast / audio content |
-| bodylens-sync.html | Data sync / reconciliation dashboard |
-| bodylens-login.html | Google OAuth login page |
-| bodylens-profile.html | Profile view and edit |
-| bodylens-export.html | Data export |
-| bodylens-reset.html | Profile reset / onboarding restart |
-| bodylens-fridge.html | Fridge and pantry management |
-
-### Science Library
-
-| File | Score | Notes |
-|------|-------|-------|
-| bodylens-alcohol.html | 9/10 | Strongest page |
-| bodylens-hunger.html | 9/10 | |
-| bodylens-weightloss.html | 8/10 | |
-| bodylens-mentalhealth.html | 8/10 | Soften SSRIs claim |
-| bodylens-attia.html | 8/10 | Fix ApoB target |
-| bodylens-longevity.html | 7/10 | |
-| bodylens-body.html, bodylens-fuel.html, bodylens-insulin.html, bodylens-strength.html, bodylens-training.html, bodylens-optimal.html, bodylens-synthesis.html | — | |
-| bodylens-science.html | — | Index page |
-| bodylens-accelerators.html | — | Supplements science |
-
-### Infrastructure Files
-
-| File | Purpose | Size |
-|------|---------|------|
-| supabase-auth.js | Auth + localStorage intercept + Supabase sync + BL.* API | 20kb |
-| nav.js | Nav injection IIFE. Injects full nav into every page. Auth gate included. | 31kb |
-| style.css | Global design system. CSS variables, jade/rose themes. | 78kb |
-| api/chat.js | Vercel serverless. Proxies all Claude API calls. Uses ANTHROPIC_API_KEY env var. | 4kb |
-| sw.js | Service worker — PWA offline support | — |
-| dp-plan.js | **Extracted from dailyplan.** buildPlan() + applyOptimisations() + getOptIds(). Pure data, no DOM. | 43kb |
-| dp-memory.js | **Extracted from dailyplan.** Behaviour memory engine: compressAndSaveMemory, openDebrief, checkDebriefNeeded. | 10kb |
-| dp-debrief.js | **Extracted from dailyplan.** Debrief conversation engine: DB object, DB_STEPS, dbRender, dbNext, dbWriteToLog. Notification engine. | 18kb |
-| activitylog.js | Activity log overlay UI and logic. | 21kb |
+| Key | Contents |
+|-----|----------|
+| `bl_proposals` | Pending proposals — awaiting review |
+| `bl_proposal_log` | Committed + dismissed history — permanent record |
 
 ---
 
-## supabase-auth.js — BL API
+## Data Storage
 
-All public methods on `window.BL`:
+### localStorage → Supabase
 
-| Method | Purpose |
-|--------|---------|
-| `BL.signInWithGoogle()` | Initiates Google OAuth flow |
-| `BL.signOut()` | Signs out, clears session |
-| `BL.saveProfile(profile)` | Upserts to `profiles` table |
-| `BL.loadProfile(cb)` | Fetches from Supabase, writes localStorage, calls cb(profile) |
-| `BL.restoreHistory()` | Pulls 30 days of day_logs, macros, meal_plans, activities, week_ledger into localStorage |
-| `BL.logProfileChange(newProfile)` | Diffs vs last state, appends weight/supplement changes to profile_history |
-| `BL.showUserMenu()` | Renders user account dropdown |
+| localStorage key | Supabase destination |
+|-----------------|---------------------|
+| `bl_profile` | `profiles.profile` (jsonb) — includes weekPlan, gapBridge, coachNotes, behaviourMemory |
+| `bl_proposals` | via bl_profile sync |
+| `bl_proposal_log` | via bl_profile sync |
+| `bl_daylog_YYYY-MM-DD` | `day_logs` table |
+| `bl_macros_YYYY-MM-DD` | `macros` table |
+| `bl_weekly_meals_YYYY-MM-DD` | `meal_plans` table |
+| `bl_activities_YYYY-MM-DD` | `activities` table |
+| `bl_weekledger_YYYY-MM-DD` | `week_ledger` table |
+| `bl_scan_history` | `profiles.scan_data` |
 
-### Auth Race Condition — Daily Plan
+### LOCAL ONLY (not synced)
 
-`bodylens-dailyplan.html` exposes `window._blInit`. On page load: `_blInit()` runs immediately from localStorage. If profile is incomplete it shows an error screen. ~500ms later Supabase auth resolves, `BL.loadProfile()` fetches the full profile, then checks if the error screen is showing and calls `window._blInit()` again to re-render correctly.
+| Key | Reason |
+|-----|--------|
+| `dayplan_v6r3_YYYY-MM-DD` | AI-generated cache. Regeneratable. Cleared on any programme change. |
+| `bl_week_override_YYYY-MM-DD` | Recovery reschedule overrides. |
+| `bl_pin_store` | Security. |
+| `bl_theme` | UI preference. |
 
 ---
 
-## Programme Generation — JSON Schema
+## Profile Schema
 
 ```json
 {
   "name": "Sven", "age": 44, "weight": 87, "height": 181, "sex": "Male",
   "goal": "Body recomposition",
-  "trainingKcal": 2769, "restKcal": 2492, "calories": 2769,
-  "protein": 174, "carbs": 323, "fat": 87, "tdee": 2769,
-  "trainingDays": 4, "wakeTime": "07:00", "programmeWeeks": 12,
-  "generatedAt": "ISO string",
+  "trainingKcal": 2400, "restKcal": 2200, "calories": 2400,
+  "protein": 174, "carbs": 280, "fat": 80,
+  "trainingDays": 4, "wakeTime": "07:00",
   "weekPlan": [
-    { "day": "Monday", "type": "Push", "focus": "Chest, shoulders, triceps", "priority": "training" },
-    { "day": "Tuesday", "type": "Rest", "focus": "Recovery", "priority": "rest" }
+    { "day": "Monday", "type": "Push", "focus": "Chest, shoulders, triceps",
+      "priority": "training", "kcal": 2400,
+      "keyExercises": ["Bench Press 4x6-8 (RPE 8)", "Overhead Press 3x8-10"],
+      "coachNote": "Heaviest pressing session." }
   ],
-  "supplements": [
-    { "name": "Creatine monohydrate", "dose": "5g", "timing": "Daily, any time" }
-  ],
+  "supplements": [{ "name": "Creatine monohydrate", "dose": "5g", "timing": "Morning" }],
   "injuries": [],
-  "coachSummary": "string",
-  "behaviourMemory": "rolling AI coach narrative — updated on every debrief",
-  "weeklyProgression": { "week1": "", "week2": "", "week3": "", "week4": "" }
+  "coachNotes": "• Training emphasis: posterior chain\n• Primary gaps: 3-5% BF reduction",
+  "behaviourMemory": { "complianceScore": null, "currentFlags": [], "patterns": [], "weekSummaries": [] },
+  "gapBridge": {
+    "generatedAt": "YYYY-MM-DD",
+    "weeklyFocus": "Add 2x weekly dedicated back width sessions",
+    "training": [{ "change": "Posterior chain — lats, rhomboids, rear delts", "action": "note" }],
+    "primaryGaps": ["Body fat reduction of 6-8 percentage points"],
+    "applied": true
+  },
+  "overlays": [{ "id": "coach-xxx", "name": "...", "trigger": "pre-training", "active": true }]
 }
 ```
 
 ---
 
-## Onboarding — formData Fields
+## All Pages (49 total)
 
-**Numeric:** f-age, f-height, f-weight
-**Text:** f-target, f-injury-detail, f-eatwin, f-healthconds
-**Single-select:** sex, bf, exp, days, wake, gym, fwcomfort, traintime, energy, firstmeal, cooking, complexity, diet, sleep, bedtime, sleepquality, alcohol, stress, caffeine, diethistory, activity
-**Goal card:** goal
-**Multi-select:** fat, equipment, recovery, cuisines, triggers, nonneg
-**Injury toggle:** injuries array
+### Primary App Pages
 
----
+| File | Purpose |
+|------|---------|
+| bodylens-dailyplan.html | **Core page (474kb).** Week strip with missed session "Move → today" chip, training blocks, meal plan, supplements, macros bar, coach narrative (reads coachNotes + gapBridge), "Plan updated" banner after decisions. Cache mismatch check on load. |
+| bodylens-week.html | Training ledger. Day cards show session type + focus + keyExercises. Pending changes panel + decision log. |
+| bodylens-decisions.html | **Decision audit trail.** Every proposal pending or committed. Filter tabs, before/after tables, Revert. |
+| bodylens-goals.html | Goal gap analysis. Photo comparison → 6-stage structured output → blPropose('goals') staged for review. |
+| bodylens-bodyscan.html | Body scan. Calls blPropose('body-scan') on save — logs changes to audit trail. |
+| bodylens-supplements.html | Supplement stack — active stack + full catalogue with CSS cards, filter tabs, evidence badges. |
+| bodylens-fridge.html | Fridge analysis. iPhone fix: canvas-resize to 1024px max before base64 (Vercel 4.5MB limit). |
+| bodylens-onboard.html | Onboarding + programme generation |
+| bodylens-instructions.html | Coaching report: 4 tabs |
+| bodylens-programme.html | 12-week training programme |
+| bodylens-meals.html | Meal planning and food log |
+| bodylens-food.html | Food tracking, recipes, shopping |
+| bodylens-checkin.html | Daily check-in |
+| bodylens-bodymapper.html | Body mapper visual |
+| bodylens-podcast.html | AI podcast |
+| bodylens-sync.html | Supabase sync dashboard |
+| bodylens-ideas.html | Product roadmap — 25 ideas ranked by priority |
 
-## Deployment Method — CRITICAL
+### Science Library
 
-Vercel auto-deploys on every GitHub main push (~30 seconds). To edit files, use GitHub's web editor with CodeMirror 6 via browser console:
-
-```javascript
-// 1. Navigate to: github.com/Schnufdi/Soma/edit/main/[filename]
-// 2. Open browser console:
-var view = document.querySelector('.cm-content').cmView.rootView.view;
-var doc = view.state.doc.toString();
-
-// 3. Find + replace:
-var start = doc.indexOf('UNIQUE_STRING_TO_FIND');
-var end = doc.indexOf('\n}\n', start) + 3;
-view.dispatch(view.state.update({changes: {from: start, to: end, insert: newCode}}));
-
-// 4. Click "Commit changes"
-```
-
----
-
-## Known Issues (Priority Order)
-
-| # | Issue | Fix status |
-|---|-------|-----------|
-| 1 | `activities` + `week_ledger` tables don't exist in Supabase yet | Run supabase-schema-missing-tables.sql in Supabase SQL editor |
-| 2 | `profiles` table missing columns: strength_baseline, scan_data, podcast_history, latest_report, fridge_data, shop_data | Same SQL file |
-| 3 | dp-plan.js, dp-memory.js, dp-debrief.js need uploading to GitHub root | New files — must be in repo or dailyplan will break |
-| 4 | Daily plan macro table renders twice (visual bug) | Fixed in bodylens-dailyplan.html — needs upload |
-| 5 | Auth gate redirect (`?next=`) not yet tested end-to-end | Built — needs deploy + test |
+bodylens-science.html (index), bodylens-alcohol.html, bodylens-hunger.html, bodylens-weightloss.html, bodylens-mentalhealth.html, bodylens-attia.html, bodylens-longevity.html, bodylens-body.html, bodylens-fuel.html, bodylens-insulin.html, bodylens-strength.html, bodylens-training.html, bodylens-optimal.html, bodylens-synthesis.html, bodylens-accelerators.html, bodylens-viability.html
 
 ---
 
-## What's Live and Working
+## JS Infrastructure Files (18 total)
 
-- Full onboarding → programme generation pipeline
-- Coaching report with 4 tabs
-- Daily plan: week strip, training blocks, meal slots, supplements, macros bar, coach narrative, debrief, SOS, guided voice
+| File | Purpose | Size |
+|------|---------|------|
+| supabase-auth.js | Auth + localStorage intercept + Supabase sync + BL.* API | 21kb |
+| nav.js | Nav injection. Includes Decisions link. | 34kb |
+| **bl-proposals.js** | **Proposal bus.** blPropose, blCommitProposal, blDismissProposal, blRevertProposal, blApplyChanges, blGetPending, blGetProposalLog, render functions. Loaded by: dailyplan, week, goals, bodyscan. | 17kb |
+| bl-changelog.js | Legacy changelog utility (kept; superseded by bl-proposals for new work) | 12kb |
+| coach.js | Floating coach. Reads coachNotes + gapBridge in system prompt. saveNewInfo() → blPropose('coach') + immediate commit. | 87kb |
+| dp-plan.js | buildPlan() — pure data, no DOM. Reads profile fields for day plan. | 51kb |
+| dp-memory.js | Behaviour memory engine | 10kb |
+| dp-debrief.js | Debrief conversation + notification engine | 19kb |
+| dp-reconcile.js | Weekly reconciliation (structure only — logic not built) | 14kb |
+| activitylog.js | Activity log overlay | 21kb |
+| risk-classifier.js | Health risk pre-pass before coaching advice | 18kb |
+| page-generator.js | Page generation utilities | 67kb |
+| profile-inject.js / profile-manager.js | Profile utilities | 15kb / 24kb |
+| pwa.js | PWA install prompt | 12kb |
+| api/chat.js | Vercel serverless Claude proxy | 4kb |
+| api/tts.js | TTS proxy | 4kb |
+| sw.js | Service worker | 6kb |
+
+---
+
+## Daily Plan — Technical Detail
+
+On load:
+1. `_blInit()` runs immediately from localStorage
+2. `TODAY = getTodayCtx(P)` — reads weekPlan + week override
+3. **Cache mismatch check** — if cached plan training status ≠ TODAY.isTraining, bust cache
+4. If valid cache: `renderPlan(cached)` → `renderRecentChangeBanner(P)`
+5. If no cache: "Build today's plan →" → `buildDay()` → `buildPlan()` → `renderPlan()` → `renderRecentChangeBanner(P)`
+6. `generateCoachNarrative()` prompt: protein, macros, week context, injuries, lifts, multiweek signal, **coachNotes**, **gapBridge.weeklyFocus/training/primaryGaps**
+
+### Missed session recovery
+- `getMissedSessions(P)` flags past training days with no `trainStatus: 'done'`
+- Amber "Move → today" chip on week strip missed day
+- `quickRecoverToToday()` → `applyRecovery()` → bust cache → reload
+
+---
+
+## Coach — How It Reads Decisions
+
+`buildSystemPrompt()` injects into every conversation:
+- `behaviourMemory` — compliance score, flags, patterns, recent weeks
+- `profile.overlays` — as "ACTIVE DAILY OVERLAYS"
+- `profile.coachNotes` — as "PROGRAMME NOTES" (key field — every committed decision lands here)
+- `profile.gapBridge` — weeklyFocus, currentPhase, primaryGaps, coachContext
+
+---
+
+## Deployment — CRITICAL
+
+**Before every session:** fetch key deployed files and compare sizes to local. If different, identify which is correct before building anything.
+
+**Never** ship a file that depends on another file that isn't confirmed deployed.
+
+**After every upload:** browser-test the critical path. Don't declare done until it works live.
+
+---
+
+## Known Issues
+
+| # | Issue | Status |
+|---|-------|--------|
+| 1 | `activities` + `week_ledger` Supabase tables missing | Run supabase-schema-missing-tables.sql |
+| 2 | Weekly reconciliation pass not built | dp-reconcile.js exists; cron + day_log read + blPropose needed |
+| 3 | trainingEmphasis not read by coach or daily plan | profile.trainingEmphasis exists but unused |
+| 4 | Decisions page not independently synced to Supabase | Travels via bl_profile — not independently queryable |
+| 5 | Auth gate / paywall not live | Built but not deployed |
+
+---
+
+## What's Live
+
+- Full onboarding → programme generation
+- Daily plan with missed session recovery, coach narrative reads decisions, plan updated banner
+- Proposal bus (goals, coach, body scan wired)
+- Decisions page — full audit trail with revert
+- Week page with session detail, pending proposals panel, decision log
+- Goal gap analysis → staged proposals
 - Science library (15+ pages)
-- Food, fridge, supplement, goals, body scan, body mapper, podcast pages
-- Theme toggle jade/rose
-- Profile: PIN vault + JSON export/import
-- Google OAuth — live and integrated, session persists
-- Supabase sync — profile + day_logs + macros + meal_plans live
-- Data sync page at /bodylens-sync
+- Fridge (iPhone photo fix), supplements (full catalogue CSS), body scan (logs to audit trail)
+- Google OAuth + Supabase sync live
 - PWA installable
 
-## What's Not Built Yet
+## What's Not Built
 
-- Auth gate
-- Weekly review / progress visualisation
-- Apple Health / Garmin integration
-- Training weight log + PR detection
+- Weekly reconciliation (Monday cron → adapt from logs → blPropose)
+- Auth gate / trial / Stripe
+- Progress photo comparison
+- Streak counter
 - Push notifications
+- Weekly coaching email
+- Wearable integration (Oura, Apple Health)
 
 ---
 
-## Business Context
-
-- **Not a fitness app** — health intelligence. The empty category.
-- **Tiers:** Free (science only) / Personal £14.99/mo / Performance £39.99/mo
-- **Target:** £500k ARR = 2,800 subscribers = financial independence
-- **Path to £2M ARR:** 9,000 Personal + 500 Performance. 40-45% probability. 24 months.
-- **Retention is everything.** 85%+ at 90 days.
-
----
-
-## Starting a New Claude Session
-
-Paste this at the start:
+## Starting a New Session
 
 > I'm continuing work on BodyLens — my AI health platform. Read the full project brief at: https://raw.githubusercontent.com/Schnufdi/Soma/main/README.md
 >
