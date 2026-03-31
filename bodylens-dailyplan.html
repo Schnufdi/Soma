@@ -3401,11 +3401,13 @@ function renderWeekStrip(p,t){
       var _dd=new Date(_mon2);_dd.setDate(_mon2.getDate()+i);
       isPastMissed=isTr&&_dd<new Date(_now2.toDateString());
     }
-    return '<div class="ws-day '+(isTr?'train':'rest')+' '+(isToday?'today':'')+' '+(isDone?'done':'')+' '+(isPastMissed?'missed':'')+' '+(isRecovered?'recovered':'')+'" onclick="wsDayClick('+i+')">' 
+    var _mc=(isPastMissed&&!isDone)?'<div onclick="event.stopPropagation();quickRecoverToToday()" style="font-size:8px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#0c1010;background:var(--amber);border-radius:3px;padding:2px 5px;margin-top:3px;cursor:pointer;">Move → today</div>':'';
+    return '<div class="ws-day '+(isTr?'train':'rest')+' '+(isToday?'today':'')+' '+(isDone?'done':'')+' '+(isPastMissed?'missed':'')+' '+(isRecovered?'recovered':'')+'" onclick="wsDayClick('+i+')">'
       +'<div class="ws-day-num">'+dateNum+'</div>'
       +'<div class="ws-day-name">'+n.slice(0,3)+'</div>'
       +'<div class="ws-day-type">'+(dp.type||'Rest')+'</div>'
       +(isDone?'<div class="ws-day-tick">&#10003;</div>':'')
+      +_mc
       +'</div>';
   }).join('');
 }
@@ -5976,6 +5978,20 @@ function rmCheckConfirm() {
   if (btn) btn.disabled = !allSelected;
 }
 
+function quickRecoverToToday() {
+  var p = P;
+  if (!p) return;
+  var missed = getMissedSessions(p);
+  if (!missed.length) return;
+  var todayIdx = (new Date().getDay() + 6) % 7;
+  applyRecovery(p, missed[0], todayIdx);
+  var today = new Date().toISOString().slice(0,10);
+  ['dayplan_v6r3_','dayplan_v6r2_','bl_macros_'].forEach(function(k){
+    try{localStorage.removeItem(k+today);}catch(e){}
+  });
+  location.reload();
+}
+
 function confirmRecovery() {
   var p = P;
   var ml = window._rmMissedList || [];
@@ -7214,12 +7230,21 @@ window._blInit = function init(){
       cached = null;
     }
   }
+  // Validate cache matches TODAY's actual day type (recovery overrides can change this)
+  if (cached && cached.blocks && cached.blocks.length >= 3) {
+    var cachedIsTraining = cached.isTraining === true || (cached.dayType && cached.dayType !== 'Rest');
+    if (cachedIsTraining !== TODAY.isTraining) {
+      try { localStorage.removeItem(TODAY.cacheKey); } catch(e) {}
+      cached = null;
+    }
+  }
   if(cached && cached.blocks && cached.blocks.length >= 3){
     // Plan already built today — show immediately, no interaction needed
     renderPlan(cached);
     refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, cached);
+    renderRecentChangeBanner(P);
     setTimeout(initDayCapture, 100);
     return;
   }
@@ -7482,6 +7507,18 @@ async function generateCoachNarrative(p, t, plan) {
       return ' KEY LIFTS: ' + t.slice(1, 4).join(', ') + '.';
     })()
     + _multiWeekSignal
+    + (function() {
+      var lines = [];
+      var _cn = p.coachNotes || '';
+      if (_cn.trim()) lines.push('PROGRAMME NOTES: ' + _cn.trim().replace(/\n/g,' · ').slice(0,200));
+      var gb = p.gapBridge;
+      if (gb) {
+        if (gb.weeklyFocus) lines.push('CURRENT FOCUS: ' + gb.weeklyFocus);
+        if (gb.training && gb.training.length) lines.push('TRAINING EMPHASIS: ' + gb.training.map(function(t){return t.change;}).join(', '));
+        if (gb.primaryGaps && gb.primaryGaps.length) lines.push('PRIMARY GAPS: ' + gb.primaryGaps.join(' | ').slice(0,150));
+      }
+      return lines.length ? '\n\n' + lines.join('\n') : '';
+    })()
     + (function() {
       try {
         var tf = window._tensionResult;
@@ -7816,6 +7853,7 @@ function buildDay(){
     var plan = buildPlan(P, TODAY);
     try { localStorage.setItem(TODAY.cacheKey, JSON.stringify(plan)); } catch(e){}
     renderPlan(plan);
+    renderRecentChangeBanner(P);
     // ── Risk advisory banner (show once per day) ──────────
     if (typeof BL_RISK !== 'undefined') {
       var _seenKey = 'bl_risk_seen_' + new Date().toDateString();
@@ -9835,7 +9873,42 @@ window._gcLaunchFromBlock = function(blockIdx, block) {
 </script>
 <script src="/dp-memory.js"></script>
 <script src="/dp-debrief.js"></script>
-<script src="/dp-reconcile.js"></script>
+<script src="/dp-reconcile.js">
+// Show a compact banner when decisions were committed in the last 48h
+function renderRecentChangeBanner(p) {
+  try {
+    var log = JSON.parse(localStorage.getItem('bl_proposal_log') || '[]');
+    if (!log.length) return;
+    var cutoff = Date.now() - (48 * 60 * 60 * 1000);
+    var recent = log.filter(function(e) {
+      return e.status === 'committed' && new Date(e.committedAt || e.ts).getTime() > cutoff;
+    });
+    if (!recent.length) return;
+    var chips = [];
+    recent.forEach(function(entry) {
+      (entry.changes || []).forEach(function(c) {
+        var skip = ['gapBridge.applied','coachNotes.append','gapBridge.change1','gapBridge.change2','gapBridge.change3'].indexOf(c.field) >= 0;
+        if (!skip && c.before !== c.after && c.before !== undefined && c.before !== '—' && c.before !== 'Inactive') {
+          chips.push('<span style="font-size:10px;font-weight:600;color:var(--dk-1);background:rgba(0,200,160,.08);border:1px solid rgba(0,200,160,.2);border-radius:4px;padding:2px 8px;white-space:nowrap;">'
+            + (c.label||c.field) + ': ' + (c.before||'—') + ' → ' + (c.after||'—') + '</span>');
+        }
+      });
+    });
+    if (!chips.length) return;
+    var existing = document.getElementById('bl-changes-banner');
+    if (existing) existing.remove();
+    var el = document.createElement('div');
+    el.id = 'bl-changes-banner';
+    el.style.cssText = 'padding:10px 16px;background:rgba(0,200,160,.05);border-bottom:1px solid rgba(0,200,160,.12);display:flex;align-items:center;gap:8px;flex-wrap:wrap;';
+    el.innerHTML = '<span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);flex-shrink:0;">Plan updated</span>'
+      + chips.join('')
+      + '<a href="/bodylens-decisions.html" style="font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);text-decoration:none;margin-left:auto;flex-shrink:0;">View log →</a>';
+    var root = document.getElementById('day-root');
+    if (root && root.firstChild) root.insertBefore(el, root.firstChild);
+    else if (root) root.appendChild(el);
+  } catch(e) {}
+}
+</script>
 
 <!-- ── Session Editor Drawer ─────────────────────────── -->
 <div id="se-overlay" onclick="closeSessionEditor()"></div>
