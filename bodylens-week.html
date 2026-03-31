@@ -107,6 +107,20 @@ body{background:var(--ink);color:var(--dk-1);}
 .rs-apply{flex:1;background:var(--jade);color:var(--ink);border:none;border-radius:8px;padding:13px;font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer;}
 .rs-reject{background:none;border:1px solid var(--bd);color:var(--dk-3);font-family:var(--sans);font-size:12px;padding:13px 18px;border-radius:8px;cursor:pointer;}
 .rs-error{font-size:12px;color:var(--red);text-align:center;margin-top:12px;}
+.rs-assign-row{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.rs-assign-row:last-of-type{border-bottom:none;}
+.rs-assign-from{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.rs-assign-fromday{font-size:11px;font-weight:300;color:var(--dk-3);}
+.rs-assign-arrow{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:8px;}
+.rs-assign-btns{display:flex;flex-wrap:wrap;gap:6px;}
+.rs-day-btn{background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:7px;color:var(--dk-2);font-family:var(--sans);font-size:11px;font-weight:600;padding:7px 12px;cursor:pointer;position:relative;transition:all .1s;}
+.rs-day-btn:hover:not(.rs-day-busy){border-color:var(--jade);color:var(--jade);}
+.rs-day-btn.selected{background:rgba(0,200,160,.12);border-color:var(--jade);color:var(--jade);}
+.rs-day-busy{opacity:.5;}
+.rs-day-busy-dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--amber);margin-left:4px;vertical-align:middle;position:relative;top:-1px;}
+.rs-day-drop{color:rgba(220,80,60,.7);border-color:rgba(220,80,60,.2);}
+.rs-day-drop:hover{border-color:rgba(220,80,60,.5)!important;color:var(--red)!important;}
+.rs-day-drop.selected{background:rgba(220,80,60,.1);border-color:rgba(220,80,60,.4);color:var(--red);}
 @keyframes spin{to{transform:rotate(360deg);}}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,200,160,.2);border-top-color:var(--jade);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px;}
 .wk-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--jade);color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:700;padding:10px 22px;border-radius:20px;z-index:9999;pointer-events:none;transition:transform .25s ease;}
@@ -340,107 +354,85 @@ function openReshuffle(){
   var missed=getMissed(p);if(!missed.length)return;
   var ex=document.getElementById('rs-overlay');if(ex)ex.remove();
   var ti=todayIdx();
-  var missedHTML=missed.map(function(m){
-    return '<div class="rs-missed-row"><span class="rs-missed-badge">Missed</span><span class="rs-missed-name">'+m.type+'</span><span class="rs-missed-day">('+m.day+')</span></div>';
+
+  // Build rows: one per missed session, each with day-picker buttons
+  var rowsHTML=missed.map(function(m,mi){
+    var btns='';
+    for(var i=ti;i<7;i++){
+      if(i===m.idx)continue; // skip the source day itself
+      var wp=getEffDay(p,i);
+      var isBusy=(wp.priority==='training');
+      btns+='<button class="rs-day-btn'+(isBusy?' rs-day-busy':'')+'" data-mi="'+mi+'" data-target="'+i+'" onclick="rsSelectDay(this,'+mi+','+i+')" '+(isBusy?'title="Already has '+wp.type+'"':'')+'>'
+        +DNS3[i]
+        +(isBusy?'<span class="rs-day-busy-dot"></span>':'')
+      +'</button>';
+    }
+    btns+='<button class="rs-day-btn rs-day-drop" data-mi="'+mi+'" data-target="-1" onclick="rsSelectDay(this,'+mi+',-1)">Drop</button>';
+    return '<div class="rs-assign-row" id="rs-row-'+mi+'">'
+      +'<div class="rs-assign-from">'
+        +'<span class="rs-missed-badge">'+m.type+'</span>'
+        +'<span class="rs-assign-fromday">'+m.day+'</span>'
+      +'</div>'
+      +'<div class="rs-assign-arrow">&#8594; move to</div>'
+      +'<div class="rs-assign-btns">'+btns+'</div>'
+    +'</div>';
   }).join('');
-  var slotsHTML='';
-  for(var i=ti;i<7;i++){
-    var wp=getEffDay(p,i);
-    var isT=(wp.priority==='training');
-    var label=(i===ti?'Today ('+DNS[i]+')':DNS[i]);
-    var sub=(isT?'Planned: '+wp.type:'Rest &mdash; available');
-    slotsHTML+='<div class="rs-slot '+(isT?'busy':'free')+'"><div class="rs-slot-day">'+label+'</div><div class="rs-slot-type">'+sub+'</div></div>';
-  }
+
   var el=document.createElement('div');
   el.id='rs-overlay';
   el.innerHTML='<div class="rs-modal">'
     +'<div class="rs-hd"><div class="rs-title">Reshuffle week</div><button class="rs-close" onclick="closeReshuffle()">&#10005;</button></div>'
-    +'<div class="rs-section">Missed sessions</div>'+missedHTML
-    +'<div class="rs-section">Available slots this week</div><div class="rs-slots">'+slotsHTML+'</div>'
-    +'<div class="rs-note">AI will optimise for your age ('+(p.age||44)+'), recovery, and session sequencing. May drop a session if the week is too compressed.</div>'
-    +'<button class="rs-btn" id="rs-run-btn" onclick="runReshuffle()">&#9889; Let AI reshuffle my week</button>'
-    +'<div id="rs-result"></div>'
+    +'<div class="rs-section">Move missed sessions</div>'
+    +rowsHTML
+    +'<div class="rs-note" style="margin-top:16px;">Select a target day for each session. Days with a dot already have a session.</div>'
+    +'<button class="rs-btn" id="rs-apply-btn" onclick="applyReshuffle()" disabled style="opacity:.4;cursor:not-allowed;">Apply changes</button>'
   +'</div>';
   el.addEventListener('click',function(e){if(e.target===el)closeReshuffle();});
   document.body.appendChild(el);
+  window._rsAssignments=missed.map(function(){return null;});
+  window._rsMissed=missed;
+}
+
+function rsSelectDay(btn,mi,targetIdx){
+  // Deselect siblings in same row
+  var row=document.getElementById('rs-row-'+mi);
+  row.querySelectorAll('.rs-day-btn').forEach(function(b){b.classList.remove('selected');});
+  btn.classList.add('selected');
+  window._rsAssignments[mi]=targetIdx;
+  // Enable apply when all sessions have a target
+  var allSet=window._rsAssignments.every(function(a){return a!==null;});
+  var applyBtn=document.getElementById('rs-apply-btn');
+  if(applyBtn){applyBtn.disabled=!allSet;applyBtn.style.opacity=allSet?'1':'0.4';applyBtn.style.cursor=allSet?'pointer':'not-allowed';}
 }
 
 function closeReshuffle(){
   var el=document.getElementById('rs-overlay');if(el)el.remove();
 }
 
-async function runReshuffle(){
-  var p=getProfile();if(!p)return;
-  var missed=getMissed(p);
-  var ti=todayIdx();
-  var btn=document.getElementById('rs-run-btn');
-  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Thinking&hellip;';}
-  var lines=DNS.map(function(day,i){
-    var wp=getEffDay(p,i);
-    var marker=(i===ti?' <- TODAY':i<ti?(missed.find(function(m){return m.idx===i;})?'<- MISSED':'<- past'):'');
-    return day+': '+wp.type+' ('+wp.priority+')'+marker;
-  });
-  var missedStr=missed.map(function(m){return m.type+' ('+m.day+')';}).join(', ');
-  var prompt='Optimise a training week reshuffle for a '+(p.age||44)+'-year-old.\n\nCURRENT WEEK:\n'+lines.join('\n')+'\n\nMISSED: '+missedStr+'\nToday: '+DNS[ti]+'\nTraining days/week: '+(p.trainingDays||4)+'\nGoal: '+(p.goal||'Body recomposition')+'\n\nRULES:\n- Avoid 3 hard sessions back-to-back without rest\n- Posterior Chain needs 48h before pressing\n- Push and Pull can run consecutive\n- OK to drop a session if too compressed\n\nReturn ONLY valid JSON (no markdown):\n{"rationale":"one paragraph","schedule":[{"dayIdx":1,"day":"Tuesday","type":"Push","priority":"training","note":"Rescheduled from Monday"}],"dropped":[],"warning":""}\n\nOnly include CHANGED days. Return ONLY the JSON.';
-  try{
-    var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})});
-    var data=await res.json();
-    var raw=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
-    var result=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    window._reshuffleResult=result;
-    showReshuffleResult(result);
-  }catch(e){
-    var rd=document.getElementById('rs-result');
-    if(rd)rd.innerHTML='<div class="rs-error">Something went wrong &mdash; try again.</div>';
-    if(btn){btn.disabled=false;btn.innerHTML='&#9889; Try again';}
-  }
-}
-
-function showReshuffleResult(result){
-  var btn=document.getElementById('rs-run-btn');if(btn)btn.style.display='none';
-  var rows=(result.schedule||[]).map(function(s){
-    return '<div class="rs-change-row '+(s.priority==='training'?'train':'')+'">'
-      +'<div class="rs-change-day">'+s.day+'</div>'
-      +'<div class="rs-change-type">'+s.type+'</div>'
-      +(s.note?'<div class="rs-change-note">'+s.note+'</div>':'')
-    +'</div>';
-  }).join('');
-  var warn=result.warning?'<div class="rs-warning">&#9888; '+result.warning+'</div>':'';
-  var dropped=(result.dropped&&result.dropped.length&&result.dropped[0])?'<div class="rs-warning">Session dropped: '+result.dropped.join(', ')+'</div>':'';
-  document.getElementById('rs-result').innerHTML=
-    '<div class="rs-result">'
-    +'<div class="rs-result-label">Proposed changes</div>'
-    +rows
-    +'<div class="rs-rationale">'+(result.rationale||'')+'</div>'
-    +warn+dropped
-    +'<div class="rs-actions">'
-      +'<button class="rs-apply" onclick="applyReshuffle()">Apply reshuffle</button>'
-      +'<button class="rs-reject" onclick="closeReshuffle()">Keep original</button>'
-    +'</div>'
-  +'</div>';
-}
-
 function applyReshuffle(){
-  var result=window._reshuffleResult;if(!result)return;
   var p=getProfile();if(!p)return;
+  var missed=window._rsMissed||[];
+  var assignments=window._rsAssignments||[];
   var ov=loadOverride();
-  // Write the rescheduled destination days
-  (result.schedule||[]).forEach(function(s){
-    ov[s.dayIdx]={type:s.type,priority:s.priority,source:'reshuffle',note:s.note||'',reshuffledAt:new Date().toISOString()};
-  });
-  // Mark the source (missed) days as vacated — the AI only returns destination days
-  var missed=getMissed(p);
-  missed.forEach(function(m){
-    if(!ov[m.idx]){
-      ov[m.idx]={type:'Rest',priority:'rest',source:'reshuffle',note:'Session moved',reshuffledAt:new Date().toISOString()};
+  var now=new Date().toISOString();
+
+  assignments.forEach(function(targetIdx,mi){
+    var m=missed[mi];
+    // Mark source day as vacated
+    ov[m.idx]={type:'Rest',priority:'rest',source:'reshuffle',note:targetIdx===-1?'Session dropped':'Session moved to '+DNS[targetIdx],reshuffledAt:now};
+    if(targetIdx!==-1){
+      // Copy the FULL original plan details to the target day
+      var srcPlan=(p.weekPlan||[])[m.idx]||{};
+      ov[targetIdx]=Object.assign({},srcPlan,{source:'reshuffle',note:'Rescheduled from '+m.day,reshuffledAt:now});
     }
   });
   saveOverride(ov);
+
   missed.forEach(function(m){
     var existing=loadLog(m.ds)||{};
     existing.trainStatus='skipped';
     existing.trainNote='Missed - reshuffled '+new Date().toLocaleDateString('en-GB');
-    existing.updatedAt=new Date().toISOString();
+    existing.updatedAt=now;
     try{localStorage.setItem('bl_daylog_'+m.ds,JSON.stringify(existing));}catch(e){}
   });
   var today=new Date().toISOString().slice(0,10);
