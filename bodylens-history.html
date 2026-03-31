@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="history">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>BodyLens — Performance Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── Page shell ─────────────────────────────── */
+.hist-page {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+.hist-hero {
+  margin-bottom: 32px;
+}
+.hist-kicker {
+  font-size: 9px; font-weight: 700; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--jade);
+  margin-bottom: 8px;
+}
+.hist-title {
+  font-family: var(--serif);
+  font-size: 36px; font-weight: 300;
+  color: var(--dk-1); letter-spacing: -.01em;
+  line-height: 1.1; margin-bottom: 6px;
+}
+.hist-sub {
+  font-size: 12px; font-weight: 300;
+  color: var(--dk-3); line-height: 1.6;
+}
+
+/* ── Trend strip (4-week summary) ─────────────── */
+.trend-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.trend-card {
+  background: var(--ink-1);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+  text-align: center;
+}
+.trend-val {
+  font-size: 26px; font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1; margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.trend-val.good   { color: var(--jade); }
+.trend-val.warn   { color: var(--amber); }
+.trend-val.bad    { color: var(--red); }
+.trend-val.neutral{ color: var(--dk-2); }
+.trend-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--dk-3);
+}
+.trend-sub {
+  font-size: 10px; font-weight: 300;
+  color: var(--dk-3); margin-top: 3px;
+}
+
+/* ── Week navigator ──────────────────────────── */
+.week-nav {
+  display: flex; align-items: center;
+  gap: 12px; margin-bottom: 20px;
+}
+.week-nav-btn {
+  background: var(--ink-1);
+  border: 1px solid var(--bd);
+  color: var(--dk-2);
+  font-family: var(--sans); font-size: 16px;
+  width: 36px; height: 36px;
+  border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s; flex-shrink: 0;
+}
+.week-nav-btn:hover:not(:disabled) {
+  border-color: var(--jade); color: var(--jade);
+}
+.week-nav-btn:disabled { opacity: .3; cursor: not-allowed; }
+.week-nav-label {
+  flex: 1; text-align: center;
+  font-size: 13px; font-weight: 600; color: var(--dk-1);
+}
+.week-nav-sub {
+  font-size: 10px; font-weight: 300;
+  color: var(--dk-3); display: block;
+}
+.week-today-btn {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  background: none; border: 1px solid var(--jade-br);
+  color: var(--jade); padding: 6px 12px;
+  border-radius: 6px; cursor: pointer;
+  font-family: var(--sans); transition: all .12s;
+}
+.week-today-btn:hover { background: var(--jade-dim); }
+
+/* ── Week score bar ──────────────────────────── */
+.week-score-bar {
+  display: flex; gap: 8px; align-items: center;
+  margin-bottom: 16px;
+  background: var(--ink-1);
+  border: 1px solid var(--bd);
+  border-radius: 10px; padding: 12px 16px;
+}
+.wsb-stat { flex: 1; text-align: center; }
+.wsb-val {
+  font-size: 18px; font-weight: 700;
+  color: var(--dk-1); letter-spacing: -.02em;
+}
+.wsb-val.good  { color: var(--jade); }
+.wsb-val.warn  { color: var(--amber); }
+.wsb-val.bad   { color: var(--red); }
+.wsb-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dk-3); margin-top: 2px;
+}
+.wsb-div {
+  width: 1px; height: 28px;
+  background: var(--bd);
+}
+
+/* ── Day cards grid ──────────────────────────── */
+.day-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.day-card {
+  background: var(--ink-1);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color .12s;
+}
+.day-card:hover { border-color: var(--bd-2); }
+.day-card.today-card { border-color: rgba(0,200,160,.25); }
+.day-card.future-card { opacity: .45; }
+
+.dc-header {
+  display: flex; align-items: center;
+  gap: 12px; padding: 14px 16px;
+  cursor: pointer; user-select: none;
+}
+.dc-date-block { flex-shrink: 0; text-align: center; width: 44px; }
+.dc-day-name {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dk-3);
+}
+.dc-day-num {
+  font-size: 22px; font-weight: 700;
+  color: var(--dk-1); line-height: 1.1;
+  letter-spacing: -.02em;
+}
+.dc-type-badge {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 4px;
+  flex-shrink: 0;
+}
+.dc-type-badge.training { background: rgba(0,200,160,.1); color: var(--jade); }
+.dc-type-badge.rest     { background: rgba(255,255,255,.05); color: var(--dk-3); }
+.dc-type-badge.future   { background: rgba(255,255,255,.03); color: var(--dk-3); }
+
+.dc-metrics {
+  flex: 1; display: flex; gap: 16px; flex-wrap: wrap;
+}
+.dc-metric { text-align: left; }
+.dc-metric-val {
+  font-size: 13px; font-weight: 600;
+  color: var(--dk-1);
+}
+.dc-metric-val.hit    { color: var(--jade); }
+.dc-metric-val.miss   { color: var(--amber); }
+.dc-metric-val.skip   { color: var(--red); }
+.dc-metric-val.rest   { color: var(--dk-3); }
+.dc-metric-val.empty  { color: var(--dk-3); }
+.dc-metric-label {
+  font-size: 9px; font-weight: 600;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--dk-3); margin-top: 1px;
+}
+
+.dc-status-icon {
+  font-size: 16px; flex-shrink: 0;
+}
+.dc-edit-btn {
+  background: none;
+  border: 1px solid var(--bd);
+  color: var(--dk-3); font-family: var(--sans);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 5px 10px; border-radius: 5px;
+  cursor: pointer; transition: all .12s;
+  flex-shrink: 0;
+}
+.dc-edit-btn:hover { border-color: var(--jade); color: var(--jade); }
+
+/* ── Expanded day detail ──────────────────────── */
+.dc-detail {
+  display: none;
+  border-top: 1px solid var(--bd);
+  padding: 16px 16px 20px;
+}
+.day-card.open .dc-detail { display: block; }
+
+.dc-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (max-width: 480px) {
+  .dc-detail-grid { grid-template-columns: 1fr; }
+}
+.dc-detail-block {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.ddb-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dk-3); margin-bottom: 8px;
+}
+.ddb-row {
+  display: flex; justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+.ddb-row:last-child { margin-bottom: 0; }
+.ddb-key {
+  font-size: 11px; font-weight: 300;
+  color: var(--dk-3);
+}
+.ddb-val {
+  font-size: 12px; font-weight: 600;
+  color: var(--dk-1);
+}
+.ddb-val.hit  { color: var(--jade); }
+.ddb-val.miss { color: var(--amber); }
+.ddb-val.skip { color: var(--red); }
+.ddb-val.none { color: var(--dk-3); font-weight: 300; }
+
+/* Progress bar */
+.ddb-bar-wrap {
+  height: 4px; background: rgba(255,255,255,.07);
+  border-radius: 2px; margin-top: 4px; overflow: hidden;
+}
+.ddb-bar-fill {
+  height: 100%; border-radius: 2px;
+  transition: width .4s ease;
+}
+.ddb-bar-fill.hit  { background: var(--jade); }
+.ddb-bar-fill.warn { background: var(--amber); }
+.ddb-bar-fill.miss { background: var(--red); }
+
+/* Cardio / note row */
+.dc-note-row {
+  font-size: 11px; font-weight: 300;
+  color: var(--dk-2); line-height: 1.5;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.03);
+  border-radius: 6px; margin-top: 4px;
+}
+.dc-note-row.skipped {
+  color: var(--red); opacity: .8;
+}
+
+/* ── Edit panel ──────────────────────────────── */
+.dc-edit-panel {
+  display: none;
+  margin-top: 16px;
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 10px;
+  padding: 16px;
+}
+.dc-edit-panel.active { display: block; }
+.ep-title {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--jade); margin-bottom: 14px;
+}
+.ep-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+@media (max-width: 480px) { .ep-grid { grid-template-columns: 1fr; } }
+.ep-field { display: flex; flex-direction: column; gap: 5px; }
+.ep-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--dk-3);
+}
+.ep-select, .ep-input {
+  background: var(--ink-1);
+  border: 1px solid var(--bd-2);
+  border-radius: 6px;
+  color: var(--dk-1); font-family: var(--sans);
+  font-size: 12px; padding: 8px 10px;
+  appearance: none; -webkit-appearance: none;
+  cursor: pointer; transition: border-color .12s;
+}
+.ep-select:focus, .ep-input:focus {
+  outline: none;
+  border-color: rgba(0,200,160,.4);
+}
+.ep-textarea {
+  background: var(--ink-1);
+  border: 1px solid var(--bd-2);
+  border-radius: 6px;
+  color: var(--dk-1); font-family: var(--sans);
+  font-size: 12px; padding: 8px 10px;
+  resize: vertical; min-height: 60px;
+  line-height: 1.5; width: 100%;
+  box-sizing: border-box;
+  transition: border-color .12s;
+}
+.ep-textarea:focus { outline: none; border-color: rgba(0,200,160,.4); }
+.ep-full { grid-column: 1 / -1; }
+.ep-actions {
+  display: flex; gap: 8px; margin-top: 8px;
+}
+.ep-save {
+  flex: 1; background: var(--jade); color: var(--ink);
+  border: none; border-radius: 7px; padding: 10px;
+  font-family: var(--sans); font-size: 11px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  cursor: pointer; transition: opacity .12s;
+}
+.ep-save:hover { opacity: .9; }
+.ep-cancel {
+  background: none;
+  border: 1px solid var(--bd);
+  color: var(--dk-3); font-family: var(--sans);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 10px 16px; border-radius: 7px; cursor: pointer;
+}
+.ep-cancel:hover { border-color: var(--bd-2); color: var(--dk-2); }
+
+/* ── Empty state ─────────────────────────────── */
+.day-empty {
+  font-size: 11px; font-weight: 300;
+  color: var(--dk-3); font-style: italic;
+  padding: 4px 0;
+}
+
+/* ── No data state ───────────────────────────── */
+.no-data-msg {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--dk-3);
+  font-size: 13px; font-weight: 300;
+  line-height: 1.6;
+}
+
+/* ── Export button ───────────────────────────── */
+.hist-actions {
+  display: flex; justify-content: flex-end;
+  margin-bottom: 20px;
+}
+.hist-export-btn {
+  background: none;
+  border: 1px solid var(--bd);
+  color: var(--dk-3); font-family: var(--sans);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  transition: all .12s;
+}
+.hist-export-btn:hover { border-color: var(--jade); color: var(--jade); }
+
+/* ── Toast ───────────────────────────────────── */
+.hist-toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--jade); color: var(--ink);
+  font-family: var(--sans); font-size: 12px; font-weight: 700;
+  letter-spacing: .05em;
+  padding: 10px 20px; border-radius: 20px;
+  transition: transform .25s ease; z-index: 9999;
+  pointer-events: none;
+}
+.hist-toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="hist-page">
+
+  <div class="hist-hero">
+    <div class="hist-kicker">Performance Log</div>
+    <h1 class="hist-title">Your history.<br><em>Every day, recalled.</em></h1>
+    <p class="hist-sub">All your logged data — training, nutrition, sleep, energy. Browse any week. Edit any day you forgot to log.</p>
+  </div>
+
+  <!-- 4-week trend strip -->
+  <div class="trend-strip" id="trend-strip"></div>
+
+  <!-- Week navigation -->
+  <div class="week-nav">
+    <button class="week-nav-btn" id="prev-week-btn" onclick="shiftWeek(-1)">&#8592;</button>
+    <div style="flex:1;text-align:center;">
+      <div class="week-nav-label" id="week-label">—</div>
+      <span class="week-nav-sub" id="week-sublabel"></span>
+    </div>
+    <button class="week-nav-btn" id="next-week-btn" onclick="shiftWeek(1)">&#8594;</button>
+    <button class="week-today-btn" id="today-btn" onclick="goToCurrentWeek()">Today</button>
+  </div>
+
+  <!-- Week score bar -->
+  <div class="week-score-bar" id="week-score-bar"></div>
+
+  <!-- Export -->
+  <div class="hist-actions">
+    <button class="hist-export-btn" onclick="exportWeekReport()">&#8595; Export this week</button>
+  </div>
+
+  <!-- Day cards -->
+  <div class="day-cards" id="day-cards"></div>
+
+</div>
+
+<!-- Toast -->
+<div class="hist-toast" id="hist-toast">Saved</div>
+
+<script src="nav.js"></script>
+<script src="supabase-auth.js"></script>
+<script>
+'use strict';
+
+// ── Constants ───────────────────────────────────────────────
+const DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DNS3 = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// ── State ────────────────────────────────────────────────────
+var currentWeekOffset = 0; // 0 = this week, -1 = last week, etc.
+var P = null;
+
+// ── Init ─────────────────────────────────────────────────────
+(function init() {
+  try { P = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) {}
+  renderTrendStrip();
+  renderWeek(0);
+})();
+
+// ── Date helpers ─────────────────────────────────────────────
+function getMondayOf(offset) {
+  var now = new Date();
+  var wd = now.getDay();
+  var monday = new Date(now);
+  monday.setDate(now.getDate() - (wd === 0 ? 6 : wd - 1) + (offset * 7));
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+
+function dateStr(d) {
+  return d.toISOString().slice(0,10);
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+}
+
+function isToday(d) {
+  return dateStr(d) === dateStr(new Date());
+}
+
+function isFuture(d) {
+  var today = new Date(); today.setHours(0,0,0,0);
+  return d > today;
+}
+
+// ── Data readers ─────────────────────────────────────────────
+function loadLog(dateString) {
+  try {
+    var raw = localStorage.getItem('bl_daylog_' + dateString);
+    if (!raw) return null;
+    var v = JSON.parse(raw);
+    // Handle sparse logs (just a date string)
+    if (typeof v === 'string') return { date: v };
+    return v;
+  } catch(e) { return null; }
+}
+
+function loadMacros(dateString) {
+  try {
+    var raw = localStorage.getItem('bl_macros_' + dateString);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+function getWeekPlanDay(dayIdx) {
+  if (!P || !P.weekPlan) return { type: 'Rest', priority: 'rest' };
+  return P.weekPlan[dayIdx] || { type: 'Rest', priority: 'rest' };
+}
+
+function getProteinTarget() {
+  return P && P.protein ? P.protein : 174;
+}
+
+function getKcalTarget(isTraining) {
+  if (!P) return 2400;
+  return isTraining ? (P.trainingKcal || P.calories || 2400) : (P.restKcal || 2200);
+}
+
+// ── Trend strip (rolling 4 weeks) ────────────────────────────
+function renderTrendStrip() {
+  var allLogs = [];
+  // Collect last 28 days
+  for (var w = -3; w <= 0; w++) {
+    var mon = getMondayOf(w);
+    for (var d = 0; d < 7; d++) {
+      var day = new Date(mon); day.setDate(mon.getDate() + d);
+      if (isFuture(day)) continue;
+      var ds = dateStr(day);
+      var log = loadLog(ds);
+      var macros = loadMacros(ds);
+      var plan = getWeekPlanDay(d);
+      allLogs.push({ ds, log, macros, plan, day });
+    }
+  }
+
+  var trainDays = allLogs.filter(x => x.plan.priority === 'training');
+  var trainDone = trainDays.filter(x => x.log && x.log.trainStatus === 'done').length;
+  var trainPct = trainDays.length ? Math.round(trainDone / trainDays.length * 100) : 0;
+
+  var daysWithProtein = allLogs.filter(x => {
+    var m = x.macros;
+    if (!m || !m.eaten || !m.eaten.prot) return false;
+    return m.eaten.prot >= getProteinTarget() * 0.9;
+  }).length;
+  var loggedDays = allLogs.filter(x => x.macros && x.macros.eaten && x.macros.eaten.prot > 0).length;
+  var protPct = loggedDays ? Math.round(daysWithProtein / loggedDays * 100) : null;
+
+  var sleepVals = allLogs.filter(x => x.log && x.log.sleepActual > 0).map(x => x.log.sleepActual);
+  var avgSleep = sleepVals.length ? (sleepVals.reduce((a,b)=>a+b,0) / sleepVals.length).toFixed(1) : null;
+
+  var energyVals = allLogs.filter(x => x.log && x.log.energy > 0).map(x => x.log.energy);
+  var avgEnergy = energyVals.length ? (energyVals.reduce((a,b)=>a+b,0) / energyVals.length).toFixed(1) : null;
+
+  var trainCol = trainPct >= 80 ? 'good' : trainPct >= 50 ? 'warn' : 'bad';
+  var protCol = protPct === null ? 'neutral' : protPct >= 80 ? 'good' : protPct >= 55 ? 'warn' : 'bad';
+  var sleepCol = avgSleep === null ? 'neutral' : parseFloat(avgSleep) >= 7.5 ? 'good' : parseFloat(avgSleep) >= 6.5 ? 'warn' : 'bad';
+  var energyCol = avgEnergy === null ? 'neutral' : parseFloat(avgEnergy) >= 3.5 ? 'good' : parseFloat(avgEnergy) >= 2.5 ? 'warn' : 'bad';
+
+  document.getElementById('trend-strip').innerHTML = [
+    { val: trainPct + '%', label: 'Training', sub: trainDone + ' of ' + trainDays.length + ' sessions', col: trainCol },
+    { val: protPct !== null ? protPct + '%' : '—', label: 'Protein hits', sub: '≥90% of target', col: protCol },
+    { val: avgSleep !== null ? avgSleep + 'h' : '—', label: 'Avg sleep', sub: '4-week average', col: sleepCol },
+    { val: avgEnergy !== null ? avgEnergy + '/5' : '—', label: 'Avg energy', sub: '4-week average', col: energyCol },
+  ].map(c => `
+    <div class="trend-card">
+      <div class="trend-val ${c.col}">${c.val}</div>
+      <div class="trend-label">${c.label}</div>
+      <div class="trend-sub">${c.sub}</div>
+    </div>`).join('');
+}
+
+// ── Render a full week ────────────────────────────────────────
+function renderWeek(offset) {
+  currentWeekOffset = offset;
+  var monday = getMondayOf(offset);
+  var sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+
+  // Update nav label
+  var isCurrentWeek = offset === 0;
+  var isPastWeek = offset < 0;
+  document.getElementById('week-label').textContent =
+    fmtDate(monday) + ' – ' + fmtDate(sunday);
+  document.getElementById('week-sublabel').textContent =
+    isCurrentWeek ? 'Current week' : (offset === -1 ? 'Last week' : Math.abs(offset) + ' weeks ago');
+
+  // Nav button states
+  document.getElementById('prev-week-btn').disabled = (offset <= -12);
+  document.getElementById('next-week-btn').disabled = (offset >= 0);
+  document.getElementById('today-btn').style.display = isCurrentWeek ? 'none' : '';
+
+  // Build week data
+  var days = [];
+  for (var d = 0; d < 7; d++) {
+    var day = new Date(monday); day.setDate(monday.getDate() + d);
+    var ds = dateStr(day);
+    days.push({
+      idx: d,
+      day,
+      ds,
+      name: DNS[d],
+      name3: DNS3[d],
+      num: day.getDate(),
+      isToday: isToday(day),
+      isFuture: isFuture(day),
+      plan: getWeekPlanDay(d),
+      log: loadLog(ds),
+      macros: loadMacros(ds),
+    });
+  }
+
+  // Week score bar
+  renderWeekScoreBar(days);
+
+  // Day cards
+  document.getElementById('day-cards').innerHTML =
+    days.map((day, i) => buildDayCard(day, i)).join('');
+}
+
+function renderWeekScoreBar(days) {
+  var trainDays = days.filter(d => d.plan.priority === 'training' && !d.isFuture);
+  var trainDone = trainDays.filter(d => d.log && d.log.trainStatus === 'done').length;
+
+  var protDays = days.filter(d => !d.isFuture && d.macros && d.macros.eaten && d.macros.eaten.prot > 0);
+  var protHit = protDays.filter(d => d.macros.eaten.prot >= getProteinTarget() * 0.9).length;
+
+  var sleepVals = days.filter(d => d.log && d.log.sleepActual > 0).map(d => d.log.sleepActual);
+  var avgSleep = sleepVals.length
+    ? (sleepVals.reduce((a,b)=>a+b,0) / sleepVals.length).toFixed(1)
+    : null;
+
+  var loggedDays = days.filter(d => !d.isFuture && (d.log || d.macros)).length;
+
+  var trainStr = trainDays.length ? trainDone + ' / ' + trainDays.length : '—';
+  var trainCol = trainDays.length
+    ? (trainDone === trainDays.length ? 'good' : trainDone >= trainDays.length * .5 ? 'warn' : 'bad')
+    : 'neutral';
+
+  var protStr = protDays.length ? protHit + ' / ' + protDays.length + ' days' : '—';
+  var protCol = !protDays.length ? 'neutral'
+    : protHit / protDays.length >= .8 ? 'good'
+    : protHit / protDays.length >= .5 ? 'warn' : 'bad';
+
+  document.getElementById('week-score-bar').innerHTML = [
+    { val: trainStr, label: 'Sessions', col: trainCol },
+    null,
+    { val: protStr, label: 'Protein hit', col: protCol },
+    null,
+    { val: avgSleep ? avgSleep + 'h' : '—', label: 'Avg sleep', col: avgSleep ? (parseFloat(avgSleep)>=7.5?'good':parseFloat(avgSleep)>=6.5?'warn':'bad') : 'neutral' },
+    null,
+    { val: loggedDays + ' / 7', label: 'Days logged', col: loggedDays >= 6 ? 'good' : loggedDays >= 4 ? 'warn' : 'bad' },
+  ].map(item => item === null
+    ? '<div class="wsb-div"></div>'
+    : `<div class="wsb-stat"><div class="wsb-val ${item.col}">${item.val}</div><div class="wsb-label">${item.label}</div></div>`
+  ).join('');
+}
+
+// ── Build individual day card ─────────────────────────────────
+function buildDayCard(d, i) {
+  var isTraining = d.plan.priority === 'training';
+  var log = d.log || {};
+  var macros = d.macros || {};
+
+  // Status determination
+  var statusIcon, statusClass;
+  if (d.isFuture) {
+    statusIcon = ''; statusClass = 'future-card';
+  } else if (!isTraining) {
+    statusIcon = log.trainStatus === 'rest' || !log.trainStatus ? '💤' : '💤';
+    statusClass = '';
+  } else if (log.trainStatus === 'done') {
+    statusIcon = '✓'; statusClass = '';
+  } else if (log.trainStatus === 'skipped') {
+    statusIcon = '✗'; statusClass = '';
+  } else if (log.trainStatus === 'modified') {
+    statusIcon = '~'; statusClass = '';
+  } else {
+    statusIcon = d.isToday ? '→' : '?'; statusClass = '';
+  }
+
+  var cardClass = ['day-card', d.isToday ? 'today-card' : '', statusClass].filter(Boolean).join(' ');
+
+  // Type badge
+  var badgeClass = d.isFuture ? 'future' : isTraining ? 'training' : 'rest';
+  var badgeText = d.isFuture ? (isTraining ? d.plan.type : 'Rest') : isTraining ? d.plan.type : 'Rest';
+
+  // Metrics row
+  var metrics = buildMetrics(d, isTraining, log, macros);
+
+  // Expanded detail
+  var detail = d.isFuture ? '' : buildDayDetail(d, isTraining, log, macros);
+
+  // Edit panel
+  var editPanel = d.isFuture ? '' : buildEditPanel(d, isTraining, log, macros);
+
+  return `
+  <div class="${cardClass}" id="dc-${d.ds}">
+    <div class="dc-header" onclick="toggleCard('${d.ds}')">
+      <div class="dc-date-block">
+        <div class="dc-day-name">${d.name3}</div>
+        <div class="dc-day-num">${d.num}</div>
+      </div>
+      <span class="dc-type-badge ${badgeClass}">${badgeText}</span>
+      <div class="dc-metrics">${metrics}</div>
+      <div class="dc-status-icon">${statusIcon}</div>
+      ${!d.isFuture ? `<button class="dc-edit-btn" onclick="event.stopPropagation();openEdit('${d.ds}')">Edit</button>` : ''}
+    </div>
+    ${detail ? `<div class="dc-detail" id="dcd-${d.ds}">${detail}${editPanel}</div>` : ''}
+  </div>`;
+}
+
+function buildMetrics(d, isTraining, log, macros) {
+  var items = [];
+
+  // Training
+  if (isTraining && !d.isFuture) {
+    var ts = log.trainStatus;
+    var tval = ts === 'done' ? 'Done' : ts === 'skipped' ? 'Skipped' : ts === 'modified' ? 'Modified' : '—';
+    var tcol = ts === 'done' ? 'hit' : ts === 'skipped' ? 'skip' : ts === 'modified' ? 'miss' : 'empty';
+    items.push({ val: tval, label: 'Training', col: tcol });
+  }
+
+  // Protein
+  var prot = macros && macros.eaten && macros.eaten.prot;
+  var protTarget = getProteinTarget();
+  if (prot > 0) {
+    var pPct = Math.round(prot / protTarget * 100);
+    var pcol = pPct >= 90 ? 'hit' : pPct >= 65 ? 'miss' : 'skip';
+    items.push({ val: prot + 'g', label: 'Protein', col: pcol });
+  } else {
+    items.push({ val: '—', label: 'Protein', col: 'empty' });
+  }
+
+  // Calories
+  var kcal = macros && macros.eaten && macros.eaten.kcal;
+  if (kcal > 0) {
+    items.push({ val: kcal.toLocaleString(), label: 'kcal', col: 'neutral' });
+  }
+
+  // Sleep
+  if (log.sleepActual > 0) {
+    var scol = log.sleepActual >= 7.5 ? 'hit' : log.sleepActual >= 6.5 ? 'miss' : 'skip';
+    items.push({ val: log.sleepActual + 'h', label: 'Sleep', col: scol });
+  }
+
+  // Energy
+  if (log.energy > 0) {
+    var ecol = log.energy >= 4 ? 'hit' : log.energy >= 3 ? 'miss' : 'skip';
+    items.push({ val: log.energy + '/5', label: 'Energy', col: ecol });
+  }
+
+  if (d.isFuture) {
+    return `<div class="day-empty">Not yet</div>`;
+  }
+
+  if (items.length === 0) {
+    return `<div class="day-empty">Nothing logged</div>`;
+  }
+
+  return items.map(m => `
+    <div class="dc-metric">
+      <div class="dc-metric-val ${m.col}">${m.val}</div>
+      <div class="dc-metric-label">${m.label}</div>
+    </div>`).join('');
+}
+
+function buildDayDetail(d, isTraining, log, macros) {
+  var blocks = [];
+
+  // Training block
+  if (isTraining) {
+    var ts = log.trainStatus || 'not logged';
+    var tsLabel = ts === 'done' ? '✓ Completed' : ts === 'skipped' ? '✗ Skipped' : ts === 'modified' ? '~ Modified' : '— Not logged';
+    var tsClass = ts === 'done' ? 'hit' : ts === 'skipped' ? 'skip' : ts === 'modified' ? 'miss' : 'none';
+
+    var exRows = '';
+    if (log.exercises && Object.keys(log.exercises).length) {
+      var exArr = Object.values(log.exercises);
+      var exDone = exArr.filter(e => e.status === 'done').length;
+      var exSkip = exArr.filter(e => e.status === 'skipped').length;
+      exRows = `<div class="ddb-row"><span class="ddb-key">Exercises</span><span class="ddb-val">${exDone} done${exSkip ? ', ' + exSkip + ' skipped' : ''}</span></div>`;
+    }
+
+    var noteRow = '';
+    if (log.trainNote) {
+      noteRow = `<div class="dc-note-row ${ts === 'skipped' ? 'skipped' : ''}">${log.trainNote}</div>`;
+    }
+    if (log.cardioLogged) {
+      noteRow += `<div class="dc-note-row">Cardio: ${log.cardioLogged.name}${log.cardioLogged.mins ? ' · ' + log.cardioLogged.mins + ' min' : ''}${log.cardioLogged.kcal ? ' · ' + log.cardioLogged.kcal + ' kcal' : ''}</div>`;
+    }
+
+    blocks.push(`
+      <div class="dc-detail-block">
+        <div class="ddb-label">Training</div>
+        <div class="ddb-row"><span class="ddb-key">Status</span><span class="ddb-val ${tsClass}">${tsLabel}</span></div>
+        ${exRows}
+        ${noteRow}
+      </div>`);
+  }
+
+  // Nutrition block
+  var prot = macros && macros.eaten && macros.eaten.prot || 0;
+  var kcal = macros && macros.eaten && macros.eaten.kcal || 0;
+  var carbs = macros && macros.eaten && macros.eaten.carbs || 0;
+  var fat = macros && macros.eaten && macros.eaten.fat || 0;
+  var protTarget = getProteinTarget();
+  var kcalTarget = getKcalTarget(isTraining);
+  var pPct = protTarget ? Math.min(100, Math.round(prot / protTarget * 100)) : 0;
+  var kPct = kcalTarget ? Math.min(120, Math.round(kcal / kcalTarget * 100)) : 0;
+  var pBarClass = pPct >= 90 ? 'hit' : pPct >= 65 ? 'warn' : 'miss';
+  var kBarClass = kPct >= 85 && kPct <= 110 ? 'hit' : 'warn';
+
+  blocks.push(`
+    <div class="dc-detail-block">
+      <div class="ddb-label">Nutrition</div>
+      <div class="ddb-row">
+        <span class="ddb-key">Protein</span>
+        <span class="ddb-val ${pPct>=90?'hit':pPct>=65?'miss':'skip'}">${prot > 0 ? prot + 'g / ' + protTarget + 'g' : '—'}</span>
+      </div>
+      ${prot > 0 ? `<div class="ddb-bar-wrap"><div class="ddb-bar-fill ${pBarClass}" style="width:${pPct}%"></div></div>` : ''}
+      <div class="ddb-row" style="margin-top:6px">
+        <span class="ddb-key">Calories</span>
+        <span class="ddb-val ${kcal>0?(kPct>=85&&kPct<=110?'hit':'miss'):'none'}">${kcal > 0 ? kcal.toLocaleString() + ' / ' + kcalTarget.toLocaleString() : '—'}</span>
+      </div>
+      ${kcal > 0 ? `<div class="ddb-bar-wrap"><div class="ddb-bar-fill ${kBarClass}" style="width:${Math.min(kPct,100)}%"></div></div>` : ''}
+      ${carbs > 0 ? `<div class="ddb-row" style="margin-top:6px"><span class="ddb-key">Carbs</span><span class="ddb-val">${carbs}g</span></div>` : ''}
+      ${fat > 0 ? `<div class="ddb-row"><span class="ddb-key">Fat</span><span class="ddb-val">${fat}g</span></div>` : ''}
+    </div>`);
+
+  // Recovery block
+  var hasSleep = log.sleepActual > 0;
+  var hasEnergy = log.energy > 0;
+  var hasRating = log.rating > 0;
+  var hasNote = log.dayNote;
+
+  if (hasSleep || hasEnergy || hasRating || hasNote) {
+    var sleepCol = !hasSleep ? 'none' : log.sleepActual >= 7.5 ? 'hit' : log.sleepActual >= 6.5 ? 'miss' : 'skip';
+    var energyCol = !hasEnergy ? 'none' : log.energy >= 4 ? 'hit' : log.energy >= 3 ? 'miss' : 'skip';
+    blocks.push(`
+      <div class="dc-detail-block">
+        <div class="ddb-label">Recovery</div>
+        <div class="ddb-row"><span class="ddb-key">Sleep</span><span class="ddb-val ${sleepCol}">${hasSleep ? log.sleepActual + 'h' : '—'}</span></div>
+        <div class="ddb-row"><span class="ddb-key">Energy</span><span class="ddb-val ${energyCol}">${hasEnergy ? log.energy + ' / 5' : '—'}</span></div>
+        <div class="ddb-row"><span class="ddb-key">Day rating</span><span class="ddb-val">${hasRating ? log.rating + ' / 5' : '—'}</span></div>
+        ${hasNote ? `<div class="dc-note-row" style="margin-top:8px;">${log.dayNote}</div>` : ''}
+      </div>`);
+  }
+
+  if (blocks.length === 0) {
+    return '<div class="day-empty" style="padding:4px 0;">No data logged for this day. Tap Edit to add it now.</div>';
+  }
+
+  return `<div class="dc-detail-grid">${blocks.join('')}</div>`;
+}
+
+// ── Edit panel ────────────────────────────────────────────────
+function buildEditPanel(d, isTraining, log, macros) {
+  var prot = macros && macros.eaten && macros.eaten.prot || '';
+  var kcal = macros && macros.eaten && macros.eaten.kcal || '';
+  var carbs = macros && macros.eaten && macros.eaten.carbs || '';
+  var fat = macros && macros.eaten && macros.eaten.fat || '';
+
+  var trainOptions = ['pending','done','skipped','modified','rest'].map(v =>
+    `<option value="${v}" ${(log.trainStatus||'') === v ? 'selected' : ''}>${v.charAt(0).toUpperCase()+v.slice(1)}</option>`
+  ).join('');
+
+  return `
+  <div class="dc-edit-panel" id="ep-${d.ds}">
+    <div class="ep-title">Edit · ${d.name} ${d.num}</div>
+    <div class="ep-grid">
+      ${isTraining ? `
+      <div class="ep-field">
+        <label class="ep-label">Training status</label>
+        <select class="ep-select" id="ep-train-${d.ds}">${trainOptions}</select>
+      </div>` : ''}
+      <div class="ep-field">
+        <label class="ep-label">Protein (g)</label>
+        <input class="ep-input" type="number" id="ep-prot-${d.ds}" value="${prot}" placeholder="${getProteinTarget()}g target" min="0" max="500">
+      </div>
+      <div class="ep-field">
+        <label class="ep-label">Calories (kcal)</label>
+        <input class="ep-input" type="number" id="ep-kcal-${d.ds}" value="${kcal}" placeholder="${getKcalTarget(isTraining)}" min="0" max="6000">
+      </div>
+      <div class="ep-field">
+        <label class="ep-label">Sleep (hours)</label>
+        <input class="ep-input" type="number" id="ep-sleep-${d.ds}" value="${log.sleepActual||''}" placeholder="e.g. 7.5" min="0" max="12" step="0.5">
+      </div>
+      <div class="ep-field">
+        <label class="ep-label">Energy (1-5)</label>
+        <select class="ep-select" id="ep-energy-${d.ds}">
+          <option value="">—</option>
+          ${[1,2,3,4,5].map(v => `<option value="${v}" ${log.energy==v?'selected':''}>${v} — ${{1:'Wrecked',2:'Low',3:'Okay',4:'Good',5:'Excellent'}[v]}</option>`).join('')}
+        </select>
+      </div>
+      ${isTraining ? `
+      <div class="ep-field ep-full">
+        <label class="ep-label">Session note</label>
+        <input class="ep-input" type="text" id="ep-trainnote-${d.ds}" value="${log.trainNote||''}" placeholder="How did it feel?">
+      </div>` : ''}
+      <div class="ep-field ep-full">
+        <label class="ep-label">Day note</label>
+        <textarea class="ep-textarea" id="ep-note-${d.ds}" placeholder="Anything worth remembering...">${log.dayNote||''}</textarea>
+      </div>
+    </div>
+    <div class="ep-actions">
+      <button class="ep-cancel" onclick="closeEdit('${d.ds}')">Cancel</button>
+      <button class="ep-save" onclick="saveEdit('${d.ds}')">Save day</button>
+    </div>
+  </div>`;
+}
+
+// ── Card interactions ──────────────────────────────────────────
+function toggleCard(ds) {
+  var card = document.getElementById('dc-' + ds);
+  if (card) card.classList.toggle('open');
+}
+
+function openEdit(ds) {
+  var card = document.getElementById('dc-' + ds);
+  var panel = document.getElementById('ep-' + ds);
+  if (!card || !panel) return;
+  card.classList.add('open');
+  panel.classList.add('active');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeEdit(ds) {
+  var panel = document.getElementById('ep-' + ds);
+  if (panel) panel.classList.remove('active');
+}
+
+function saveEdit(ds) {
+  var isTraining = (function() {
+    var d = new Date(ds + 'T12:00:00');
+    var wd = d.getDay();
+    var idx = wd === 0 ? 6 : wd - 1;
+    return getWeekPlanDay(idx).priority === 'training';
+  })();
+
+  // Read existing log or create new
+  var log = loadLog(ds) || {};
+  if (typeof log === 'string') log = { date: ds };
+  if (!log.date) log.date = ds;
+
+  // Read macros
+  var macros = loadMacros(ds) || {
+    target: { kcal: getKcalTarget(isTraining), prot: getProteinTarget(), carbs: P&&P.carbs||280, fat: P&&P.fat||80 },
+    eaten: { kcal: 0, prot: 0, carbs: 0, fat: 0 },
+    meals: {}
+  };
+
+  // Training status
+  var trainEl = document.getElementById('ep-train-' + ds);
+  if (trainEl) log.trainStatus = trainEl.value;
+
+  // Macros
+  var protEl = document.getElementById('ep-prot-' + ds);
+  var kcalEl = document.getElementById('ep-kcal-' + ds);
+  if (protEl && protEl.value !== '') macros.eaten.prot = parseFloat(protEl.value) || 0;
+  if (kcalEl && kcalEl.value !== '') macros.eaten.kcal = parseFloat(kcalEl.value) || 0;
+
+  // Recovery
+  var sleepEl = document.getElementById('ep-sleep-' + ds);
+  var energyEl = document.getElementById('ep-energy-' + ds);
+  if (sleepEl && sleepEl.value !== '') log.sleepActual = parseFloat(sleepEl.value) || 0;
+  if (energyEl && energyEl.value !== '') log.energy = parseInt(energyEl.value) || 0;
+
+  // Notes
+  var trainNoteEl = document.getElementById('ep-trainnote-' + ds);
+  var noteEl = document.getElementById('ep-note-' + ds);
+  if (trainNoteEl) log.trainNote = trainNoteEl.value;
+  if (noteEl) log.dayNote = noteEl.value;
+
+  // Timestamps
+  log.updatedAt = new Date().toISOString();
+  if (!log.loggedAt) log.loggedAt = log.updatedAt;
+
+  // Save
+  try {
+    localStorage.setItem('bl_daylog_' + ds, JSON.stringify(log));
+    localStorage.setItem('bl_macros_' + ds, JSON.stringify(macros));
+  } catch(e) { console.error(e); }
+
+  // Re-render this week
+  renderWeek(currentWeekOffset);
+  renderTrendStrip();
+  showToast('Saved');
+}
+
+// ── Week navigation ──────────────────────────────────────────
+function shiftWeek(delta) {
+  var newOffset = currentWeekOffset + delta;
+  if (newOffset > 0 || newOffset < -12) return;
+  renderWeek(newOffset);
+}
+
+function goToCurrentWeek() {
+  renderWeek(0);
+}
+
+// ── Export ───────────────────────────────────────────────────
+function exportWeekReport() {
+  var monday = getMondayOf(currentWeekOffset);
+  var days = [];
+  for (var d = 0; d < 7; d++) {
+    var day = new Date(monday); day.setDate(monday.getDate() + d);
+    var ds = dateStr(day);
+    days.push({ d: day, ds, name: DNS[d], plan: getWeekPlanDay(d), log: loadLog(ds)||{}, macros: loadMacros(ds)||{} });
+  }
+
+  var rows = days.map(d => {
+    var isT = d.plan.priority === 'training';
+    var ts = d.log.trainStatus || (isT ? '—' : 'rest');
+    var prot = d.macros.eaten && d.macros.eaten.prot ? d.macros.eaten.prot + 'g' : '—';
+    var kcal = d.macros.eaten && d.macros.eaten.kcal ? d.macros.eaten.kcal : '—';
+    var sleep = d.log.sleepActual ? d.log.sleepActual + 'h' : '—';
+    var energy = d.log.energy ? d.log.energy + '/5' : '—';
+    return `${d.name}\t${d.plan.type||'Rest'}\t${ts}\t${prot}\t${kcal}\t${sleep}\t${energy}`;
+  }).join('\n');
+
+  var header = 'Day\tType\tTraining\tProtein\tCalories\tSleep\tEnergy\n';
+  var csv = header + rows;
+
+  var blob = new Blob([csv], {type:'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'bodylens-week-' + dateStr(monday) + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported');
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function showToast(msg) {
+  var t = document.getElementById('hist-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
