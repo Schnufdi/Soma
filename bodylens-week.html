@@ -492,7 +492,12 @@ function render(p) {
     var isTraining = wp.priority === 'training';
     var isToday = i === todayI;
     var dayData = ledger ? ledger.days[dayName] : null;
-    var status = dayData ? dayData.status : (isToday ? 'pending' : (i < todayI ? 'missed' : 'upcoming'));
+    var ov_i = loadWkOverride()[i];
+    var wasRescheduled = ov_i && ov_i.source === 'reshuffle';
+    var status = wasRescheduled && i < todayI ? 'substituted'
+      : wasRescheduled && i >= todayI ? (isTraining ? 'upcoming' : 'rest')
+      : dayData ? dayData.status
+      : (isToday ? 'pending' : (i < todayI ? 'missed' : 'upcoming'));
 
     var statusLabel = {
       done:'Done', substituted:'Substituted', partial:'Partial sub',
@@ -547,6 +552,7 @@ function render(p) {
       +exHtml2
       +actsHtml
       +fatHtml
+      +(ov_i&&ov_i.note?'<div style="font-size:8px;font-weight:600;color:var(--jade);margin-top:3px;">↻ '+ov_i.note+'</div>':'')
       +reshuffleBtn
       +'</div>';
   });
@@ -1078,6 +1084,10 @@ function applyPendingReshuffle() {
   });
 
   saveWkOverride(override);
+
+  // Clear week ledger so cards rebuild with new schedule
+  var _mon = _wkOverrideKey().replace('bl_week_override_','');
+  try { localStorage.removeItem('bl_weekledger_' + _mon); } catch(e) {}
 
   // Clear today's day plan cache
   var today = new Date().toISOString().slice(0,10);
