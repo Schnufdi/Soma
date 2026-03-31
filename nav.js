@@ -568,12 +568,17 @@ document.addEventListener('DOMContentLoaded', () => {
     pm.src = '/profile-manager.js';
     document.head.appendChild(pm);
   }
-  // Load Supabase auth
+  // Load sync layer then Supabase auth (bl-sync.js must load first)
   if (!window._sbLoaded) {
     window._sbLoaded = true;
-    const sb = document.createElement('script');
-    sb.src = '/supabase-auth.js';
-    document.head.appendChild(sb);
+    const sync = document.createElement('script');
+    sync.src = '/bl-sync.js';
+    sync.onload = function() {
+      const sb = document.createElement('script');
+      sb.src = '/supabase-auth.js';
+      document.head.appendChild(sb);
+    };
+    document.head.appendChild(sync);
   }
 
 });
