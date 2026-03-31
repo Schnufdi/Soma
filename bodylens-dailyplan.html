@@ -4250,12 +4250,26 @@ async function loadRecipe(slot,blockIdx,btnEl){
     if(btnEl){btnEl.style.display='';btnEl.disabled=false;}
   }
 }
+// ── 7-day recipe cache (survives across days for same profile+macros) ─────────
+function _rCacheKey(slot,mt,p){
+  var raw=[slot,mt.protein,mt.calories,p.dietType||'',(p.foodExclusions||[]).sort().join(',')].join('|');
+  var h=0;for(var i=0;i<raw.length;i++){h=((h<<5)-h)+raw.charCodeAt(i);h|=0;}
+  return 'bl_rc_'+Math.abs(h).toString(36);
+}
+function _rCacheGet(slot,mt,p){
+  try{var d=JSON.parse(localStorage.getItem(_rCacheKey(slot,mt,p))||'null');
+    if(d&&(Date.now()-d.ts)<7*864e5)return d.r;}catch(e){}return null;
+}
+function _rCacheSet(slot,mt,p,recipe){
+  try{localStorage.setItem(_rCacheKey(slot,mt,p),JSON.stringify({r:recipe,ts:Date.now()}));}catch(e){}
+}
+
 async function fetchRecipe(slot,title,mt,forceNew){
   if(!forceNew&&_recipes[slot])return _recipes[slot];
   var p=P;
+  // Check 7-day profile+macro keyed cache before hitting the API
+  if(!forceNew){var cached=_rCacheGet(slot,mt,p);if(cached){_rSave(slot,cached);return cached;}}
   var excl=(p.foodExclusions||[]).join(',')||'none';
-  var cuis=(p.cuisinePrefs||[]).join(',')||'neutral';
-  var shuffleNote=forceNew?'IMPORTANT: Return a completely different meal. Different cuisine, different protein source, different cooking method. Same macro targets.':'';
   var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:220,system:'Nutrition assistant. Return ONLY valid compact JSON. No markdown, no explanation.',
       messages:[{role:'user',content:(forceNew?'Different meal. ':'')+'Meal: '+title+'. Targets: '+mt.protein+'g P, '+mt.carbs+'g C, '+mt.fat+'g F, '+mt.calories+' kcal. Diet:'+(p.dietType||'flex')+' Excl:'+excl+' Return:{"name":"","calories":0,"protein":0,"carbs":0,"fat":0,"prepTime":"<10 min","ingredients":[{"name":"","quantity":""}],"method":"One sentence."}'}]})});
@@ -4265,6 +4279,7 @@ async function fetchRecipe(slot,title,mt,forceNew){
   if(!match)throw new Error('no json');
   var recipe=JSON.parse(match[0]);
   _rSave(slot,recipe);
+  if(!forceNew)_rCacheSet(slot,mt,p,recipe); // save to 7-day cache (not on shuffle — keep variety)
   return recipe;
 }
 function buildRecipeHtml(r,mt,slot,i){
