@@ -8,6 +8,7 @@
     <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
     <a class="nav-link" href="/bodylens-week.html">Week</a>
+    <a class="nav-link" href="/bodylens-history.html">Log</a>
     <span class="nav-divider"></span>
     <a class="nav-link" href="/bodylens-food.html">Food</a>
     <a class="nav-link" href="/bodylens-meals.html">Meals</a>
@@ -51,6 +52,7 @@
   <a class="mm-link" href="/bodylens-dailyplan.html">Today</a>
   <a class="mm-link" href="/bodylens-programme.html">My programme</a>
   <a class="mm-link" href="/bodylens-week.html">This week</a>
+  <a class="mm-link" href="/bodylens-history.html">Performance log</a>
   <a class="mm-link" href="/bodylens-checkin.html">Week review</a>
   <div class="mm-section-label">Food</div>
   <a class="mm-link" href="/bodylens-food.html">Food hub</a>
