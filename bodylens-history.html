@@ -463,6 +463,8 @@ var P = null;
   try { P = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) {}
   renderTrendStrip();
   renderWeek(0);
+  // After initial render, backfill from Supabase for any missing data
+  backfillFromSupabase();
 })();
 
 // ── Date helpers ─────────────────────────────────────────────
@@ -510,6 +512,56 @@ function loadMacros(dateString) {
     if (!raw) return null;
     return JSON.parse(raw);
   } catch(e) { return null; }
+}
+
+// ── Supabase backfill ────────────────────────────────────────
+// After initial localStorage render, fetch any missing day_logs and macros
+// from Supabase so history is visible across devices.
+function backfillFromSupabase() {
+  if (!window.BLSync) return;
+
+  // Determine date range: 12 weeks back (matches max nav offset)
+  var startMon = getMondayOf(-12);
+  var endDate = dateStr(new Date());
+  var startDate = dateStr(startMon);
+  var filled = false;
+
+  var pending = 2;
+  function checkDone() {
+    pending--;
+    if (pending === 0 && filled) {
+      renderTrendStrip();
+      renderWeek(currentWeekOffset);
+    }
+  }
+
+  // Backfill day_logs
+  BLSync.readRange('day_logs', 'date', startDate, endDate, function(rows) {
+    if (rows && rows.length) {
+      rows.forEach(function(row) {
+        var key = 'bl_daylog_' + row.date;
+        if (!localStorage.getItem(key)) {
+          BLSync._origSet(key, JSON.stringify(row.data));
+          filled = true;
+        }
+      });
+    }
+    checkDone();
+  });
+
+  // Backfill macros
+  BLSync.readRange('macros', 'date', startDate, endDate, function(rows) {
+    if (rows && rows.length) {
+      rows.forEach(function(row) {
+        var key = 'bl_macros_' + row.date;
+        if (!localStorage.getItem(key)) {
+          BLSync._origSet(key, JSON.stringify(row.data));
+          filled = true;
+        }
+      });
+    }
+    checkDone();
+  });
 }
 
 function getWeekPlanDay(dayIdx) {
