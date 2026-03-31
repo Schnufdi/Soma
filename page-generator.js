@@ -707,15 +707,21 @@ CRITICAL: Write every word as if you know this person. Use their name. Reference
   // ── LOADING SKELETON ──────────────────────────────────
   function loadingSkeleton(name) {
     return GENERATED_STYLES + `
-      <div style="padding:60px 0;text-align:center;">
+      <div style="padding:60px 24px;text-align:center;max-width:400px;margin:0 auto;">
         <div style="width:36px;height:36px;border:2px solid rgba(255,255,255,0.07);
           border-top-color:#00c8a0;border-radius:50%;
-          animation:spin 0.8s linear infinite;margin:0 auto 16px;"></div>
-        <div style="font-size:13px;font-weight:300;color:#3e504a;">
+          animation:spin 0.8s linear infinite;margin:0 auto 20px;"></div>
+        <div style="font-size:14px;font-weight:300;color:#8a9490;margin-bottom:6px;">
           Building your programme, ${name || 'you'}…
         </div>
-        <div style="font-size:11px;font-weight:300;color:#3e504a;margin-top:6px;opacity:0.7;">
-          This takes 10–20 seconds. Cached after first load.
+        <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin:16px 0 8px;">
+          <div id="bl-gen-progress" style="height:100%;background:#00c8a0;border-radius:2px;width:2%;transition:width 0.4s ease;"></div>
+        </div>
+        <div id="bl-gen-label" style="font-size:10px;font-weight:300;color:#3e504a;letter-spacing:0.04em;">
+          Starting…
+        </div>
+        <div style="font-size:10px;font-weight:300;color:#3e504a;margin-top:8px;opacity:0.5;">
+          Cached after first load — instant next time
         </div>
       </div>`;
   }
@@ -1229,49 +1235,103 @@ CRITICAL: Write every word as if you know this person. Use their name. Reference
     }
 
     await enqueue(async () => { try {
+
+      // ── Streaming fetch with live token counter ───────────────────────────
+      // We stream the response and update a progress indicator while Claude
+      // writes. The full text is accumulated, then parsed and rendered at end.
+      // This makes a 15-30s page feel alive rather than frozen.
       const res = await fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: MODEL,
           max_tokens: 4000,
+          stream: true,
           system: 'You are a senior performance coach writing personalised programme content. Return only valid JSON. No markdown fences. No preamble.',
           messages: [{ role: 'user', content: promptFn(profile) }],
         }),
       });
 
-      const apiData = await res.json();
-      
-      // Check for API errors
-      if (apiData.error) {
-        throw new Error('API error: ' + (apiData.error.message || JSON.stringify(apiData.error)));
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error('API ' + res.status + ': ' + errText.slice(0, 200));
       }
-      
-      const text = apiData.content?.map(b => b.text||'').join('') || '';
-      if (!text) throw new Error('Empty response from API. Status: ' + res.status);
-      
-      // Some page types return plain text, not JSON
-      const plainTextTypes = []; // all page types now return JSON
-      let data;
 
-      if (plainTextTypes.includes(pageType)) {
-        data = text.trim();
-      } else {
-        const match = text.match(/\{[\s\S]*\}/);
-        if (!match) {
-          console.error('Response text (no JSON):', text.slice(0,500));
-          throw new Error('No JSON in response');
+      // Parse SSE stream — accumulate text deltas, update counter on each chunk
+      let fullText = '';
+      let tokenCount = 0;
+      const expectedTokens = 4000;
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      const updateCounter = (count) => {
+        const pct = Math.min(98, Math.round(count / expectedTokens * 100));
+        const el = document.getElementById('bl-gen-progress');
+        if (el) {
+          el.style.width = pct + '%';
+          const label = document.getElementById('bl-gen-label');
+          if (label) label.textContent = 'Writing… ' + count + ' tokens';
         }
-        try {
-          data = JSON.parse(match[0]);
-        } catch(parseErr) {
-          let cleaned = match[0]
-            .replace(/[\x00-\x1F\x7F]/g,' ')
-            .replace(/,\s*}/g,'}')
-            .replace(/,\s*]/g,']');
-          try { data = JSON.parse(cleaned); }
-          catch(e2) { throw new Error('JSON parse error: ' + parseErr.message); }
+      };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process complete SSE lines
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const raw = line.slice(6).trim();
+          if (raw === '[DONE]') continue;
+          try {
+            const evt = JSON.parse(raw);
+            // Anthropic SSE events: content_block_delta has text deltas
+            if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+              fullText += evt.delta.text || '';
+              tokenCount++;
+              // Update counter every ~20 chunks to avoid thrashing the DOM
+              if (tokenCount % 20 === 0) updateCounter(tokenCount);
+            }
+            // message_delta gives final output_tokens count — use for accurate counter
+            if (evt.type === 'message_delta' && evt.usage?.output_tokens) {
+              tokenCount = evt.usage.output_tokens;
+              updateCounter(tokenCount);
+            }
+            // Surface upstream errors
+            if (evt.type === 'error') {
+              throw new Error('Stream error: ' + (evt.error?.message || JSON.stringify(evt.error)));
+            }
+          } catch(parseErr) {
+            // Non-JSON SSE lines (e.g. "event: message_start") — safe to ignore
+          }
         }
+      }
+
+      if (!fullText) throw new Error('Empty response from API');
+
+      // Parse JSON from accumulated text
+      const match = fullText.match(/\{[\s\S]*\}/);
+      if (!match) {
+        console.error('Response text (no JSON):', fullText.slice(0, 500));
+        throw new Error('No JSON in response');
+      }
+
+      let data;
+      try {
+        data = JSON.parse(match[0]);
+      } catch(parseErr) {
+        const cleaned = match[0]
+          .replace(/[\x00-\x1F\x7F]/g, ' ')
+          .replace(/,\s*}/g, '}')
+          .replace(/,\s*]/g, ']');
+        try { data = JSON.parse(cleaned); }
+        catch(e2) { throw new Error('JSON parse error: ' + parseErr.message); }
       }
 
       // Render
@@ -1280,10 +1340,9 @@ CRITICAL: Write every word as if you know this person. Use their name. Reference
       if (typeof renderer === 'function') {
         html = renderer(data, profile);
       } else {
-        html = JSON.stringify(data); // fallback
+        html = JSON.stringify(data);
       }
 
-      // Cache and return
       setCached(pageType, profile, html);
       onComplete && onComplete(html);
 

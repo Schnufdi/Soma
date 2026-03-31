@@ -1,6 +1,7 @@
 // api/chat.js — BodyLens AI proxy
 // API key lives server-side in Vercel env vars — never in the browser.
 // Hardened: model whitelist, token cap, per-IP rate limit, origin check.
+// Streaming: pass stream:true in request body to get SSE back.
 
 const ALLOWED_MODELS = [
   'claude-sonnet-4-20250514',
@@ -25,7 +26,6 @@ function checkRateLimit(ip) {
   const entry = rateLimitStore.get(ip) || { count: 0, windowStart: now };
 
   if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
-    // New window
     entry.count = 1;
     entry.windowStart = now;
   } else {
@@ -34,7 +34,6 @@ function checkRateLimit(ip) {
 
   rateLimitStore.set(ip, entry);
 
-  // Prune old entries every 100 requests to prevent unbounded growth
   if (rateLimitStore.size > 1000) {
     for (const [k, v] of rateLimitStore) {
       if (now - v.windowStart > RATE_LIMIT_WINDOW_MS * 2) rateLimitStore.delete(k);
@@ -77,7 +76,7 @@ export default async function handler(req, res) {
   }
 
   // ── Input validation ────────────────────────────────────
-  const { model, max_tokens, messages, system, stream, ...rest } = req.body || {};
+  const { model, max_tokens, messages, system, stream } = req.body || {};
 
   if (!model || !ALLOWED_MODELS.includes(model)) {
     return res.status(400).json({
@@ -89,13 +88,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'messages array required' });
   }
 
-  // Cap tokens server-side regardless of what client sends
   const safeTokens = Math.min(
     typeof max_tokens === 'number' && max_tokens > 0 ? max_tokens : 500,
     MAX_TOKENS_HARD_CAP
   );
 
-  // Build clean, validated request body
   const safeBody = {
     model,
     max_tokens: safeTokens,
@@ -103,6 +100,63 @@ export default async function handler(req, res) {
     ...(system !== undefined && { system }),
   };
 
+  // ── STREAMING PATH ──────────────────────────────────────
+  // Client sends stream:true → we open an SSE connection and pipe
+  // Anthropic's streaming events straight through to the browser.
+  // The browser reads them with a ReadableStream / EventSource polyfill.
+  if (stream) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // disable Nginx buffering on Vercel
+
+    let upstreamRes;
+    try {
+      upstreamRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':      'application/json',
+          'x-api-key':         apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-beta':    'prompt-caching-2024-07-31',
+        },
+        body: JSON.stringify({ ...safeBody, stream: true }),
+      });
+    } catch (err) {
+      res.write(`event: error\ndata: ${JSON.stringify({ error: 'upstream fetch failed' })}\n\n`);
+      return res.end();
+    }
+
+    if (!upstreamRes.ok) {
+      const errBody = await upstreamRes.text();
+      res.write(`event: error\ndata: ${JSON.stringify({ error: errBody })}\n\n`);
+      return res.end();
+    }
+
+    // Pipe the SSE stream — Anthropic uses the same SSE format so we pass through directly
+    const reader = upstreamRes.body.getReader();
+    const decoder = new TextDecoder();
+
+    const pump = async () => {
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) { res.end(); return; }
+          res.write(decoder.decode(value, { stream: true }));
+        }
+      } catch (e) {
+        res.end();
+      }
+    };
+
+    // Handle client disconnect
+    req.on('close', () => { try { reader.cancel(); } catch(e) {} });
+
+    await pump();
+    return;
+  }
+
+  // ── STANDARD (non-streaming) PATH ──────────────────────
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
