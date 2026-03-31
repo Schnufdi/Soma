@@ -932,23 +932,30 @@ function dbConvDone() {
 }
 
 // ── Finalise (save + compress + close) ──────────────────────────────────────
-async function dbFinalise() {
+// Saves immediately and closes the debrief, then fires memory compression
+// in the background. The user never waits for the AI compression call.
+function dbFinalise() {
   dbWriteToLog();
-  closeDebrief();
+  closeDebrief();  // ← instant — no await
 
+  // Render the day capture UI straight away
+  if (typeof renderDayCapture === 'function') renderDayCapture();
+
+  // Fire-and-forget: compress day into behaviour memory in background
   var p = P;
   var log = loadDayLog(_rDate) || {};
   if (!p || !log.date) return;
 
-  try {
-    var result = await compressAndSaveMemory(log, p);
-    if (result && result.newFlags && result.newFlags.length) {
-      var glanceCard = document.querySelector('.glance-card');
-      if (glanceCard && typeof renderGlanceCard === 'function' && window._lastPlan) {
-        glanceCard.outerHTML = renderGlanceCard(P, TODAY, window._lastPlan);
+  setTimeout(function() {
+    compressAndSaveMemory(log, p).then(function(result) {
+      if (result && result.newFlags && result.newFlags.length) {
+        var glanceCard = document.querySelector('.glance-card');
+        if (glanceCard && typeof renderGlanceCard === 'function' && window._lastPlan) {
+          glanceCard.outerHTML = renderGlanceCard(P, TODAY, window._lastPlan);
+        }
       }
-    }
-  } catch(e) {}
+    }).catch(function() {});
+  }, 0);
 }
 
 // ── openDebrief / closeDebrief ───────────────────────────────────────────────

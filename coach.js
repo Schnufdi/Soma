@@ -474,32 +474,59 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
     }
   }
 
+  // ── MODEL SELECTOR ────────────────────────────────────
+  // Routes to Haiku for simple conversational messages (~5× faster, ~20× cheaper)
+  // Falls back to Sonnet only when genuine reasoning depth is needed.
+  function selectModel(msg) {
+    const t = msg.toLowerCase().trim();
+    const words = t.split(/\s+/).length;
+
+    // Always Sonnet for deep-reasoning topics
+    const needsSonnet = [
+      /programme|periodis|mesocycle|macrocycle|phase\s+(1|2|3|one|two|three)/,
+      /injury|pain|hurts?|inflammation|rehab|physiother/,
+      /hormon|testoster|cortisol|insulin|leptin|ghrelin|oestrogen|estrogen/,
+      /explain\s+(why|how|the|this)|science\s+behind|mechanism|research|study|evidence/,
+      /compare|versus|\bvs\.?\b|difference\s+between|better.{0,10}(for|than)/,
+      /protocol|intervention|periodis|optimis|strateg/,
+      /progressive\s+overload|volume\s+landmark|intensity|proximity.to.failure/,
+      /gut|microbiome|autoimmun|chronic\s+inflam/,
+      /zone\s*2|vo.?2\s*max|lactate|aerobic\s+base|anaerobic\s+threshold/,
+      /should\s+i\s+.{25,}/,   // long "should I" questions
+      /what.s\s+the\s+best\s+.{20,}/,
+    ];
+
+    if (words > 30) return MODEL;  // Long questions → Sonnet
+    if (needsSonnet.some(p => p.test(t))) return MODEL;
+    return MODEL_FAST;  // Haiku for conversational / simple questions
+  }
+
   // ── API CALL ──────────────────────────────────────────
   async function askCoach(userMessage, profile) {
     const history = loadHistory();
     const prompt = buildSystemPrompt(profile, PAGE_CONTEXTS[getPageType()] || PAGE_CONTEXTS.default);
     history.push({ role: 'user', content: userMessage });
 
+    const chosenModel = selectModel(userMessage);
+
     // System prompt sent as two blocks:
     //   Block 1 — static coaching instructions, marked for caching (saves ~75% on input cost after first call)
     //   Block 2 — dynamic client profile + page context (small, billed normally)
+    // Note: prompt caching only activates when using Sonnet (Haiku doesn't support cache_control)
+    const systemPayload = chosenModel === MODEL
+      ? [
+          { type: 'text', text: prompt.static, cache_control: { type: 'ephemeral' } },
+          { type: 'text', text: prompt.dynamic },
+        ]
+      : prompt.static + '\n\n' + prompt.dynamic;  // Haiku: plain string system prompt
+
     const res = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: MODEL,
+        model: chosenModel,
         max_tokens: 650,
-        system: [
-          {
-            type: 'text',
-            text: prompt.static,
-            cache_control: { type: 'ephemeral' },
-          },
-          {
-            type: 'text',
-            text: prompt.dynamic,
-          },
-        ],
+        system: systemPayload,
         messages: history.slice(-MAX_HISTORY),
       }),
     });
