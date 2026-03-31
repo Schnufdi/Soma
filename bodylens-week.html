@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BodyLens - Week</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body{background:var(--ink);color:var(--dk-1);}
+.page{max-width:980px;margin:0 auto;padding:0 28px 100px;}
+.wk-hero{padding:28px 0 20px;border-bottom:1px solid var(--bd);margin-bottom:28px;}
+.wk-kicker{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
+.wk-title{font-family:var(--serif);font-size:48px;font-weight:300;line-height:.93;color:var(--dk-1);margin-bottom:8px;}
+.wk-title em{font-style:italic;color:var(--dk-3);}
+.wk-sub{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:500px;}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--dk-3);margin:0 0 14px;display:flex;align-items:center;gap:10px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--bd);}
+/* Stats strip */
+.wk-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.wk-stat{background:var(--ink-2);padding:14px 12px;text-align:center;}
+.wk-stat-val{font-size:20px;font-weight:600;line-height:1;margin-bottom:4px;font-variant-numeric:tabular-nums;}
+.wk-stat-val.jade{color:var(--jade);}
+.wk-stat-val.amber{color:var(--amber);}
+.wk-stat-val.red{color:rgba(220,80,60,.9);}
+.wk-stat-val.slate{color:var(--dk-2);}
+.wk-stat-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);}
+@media(max-width:640px){.wk-stats{grid-template-columns:repeat(3,1fr);}}
+/* Ledger grid */
+.ledger-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:28px;}
+@media(max-width:860px){.ledger-grid{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:560px){.ledger-grid{grid-template-columns:repeat(2,1fr);}}
+.day-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:12px 10px;position:relative;overflow:hidden;cursor:default;min-height:120px;}
+.day-card.today{border-color:var(--jade-br);background:rgba(0,200,160,.03);}
+.day-card.upcoming{opacity:.65;}
+.day-card-day{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:5px;}
+.day-card.today .day-card-day{color:var(--jade);}
+.day-card-type{font-size:12px;font-weight:600;color:var(--dk-1);margin-bottom:5px;line-height:1.2;}
+.day-card.rest .day-card-type{color:var(--dk-3);font-weight:400;}
+/* Status bar at top of card */
+.day-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.day-card.done::before{background:var(--jade);}
+.day-card.substituted::before{background:var(--jade);}
+.day-card.partial::before{background:var(--amber);}
+.day-card.missed::before{background:rgba(220,80,60,.8);}
+.day-card.rest-active::before{background:var(--green);}
+.day-card.rest::before{background:var(--dk-3);opacity:.3;}
+.day-card.upcoming::before{background:var(--bd);}
+/* Status badge */
+.day-status{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:8px;display:inline-block;margin-bottom:6px;}
+.day-status.done{background:rgba(0,200,160,.1);color:var(--jade);border:1px solid var(--jade-br);}
+.day-status.substituted{background:rgba(0,200,160,.1);color:var(--jade);border:1px solid var(--jade-br);}
+.day-status.partial{background:rgba(200,148,30,.1);color:var(--amber);border:1px solid var(--amber-br);}
+.day-status.missed{background:rgba(220,80,60,.08);color:rgba(220,80,60,.9);border:1px solid rgba(220,80,60,.25);}
+.day-status.rest{background:rgba(255,255,255,.04);color:var(--dk-3);border:1px solid var(--bd);}
+.day-status.rest-active{background:rgba(0,168,114,.08);color:var(--green);border:1px solid rgba(0,168,114,.2);}
+.day-status.upcoming{background:rgba(255,255,255,.04);color:var(--dk-3);border:1px solid var(--bd);}
+.day-status.pending{background:rgba(255,255,255,.04);color:var(--dk-3);border:1px solid var(--bd);}
+/* Activity pills */
+.day-activities{display:flex;flex-direction:column;gap:3px;margin-top:5px;}
+.day-act-pill{font-size:9px;font-weight:500;color:var(--dk-3);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day-act-pill.sub-full{color:var(--jade);}
+.day-act-pill.sub-partial{color:var(--amber);}
+/* Today badge */
+.today-badge{position:absolute;top:6px;right:6px;font-size:7px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--jade);background:var(--jade-dim);border:1px solid var(--jade-br);padding:2px 5px;border-radius:6px;}
+/* Fatigue bar */
+.fat-bar-wrap{margin:6px 0 0;}
+.fat-bar-label{font-size:8px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dk-3);margin-bottom:3px;}
+.fat-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.fat-bar-fill{height:100%;border-radius:2px;}
+/* Coach analysis */
+.wk-coach-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:20px 22px;margin-bottom:12px;border-left:2px solid var(--jade-br);}
+.wk-coach-card.amber{border-left-color:var(--amber-br);}
+.wk-coach-card.red{border-left-color:rgba(220,80,60,.3);}
+.wk-coach-card.positive{border-left-color:var(--jade);}
+.wk-coach-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;}
+.wk-coach-card.amber .wk-coach-label{color:var(--amber);}
+.wk-coach-card.red .wk-coach-label{color:rgba(220,80,60,.9);}
+.wk-coach-card.positive .wk-coach-label{color:var(--jade);}
+.wk-coach-card .wk-coach-label{color:var(--dk-3);}
+.wk-coach-text{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;}
+.wk-coach-text strong{font-weight:600;color:var(--dk-1);}
+/* Suggestions */
+.sug-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.sug-btn{padding:8px 16px;border-radius:16px;border:1px solid var(--bd);background:transparent;font-size:11px;font-weight:500;color:var(--dk-2);cursor:pointer;font-family:var(--sans);transition:all .12s;text-decoration:none;display:inline-block;}
+.sug-btn:hover{border-color:var(--jade-br);color:var(--jade);}
+/* Calorie rhythm */
+.rhythm-row{display:grid;grid-template-columns:80px 1fr 70px;align-items:center;gap:10px;margin-bottom:8px;}
+.rhythm-day{font-size:11px;font-weight:500;color:var(--dk-2);}
+.rhythm-track{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
+.rhythm-fill{height:100%;border-radius:3px;transition:width .5s ease;}
+.rhythm-fill.train{background:var(--jade);}
+.rhythm-fill.rest{background:var(--dk-3);opacity:.5;}
+.rhythm-val{font-size:10px;font-weight:300;color:var(--dk-3);text-align:right;font-variant-numeric:tabular-nums;}
+/* AI generate button */
+.ai-gen-btn{display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(0,200,160,.06);border:1px solid var(--jade-br);border-radius:10px;cursor:pointer;font-family:var(--sans);transition:all .12s;width:100%;margin-bottom:20px;}
+.ai-gen-btn:hover{background:rgba(0,200,160,.1);}
+.ai-gen-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--jade);}
+.ai-gen-sub{font-size:11px;font-weight:300;color:var(--dk-3);}
+.ai-result{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:20px;display:none;}
+.ai-result.visible{display:block;}
+.ai-result-text{font-family:var(--serif);font-size:16px;font-weight:300;color:var(--dk-1);line-height:1.85;}
+.ai-spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.08);border-top-color:var(--jade);animation:wkspin .7s linear infinite;flex-shrink:0;}
+@keyframes wkspin{to{transform:rotate(360deg)}}
+
+/* ── Week meals section ────────────────────────────────────── */
+.wk-meal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 6px; margin-bottom: 8px;
+}
+.wkm-card {
+  background: var(--ink-1); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px; padding: 10px; overflow: hidden;
+  transition: border-color .12s;
+}
+.wkm-card:hover { border-color: rgba(255,255,255,.12); }
+.wkm-card.today { border-color: rgba(0,200,160,.25); background: rgba(0,200,160,.04); }
+.wkm-card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.wkm-day-name { font-size: 12px; font-weight: 700; color: var(--dk-1); letter-spacing: -.01em; }
+.wkm-card.today .wkm-day-name { color: var(--jade); }
+.wkm-day-full { font-weight: 300; color: var(--dk-3); font-size: 10px; }
+.wkm-train-pill {
+  font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 10px;
+  background: rgba(0,200,160,.1); color: var(--jade); border: 1px solid rgba(0,200,160,.2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px;
+}
+.wkm-rest-pill {
+  font-size: 8px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 10px;
+  background: rgba(255,255,255,.04); color: var(--dk-3); border: 1px solid rgba(255,255,255,.06);
+}
+.wkm-meal-row { display: flex; align-items: baseline; gap: 4px; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,.03); }
+.wkm-meal-row:last-child { border-bottom: none; }
+.wkm-slot-label { font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dk-3); flex-shrink: 0; width: 30px; }
+.wkm-meal-name { font-size: 10px; font-weight: 400; color: var(--dk-2); flex: 1; line-height: 1.3; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wkm-meal-prot { font-size: 9px; font-weight: 600; color: var(--jade); flex-shrink: 0; }
+.wkm-no-meals { font-size: 10px; font-weight: 300; color: var(--dk-3); padding: 4px 0; font-style: italic; }
+.wkm-footer { margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.04); }
+.wkm-macro-bar-wrap { height: 2px; background: rgba(255,255,255,.06); border-radius: 2px; margin-bottom: 4px; overflow: hidden; }
+.wkm-macro-bar { height: 100%; border-radius: 2px; transition: width .3s; }
+.wkm-macro-nums { font-size: 9px; font-weight: 300; color: var(--dk-3); }
+.wk-no-meals { text-align: center; padding: 24px; background: var(--ink-1); border: 1px dashed rgba(255,255,255,.08); border-radius: 10px; margin-bottom: 8px; }
+.wk-no-meals-icon { font-size: 24px; margin-bottom: 8px; }
+.wk-no-meals-text { font-size: 12px; font-weight: 300; color: var(--dk-3); margin-bottom: 12px; }
+.wk-no-meals-btn { display: inline-block; padding: 8px 18px; background: rgba(196,124,24,.08); border: 1px solid rgba(196,124,24,.2); border-radius: 20px; color: var(--amber); font-size: 11px; font-weight: 700; text-decoration: none; letter-spacing: .04em; }
+@media (max-width: 760px) { .wk-meal-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 500px) { .wk-meal-grid { grid-template-columns: repeat(2, 1fr); } }
+
+</style>
+</head>
+<body>
+<script src="activitylog.js"></script>
+<script src="/bl-proposals.js"></script>
+<script src="nav.js"></script>
+<div class="page" id="main-page">
+</div>
+
+<script>
+// ── Week override helpers ──────────────────────────────────────────────────
+function _wkOverrideKey(){var d=new Date(),mon=new Date(d),wd=d.getDay();mon.setDate(d.getDate()-(wd===0?6:wd-1));mon.setHours(0,0,0,0);return 'bl_week_override_'+mon.toISOString().slice(0,10);}
+function loadWkOverride(){try{var r=localStorage.getItem(_wkOverrideKey());return r?JSON.parse(r):{}}catch(e){return {};}}
+function saveWkOverride(data){try{localStorage.setItem(_wkOverrideKey(),JSON.stringify(data));}catch(e){}}
+function getEffectiveWkPlan(p,idx){var ov=loadWkOverride();if(ov[idx])return Object.assign({},(p.weekPlan||[])[idx]||{},ov[idx]);return (p.weekPlan||[])[idx]||{type:'Rest',priority:'rest'};}
+
+
+
+
+var API = '/api/chat';
+var MDL = 'claude-sonnet-4-20250514';
+var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+function getProfile(){try{return JSON.parse(localStorage.getItem('bl_profile')||'null');}catch(e){return null;}}
+
+var p = getProfile();
+var nm = document.getElementById('nav-meta');
+if(nm && p) nm.innerHTML = '<span class="nav-tag nt-jade">'+p.name+'</span>';
+
+if(!p){
+  document.getElementById('main-page').innerHTML =
+    '<div style="text-align:center;padding:80px 20px;">'
+    +'<div style="font-family:var(--serif);font-size:30px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">No profile yet</div>'
+    +'<div style="font-size:13px;font-weight:300;color:var(--dk-2);margin-bottom:20px;">Complete onboarding to see your week.</div>'
+    +'<a href="bodylens-onboard.html" style="display:inline-block;padding:11px 28px;background:var(--jade);border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);text-decoration:none;">Get started</a>'
+    +'</div>';
+} else {
+  render(p);
+}
+
+
+// ── WEEK MEALS SECTION ─────────────────────────────────────────────────
+function buildWeekMealsSection(p) {
+  // Load the weekly meal plan
+  var wm = null;
+  try {
+    var d = new Date(), mon = new Date(d), wd = d.getDay();
+    mon.setDate(d.getDate() - (wd === 0 ? 6 : wd - 1));
+    mon.setHours(0,0,0,0);
+    var key = 'bl_weekly_meals_' + mon.toISOString().slice(0,10);
+    var raw = localStorage.getItem(key);
+    if (raw) wm = JSON.parse(raw);
+  } catch(e) {}
+
+  if (!wm || !wm.days) {
+    // No meal plan — show a prompt to build one
+    return '<div class="sec-label">This week\'s meals</div>'      + '<div class="wk-no-meals">'        + '<div class="wk-no-meals-icon">🍽</div>'        + '<div class="wk-no-meals-text">No meal plan for this week yet.</div>'        + '<a href="bodylens-meals.html" class="wk-no-meals-btn">Build your week of meals →</a>'      + '</div>'      + '<div style="height:28px;"></div>';
+  }
+
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var weekPlan = p.weekPlan || [];
+  var today = new Date().toLocaleDateString('en-GB', { weekday: 'long' });
+
+  // Build a card per day showing meals + training
+  var html = '<div class="sec-label">This week\'s meals</div>'    + '<div class="wk-meal-grid">';
+
+  DNS.forEach(function(day, i) {
+    var wp = weekPlan[i] || { type: 'Rest', priority: 'rest' };
+    var isTraining = wp.priority === 'training';
+    var isToday = day === today;
+    var dayMeals = wm.days[day] || {};
+    var slots = Object.keys(dayMeals).filter(function(s) {
+      return dayMeals[s] && dayMeals[s].name;
+    });
+
+    // Training pill
+    var trainingPill = isTraining
+      ? '<span class="wkm-train-pill">' + (wp.type || 'Training') + '</span>'
+      : '<span class="wkm-rest-pill">Rest</span>';
+
+    // Macro totals from meals
+    var totalProt = 0, totalKcal = 0;
+    slots.forEach(function(s) {
+      var m = dayMeals[s];
+      totalProt += (m.protein || 0);
+      totalKcal += (m.calories || 0);
+    });
+
+    // Meal rows
+    var mealRows = slots.length
+      ? slots.map(function(slot) {
+          var meal = dayMeals[slot];
+          var slotLabel = {
+            breakfast: 'AM', lunch: 'Lunch', dinner: 'Dinner',
+            snack1: 'Snack', snack2: 'Snack 2', midday: 'Midday', evening: 'Eve'
+          }[slot] || slot;
+          return '<div class="wkm-meal-row">'            + '<span class="wkm-slot-label">' + slotLabel + '</span>'            + '<span class="wkm-meal-name">' + meal.name + '</span>'            + '<span class="wkm-meal-prot">' + (meal.protein || 0) + 'g P</span>'            + '</div>';
+        }).join('')
+      : '<div class="wkm-no-meals">No meals planned</div>';
+
+    // Protein progress vs target
+    var protTarget = isTraining ? (p.protein || 174) : (p.protein || 174);
+    var protPct = totalProt > 0 ? Math.min(100, Math.round(totalProt / protTarget * 100)) : 0;
+    var protColor = protPct >= 90 ? 'var(--jade)' : protPct >= 70 ? 'var(--amber)' : 'rgba(220,80,60,.8)';
+
+    html += '<div class="wkm-card' + (isToday ? ' today' : '') + '">'
+      + '<div class="wkm-card-hd">'
+        + '<div class="wkm-day-name">' + day.slice(0,3) + '<span class="wkm-day-full">' + day.slice(3) + '</span></div>'
+        + trainingPill
+      + '</div>'
+      + '<div class="wkm-meals">' + mealRows + '</div>'
+      + (totalProt > 0
+        ? '<div class="wkm-footer">'
+            + '<div class="wkm-macro-bar-wrap">'
+              + '<div class="wkm-macro-bar" style="width:' + protPct + '%;background:' + protColor + ';"></div>'
+            + '</div>'
+            + '<div class="wkm-macro-nums">'
+              + '<span style="color:' + protColor + ';font-weight:600;">' + totalProt + 'g P</span>'
+              + ' · ' + totalKcal + ' kcal'
+            + '</div>'
+          + '</div>'
+        : '')
+      + '</div>';
+  });
+
+  html += '</div>'
+    + '<div style="text-align:right;margin-top:8px;">'      + '<a href="bodylens-meals.html" style="font-size:11px;font-weight:600;color:var(--amber);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;">Edit meal plan →</a>'    + '</div>'    + '<div style="height:28px;"></div>';
+
+  return html;
+}
+
+function render(p) {
+  var ledger = rebuildWeekLedger();
+  var weekPlan = p.weekPlan || [];
+  var s = ledger ? ledger.summary : null;
+
+  var d = new Date(), dayIdx = d.getDay();
+  var todayI = dayIdx === 0 ? 6 : dayIdx - 1;
+
+  var trainingDays = weekPlan.filter(function(d){return d.priority==='training';}).length;
+  var maxKcal = Math.max.apply(null, weekPlan.map(function(d){return d.kcal||0;}));
+
+  /* ---- Stats strip ---- */
+  var fatigueCol = !s ? 'slate'
+    : s.fatigueLevel==='peak'?'red':s.fatigueLevel==='high'?'amber':'jade';
+  var statusCol = !s ? 'slate'
+    : s.weeksGoalStatus==='on-track'?'jade':s.weeksGoalStatus==='at-risk'?'amber':'red';
+
+  var statsHtml = '<div class="wk-stats">'
+    +'<div class="wk-stat"><div class="wk-stat-val jade">'+(s?s.sessionsDone:0)+' / '+trainingDays+'</div><div class="wk-stat-label">Sessions done</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val '+(s&&s.strengthMissing.length?'amber':'jade')+'">'+(s?s.strengthCovered.length:0)+'</div><div class="wk-stat-label">Strength covered</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val '+fatigueCol+'">'+(s?s.fatigueLevel:'-')+'</div><div class="wk-stat-label">Fatigue</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val '+(s&&s.mobilityMins>=20?'jade':'slate')+'">'+(s?s.mobilityMins:0)+'m</div><div class="wk-stat-label">Mobility</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val '+statusCol+'">'+(s?s.weeksGoalStatus.replace('-',' '):'-')+'</div><div class="wk-stat-label">Week status</div></div>'
+    +'</div>';
+
+  /* ---- Day cards ledger ---- */
+  var cardsHtml = '<div class="ledger-grid">';
+  DNS.forEach(function(dayName, i) {
+    var wp = getEffectiveWkPlan(p, i) || {type:'Rest',priority:'rest'};
+    var isTraining = wp.priority === 'training';
+    var isToday = i === todayI;
+    var dayData = ledger ? ledger.days[dayName] : null;
+    var ov_i = loadWkOverride()[i];
+    var wasRescheduled = ov_i && ov_i.source === 'reshuffle';
+    var status = wasRescheduled && i < todayI ? 'substituted' : wasRescheduled && i >= todayI ? (isTraining ? 'upcoming' : 'rest') : dayData ? dayData.status : (isToday ? 'pending' : (i < todayI ? 'missed' : 'upcoming'));
+
+    var statusLabel = {
+      done:'Done', substituted:'Substituted', partial:'Partial sub',
+      missed:'Missed', rest:'Rest', 'rest-active':'Active rest',
+      upcoming:'Upcoming', pending:'Today'
+    }[status] || status;
+
+    // Activities on this day
+    var actsHtml = '';
+    if(dayData && dayData.activities && dayData.activities.length) {
+      actsHtml = '<div class="day-activities">';
+      dayData.activities.slice(0,3).forEach(function(a) {
+        var subCls = a.sub ? 'sub-'+a.sub.level : '';
+        actsHtml += '<div class="day-act-pill '+subCls+'">'+a.label+'</div>';
+      });
+      actsHtml += '</div>';
+    }
+
+    // Fatigue bar
+    var fatigue = dayData ? dayData.fatigueCost : 0;
+    var fatPct = Math.min(100, fatigue * 10);
+    var fatCol = fatigue >= 4 ? 'rgba(220,80,60,.7)' : fatigue >= 2 ? 'var(--amber)' : 'var(--jade)';
+    var fatHtml = fatigue > 0
+      ? '<div class="fat-bar-wrap"><div class="fat-bar"><div class="fat-bar-fill" style="width:'+fatPct+'%;background:'+fatCol+';"></div></div></div>'
+      : '';
+
+    // Session detail
+    var focusHtml2 = '';
+    if (isTraining && wp.focus) {
+      focusHtml2 = '<div style="font-size:10px;font-weight:300;color:var(--dk-3);margin-bottom:4px;line-height:1.3;">' + wp.focus + '</div>';
+    }
+    var exHtml2 = '';
+    if (isTraining && wp.keyExercises && wp.keyExercises.length) {
+      exHtml2 = '<div style="margin-top:5px;display:flex;flex-direction:column;gap:2px;">';
+      wp.keyExercises.slice(0, 4).forEach(function(ex) {
+        exHtml2 += '<div style="font-size:9px;font-weight:300;color:rgba(255,255,255,.3);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">· ' + ex + '</div>';
+      });
+      if (wp.keyExercises.length > 4) exHtml2 += '<div style="font-size:9px;color:rgba(255,255,255,.18);">+' + (wp.keyExercises.length - 4) + ' more</div>';
+      exHtml2 += '</div>';
+    }
+
+    var isMissed = (status === 'missed');
+    var reshuffleBtn = isMissed
+      ? '<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffleModal()">↻ Reshuffle week</button>'
+      : '';
+    cardsHtml += '<div class="day-card '+status+(isToday?' today':'')+(isTraining?'':' rest')+'">'
+      +(isToday ? '<div class="today-badge">Today</div>' : '')
+      +'<div class="day-card-day">'+dayName.slice(0,3)+'</div>'
+      +'<div class="day-card-type">'+(wp.type||'Rest')+'</div>'
+      +focusHtml2
+      +'<div class="day-status '+status+'">'+statusLabel+'</div>'
+      +exHtml2
+      +actsHtml
+      +fatHtml
+      +reshuffleBtn
+      +'</div>';
+  });
+  cardsHtml += '</div>';
+
+  /* ---- Coach analysis panel ---- */
+  var recs = ledger ? getCoachRecommendation(ledger) : [];
+  var suggestions = ledger ? suggestNextActivity(ledger) : [];
+
+  var recsHtml = '';
+  if(recs.length) {
+    recsHtml = '<div class="sec-label">Coach read</div>';
+    recs.forEach(function(rec) {
+      var cardCls = rec.priority === 'high' ? 'red' : rec.priority === 'positive' ? 'positive' : 'amber';
+      var lbl = rec.priority === 'high' ? 'Urgent' : rec.priority === 'positive' ? 'On track' : 'Note';
+      recsHtml += '<div class="wk-coach-card '+cardCls+'">'
+        +'<div class="wk-coach-label">'+lbl+'</div>'
+        +'<div class="wk-coach-text">'+rec.text+'</div>'
+        +'</div>';
+    });
+  }
+
+  if(suggestions.length) {
+    recsHtml += '<div class="wk-coach-card">'
+      +'<div class="wk-coach-label" style="color:var(--dk-3);">Suggested next</div>'
+      +'<div class="sug-row">'
+      +suggestions.map(function(sug){
+        return '<a href="bodylens-dailyplan.html" class="sug-btn">'+sug.label+'</a>';
+      }).join('')
+      +'</div>'
+      +'</div>';
+  }
+
+  /* ---- Calorie rhythm ---- */
+  var rhythmHtml = '<div class="sec-label">Calorie rhythm</div>';
+  weekPlan.forEach(function(day) {
+    var isT = day.priority === 'training';
+    var pct = maxKcal ? Math.round((day.kcal||0)/maxKcal*100) : 50;
+    rhythmHtml += '<div class="rhythm-row">'
+      +'<div class="rhythm-day">'+day.day.slice(0,3)+'</div>'
+      +'<div class="rhythm-track"><div class="rhythm-fill '+(isT?'train':'rest')+'" style="width:'+pct+'%;"></div></div>'
+      +'<div class="rhythm-val">'+(day.kcal?day.kcal.toLocaleString():'--')+'</div>'
+      +'</div>';
+  });
+
+  /* ---- AI full week analysis ---- */
+  var aiHtml = '<div class="sec-label">AI week analysis</div>'
+    +'<button class="ai-gen-btn" onclick="generateWeekAnalysis()" id="ai-gen-btn">'
+    +'<div id="ai-gen-icon" style="font-size:16px;">&#9889;</div>'
+    +'<div><div class="ai-gen-label">Generate full week analysis</div>'
+    +'<div class="ai-gen-sub">Coach reads your actual week and advises on the rest of it</div></div>'
+    +'</button>'
+    +'<div class="ai-result" id="ai-result-box"></div>';
+
+  /* ---- Assemble ---- */
+  document.getElementById('main-page').innerHTML =
+    '<div class="wk-hero">'
+      +'<div class="wk-kicker">Training ledger</div>'
+      +'<div class="wk-title">This<br><em>week.</em></div>'
+      +'<div class="wk-sub">Planned vs actual. Every session classified, valued, and reconciled against your goals.</div>'
+    +'</div>'
+    +statsHtml
+    +'<div class="sec-label">Week at a glance</div>'
+    +cardsHtml
+    +recsHtml
+    +buildWeekMealsSection(p)
+    +'<div style="height:28px;"></div>'
+    +rhythmHtml
+    +'<div style="height:28px;"></div>'
+    +aiHtml
+    +'<div id="bl-proposals-section" style="margin-bottom:28px;"></div>'
+    +'<div id="bl-log-section" style="margin-bottom:28px;"></div>';
+}
+
+async function generateWeekAnalysis() {
+  var btn = document.getElementById('ai-gen-btn');
+  var box = document.getElementById('ai-result-box');
+  var icon = document.getElementById('ai-gen-icon');
+  if(!btn || !box) return;
+
+  btn.disabled = true;
+  if(icon) icon.outerHTML = '<div class="ai-spin"></div>';
+  document.getElementById('ai-gen-btn').querySelector('.ai-gen-label').textContent = 'Analysing your week...';
+  box.className = 'ai-result';
+
+  var ledger = rebuildWeekLedger();
+  var weekCtx = ledger ? buildWeekContext(ledger) : 'No ledger data yet.';
+  var recs = ledger ? getCoachRecommendation(ledger) : [];
+  var s = ledger ? ledger.summary : null;
+
+  var prompt = 'You are the BodyLens performance coach. Analyse this athlete\'s week and give direct, specific coaching.\n\n'
+    + weekCtx + '\n\n'
+    + 'Write 2-3 paragraphs:\n'
+    + '1. What the pattern of this week reveals about how they are managing training load\n'
+    + '2. The most important thing to get right for the rest of the week\n'
+    + '3. One specific adjustment for next week based on what happened this week\n\n'
+    + 'Be direct. Use their actual data. No generic advice. Plain prose.';
+
+  try {
+    var res = await fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MDL, max_tokens:400,
+        system:'Direct performance coach. Plain prose. No markdown. Max 250 words.',
+        messages:[{role:'user',content:prompt}]})
+    });
+    var data = await res.json();
+    var text = (data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var paras = text.split(/\n+/).filter(Boolean);
+    box.className = 'ai-result visible';
+    box.innerHTML = paras.map(function(para){
+      return '<p class="ai-result-text" style="margin-bottom:14px;">'+para+'</p>';
+    }).join('');
+  } catch(e) {
+    box.className = 'ai-result visible';
+    box.innerHTML = '<div style="color:var(--dk-3);font-size:12px;">Could not generate analysis. <a href="#" onclick="location.reload()" style="color:var(--jade);">Retry</a></div>';
+  }
+
+  var newBtn = document.getElementById('ai-gen-btn');
+  if(newBtn) {
+    newBtn.disabled = false;
+    var spinEl = newBtn.querySelector('.ai-spin');
+    if(spinEl) spinEl.outerHTML = '<div style="font-size:16px;">&#9889;</div>';
+    var lbl = newBtn.querySelector('.ai-gen-label');
+    if(lbl) lbl.textContent = 'Regenerate analysis';
+  }
+}
+
+
+// Apply goal plan changes to programme — with full change log
+function blApplyGoalPlan() {
+  var btn = event && event.target;
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+    var gb = p.gapBridge;
+    if (!gb) { alert('No goal plan found.'); return; }
+
+    var changes = [];
+    if (gb.weeklyFocus) changes.push({ field:'gapBridge.applied', label:'Goal coaching context', before:'Inactive', after:'Active — ' + gb.weeklyFocus });
+    if (gb.training && gb.training.length) changes.push({ field:'coachNotes.append', label:'Training emphasis', before:'—', after:gb.training.map(function(t){return t.change;}).join(', ') });
+    if (gb.topThreeChanges && gb.topThreeChanges.length) {
+      gb.topThreeChanges.forEach(function(c,i){ changes.push({ field:'gapBridge.change'+(i+1), label:'Change '+(i+1)+': '+c.change, before:'Not implemented', after:c.rationale }); });
+    }
+
+    if (typeof blPropose === 'function' && changes.length) {
+      blPropose('goals', (gb.weeklyFocus||gb.honestTake||'Goal analysis')+' — '+(gb.generatedAt||''), changes, 'Goal analysis from '+gb.generatedAt+'. Committed from Week page.');
+      // Commit immediately since user clicked Apply from Week page
+      var pending = blGetPending();
+      var latest = pending[pending.length-1];
+      if (latest) blCommitProposal(latest.id);
+      if (btn) { btn.textContent = '\u2713 Applied & logged'; btn.disabled = true; }
+      setTimeout(function(){ window.location.reload(); }, 600);
+    }
+  } catch(e) {
+    if (btn) btn.textContent = 'Error: ' + e.message;
+    console.error(e);
+  }
+}
+
+
+// Populate changelog panel after render
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() { blRefreshProposalUI(); }, 400);
+});
+
+function blRefreshProposalUI() {
+  var pending = (typeof blGetPending === 'function') ? blGetPending() : [];
+  var log = (typeof blGetProposalLog === 'function') ? blGetProposalLog() : [];
+  var srcMap = {
+    'goals':          {label:'Goal analysis',         color:'#00c8a0'},
+    'coach':          {label:'Coach',                 color:'rgba(120,180,255,.9)'},
+    'body-scan':      {label:'Body scan',             color:'#c4781a'},
+    'reconciliation': {label:'Weekly reconciliation', color:'rgba(180,130,255,.9)'},
+    'manual':         {label:'Manual',                color:'rgba(255,255,255,.4)'},
+  };
+
+  // ── Pending proposals ───────────────────────────────────────────
+  var pSect = document.getElementById('bl-proposals-section');
+  if (pSect) {
+    if (pending.length) {
+      var pHTML = [];
+      pHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#00c8a0;margin-bottom:16px;display:flex;align-items:center;gap:10px;">');
+      pHTML.push('Pending changes');
+      pHTML.push('<span style="background:#00c8a0;color:#0c1010;font-size:10px;font-weight:800;border-radius:20px;padding:3px 10px;">' + pending.length + '</span>');
+      pHTML.push('</div>');
+      pending.forEach(function(prop) {
+        var s = srcMap[prop.source] || {label: prop.source, color:'rgba(255,255,255,.4)'};
+        pHTML.push('<div class="bl-prop-card" style="background:rgba(0,200,160,.06);border:2px solid rgba(0,200,160,.35);border-radius:12px;padding:20px;margin-bottom:12px;">');
+        pHTML.push('<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">');
+        pHTML.push('<span style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:' + s.color + ';background:rgba(0,200,160,.1);padding:3px 10px;border-radius:4px;">' + s.label + '</span>');
+        pHTML.push('<span style="font-size:10px;color:rgba(255,255,255,.35);">' + prop.date + '</span>');
+        pHTML.push('</div>');
+        pHTML.push('<div style="font-family:var(--serif);font-size:22px;font-weight:300;color:#fff;line-height:1.2;margin-bottom:8px;">' + prop.title + '</div>');
+        if (prop.context) pHTML.push('<div style="font-size:12px;font-weight:300;color:rgba(255,255,255,.5);margin-bottom:14px;line-height:1.5;">' + prop.context + '</div>');
+        // Before/after table
+        pHTML.push('<div style="background:rgba(0,0,0,.3);border-radius:8px;overflow:hidden;margin-bottom:16px;">');
+        pHTML.push('<div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:7px 14px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,255,255,.08);">');
+        pHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);">What changes</div>');
+        pHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);">Before</div>');
+        pHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#00c8a0;">After</div>');
+        pHTML.push('</div>');
+        (prop.changes||[]).forEach(function(c, ci) {
+          var last = ci === prop.changes.length - 1;
+          pHTML.push('<div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 14px;' + (!last ? 'border-bottom:1px solid rgba(255,255,255,.05)' : '') + '">');
+          pHTML.push('<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);">' + (c.label||c.field) + '</div>');
+          pHTML.push('<div style="font-size:11px;font-weight:300;color:rgba(255,255,255,.35);text-decoration:line-through;">' + blFormatVal(c.before) + '</div>');
+          pHTML.push('<div style="font-size:12px;font-weight:700;color:#00c8a0;">' + blFormatVal(c.after) + '</div>');
+          pHTML.push('</div>');
+        });
+        pHTML.push('</div>');
+        // Buttons — use data attributes, delegated handler below
+        pHTML.push('<div style="display:flex;gap:10px;">');
+        pHTML.push('<button class="bl-prop-btn" data-pid="' + prop.id + '" data-action="commit" style="flex:1;background:#00c8a0;color:#0c1010;font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:14px 20px;border:none;border-radius:8px;cursor:pointer;">&#10003; Apply this change</button>');
+        pHTML.push('<button class="bl-prop-btn" data-pid="' + prop.id + '" data-action="dismiss" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-family:var(--sans);font-size:12px;font-weight:600;padding:14px 20px;border-radius:8px;cursor:pointer;">Dismiss</button>');
+        pHTML.push('</div>');
+        pHTML.push('</div>');
+      });
+      pSect.innerHTML = pHTML.join('');
+      pSect.style.display = 'block';
+      pSect.onclick = function(e) {
+        var btn = e.target.closest('.bl-prop-btn');
+        if (btn && btn.dataset.pid && btn.dataset.action) {
+          blHandleProposalAction(btn.dataset.pid, btn.dataset.action);
+        }
+      };
+    } else {
+      pSect.style.display = 'none';
+    }
+  }
+
+  // ── Decision log ─────────────────────────────────────────────────
+  var lSect = document.getElementById('bl-log-section');
+  if (lSect) {
+    if (log.length) {
+      var lHTML = [];
+      lHTML.push('<div style="font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px;">Decision log <span style="font-size:10px;font-weight:300;text-transform:none;letter-spacing:0;margin-left:4px;">' + log.length + ' entries</span></div>');
+      log.slice().reverse().forEach(function(entry) {
+        var s = srcMap[entry.source] || {label: entry.source||'—', color:'rgba(255,255,255,.4)'};
+        var applied = entry.status === 'committed';
+        lHTML.push('<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">');
+        lHTML.push('<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">');
+        lHTML.push('<span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:' + s.color + ';">' + s.label + '</span>');
+        lHTML.push('<span style="font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:3px;' + (applied ? 'background:rgba(0,200,160,.12);color:#00c8a0;' : 'background:rgba(255,255,255,.05);color:rgba(255,255,255,.3);') + '">' + (applied ? 'Applied' : 'Dismissed') + '</span>');
+        lHTML.push('<span style="font-size:10px;color:rgba(255,255,255,.3);">' + entry.date + '</span>');
+        if (applied) lHTML.push('<button class="bl-prop-btn" data-pid="' + entry.id + '" data-action="revert" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;cursor:pointer;">Revert</button>');
+        lHTML.push('</div>');
+        lHTML.push('<div style="font-size:12px;font-weight:500;color:rgba(255,255,255,.7);margin-bottom:5px;">' + entry.title + '</div>');
+        var chips = (entry.changes||[]).map(function(c) {
+          return '<span style="font-size:10px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.05);border-radius:3px;padding:2px 7px;margin:2px;display:inline-block;">' + (c.label||c.field) + ': ' + blFormatVal(c.before) + ' \u2192 ' + blFormatVal(c.after) + '</span>';
+        }).join('');
+        lHTML.push('<div>' + chips + '</div>');
+        lHTML.push('</div>');
+      });
+      lSect.innerHTML = lHTML.join('');
+      lSect.style.display = 'block';
+      lSect.onclick = function(e) {
+        var btn = e.target.closest('.bl-prop-btn');
+        if (btn && btn.dataset.pid && btn.dataset.action) {
+          blHandleProposalAction(btn.dataset.pid, btn.dataset.action);
+        }
+      };
+    } else {
+      lSect.style.display = 'none';
+    }
+  }
+}
+
+
+</script>
+</body>
+</html>
