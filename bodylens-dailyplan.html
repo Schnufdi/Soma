@@ -3254,7 +3254,10 @@ function getTodayCtx(p){
   var N=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   var M={0:6,1:0,2:1,3:2,4:3,5:4,6:5};
   var i=M[new Date().getDay()];
-  var plan=(p.weekPlan||[])[i]||{type:'Rest',focus:'Recovery',priority:'rest'};
+  // Use effective plan — respects week override from reshuffle
+  var plan=(typeof getEffectiveDayPlan==='function')
+    ? getEffectiveDayPlan(p,i)
+    : ((p.weekPlan||[])[i]||{type:'Rest',focus:'Recovery',priority:'rest'});
   return {idx:i,name:N[i],plan:plan,isTraining:plan.priority==='training',
     cacheKey:'dayplan_'+PLAN_VERSION+'_'+_rDate,DAY_NAMES:N};
 }
@@ -7230,21 +7233,13 @@ window._blInit = function init(){
       cached = null;
     }
   }
-  // Validate cache matches TODAY's actual day type (recovery overrides can change this)
-  if (cached && cached.blocks && cached.blocks.length >= 3) {
-    var cachedIsTraining = cached.isTraining === true || (cached.dayType && cached.dayType !== 'Rest');
-    if (cachedIsTraining !== TODAY.isTraining) {
-      try { localStorage.removeItem(TODAY.cacheKey); } catch(e) {}
-      cached = null;
-    }
-  }
   if(cached && cached.blocks && cached.blocks.length >= 3){
     // Plan already built today — show immediately, no interaction needed
     renderPlan(cached);
     refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, cached);
-    if (typeof renderRecentChangeBanner === 'function') renderRecentChangeBanner(P);
+    renderRecentChangeBanner(P);
     setTimeout(initDayCapture, 100);
     return;
   }
@@ -7508,14 +7503,15 @@ async function generateCoachNarrative(p, t, plan) {
     })()
     + _multiWeekSignal
     + (function() {
+      // Programme context from committed decisions
       var lines = [];
       var _cn = p.coachNotes || '';
-      if (_cn.trim()) lines.push('PROGRAMME NOTES: ' + _cn.trim().replace(/\n/g,' · ').slice(0,200));
+      if (_cn.trim()) lines.push('PROGRAMME NOTES: ' + _cn.trim().replace(/\n/g,' · ').slice(0, 200));
       var gb = p.gapBridge;
       if (gb) {
         if (gb.weeklyFocus) lines.push('CURRENT FOCUS: ' + gb.weeklyFocus);
         if (gb.training && gb.training.length) lines.push('TRAINING EMPHASIS: ' + gb.training.map(function(t){return t.change;}).join(', '));
-        if (gb.primaryGaps && gb.primaryGaps.length) lines.push('PRIMARY GAPS: ' + gb.primaryGaps.join(' | ').slice(0,150));
+        if (gb.primaryGaps && gb.primaryGaps.length) lines.push('PRIMARY GAPS: ' + gb.primaryGaps.join(' | ').slice(0, 150));
       }
       return lines.length ? '\n\n' + lines.join('\n') : '';
     })()
@@ -7853,7 +7849,7 @@ function buildDay(){
     var plan = buildPlan(P, TODAY);
     try { localStorage.setItem(TODAY.cacheKey, JSON.stringify(plan)); } catch(e){}
     renderPlan(plan);
-    if (typeof renderRecentChangeBanner === 'function') renderRecentChangeBanner(P);
+    renderRecentChangeBanner(P);
     // ── Risk advisory banner (show once per day) ──────────
     if (typeof BL_RISK !== 'undefined') {
       var _seenKey = 'bl_risk_seen_' + new Date().toDateString();
@@ -9879,33 +9875,55 @@ function renderRecentChangeBanner(p) {
   try {
     var log = JSON.parse(localStorage.getItem('bl_proposal_log') || '[]');
     if (!log.length) return;
-    var cutoff = Date.now() - (48 * 60 * 60 * 1000);
+    var cutoff = Date.now() - (48 * 60 * 60 * 1000); // 48h
     var recent = log.filter(function(e) {
       return e.status === 'committed' && new Date(e.committedAt || e.ts).getTime() > cutoff;
     });
     if (!recent.length) return;
+
+    // Build human-readable change chips
     var chips = [];
     recent.forEach(function(entry) {
       (entry.changes || []).forEach(function(c) {
+        var before = c.before !== undefined && c.before !== '—' && c.before !== 'Inactive' && c.before !== 'Not implemented';
+        var label = c.label || c.field;
+        // Only show numeric/meaningful field changes, skip text-only fields
         var skip = ['gapBridge.applied','coachNotes.append','gapBridge.change1','gapBridge.change2','gapBridge.change3'].indexOf(c.field) >= 0;
-        if (!skip && c.before !== c.after && c.before !== undefined && c.before !== '—' && c.before !== 'Inactive') {
+        if (!skip && before && c.before !== c.after) {
           chips.push('<span style="font-size:10px;font-weight:600;color:var(--dk-1);background:rgba(0,200,160,.08);border:1px solid rgba(0,200,160,.2);border-radius:4px;padding:2px 8px;white-space:nowrap;">'
-            + (c.label||c.field) + ': ' + (c.before||'—') + ' → ' + (c.after||'—') + '</span>');
+            + label + ': ' + _fmtVal(c.before) + ' → ' + _fmtVal(c.after) + '</span>');
+        } else if (!skip && !before) {
+          chips.push('<span style="font-size:10px;font-weight:600;color:var(--jade);background:rgba(0,200,160,.08);border:1px solid rgba(0,200,160,.2);border-radius:4px;padding:2px 8px;white-space:nowrap;">'
+            + label + ' updated</span>');
         }
       });
     });
-    if (!chips.length) return;
+
+    if (!chips.length) {
+      // Show at least the entry title
+      chips = recent.map(function(e) {
+        return '<span style="font-size:10px;font-weight:300;color:var(--dk-2);">' + (e.title||'').slice(0,60) + '</span>';
+      });
+    }
+
+    // Find or create the banner container
     var existing = document.getElementById('bl-changes-banner');
     if (existing) existing.remove();
-    var el = document.createElement('div');
-    el.id = 'bl-changes-banner';
-    el.style.cssText = 'padding:10px 16px;background:rgba(0,200,160,.05);border-bottom:1px solid rgba(0,200,160,.12);display:flex;align-items:center;gap:8px;flex-wrap:wrap;';
-    el.innerHTML = '<span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);flex-shrink:0;">Plan updated</span>'
+
+    var bannerEl = document.createElement('div');
+    bannerEl.id = 'bl-changes-banner';
+    bannerEl.style.cssText = 'padding:10px 16px;background:rgba(0,200,160,.05);border-bottom:1px solid rgba(0,200,160,.12);display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
+    bannerEl.innerHTML = '<span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);flex-shrink:0;">Plan updated</span>'
       + chips.join('')
       + '<a href="/bodylens-decisions.html" style="font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);text-decoration:none;margin-left:auto;flex-shrink:0;">View log →</a>';
+
+    // Insert at top of day-root
     var root = document.getElementById('day-root');
-    if (root && root.firstChild) root.insertBefore(el, root.firstChild);
-    else if (root) root.appendChild(el);
+    if (root && root.firstChild) {
+      root.insertBefore(bannerEl, root.firstChild);
+    } else if (root) {
+      root.appendChild(bannerEl);
+    }
   } catch(e) {}
 }
 
@@ -9914,6 +9932,7 @@ function _fmtVal(val) {
   if (typeof val === 'number') return val.toLocaleString();
   return String(val).slice(0, 40);
 }
+
 </script>
 
 <!-- ── Session Editor Drawer ─────────────────────────── -->
