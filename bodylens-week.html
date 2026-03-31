@@ -122,6 +122,8 @@ body{background:var(--ink);color:var(--dk-1);}
 </style>
 </head>
 <body>
+<div class="pro-page-banner" id="pro-page-banner">&#10022; PRO features are highlighted &mdash; <a href="/bodylens-pro.html">Founding member pricing available</a></div>
+<script>(function(){if(localStorage.getItem('bl_pro_status')!=='active'){var b=document.getElementById('pro-page-banner');if(b)b.style.display='block';}})();</script>
 <div class="page" id="main-page"></div>
 <div class="wk-toast" id="wk-toast"></div>
 <script src="nav.js"></script>
@@ -182,7 +184,7 @@ function render(){
         +'<div class="missed-banner-title">'+missed.length+' session'+(missed.length>1?'s':'')+' missed this week</div>'
         +'<div class="missed-banner-sub">'+names+' — tap to let AI reshuffle your week</div>'
       +'</div>'
-      +'<div class="missed-banner-cta">Reshuffle →</div>'
+      +'<div class="missed-banner-cta">Reshuffle →<span class="pro-badge">PRO</span></div>'
     +'</div>';
   }
 
@@ -217,7 +219,7 @@ function render(){
       exHTML+='</div>';
     }
     var reshuffleNote=wasReshuffled&&ovEntry.note?'<div class="dc-reshuffle-note">↻ '+ovEntry.note+'</div>':'';
-    var reshuffleBtn=(status==='missed'&&isTraining)?'<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffle()">↻ Reshuffle week</button>':'';
+    var reshuffleBtn=(status==='missed'&&isTraining)?'<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffle()">↻ Reshuffle week<span class="pro-badge">PRO</span></button>':'';
     cardsHTML+='<div class="'+cardCls+'">'
       +(isToday?'<div class="today-badge">Today</div>':'')
       +'<div class="dc-day">'+DNS3[i]+'</div>'
