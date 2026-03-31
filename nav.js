@@ -138,6 +138,9 @@
         if (meta) meta.innerHTML = '<a href="/bodylens-coachplan.html" class="nav-tag nt-jade" style="text-decoration:none;cursor:pointer;" title="Your coaching plan">' + p.name + '</a>';
       }
     } catch(e) {}
+
+    // Inject journey progress strip
+    renderJourneyStrip();
   }
 
   if (document.body) {
@@ -163,6 +166,83 @@
     }, 400);
   });
 })();
+
+// ── JOURNEY PROGRESS STRIP ───────────────────────────────
+// Shows Setup → Strategy → Programme → Today → Log steps
+// with tick state driven by localStorage.
+var _blJourneyStylesInjected = false;
+
+function renderJourneyStrip() {
+  var p = null;
+  try { p = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) {}
+  if (!p) return; // No profile — don't render the strip
+
+  if (!_blJourneyStylesInjected) {
+    _blJourneyStylesInjected = true;
+    var css = '<style id="bl-journey-styles">'
+      + '.bl-journey{display:flex;align-items:center;gap:0;padding:0 20px;background:var(--ink-1,#111917);border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--sans,"Space Grotesk",sans-serif);overflow-x:auto;scrollbar-width:none;white-space:nowrap;}'
+      + '.bl-journey::-webkit-scrollbar{display:none;}'
+      + '.blj-step{display:inline-flex;align-items:center;gap:5px;padding:9px 10px;font-size:11px;font-weight:500;color:var(--dk-3,#3e504a);cursor:default;transition:color .15s;flex-shrink:0;}'
+      + '.blj-step.done{color:var(--jade,#00c8a0);}'
+      + '.blj-step.active{color:var(--dk-1,#e8e3da);font-weight:600;}'
+      + '.blj-step a{color:inherit;text-decoration:none;}'
+      + '.blj-step a:hover{text-decoration:underline;}'
+      + '.blj-tick{font-size:9px;width:14px;height:14px;border-radius:50%;background:rgba(0,200,160,.15);display:inline-flex;align-items:center;justify-content:center;color:var(--jade,#00c8a0);flex-shrink:0;}'
+      + '.blj-num{font-size:9px;width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.06);display:inline-flex;align-items:center;justify-content:center;color:var(--dk-3,#3e504a);flex-shrink:0;}'
+      + '.blj-step.active .blj-num{background:rgba(255,255,255,.12);color:var(--dk-1,#e8e3da);}'
+      + '.blj-sep{font-size:10px;color:rgba(255,255,255,.12);padding:0 2px;flex-shrink:0;}'
+      + '@media(max-width:480px){.blj-step{padding:8px 7px;font-size:10px;}}'
+      + '</style>';
+    document.head.insertAdjacentHTML('beforeend', css);
+  }
+
+  // Step definitions with link destinations for active step
+  var today = new Date().toISOString().slice(0, 10);
+  var hasTodayPlan = false;
+  var hasDaylog = false;
+  try {
+    for (var k in localStorage) {
+      if (k.indexOf('bl_daylog_') === 0) { hasDaylog = true; break; }
+    }
+    // Check for any plan cached for today (key contains today's date)
+    for (var k2 in localStorage) {
+      if (k2.indexOf(today) >= 0 && (k2.indexOf('bl_plan') === 0 || k2.indexOf('bl_dp_') === 0)) { hasTodayPlan = true; break; }
+    }
+  } catch(e) {}
+
+  var steps = [
+    { label: 'Setup',      done: !!(p && p.name && p.goal),                                href: '/bodylens-onboard.html' },
+    { label: 'Strategy',   done: !!(p && p.weekPlan && p.weekPlan.length >= 5),            href: '/bodylens-onboard.html' },
+    { label: 'Programme',  done: !!(p && p.generatedAt),                                   href: '/bodylens-programme.html' },
+    { label: 'Today',      done: hasTodayPlan,                                              href: '/bodylens-dailyplan.html' },
+    { label: 'Log',        done: hasDaylog,                                                 href: '/bodylens-history.html' },
+  ];
+
+  // First incomplete step is "active"
+  var activeIdx = -1;
+  for (var i = 0; i < steps.length; i++) {
+    if (!steps[i].done) { activeIdx = i; break; }
+  }
+  if (activeIdx === -1) activeIdx = steps.length - 1; // all done — last step active
+
+  var html = '<div class="bl-journey" id="bl-journey">';
+  steps.forEach(function(step, i) {
+    var cls = step.done ? 'done' : (i === activeIdx ? 'active' : '');
+    var inner = (step.done ? '<span class="blj-tick">&#10003;</span>' : '<span class="blj-num">' + (i + 1) + '</span>')
+      + (i === activeIdx ? '<a href="' + step.href + '">' + step.label + '</a>' : '<span>' + step.label + '</span>');
+    html += (i > 0 ? '<div class="blj-sep">&rsaquo;</div>' : '');
+    html += '<div class="blj-step ' + cls + '">' + inner + '</div>';
+  });
+  html += '</div>';
+
+  var existing = document.getElementById('bl-journey');
+  if (existing) {
+    existing.outerHTML = html;
+  } else {
+    var nav = document.querySelector('nav.site-nav');
+    if (nav) nav.insertAdjacentHTML('afterend', html);
+  }
+}
 
 function dismissDisclaimer() {
   var el = document.getElementById('site-disclaimer');
