@@ -1030,6 +1030,9 @@ function renderReshuffleResult(result, p, missed) {
     ? '<div class="rs-dropped">Session dropped: ' + result.dropped.join(', ') + ' — week too compressed for full recovery.</div>'
     : '';
 
+  // Store result on window so onclick can reference it without inline JSON
+  window._pendingReshuffle = result;
+
   resultEl.innerHTML =
     '<div class="rs-result">' +
       '<div class="rs-result-label">Proposed schedule changes</div>' +
@@ -1037,13 +1040,15 @@ function renderReshuffleResult(result, p, missed) {
       '<div class="rs-rationale">' + (result.rationale||'') + '</div>' +
       warningHtml + droppedHtml +
       '<div class="rs-result-actions">' +
-        '<button class="rs-apply-btn" onclick="applyReshuffle(' + JSON.stringify(result).replace(/"/g,"'") + ')">Apply this reshuffle</button>' +
+        '<button class="rs-apply-btn" onclick="applyPendingReshuffle()">Apply this reshuffle</button>' +
         '<button class="rs-reject-btn" onclick="closeReshuffleModal()">Keep original plan</button>' +
       '</div>' +
     '</div>';
 }
 
-function applyReshuffle(result) {
+function applyPendingReshuffle() {
+  var result = window._pendingReshuffle;
+  if (!result) return;
   var p = getProfile();
   if (!p) return;
   var override = loadWkOverride();
@@ -1087,7 +1092,7 @@ function applyReshuffle(result) {
   if (profile) render(profile);
 
   // Show confirmation
-  showReshuffleToast('Week reshuffled. Today's plan will regenerate.');
+  showReshuffleToast('Week reshuffled \u2014 plan will regenerate.');
 }
 
 function showReshuffleToast(msg) {
