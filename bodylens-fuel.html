@@ -113,6 +113,8 @@ html,body{background:var(--ink);color:var(--dk-1);font-family:var(--sans);min-he
 </style>
 </head>
 <body>
+<div class="pro-page-banner" id="pro-page-banner">&#10022; PRO features are highlighted &mdash; <a href="/bodylens-pro.html">Founding member pricing available</a></div>
+<script>(function(){if(localStorage.getItem('bl_pro_status')!=='active'){var b=document.getElementById('pro-page-banner');if(b)b.style.display='block';}})();</script>
 <script src="nav.js"></script>
 
 <div class="fuel-page">
@@ -129,11 +131,11 @@ html,body{background:var(--ink);color:var(--dk-1);font-family:var(--sans);min-he
 
   <div class="fuel-tabs">
     <button class="ftab active" onclick="showPane('pane-meals',this)">Meal ideas</button>
-    <button class="ftab" onclick="showPane('pane-shop',this);generatePane('shop')">Shopping list</button>
-    <button class="ftab" onclick="showPane('pane-timing',this);generatePane('timing')">Timing</button>
-    <button class="ftab" onclick="showPane('pane-syn',this);generatePane('syn')">Synergies</button>
-    <button class="ftab" onclick="showPane('pane-hacks',this);generatePane('hacks')">Hunger &amp; energy</button>
-    <button class="ftab" onclick="showPane('pane-avoid',this);generatePane('avoid')">What to avoid</button>
+    <button class="ftab" onclick="showPane('pane-shop',this);generatePane('shop')">Shopping list<span class="pro-badge">PRO</span></button>
+    <button class="ftab" onclick="showPane('pane-timing',this);generatePane('timing')">Timing<span class="pro-badge">PRO</span></button>
+    <button class="ftab" onclick="showPane('pane-syn',this);generatePane('syn')">Synergies<span class="pro-badge">PRO</span></button>
+    <button class="ftab" onclick="showPane('pane-hacks',this);generatePane('hacks')">Hunger &amp; energy<span class="pro-badge">PRO</span></button>
+    <button class="ftab" onclick="showPane('pane-avoid',this);generatePane('avoid')">What to avoid<span class="pro-badge">PRO</span></button>
     <button class="ftab" onclick="showPane('pane-pyramids',this);initPyramids()">Macro frameworks</button>
   </div>
 
@@ -143,33 +145,33 @@ html,body{background:var(--ink);color:var(--dk-1);font-family:var(--sans);min-he
       <div class="pane-sub">Personalised to your macros, cuisine preferences, and schedule.</div>
     </div>
     <div id="meals-content">
-      <div class="pane-empty"><div class="pane-empty-icon">&#127869;</div><div class="pane-empty-title">Build your meal plan</div><div class="pane-empty-sub">AI generates a week of meals matched to your targets.</div><button class="pane-gen-btn" onclick="generateMeals()">Generate meals &#8594;</button></div>
+      <div class="pane-empty"><div class="pane-empty-icon">&#127869;</div><div class="pane-empty-title">Build your meal plan</div><div class="pane-empty-sub">AI generates a week of meals matched to your targets.</div><button class="pane-gen-btn" onclick="generateMeals()">Generate meals &#8594;<span class="pro-badge">PRO</span></button></div>
     </div>
   </div>
 
   <div class="fuel-pane" id="pane-shop">
     <div class="pane-header"><div class="pane-title">Shopping list</div><div class="pane-sub">One week of ingredients organised by section. Real items, real quantities.</div></div>
-    <div id="pane-shop-content"><div class="pane-empty"><div class="pane-empty-icon">&#128722;</div><div class="pane-empty-title">Build your shopping list</div><div class="pane-empty-sub">Generated from your profile — specific items, real quantities.</div><button class="pane-gen-btn" onclick="generatePane('shop')">Generate &#8594;</button></div></div>
+    <div id="pane-shop-content"><div class="pane-empty"><div class="pane-empty-icon">&#128722;</div><div class="pane-empty-title">Build your shopping list</div><div class="pane-empty-sub">Generated from your profile — specific items, real quantities.</div><button class="pane-gen-btn" onclick="generatePane('shop')">Generate &#8594;<span class="pro-badge">PRO</span></button></div></div>
   </div>
 
   <div class="fuel-pane" id="pane-timing">
     <div class="pane-header"><div class="pane-title">Nutrient timing</div><div class="pane-sub">When you eat matters almost as much as what. Built around your training window.</div></div>
-    <div id="pane-timing-content"><div class="pane-empty"><div class="pane-empty-icon">&#9201;</div><div class="pane-empty-title">Build your timing guide</div><div class="pane-empty-sub">Pre-training, post-training, meal spacing — specific to your schedule.</div><button class="pane-gen-btn" onclick="generatePane('timing')">Generate &#8594;</button></div></div>
+    <div id="pane-timing-content"><div class="pane-empty"><div class="pane-empty-icon">&#9201;</div><div class="pane-empty-title">Build your timing guide</div><div class="pane-empty-sub">Pre-training, post-training, meal spacing — specific to your schedule.</div><button class="pane-gen-btn" onclick="generatePane('timing')">Generate &#8594;<span class="pro-badge">PRO</span></button></div></div>
   </div>
 
   <div class="fuel-pane" id="pane-syn">
     <div class="pane-header"><div class="pane-title">Food synergies</div><div class="pane-sub">Combinations that amplify each other. The mechanism matters as much as the pairing.</div></div>
-    <div id="pane-syn-content"><div class="pane-empty"><div class="pane-empty-icon">&#9889;</div><div class="pane-empty-title">Build your synergy guide</div><div class="pane-empty-sub">5 high-impact food combinations specific to your goal.</div><button class="pane-gen-btn" onclick="generatePane('syn')">Generate &#8594;</button></div></div>
+    <div id="pane-syn-content"><div class="pane-empty"><div class="pane-empty-icon">&#9889;</div><div class="pane-empty-title">Build your synergy guide</div><div class="pane-empty-sub">5 high-impact food combinations specific to your goal.</div><button class="pane-gen-btn" onclick="generatePane('syn')">Generate &#8594;<span class="pro-badge">PRO</span></button></div></div>
   </div>
 
   <div class="fuel-pane" id="pane-hacks">
     <div class="pane-header"><div class="pane-title">Hunger &amp; energy</div><div class="pane-sub">Practical strategies for managing satiety, avoiding crashes, and staying on target.</div></div>
-    <div id="pane-hacks-content"><div class="pane-empty"><div class="pane-empty-icon">&#128267;</div><div class="pane-empty-title">Build your hunger guide</div><div class="pane-empty-sub">6 evidence-backed strategies matched to your trigger foods and energy patterns.</div><button class="pane-gen-btn" onclick="generatePane('hacks')">Generate &#8594;</button></div></div>
+    <div id="pane-hacks-content"><div class="pane-empty"><div class="pane-empty-icon">&#128267;</div><div class="pane-empty-title">Build your hunger guide</div><div class="pane-empty-sub">6 evidence-backed strategies matched to your trigger foods and energy patterns.</div><button class="pane-gen-btn" onclick="generatePane('hacks')">Generate &#8594;<span class="pro-badge">PRO</span></button></div></div>
   </div>
 
   <div class="fuel-pane" id="pane-avoid">
     <div class="pane-header"><div class="pane-title">What to avoid</div><div class="pane-sub">Not a generic list — specific to your goal, your weak spots, and your current phase.</div></div>
-    <div id="pane-avoid-content"><div class="pane-empty"><div class="pane-empty-icon">&#128683;</div><div class="pane-empty-title">Build your avoid list</div><div class="pane-empty-sub">8 specific foods or patterns counterproductive for you right now, with replacements.</div><button class="pane-gen-btn" onclick="generatePane('avoid')">Generate &#8594;</button></div></div>
+    <div id="pane-avoid-content"><div class="pane-empty"><div class="pane-empty-icon">&#128683;</div><div class="pane-empty-title">Build your avoid list</div><div class="pane-empty-sub">8 specific foods or patterns counterproductive for you right now, with replacements.</div><button class="pane-gen-btn" onclick="generatePane('avoid')">Generate &#8594;<span class="pro-badge">PRO</span></button></div></div>
   </div>
 
   <div class="fuel-pane" id="pane-pyramids">
