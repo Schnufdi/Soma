@@ -237,44 +237,4 @@ function dismissDebrief() {
   var banner = document.getElementById('debrief-banner');
   if (banner) banner.classList.remove('visible');
 }
-
-function openDebrief() {
-  dismissDebrief(); // hide banner
-  DB.step = 0;
-  DB.data = {};
-  var log = loadDayLog(_rDate) || {};
-  DB.data.trainStatus = log.trainStatus || '';
-  DB.data.sleepActual = log.sleepActual || 0;
-  DB.data.energy = log.energy || 0;
-
-  document.getElementById('debrief-overlay').classList.add('open');
-  dbRender();
-}
-
-function closeDebrief() {
-  document.getElementById('debrief-overlay').classList.remove('open');
-}
-
-async function dbFinalise() {
-  // Save all data to day log first
-  dbWriteToLog();
-  closeDebrief();
-
-  // Show memory compression indicator
-  var p = P;
-  var log = loadDayLog(_rDate) || {};
-  if (!p || !log.date) return;
-
-  // Fire AI compression in background — updates behaviourMemory on profile
-  // which auto-syncs to Supabase via the localStorage intercept
-  try {
-    var result = await compressAndSaveMemory(log, p);
-    if (result && result.newFlags && result.newFlags.length) {
-      // Refresh glance card to show new flags
-      var glanceCard = document.querySelector('.glance-card');
-      if (glanceCard && typeof renderGlanceCard === 'function' && typeof P !== 'undefined' && typeof TODAY !== 'undefined' && window._lastPlan) {
-        glanceCard.outerHTML = renderGlanceCard(P, TODAY, window._lastPlan);
-      }
-    }
-  } catch(e) {}
-}
+// openDebrief, closeDebrief, dbFinalise defined in dp-debrief.js (loads after this file)
