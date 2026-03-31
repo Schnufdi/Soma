@@ -7204,6 +7204,16 @@ window._blInit = function init(){
   var cached = null;
   try { var c = localStorage.getItem(TODAY.cacheKey); if(c) cached = JSON.parse(c); } catch(e){}
 
+  // Validate cache matches TODAY's actual day type (recovery overrides can change this)
+  if (cached && cached.blocks && cached.blocks.length >= 3) {
+    var cachedIsTraining = cached.isTraining === true || (cached.dayType && cached.dayType !== 'Rest' && cached.dayType !== 'rest');
+    var todayIsTraining = TODAY.isTraining === true;
+    if (cachedIsTraining !== todayIsTraining) {
+      // Mismatch — cache is stale (e.g. recovery was applied after cache was built)
+      try { localStorage.removeItem(TODAY.cacheKey); } catch(e) {}
+      cached = null;
+    }
+  }
   if(cached && cached.blocks && cached.blocks.length >= 3){
     // Plan already built today — show immediately, no interaction needed
     renderPlan(cached);
