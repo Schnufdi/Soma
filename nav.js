@@ -3,7 +3,7 @@
 // No page can have a different menu — it all comes from here.
 (function injectNav() {
   const NAV_HTML = `<nav class="site-nav">
-  <div class="nav-brand">Body<em>Lens</em></div>
+  <div class="nav-brand">Body<em>Lens</em><span class="sync-dot" id="sync-dot" title="Sync status"></span></div>
   <div class="nav-links">
     <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
@@ -168,6 +168,14 @@ function dismissDisclaimer() {
   var el = document.getElementById('site-disclaimer');
   if (el) { el.classList.remove('visible'); el.classList.add('hiding'); setTimeout(function(){ el.style.display='none'; }, 300); }
   try { localStorage.setItem('bl_disclaimer_dismissed', '1'); } catch(e) {}
+}
+
+function updateSyncDot(status) {
+  var dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  dot.setAttribute('data-status', status);
+  var labels = { idle: 'Synced', syncing: 'Syncing...', offline: 'Offline', error: 'Sync error' };
+  dot.title = labels[status] || 'Sync status';
 }
 
 // ════════════════════════════════════════════════════════
@@ -577,8 +585,38 @@ document.addEventListener('DOMContentLoaded', () => {
       const sb = document.createElement('script');
       sb.src = '/supabase-auth.js';
       document.head.appendChild(sb);
+      // Subscribe to sync status changes
+      if (window.BLSync) {
+        window.BLSync.onStatusChange(updateSyncDot);
+      }
     };
     document.head.appendChild(sync);
+  }
+
+  // Inject sync-dot styles
+  if (!document.getElementById('sync-dot-styles')) {
+    const sd = document.createElement('style');
+    sd.id = 'sync-dot-styles';
+    sd.textContent = `
+      .sync-dot {
+        display: inline-block;
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        margin-left: 5px;
+        vertical-align: middle;
+        background: var(--dk-3, #4a6058);
+        transition: background 0.3s;
+      }
+      .sync-dot[data-status="idle"]    { background: var(--jade, #00c4a0); }
+      .sync-dot[data-status="syncing"] { background: var(--amber, #f0a500); animation: sync-pulse 1s infinite; }
+      .sync-dot[data-status="offline"] { background: var(--dk-3, #4a6058); }
+      .sync-dot[data-status="error"]   { background: #e74c3c; }
+      @keyframes sync-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+    `;
+    document.head.appendChild(sd);
   }
 
 });
