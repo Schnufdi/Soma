@@ -424,11 +424,18 @@ function applyReshuffle(){
   var result=window._reshuffleResult;if(!result)return;
   var p=getProfile();if(!p)return;
   var ov=loadOverride();
+  // Write the rescheduled destination days
   (result.schedule||[]).forEach(function(s){
     ov[s.dayIdx]={type:s.type,priority:s.priority,source:'reshuffle',note:s.note||'',reshuffledAt:new Date().toISOString()};
   });
-  saveOverride(ov);
+  // Mark the source (missed) days as vacated — the AI only returns destination days
   var missed=getMissed(p);
+  missed.forEach(function(m){
+    if(!ov[m.idx]){
+      ov[m.idx]={type:'Rest',priority:'rest',source:'reshuffle',note:'Session moved',reshuffledAt:new Date().toISOString()};
+    }
+  });
+  saveOverride(ov);
   missed.forEach(function(m){
     var existing=loadLog(m.ds)||{};
     existing.trainStatus='skipped';
