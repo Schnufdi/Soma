@@ -3107,6 +3107,84 @@ body {
   padding-left: 4px;
   border-left: 1px solid rgba(255,255,255,.08);
 }
+
+/* ── Collapsible "Why?" rationale blocks ─────────────── */
+.dp2-intel-collapsible {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.dp2-intel-collapsible:hover { background: rgba(0,200,160,.06); }
+.dp2-intel-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dp2-intel-chevron {
+  font-size: 14px;
+  color: var(--jade);
+  opacity: .5;
+  transition: transform .2s;
+  line-height: 1;
+  margin-left: 6px;
+}
+.dp2-intel-collapsible.open .dp2-intel-chevron {
+  transform: rotate(180deg);
+  opacity: .8;
+}
+.dp2-intel-body {
+  display: none;
+  margin-top: 7px;
+}
+.dp2-intel-collapsible.open .dp2-intel-body {
+  display: block;
+}
+
+/* ── Day completion rings ────────────────────────────── */
+.dp2-completion-rings {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,.02);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.05);
+  margin-top: 14px;
+}
+.dp2-cr-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.dp2-cr-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dp2-cr-pct {
+  position: absolute;
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--dk-2);
+  line-height: 1;
+}
+.dp2-cr-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+}
+.dp2-cr-title {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--dk-3);
+  letter-spacing: .04em;
+  margin-right: auto;
+  align-self: center;
+}
 </style>
 
 <script src="activitylog.js"></script>
@@ -4561,6 +4639,50 @@ function renderPlan(plan, browsing) {
       +'</svg>';
   }
 
+  // ── Mini ring (colored) ──────────────────────────────────
+  function miniRing(pct, r, stroke, id, color) {
+    var circ = 2*Math.PI*r;
+    var offset = circ*(1-Math.max(0,Math.min(100,pct))/100);
+    var c = color || 'var(--day-jade)';
+    return '<svg viewBox="0 0 '+(r*2+stroke)+' '+(r*2+stroke)+'" width="'+(r*2+stroke)+'" height="'+(r*2+stroke)+'" style="transform:rotate(-90deg)">'
+      +'<circle cx="'+(r+stroke/2)+'" cy="'+(r+stroke/2)+'" r="'+r+'" stroke="rgba(255,255,255,.07)" stroke-width="'+stroke+'" fill="none"/>'
+      +'<circle id="'+(id||'')+'" cx="'+(r+stroke/2)+'" cy="'+(r+stroke/2)+'" r="'+r+'" stroke="'+c+'" stroke-width="'+stroke+'" fill="none" stroke-linecap="round"'
+      +' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'"/>'
+      +'</svg>';
+  }
+
+  // ── Completion ring values ────────────────────────────────
+  var crTrainPct = log.trainStatus === 'done' ? 100 : 0;
+  var crMealDone = mealBlocks.filter(function(b){ return log.meals && log.meals[b.mealSlot] && log.meals[b.mealSlot].logged; }).length;
+  var crMealPct  = mealBlocks.length > 0 ? Math.round(crMealDone / mealBlocks.length * 100) : 0;
+  var crStackDone = allSuppNames.filter(function(n){ return suppLog && suppLog[n]; }).length;
+  var crStackPct  = allSuppNames.length > 0 ? Math.round(crStackDone / allSuppNames.length * 100) : 0;
+
+  var completionRingsHtml = '<div class="dp2-completion-rings">'
+    +'<div class="dp2-cr-title">Today</div>'
+    +'<div class="dp2-cr-item">'
+      +'<div class="dp2-cr-ring">'
+        +miniRing(crTrainPct, 16, 3, 'cr-train', 'var(--day-jade)')
+        +'<div class="dp2-cr-pct" id="cr-train-pct">'+crTrainPct+'%</div>'
+      +'</div>'
+      +'<div class="dp2-cr-label">Train</div>'
+    +'</div>'
+    +'<div class="dp2-cr-item">'
+      +'<div class="dp2-cr-ring">'
+        +miniRing(crMealPct, 16, 3, 'cr-meals', 'var(--amber)')
+        +'<div class="dp2-cr-pct" id="cr-meals-pct">'+crMealPct+'%</div>'
+      +'</div>'
+      +'<div class="dp2-cr-label">Meals</div>'
+    +'</div>'
+    +'<div class="dp2-cr-item">'
+      +'<div class="dp2-cr-ring">'
+        +miniRing(crStackPct, 16, 3, 'cr-stack', 'rgba(255,255,255,.45)')
+        +'<div class="dp2-cr-pct" id="cr-stack-pct">'+crStackPct+'%</div>'
+      +'</div>'
+      +'<div class="dp2-cr-label">Stack</div>'
+    +'</div>'
+  +'</div>';
+
   // ── Mission brief ────────────────────────────────────────
   var isTraining = t.isTraining;
   var dayType = isTraining
@@ -4649,6 +4771,7 @@ function renderPlan(plan, browsing) {
         +'<div><div class="dp2-signal-val" style="color:var(--day-text1);">Day score</div><div class="dp2-signal-label">Updates live</div></div>'
       +'</div>'
     +'</div>'
+    + completionRingsHtml
   +'</div>';
 
   // ── Act builder ──────────────────────────────────────────
@@ -4707,12 +4830,15 @@ function renderPlan(plan, browsing) {
         'Incline': 'Third. Upper chest emphasis after the primary compound is done.',
       };
 
-      html += '<div class="dp2-intel-header">'
-        + '<div class="dp2-intel-label">Session logic</div>'
-        + '<div class="dp2-intel-text">'
+      html += '<div class="dp2-intel-header dp2-intel-collapsible" onclick="this.classList.toggle(\'open\')">'
+        + '<div class="dp2-intel-toggle-row">'
+          + '<div class="dp2-intel-label">Session logic</div>'
+          + '<span class="dp2-intel-chevron">&#8964;</span>'
+        + '</div>'
+        + '<div class="dp2-intel-body"><div class="dp2-intel-text">'
           + 'Exercises sequenced by CNS demand — heaviest compound patterns first while the nervous system is fully available, isolation and accessory work absorbed into accumulated fatigue. '
           + 'Posterior chain today because glutes and hamstrings are your structural foundation: they drive posture, power output, and metabolic rate.'
-        + '</div>'
+        + '</div></div>'
       + '</div>';
 
       html += '<div class="dp2-exlist">';
@@ -4759,9 +4885,12 @@ function renderPlan(plan, browsing) {
           'Rowing': 'Avoid today — hip hinge pattern already taxed by RDL and Hip Thrust. Adds the same hip extension and spinal erector demand your session already drove hard.',
         };
 
-        html += '<div class="dp2-intel-header" style="margin-top:14px;">'
-          + '<div class="dp2-intel-label">Cardio logic</div>'
-          + '<div class="dp2-intel-text">'+cr.why+'</div>'
+        html += '<div class="dp2-intel-header dp2-intel-collapsible" style="margin-top:14px;" onclick="this.classList.toggle(\'open\')">'
+          + '<div class="dp2-intel-toggle-row">'
+            + '<div class="dp2-intel-label">Cardio logic</div>'
+            + '<span class="dp2-intel-chevron">&#8964;</span>'
+          + '</div>'
+          + '<div class="dp2-intel-body"><div class="dp2-intel-text">'+cr.why+'</div></div>'
         + '</div>';
 
         html += '<div class="dp2-cardio-grid">';
@@ -4802,9 +4931,12 @@ function renderPlan(plan, browsing) {
         ? 'Stack timing is not arbitrary. Each item is placed where it has the most biological leverage \u2014 either to maximise absorption, complement another compound, or work with your circadian biology rather than against it.'
         : 'Evening stack serves one purpose: protect tonight\u2019s adaptation. Magnesium prepares the nervous system for deep slow-wave sleep. This is where GH pulses. This is when today\u2019s training becomes muscle.';
 
-      html += '<div class="dp2-intel-header">'
-        + '<div class="dp2-intel-label">Timing logic</div>'
-        + '<div class="dp2-intel-text">'+timingWhy+'</div>'
+      html += '<div class="dp2-intel-header dp2-intel-collapsible" onclick="this.classList.toggle(\'open\')">'
+        + '<div class="dp2-intel-toggle-row">'
+          + '<div class="dp2-intel-label">Timing logic</div>'
+          + '<span class="dp2-intel-chevron">&#8964;</span>'
+        + '</div>'
+        + '<div class="dp2-intel-body"><div class="dp2-intel-text">'+timingWhy+'</div></div>'
       + '</div>';
 
       html += '<div class="dp2-supp-explained">';
@@ -4864,9 +4996,12 @@ function renderPlan(plan, browsing) {
       };
       var mealWhy = MEAL_WHY[block.mealSlot] || block.detail || '';
       if (mealWhy) {
-        html += '<div class="dp2-intel-header">'
-          + '<div class="dp2-intel-label">Why now</div>'
-          + '<div class="dp2-intel-text">'+mealWhy+'</div>'
+        html += '<div class="dp2-intel-header dp2-intel-collapsible" onclick="this.classList.toggle(\'open\')">'
+          + '<div class="dp2-intel-toggle-row">'
+            + '<div class="dp2-intel-label">Why now</div>'
+            + '<span class="dp2-intel-chevron">&#8964;</span>'
+          + '</div>'
+          + '<div class="dp2-intel-body"><div class="dp2-intel-text">'+mealWhy+'</div></div>'
         + '</div>';
       }
       html += '<div style="font-size:11px;font-weight:300;color:var(--dk-3);padding:4px 0 8px;">Target ~'+mealPct+'g protein this meal</div>'
@@ -4883,9 +5018,12 @@ function renderPlan(plan, browsing) {
     // ── Wake / Recovery blocks ──────────────────────────────────
     else {
       if (block.detail) {
-        html += '<div class="dp2-intel-header">'
-          + '<div class="dp2-intel-label">Why this matters</div>'
-          + '<div class="dp2-intel-text">'+block.detail.replace(/\n/g,'<br>')+'</div>'
+        html += '<div class="dp2-intel-header dp2-intel-collapsible" onclick="this.classList.toggle(\'open\')">'
+          + '<div class="dp2-intel-toggle-row">'
+            + '<div class="dp2-intel-label">Why this matters</div>'
+            + '<span class="dp2-intel-chevron">&#8964;</span>'
+          + '</div>'
+          + '<div class="dp2-intel-body"><div class="dp2-intel-text">'+block.detail.replace(/\n/g,'<br>')+'</div></div>'
         + '</div>';
       } else if (block.subtitle) {
         html += '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;padding:8px 0;">'+block.subtitle+'</div>';
@@ -5181,10 +5319,44 @@ function dpRefreshScore() {
   var bd = document.getElementById('dp2-eod-breakdown');
   if (bd) bd.textContent = breakdown2;
 
-  // Update ring
+  // Update main score ring
   var r = 17, circ = 2*Math.PI*r;
   var fill = document.getElementById('dp2-ring-fill');
   if (fill) fill.style.strokeDashoffset = (circ*(1-score2/100)).toFixed(1);
+
+  // Update completion rings
+  dpRefreshCompletionRings();
+}
+
+function dpRefreshCompletionRings() {
+  var log = loadDayLog(_rDate) || {};
+  var R = 16, STROKE = 3;
+  var circ2 = 2*Math.PI*R;
+
+  function updateRing(circleId, pctElId, pct) {
+    var el = document.getElementById(circleId);
+    if (el) el.style.strokeDashoffset = (circ2*(1-Math.max(0,Math.min(100,pct))/100)).toFixed(1);
+    var pe = document.getElementById(pctElId);
+    if (pe) pe.textContent = pct+'%';
+  }
+
+  // Training
+  var trainPctVal = log.trainStatus === 'done' ? 100 : 0;
+  updateRing('cr-train', 'cr-train-pct', trainPctVal);
+
+  // Meals
+  var mb = (window._blocks||[]).filter(function(b){ return !!b.mealSlot; });
+  var mDone = mb.filter(function(b){ return log.meals && log.meals[b.mealSlot] && log.meals[b.mealSlot].logged; }).length;
+  var mPct = mb.length > 0 ? Math.round(mDone/mb.length*100) : 0;
+  updateRing('cr-meals', 'cr-meals-pct', mPct);
+
+  // Stack
+  var sNames = [];
+  (window._blocks||[]).forEach(function(b){ if(b.type==='supp'||b.type==='recovery') (b.suppList||[]).forEach(function(s){ sNames.push(s.name||s); }); });
+  var sLog = (typeof getSuppLog === 'function') ? getSuppLog() : {};
+  var sDone = sNames.filter(function(n){ return sLog && sLog[n]; }).length;
+  var sPct = sNames.length > 0 ? Math.round(sDone/sNames.length*100) : 0;
+  updateRing('cr-stack', 'cr-stack-pct', sPct);
 }
 
 // ── Macro refresh ────────────────────────────────────────────
@@ -7199,14 +7371,38 @@ window._blInit = function init(){
 
   TODAY = getTodayCtx(P);
   var ok = (P.trainingKcal > 0 || P.calories > 0) && P.weekPlan.length >= 5;
-  if(!ok){
-    root.innerHTML = '<div style="text-align:center;padding:60px 24px;max-width:480px;margin:0 auto;">'
-      +'<div style="font-size:32px;margin-bottom:12px;">&#9881;&#65039;</div>'
-      +'<div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--dk-1);margin-bottom:10px;">Profile incomplete</div>'
-      +'<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:20px;">Your profile was found but the programme data is missing. Go to the Report page to rebuild it.</div>'
+
+  // Check for specific missing fields beyond the basic ok check
+  var missingFields = [];
+  if (!P.weight || P.weight <= 0)            missingFields.push('Body weight');
+  if (!P.goal)                                missingFields.push('Primary goal (e.g. fat loss, muscle)');
+  if (!P.weekPlan || P.weekPlan.length < 5)  missingFields.push('Training schedule (7-day week plan)');
+  if (!P.protein || P.protein <= 0)          missingFields.push('Protein target');
+
+  if (!ok || missingFields.length > 0) {
+    var fieldsHtml = missingFields.length > 0
+      ? '<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:14px;">To build a precise daily plan, we need:</div>'
+        + '<div style="text-align:left;margin:0 auto 24px;max-width:320px;padding:12px 16px;background:var(--ink-2);border-radius:10px;border:1px solid rgba(255,255,255,.07);">'
+        + missingFields.map(function(f){
+            return '<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+              +'<div style="width:5px;height:5px;background:var(--amber);border-radius:50%;flex-shrink:0;"></div>'
+              +'<div style="font-size:12px;font-weight:300;color:var(--dk-2);">'+f+'</div>'
+            +'</div>';
+          }).join('')
+        + '</div>'
+      : '<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;margin-bottom:24px;">Your profile was found but the programme data is missing. Rebuild it to continue.</div>';
+
+    root.innerHTML = '<div style="text-align:center;padding:60px 24px;max-width:500px;margin:0 auto;">'
+      +'<div style="font-size:36px;margin-bottom:14px;">&#128203;</div>'
+      +'<div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--dk-1);margin-bottom:12px;">'
+        +(missingFields.length > 0 ? 'Your plan needs a few more details' : 'Profile incomplete')
+      +'</div>'
+      + fieldsHtml
       +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">'
-      +'<a href="bodylens-instructions.html" style="background:var(--jade);color:var(--ink);padding:11px 22px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Rebuild report &#8594;</a>'
-      +'<a href="bodylens-onboard.html" style="background:transparent;border:1px solid var(--bd);color:var(--dk-2);padding:11px 22px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Re-do onboarding</a>'
+      +'<a href="bodylens-onboard.html" style="background:var(--jade);color:var(--ink);padding:12px 24px;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;">Complete setup &#8594;</a>'
+      +(missingFields.length === 0
+        ? '<a href="bodylens-instructions.html" style="background:transparent;border:1px solid var(--bd);color:var(--dk-2);padding:12px 24px;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;">Rebuild report</a>'
+        : '')
       +'</div></div>';
     return;
   }
