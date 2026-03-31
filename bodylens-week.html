@@ -147,6 +147,197 @@ body{background:var(--ink);color:var(--dk-1);}
 .wk-no-meals-btn { display: inline-block; padding: 8px 18px; background: rgba(196,124,24,.08); border: 1px solid rgba(196,124,24,.2); border-radius: 20px; color: var(--amber); font-size: 11px; font-weight: 700; text-decoration: none; letter-spacing: .04em; }
 @media (max-width: 760px) { .wk-meal-grid { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 500px) { .wk-meal-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── Missed banner on day card ──────────────── */
+.day-card.missed .reshuffle-trigger {
+  display: block !important;
+}
+.reshuffle-trigger {
+  display: none;
+  width: 100%;
+  margin-top: 8px;
+  background: rgba(196,124,24,.1);
+  border: 1px solid rgba(196,124,24,.3);
+  border-radius: 6px;
+  color: var(--amber);
+  font-family: var(--sans);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  padding: 6px 8px; cursor: pointer;
+  transition: all .12s; text-align: center;
+}
+.reshuffle-trigger:hover {
+  background: rgba(196,124,24,.18);
+}
+
+/* ── Reshuffle overlay ──────────────────────── */
+#reshuffle-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  display: flex; align-items: flex-end;
+  justify-content: center;
+  z-index: 8000;
+  padding: 0 16px 0;
+}
+@media (min-width: 600px) {
+  #reshuffle-overlay { align-items: center; }
+}
+.rs-modal {
+  background: var(--ink-1);
+  border: 1px solid var(--bd-2);
+  border-radius: 18px 18px 0 0;
+  width: 100%; max-width: 560px;
+  max-height: 85vh; overflow-y: auto;
+  padding: 24px 22px 32px;
+}
+@media (min-width: 600px) {
+  .rs-modal { border-radius: 18px; }
+}
+.rs-modal-hd {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.rs-modal-title {
+  font-family: var(--serif);
+  font-size: 22px; font-weight: 500;
+  color: var(--dk-1);
+}
+.rs-close-btn {
+  background: none; border: none;
+  color: var(--dk-3); font-size: 16px;
+  cursor: pointer; padding: 4px;
+}
+.rs-section-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--dk-3); margin-bottom: 8px;
+}
+.rs-missed-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--dk-1);
+  margin-bottom: 6px;
+}
+.rs-missed-badge {
+  font-size: 8px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  background: rgba(220,80,60,.12); color: var(--red);
+  border: 1px solid rgba(220,80,60,.25);
+  padding: 2px 7px; border-radius: 4px;
+}
+.rs-slots {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 16px;
+}
+.rs-slot {
+  border-radius: 8px; padding: 7px 12px;
+  border: 1px solid var(--bd);
+}
+.rs-slot-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--dk-1);
+}
+.rs-slot-sub {
+  font-size: 9px; font-weight: 300;
+  color: var(--dk-3); margin-top: 1px;
+}
+.slot-free { background: rgba(0,200,160,.05); border-color: rgba(0,200,160,.15); }
+.slot-training { background: rgba(255,255,255,.03); }
+
+.rs-ai-note {
+  font-size: 11px; font-weight: 300;
+  color: var(--dk-3); line-height: 1.6;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.03);
+  border-radius: 8px;
+}
+.rs-ai-btn {
+  width: 100%;
+  background: var(--jade); color: var(--ink);
+  border: none; border-radius: 10px;
+  font-family: var(--sans); font-size: 13px; font-weight: 700;
+  letter-spacing: .04em; padding: 14px;
+  cursor: pointer; transition: opacity .12s;
+}
+.rs-ai-btn:hover { opacity: .9; }
+.rs-ai-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Result */
+.rs-result { margin-top: 20px; }
+.rs-result-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--jade); margin-bottom: 10px;
+}
+.rs-new-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; border-radius: 8px;
+  margin-bottom: 6px;
+  border: 1px solid var(--bd);
+}
+.rs-new-train {
+  background: rgba(0,200,160,.05);
+  border-color: rgba(0,200,160,.2);
+}
+.rs-new-rest { background: rgba(255,255,255,.02); }
+.rs-new-day {
+  font-size: 11px; font-weight: 600;
+  color: var(--dk-2); width: 80px; flex-shrink: 0;
+}
+.rs-new-type {
+  font-size: 12px; font-weight: 700;
+  color: var(--dk-1); flex: 1;
+}
+.rs-new-note {
+  font-size: 9px; font-weight: 300;
+  color: var(--dk-3);
+}
+.rs-rationale {
+  font-size: 12px; font-weight: 300;
+  color: var(--dk-2); line-height: 1.7;
+  margin: 14px 0;
+  padding: 12px 14px;
+  background: rgba(255,255,255,.03);
+  border-left: 2px solid rgba(0,200,160,.3);
+  border-radius: 0 8px 8px 0;
+}
+.rs-warning {
+  font-size: 11px; font-weight: 500;
+  color: var(--amber);
+  padding: 8px 12px;
+  background: rgba(196,124,24,.08);
+  border-radius: 7px;
+  margin-bottom: 10px;
+}
+.rs-dropped {
+  font-size: 11px; font-weight: 300;
+  color: var(--red); margin-bottom: 10px;
+  padding: 8px 12px;
+  background: rgba(220,80,60,.06);
+  border-radius: 7px;
+}
+.rs-result-actions {
+  display: flex; gap: 8px; margin-top: 16px;
+}
+.rs-apply-btn {
+  flex: 1; background: var(--jade); color: var(--ink);
+  border: none; border-radius: 8px; padding: 12px;
+  font-family: var(--sans); font-size: 12px; font-weight: 700;
+  letter-spacing: .04em; cursor: pointer;
+}
+.rs-reject-btn {
+  background: none;
+  border: 1px solid var(--bd);
+  color: var(--dk-3); font-family: var(--sans);
+  font-size: 12px; font-weight: 600;
+  padding: 12px 16px; border-radius: 8px; cursor: pointer;
+}
+.rs-error {
+  font-size: 12px; color: var(--red);
+  margin-top: 12px; text-align: center;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -343,6 +534,10 @@ function render(p) {
       exHtml2 += '</div>';
     }
 
+    var isMissed = (status === 'missed');
+    var reshuffleBtn = isMissed
+      ? '<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffleModal()">↻ Reshuffle week</button>'
+      : '';
     cardsHtml += '<div class="day-card '+status+(isToday?' today':'')+(isTraining?'':' rest')+'">'
       +(isToday ? '<div class="today-badge">Today</div>' : '')
       +'<div class="day-card-day">'+dayName.slice(0,3)+'</div>'
@@ -352,6 +547,7 @@ function render(p) {
       +exHtml2
       +actsHtml
       +fatHtml
+      +reshuffleBtn
       +'</div>';
   });
   cardsHtml += '</div>';
@@ -616,6 +812,297 @@ function blRefreshProposalUI() {
     }
   }
 }
+
+
+// ── Week Override helpers (self-contained for week page) ─────────────────────
+function _wkOverrideKey() {
+  var d = new Date(), mon = new Date(d), wd = d.getDay();
+  mon.setDate(d.getDate() - (wd === 0 ? 6 : wd - 1));
+  mon.setHours(0,0,0,0);
+  return 'bl_week_override_' + mon.toISOString().slice(0,10);
+}
+function loadWkOverride() {
+  try { var r = localStorage.getItem(_wkOverrideKey()); return r ? JSON.parse(r) : {}; }
+  catch(e) { return {}; }
+}
+function saveWkOverride(data) {
+  try { localStorage.setItem(_wkOverrideKey(), JSON.stringify(data)); } catch(e) {}
+}
+function getEffectiveWkPlan(p, idx) {
+  var ov = loadWkOverride();
+  if (ov[idx]) return Object.assign({}, (p.weekPlan||[])[idx]||{}, ov[idx]);
+  return (p.weekPlan||[])[idx] || { type:'Rest', priority:'rest' };
+}
+
+// ── Missed session detection ──────────────────────────────────────────────────
+function getMissedThisWeek(p) {
+  var now = new Date();
+  var wd = now.getDay();
+  var todayIdx = wd === 0 ? 6 : wd - 1;
+  var mon = new Date(now);
+  mon.setDate(now.getDate() - todayIdx);
+  mon.setHours(0,0,0,0);
+  var missed = [];
+  for (var i = 0; i < todayIdx; i++) {
+    var plan = getEffectiveWkPlan(p, i);
+    if (plan.priority !== 'training') continue;
+    var d = new Date(mon); d.setDate(mon.getDate() + i);
+    var ds = d.toISOString().slice(0,10);
+    var log = null;
+    try { log = JSON.parse(localStorage.getItem('bl_daylog_' + ds) || 'null'); } catch(e) {}
+    if (!log || (typeof log === 'string') || log.trainStatus !== 'done') {
+      missed.push({ idx: i, day: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][i], date: ds, sessionType: plan.type, plan: plan });
+    }
+  }
+  return missed;
+}
+
+function getRemainingDays(p) {
+  var now = new Date();
+  var wd = now.getDay();
+  var todayIdx = wd === 0 ? 6 : wd - 1;
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var remaining = [];
+  for (var i = todayIdx; i < 7; i++) {
+    var plan = getEffectiveWkPlan(p, i);
+    remaining.push({ idx: i, day: DNS[i], plan: plan, isToday: i === todayIdx });
+  }
+  return remaining;
+}
+
+// ── Reshuffle UI ──────────────────────────────────────────────────────────────
+var _reshuffleState = { open: false };
+
+function openReshuffleModal() {
+  var p = getProfile();
+  if (!p) return;
+  var missed = getMissedThisWeek(p);
+  if (!missed.length) return;
+
+  var existing = document.getElementById('reshuffle-overlay');
+  if (existing) existing.remove();
+
+  var el = document.createElement('div');
+  el.id = 'reshuffle-overlay';
+  el.innerHTML = buildReshuffleModalHTML(p, missed);
+  document.body.appendChild(el);
+
+  // Focus trap / close on backdrop
+  el.addEventListener('click', function(e) {
+    if (e.target === el) closeReshuffleModal();
+  });
+}
+
+function closeReshuffleModal() {
+  var el = document.getElementById('reshuffle-overlay');
+  if (el) el.remove();
+}
+
+function buildReshuffleModalHTML(p, missed) {
+  var remaining = getRemainingDays(p);
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var today = new Date();
+  var wd = today.getDay();
+  var todayIdx = wd === 0 ? 6 : wd - 1;
+
+  var missedList = missed.map(m =>
+    '<div class="rs-missed-item"><span class="rs-missed-badge">Missed</span> <strong>' + m.sessionType + '</strong> <span style="color:var(--dk-3)">(' + m.day + ')</span></div>'
+  ).join('');
+
+  var remainingSlots = remaining.map(function(r) {
+    var label = r.isToday ? 'Today (' + r.day + ')' : r.day;
+    var sub = r.plan.priority === 'training' ? 'Planned: ' + r.plan.type : 'Rest day — free';
+    var cls = r.plan.priority === 'training' ? 'slot-training' : 'slot-free';
+    return '<div class="rs-slot ' + cls + '">' +
+      '<div class="rs-slot-label">' + label + '</div>' +
+      '<div class="rs-slot-sub">' + sub + '</div>' +
+    '</div>';
+  }).join('');
+
+  return '<div class="rs-modal">' +
+    '<div class="rs-modal-hd">' +
+      '<div class="rs-modal-title">Reshuffle this week</div>' +
+      '<button class="rs-close-btn" onclick="closeReshuffleModal()">&#10005;</button>' +
+    '</div>' +
+    '<div class="rs-modal-body">' +
+      '<div class="rs-section-label">Missed sessions</div>' +
+      missedList +
+      '<div class="rs-section-label" style="margin-top:16px;">Remaining slots</div>' +
+      '<div class="rs-slots">' + remainingSlots + '</div>' +
+      '<div class="rs-ai-note">BodyLens will consider your age (' + (p.age||'?') + '), recovery needs, and session sequencing to find the optimal arrangement.</div>' +
+      '<button class="rs-ai-btn" id="rs-ai-btn" onclick="runAIReshuffle()">' +
+        '<span id="rs-ai-icon">&#9889;</span> Let AI reshuffle my week' +
+      '</button>' +
+      '<div id="rs-ai-result"></div>' +
+    '</div>' +
+  '</div>';
+}
+
+async function runAIReshuffle() {
+  var p = getProfile();
+  if (!p) return;
+  var missed = getMissedThisWeek(p);
+  var remaining = getRemainingDays(p);
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var today = new Date();
+  var wd = today.getDay();
+  var todayIdx = wd === 0 ? 6 : wd - 1;
+
+  var btn = document.getElementById('rs-ai-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<div style="display:inline-block;width:14px;height:14px;border:2px solid rgba(0,200,160,.2);border-top-color:var(--jade);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px;"></div>Thinking…'; }
+
+  var weekSummary = (p.weekPlan||[]).map(function(d, i) {
+    var ov = loadWkOverride();
+    var effective = ov[i] ? Object.assign({}, d, ov[i]) : d;
+    return DNS[i] + ': ' + effective.type + ' (' + effective.priority + ')' + (i === todayIdx ? ' ← TODAY' : i < todayIdx ? (missed.find(function(m){ return m.idx===i; }) ? ' ← MISSED' : ' ← past') : '');
+  }).join('\n');
+
+  var missedSummary = missed.map(function(m){ return m.sessionType + ' (' + m.day + ')'; }).join(', ');
+  var remainingSummary = remaining.map(function(r){ return r.day + ': ' + (r.plan.priority==='training' ? r.plan.type : 'Rest'); }).join(', ');
+
+  var prompt = 'You are optimising a training week reshuffle for a ' + (p.age||44) + '-year-old with the following programme:\n\n' +
+    'CURRENT WEEK:\n' + weekSummary + '\n\n' +
+    'MISSED: ' + missedSummary + '\n' +
+    'REMAINING DAYS THIS WEEK (including today): ' + remainingSummary + '\n' +
+    'Training days per week target: ' + (p.trainingDays||4) + '\n' +
+    'Goal: ' + (p.goal||'Body recomposition') + '\n\n' +
+    'RULES:\n' +
+    '- At age ' + (p.age||44) + ', avoid 3 hard sessions back to back without a recovery day\n' +
+    '- Posterior Chain (hip hinge, deadlifts) needs 48h recovery before upper body pressing\n' +
+    '- Push and Pull can run on consecutive days if needed\n' +
+    '- Prioritise getting the missed sessions in without compromising recovery\n' +
+    '- It is okay to drop a session if the week is too compressed — flag it\n' +
+    '- Today is ' + DNS[todayIdx] + '\n\n' +
+    'Return ONLY valid JSON in this exact structure:\n' +
+    '{\n' +
+    '  "rationale": "One paragraph explaining the reshuffled logic, recovery reasoning, and any sessions dropped",\n' +
+    '  "schedule": [\n' +
+    '    { "dayIdx": 1, "day": "Tuesday", "type": "Push", "priority": "training", "note": "Rescheduled from Monday" },\n' +
+    '    { "dayIdx": 2, "day": "Wednesday", "type": "Rest", "priority": "rest", "note": "Recovery day — moved Pull to Thursday" }\n' +
+    '  ],\n' +
+    '  "dropped": ["session type if any dropped"],\n' +
+    '  "warning": "Any important caveat about fatigue or recovery (empty string if none)"\n' +
+    '}\n\n' +
+    'Only include days that CHANGE from the original plan in "schedule". Return ONLY the JSON.';
+
+  try {
+    var res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    var raw = (data.content||[]).map(function(b){ return b.text||''; }).join('').trim();
+    var parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderReshuffleResult(parsed, p, missed);
+  } catch(err) {
+    var resultEl = document.getElementById('rs-ai-result');
+    if (resultEl) resultEl.innerHTML = '<div class="rs-error">Could not generate reshuffle — check connection and try again.</div>';
+    if (btn) { btn.disabled = false; btn.innerHTML = '&#9889; Try again'; }
+  }
+}
+
+function renderReshuffleResult(result, p, missed) {
+  var resultEl = document.getElementById('rs-ai-result');
+  if (!resultEl) return;
+  var btn = document.getElementById('rs-ai-btn');
+  if (btn) btn.style.display = 'none';
+
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var scheduleRows = (result.schedule||[]).map(function(s) {
+    var cls = s.priority === 'training' ? 'rs-new-train' : 'rs-new-rest';
+    return '<div class="rs-new-row ' + cls + '">' +
+      '<span class="rs-new-day">' + s.day + '</span>' +
+      '<span class="rs-new-type">' + s.type + '</span>' +
+      (s.note ? '<span class="rs-new-note">' + s.note + '</span>' : '') +
+    '</div>';
+  }).join('');
+
+  var warningHtml = result.warning
+    ? '<div class="rs-warning">&#9888; ' + result.warning + '</div>'
+    : '';
+
+  var droppedHtml = result.dropped && result.dropped.length && result.dropped[0]
+    ? '<div class="rs-dropped">Session dropped: ' + result.dropped.join(', ') + ' — week too compressed for full recovery.</div>'
+    : '';
+
+  resultEl.innerHTML =
+    '<div class="rs-result">' +
+      '<div class="rs-result-label">Proposed schedule changes</div>' +
+      scheduleRows +
+      '<div class="rs-rationale">' + (result.rationale||'') + '</div>' +
+      warningHtml + droppedHtml +
+      '<div class="rs-result-actions">' +
+        '<button class="rs-apply-btn" onclick="applyReshuffle(' + JSON.stringify(result).replace(/"/g,"'") + ')">Apply this reshuffle</button>' +
+        '<button class="rs-reject-btn" onclick="closeReshuffleModal()">Keep original plan</button>' +
+      '</div>' +
+    '</div>';
+}
+
+function applyReshuffle(result) {
+  var p = getProfile();
+  if (!p) return;
+  var override = loadWkOverride();
+
+  // Apply each changed day
+  (result.schedule||[]).forEach(function(s) {
+    override[s.dayIdx] = {
+      type: s.type,
+      priority: s.priority,
+      source: 'reshuffle',
+      note: s.note || '',
+      reshuffledAt: new Date().toISOString()
+    };
+  });
+
+  // Mark missed sessions as skipped→rescheduled in day logs
+  var missed = getMissedThisWeek(p);
+  missed.forEach(function(m) {
+    var logKey = 'bl_daylog_' + m.date;
+    var log = {};
+    try { log = JSON.parse(localStorage.getItem(logKey)||'{}') || {}; } catch(e) {}
+    if (typeof log === 'string') log = {};
+    log.trainStatus = 'skipped';
+    log.trainNote = 'Missed — rescheduled by AI reshuffle ' + new Date().toLocaleDateString('en-GB');
+    log.updatedAt = new Date().toISOString();
+    try { localStorage.setItem(logKey, JSON.stringify(log)); } catch(e) {}
+  });
+
+  saveWkOverride(override);
+
+  // Clear today's day plan cache
+  var today = new Date().toISOString().slice(0,10);
+  ['dayplan_v6r3_','dayplan_v6r2_','bl_macros_'].forEach(function(k){
+    try { localStorage.removeItem(k+today); } catch(e) {}
+  });
+
+  closeReshuffleModal();
+
+  // Re-render the page
+  var profile = getProfile();
+  if (profile) render(profile);
+
+  // Show confirmation
+  showReshuffleToast('Week reshuffled. Today's plan will regenerate.');
+}
+
+function showReshuffleToast(msg) {
+  var t = document.getElementById('rs-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'rs-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--jade);color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.05em;padding:10px 20px;border-radius:20px;transition:transform .25s ease;z-index:9999;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(function() { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 3000);
+}
+
 </script>
 </body>
 </html>
