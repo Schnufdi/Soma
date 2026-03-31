@@ -200,6 +200,48 @@
 .sp-badge.emerging    { background:rgba(196,124,24,.1);  color:var(--amber,#c47c18); border-color:rgba(196,124,24,.2); }
 .sp-badge.limited     { background:rgba(255,255,255,.04); color:rgba(160,168,152,.8); border-color:rgba(255,255,255,.1); }
 .sp-badge.anecdotal   { background:rgba(180,100,80,.08);  color:rgba(200,120,100,.8); border-color:rgba(180,100,80,.2); }
+
+/* ── Browse all / Deep stack catalogue ─────────────────────── */
+.sp-divider { display:flex; align-items:center; gap:12px; margin:28px 0 20px; }
+.sp-divider-label { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--dk-3); white-space:nowrap; }
+.sp-divider-line { flex:1; height:1px; background:rgba(255,255,255,.07); }
+
+.sp-filter { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
+.sp-filter-btn { font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:6px 12px; border-radius:16px; border:1px solid rgba(255,255,255,.1); background:transparent; color:var(--dk-3); cursor:pointer; font-family:var(--sans); transition:all .12s; }
+.sp-filter-btn.active, .sp-filter-btn:hover { border-color:var(--jade); color:var(--jade); background:rgba(0,200,160,.06); }
+
+.sp-cat-label { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--dk-3); margin:24px 0 10px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,.06); }
+
+.sp-card { background:var(--ink-1); border:1px solid rgba(255,255,255,.07); border-radius:10px; margin-bottom:8px; overflow:hidden; transition:border-color .12s; }
+.sp-card:hover { border-color:rgba(255,255,255,.14); }
+.sp-card.open { border-color:rgba(0,200,160,.25); }
+
+.sp-card-hd { display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; }
+.sp-icon { font-size:22px; flex-shrink:0; width:32px; text-align:center; }
+.sp-info { flex:1; min-width:0; }
+.sp-name { font-size:13px; font-weight:600; color:var(--dk-1); margin-bottom:2px; }
+.sp-tagline { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.4; }
+
+.sp-badges { display:flex; gap:6px; align-items:center; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+.sp-ev-badge { font-size:8px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:3px 7px; border-radius:4px; white-space:nowrap; }
+.sp-ev-badge.established { background:rgba(0,200,160,.12); color:var(--jade); border:1px solid rgba(0,200,160,.25); }
+.sp-ev-badge.emerging    { background:rgba(196,124,24,.1);  color:var(--amber); border:1px solid rgba(196,124,24,.25); }
+.sp-ev-badge.limited     { background:rgba(255,255,255,.05); color:var(--dk-3);  border:1px solid rgba(255,255,255,.1); }
+.sp-ev-badge.anecdotal   { background:rgba(255,255,255,.05); color:var(--dk-3);  border:1px solid rgba(255,255,255,.1); }
+.sp-in-stack-badge { font-size:8px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:3px 7px; border-radius:4px; background:rgba(0,200,160,.08); color:var(--jade); border:1px solid rgba(0,200,160,.2); white-space:nowrap; }
+
+.sp-chevron { font-size:10px; color:var(--dk-3); flex-shrink:0; transition:transform .15s; }
+.sp-card.open .sp-chevron { transform:rotate(180deg); }
+
+.sp-detail { display:none; border-top:1px solid rgba(255,255,255,.07); padding:14px 16px 16px; }
+.sp-card.open .sp-detail { display:block; }
+.sp-detail-row { display:flex; gap:12px; padding:5px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.sp-detail-row:last-child { border-bottom:none; }
+.sp-detail-key { font-size:10px; font-weight:600; color:var(--dk-3); width:90px; flex-shrink:0; text-transform:uppercase; letter-spacing:.05em; }
+.sp-detail-val { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.6; flex:1; }
+
+.sp-add-btn { display:block; margin-top:12px; padding:8px 16px; background:rgba(0,200,160,.08); border:1px solid rgba(0,200,160,.25); border-radius:6px; color:var(--jade); font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; transition:all .12s; width:100%; }
+.sp-add-btn:hover { background:rgba(0,200,160,.15); }
 </style>
 </head>
 <body>
