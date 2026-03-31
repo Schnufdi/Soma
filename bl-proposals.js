@@ -105,7 +105,7 @@ function blApplyChanges(p, changes) {
     var val = c.after;
     if (val === undefined) return;
     // Scalar fields
-    var scalars = ['protein','trainingKcal','restKcal','trainingDays','calories','goal','coachNotes'];
+    var scalars = ['protein','trainingKcal','restKcal','trainingDays','calories','goal'];
     if (scalars.indexOf(f) >= 0) {
       p[f] = val;
       return;
