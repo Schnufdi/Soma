@@ -401,7 +401,7 @@ async function loadMealDetail(day,slot){
     +'Meal: '+meal.name+' ('+meal.calories+' kcal, '+meal.protein+'g P, '+meal.carbs+'g C, '+meal.fat+'g F, '+(meal.fatClass||'lean')+' fat)\n'
     +'User: '+p.age+'yo male, '+p.weight+'kg, goal: '+(p.goal||'recomposition')+'\n'
     +'Day: '+day+' ('+(isT?dp.type+' training':'rest day')+')\n\n'
-    +'Return ONLY: {"portionGuide":"e.g. 1 palm protein + 1 cupped hand carb","ingredients":[{"name":"","grams":0,"portion_visual":""}],"swapNote":"leaner or higher-protein alternative in one sentence","whyThisWorks":"why this fits this day in one sentence"}';
+    +'Return ONLY: {"portionGuide":"e.g. 1 palm protein + 1 cupped hand carb","ingredients":[{"name":"","grams":0,"portion_visual":""}],"method":["step 1","step 2","step 3"],"swapNote":"leaner or higher-protein alternative in one sentence","whyThisWorks":"why this fits this day in one sentence"}';
   try{
     var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:MDL,max_tokens:350,system:'Nutritionist. Return ONLY valid compact JSON.',messages:[{role:'user',content:prompt}]})});
@@ -424,8 +424,10 @@ async function generate(){
   var tK=p.trainingKcal||p.calories||2769;
   var rK=p.restKcal||Math.round((p.calories||2769)*.9);
   var prot=p.protein||174;
-  var fat=p.fat||87;
-  var carbs=p.carbs||323;
+  // Derive fat & carbs from calorie target if not set in profile
+  // Fat: ~28% of training kcal; Carbs: remainder after protein + fat
+  var fat=p.fat||(Math.round(tK*0.28/9));
+  var carbs=p.carbs||(Math.round((tK-(prot*4)-(fat*9))/4));
   var prots=S.prefs.proteins.length?S.prefs.proteins.join(', '):'chicken breast, eggs, salmon';
   var cuis=S.prefs.cuisines.length?S.prefs.cuisines.join(', '):'flexible';
   var avds=S.prefs.avoids.length?S.prefs.avoids.join(', '):'none';
@@ -558,6 +560,7 @@ function renderTable(p){
   var tK=p.trainingKcal||p.calories||2769;
   var rK=p.restKcal||Math.round((p.calories||2769)*.9);
   var prot=p.protein||174;
+  var fat=p.fat||(Math.round(tK*0.28/9));
   var gd=plan.generatedAt?new Date(plan.generatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'';
 
   var html='<div class="th">'
@@ -628,7 +631,7 @@ function renderTable(p){
     // Totals row
     var pPct=Math.min(100,prot>0?Math.round(totP/prot*100):0);
     var kPct=Math.min(100,dK>0?Math.round(totK/dK*100):0);
-    var fPct=Math.min(100,(p.fat||87)>0?Math.round(totF/(p.fat||87)*100):0);
+    var fPct=Math.min(100,fat>0?Math.round(totF/fat*100):0);
     var pCol=pPct>=90?'var(--jade)':pPct>=70?'var(--amber)':'rgba(220,80,60,.7)';
     var kCol=kPct>=90&&kPct<=112?'var(--jade)':kPct<80?'rgba(220,80,60,.7)':'var(--amber)';
     var fCol=fPct<=110?'var(--jade)':fPct<=130?'var(--amber)':'rgba(220,80,60,.7)';
@@ -641,7 +644,7 @@ function renderTable(p){
           +'<div class="br2"><div class="bt"><div class="bf" style="width:'+kPct+'%;background:'+kCol+'"></div></div>'
             +'<div class="bv" style="color:'+kCol+'">'+totK+' / '+dK+' kcal</div></div>'
           +'<div class="br2"><div class="bt"><div class="bf" style="width:'+fPct+'%;background:'+fCol+'"></div></div>'
-            +'<div class="bv" style="color:'+fCol+'">'+totF+'g F / '+(p.fat||87)+'g</div></div>'
+            +'<div class="bv" style="color:'+fCol+'">'+totF+'g F / '+fat+'g</div></div>'
         +'</div>'
       +'</td></tr>';
   });
@@ -696,6 +699,13 @@ function renderDetailInto(det,d){
         +'<div class="ing-amount">'+ing.grams+'g</div>'
         +'<div class="ing-guide">'+((ing.portion_visual)||'')+'</div>'
       +'</div>';
+    });
+    html+='</div>';
+  }
+  if(d.method&&d.method.length){
+    html+='<div class="meal-detail-section"><div class="meal-detail-label">How to make it</div>';
+    d.method.forEach(function(step,i){
+      html+='<div style="font-size:11px;font-weight:300;color:var(--dk-2);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);">'+(i+1)+'. '+step+'</div>';
     });
     html+='</div>';
   }
