@@ -69,17 +69,25 @@ body{background:var(--ink);color:var(--dk-1);}
 .reshuffle-trigger{display:none;width:100%;margin-top:8px;background:rgba(196,124,24,.1);border:1px solid rgba(196,124,24,.3);border-radius:5px;color:var(--amber);font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 6px;cursor:pointer;text-align:center;transition:background .12s;}
 .reshuffle-trigger:hover{background:rgba(196,124,24,.18);}
 .day-card.missed .reshuffle-trigger,.day-card.skipped .reshuffle-trigger{display:block;}
-.rhythm-wrap{margin-bottom:28px;}
-.rhythm-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.rhythm-row.is-today .rhythm-day{color:var(--jade);}
-.rhythm-row.is-today .rhythm-fill{opacity:1;}
-.rhythm-row.is-today .rhythm-val{color:var(--jade);}
-.rhythm-day{font-size:10px;font-weight:600;color:var(--dk-3);width:28px;}
-.rhythm-track{flex:1;height:4px;background:var(--bd);border-radius:2px;overflow:hidden;}
-.rhythm-fill{height:100%;border-radius:2px;}
-.rhythm-fill.train{background:var(--jade);}
-.rhythm-fill.rest{background:var(--dk-3);opacity:.4;}
-.rhythm-val{font-size:10px;font-weight:600;color:var(--dk-2);width:48px;text-align:right;}
+/* ── Nutrition Ledger ─────────────────────────────────── */
+.macro-ledger{margin-bottom:28px;}
+.macro-ledger-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+@media(max-width:599px){.macro-ledger-grid{display:flex;overflow-x:auto;gap:6px;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}.macro-ledger-grid::-webkit-scrollbar{display:none;}}
+.ml-col{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px 8px;background:var(--ink-1);border:1px solid var(--bd);border-radius:9px;transition:border-color .15s;}
+.ml-col.is-today{border-color:rgba(0,200,160,.3);background:rgba(0,200,160,.025);}
+.ml-day-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);}
+.ml-col.is-today .ml-day-lbl{color:var(--jade);}
+.ml-bar-wrap{width:22px;height:56px;background:rgba(255,255,255,.025);border-radius:3px;overflow:hidden;display:flex;flex-direction:column-reverse;}
+.ml-seg{width:100%;flex-shrink:0;}
+.ml-kcal{font-size:8px;font-weight:600;color:var(--dk-3);text-align:center;line-height:1.2;letter-spacing:-.01em;}
+.ml-kcal.logged{color:var(--dk-2);}
+.ml-kcal.over{color:var(--amber);}
+.ml-prot-lbl{font-size:7px;font-weight:600;letter-spacing:.02em;color:rgba(255,255,255,.18);text-align:center;}
+.ml-prot-lbl.hit{color:var(--jade);}
+.ml-prot-lbl.close{color:var(--amber);}
+.ml-legend{display:flex;gap:14px;margin-top:9px;}
+.ml-legend-item{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:300;color:var(--dk-3);}
+.ml-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
 .wk-coach-card{border-radius:10px;padding:16px 18px;margin-bottom:10px;border:1px solid var(--bd);background:var(--ink-1);}
 .wk-coach-card.red{border-color:rgba(220,80,60,.25);background:rgba(220,80,60,.04);}
 .wk-coach-card.amber{border-color:rgba(196,124,24,.25);background:rgba(196,124,24,.04);}
@@ -267,15 +275,72 @@ function render(){
   }
   cardsHTML+='</div>';
 
-  var rhythmHTML='<div class="rhythm-wrap"><div class="sec-label" style="margin-top:28px;">Calorie rhythm</div>';
-  (p.weekPlan||[]).forEach(function(day,i){
-    var effDay=getEffDay(p,i);var isT=effDay.priority==='training';
-    var kcal=effDay.kcal||(isT?(p.trainingKcal||p.calories):p.restKcal)||0;
-    var pct=maxKcal?Math.round(kcal/maxKcal*100):50;
-    var rowCls='rhythm-row'+(i===ti?' is-today':'');
-    rhythmHTML+='<div class="'+rowCls+'"><div class="rhythm-day">'+DNS3[i]+'</div><div class="rhythm-track"><div class="rhythm-fill '+(isT?'train':'rest')+'" style="width:'+pct+'%"></div></div><div class="rhythm-val">'+(kcal?kcal.toLocaleString():'—')+'</div></div>';
-  });
-  rhythmHTML+='</div>';
+  // ── Nutrition Ledger (actual macros per day) ─────────────
+  var ML_BAR = 56; // must match CSS .ml-bar-wrap height
+  var mlCols = '';
+  for (var mi = 0; mi < 7; mi++) {
+    var mds = dayStr(mi);
+    var mLog = loadLog(mds);
+    var mDay = getEffDay(p, mi);
+    var mIsT = mDay.priority === 'training';
+    var mIsToday = mi === ti;
+    var mIsFuture = mi > ti;
+    var mKcalTarget = mDay.kcal || (mIsT ? (p.trainingKcal || p.calories || 2400) : (p.restKcal || p.calories || 2000));
+    var mProtTarget = p.protein || 140;
+
+    var mAct = mLog && mLog.actual ? mLog.actual : null;
+    var mAKcal = mAct ? (mAct.kcal || 0) : 0;
+    var mAProt = mAct ? (mAct.prot || 0) : 0;
+    var mACarbs = mAct ? (mAct.carbs || 0) : 0;
+    var mAFat = mAct ? (mAct.fat || 0) : 0;
+    var mHas = mAKcal > 0 || mAProt > 0;
+
+    // Build stacked bar segments (column-reverse: first HTML child → bottom)
+    var mSegs = '';
+    if (mHas) {
+      var mTotalH = Math.min(Math.round(ML_BAR * 1.05), Math.round((mAKcal / mKcalTarget) * ML_BAR));
+      if (mTotalH < 3) mTotalH = 3;
+      var mMK = (mAProt * 4) + (mACarbs * 4) + (mAFat * 9);
+      if (mMK > 0) {
+        var mPH = Math.max(1, Math.round((mAProt * 4 / mMK) * mTotalH));
+        var mCH = Math.max(0, Math.round((mACarbs * 4 / mMK) * mTotalH));
+        var mFH = Math.max(0, mTotalH - mPH - mCH);
+        // column-reverse: first = bottom (protein), then carbs, then fat at top
+        mSegs = '<div class="ml-seg" style="height:'+mPH+'px;background:rgba(0,200,160,.72);"></div>'
+          + '<div class="ml-seg" style="height:'+mCH+'px;background:rgba(130,170,240,.28);"></div>'
+          + '<div class="ml-seg" style="height:'+mFH+'px;background:rgba(196,124,24,.58);"></div>';
+      } else {
+        mSegs = '<div class="ml-seg" style="height:'+mTotalH+'px;background:rgba(0,200,160,.38);"></div>';
+      }
+    } else {
+      // Ghost bar: target reference for future, faint line for past
+      var mGhH = mIsFuture ? Math.round(ML_BAR * 0.55) : Math.round(ML_BAR * 0.12);
+      mSegs = '<div class="ml-seg" style="height:'+mGhH+'px;background:rgba(255,255,255,.05);"></div>';
+    }
+
+    var mKcalTxt = mHas ? (mAKcal > 0 ? mAKcal.toLocaleString() : (mAProt + 'g')) : (mIsFuture ? mKcalTarget.toLocaleString() : '—');
+    var mKcalCls = mHas ? (mAKcal > mKcalTarget * 1.08 ? 'over' : 'logged') : '';
+    var mPPct = mProtTarget > 0 ? mAProt / mProtTarget : 0;
+    var mProtCls = (mHas && mAProt > 0) ? (mPPct >= 0.9 ? 'hit' : mPPct >= 0.7 ? 'close' : '') : '';
+    var mProtTxt = (mHas && mAProt > 0) ? mAProt + 'g P' : (mIsFuture ? mProtTarget + 'g' : '—');
+
+    mlCols += '<div class="ml-col'+(mIsToday?' is-today':'')+'">'
+      + '<div class="ml-day-lbl">'+DNS3[mi]+'</div>'
+      + '<div class="ml-bar-wrap">'+mSegs+'</div>'
+      + '<div class="ml-kcal '+mKcalCls+'">'+mKcalTxt+'</div>'
+      + '<div class="ml-prot-lbl '+mProtCls+'">'+mProtTxt+'</div>'
+    + '</div>';
+  }
+  var macroLedgerHTML = '<div class="macro-ledger">'
+    + '<div class="sec-label" style="margin-top:28px;">Nutrition &nbsp;<span style="font-weight:300;text-transform:none;letter-spacing:.04em;font-size:9px;">actual macros · daily</span></div>'
+    + '<div class="macro-ledger-grid">'+mlCols+'</div>'
+    + '<div class="ml-legend">'
+      + '<div class="ml-legend-item"><div class="ml-legend-dot" style="background:rgba(0,200,160,.72)"></div>Protein</div>'
+      + '<div class="ml-legend-item"><div class="ml-legend-dot" style="background:rgba(130,170,240,.28)"></div>Carbs</div>'
+      + '<div class="ml-legend-item"><div class="ml-legend-dot" style="background:rgba(196,124,24,.58)"></div>Fat</div>'
+      + '<div style="margin-left:auto;font-size:8px;font-weight:300;color:var(--dk-3);">bar height = kcal vs target</div>'
+    + '</div>'
+  + '</div>';
 
   var aiCacheKey='bl_week_analysis_'+new Date().toISOString().slice(0,10);
   var aiCached=null;try{aiCached=localStorage.getItem(aiCacheKey);}catch(e){}
@@ -289,7 +354,7 @@ function render(){
 
   document.getElementById('main-page').innerHTML=
     '<div class="wk-hero"><div class="wk-hero-left"><div class="wk-kicker">Training ledger</div><div class="wk-title">This<br><em>week.</em></div><div class="wk-sub">Planned vs actual. Every session classified against your goals.</div></div></div>'
-    +statsHTML+bannerHTML+cardsHTML+aiHTML+rhythmHTML
+    +statsHTML+bannerHTML+cardsHTML+macroLedgerHTML+aiHTML
     +'<div id="bl-proposals-section" style="margin-top:28px;"></div>'
     +'<div id="bl-log-section" style="margin-top:14px;"></div>';
 
