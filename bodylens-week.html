@@ -298,7 +298,9 @@ function render(){
     var log=loadLog(ds);
     var isToday=i===ti;var isPast=i<ti;var isFuture=i>ti;
     var isTraining=wp.priority==='training';
-    var ovEntry=ov[i];var wasReshuffled=ovEntry&&ovEntry.source==='reshuffle';
+    var ovEntry=ov[i];
+    var wasReshuffled=ovEntry&&ovEntry.source==='reshuffle';          // received a moved session
+    var wasVacated=ovEntry&&ovEntry.source==='reshuffle-vacated';     // gave its session away
     var status,statusLabel,statusClass;
     if(!isTraining){status='rest';statusLabel=isToday?'Today':isPast?'Rest':'Upcoming';statusClass='rest';}
     else if(log&&log.trainStatus==='done'){status='done';statusLabel='Done';statusClass='done';}
@@ -320,8 +322,12 @@ function render(){
       wp.keyExercises.forEach(function(ex){exHTML+='<div class="dc-ex">· '+ex+'</div>';});
     }
     exHTML+='</div>';
-    // Reshuffle origin note (only when this slot received a moved session)
-    var reshuffleNote=wasReshuffled&&ovEntry&&ovEntry.note?'<div class="dc-reshuffle-note">↻ '+ovEntry.note+'</div>':'';
+    // Notes: destination shows "Moved from X", source shows "Session moved to Y"
+    var reshuffleNote=wasReshuffled&&ovEntry&&ovEntry.note
+      ?'<div class="dc-reshuffle-note">↻ '+ovEntry.note+'</div>'
+      :wasVacated&&ovEntry&&ovEntry.note
+        ?'<div class="dc-reshuffle-note" style="color:rgba(255,255,255,.22);">↑ '+ovEntry.note+'</div>'
+        :'';
     // Cardio hint — always a div (empty for rest days, :empty CSS hides border)
     var cardioHTML=_wkCardioHint(wp);
     // Reshuffle button — always in DOM; CSS .day-card.missed/.skipped controls display
@@ -574,6 +580,17 @@ function applyReshuffle(){
     try{localStorage.setItem('bl_daylog_'+m.ds,JSON.stringify(existing));}catch(e){}
 
     if(target===-1){
+      // Dropped — vacate the source day to Rest
+      ov[m.idx]={
+        type:        'Rest',
+        priority:    'rest',
+        focus:       'Session dropped',
+        keyExercises:[],
+        kcal:        null,
+        source:      'reshuffle-vacated',
+        note:        'Session dropped',
+        reshuffledAt:new Date().toISOString()
+      };
       changes.push({field:m.day,label:m.day,before:m.type,after:'Dropped'});
     } else {
       var orig=getEffDay(p,target);
@@ -588,6 +605,17 @@ function applyReshuffle(){
         kcal:        srcPlan.kcal       || null,
         source:      'reshuffle',
         note:        'Moved from '+m.day,
+        reshuffledAt:new Date().toISOString()
+      };
+      // Vacate the source day — it becomes Rest now that the session moved out
+      ov[m.idx]={
+        type:        'Rest',
+        priority:    'rest',
+        focus:       'Session moved to '+DNS[target],
+        keyExercises:[],
+        kcal:        null,
+        source:      'reshuffle-vacated',
+        note:        'Moved to '+DNS[target],
         reshuffledAt:new Date().toISOString()
       };
       changes.push({field:DNS[target],label:DNS[target],before:orig.type||'Rest',after:m.type+' (from '+m.day+')'});
