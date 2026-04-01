@@ -1207,25 +1207,6 @@ body {
 .mtb-icon { font-size: 20px; line-height: 1; }
 .mtb-label { font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 
-/* ── Plan vs Actual inline zone ─────────────────────────────────────── */
-.dp2-item-actual {
-  display: flex; align-items: center; gap: 6px; margin-top: 5px; flex-wrap: wrap;
-}
-.dp2-actual-label {
-  font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--amber); background: rgba(196,124,24,.08);
-  border: 1px solid rgba(196,124,24,.2); border-radius: 4px;
-  padding: 1px 6px; flex-shrink: 0;
-}
-.dp2-actual-data {
-  font-size: 11px; font-weight: 400; color: var(--dk-2); line-height: 1.4;
-}
-.dp2-actual-delta {
-  font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; flex-shrink: 0;
-}
-.dp2-actual-delta.over  { color: var(--jade); background: rgba(0,200,160,.08); border: 1px solid rgba(0,200,160,.2); }
-.dp2-actual-delta.under { color: rgba(220,80,60,.8); background: rgba(220,80,60,.06); border: 1px solid rgba(220,80,60,.2); }
-
 /* ── Coach delta review ─────────────────────────────────────────────── */
 .dp2-eod-review-btn {
   width: 100%; background: transparent; border: 1px solid rgba(255,255,255,.1);
@@ -2381,7 +2362,58 @@ body {
 .dp2-item-bar.blue  { background: rgba(100,160,255,.4); }
 .dp2-item-bar.dim   { background: rgba(255,255,255,.08); }
 
-.dp2-item-main { flex: 1; min-width: 0; padding: 10px 12px; cursor: pointer; }
+/* ── Two-column plan|actual layout ──────────────────────────────────── */
+.dp2-item-main {
+  flex: 1; min-width: 0; cursor: default;
+  display: grid; grid-template-columns: 1fr 148px; align-items: stretch;
+}
+.dp2-item-plan { padding: 10px 12px; min-width: 0; cursor: pointer; }
+.dp2-item-actual-col {
+  border-left: 1px solid rgba(255,255,255,.05);
+  padding: 8px 10px; min-width: 0;
+  display: flex; flex-direction: column; justify-content: center; gap: 2px;
+}
+/* ── Column header row inside act body ──────────────────────────────── */
+.dp2-act-col-hdr {
+  display: flex; margin: 4px 12px 2px;
+  padding: 0 0 4px; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.dp2-col-plan-hdr {
+  flex: 1; font-size: 8px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--jade); opacity: .55;
+  padding-left: 62px; /* align with plan content (time+bar+padding) */
+}
+.dp2-col-actual-hdr {
+  width: 148px; font-size: 8px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--amber); opacity: .55;
+  padding-left: 10px; flex-shrink: 0;
+}
+/* Mobile: stack columns vertically */
+@media (max-width: 640px) {
+  .dp2-item-main { grid-template-columns: 1fr; }
+  .dp2-item-actual-col { border-left: none; border-top: 1px solid rgba(255,255,255,.05); padding: 6px 12px 8px 62px; }
+  .dp2-col-actual-hdr { display: none; }
+  .dp2-col-plan-hdr   { padding-left: 62px; }
+}
+/* ── Actual column content ──────────────────────────────────────────── */
+.dp2-actual-empty {
+  font-size: 10px; font-weight: 400; color: rgba(255,255,255,.14);
+  letter-spacing: .02em;
+}
+.dp2-actual-name {
+  font-size: 12px; font-weight: 400; color: var(--dk-2); line-height: 1.4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dp2-actual-macros {
+  font-size: 10px; font-weight: 300; color: var(--dk-3); line-height: 1.3;
+}
+.dp2-actual-delta-pill {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  padding: 1px 5px; border-radius: 4px; margin-top: 1px;
+}
+.dp2-actual-delta-pill.over  { color: var(--jade);  background: rgba(0,200,160,.1);  border: 1px solid rgba(0,200,160,.2); }
+.dp2-actual-delta-pill.under { color: rgba(220,80,60,.85); background: rgba(220,80,60,.06); border: 1px solid rgba(220,80,60,.2); }
+
 .dp2-item-top { display: flex; align-items: center; gap: 7px; margin-bottom: 2px; }
 .dp2-item-title { font-size: 14px; font-weight: 600; color: var(--dk-1); flex: 1; min-width: 0; letter-spacing: .003em; }
 .dp2-item-tag {
@@ -4841,46 +4873,59 @@ function renderPlan(plan, browsing) {
     return block.subtitle||'';
   }
 
-  // ── Plan vs Actual inline summary (visible in collapsed view) ────────
+  // ── Actual column content ─────────────────────────────────────────────
   function buildItemActual(block, idx) {
     var exLog2 = log.exercises || {};
     var mealLogData = (log.meals && log.meals[block.mealSlot]) || {};
 
+    // ── Training block ────────────────────────────────────────
     if (block.type === 'training') {
       var exercises2 = (block.exercises||[]).filter(function(e){return e!=='Track loads';});
-      var logged2 = [];
+      var rows = [];
       exercises2.forEach(function(exStr, i) {
         var key2 = 'ex_'+idx+'_'+i;
         var exData2 = exLog2[key2] || {};
+        var px2 = parseEx(exStr);
+        var nm = px2.name.split(' ').slice(0,2).join(' ');
         if (exData2.weight || exData2.actual) {
-          var px2 = parseEx(exStr);
-          var nm = px2.name.split(' ').slice(0,2).join(' ');
-          logged2.push(nm + (exData2.weight ? ' ' + exData2.weight + 'kg' : '') + (exData2.actual ? ' \u00d7 ' + exData2.actual : ''));
+          rows.push('<div class="dp2-actual-name">'
+            + nm
+            + (exData2.weight ? ' <span style="color:var(--jade);font-weight:600;">'+exData2.weight+'kg</span>' : '')
+            + (exData2.actual ? ' <span class="dp2-actual-macros">\u00d7'+exData2.actual+'</span>' : '')
+            + '</div>');
+        } else {
+          rows.push('<div class="dp2-actual-macros" style="opacity:.35;">'+nm+'&hellip;</div>');
         }
       });
-      if (!logged2.length) return '';
-      return '<div class="dp2-item-actual">'
-        + '<span class="dp2-actual-label">Actual</span>'
-        + '<span class="dp2-actual-data">' + logged2.join(' &middot; ') + '</span>'
-        + '</div>';
+      if (!rows.length) return '<div class="dp2-actual-empty">Not logged</div>';
+      return rows.join('');
     }
 
+    // ── Meal block ────────────────────────────────────────────
     if (block.mealSlot) {
-      var parts2 = [];
-      if (mealLogData.note) parts2.push(mealLogData.note);
-      if (mealLogData.prot) parts2.push(mealLogData.prot + 'g P');
-      if (!parts2.length) return '';
+      var hasNote = !!(mealLogData.note && mealLogData.note.trim());
+      var hasProt = !!(mealLogData.prot);
+      if (!hasNote && !hasProt) {
+        return '<div class="dp2-actual-empty">Not logged</div>';
+      }
       var perMealTarget = Math.round((p.protein||140) / Math.max(1, mealBlocks.length));
-      var delta2 = mealLogData.prot ? mealLogData.prot - perMealTarget : 0;
-      var deltaHtml2 = (delta2 !== 0 && mealLogData.prot)
-        ? '<span class="dp2-actual-delta ' + (delta2 > 0 ? 'over' : 'under') + '">'
-          + (delta2 > 0 ? '+' : '') + delta2 + 'g P</span>'
+      var delta2 = hasProt ? (mealLogData.prot - perMealTarget) : 0;
+      var deltaHtml2 = (delta2 !== 0 && hasProt)
+        ? '<div class="dp2-actual-delta-pill ' + (delta2 > 0 ? 'over' : 'under') + '">'
+          + (delta2 > 0 ? '+' : '') + delta2 + 'g P vs plan</div>'
         : '';
-      return '<div class="dp2-item-actual">'
-        + '<span class="dp2-actual-label">Actual</span>'
-        + '<span class="dp2-actual-data">' + parts2.join(' &middot; ') + '</span>'
-        + deltaHtml2
-        + '</div>';
+      return (hasNote ? '<div class="dp2-actual-name">'+mealLogData.note+'</div>' : '')
+        + (hasProt ? '<div class="dp2-actual-macros">'+mealLogData.prot+'g protein</div>' : '')
+        + deltaHtml2;
+    }
+
+    // ── Supplement block ──────────────────────────────────────
+    if (block.type === 'supp' || (block.type === 'recovery' && block.suppList && block.suppList.length)) {
+      var suppItems2 = block.suppList || [];
+      var takenCount = suppItems2.filter(function(s){ return suppLog[(s.name||s)]; }).length;
+      if (!takenCount) return '<div class="dp2-actual-empty">Not logged</div>';
+      return '<div class="dp2-actual-macros" style="color:var(--jade);">'
+        + takenCount + ' / ' + suppItems2.length + ' taken</div>';
     }
 
     return '';
@@ -5141,16 +5186,20 @@ function renderPlan(plan, browsing) {
     return '<div class="dp2-item'+stCls+'" id="dp2-item-'+idx+'">'
       +'<div class="dp2-item-time">'+(block.time||'')+'</div>'
       +'<div class="dp2-item-bar '+bar+'"></div>'
-      +'<div class="dp2-item-main" onclick="dp2ToggleItem('+idx+')">'
-        +'<div class="dp2-item-top">'
-          +'<span class="dp2-item-title">'+block.title
-            +(isFixed?'<span class="dp2-flex-badge fixed">Fixed</span>':isOptional?'<span class="dp2-flex-badge optional">Optional</span>':'<span class="dp2-flex-badge flex">Flex</span>')
-          +'</span>'
-          +(tag?'<span class="dp2-item-tag '+tag.cls+'">'+tag.label+'</span>':'')
-          +(block.durationMins&&block.type!=='wake'?'<span class="dp2-item-dur">'+block.durationMins+'m</span>':'')
+      +'<div class="dp2-item-main">'
+        +'<div class="dp2-item-plan" onclick="dp2ToggleItem('+idx+')">'
+          +'<div class="dp2-item-top">'
+            +'<span class="dp2-item-title">'+block.title
+              +(isFixed?'<span class="dp2-flex-badge fixed">Fixed</span>':isOptional?'<span class="dp2-flex-badge optional">Optional</span>':'<span class="dp2-flex-badge flex">Flex</span>')
+            +'</span>'
+            +(tag?'<span class="dp2-item-tag '+tag.cls+'">'+tag.label+'</span>':'')
+            +(block.durationMins&&block.type!=='wake'?'<span class="dp2-item-dur">'+block.durationMins+'m</span>':'')
+          +'</div>'
+          +(sub?'<div class="dp2-item-sub">'+sub+'</div>':'')
         +'</div>'
-        +(sub?'<div class="dp2-item-sub">'+sub+'</div>':'')
-        +buildItemActual(block, idx)
+        +'<div class="dp2-item-actual-col">'
+          +buildItemActual(block, idx)
+        +'</div>'
       +'</div>'
       +'<div class="dp2-item-actions">'
         +'<button class="dp2-qbtn'+doneA+'" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')" title="Done">✓</button>'
@@ -5258,6 +5307,10 @@ function renderPlan(plan, browsing) {
       +'<div class="dp2-act-prog"><div class="dp2-act-prog-fill" style="width:'+progPct+'%"></div></div>'
       +'<div class="dp2-act-body">'
         +'<div class="dp2-why">'+act.why+'</div>'
+        +'<div class="dp2-act-col-hdr">'
+          +'<span class="dp2-col-plan-hdr">Plan</span>'
+          +'<span class="dp2-col-actual-hdr">Actual</span>'
+        +'</div>'
         +actBlocks.map(function(x){ return buildItem(x.block, x.idx); }).join('')
       +'</div>'
     +'</div>';
