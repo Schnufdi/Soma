@@ -27,7 +27,7 @@ body{background:var(--ink);color:var(--dk-1);}
 .missed-banner-cta{font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0;}
 .wk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:28px;}
 .wk-stat{background:var(--ink-1);padding:16px 18px;text-align:center;}
-.wk-stat-val{font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--dk-1);margin-bottom:3px;}
+.wk-stat-val{font-size:clamp(13px,3.5vw,22px);font-weight:700;letter-spacing:-.03em;color:var(--dk-1);margin-bottom:3px;word-break:break-word;}
 .wk-stat-val.jade{color:var(--jade);}
 .wk-stat-val.amber{color:var(--amber);}
 .wk-stat-val.red{color:var(--red);}
@@ -36,7 +36,11 @@ body{background:var(--ink);color:var(--dk-1);}
 .sec-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--dk-3);margin:0 0 14px;display:flex;align-items:center;gap:10px;}
 .sec-label::after{content:'';flex:1;height:1px;background:var(--bd);}
 .ledger-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:28px;}
+@media(max-width:599px){.ledger-grid{display:flex;overflow-x:auto;gap:8px;padding-bottom:12px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}.ledger-grid::-webkit-scrollbar{display:none;}}
 .day-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:12px 10px;position:relative;overflow:hidden;min-height:130px;transition:border-color .15s;}
+@media(max-width:599px){.day-card{flex:0 0 120px;min-width:120px;}}
+.day-card.is-today{cursor:pointer;}
+.day-card.is-today:hover{border-color:rgba(0,200,160,.5);}
 .day-card.training{border-top:2px solid rgba(0,200,160,.3);}
 .day-card.today{border-color:rgba(0,200,160,.35);background:rgba(0,200,160,.03);}
 .day-card.missed{border-top:2px solid rgba(220,80,60,.5);}
@@ -162,7 +166,8 @@ function getMissed(p){
     var plan=getEffDay(p,i);
     if(plan.priority!=='training')continue;
     var log=loadLog(dayStr(i));
-    if(!log||log.trainStatus!=='done')missed.push({idx:i,day:DNS[i],ds:dayStr(i),type:plan.type});
+    if(log&&(log.trainStatus==='done'||log.trainStatus==='skipped'))continue;
+    missed.push({idx:i,day:DNS[i],ds:dayStr(i),type:plan.type});
   }
   return missed;
 }
@@ -176,15 +181,17 @@ function render(){
   var trainingDays=(p.weekPlan||[]).filter(function(d){return d.priority==='training';}).length;
   var doneSessions=0;
   for(var i=0;i<7;i++){var log=loadLog(dayStr(i));if(log&&log.trainStatus==='done')doneSessions++;}
+  var remaining=0;
+  for(var i=ti+1;i<7;i++){var effD=getEffDay(p,i);if(effD.priority==='training'){var flog=loadLog(dayStr(i));if(!flog||flog.trainStatus!=='done')remaining++;}}
   var sessCol=doneSessions===trainingDays?'jade':doneSessions>0?'amber':'slate';
-  var wkStatus=missed.length===0&&doneSessions>=ti?'on track':missed.length>0?'off plan':'in progress';
+  var wkStatus=missed.length===0&&doneSessions>=trainingDays?'on track':missed.length>0?'off plan':'in progress';
   var wkCol=wkStatus==='on track'?'jade':wkStatus==='off plan'?'red':'amber';
 
   var statsHTML='<div class="wk-stats">'
     +'<div class="wk-stat"><div class="wk-stat-val '+sessCol+'">'+doneSessions+' / '+trainingDays+'</div><div class="wk-stat-label">Sessions done</div></div>'
-    +'<div class="wk-stat"><div class="wk-stat-val '+(missed.length?'red':'jade')+'">'+(missed.length||'✓')+'</div><div class="wk-stat-label">Missed</div></div>'
-    +'<div class="wk-stat"><div class="wk-stat-val slate">'+(trainingDays-doneSessions>0?trainingDays-doneSessions:'✓')+'</div><div class="wk-stat-label">Remaining</div></div>'
-    +'<div class="wk-stat"><div class="wk-stat-val '+wkCol+'">'+wkStatus+'</div><div class="wk-stat-label">Week status</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val '+(missed.length?'red':'jade')+'">'+(missed.length||'✓')+'</div><div class="wk-stat-label">Unlogged</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val slate">'+(remaining||'✓')+'</div><div class="wk-stat-label">Remaining</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val '+wkCol+'">'+wkStatus+'</div><div class="wk-stat-label">Status</div></div>'
     +'</div>';
 
   var bannerHTML='';
@@ -194,7 +201,7 @@ function render(){
       +'<div class="missed-banner-icon">⚠</div>'
       +'<div class="missed-banner-text">'
         +'<div class="missed-banner-title">'+missed.length+' session'+(missed.length>1?'s':'')+' missed this week</div>'
-        +'<div class="missed-banner-sub">'+names+' — tap to let AI reshuffle your week</div>'
+        +'<div class="missed-banner-sub">'+names+' — tap to move them to remaining days</div>'
       +'</div>'
       +'<div class="missed-banner-cta">Reshuffle →<span class="pro-badge">PRO</span></div>'
     +'</div>';
@@ -221,7 +228,7 @@ function render(){
     if(isTraining&&status==='done')cardCls+=' done';
     else if(isTraining&&status==='missed')cardCls+=' missed training';
     else if(isTraining)cardCls+=' training';
-    if(isToday)cardCls+=' today';
+    if(isToday)cardCls+=' today is-today';
     if(wasReshuffled)cardCls+=' reshuffled';
     var exHTML='';
     if(isTraining&&wp.keyExercises&&wp.keyExercises.length){
@@ -232,7 +239,7 @@ function render(){
     }
     var reshuffleNote=wasReshuffled&&ovEntry.note?'<div class="dc-reshuffle-note">↻ '+ovEntry.note+'</div>':'';
     var reshuffleBtn=(status==='missed'&&isTraining)?'<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffle()">↻ Reshuffle week<span class="pro-badge">PRO</span></button>':'';
-    cardsHTML+='<div class="'+cardCls+'">'
+    cardsHTML+='<div class="'+cardCls+'"'+(isToday?' onclick="location.href=\'bodylens-dailyplan.html\'"':'')+' title="'+(isToday?'Open today\'s plan':'')+'">'
       +(isToday?'<div class="today-badge">Today</div>':'')
       +'<div class="dc-day">'+DNS3[i]+'</div>'
       +'<div class="dc-type">'+(wp.type||'Rest')+'</div>'
@@ -251,22 +258,19 @@ function render(){
     rhythmHTML+='<div class="rhythm-row"><div class="rhythm-day">'+DNS3[i]+'</div><div class="rhythm-track"><div class="rhythm-fill '+(isT?'train':'rest')+'" style="width:'+pct+'%"></div></div><div class="rhythm-val">'+(kcal?kcal.toLocaleString():'—')+'</div></div>';
   });
 
-  var coachHTML='<div class="sec-label" style="margin-top:28px;">Coach read</div>';
-  if(missed.length)coachHTML+='<div class="wk-coach-card red"><div class="wk-coach-label">Off plan</div><div class="wk-coach-text">'+missed.length+' missed session'+(missed.length>1?'s':'')+': '+missed.map(function(m){return m.type;}).join(', ')+'. '+(ti<6?'Tap the banner above to reshuffle remaining days.':'The week is over — focus on next week.')+'</div></div>';
-  else if(doneSessions===trainingDays)coachHTML+='<div class="wk-coach-card positive"><div class="wk-coach-label">On track</div><div class="wk-coach-text">All sessions completed this week. Recovery and nutrition take priority now.</div></div>';
-  else coachHTML+='<div class="wk-coach-card"><div class="wk-coach-label">In progress</div><div class="wk-coach-text">'+doneSessions+' of '+trainingDays+' sessions done. '+(trainingDays-doneSessions)+' remaining this week.</div></div>';
-
-  var aiHTML='<div class="sec-label" style="margin-top:28px;">AI week analysis</div>'
+  var aiCacheKey='bl_week_analysis_'+new Date().toISOString().slice(0,10);
+  var aiCached=null;try{aiCached=localStorage.getItem(aiCacheKey);}catch(e){}
+  var aiHTML='<div class="sec-label" style="margin-top:28px;">AI week analysis<span class="pro-badge">PRO</span></div>'
     +'<button class="ai-gen-btn" onclick="generateWeekAnalysis()" id="ai-gen-btn">'
       +'<div id="ai-gen-icon" style="font-size:18px;">⚡</div>'
-      +'<div><div class="ai-gen-label">Generate full week analysis</div>'
+      +'<div><div class="ai-gen-label">'+(aiCached?'Refresh week analysis':'Generate week analysis')+'</div>'
       +'<div class="ai-gen-sub">Coach reads your actual week and advises on what remains</div></div>'
     +'</button>'
-    +'<div class="ai-result" id="ai-result-box"></div>';
+    +'<div class="ai-result" id="ai-result-box">'+(aiCached?'<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Coach</div><div>'+aiCached+'</div>':'')+'</div>';
 
   document.getElementById('main-page').innerHTML=
     '<div class="wk-hero"><div class="wk-kicker">Training ledger</div><div class="wk-title">This<br><em>week.</em></div><div class="wk-sub">Planned vs actual. Every session classified against your goals.</div></div>'
-    +statsHTML+bannerHTML+cardsHTML+rhythmHTML+coachHTML+aiHTML
+    +statsHTML+bannerHTML+cardsHTML+rhythmHTML+aiHTML
     +'<div id="bl-proposals-section" style="margin-top:28px;"></div>'
     +'<div id="bl-log-section" style="margin-top:14px;"></div>';
 
@@ -285,7 +289,10 @@ async function generateWeekAnalysis(){
     var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,messages:[{role:'user',content:prompt}]})});
     var data=await res.json();
     var text=(data.content||[]).map(function(b){return b.text||'';}).join('').trim();
+    var cacheKey='bl_week_analysis_'+new Date().toISOString().slice(0,10);
+    try{localStorage.setItem(cacheKey,text);}catch(e){}
     if(box)box.innerHTML='<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Coach</div><div>'+text+'</div>';
+    if(btn){var lbl=btn.querySelector('.ai-gen-label');if(lbl)lbl.textContent='Refresh week analysis';}
   }catch(e){
     if(box)box.innerHTML='<div style="color:var(--dk-3);font-size:12px;">Could not load — <button onclick="generateWeekAnalysis()" style="background:none;border:none;color:var(--dk-3);text-decoration:underline;cursor:pointer;font-family:var(--sans);">try again</button></div>';
   }
@@ -341,7 +348,7 @@ function rsSelectDay(btn,mi,targetIdx){
   window._rsAssignments[mi]=targetIdx;
   var allSet=window._rsAssignments.every(function(a){return a!==null;});
   var applyBtn=document.getElementById('rs-apply-btn');
-  if(applyBtn){applyBtn.disabled=!allSet;applyBtn.style.opacity=allSet?'1':'0.4';applyBtn.style.cursor=allSet?'pointer':'not-allowed';}
+  if(applyBtn){applyBtn.disabled=!allSet;}
 }
 
 function closeReshuffle(){var el=document.getElementById('rs-overlay');if(el)el.remove();}
@@ -372,7 +379,9 @@ function applyReshuffle(){
 
   saveOverride(ov);
   var today=new Date().toISOString().slice(0,10);
+  var monthKey=today.slice(0,7);
   ['dayplan_v6r3_','dayplan_v6r2_','bl_macros_'].forEach(function(k){try{localStorage.removeItem(k+today);}catch(e){}});
+  try{localStorage.removeItem('bl_week_pool_v2_'+monthKey);}catch(e){}
 
   if(changes.length && typeof blPropose==='function'){
     var id=blPropose('programme','Week reshuffled — '+new Date().toLocaleDateString('en-GB'),changes,'Manual reshuffle: missed sessions moved to new days',null);
