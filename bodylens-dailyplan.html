@@ -5517,7 +5517,7 @@ function renderPlan(plan, browsing) {
       +'<div class="dp2-actual-sheet-hd">'
         +'<span class="dp2-actual-sheet-title">Actual</span>'
         +'<div style="display:flex;align-items:center;gap:8px;">'
-          +'<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="vlgToggle()">&#127908; Dictate</button>'
+          +'<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="dpDictateBasic()">&#127908; Dictate</button>'
           +'<button class="dp2-actual-sheet-close" onclick="dpActualClose()">&#215;</button>'
         +'</div>'
       +'</div>'
@@ -5764,6 +5764,65 @@ function dpExDoneCard(key) {
   logD.exercises[key].loggedAt = new Date().toISOString();
   saveDayLog(_rDate, logD);
   if (typeof renderActualPane === 'function') renderActualPane();
+}
+
+// ── Dictate (basic mode — no AI call on open, reliable mid-session) ──
+function dpDictateBasic() {
+  if (!_vlg.recognition) vlgInit();
+  if (!_vlg.recognition) {
+    // SpeechRecognition unavailable — fall through to guided text mode
+    vlgGuidedStart(); return;
+  }
+  // Restore basic panel HTML in case guided mode replaced it
+  var panel = document.getElementById('vlg-panel');
+  if (panel && !document.getElementById('vlg-transcript-box')) {
+    panel.innerHTML = '<div class="vlg-panel-hd">'
+      + '<span class="vlg-panel-title">Voice log</span>'
+      + '<div class="vlg-panel-status" id="vlg-status"><div class="vlg-status-dot"></div>Listening</div>'
+      + '</div>'
+      + '<div class="vlg-transcript-box" id="vlg-transcript-box">'
+        + '<span class="vlg-transcript-placeholder" id="vlg-placeholder">Speak now\u2026</span>'
+      + '</div>'
+      + '<div class="vlg-result-box" id="vlg-result-box">'
+        + '<div class="vlg-result-label">Logged</div>'
+        + '<div class="vlg-result-actions" id="vlg-result-actions"></div>'
+      + '</div>'
+      + '<div class="vlg-panel-btns">'
+        + '<button class="vlg-btn-ok" id="vlg-btn-ok" onclick="vlgCommit()" disabled>Process</button>'
+        + '<button class="vlg-btn-cancel" onclick="vlgCancel()">Cancel</button>'
+      + '</div>';
+  }
+  vlgOpen();
+}
+
+// ── Exercise weight estimation from profile ───────────────────────────
+function _estimateStartWeight(exName, p) {
+  var bw = (p && p.weight) ? parseFloat(p.weight) : 75;
+  var tier = (p && p.fitnessLevelTier) ? p.fitnessLevelTier : 'beginner';
+  var sex  = (p && p.sex) ? p.sex.toLowerCase() : 'm';
+
+  // Relative-to-bodyweight ratios by tier (based on Landers / ExRx standards)
+  var R = {
+    beginner:     { bp:0.50, sq:0.75, dl:1.00, op:0.30, row:0.55, other:0.40 },
+    intermediate: { bp:0.80, sq:1.25, dl:1.50, op:0.50, row:0.85, other:0.60 },
+    advanced:     { bp:1.20, sq:1.75, dl:2.00, op:0.70, row:1.10, other:0.80 }
+  };
+  var r = R[tier] || R.beginner;
+  var n = exName.toLowerCase();
+  var ratio;
+  if      (n.match(/bench|chest press/))                     ratio = r.bp;
+  else if (n.match(/squat|hack squat/))                      ratio = r.sq;
+  else if (n.match(/deadlift|rdl|romanian/))                 ratio = r.dl;
+  else if (n.match(/overhead press|ohp|shoulder press|military|push press/)) ratio = r.op;
+  else if (n.match(/row|pull.*down|lat pull/))               ratio = r.row;
+  else if (n.match(/lunge|leg press|hip thrust|glute/))      ratio = r.sq * 0.7;
+  else if (n.match(/curl|extension|lateral|fly|cable|tricep|pushdown/)) ratio = r.bp * 0.35;
+  else                                                        ratio = r.other;
+
+  // Women average ~60% of male strength-to-bodyweight ratios
+  if (sex === 'f' || sex === 'female') ratio *= 0.62;
+
+  return Math.max(5, Math.round((bw * ratio) / 2.5) * 2.5);
 }
 
 // ── Actual sheet open / close ────────────────────────────────────────
@@ -6029,11 +6088,15 @@ function renderActualPane() {
       var key = 'ex_'+ti+'_'+i;
       var exd = exLog[key] || {};
       var px = _parseExSimple(exStr);
-      var currentW = exd.weight || px.targetWeight || '';
+      // Weight: last logged → plan target → profile-based estimate
+      var estimated = _estimateStartWeight(px.name, p);
+      var currentW = exd.weight || px.targetWeight || estimated || '';
       var isDone = exd.status === 'done';
       var isLogged = !!(exd.weight || exd.actual);
-      var wDelta = (exd.weight && px.targetWeight)
-        ? Math.round((exd.weight - px.targetWeight)*10)/10 : null;
+      var refW = px.targetWeight || estimated;
+      var wDelta = (exd.weight && refW)
+        ? Math.round((exd.weight - refW)*10)/10 : null;
+      var showEstLabel = !exd.weight && !px.targetWeight && estimated;
 
       html += '<div class="dp2-excard'+(isDone?' done':isLogged?' logged':'')+'">'
         // Header row: name + plan spec
@@ -6050,8 +6113,11 @@ function renderActualPane() {
           +(wDelta!==null&&wDelta!==0
             ?'<span class="dp2-excard-wdelta '+(wDelta>0?'up':'down')+'">'+(wDelta>0?'+':'')+wDelta+'kg</span>'
             :'')
-          +(px.targetWeight
-            ?'<button class="dp2-excard-match" onclick="dpExMatch(\''+key+'\','+px.targetWeight+',\''+px.sets+'\u00d7'+px.reps+'\')">Match plan</button>'
+          +(showEstLabel
+            ?'<span style="font-size:9px;color:rgba(196,124,24,.45);margin-left:auto;">est. for your level</span>'
+            :'')
+          +(currentW&&!showEstLabel
+            ?'<button class="dp2-excard-match" onclick="dpExMatch(\''+key+'\','+currentW+',\''+px.sets+'\u00d7'+px.reps+'\')">'+(px.targetWeight?'Match plan':'Log at '+currentW+'kg')+'</button>'
             :'')
         +'</div>'
         // Footer: reps display + done button
@@ -6207,9 +6273,8 @@ function edSetStatus(blockIdx, status) {
   if (block.type === 'training') {
     var current = log.trainStatus || '';
     log.trainStatus = (current === status) ? '' : status;
-    if (status === 'done') {
-      log.trainStatus = 'done';
-      if (!log.trainDoneAt) log.trainDoneAt = new Date().toISOString();
+    if (log.trainStatus === 'done' && !log.trainDoneAt) {
+      log.trainDoneAt = new Date().toISOString();
     }
     saveDayLog(_rDate, log);
   } else if (block.mealSlot) {
@@ -7343,11 +7408,22 @@ function loadDayLog(dateStr) {
   } catch(e) { return {}; }
 }
 
-function saveDayLog(log) {
+function saveDayLog(dateOrLog, log) {
+  // Accepts both saveDayLog(log) and saveDayLog(dateStr, log)
+  var dateStr, data;
+  if (typeof dateOrLog === 'string') {
+    dateStr = dateOrLog; data = log;
+  } else {
+    data = dateOrLog;
+    dateStr = (data && data.date) ? data.date : _rDate;
+  }
+  if (!data || typeof data !== 'object') return;
   try {
-    log.updatedAt = new Date().toISOString();
-    if (!log.loggedAt) log.loggedAt = log.updatedAt;
-    localStorage.setItem(_dlKey(log.date), JSON.stringify(log));
+    if (!data.date) data.date = dateStr;
+    data.updatedAt = new Date().toISOString();
+    if (!data.loggedAt) data.loggedAt = data.updatedAt;
+    _dayLogCache[dateStr] = data;
+    localStorage.setItem(_dlKey(dateStr), JSON.stringify(data));
   } catch(e) {}
 }
 
@@ -9811,7 +9887,15 @@ function vlgGuidedAI(userText, isOpening) {
   .catch(function(err) {
     _vlgGuided.busy = false;
     vlgGuidedSetThinking(false);
-    vlgGuidedAppendBubble('ai', 'Connection issue. Tap the mic and try again.');
+    if (isOpening) {
+      // Don't block on a failed opening call — show a static prompt and start listening
+      vlgGuidedAppendBubble('ai', 'What did you do today? Tell me your exercises, meals, or how you felt. I\'ll log it for you.');
+      setTimeout(function() {
+        if (_vlgGuided.active) vlgGuidedStartListening();
+      }, 400);
+    } else {
+      vlgGuidedAppendBubble('ai', 'Connection issue — try again or type your response below.');
+    }
   });
 }
 
