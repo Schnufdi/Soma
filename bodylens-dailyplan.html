@@ -2533,6 +2533,56 @@ body {
 }
 .dp2-ex-done.done { background: rgba(0,200,160,.1); border-color: rgba(0,200,160,.4); color: var(--jade); }
 
+/* Amber pane — interactive exercise cards */
+.dp2-excard {
+  margin: 5px 10px; padding: 10px 12px;
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px; transition: border-color .15s, background .15s;
+}
+.dp2-excard.logged { border-color: rgba(196,124,24,.3); background: rgba(196,124,24,.03); }
+.dp2-excard.done { border-color: rgba(0,200,160,.35); background: rgba(0,200,160,.04); }
+.dp2-excard-top {
+  display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px;
+}
+.dp2-excard-name { font-size: 12px; font-weight: 500; color: var(--lt-1); }
+.dp2-excard-plan { font-size: 10px; font-weight: 300; color: var(--dk-3); }
+.dp2-excard-body { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+.dp2-excard-adj {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05);
+  color: var(--lt-1); font-size: 22px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none; -webkit-user-select: none; transition: background .1s; flex-shrink: 0;
+}
+.dp2-excard-adj:active { background: rgba(255,255,255,.18); }
+.dp2-excard-weight { font-size: 22px; font-weight: 600; color: var(--jade); min-width: 46px; text-align: center; }
+.dp2-excard-unit { font-size: 11px; color: var(--dk-3); margin-right: 2px; }
+.dp2-excard-wdelta { font-size: 10px; padding: 2px 6px; border-radius: 10px; white-space: nowrap; }
+.dp2-excard-wdelta.up { color: var(--jade); background: rgba(0,200,160,.1); }
+.dp2-excard-wdelta.down { color: #e88; background: rgba(220,80,80,.1); }
+.dp2-excard-match {
+  margin-left: auto; padding: 5px 10px; border-radius: 20px;
+  border: 1px solid rgba(196,124,24,.35); background: rgba(196,124,24,.08);
+  color: var(--amber); font-size: 10px; font-weight: 500; cursor: pointer;
+  white-space: nowrap; transition: background .1s;
+}
+.dp2-excard-match:active { background: rgba(196,124,24,.22); }
+.dp2-excard-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,.05); padding-top: 8px;
+}
+.dp2-excard-reps { font-size: 11px; color: var(--dk-2); }
+.dp2-excard-done-btn {
+  padding: 5px 12px; border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.12); background: transparent;
+  color: var(--dk-2); font-size: 10px; font-weight: 500; cursor: pointer;
+  transition: all .15s;
+}
+.dp2-excard-done-btn.done {
+  background: rgba(0,200,160,.12); border-color: rgba(0,200,160,.4); color: var(--jade);
+}
+
 /* Supplement pills */
 .dp2-pills { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; }
 .dp2-pill {
@@ -5656,6 +5706,36 @@ function dpLogEx(key, weight, actual) {
   if (typeof renderActualPane === 'function') renderActualPane();
 }
 
+// Amber pane exercise card helpers
+function dpExAdj(key, delta) {
+  var logA = loadDayLog(_rDate) || initDayLog();
+  if (!logA.exercises) logA.exercises = {};
+  var exd = logA.exercises[key] || {};
+  var w = parseFloat(exd.weight) || 20;
+  var newW = Math.max(0, Math.round((w + delta) * 10) / 10);
+  dpLogEx(key, newW, exd.actual || null);
+}
+function dpExMatch(key, weight, actual) {
+  var logM = loadDayLog(_rDate) || initDayLog();
+  if (!logM.exercises) logM.exercises = {};
+  if (!logM.exercises[key]) logM.exercises[key] = {};
+  logM.exercises[key].weight = weight;
+  logM.exercises[key].actual = actual;
+  logM.exercises[key].status = 'done';
+  logM.exercises[key].loggedAt = new Date().toISOString();
+  saveDayLog(_rDate, logM);
+  if (typeof renderActualPane === 'function') renderActualPane();
+}
+function dpExDoneCard(key) {
+  var logD = loadDayLog(_rDate) || initDayLog();
+  if (!logD.exercises) logD.exercises = {};
+  if (!logD.exercises[key]) logD.exercises[key] = {};
+  logD.exercises[key].status = logD.exercises[key].status === 'done' ? 'logged' : 'done';
+  logD.exercises[key].loggedAt = new Date().toISOString();
+  saveDayLog(_rDate, logD);
+  if (typeof renderActualPane === 'function') renderActualPane();
+}
+
 function dpToggleExDone(key, blockIdx, btn) {
   var log8 = loadDayLog(_rDate) || initDayLog();
   if (!log8.exercises) log8.exercises = {};
@@ -5868,62 +5948,75 @@ function renderActualPane() {
   if (trainBlock && today.isTraining) {
     var ti = blocks.indexOf(trainBlock);
     var exercises = (trainBlock.exercises||[]).filter(function(e){ return e !== 'Track loads'; });
-    var anyLogged = exercises.some(function(e,i){
-      var k = 'ex_'+ti+'_'+i;
-      return exLog[k] && (exLog[k].weight || exLog[k].actual);
+
+    var doneCount = exercises.filter(function(e,i){
+      var k='ex_'+ti+'_'+i; return exLog[k]&&exLog[k].status==='done';
+    }).length;
+    var loggedCount = exercises.filter(function(e,i){
+      var k='ex_'+ti+'_'+i; return exLog[k]&&(exLog[k].weight||exLog[k].actual);
+    }).length;
+    var trainBadgeCls = doneCount===exercises.length ? 'green' : loggedCount>0 ? 'amber' : 'empty';
+    var trainBadgeTxt = doneCount===exercises.length ? 'All done \u2713'
+      : loggedCount>0 ? doneCount+'/'+exercises.length+' done' : 'Not started';
+
+    // Estimated burn from logged exercises
+    var totalSets = 0;
+    exercises.forEach(function(exStr, i) {
+      var k='ex_'+ti+'_'+i; var exd=exLog[k]||{};
+      if (!exd.weight && !exd.actual) return;
+      var px=_parseExSimple(exStr);
+      totalSets += exd.actual ? (exd.actual.match(/\d+/g)||[]).length : px.sets;
     });
-    var trainDoneStatus = dlog.trainStatus;
-    var trainBadgeCls = trainDoneStatus === 'done' ? 'green' : trainDoneStatus === 'modified' ? 'amber' : 'empty';
-    var trainBadgeTxt = trainDoneStatus === 'done' ? 'Done \u2713'
-      : trainDoneStatus === 'modified' ? 'Modified'
-      : trainDoneStatus === 'skipped'  ? 'Skipped'
-      : 'Not logged';
+    var estBurn = totalSets>0 ? Math.round(totalSets*2.5*6) : 0;
 
     html += '<div class="dp2-actual-section">'
       + '<div class="dp2-actual-sec-hdr">'
-        + '<span class="dp2-actual-sec-title">' + (trainBlock.title||'Training').split(':')[0] + '</span>'
-        + '<span class="dp2-actual-badge ' + trainBadgeCls + '">' + trainBadgeTxt + '</span>'
+        + '<span class="dp2-actual-sec-title">'+(trainBlock.title||'Training').split(':')[0]+'</span>'
+        + '<span class="dp2-actual-badge '+trainBadgeCls+'">'+trainBadgeTxt+'</span>'
       + '</div>';
 
-    if (anyLogged) {
-      // Estimated burn: ~5–7 kcal/min × sets × ~2.5 min per set as rough heuristic
-      var totalSets = 0; var totalVol = 0;
-      exercises.forEach(function(exStr, i) {
-        var key = 'ex_'+ti+'_'+i;
-        var exd = exLog[key] || {};
-        var px = _parseExSimple(exStr);
-        // Count sets from actual notation e.g. "4x8" or "10,8,8,7"
-        var setCount = exd.actual
-          ? (exd.actual.match(/\d+/g)||[]).length
-          : px.sets;
-        totalSets += setCount;
-        if (exd.weight) totalVol += exd.weight * (setCount * 8); // rough volume
-      });
-      var estBurn = Math.round(totalSets * 2.5 * 6); // 6 kcal/min effort
+    // Interactive exercise cards — one per plan exercise
+    exercises.forEach(function(exStr, i) {
+      var key = 'ex_'+ti+'_'+i;
+      var exd = exLog[key] || {};
+      var px = _parseExSimple(exStr);
+      var currentW = exd.weight || px.targetWeight || '';
+      var isDone = exd.status === 'done';
+      var isLogged = !!(exd.weight || exd.actual);
+      var wDelta = (exd.weight && px.targetWeight)
+        ? Math.round((exd.weight - px.targetWeight)*10)/10 : null;
 
-      exercises.forEach(function(exStr, i) {
-        var key = 'ex_'+ti+'_'+i;
-        var exd = exLog[key] || {};
-        var px = _parseExSimple(exStr);
-        if (!exd.weight && !exd.actual) return;
-        var wDelta = (exd.weight && px.targetWeight) ? (exd.weight - px.targetWeight) : null;
-        html += '<div class="dp2-actual-ex-row">'
-          + '<span class="dp2-actual-ex-name">' + px.name + '</span>'
-          + '<span class="dp2-actual-ex-vals">'
-            + (exd.weight ? '<strong style="color:var(--jade);">' + exd.weight + 'kg</strong> ' : '')
-            + (exd.actual ? '\u00d7' + exd.actual : '')
-          + '</span>'
-          + (wDelta !== null && wDelta !== 0
-            ? '<span class="dp2-actual-ex-delta ' + (wDelta > 0 ? 'up' : 'down') + '">'
-              + (wDelta > 0 ? '+' : '') + wDelta + 'kg</span>'
-            : '')
-        + '</div>';
-      });
-      if (estBurn > 0) {
-        html += '<div class="dp2-actual-burn">\u223c' + estBurn + ' kcal burned (est.)</div>';
-      }
-    } else {
-      html += '<div class="dp2-actual-empty-hint">Dictate your sets, reps &amp; weights</div>';
+      html += '<div class="dp2-excard'+(isDone?' done':isLogged?' logged':'')+'">'
+        // Header row: name + plan spec
+        +'<div class="dp2-excard-top">'
+          +'<span class="dp2-excard-name">'+px.name+'</span>'
+          +'<span class="dp2-excard-plan">'+px.sets+'\u00d7'+px.reps+(px.targetWeight?' @ '+px.targetWeight+'kg':'')+'</span>'
+        +'</div>'
+        // Weight stepper row
+        +'<div class="dp2-excard-body">'
+          +'<button class="dp2-excard-adj" onclick="dpExAdj(\''+key+'\',-2.5)">&#8722;</button>'
+          +'<span class="dp2-excard-weight">'+(currentW||'—')+'</span>'
+          +'<span class="dp2-excard-unit">kg</span>'
+          +'<button class="dp2-excard-adj" onclick="dpExAdj(\''+key+'\',2.5)">+</button>'
+          +(wDelta!==null&&wDelta!==0
+            ?'<span class="dp2-excard-wdelta '+(wDelta>0?'up':'down')+'">'+(wDelta>0?'+':'')+wDelta+'kg</span>'
+            :'')
+          +(px.targetWeight
+            ?'<button class="dp2-excard-match" onclick="dpExMatch(\''+key+'\','+px.targetWeight+',\''+px.sets+'\u00d7'+px.reps+'\')">Match plan</button>'
+            :'')
+        +'</div>'
+        // Footer: reps display + done button
+        +'<div class="dp2-excard-footer">'
+          +'<span class="dp2-excard-reps">'+(exd.actual||(px.sets+'\u00d7'+px.reps))+'</span>'
+          +'<button class="dp2-excard-done-btn'+(isDone?' done':'')+'" onclick="dpExDoneCard(\''+key+'\')">'
+            +(isDone?'\u2713 Done':'Log done')
+          +'</button>'
+        +'</div>'
+      +'</div>';
+    });
+
+    if (estBurn>0) {
+      html += '<div class="dp2-actual-burn" style="margin:4px 10px 2px;">\u223c'+estBurn+' kcal burned (est.)</div>';
     }
     html += '</div>';
   }
