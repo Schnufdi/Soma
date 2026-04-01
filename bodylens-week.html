@@ -41,8 +41,8 @@ body{background:var(--ink);color:var(--dk-1);}
 .sec-label::after{content:'';flex:1;height:1px;background:var(--bd);}
 .ledger-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:28px;}
 @media(max-width:599px){.ledger-grid{display:flex;overflow-x:auto;gap:8px;padding-bottom:12px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}.ledger-grid::-webkit-scrollbar{display:none;}}
-.day-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:12px 10px;position:relative;overflow:hidden;min-height:130px;transition:border-color .15s;}
-@media(max-width:599px){.day-card{flex:0 0 120px;min-width:120px;}}
+.day-card{background:var(--ink-1);border:1px solid var(--bd);border-radius:10px;padding:12px 10px;position:relative;overflow:hidden;min-height:130px;transition:border-color .15s;display:flex;flex-direction:column;}
+@media(max-width:599px){.day-card{flex:0 0 140px;min-width:140px;}}
 .day-card.is-today{cursor:pointer;}
 .day-card.is-today:hover{border-color:rgba(0,200,160,.5);}
 .day-card.training{border-top:2px solid rgba(0,200,160,.3);}
@@ -63,9 +63,10 @@ body{background:var(--ink);color:var(--dk-1);}
 .dc-status.today{background:rgba(0,200,160,.08);color:var(--jade);}
 .dc-status.rest{background:rgba(255,255,255,.04);color:var(--dk-3);}
 .dc-status.reshuffled{background:rgba(196,124,24,.1);color:var(--amber);}
-.dc-exercises{margin-top:6px;}
+.dc-exercises{margin-top:6px;flex:1;}
 .dc-ex{font-size:8px;font-weight:300;color:rgba(255,255,255,.28);line-height:1.5;}
 .dc-cardio{font-size:7px;font-weight:600;color:rgba(100,160,255,.45);margin-top:6px;letter-spacing:.02em;padding-top:5px;border-top:1px solid rgba(100,160,255,.1);}
+.dc-cardio:empty{border-top:none;margin-top:0;padding-top:0;}
 /* ── Energy Balance ───────────────────────────────────── */
 .energy-balance{margin-bottom:28px;}
 .eb-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px;}
@@ -94,8 +95,8 @@ body{background:var(--ink);color:var(--dk-1);}
 .eb-day-net.surplus.planned{opacity:.5;}
 .eb-day-net.empty{color:var(--dk-3);background:none;}
 .eb-note{font-size:9px;font-weight:300;color:var(--dk-3);text-align:center;padding:4px 0 2px;line-height:1.6;}
-.dc-reshuffle-note{font-size:8px;font-weight:600;color:var(--amber);margin-top:5px;letter-spacing:.02em;}
-.reshuffle-trigger{display:none;width:100%;margin-top:8px;background:rgba(196,124,24,.1);border:1px solid rgba(196,124,24,.3);border-radius:5px;color:var(--amber);font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 6px;cursor:pointer;text-align:center;transition:background .12s;}
+.dc-reshuffle-note{font-size:8px;font-weight:600;color:var(--amber);margin-top:4px;letter-spacing:.02em;}
+.reshuffle-trigger{display:none;width:100%;margin-top:6px;background:rgba(196,124,24,.1);border:1px solid rgba(196,124,24,.3);border-radius:5px;color:var(--amber);font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 6px;cursor:pointer;text-align:center;transition:background .12s;flex-shrink:0;}
 .reshuffle-trigger:hover{background:rgba(196,124,24,.18);}
 .day-card.missed .reshuffle-trigger,.day-card.skipped .reshuffle-trigger{display:block;}
 /* ── Nutrition Ledger ─────────────────────────────────── */
@@ -223,7 +224,7 @@ function getMissed(p){
 
 // ── Cardio hint per training day ─────────────────────────
 function _wkCardioHint(wp) {
-  if (!wp || wp.priority !== 'training') return '';
+  if (!wp || wp.priority !== 'training') return '<div class="dc-cardio"></div>';
   var t = ((wp.type||'') + ' ' + (wp.focus||'')).toLowerCase();
   var hint;
   if      (t.match(/leg|lower|squat|glute|hinge/))   hint = '+ 20 min bike / swim';
@@ -313,16 +314,18 @@ function render(){
     else if(isTraining)cardCls+=' training';
     if(isToday)cardCls+=' today is-today';
     if(wasReshuffled)cardCls+=' reshuffled';
-    var exHTML='';
+    // Exercise list — always present so flex:1 works on rest days too
+    var exHTML='<div class="dc-exercises">';
     if(isTraining&&wp.keyExercises&&wp.keyExercises.length){
-      exHTML='<div class="dc-exercises">';
       wp.keyExercises.forEach(function(ex){exHTML+='<div class="dc-ex">· '+ex+'</div>';});
-      exHTML+='</div>';
-      exHTML+=_wkCardioHint(wp);
     }
-    var reshuffleNote=wasReshuffled&&ovEntry.note?'<div class="dc-reshuffle-note">↻ '+ovEntry.note+'</div>':'';
-    var needsReshuffle=(status==='missed'||status==='skipped')&&isTraining;
-    var reshuffleBtn=needsReshuffle?'<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffle()">↻ Reshuffle week<span class="pro-badge">PRO</span></button>':'';
+    exHTML+='</div>';
+    // Reshuffle origin note (only when this slot received a moved session)
+    var reshuffleNote=wasReshuffled&&ovEntry&&ovEntry.note?'<div class="dc-reshuffle-note">↻ '+ovEntry.note+'</div>':'';
+    // Cardio hint — always a div (empty for rest days, :empty CSS hides border)
+    var cardioHTML=_wkCardioHint(wp);
+    // Reshuffle button — always in DOM; CSS .day-card.missed/.skipped controls display
+    var reshuffleBtn='<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffle()">↻ Reshuffle week<span class="pro-badge">PRO</span></button>';
     var cardOnclick=isToday?'location.href=\'bodylens-dailyplan.html\'':(isPast&&isTraining?'location.href=\'bodylens-dailyplan.html?date='+ds+'\'':'');
     var cardCursor=cardOnclick?'cursor:pointer;':'';
     var cardTitle=isToday?'Open today\'s plan':(isPast&&isTraining?'Open session log':'');
@@ -332,7 +335,7 @@ function render(){
       +'<div class="dc-type">'+(wp.type||'Rest')+'</div>'
       +(wp.focus&&isTraining?'<div class="dc-focus">'+wp.focus+'</div>':'')
       +'<div class="dc-status '+statusClass+'">'+statusLabel+'</div>'
-      +exHTML+reshuffleNote+reshuffleBtn
+      +exHTML+reshuffleNote+cardioHTML+reshuffleBtn
     +'</div>';
   }
   cardsHTML+='</div>';
@@ -574,7 +577,19 @@ function applyReshuffle(){
       changes.push({field:m.day,label:m.day,before:m.type,after:'Dropped'});
     } else {
       var orig=getEffDay(p,target);
-      ov[target]={type:m.type,priority:'training',source:'reshuffle',note:'Moved from '+m.day,reshuffledAt:new Date().toISOString()};
+      // Copy the FULL source plan — type, focus, exercises, kcal — so the card
+      // actually shows the moved session with all its exercises intact
+      var srcPlan=getEffDay(p,m.idx);
+      ov[target]={
+        type:        srcPlan.type       || m.type,
+        priority:    'training',
+        focus:       srcPlan.focus      || '',
+        keyExercises:(srcPlan.keyExercises||[]).slice(),
+        kcal:        srcPlan.kcal       || null,
+        source:      'reshuffle',
+        note:        'Moved from '+m.day,
+        reshuffledAt:new Date().toISOString()
+      };
       changes.push({field:DNS[target],label:DNS[target],before:orig.type||'Rest',after:m.type+' (from '+m.day+')'});
     }
   });
