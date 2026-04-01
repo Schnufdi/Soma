@@ -13,11 +13,15 @@
 <style>
 body{background:var(--ink);color:var(--dk-1);}
 .page{max-width:980px;margin:0 auto;padding:0 24px 100px;}
-.wk-hero{padding:28px 0 24px;border-bottom:1px solid var(--bd);margin-bottom:28px;}
+.wk-hero{padding:28px 0 24px;border-bottom:1px solid var(--bd);margin-bottom:28px;display:flex;align-items:baseline;justify-content:space-between;gap:16px;}
+@media(max-width:599px){.wk-hero{padding:16px 0 14px;margin-bottom:18px;}}
+.wk-hero-left{flex:1;}
 .wk-kicker{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
 .wk-title{font-family:var(--serif);font-size:48px;font-weight:300;line-height:.93;color:var(--dk-1);margin-bottom:8px;}
+@media(max-width:599px){.wk-title{font-size:32px;margin-bottom:4px;}}
 .wk-title em{font-style:italic;color:var(--dk-3);}
 .wk-sub{font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.7;max-width:500px;}
+@media(max-width:599px){.wk-sub{display:none;}}
 .missed-banner{display:flex;align-items:center;gap:12px;background:rgba(196,124,24,.07);border:1px solid rgba(196,124,24,.2);border-radius:10px;padding:14px 18px;margin-bottom:24px;cursor:pointer;transition:background .12s;}
 .missed-banner:hover{background:rgba(196,124,24,.12);}
 .missed-banner-icon{font-size:18px;flex-shrink:0;}
@@ -44,6 +48,7 @@ body{background:var(--ink);color:var(--dk-1);}
 .day-card.training{border-top:2px solid rgba(0,200,160,.3);}
 .day-card.today{border-color:rgba(0,200,160,.35);background:rgba(0,200,160,.03);}
 .day-card.missed{border-top:2px solid rgba(220,80,60,.5);}
+.day-card.skipped{border-top:2px solid rgba(220,80,60,.3);}
 .day-card.done{border-top:2px solid rgba(0,200,160,.6);}
 .day-card.reshuffled{border-top:2px solid rgba(196,124,24,.5);}
 .today-badge{position:absolute;top:8px;right:8px;font-size:7px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:var(--jade);color:var(--ink);padding:2px 6px;border-radius:3px;}
@@ -63,8 +68,12 @@ body{background:var(--ink);color:var(--dk-1);}
 .dc-reshuffle-note{font-size:8px;font-weight:600;color:var(--amber);margin-top:5px;letter-spacing:.02em;}
 .reshuffle-trigger{display:none;width:100%;margin-top:8px;background:rgba(196,124,24,.1);border:1px solid rgba(196,124,24,.3);border-radius:5px;color:var(--amber);font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 6px;cursor:pointer;text-align:center;transition:background .12s;}
 .reshuffle-trigger:hover{background:rgba(196,124,24,.18);}
-.day-card.missed .reshuffle-trigger{display:block;}
+.day-card.missed .reshuffle-trigger,.day-card.skipped .reshuffle-trigger{display:block;}
+.rhythm-wrap{margin-bottom:28px;}
 .rhythm-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.rhythm-row.is-today .rhythm-day{color:var(--jade);}
+.rhythm-row.is-today .rhythm-fill{opacity:1;}
+.rhythm-row.is-today .rhythm-val{color:var(--jade);}
 .rhythm-day{font-size:10px;font-weight:600;color:var(--dk-3);width:28px;}
 .rhythm-track{flex:1;height:4px;background:var(--bd);border-radius:2px;overflow:hidden;}
 .rhythm-fill{height:100%;border-radius:2px;}
@@ -133,13 +142,16 @@ body{background:var(--ink);color:var(--dk-1);}
 .rs-error{font-size:12px;color:var(--red);text-align:center;margin-top:12px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,200,160,.2);border-top-color:var(--jade);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px;}
+.pro-page-banner{display:none;position:relative;padding-right:44px;}
+.pro-banner-dismiss{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(200,148,30,.5);font-size:14px;cursor:pointer;padding:4px 6px;line-height:1;}
+.pro-banner-dismiss:hover{color:#c8941e;}
 .wk-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--jade);color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:700;padding:10px 22px;border-radius:20px;z-index:9999;pointer-events:none;transition:transform .25s ease;}
 .wk-toast.show{transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
-<div class="pro-page-banner" id="pro-page-banner">&#10022; PRO features are highlighted &mdash; <a href="/bodylens-pro.html">Founding member pricing available</a></div>
-<script>(function(){if(localStorage.getItem('bl_pro_status')!=='active'){var b=document.getElementById('pro-page-banner');if(b)b.style.display='block';}})();</script>
+<div class="pro-page-banner" id="pro-page-banner">&#10022; PRO features are highlighted &mdash; <a href="/bodylens-pro.html">Founding member pricing available</a><button class="pro-banner-dismiss" onclick="document.getElementById('pro-page-banner').style.display='none';sessionStorage.setItem('wk_pro_banner_dismissed','1');" title="Dismiss">&#10005;</button></div>
+<script>(function(){if(localStorage.getItem('bl_pro_status')!=='active'&&!sessionStorage.getItem('wk_pro_banner_dismissed')){var b=document.getElementById('pro-page-banner');if(b)b.style.display='block';}})();</script>
 <div class="page" id="main-page"></div>
 <div class="wk-toast" id="wk-toast"></div>
 <script src="nav.js"></script>
@@ -166,7 +178,7 @@ function getMissed(p){
     var plan=getEffDay(p,i);
     if(plan.priority!=='training')continue;
     var log=loadLog(dayStr(i));
-    if(log&&(log.trainStatus==='done'||log.trainStatus==='skipped'))continue;
+    if(log&&log.trainStatus==='done')continue;
     missed.push({idx:i,day:DNS[i],ds:dayStr(i),type:plan.type});
   }
   return missed;
@@ -184,12 +196,12 @@ function render(){
   var remaining=0;
   for(var i=ti+1;i<7;i++){var effD=getEffDay(p,i);if(effD.priority==='training'){var flog=loadLog(dayStr(i));if(!flog||flog.trainStatus!=='done')remaining++;}}
   var sessCol=doneSessions===trainingDays?'jade':doneSessions>0?'amber':'slate';
-  var wkStatus=missed.length===0&&doneSessions>=trainingDays?'on track':missed.length>0?'off plan':'in progress';
-  var wkCol=wkStatus==='on track'?'jade':wkStatus==='off plan'?'red':'amber';
+  var wkStatus=missed.length===0&&doneSessions>=trainingDays?'Clean':missed.length>0?'Off plan':'Active';
+  var wkCol=wkStatus==='Clean'?'jade':wkStatus==='Off plan'?'red':'amber';
 
   var statsHTML='<div class="wk-stats">'
     +'<div class="wk-stat"><div class="wk-stat-val '+sessCol+'">'+doneSessions+' / '+trainingDays+'</div><div class="wk-stat-label">Sessions done</div></div>'
-    +'<div class="wk-stat"><div class="wk-stat-val '+(missed.length?'red':'jade')+'">'+(missed.length||'✓')+'</div><div class="wk-stat-label">Unlogged</div></div>'
+    +'<div class="wk-stat"><div class="wk-stat-val '+(missed.length?'red':'jade')+'">'+(missed.length||'✓')+'</div><div class="wk-stat-label">To reshuffle</div></div>'
     +'<div class="wk-stat"><div class="wk-stat-val slate">'+(remaining||'✓')+'</div><div class="wk-stat-label">Remaining</div></div>'
     +'<div class="wk-stat"><div class="wk-stat-val '+wkCol+'">'+wkStatus+'</div><div class="wk-stat-label">Status</div></div>'
     +'</div>';
@@ -227,6 +239,7 @@ function render(){
     var cardCls='day-card';
     if(isTraining&&status==='done')cardCls+=' done';
     else if(isTraining&&status==='missed')cardCls+=' missed training';
+    else if(isTraining&&status==='skipped')cardCls+=' skipped training';
     else if(isTraining)cardCls+=' training';
     if(isToday)cardCls+=' today is-today';
     if(wasReshuffled)cardCls+=' reshuffled';
@@ -238,8 +251,12 @@ function render(){
       exHTML+='</div>';
     }
     var reshuffleNote=wasReshuffled&&ovEntry.note?'<div class="dc-reshuffle-note">↻ '+ovEntry.note+'</div>':'';
-    var reshuffleBtn=(status==='missed'&&isTraining)?'<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffle()">↻ Reshuffle week<span class="pro-badge">PRO</span></button>':'';
-    cardsHTML+='<div class="'+cardCls+'"'+(isToday?' onclick="location.href=\'bodylens-dailyplan.html\'"':'')+' title="'+(isToday?'Open today\'s plan':'')+'">'
+    var needsReshuffle=(status==='missed'||status==='skipped')&&isTraining;
+    var reshuffleBtn=needsReshuffle?'<button class="reshuffle-trigger" onclick="event.stopPropagation();openReshuffle()">↻ Reshuffle week<span class="pro-badge">PRO</span></button>':'';
+    var cardOnclick=isToday?'location.href=\'bodylens-dailyplan.html\'':(isPast&&isTraining?'location.href=\'bodylens-dailyplan.html?date='+ds+'\'':'');
+    var cardCursor=cardOnclick?'cursor:pointer;':'';
+    var cardTitle=isToday?'Open today\'s plan':(isPast&&isTraining?'Open session log':'');
+    cardsHTML+='<div class="'+cardCls+'"'+(cardOnclick?' onclick="'+cardOnclick+'"':'')+' title="'+cardTitle+'" style="'+cardCursor+'">';
       +(isToday?'<div class="today-badge">Today</div>':'')
       +'<div class="dc-day">'+DNS3[i]+'</div>'
       +'<div class="dc-type">'+(wp.type||'Rest')+'</div>'
@@ -250,13 +267,15 @@ function render(){
   }
   cardsHTML+='</div>';
 
-  var rhythmHTML='<div class="sec-label" style="margin-top:28px;">Calorie rhythm</div>';
+  var rhythmHTML='<div class="rhythm-wrap"><div class="sec-label" style="margin-top:28px;">Calorie rhythm</div>';
   (p.weekPlan||[]).forEach(function(day,i){
     var effDay=getEffDay(p,i);var isT=effDay.priority==='training';
     var kcal=effDay.kcal||(isT?(p.trainingKcal||p.calories):p.restKcal)||0;
     var pct=maxKcal?Math.round(kcal/maxKcal*100):50;
-    rhythmHTML+='<div class="rhythm-row"><div class="rhythm-day">'+DNS3[i]+'</div><div class="rhythm-track"><div class="rhythm-fill '+(isT?'train':'rest')+'" style="width:'+pct+'%"></div></div><div class="rhythm-val">'+(kcal?kcal.toLocaleString():'—')+'</div></div>';
+    var rowCls='rhythm-row'+(i===ti?' is-today':'');
+    rhythmHTML+='<div class="'+rowCls+'"><div class="rhythm-day">'+DNS3[i]+'</div><div class="rhythm-track"><div class="rhythm-fill '+(isT?'train':'rest')+'" style="width:'+pct+'%"></div></div><div class="rhythm-val">'+(kcal?kcal.toLocaleString():'—')+'</div></div>';
   });
+  rhythmHTML+='</div>';
 
   var aiCacheKey='bl_week_analysis_'+new Date().toISOString().slice(0,10);
   var aiCached=null;try{aiCached=localStorage.getItem(aiCacheKey);}catch(e){}
@@ -269,8 +288,8 @@ function render(){
     +'<div class="ai-result" id="ai-result-box">'+(aiCached?'<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--jade);margin-bottom:8px;">Coach</div><div>'+aiCached+'</div>':'')+'</div>';
 
   document.getElementById('main-page').innerHTML=
-    '<div class="wk-hero"><div class="wk-kicker">Training ledger</div><div class="wk-title">This<br><em>week.</em></div><div class="wk-sub">Planned vs actual. Every session classified against your goals.</div></div>'
-    +statsHTML+bannerHTML+cardsHTML+rhythmHTML+aiHTML
+    '<div class="wk-hero"><div class="wk-hero-left"><div class="wk-kicker">Training ledger</div><div class="wk-title">This<br><em>week.</em></div><div class="wk-sub">Planned vs actual. Every session classified against your goals.</div></div></div>'
+    +statsHTML+bannerHTML+cardsHTML+aiHTML+rhythmHTML
     +'<div id="bl-proposals-section" style="margin-top:28px;"></div>'
     +'<div id="bl-log-section" style="margin-top:14px;"></div>';
 
