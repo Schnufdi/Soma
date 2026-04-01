@@ -2362,28 +2362,55 @@ body {
 .dp2-item-bar.blue  { background: rgba(100,160,255,.4); }
 .dp2-item-bar.dim   { background: rgba(255,255,255,.08); }
 
-/* ── Page-level Plan | Actual split ─────────────────────────────────── */
-.dp2-split-layout {
-  display: grid; grid-template-columns: 1fr 300px; align-items: start; gap: 0;
+/* ── Actual bottom sheet ─────────────────────────────────────────────── */
+.dp2-actual-overlay {
+  position: fixed; inset: 0; z-index: 390;
+  background: rgba(0,0,0,.55); opacity: 0; pointer-events: none;
+  transition: opacity .32s;
 }
-.dp2-plan-pane { min-width: 0; }
-.dp2-actual-pane {
-  position: sticky; top: 170px;
-  max-height: calc(100vh - 180px); overflow-y: auto;
-  background: rgba(196,124,24,.035);
-  border-left: 1px solid rgba(196,124,24,.2);
-  display: flex; flex-direction: column;
+.dp2-actual-overlay.open { opacity: 1; pointer-events: auto; }
+.dp2-actual-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
+  height: 88vh;
+  background: #0f0e0c;
+  border-top: 2px solid rgba(196,124,24,.45);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -12px 48px rgba(0,0,0,.65);
+  transform: translateY(100%);
+  transition: transform .34s cubic-bezier(.32,0,.18,1);
+  display: flex; flex-direction: column; overflow: hidden;
 }
-.dp2-actual-pane-hd {
+.dp2-actual-sheet.open { transform: translateY(0); }
+.dp2-actual-sheet-handle {
+  width: 38px; height: 4px; border-radius: 2px;
+  background: rgba(196,124,24,.3); margin: 10px auto 0; flex-shrink: 0;
+}
+.dp2-actual-sheet-hd {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px 10px;
-  border-bottom: 1px solid rgba(196,124,24,.15);
-  position: sticky; top: 0; background: rgba(196,124,24,.05); z-index: 1;
+  padding: 10px 18px 12px; flex-shrink: 0;
+  border-bottom: 1px solid rgba(196,124,24,.1);
 }
-.dp2-actual-pane-title {
-  font-size: 9px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--amber);
+.dp2-actual-sheet-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--amber);
 }
+.dp2-actual-sheet-close {
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  border: 1px solid rgba(196,124,24,.25); background: rgba(196,124,24,.06);
+  color: var(--amber); font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+.dp2-actual-sheet-body { flex: 1; overflow-y: auto; padding-bottom: 24px; }
+/* Trigger pill */
+.dp2-actual-trigger {
+  position: fixed; bottom: 24px; right: 20px; z-index: 300;
+  background: rgba(196,124,24,.13); border: 1.5px solid rgba(196,124,24,.45);
+  color: var(--amber); font-size: 11px; font-weight: 700; letter-spacing: .07em;
+  padding: 11px 20px; border-radius: 26px; cursor: pointer;
+  font-family: var(--sans); box-shadow: 0 4px 22px rgba(0,0,0,.45);
+  transition: all .15s; display: flex; align-items: center; gap: 7px;
+}
+.dp2-actual-trigger:hover { background: rgba(196,124,24,.24); }
+.dp2-actual-trigger.active { background: rgba(196,124,24,.22); border-color: rgba(196,124,24,.7); }
 .dp2-actual-voice-btn {
   display: flex; align-items: center; gap: 5px;
   background: rgba(196,124,24,.12); border: 1px solid rgba(196,124,24,.3);
@@ -2456,11 +2483,7 @@ body {
 .dp2-actual-burn {
   font-size: 11px; font-weight: 300; color: var(--dk-3); padding: 4px 0 0;
 }
-/* Mobile: pane goes below plan */
-@media (max-width: 860px) {
-  .dp2-split-layout { grid-template-columns: 1fr; }
-  .dp2-actual-pane { position: static; max-height: none; border-left: none; border-top: 2px solid rgba(196,124,24,.25); }
-}
+/* Mobile: sheet is full width by default — nothing extra needed */
 
 .dp2-item-main { flex: 1; min-width: 0; padding: 10px 12px; cursor: pointer; }
 .dp2-item-top { display: flex; align-items: center; gap: 7px; margin-bottom: 2px; }
@@ -5476,28 +5499,35 @@ function renderPlan(plan, browsing) {
   + '<div id="vlg-toast" class="vlg-toast"></div>';
 
   // ── Assemble ─────────────────────────────────────────────
-  root.innerHTML = '<div class="dp2-split-layout">'
-    // ── LEFT: plan (green, unchanged) ──────────────────────
-    +'<div class="dp2-plan-pane"><div class="dp2-page">'
+  root.innerHTML = '<div class="dp2-page">'
       + missionHtml
       + actsHtml
       + (isBrowsing
           ? '<button class="dp2-rebuild-btn" onclick="backToToday()">← Back to today</button>'
           : '<button class="dp2-rebuild-btn" onclick="regen()" id="dp2-rebuild-btn">↺ Rebuild plan</button>')
       + eodHtml
-    +'</div></div>'
-    // ── RIGHT: actual (amber column) ───────────────────────
-    +'<div class="dp2-actual-pane" id="dp2-actual-pane">'
-      +'<div class="dp2-actual-pane-hd">'
-        +'<span class="dp2-actual-pane-title">Actual</span>'
-        +'<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="vlgToggle()">&#127908; Dictate</button>'
-      +'</div>'
-      +'<div id="dp2-actual-entries"></div>'
-      +'<div id="dp2-actual-totals"></div>'
     +'</div>'
-  +'</div>'
-  + floatHtml
-  + voiceHtml;
+    // ── Actual trigger pill ─────────────────────────────────
+    +'<button class="dp2-actual-trigger" id="dp2-actual-trigger" onclick="dpActualOpen()">&#9711; Actual</button>'
+    // ── Dim overlay ─────────────────────────────────────────
+    +'<div class="dp2-actual-overlay" id="dp2-actual-overlay" onclick="dpActualClose()"></div>'
+    // ── Amber bottom sheet ──────────────────────────────────
+    +'<div class="dp2-actual-sheet" id="dp2-actual-sheet">'
+      +'<div class="dp2-actual-sheet-handle"></div>'
+      +'<div class="dp2-actual-sheet-hd">'
+        +'<span class="dp2-actual-sheet-title">Actual</span>'
+        +'<div style="display:flex;align-items:center;gap:8px;">'
+          +'<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="vlgToggle()">&#127908; Dictate</button>'
+          +'<button class="dp2-actual-sheet-close" onclick="dpActualClose()">&#215;</button>'
+        +'</div>'
+      +'</div>'
+      +'<div class="dp2-actual-sheet-body">'
+        +'<div id="dp2-actual-entries"></div>'
+        +'<div id="dp2-actual-totals"></div>'
+      +'</div>'
+    +'</div>'
+    + floatHtml
+    + voiceHtml;
 
   // ── Post-render ──────────────────────────────────────────
   var oldBar = document.getElementById('macro-bar');
@@ -5734,6 +5764,25 @@ function dpExDoneCard(key) {
   logD.exercises[key].loggedAt = new Date().toISOString();
   saveDayLog(_rDate, logD);
   if (typeof renderActualPane === 'function') renderActualPane();
+}
+
+// ── Actual sheet open / close ────────────────────────────────────────
+function dpActualOpen() {
+  var sheet = document.getElementById('dp2-actual-sheet');
+  var overlay = document.getElementById('dp2-actual-overlay');
+  var trigger = document.getElementById('dp2-actual-trigger');
+  if (sheet) sheet.classList.add('open');
+  if (overlay) overlay.classList.add('open');
+  if (trigger) trigger.classList.add('active');
+  if (typeof renderActualPane === 'function') renderActualPane();
+}
+function dpActualClose() {
+  var sheet = document.getElementById('dp2-actual-sheet');
+  var overlay = document.getElementById('dp2-actual-overlay');
+  var trigger = document.getElementById('dp2-actual-trigger');
+  if (sheet) sheet.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+  if (trigger) trigger.classList.remove('active');
 }
 
 function dpToggleExDone(key, blockIdx, btn) {
