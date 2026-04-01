@@ -2497,7 +2497,7 @@ body {
 .dp2-item-tag.supp   { background: rgba(255,255,255,.07); color: var(--dk-3); }
 .dp2-item-tag.cardio { background: rgba(100,160,255,.1);  color: rgba(140,180,255,.9); }
 .dp2-item-dur { font-size: 9px; color: var(--dk-3); font-weight: 300; flex-shrink: 0; }
-.dp2-item-sub { font-size: 12px; font-weight: 300; color: var(--dk-3); line-height: 1.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dp2-item-sub { font-size: 12px; font-weight: 300; color: var(--dk-3); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .dp2-item-chevron {
   font-size: 11px; color: var(--dk-3); padding: 14px 6px;
   transition: transform .2s; opacity: .4; flex-shrink: 0; align-self: flex-start;
@@ -2555,6 +2555,23 @@ body {
   font-size: 10px; color: var(--dk-3); transition: all .1s; flex-shrink: 0;
 }
 .dp2-ex-done.done { background: rgba(0,200,160,.1); border-color: rgba(0,200,160,.4); color: var(--jade); }
+/* Weight cell: estimate label below input */
+.dp2-ex-w-wrap { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; }
+.dp2-ex-inp.est { border-color: rgba(196,124,24,.3) !important; color: rgba(196,124,24,.85); }
+.dp2-ex-est-lbl { font-size: 7px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: rgba(196,124,24,.4); line-height: 1; }
+/* Auto cardio recommendation card */
+.dp2-cardio-auto {
+  margin-top: 14px; padding: 12px 14px;
+  background: rgba(100,160,255,.04);
+  border: 1px solid rgba(100,160,255,.14);
+  border-radius: 8px;
+}
+.dp2-cardio-auto-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.dp2-cardio-auto-icon { font-size: 20px; flex-shrink: 0; }
+.dp2-cardio-auto-rec { font-size: 13px; font-weight: 600; color: var(--dk-1); }
+.dp2-cardio-auto-meta { font-size: 9px; font-weight: 300; color: rgba(130,170,255,.75); margin-top: 2px; letter-spacing: .02em; }
+.dp2-cardio-auto-why { font-size: 11px; font-weight: 300; color: var(--dk-3); line-height: 1.65; margin-bottom: 5px; }
+.dp2-cardio-auto-avoid { font-size: 10px; font-weight: 300; color: var(--dk-3); margin-top: 4px; }
 
 /* Amber pane — interactive exercise cards */
 .dp2-excard {
@@ -5102,6 +5119,8 @@ function renderPlan(plan, browsing) {
             logic = EX_LOGIC[k];
           }
         });
+        var recW = exData.weight || _estimateStartWeight(px.name, P||{});
+        var isEst = !exData.weight && !!recW;
         html += '<div class="dp2-exrow" id="dp2-ex-'+key+'">'
           + '<div class="dp2-ex-num">'+(i+1)+'</div>'
           + '<div class="dp2-ex-info">'
@@ -5112,7 +5131,10 @@ function renderPlan(plan, browsing) {
             + (logic ? '<div class="dp2-ex-logic">'+logic+'</div>' : '')
           + '</div>'
           + '<div class="dp2-ex-log">'
-            + '<input class="dp2-ex-inp" type="number" placeholder="kg" value="'+(exData.weight||'')+'" min="0" step="2.5" onchange="dpLogEx(\''+key+'\',this.value,null,null)">'
+            + '<div class="dp2-ex-w-wrap">'
+              + '<input class="dp2-ex-inp'+(isEst?' est':'')+'" type="number" placeholder="kg" value="'+(recW||'')+'" min="0" step="2.5" onchange="dpLogEx(\''+key+'\',this.value,null,null)">'
+              + (isEst?'<span class="dp2-ex-est-lbl">rec.</span>':'')
+            + '</div>'
             + '<span class="dp2-ex-sep">\u00d7</span>'
             + '<input class="dp2-ex-inp" type="text" placeholder="'+px.sets+'\u00d7'+px.reps+'" value="'+(exData.actual||'')+'" onchange="dpLogEx(\''+key+'\',null,this.value,null)" style="width:52px;">'
             + '<button class="dp2-ex-done'+(isDone?' done':'')+'" onclick="dpToggleExDone(\''+key+'\','+idx+',this)">\u2713</button>'
@@ -5156,6 +5178,22 @@ function renderPlan(plan, browsing) {
           html += '<div class="dp2-cardio-avoid"><span class="dp2-avoid-label">Avoid</span>'+cr.avoid+'</div>';
         }
         html += '</div>';
+      }
+
+      // ── Auto cardio recommendation (when AI plan didn't include one) ────
+      if (!block.cardioRec) {
+        var autoCR = _getAutoCardioRec(block);
+        html += '<div class="dp2-cardio-auto">'
+          + '<div class="dp2-cardio-auto-hd">'
+            + '<span class="dp2-cardio-auto-icon">'+autoCR.icon+'</span>'
+            + '<div>'
+              + '<div class="dp2-cardio-auto-rec">'+autoCR.rec+'</div>'
+              + '<div class="dp2-cardio-auto-meta">'+autoCR.mins+' min &middot; '+autoCR.bpmLo+'&ndash;'+autoCR.bpmHi+' bpm</div>'
+            + '</div>'
+          + '</div>'
+          + '<div class="dp2-cardio-auto-why">'+autoCR.why+'</div>'
+          + (autoCR.avoid?'<div class="dp2-cardio-auto-avoid"><span style="color:rgba(220,80,60,.7);font-weight:600;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">Skip today:</span> '+autoCR.avoid+'</div>':'')
+        + '</div>';
       }
 
       html += '<div class="dp2-detail-btns">'
@@ -5733,6 +5771,25 @@ function dpLogEx(key, weight, actual) {
   if (actual!==null&&actual!==undefined) log7.exercises[key].actual = actual;
   log7.exercises[key].loggedAt = new Date().toISOString();
   saveDayLog(_rDate, log7);
+  // Persist weight to calibration store so future sessions pre-fill correctly
+  if (weight && window._blocks) {
+    try {
+      var parts = key.split('_');
+      var bIdx = parseInt(parts[1]), eIdx = parseInt(parts[2]);
+      var blk = window._blocks[bIdx];
+      if (blk && blk.exercises) {
+        var exes = blk.exercises.filter(function(e){return e!=='Track loads';});
+        var exStr = exes[eIdx];
+        if (exStr) {
+          var exNorm = exStr.replace(/\d+\s*[xX\u00d7].*$/,'').replace(/\s*\(RPE[^)]+\)/i,'').trim().toLowerCase().replace(/[^a-z]/g,'').slice(0,22);
+          var wStore = {};
+          try { wStore = JSON.parse(localStorage.getItem('bl_ex_weights')||'{}'); } catch(e2){}
+          wStore[exNorm] = { w: parseFloat(weight), at: new Date().toISOString().slice(0,10) };
+          localStorage.setItem('bl_ex_weights', JSON.stringify(wStore));
+        }
+      }
+    } catch(e) {}
+  }
   if (typeof renderActualPane === 'function') renderActualPane();
 }
 
@@ -5797,6 +5854,13 @@ function dpDictateBasic() {
 
 // ── Exercise weight estimation from profile ───────────────────────────
 function _estimateStartWeight(exName, p) {
+  // 1. Check personal calibration store (weights the user has actually logged)
+  try {
+    var nKey = (exName||'').toLowerCase().replace(/[^a-z]/g,'').slice(0,22);
+    var wStore = JSON.parse(localStorage.getItem('bl_ex_weights')||'{}');
+    if (wStore[nKey] && wStore[nKey].w) return wStore[nKey].w;
+  } catch(e) {}
+  // 2. Fall back to bodyweight-ratio formula
   var bw = (p && p.weight) ? parseFloat(p.weight) : 75;
   var tier = (p && p.fitnessLevelTier) ? p.fitnessLevelTier : 'beginner';
   var sex  = (p && p.sex) ? p.sex.toLowerCase() : 'm';
@@ -5823,6 +5887,61 @@ function _estimateStartWeight(exName, p) {
   if (sex === 'f' || sex === 'female') ratio *= 0.62;
 
   return Math.max(5, Math.round((bw * ratio) / 2.5) * 2.5);
+}
+
+// ── Auto cardio recommendation based on training block type ──────────
+function _getAutoCardioRec(block) {
+  var P = _getProfile ? _getProfile() : {};
+  var age = (P && P.age) ? parseInt(P.age) : 30;
+  var z2Hi = Math.max(115, 180 - age);       // Maffetone ceiling
+  var z2Lo = z2Hi - 15;
+
+  // Parse training type from block title / label
+  var title = ((block && block.label) || (block && block.title) || '').toLowerCase();
+  var exList = (block && block.exercises) ? block.exercises.join(' ').toLowerCase() : '';
+  var txt = title + ' ' + exList;
+
+  var rec, icon, why, avoid, mins;
+
+  if (txt.match(/leg|lower|squat|lunge|glute|hinge|deadlift|rdl|hip thrust/)) {
+    rec   = 'Seated Bike or Swim';
+    icon  = '🚴';
+    why   = 'Lower-body training fatigues the quads and glutes — cycling (seated) and swimming offload legs while still driving aerobic adaptation.';
+    avoid = 'Running or stair-climber — adds compressive load to already-taxed legs.';
+    mins  = 20;
+  } else if (txt.match(/push|chest|shoulder|press|tricep/)) {
+    rec   = 'Rowing Erg or Brisk Walk';
+    icon  = '🚣';
+    why   = 'Push days leave the anterior chain worked. Rowing adds posterior-chain aerobic stimulus; walking is the lowest-fatigue option if shoulders are fatigued.';
+    avoid = 'Heavy overhead carry or weighted vest — compounds shoulder load.';
+    mins  = 20;
+  } else if (txt.match(/pull|back|bicep|row|chin|lat/)) {
+    rec   = 'Cycle or Elliptical';
+    icon  = '🚲';
+    why   = 'Pull sessions tax the lats and biceps — leg-dominant cardio keeps upper-back recovery clean while building aerobic base.';
+    avoid = 'Rowing erg — further loads already-fatigued pulling muscles.';
+    mins  = 20;
+  } else if (txt.match(/full.?body|total.?body|circuit/)) {
+    rec   = 'Brisk Walk (Zone 2)';
+    icon  = '🚶';
+    why   = 'Full-body sessions accumulate systemic fatigue — a low-intensity walk promotes blood flow and active recovery without adding meaningful training stress.';
+    avoid = 'HIIT or sprints — system already stressed.';
+    mins  = 15;
+  } else if (txt.match(/rest|recovery|mobility|stretch|yoga/)) {
+    rec   = 'Easy Walk or Light Swim';
+    icon  = '🌿';
+    why   = 'Rest days benefit most from gentle movement that enhances circulation without creating a training stimulus.';
+    avoid = '';
+    mins  = 15;
+  } else {
+    rec   = 'Walk or Easy Cycle';
+    icon  = '🏃';
+    why   = 'Zone 2 cardio after strength work supports aerobic base without interfering with recovery — keep effort conversational.';
+    avoid = '';
+    mins  = 20;
+  }
+
+  return { rec:rec, icon:icon, why:why, avoid:avoid, mins:mins, bpmLo:z2Lo, bpmHi:z2Hi };
 }
 
 // ── Actual sheet open / close ────────────────────────────────────────
