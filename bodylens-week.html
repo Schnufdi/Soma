@@ -212,12 +212,34 @@ function getProfile(){try{return JSON.parse(localStorage.getItem('bl_profile')||
 
 function getMissed(p){
   var ti=todayIdx();var missed=[];
+  var ov=loadOverride();
   for(var i=0;i<ti;i++){
-    var plan=getEffDay(p,i);
-    if(plan.priority!=='training')continue;
+    // Always use the ORIGINAL weekPlan to check if this day was meant to be training.
+    // An override (e.g. reshuffle-vacated) must not silently remove a missed session.
+    var origPlan=(p.weekPlan||[])[i]||{};
+    if(origPlan.priority!=='training')continue;
     var log=loadLog(dayStr(i));
     if(log&&log.trainStatus==='done')continue;
-    missed.push({idx:i,day:DNS[i],ds:dayStr(i),type:plan.type});
+    // If this day was vacated by a reshuffle, check whether the destination is
+    // still pending (future day) or was already completed.
+    // If the destination is a future day → reshuffle is valid, not missed yet.
+    // If the destination is a past day that was done → session is complete, not missed.
+    // Otherwise (destination past + not done, or no destination found) → still missed.
+    var ovEntry=ov[i];
+    if(ovEntry&&ovEntry.source==='reshuffle-vacated'){
+      var reshuffledOk=false;
+      for(var j=0;j<7;j++){
+        if(j===i)continue;
+        var destOv=ov[j];
+        if(destOv&&destOv.source==='reshuffle'&&destOv.note&&destOv.note.indexOf(DNS[i])!==-1){
+          if(j>ti){reshuffledOk=true;break;}                            // future — still planned
+          var destLog=loadLog(dayStr(j));
+          if(destLog&&destLog.trainStatus==='done'){reshuffledOk=true;break;} // past, done
+        }
+      }
+      if(reshuffledOk)continue;
+    }
+    missed.push({idx:i,day:DNS[i],ds:dayStr(i),type:origPlan.type});
   }
   return missed;
 }
