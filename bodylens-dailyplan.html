@@ -6806,18 +6806,38 @@ function getMissedSessions(p) {
   mon.setDate(now.getDate() - (wd === 0 ? 6 : wd - 1));
   mon.setHours(0,0,0,0);
   var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var todayIdx = wd === 0 ? 6 : wd - 1;
+  var override = loadWeekOverride();
   var missed = [];
   for (var i = 0; i < 7; i++) {
     var d = new Date(mon); d.setDate(mon.getDate() + i);
     if (d >= new Date(now.toDateString())) break; // stop at today
-    var plan = getEffectiveDayPlan(p, i);
-    if (plan.priority !== 'training') continue;
+    // Always check ORIGINAL weekPlan — overrides must not silently remove missed sessions
+    var origPlan = (p.weekPlan || [])[i] || {};
+    if (origPlan.priority !== 'training') continue;
     var logKey = 'bl_daylog_' + d.toISOString().slice(0,10);
     var log = null;
     try { log = JSON.parse(localStorage.getItem(logKey)||'null'); } catch(e) {}
-    if (!log || log.trainStatus !== 'done') {
-      missed.push({ idx: i, day: DNS[i], date: d.toISOString().slice(0,10), sessionType: plan.type });
+    if (log && log.trainStatus === 'done') continue;
+    // If this day was vacated by reshuffle, check destination validity
+    var ovEntry = override[i];
+    if (ovEntry && ovEntry.source === 'reshuffle-vacated') {
+      var reshuffledOk = false;
+      for (var j = 0; j < 7; j++) {
+        if (j === i) continue;
+        var destOv = override[j];
+        if (destOv && destOv.source === 'reshuffle' && destOv.note && destOv.note.indexOf(DNS[i]) !== -1) {
+          if (j > todayIdx) { reshuffledOk = true; break; } // future — still planned
+          var destLogKey = 'bl_daylog_' + (function(idx){ var dd=new Date(mon);dd.setDate(mon.getDate()+idx);return dd.toISOString().slice(0,10); })(j);
+          var destLog = null;
+          try { destLog = JSON.parse(localStorage.getItem(destLogKey)||'null'); } catch(e2) {}
+          if (destLog && destLog.trainStatus === 'done') { reshuffledOk = true; break; }
+        }
+      }
+      if (reshuffledOk) continue;
     }
+    var effPlan = getEffectiveDayPlan(p, i);
+    missed.push({ idx: i, day: DNS[i], date: d.toISOString().slice(0,10), sessionType: origPlan.type || effPlan.type });
   }
   return missed;
 }

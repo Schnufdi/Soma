@@ -649,6 +649,15 @@ function applyReshuffle(){
   var monthKey=today.slice(0,7);
   ['dayplan_v6r3_','dayplan_v6r2_','bl_macros_'].forEach(function(k){try{localStorage.removeItem(k+today);}catch(e){}});
   try{localStorage.removeItem('bl_week_pool_v2_'+monthKey);}catch(e){}
+  // Also clear the destination day's cached plan so it regenerates with the moved session
+  assignments.forEach(function(target,mi){
+    if(target!==-1){
+      var destDs=dayStr(target);
+      if(destDs!==today){
+        ['dayplan_v6r3_','dayplan_v6r2_','bl_macros_'].forEach(function(k){try{localStorage.removeItem(k+destDs);}catch(e){}});
+      }
+    }
+  });
 
   if(changes.length && typeof blPropose==='function'){
     var id=blPropose('programme','Week reshuffled — '+new Date().toLocaleDateString('en-GB'),changes,'Manual reshuffle: missed sessions moved to new days',null);
