@@ -27,6 +27,18 @@ window.BL.signInWithGoogle = function() {
 };
 
 window.BL.signOut = function() {
+  // Admin preview sign-out (no Supabase session to clear)
+  try {
+    var _adm = JSON.parse(localStorage.getItem('bl_admin_session') || 'null');
+    if (_adm && _adm.token === 'preview-admin') {
+      window._blUser = null;
+      Object.keys(localStorage).filter(function(k) {
+        return k.startsWith('bl_') || k.startsWith('dayplan_');
+      }).forEach(function(k) { localStorage.removeItem(k); });
+      window.location.href = '/bodylens-login.html';
+      return;
+    }
+  } catch(e) {}
   loadSupabase(function(sb) {
     sb.auth.signOut().then(function() {
       window._blUser = null;
@@ -41,7 +53,7 @@ window.BL.signOut = function() {
 };
 
 window.BL.saveProfile = function(profile) {
-  if (!window._blUser) return;
+  if (!window._blUser || window._blUser.id === 'admin-preview') return;
   loadSupabase(function(sb) {
     sb.from('profiles').upsert({
       id: window._blUser.id,
@@ -125,6 +137,20 @@ window.BL.restoreHistory = function() {
 
 // Init on every page
 loadSupabase(function(sb) {
+  // ── Admin preview bypass ─────────────────────────────────
+  try {
+    var _adm = JSON.parse(localStorage.getItem('bl_admin_session') || 'null');
+    if (_adm && _adm.token === 'preview-admin') {
+      var _ap = null; try { _ap = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e2) {}
+      window._blUser = { id: 'admin-preview', email: 'preview@bodylens.app',
+        user_metadata: { full_name: (_ap && _ap.name) || 'Demo' } };
+      window._blAuthResolved = true;
+      updateNavUser(window._blUser);
+      return; // Skip Supabase auth for preview session
+    }
+  } catch(e) {}
+  // ────────────────────────────────────────────────────────
+
   sb.auth.getSession().then(function(res) {
     var session = res.data && res.data.session;
     if (session) {

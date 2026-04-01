@@ -156,6 +156,21 @@ html,body{height:100%;background:var(--ink);}
         </div>
       </div>
 
+      <!-- ── Preview access ───────────────────────────────── -->
+      <div style="margin-top:36px;padding-top:24px;border-top:1px solid rgba(255,255,255,.05);">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(196,124,24,.5);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+          <span style="flex:1;height:1px;background:rgba(196,124,24,.15);"></span>
+          Preview access
+          <span style="flex:1;height:1px;background:rgba(196,124,24,.15);"></span>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input class="field-input" type="text" id="admin-user" placeholder="username" autocomplete="off" style="flex:1;" onkeydown="if(event.key==='Enter')document.getElementById('admin-pass').focus()">
+          <input class="field-input" type="password" id="admin-pass" placeholder="password" autocomplete="off" style="flex:1;" onkeydown="if(event.key==='Enter')signInAdmin()">
+        </div>
+        <div class="msg error" id="admin-error"></div>
+        <button onclick="signInAdmin()" style="width:100%;padding:12px 20px;background:rgba(196,124,24,.1);color:var(--amber);border:1px solid rgba(196,124,24,.25);border-radius:8px;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;font-family:var(--sans);transition:opacity .15s;">Enter preview →</button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -312,6 +327,49 @@ function checkExistingSession() {
   sb.auth.getSession().then(function(res) {
     if (res.data && res.data.session) window.location.href = getPostLoginDest(!!localStorage.getItem('bl_profile'));
   });
+}
+
+// ── Admin preview login ──────────────────────────────────────────────
+var DEMO_PROFILE = {
+  name:'Demo',age:35,sex:'m',weight:85,height:182,
+  goal:'body recomposition',target:'78kg by December',
+  fitnessLevelTier:'intermediate',activityLevel:'light',
+  trainingKcal:2600,restKcal:2200,calories:2600,
+  protein:180,carbs:240,fat:72,
+  wakeTime:'06:30',generatedAt:new Date().toISOString(),
+  weekPlan:[
+    {type:'Strength',priority:'training',focus:'Upper Push',kcal:2600,
+     keyExercises:['Bench Press 4×6 (RPE 8)','Incline Dumbbell Press 3×10','Overhead Press 3×8','Cable Fly 3×12','Tricep Pushdown 3×12','Lateral Raise 3×15']},
+    {type:'Hypertrophy',priority:'training',focus:'Lower Body',kcal:2600,
+     keyExercises:['Back Squat 4×8 (RPE 7)','Romanian Deadlift 3×10','Leg Press 3×12','Walking Lunge 3×20','Leg Curl 3×12','Calf Raise 4×15']},
+    {type:'Rest',priority:'rest',focus:'Recovery',keyExercises:[],kcal:2200},
+    {type:'Strength',priority:'training',focus:'Upper Pull',kcal:2600,
+     keyExercises:['Weighted Pull-up 4×5','Barbell Row 4×6 (RPE 8)','Seated Cable Row 3×10','Face Pull 3×15','Incline Curl 3×12','Hammer Curl 3×10']},
+    {type:'Conditioning',priority:'training',focus:'Full Body',kcal:2600,
+     keyExercises:['Trap Bar Deadlift 3×5','Push-up 3×max','Goblet Squat 3×15','Battle Rope 3×30s','Box Jump 3×8','Farmers Walk 3×40m']},
+    {type:'Rest',priority:'rest',focus:'Recovery',keyExercises:[],kcal:2200},
+    {type:'Active Recovery',priority:'rest',focus:'Mobility & yoga',keyExercises:[],kcal:2200}
+  ]
+};
+
+function signInAdmin() {
+  var user = (document.getElementById('admin-user').value||'').trim().toLowerCase();
+  var pass = (document.getElementById('admin-pass').value||'');
+  var errEl = document.getElementById('admin-error');
+  errEl.textContent = '';
+  if (user !== 'admin' || pass !== 'bodylens') {
+    errEl.textContent = 'Incorrect preview credentials.';
+    return;
+  }
+  localStorage.setItem('bl_admin_session', JSON.stringify({token:'preview-admin',at:new Date().toISOString()}));
+  var existing = null; try { existing = JSON.parse(localStorage.getItem('bl_profile')||'null'); } catch(e) {}
+  if (!existing || !existing.weekPlan) {
+    DEMO_PROFILE.generatedAt = new Date().toISOString();
+    localStorage.setItem('bl_profile', JSON.stringify(DEMO_PROFILE));
+  }
+  showState('processing');
+  document.getElementById('processing-sub').textContent = 'Loading preview…';
+  setTimeout(function() { window.location.href = '/bodylens-dailyplan.html'; }, 900);
 }
 
 if (hasOAuthCallback()) { handleOAuthCallback(); }

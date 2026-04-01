@@ -64,7 +64,36 @@ body{background:var(--ink);color:var(--dk-1);}
 .dc-status.rest{background:rgba(255,255,255,.04);color:var(--dk-3);}
 .dc-status.reshuffled{background:rgba(196,124,24,.1);color:var(--amber);}
 .dc-exercises{margin-top:6px;}
-.dc-ex{font-size:8px;font-weight:300;color:rgba(255,255,255,.28);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dc-ex{font-size:8px;font-weight:300;color:rgba(255,255,255,.28);line-height:1.5;}
+.dc-cardio{font-size:7px;font-weight:600;color:rgba(100,160,255,.45);margin-top:6px;letter-spacing:.02em;padding-top:5px;border-top:1px solid rgba(100,160,255,.1);}
+/* ── Energy Balance ───────────────────────────────────── */
+.energy-balance{margin-bottom:28px;}
+.eb-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.eb-sum-item{background:var(--ink-1);padding:14px 16px;}
+.eb-sum-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:5px;}
+.eb-sum-val{font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--dk-1);line-height:1;}
+.eb-sum-val.jade{color:var(--jade);}
+.eb-sum-val.amber{color:var(--amber);}
+.eb-sum-val.slate{color:var(--dk-3);}
+.eb-sum-sub{font-size:10px;font-weight:300;color:var(--dk-3);margin-top:3px;}
+.eb-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px;}
+@media(max-width:599px){.eb-grid{display:flex;overflow-x:auto;gap:6px;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}.eb-grid::-webkit-scrollbar{display:none;}}
+.eb-day{background:var(--ink-1);border:1px solid var(--bd);border-radius:8px;padding:10px 5px 8px;text-align:center;}
+.eb-day.is-today{border-color:rgba(0,200,160,.3);background:rgba(0,200,160,.025);}
+.eb-day-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dk-3);margin-bottom:6px;}
+.eb-day.is-today .eb-day-lbl{color:var(--jade);}
+.eb-day-burn{font-size:9px;font-weight:600;color:var(--dk-3);line-height:1.3;}
+.eb-day-intake{font-size:9px;font-weight:600;color:var(--dk-3);margin-top:2px;line-height:1.3;}
+.eb-day-intake.logged{color:var(--dk-2);}
+.eb-day-intake.target{color:rgba(255,255,255,.18);}
+.eb-day-unit{font-size:6px;font-weight:400;letter-spacing:.05em;color:var(--dk-3);margin-left:1px;text-transform:uppercase;display:block;line-height:1.2;}
+.eb-day-net{font-size:8px;font-weight:700;padding:2px 5px;border-radius:4px;display:inline-block;letter-spacing:-.01em;margin-top:4px;}
+.eb-day-net.deficit{background:rgba(0,200,160,.1);color:var(--jade);}
+.eb-day-net.deficit.planned{opacity:.5;}
+.eb-day-net.surplus{background:rgba(196,124,24,.1);color:var(--amber);}
+.eb-day-net.surplus.planned{opacity:.5;}
+.eb-day-net.empty{color:var(--dk-3);background:none;}
+.eb-note{font-size:9px;font-weight:300;color:var(--dk-3);text-align:center;padding:4px 0 2px;line-height:1.6;}
 .dc-reshuffle-note{font-size:8px;font-weight:600;color:var(--amber);margin-top:5px;letter-spacing:.02em;}
 .reshuffle-trigger{display:none;width:100%;margin-top:8px;background:rgba(196,124,24,.1);border:1px solid rgba(196,124,24,.3);border-radius:5px;color:var(--amber);font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 6px;cursor:pointer;text-align:center;transition:background .12s;}
 .reshuffle-trigger:hover{background:rgba(196,124,24,.18);}
@@ -192,6 +221,39 @@ function getMissed(p){
   return missed;
 }
 
+// ── Cardio hint per training day ─────────────────────────
+function _wkCardioHint(wp) {
+  if (!wp || wp.priority !== 'training') return '';
+  var t = ((wp.type||'') + ' ' + (wp.focus||'')).toLowerCase();
+  var hint;
+  if      (t.match(/leg|lower|squat|glute|hinge/))   hint = '+ 20 min bike / swim';
+  else if (t.match(/push|chest|shoulder/))            hint = '+ 20 min row / walk';
+  else if (t.match(/pull|back|bicep/))               hint = '+ 20 min cycle / elliptical';
+  else if (t.match(/condition|full.?body|circuit/))   hint = '+ 15 min Zone 2 walk';
+  else                                                hint = '+ 20 min Zone 2 cardio';
+  return '<div class="dc-cardio">&#9632; ' + hint + '</div>';
+}
+
+// ── BMR / daily burn estimates ────────────────────────────
+function _calcBMR(p) {
+  var w = parseFloat(p.weight) || 80;
+  var h = parseFloat(p.height) || 178;
+  var a = parseFloat(p.age) || 35;
+  var isFemale = (p.sex || 'm').toLowerCase().match(/^f/);
+  return Math.round(10*w + 6.25*h - 5*a + (isFemale ? -161 : 5));
+}
+
+function _calcDayBurn(p, dayPlan) {
+  var bmr = _calcBMR(p);
+  var actMults = { sedentary:1.2, light:1.375, moderate:1.55, active:1.725 };
+  var base = Math.round(bmr * (actMults[p.activityLevel || 'light'] || 1.375));
+  if (!dayPlan || dayPlan.priority !== 'training') return base;
+  var t = ((dayPlan.type||'') + ' ' + (dayPlan.focus||'')).toLowerCase();
+  var bonus = t.match(/condition|circuit|hiit/) ? 360 :
+              t.match(/strength/) ? 270 : 240;
+  return base + bonus;
+}
+
 function render(){
   var p=getProfile();
   if(!p){document.getElementById('main-page').innerHTML='<div style="padding:80px 24px;text-align:center;color:var(--dk-3);">No profile found. <a href="/bodylens-onboard.html" style="color:var(--jade);">Complete onboarding</a></div>';return;}
@@ -254,9 +316,9 @@ function render(){
     var exHTML='';
     if(isTraining&&wp.keyExercises&&wp.keyExercises.length){
       exHTML='<div class="dc-exercises">';
-      wp.keyExercises.slice(0,4).forEach(function(ex){exHTML+='<div class="dc-ex">· '+ex+'</div>';});
-      if(wp.keyExercises.length>4)exHTML+='<div class="dc-ex" style="opacity:.5;">+' +(wp.keyExercises.length-4)+' more</div>';
+      wp.keyExercises.forEach(function(ex){exHTML+='<div class="dc-ex">· '+ex+'</div>';});
       exHTML+='</div>';
+      exHTML+=_wkCardioHint(wp);
     }
     var reshuffleNote=wasReshuffled&&ovEntry.note?'<div class="dc-reshuffle-note">↻ '+ovEntry.note+'</div>':'';
     var needsReshuffle=(status==='missed'||status==='skipped')&&isTraining;
@@ -342,6 +404,62 @@ function render(){
     + '</div>'
   + '</div>';
 
+  // ── Energy balance section ───────────────────────────────
+  var ebBMR = _calcBMR(p);
+  var ebTotalBurn=0, ebTotalIntake=0, ebLoggedCount=0;
+  for(var ei=0;ei<7;ei++){
+    ebTotalBurn += _calcDayBurn(p, getEffDay(p,ei));
+    var elog=loadLog(dayStr(ei));
+    var ekcal=elog&&elog.actual&&elog.actual.kcal>0?elog.actual.kcal:0;
+    if(ekcal>0){ebTotalIntake+=ekcal;ebLoggedCount++;}
+  }
+  var ebAvgBurn=Math.round(ebTotalBurn/7);
+  var ebAvgIntake=ebLoggedCount>0?Math.round(ebTotalIntake/ebLoggedCount):0;
+  var ebAvgDef=ebAvgIntake>0?ebAvgBurn-ebAvgIntake:0;
+  var ebDefCls=ebAvgDef>300?'jade':ebAvgDef>=0?'amber':'slate';
+
+  var ebCols='';
+  for(var ei=0;ei<7;ei++){
+    var eDayPlan=getEffDay(p,ei);
+    var eBurn=_calcDayBurn(p,eDayPlan);
+    var eLog=loadLog(dayStr(ei));
+    var eIsToday=ei===ti; var eIsFuture=ei>ti;
+    var eKcal=eLog&&eLog.actual&&eLog.actual.kcal>0?eLog.actual.kcal:0;
+    var eTarget=eDayPlan.kcal||(eDayPlan.priority==='training'?(p.trainingKcal||p.calories||2400):(p.restKcal||p.calories||2000));
+    var eIntakeTxt,eIntakeCls;
+    if(eKcal>0){eIntakeTxt=eKcal.toLocaleString();eIntakeCls='logged';}
+    else if(eIsFuture){eIntakeTxt=eTarget.toLocaleString();eIntakeCls='target';}
+    else{eIntakeTxt='&mdash;';eIntakeCls='';}
+    var eNetVal=eKcal>0?eBurn-eKcal:(eIsFuture?eBurn-eTarget:null);
+    var eNetTxt,eNetCls;
+    if(eNetVal!==null){
+      var eNetAbs=Math.abs(Math.round(eNetVal));
+      eNetTxt=(eNetVal>=0?'&minus;':'+')+(eNetAbs>999?(eNetAbs/1000).toFixed(1)+'k':eNetAbs);
+      eNetCls=eNetVal>=0?'deficit':'surplus';
+      if(eIsFuture&&eNetVal!==null)eNetCls+=' planned';
+    }else{eNetTxt='?';eNetCls='empty';}
+    ebCols+='<div class="eb-day'+(eIsToday?' is-today':'')+'">'
+      +'<div class="eb-day-lbl">'+DNS3[ei]+'</div>'
+      +'<div class="eb-day-burn">'+eBurn.toLocaleString()+'<span class="eb-day-unit">burn</span></div>'
+      +'<div class="eb-day-intake '+eIntakeCls+'">'+eIntakeTxt+'<span class="eb-day-unit">in</span></div>'
+      +'<div class="eb-day-net '+eNetCls+'">'+eNetTxt+'</div>'
+    +'</div>';
+  }
+
+  var energyBalanceHTML='<div class="energy-balance">'
+    +'<div class="sec-label" style="margin-top:28px;">Energy balance&nbsp;<span style="font-weight:300;text-transform:none;letter-spacing:.04em;font-size:9px;">est. burn vs intake &middot; daily</span></div>'
+    +'<div class="eb-summary">'
+      +'<div class="eb-sum-item"><div class="eb-sum-label">BMR</div><div class="eb-sum-val">'+ebBMR.toLocaleString()+'</div><div class="eb-sum-sub">kcal at rest</div></div>'
+      +'<div class="eb-sum-item"><div class="eb-sum-label">Avg est. burn</div><div class="eb-sum-val amber">'+ebAvgBurn.toLocaleString()+'</div><div class="eb-sum-sub">kcal/day incl. training</div></div>'
+      +(ebAvgIntake>0
+        ?'<div class="eb-sum-item"><div class="eb-sum-label">Avg daily deficit</div><div class="eb-sum-val '+ebDefCls+'">'+ebAvgDef.toLocaleString()+'</div><div class="eb-sum-sub">kcal &middot; '+ebLoggedCount+' day'+(ebLoggedCount===1?'':'s')+' logged</div></div>'
+        :'<div class="eb-sum-item"><div class="eb-sum-label">Avg daily target</div><div class="eb-sum-val slate">'+(ebAvgBurn-(p.trainingKcal||p.calories||2400)).toLocaleString()+'</div><div class="eb-sum-sub">kcal planned deficit</div></div>')
+    +'</div>'
+    +'<div class="eb-grid">'+ebCols+'</div>'
+    +'<div class="eb-note">BMR via Mifflin-St Jeor &middot; TDEE = BMR &times; 1.375 + training session (~250&ndash;380 kcal)</div>'
+  +'</div>';
+  // ─────────────────────────────────────────────────────────
+
   var aiCacheKey='bl_week_analysis_'+new Date().toISOString().slice(0,10);
   var aiCached=null;try{aiCached=localStorage.getItem(aiCacheKey);}catch(e){}
   var aiHTML='<div class="sec-label" style="margin-top:28px;">AI week analysis<span class="pro-badge">PRO</span></div>'
@@ -354,7 +472,7 @@ function render(){
 
   document.getElementById('main-page').innerHTML=
     '<div class="wk-hero"><div class="wk-hero-left"><div class="wk-kicker">Training ledger</div><div class="wk-title">This<br><em>week.</em></div><div class="wk-sub">Planned vs actual. Every session classified against your goals.</div></div></div>'
-    +statsHTML+bannerHTML+cardsHTML+macroLedgerHTML+aiHTML
+    +statsHTML+bannerHTML+cardsHTML+macroLedgerHTML+energyBalanceHTML+aiHTML
     +'<div id="bl-proposals-section" style="margin-top:28px;"></div>'
     +'<div id="bl-log-section" style="margin-top:14px;"></div>';
 
