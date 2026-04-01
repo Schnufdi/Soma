@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0c1010">
 <meta name="description" content="BodyLens builds your personalised daily execution plan — exact training, meals, supplements and recovery protocol, adapted to your body every morning.">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>BodyLens — Your personal performance OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -103,8 +106,7 @@ html,body{background:var(--ink);color:var(--dk-1);font-family:var(--sans);min-he
   <header class="top-bar">
     <div class="top-brand">Body<em>Lens</em></div>
     <nav class="top-nav">
-      <a class="top-link" href="/bodylens-login.html">Sign in</a>
-      <a class="top-link cta" href="/bodylens-login.html?tab=signup">Get started &rarr;</a>
+      <a class="top-link cta" href="/bodylens-login.html">Continue &rarr;</a>
     </nav>
   </header>
 
@@ -118,8 +120,7 @@ html,body{background:var(--ink);color:var(--dk-1);font-family:var(--sans);min-he
         Every morning, BodyLens generates a personalised execution plan &mdash; exact training session, precise meals, supplement timing, and recovery protocol &mdash; calibrated to your body composition, schedule, and goals.
       </p>
       <div class="hero-actions">
-        <a class="hero-cta" href="/bodylens-login.html?tab=signup">Build my plan &rarr;</a>
-        <div class="hero-signin-line">Already have an account? <a href="/bodylens-login.html">Sign in</a></div>
+        <a class="hero-cta" href="/bodylens-login.html">Continue to log in &rarr;</a>
       </div>
     </div>
 
@@ -185,8 +186,7 @@ html,body{background:var(--ink);color:var(--dk-1);font-family:var(--sans);min-he
 
   <footer class="page-footer">
     <span>Body<em style="font-family:var(--serif);font-style:italic;color:var(--jade);">Lens</em></span>
-    <a href="/bodylens-login.html?tab=signup">Start for free</a>
-    <a href="/bodylens-login.html">Sign in</a>
+    <a href="/bodylens-login.html">Log in</a>
     <span style="color:var(--dk-3);opacity:.5;">Beta &mdash; not a medical service</span>
   </footer>
 
@@ -198,15 +198,22 @@ var SUPABASE_URL = 'https://ubbqyhkjijpjpqdhhhvp.supabase.co';
 var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYnF5aGtqaWpwanBxZGhoaHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyOTkxODEsImV4cCI6MjA4OTg3NTE4MX0.VK-AvEFr_cmXT7k44mvR9UxVlGRXL8Cu6mgXBQbQov8';
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Admin preview session — redirect straight in
+try {
+  var _adm = JSON.parse(localStorage.getItem('bl_admin_session') || 'null');
+  if (_adm && _adm.token === 'preview-admin') {
+    window.location.replace('/bodylens-dailyplan.html');
+  }
+} catch(e) {}
+
 // OAuth callback? Forward to login page to process
 if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('error_description'))) {
   window.location.replace('/bodylens-login.html' + window.location.hash);
 } else {
-  // Check for existing session — redirect straight to plan if logged in
+  // Check for existing Supabase session — redirect straight to plan if logged in
   sb.auth.getSession().then(function(res) {
     if (res.data && res.data.session) {
       var hasProfile = !!localStorage.getItem('bl_profile');
-      // Check for ?next= redirect
       var next = new URLSearchParams(window.location.search).get('next');
       if (next) {
         try {

@@ -5,18 +5,21 @@
 //  - Push notification handling
 // ════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'bodylens-v1';
+const CACHE_NAME = 'bodylens-v3';
 const CACHE_DURATION_DAYS = 7;
 
-// Shell files — cached on install, served from cache forever
+// Shell files — cached on install for offline fallback only
+// Navigation uses network-first, so these are the offline fallback copies
 const SHELL_FILES = [
   '/',
   '/index.html',
+  '/bodylens-login.html',
   '/style.css',
   '/nav.js',
   '/coach.js',
   '/profile-inject.js',
   '/bodylens-dailyplan.html',
+  '/bodylens-week.html',
   '/bodylens-instructions.html',
   '/bodylens-food.html',
   '/bodylens-programme.html',
@@ -58,21 +61,20 @@ self.addEventListener('fetch', evt => {
     return;
   }
 
-  // For navigation requests — cache-first with network fallback
+  // For navigation requests — network-first so HTML is always fresh.
+  // Falls back to cache only when offline.
   if (evt.request.mode === 'navigate') {
     evt.respondWith(
-      caches.match(evt.request)
-        .then(cached => {
-          if (cached) return cached;
-          return fetch(evt.request).then(response => {
-            if (response && response.status === 200) {
-              const clone = response.clone();
-              caches.open(CACHE_NAME).then(c => c.put(evt.request, clone));
-            }
-            return response;
-          });
-        })
-        .catch(() => caches.match('/bodylens-dailyplan.html'))
+      fetch(evt.request).then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(c => c.put(evt.request, clone));
+        }
+        return response;
+      }).catch(() =>
+        caches.match(evt.request)
+          .then(cached => cached || caches.match('/bodylens-dailyplan.html'))
+      )
     );
     return;
   }
