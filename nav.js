@@ -931,3 +931,12 @@ window.closeMobileMenu = function() {
   }, POLL_MS);
 
 })();
+
+// ── GLOSSARY ─────────────────────────────────────────────
+// Load bl-glossary.js on every page that uses nav.js
+(function() {
+  var s = document.createElement('script');
+  s.src = '/bl-glossary.js';
+  s.defer = true;
+  document.head.appendChild(s);
+})();
