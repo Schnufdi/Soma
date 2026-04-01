@@ -1207,6 +1207,41 @@ body {
 .mtb-icon { font-size: 20px; line-height: 1; }
 .mtb-label { font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 
+/* ── Plan vs Actual inline zone ─────────────────────────────────────── */
+.dp2-item-actual {
+  display: flex; align-items: center; gap: 6px; margin-top: 5px; flex-wrap: wrap;
+}
+.dp2-actual-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--amber); background: rgba(196,124,24,.08);
+  border: 1px solid rgba(196,124,24,.2); border-radius: 4px;
+  padding: 1px 6px; flex-shrink: 0;
+}
+.dp2-actual-data {
+  font-size: 11px; font-weight: 400; color: var(--dk-2); line-height: 1.4;
+}
+.dp2-actual-delta {
+  font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; flex-shrink: 0;
+}
+.dp2-actual-delta.over  { color: var(--jade); background: rgba(0,200,160,.08); border: 1px solid rgba(0,200,160,.2); }
+.dp2-actual-delta.under { color: rgba(220,80,60,.8); background: rgba(220,80,60,.06); border: 1px solid rgba(220,80,60,.2); }
+
+/* ── Coach delta review ─────────────────────────────────────────────── */
+.dp2-eod-review-btn {
+  width: 100%; background: transparent; border: 1px solid rgba(255,255,255,.1);
+  color: var(--dk-2); font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  padding: 10px 16px; border-radius: 10px; cursor: pointer;
+  font-family: var(--sans); transition: all .12s; margin-bottom: 4px;
+}
+.dp2-eod-review-btn:hover { border-color: rgba(0,200,160,.3); color: var(--jade); }
+.dp2-eod-review-btn:disabled { opacity: .5; cursor: not-allowed; }
+.dp2-coach-review-out {
+  font-size: 13px; font-weight: 300; color: var(--dk-2); line-height: 1.75;
+  padding: 10px 14px; background: rgba(255,255,255,.025); border-radius: 10px;
+  border-left: 2px solid rgba(0,200,160,.3); display: none; margin-top: 8px;
+}
+.dp2-coach-review-out.visible { display: block; animation: fadeUp .2s ease; }
+
 /* ── Spin / utility ─────────────────────────────────────────────────── */
 .spin { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.1); border-top-color: var(--jade); animation: spin .8s linear infinite; }
 
@@ -4806,6 +4841,51 @@ function renderPlan(plan, browsing) {
     return block.subtitle||'';
   }
 
+  // ── Plan vs Actual inline summary (visible in collapsed view) ────────
+  function buildItemActual(block, idx) {
+    var exLog2 = log.exercises || {};
+    var mealLogData = (log.meals && log.meals[block.mealSlot]) || {};
+
+    if (block.type === 'training') {
+      var exercises2 = (block.exercises||[]).filter(function(e){return e!=='Track loads';});
+      var logged2 = [];
+      exercises2.forEach(function(exStr, i) {
+        var key2 = 'ex_'+idx+'_'+i;
+        var exData2 = exLog2[key2] || {};
+        if (exData2.weight || exData2.actual) {
+          var px2 = parseEx(exStr);
+          var nm = px2.name.split(' ').slice(0,2).join(' ');
+          logged2.push(nm + (exData2.weight ? ' ' + exData2.weight + 'kg' : '') + (exData2.actual ? ' \u00d7 ' + exData2.actual : ''));
+        }
+      });
+      if (!logged2.length) return '';
+      return '<div class="dp2-item-actual">'
+        + '<span class="dp2-actual-label">Actual</span>'
+        + '<span class="dp2-actual-data">' + logged2.join(' &middot; ') + '</span>'
+        + '</div>';
+    }
+
+    if (block.mealSlot) {
+      var parts2 = [];
+      if (mealLogData.note) parts2.push(mealLogData.note);
+      if (mealLogData.prot) parts2.push(mealLogData.prot + 'g P');
+      if (!parts2.length) return '';
+      var perMealTarget = Math.round((p.protein||140) / Math.max(1, mealBlocks.length));
+      var delta2 = mealLogData.prot ? mealLogData.prot - perMealTarget : 0;
+      var deltaHtml2 = (delta2 !== 0 && mealLogData.prot)
+        ? '<span class="dp2-actual-delta ' + (delta2 > 0 ? 'over' : 'under') + '">'
+          + (delta2 > 0 ? '+' : '') + delta2 + 'g P</span>'
+        : '';
+      return '<div class="dp2-item-actual">'
+        + '<span class="dp2-actual-label">Actual</span>'
+        + '<span class="dp2-actual-data">' + parts2.join(' &middot; ') + '</span>'
+        + deltaHtml2
+        + '</div>';
+    }
+
+    return '';
+  }
+
   
   function buildItemDetail(block, idx) {
     var html = '';
@@ -5070,6 +5150,7 @@ function renderPlan(plan, browsing) {
           +(block.durationMins&&block.type!=='wake'?'<span class="dp2-item-dur">'+block.durationMins+'m</span>':'')
         +'</div>'
         +(sub?'<div class="dp2-item-sub">'+sub+'</div>':'')
+        +buildItemActual(block, idx)
       +'</div>'
       +'<div class="dp2-item-actions">'
         +'<button class="dp2-qbtn'+doneA+'" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')" title="Done">✓</button>'
@@ -5207,7 +5288,11 @@ function renderPlan(plan, browsing) {
       +'<div class="dp2-eod-score-tag">Day score / 100</div>'
       +'<div class="dp2-eod-breakdown" id="dp2-eod-breakdown">'+( breakdown||'Log your day to build your score')+'</div>'
     +'</div>'
-    +'<button class="dp2-save-btn" onclick="dpSaveDay()">Save & close the day →</button>'
+    +'<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.04);padding-top:14px;">'
+      +'<button id="dp2-coach-review-btn" class="dp2-eod-review-btn" onclick="dpCoachReview()">Review with coach →</button>'
+      +'<div id="dp2-coach-review-out" class="dp2-coach-review-out"></div>'
+    +'</div>'
+    +'<button class="dp2-save-btn" onclick="dpSaveDay()" style="margin-top:10px;">Save & close the day →</button>'
   +'</div>';
 
   // ── Floating score ───────────────────────────────────────
@@ -5526,6 +5611,111 @@ function dpSaveSwap(blockIdx, val) {
   if (!log13.blockSwaps) log13.blockSwaps = {};
   log13.blockSwaps['swap_'+blockIdx] = val;
   saveDayLog(_rDate, log13);
+}
+
+// ── Coach delta review: plan vs actual analysis ─────────────────────────
+async function dpCoachReview() {
+  var btn = document.getElementById('dp2-coach-review-btn');
+  var out = document.getElementById('dp2-coach-review-out');
+  if (!btn || !out) return;
+  btn.disabled = true;
+  btn.textContent = 'Reviewing…';
+  out.classList.add('visible');
+  out.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:var(--dk-3);font-size:11px;"><div class="spin"></div>Analysing plan vs actual…</div>';
+
+  var p = P || {};
+  var dlog = loadDayLog(_rDate) || {};
+  var blocks = window._blocks || [];
+  var exLog = dlog.exercises || {};
+  var mealsLog = dlog.meals || {};
+
+  // Helper: parse exercise name + schema from string
+  function _pex(str) {
+    var clean = (str||'').replace(/\s*\(RPE[^)]+\)/i,'').trim();
+    var m = clean.match(/(\d+)\s*[xX\u00d7]\s*([\d\-]+)/);
+    var name = clean.replace(/\d+\s*[xX\u00d7]\s*[\d\-]+.*/,'').trim();
+    return { name: name||clean, sets: m?parseInt(m[1]):3, reps: m?m[2]:'8-12' };
+  }
+
+  var lines = [];
+
+  // Training delta
+  var trainBlock = blocks.find(function(b){ return b.type==='training'; });
+  if (trainBlock) {
+    var ti = blocks.indexOf(trainBlock);
+    var exes = (trainBlock.exercises||[]).filter(function(e){ return e!=='Track loads'; });
+    lines.push('TRAINING — ' + (trainBlock.title||'Session') + ' (status: ' + (dlog.trainStatus||'pending') + '):');
+    exes.forEach(function(exStr, i) {
+      var px = _pex(exStr);
+      var key = 'ex_'+ti+'_'+i;
+      var exd = exLog[key] || {};
+      var planned = px.name + ' ' + px.sets + '\u00d7' + px.reps;
+      var actual = (exd.weight ? exd.weight + 'kg ' : '') + (exd.actual || '');
+      lines.push('  ' + planned + ' \u2192 ' + (actual.trim() || 'not logged'));
+    });
+  }
+
+  // Meal delta
+  var mealBlocks2 = blocks.filter(function(b){ return !!b.mealSlot; });
+  var protTarget = p.protein || 140;
+  var protPerMeal = Math.round(protTarget / Math.max(1, mealBlocks2.length));
+  var totalProtActual = 0;
+  if (mealBlocks2.length) {
+    lines.push('\nMEALS (target: ' + protPerMeal + 'g P per meal, ' + protTarget + 'g P total):');
+    mealBlocks2.forEach(function(b) {
+      var ml = mealsLog[b.mealSlot] || {};
+      var planned = b.title || b.mealSlot;
+      var note = ml.note || '';
+      var prot = ml.prot || 0;
+      totalProtActual += prot;
+      var actual = (note ? '"' + note + '"' : '') + (prot ? ' (' + prot + 'g P)' : '');
+      var delta = prot ? prot - protPerMeal : 0;
+      var deltaStr = delta ? ' [' + (delta > 0 ? '+' : '') + delta + 'g vs plan]' : '';
+      lines.push('  ' + b.mealSlot + ': planned "' + planned + '" \u2192 ' + (actual.trim() || 'not logged') + deltaStr);
+    });
+    lines.push('  Total protein logged: ' + totalProtActual + 'g / ' + protTarget + 'g target');
+  }
+
+  // Swaps
+  var swaps = dlog.blockSwaps || {};
+  var swapKeys = Object.keys(swaps).filter(function(k){ return swaps[k]; });
+  if (swapKeys.length) {
+    lines.push('\nSWAPS: ' + swapKeys.map(function(k){
+      var bIdx = parseInt(k.replace('swap_',''));
+      var b = blocks[bIdx];
+      return (b ? (b.title||b.mealSlot||b.type) : k) + ' \u2192 "' + swaps[k] + '"';
+    }).join(', '));
+  }
+
+  var prompt = 'You are the performance coach for ' + (p.name||'the athlete') + '.\n\n'
+    + 'Today\'s plan vs actual:\n' + lines.join('\n')
+    + '\n\nGive a direct, specific coaching response (max 80 words). '
+    + 'Focus on meaningful differences — not generic praise. '
+    + 'If a food swap was nutritionally aligned, acknowledge it. '
+    + 'If they lifted above or below plan, comment on what that means for progression. '
+    + 'If critical items weren\'t logged, ask about them specifically. '
+    + 'Be personal and direct. No bullet points — one or two tight paragraphs.';
+
+  try {
+    var res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 220,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    var text = (data.content||[]).map(function(b){ return b.text||''; }).join('').trim();
+    out.innerHTML = text;
+    btn.textContent = 'Refresh review →';
+    btn.disabled = false;
+  } catch(err) {
+    out.innerHTML = '<span style="color:rgba(220,80,60,.8);">Could not load review.</span>';
+    btn.textContent = 'Review with coach →';
+    btn.disabled = false;
+  }
 }
 
 
@@ -8785,6 +8975,7 @@ async function vlgProcess(transcript) {
     + '- {"type":"log_exercise", "blockIdx":N, "exerciseIdx":N, "weight":N, "actual":"NxN", "done":true|false}\n'
     + '- {"type":"log_meal_protein", "mealSlot":"pre-training"|"post-training"|"midday"|"evening", "protein":N}\n'
     + '- {"type":"log_meal_note", "mealSlot":"...", "note":"string"}\n'
+    + '- {"type":"log_meal_actual", "mealSlot":"...", "note":"food description", "protein":N} (use when user says what they ate — estimate protein from the food)\n'
     + '- {"type":"toggle_supplement", "name":"exact supplement name"}\n'
     + '- {"type":"mark_all_supplements_taken"}\n'
     + '- {"type":"save_swap", "blockIdx":N, "note":"what they swapped to"}\n'
@@ -8862,6 +9053,12 @@ function vlgExecute(actions, transcript) {
       } else if (action.type === 'log_meal_protein') {
         dpLogMealProt(action.mealSlot, action.protein);
         results.push({ icon: '🥩', text: action.mealSlot.replace('-',' ') + ' — ' + action.protein + 'g protein' });
+
+      } else if (action.type === 'log_meal_actual') {
+        if (action.note) dpLogMealNote(action.mealSlot, action.note);
+        if (action.protein) dpLogMealProt(action.mealSlot, action.protein);
+        var mDesc = action.mealSlot.replace(/-/g,' ') + ': ' + (action.note||'') + (action.protein ? ' (' + action.protein + 'g P)' : '');
+        results.push({ icon: '🍽️', text: mDesc });
 
       } else if (action.type === 'log_meal_note') {
         dpLogMealNote(action.mealSlot, action.note);
