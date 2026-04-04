@@ -3,7 +3,7 @@
 // No page can have a different menu — it all comes from here.
 (function injectNav() {
   const NAV_HTML = `<nav class="site-nav">
-  <div class="nav-brand">Body<em>Lens</em><span class="sync-dot" id="sync-dot" title="Sync status"></span></div>
+  <div class="nav-brand">Soma<span class="sync-dot" id="sync-dot" title="Sync status"></span></div>
   <div class="nav-links">
     <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
@@ -29,7 +29,7 @@
     <a class="nav-right" href="/bodylens-sync.html" style="color:var(--amber)">Data sync</a>
     <div class="nav-meta" id="nav-meta"></div>
     <a class="nav-link nav-profiles" href="/bodylens-profiles.html" title="Profile Vault" style="margin-left:8px;opacity:0.6;font-size:11px;">⬡ Vault</a>
-    <a class="nav-pro-badge" href="/bodylens-pro.html" id="nav-pro-badge" title="BodyLens Pro">PRO</a>
+    <a class="nav-pro-badge" href="/bodylens-pro.html" id="nav-pro-badge" title="Soma Pro">PRO</a>
     <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu">&#9776;</button>
   </div>
 </nav>
@@ -45,7 +45,7 @@
 <div class="mobile-menu-overlay" id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
 <div class="mobile-menu" id="mobile-menu">
   <div class="mm-header">
-    <div class="mm-brand">Body<em>Lens</em></div>
+    <div class="mm-brand">Soma</div>
     <button class="mm-close" onclick="closeMobileMenu()">&#10005;</button>
   </div>
   <div class="mm-section-label">Execution</div>
@@ -259,7 +259,7 @@ function updateSyncDot(status) {
 }
 
 // ════════════════════════════════════════════════════════
-//  BodyLens — nav.js  v2.0
+//  Soma — nav.js  v2.0
 //  Shared across all pages.
 //  Handles: navigation, dynamic AI coach (profile-aware),
 //  localStorage, tooltips, day-date mapping.
@@ -288,8 +288,8 @@ function hasProfile() {
 function buildSystemPrompt(profile) {
   if (!profile) {
     // Fallback — no profile yet
-    return `You are BodyLens Coach — a precise, evidence-based personal performance advisor. 
-The user has not yet completed their profile. 
+    return `You are Soma Coach — a precise, evidence-based personal performance advisor.
+The user has not yet completed their profile.
 Encourage them to complete onboarding at bodylens-onboard.html so you can give personalised advice.
 TONE: Warm, direct, expert. Never generic. 3-5 sentences maximum.`;
   }
@@ -303,7 +303,7 @@ TONE: Warm, direct, expert. Never generic. 3-5 sentences maximum.`;
     ? p.nonNegotiables.join(', ')
     : 'Not specified.';
 
-  return `You are BodyLens Coach — a precise, evidence-based personal performance advisor acting as a 24/7 personal trainer, nutritionist, and sports physio for this specific person. You know everything about them. Answer every question in the context of their specific programme, goals, and constraints. Never give generic advice. Never say "consult a doctor" unless genuinely warranted.
+  return `You are Soma Coach — a precise, evidence-based personal performance advisor acting as a 24/7 personal trainer, nutritionist, and sports physio for this specific person. You know everything about them. Answer every question in the context of their specific programme, goals, and constraints. Never give generic advice. Never say "consult a doctor" unless genuinely warranted.
 
 ═══ PERSON PROFILE ═══
 Name: ${p.name || 'User'}
@@ -774,7 +774,7 @@ window.saveOpt = function(id, name, icon, btn) {
           'accelerator',
           'Add to programme: ' + (name || id),
           [{ field: 'accelerators.push', label: 'Accelerator added', before: null, after: name || id }],
-          'Added from ' + (document.title || 'BodyLens') + ' on ' + new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long' })
+          'Added from ' + (document.title || 'Soma') + ' on ' + new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long' })
         );
       }
     }

@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════
-//  BodyLens Service Worker  v1
+//  Soma Service Worker  v1
 //  - Offline shell caching
 //  - Background sync for API calls
 //  - Push notification handling
@@ -105,7 +105,7 @@ self.addEventListener('push', evt => {
   try {
     data = evt.data.json();
   } catch(e) {
-    data = { title: 'BodyLens', body: evt.data.text() };
+    data = { title: 'Soma', body: evt.data.text() };
   }
 
   const options = {
@@ -120,7 +120,7 @@ self.addEventListener('push', evt => {
   };
 
   evt.waitUntil(
-    self.registration.showNotification(data.title || 'BodyLens', options)
+    self.registration.showNotification(data.title || 'Soma', options)
   );
 });
 
