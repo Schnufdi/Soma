@@ -34,10 +34,16 @@
           </div>
           <div class="nmp-col">
             <div class="nmp-label">Learn</div>
-            <a class="nmp-link" href="/bodylens-science.html">Science</a>
+            <a class="nmp-link" href="/bodylens-science.html">Science hub</a>
             <a class="nmp-link" href="/bodylens-accelerators.html">Accelerators</a>
             <a class="nmp-link" href="/bodylens-podcast.html">Podcast</a>
             <a class="nmp-link" href="/bodylens-bodymapper.html">Body Mapper</a>
+            <div class="nmp-label" style="margin-top:10px;">Deep dives</div>
+            <a class="nmp-link" href="/bodylens-sleep.html">Sleep architecture</a>
+            <a class="nmp-link" href="/bodylens-metabolic.html">Metabolic health</a>
+            <a class="nmp-link" href="/bodylens-testosterone.html">Testosterone</a>
+            <a class="nmp-link" href="/bodylens-hormones-female.html">Female hormones</a>
+            <a class="nmp-link" href="/bodylens-recovery.html">Recovery science</a>
           </div>
           <div class="nmp-col">
             <div class="nmp-label">Admin</div>
@@ -66,6 +72,7 @@
         <div class="vd-section">Intelligence</div>
         <a class="vd-link" href="/bodylens-intelligence-full.html">Full Intelligence Doc</a>
         <a class="vd-link" href="/bodylens-instructions.html">Instructions</a>
+        <a class="vd-link" href="/bodylens-legal.html">Legal &amp; Compliance</a>
         <div class="vd-divider"></div>
         <div class="vd-section">App</div>
         <a class="vd-link" href="/bodylens-profiles.html">&#x2B21; Profile Vault</a>
@@ -109,9 +116,15 @@
   <a class="mm-link" href="/bodylens-goals.html">Goals</a>
   <a class="mm-link" href="/bodylens-bodymapper.html">Body Mapper</a>
   <div class="mm-section-label mm-inform-label">Inform &amp; Optimise</div>
-  <a class="mm-link mm-inform" href="/bodylens-science.html">Science</a>
+  <a class="mm-link mm-inform" href="/bodylens-science.html">Science hub</a>
   <a class="mm-link mm-inform" href="/bodylens-accelerators.html">Accelerators</a>
   <a class="mm-link mm-inform" href="/bodylens-podcast.html">Podcast</a>
+  <div class="mm-section-label">Deep dives</div>
+  <a class="mm-link" href="/bodylens-sleep.html">Sleep architecture</a>
+  <a class="mm-link" href="/bodylens-metabolic.html">Metabolic health</a>
+  <a class="mm-link" href="/bodylens-testosterone.html">Testosterone</a>
+  <a class="mm-link" href="/bodylens-hormones-female.html">Female hormones</a>
+  <a class="mm-link" href="/bodylens-recovery.html">Recovery science</a>
   <div class="mm-section-label">More</div>
   <a class="mm-link" href="/bodylens-sync.html" style="color:var(--amber)">Data sync</a>
   <a class="mm-link" href="/bodylens-guide.html">Guide</a>

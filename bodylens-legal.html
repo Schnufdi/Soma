@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Soma">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="legal">
+<title>Soma — Legal &amp; Compliance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.hero { padding:64px 0 56px; border-bottom:1px solid var(--bd); position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 900px 500px at 60% 40%, rgba(212,168,39,0.03) 0%, transparent 70%); }
+.hi { max-width:1080px; margin:0 auto; padding:0 48px; position:relative; z-index:1; }
+.h-eye { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+.h-eye::before { content:''; width:24px; height:1px; background:var(--amber); }
+.h-title { font-family:var(--serif); font-size:72px; font-weight:300; line-height:0.9; letter-spacing:-0.03em; color:var(--dk-1); margin-bottom:20px; }
+.h-two { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:540px; margin-bottom:32px; }
+.risk-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--bd); border-radius:6px; overflow:hidden; max-width:900px; }
+.risk-cell { background:var(--ink-2); padding:16px 16px; }
+.risk-label { font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
+.risk-status { font-size:12px; font-weight:400; line-height:1.5; }
+.risk-status.red { color:#d94e35; }
+.risk-status.amber { color:var(--amber); }
+.risk-status.green { color:var(--jade); }
+.snav { display:flex; gap:0; border-bottom:1px solid var(--bd); max-width:1080px; margin:0 auto; padding:0 48px; overflow-x:auto; }
+.sn { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:13px 16px; border:none; background:transparent; color:var(--dk-3); cursor:pointer; font-family:var(--sans); white-space:nowrap; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color 0.12s; }
+.sn:hover { color:var(--dk-2); } .sn.active { color:var(--jade); border-bottom-color:var(--jade); }
+.pane { display:none; } .pane.active { display:block; }
+.dark  { background:var(--ink); padding:56px 0; }
+.w { max-width:1080px; margin:0 auto; padding:0 48px; }
+.dr { display:flex; align-items:center; gap:14px; margin:0 0 28px; font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); }
+.dr::after { content:''; flex:1; height:1px; background:var(--bd); }
+.dr.jade{color:var(--jade);} .dr.amber{color:var(--amber);}
+.body-lg { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.85; margin-bottom:20px; max-width:720px; }
+.stm { display:grid; grid-template-columns:56px 1fr; border-top:1px solid var(--bd); }
+.stm-n { font-family:var(--serif); font-size:42px; font-weight:300; color:var(--amber); opacity:0.35; padding:20px 0; line-height:1; }
+.stm-b { padding:20px 0; }
+.stm-t { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:8px; line-height:1.3; }
+.stm-p { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; }
+.stm-p strong { color:var(--dk-1); font-weight:500; }
+.risk-badge { display:inline-flex; align-items:center; gap:5px; font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:2px 8px; border-radius:10px; margin-bottom:8px; }
+.rb-red { background:rgba(217,78,53,.1); color:#d94e35; border:1px solid rgba(217,78,53,.2); }
+.rb-amber { background:rgba(212,168,39,.1); color:var(--amber); border:1px solid rgba(212,168,39,.2); }
+.rb-green { background:rgba(0,200,160,.1); color:var(--jade); border:1px solid rgba(0,200,160,.2); }
+.jd-table { width:100%; border-collapse:collapse; margin-bottom:24px; }
+.jd-table th { background:var(--ink-2); border:1px solid var(--bd); padding:10px 14px; font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); text-align:left; }
+.jd-table td { border:1px solid var(--bd); padding:10px 14px; font-size:12px; font-weight:300; color:var(--dk-2); vertical-align:top; line-height:1.6; }
+.jd-table td.jurisdiction { color:var(--dk-1); font-weight:500; }
+.jd-table td.status-green { color:var(--jade); font-weight:500; }
+.jd-table td.status-amber { color:var(--amber); font-weight:500; }
+.jd-table td.status-red { color:#d94e35; font-weight:500; }
+.action-box { background:rgba(212,168,39,.05); border:1px solid rgba(212,168,39,.2); border-left:3px solid var(--amber); border-radius:0 6px 6px 0; padding:14px 18px; margin-top:20px; }
+.ab-label { font-size:9px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:var(--amber); margin-bottom:8px; }
+.ab-list { list-style:none; padding:0; margin:0; }
+.ab-list li { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.7; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.ab-list li:last-child { border-bottom:none; }
+.ab-list li::before { content:'→ '; color:var(--amber); font-weight:600; }
+.ab-list li.done::before { content:'✓ '; color:var(--jade); }
+.ab-list li.done { color:var(--dk-3); text-decoration:line-through; }
+.disclaimer-callout { background:rgba(217,78,53,.05); border:1px solid rgba(217,78,53,.2); border-radius:6px; padding:14px 18px; margin-bottom:32px; font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.7; }
+@media(max-width:700px){ .hi,.snav,.w{padding-left:20px;padding-right:20px;} .h-title{font-size:48px;} .risk-strip{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<nav class="site-nav"></nav>
+
+<div class="hero">
+<div class="hi">
+  <div class="h-eye">Legal &amp; compliance · Founder reference</div>
+  <div class="h-title">Know the<br><em>exposure.</em></div>
+  <div class="h-two">A founder briefing on data collection obligations across key jurisdictions and the medical claims boundary that determines whether Soma is a wellness tool or a regulated medical device. Not legal advice — a working map for decision-making.</div>
+  <div class="risk-strip">
+    <div class="risk-cell"><div class="risk-label">Medical claims risk</div><div class="risk-status amber">Manageable — with precise language</div></div>
+    <div class="risk-cell"><div class="risk-label">GDPR / UK data</div><div class="risk-status amber">Compliance needed before scale</div></div>
+    <div class="risk-cell"><div class="risk-label">US/EU regulatory</div><div class="risk-status red">Jurisdiction-specific — research required</div></div>
+  </div>
+</div>
+</div>
+
+<div class="snav">
+  <button class="sn active" onclick="showPane('medical',this)">Medical claims</button>
+  <button class="sn" onclick="showPane('data-uk',this)">UK / GDPR</button>
+  <button class="sn" onclick="showPane('data-us',this)">United States</button>
+  <button class="sn" onclick="showPane('data-eu',this)">EU / EEA</button>
+  <button class="sn" onclick="showPane('data-other',this)">APAC &amp; global</button>
+  <button class="sn" onclick="showPane('actions',this)">Action checklist</button>
+</div>
+
+<!-- MEDICAL CLAIMS -->
+<div class="pane active" id="medical">
+<div class="dark"><div class="w">
+  <div class="disclaimer-callout"><strong>Important:</strong> This is a founder-level briefing document, not legal advice. Any specific regulatory position should be confirmed with a qualified solicitor or regulatory consultant before commercial launch. The line between wellness and medical device is jurisdiction-specific and frequently litigated.</div>
+  <div class="dr amber">Medical claims — where the regulatory line sits</div>
+  <div class="body-lg">The distinction between "wellness tool" and "medical device" is not primarily about what the product does — it is about what the product claims to do. The same functionality with different language sits on different sides of the regulatory boundary. Understanding this boundary is the most important legal question Soma faces before public launch.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="risk-badge rb-red">High risk</div>
+    <div class="stm-t">What constitutes a medical claim — the specific lines not to cross</div>
+    <div class="stm-p">In the UK (MHRA) and EU (MDR 2017/745), a "medical device" is defined as any product intended to diagnose, prevent, monitor, treat, or alleviate disease or injury. The triggering word is <em>intent</em> — and intent is inferred from marketing claims, UI copy, and product description. <strong>Claims that trigger medical device classification:</strong> "Soma detects overtraining syndrome" — diagnosis. "Soma prevents injury" — prevention. "Soma treats metabolic syndrome" — treatment. "Soma monitors your health" — monitoring. Any of these, in marketing copy, app descriptions, or in-product UI, potentially classifies the product as a Class I-IIb medical device requiring conformity assessment and regulatory registration. The classification and requirement depends on the specific claim and its risk level.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="risk-badge rb-amber">Manageable — with discipline</div>
+    <div class="stm-t">The wellness / lifestyle positioning — what is permissible</div>
+    <div class="stm-p">Wellness and lifestyle claims are not regulated as medical device claims if they relate to general health maintenance rather than specific disease management. The permitted framing: "Soma helps you structure your training and nutrition for performance" — general wellness. "Soma uses your profile to generate personalised recommendations for exercise timing and food choices" — lifestyle tool. "Soma tracks your progress against your goals" — general fitness tracking. <strong>The safe language consistently refers to performance, lifestyle, and goals — not health conditions, disease, or clinical outcomes.</strong> This is not cosmetic language — it is a substantive legal distinction. The same AI functionality that "monitors recovery status" (potentially regulated) becomes permissible when framed as "tracks how your programme is progressing" (wellness).</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="risk-badge rb-amber">Requires attention</div>
+    <div class="stm-t">The risk classifier — the specific feature requiring careful handling</div>
+    <div class="stm-p">Soma's risk classifier (detecting IBS, cardiovascular conditions, spinal conditions from user-entered health conditions) is the feature most proximate to the medical device boundary. It modifies AI behaviour based on health conditions — which is adjacent to "personalised health management." <strong>The key protective framing:</strong> the classifier does not diagnose — it adjusts the coaching language. It does not prescribe treatment — it modifies programme recommendations. The system prompt language matters: "This adjusts what the AI coach will or won't recommend" versus "This provides clinical management of your condition" are very different regulatory positions. The disclaimer (currently present as a banner) should be prominent, specific, and clearly position Soma as a fitness and nutrition tool, not a health management system.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">4</div><div class="stm-b">
+    <div class="risk-badge rb-red">US-specific risk</div>
+    <div class="stm-t">FDA Software as a Medical Device (SaMD) — the US dimension</div>
+    <div class="stm-p">The FDA's Digital Health Center of Excellence has been actively classifying AI/ML-based health software as SaMD. Under the FDA's guidance, software that "provides individualised recommendations for managing a disease or condition" may be classified as SaMD requiring 510(k) clearance or De Novo review. <strong>The FDA has focused enforcement on apps that claim to diagnose, treat, or manage specific diseases.</strong> General wellness software that "promotes, tracks, and encourages choice in healthy lifestyles" is explicitly excluded from FDA oversight under the 21st Century Cures Act. The specific risk for Soma: the AI coach, if marketed as helping manage IBS, diabetes, or cardiovascular conditions, may trigger FDA attention in the US. General fitness coaching does not.</div>
+  </div></div>
+  <div class="action-box">
+    <div class="ab-label">Immediate actions</div>
+    <ul class="ab-list">
+      <li>Audit all in-product copy for disease/diagnosis/treatment language — replace with performance/lifestyle/goal language</li>
+      <li>Ensure the risk classifier is framed as "coaching adjustments" not "health management" in all user-facing copy</li>
+      <li>Make the "Not a medical service" disclaimer persistent, prominent, and legally adequate (generic banner may not be sufficient — review with solicitor)</li>
+      <li>Before US launch: confirm SaMD position with a US regulatory consultant — the FDA line is jurisdiction-specific</li>
+      <li>Consider registering with MHRA as a wellness app (not a medical device) proactively — creates a defensive record of intent</li>
+    </ul>
+  </div>
+</div></div>
+</div>
+
+<!-- UK / GDPR -->
+<div class="pane" id="data-uk">
+<div class="dark"><div class="w">
+  <div class="dr amber">UK data collection — GDPR UK / DPA 2018</div>
+  <div class="body-lg">The UK GDPR (retained post-Brexit as UK GDPR, alongside the Data Protection Act 2018) applies to any organisation processing personal data of UK residents. Soma collects health data — which is "special category data" under UK GDPR, attracting the highest level of data protection obligations.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="risk-badge rb-red">High obligation — special category data</div>
+    <div class="stm-t">Health data is special category data — higher obligations apply</div>
+    <div class="stm-p">Under UK GDPR Article 9, health data requires a lawful basis <em>plus</em> one of the Article 9 conditions. The relevant conditions for Soma: <strong>Explicit consent</strong> (Article 9(2)(a)) — the most straightforward for a voluntary consumer app. Users must give a separate, specific, freely given, informed, and unambiguous consent for health data processing — a pre-ticked checkbox or bundled terms consent does not satisfy this requirement. <strong>What Soma collects that is health data:</strong> health conditions, injuries, sleep data, dietary restrictions (where linked to health conditions like IBS), menstrual cycle data, body composition, and any other physiological data. All of this triggers special category treatment. The lawful basis must be documented in a Data Processing Register and the Privacy Policy must explicitly cover this data category.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="risk-badge rb-amber">Current state: local storage mitigation</div>
+    <div class="stm-t">The current local-storage architecture partially mitigates data risk</div>
+    <div class="stm-p">Soma's current architecture stores all profile data in browser localStorage — meaning the health data does not leave the user's device to Soma's servers. This is a significant data protection mitigant: if data is not processed by Soma's systems, UK GDPR's controller obligations are substantially reduced (though not eliminated — the AI API calls send profile fragments to Anthropic's API, which does create data processing). <strong>When Supabase backend sync is active</strong>, health data is transmitted to Soma's servers. This is the point at which full UK GDPR compliance obligations engage: lawful basis, privacy policy, data processing agreement with Supabase (processor), and ICO registration if not already completed.</p>
+    <p style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-top:12px;">ICO registration is required for organisations that process personal data as a data controller in the UK — the annual fee is £40-£60 for small organisations. Failure to register is a criminal offence under DPA 2018.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="risk-badge rb-amber">Required documents</div>
+    <div class="stm-t">What needs to exist before commercial launch</div>
+    <div class="stm-p">The minimum legal infrastructure for a UK consumer health app: <strong>(1) Privacy Policy</strong> — publicly accessible, covers all data categories collected, lawful basis for each, retention periods, user rights (access, erasure, portability, restriction), and contact details for data subject requests. Must specifically address health/special category data and the explicit consent basis. <strong>(2) Cookie Policy and consent banner</strong> — UK PECR requires prior consent for non-essential cookies. Implied acceptance (continuing to use the site) does not comply. <strong>(3) Data Processing Agreement with Supabase</strong> — when server-side sync is active, Supabase is a data processor and a DPA is legally required. Supabase offers a standard DPA. <strong>(4) Anthropic API data processing</strong> — Anthropic's API terms include data processing provisions, but explicitly using user health data in prompts requires confirming this is covered by your agreement and Anthropic's terms permit it for health contexts.</div>
+  </div></div>
+  <table class="jd-table">
+    <tr><th>Requirement</th><th>Status</th><th>Priority</th></tr>
+    <tr><td class="jurisdiction">ICO registration</td><td class="status-amber">Unknown — confirm if registered</td><td>Before commercial launch</td></tr>
+    <tr><td class="jurisdiction">Privacy policy (special category)</td><td class="status-red">Not confirmed as complete</td><td>Before auth gate opens</td></tr>
+    <tr><td class="jurisdiction">Cookie consent banner</td><td class="status-amber">Disclaimer present — may not satisfy PECR</td><td>Before public traffic</td></tr>
+    <tr><td class="jurisdiction">Supabase DPA</td><td class="status-amber">Required when sync is active</td><td>When Supabase sync goes live</td></tr>
+    <tr><td class="jurisdiction">Explicit health data consent</td><td class="status-red">Not implemented in onboarding</td><td>Before server-side data collection</td></tr>
+    <tr><td class="jurisdiction">Data subject rights process</td><td class="status-red">No mechanism for access/erasure requests</td><td>Before commercial launch</td></tr>
+  </table>
+</div></div>
+</div>
+
+<!-- US DATA -->
+<div class="pane" id="data-us">
+<div class="dark"><div class="w">
+  <div class="dr amber">United States — state patchwork, no federal law</div>
+  <div class="body-lg">The US has no federal equivalent of GDPR. Instead, a patchwork of state laws creates jurisdiction-specific obligations. For a UK startup with US users, the primary considerations are California (CCPA/CPRA), the emerging state law landscape, and the absence of a clear federal health data framework outside of HIPAA.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="risk-badge rb-amber">California-specific — highest exposure</div>
+    <div class="stm-t">CCPA / CPRA — California Consumer Privacy Act</div>
+    <div class="stm-p">The California Consumer Privacy Act (amended by CPRA in 2020) applies to for-profit businesses that collect personal data of California residents AND meet one of: annual gross revenue over $25M; buy/sell/receive data of 100,000+ consumers; derive 50%+ of revenue from selling data. <strong>Early-stage Soma is unlikely to meet the revenue or volume thresholds initially.</strong> However, California explicitly includes "health-related data" in its definition of "sensitive personal information" and prohibits its sale or use for advertising without opt-in. The CPRA created the California Privacy Protection Agency (CPPA) as an enforcement body — this is the most active US state privacy regulator. Strategy: build CCPA-compliant infrastructure before crossing the thresholds. It is easier to build in than retrofit.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="risk-badge rb-amber">Emerging — state expansion</div>
+    <div class="stm-t">The state law expansion — Virginia, Colorado, Connecticut, Texas, and growing</div>
+    <div class="stm-p">As of 2024, 18+ US states have comprehensive privacy laws modelled loosely on GDPR or CCPA. Most define health data as sensitive data requiring opt-in consent and prohibiting "sale" (broadly defined — sharing for advertising value). <strong>The practical implication for Soma: any analytics, advertising attribution, or third-party data sharing involving health data potentially implicates multiple state laws simultaneously.</strong> The safest posture for a health-adjacent consumer app: no sale or sharing of health data with third parties; clear opt-in for any data collection beyond functional necessity; explicit US-specific privacy policy disclosures. This is not an onerous compliance burden at early scale — it is primarily a data architecture decision (don't share health data) and a documentation decision (say clearly what you don't do).</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="risk-badge rb-red">US-specific health data risk</div>
+    <div class="stm-t">HIPAA — what it covers and why it probably doesn't apply (yet)</div>
+    <div class="stm-p">HIPAA (Health Insurance Portability and Accountability Act) applies to "covered entities" (healthcare providers, health plans, clearinghouses) and their "business associates." A direct-to-consumer fitness app that is not affiliated with a healthcare provider, does not process insurance claims, and is not used in clinical settings is almost certainly not a HIPAA covered entity. <strong>The risk is different but adjacent:</strong> Washington State's My Health MY Data Act (2023) and Nevada's consumer health data law regulate health data collection by any business, not just covered entities. These state-specific health data laws are proliferating and create real obligations for consumer health apps even without any HIPAA exposure. Confirm jurisdiction-by-jurisdiction before US launch with a US privacy counsel.</div>
+  </div></div>
+  <table class="jd-table">
+    <tr><th>Jurisdiction</th><th>Law</th><th>Soma relevance</th><th>Action required</th></tr>
+    <tr><td class="jurisdiction">California</td><td>CCPA / CPRA</td><td class="status-amber">Triggered at scale — build in now</td><td>Privacy policy with CCPA disclosures; no health data sale; opt-out mechanism</td></tr>
+    <tr><td class="jurisdiction">Washington State</td><td>My Health MY Data Act</td><td class="status-red">Applies to consumer health apps — NOW</td><td>Specific consent for health data; no sale; consumer rights mechanism</td></tr>
+    <tr><td class="jurisdiction">Virginia, Colorado et al.</td><td>State CPAs</td><td class="status-amber">Threshold-based — monitor</td><td>Consistent data minimisation posture covers most requirements</td></tr>
+    <tr><td class="jurisdiction">Federal</td><td>No equivalent GDPR law</td><td class="status-green">No current federal obligation for non-HIPAA apps</td><td>FTC guidance on health apps — ensure no deceptive claims</td></tr>
+  </table>
+</div></div>
+</div>
+
+<!-- EU DATA -->
+<div class="pane" id="data-eu">
+<div class="dark"><div class="w">
+  <div class="dr amber">EU / EEA — GDPR and the AI Act</div>
+  <div class="body-lg">EU GDPR is structurally similar to UK GDPR but with higher potential fines (4% global annual revenue or €20M, whichever higher) and stricter enforcement in several member states (particularly Germany, the Netherlands, and Ireland where tech companies are often domiciled for EU purposes). The emerging AI Act adds a new layer for AI-powered health tools.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="risk-badge rb-red">Data transfer mechanism required</div>
+    <div class="stm-t">UK → EU: the post-Brexit adequacy decision</div>
+    <div class="stm-p">The EU granted the UK an adequacy decision in 2021, meaning personal data can flow freely from EU to UK without additional transfer mechanisms. This decision is time-limited and subject to review. <strong>For a UK-based Soma processing EU user data on UK servers: the current adequacy decision permits this.</strong> However, if Soma's servers are hosted by US cloud providers (AWS, Google Cloud, Vercel in the US), those are not automatically covered — the EU-US Data Privacy Framework (2023 successor to Privacy Shield) covers US companies that self-certify, but Soma's cloud infrastructure providers need to be confirmed as covered. Vercel and Supabase both accept GDPR data processing addenda — confirm these are signed.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="risk-badge rb-amber">Monitor — applies from 2025-2026</div>
+    <div class="stm-t">EU AI Act — health AI classification</div>
+    <div class="stm-p">The EU AI Act (in force from 2024, applicable in phases through 2026-2027) classifies AI systems by risk level. <strong>High-risk AI systems</strong> include those intended to be used in "critical infrastructure" and certain "safety components." Crucially, AI systems used to influence health decisions are in an adjacent risk category — but consumer wellness apps that do not claim diagnostic or treatment functionality are currently positioned outside the high-risk classification. The Act's Article 6 and Annex III define the high-risk categories. A conservative legal opinion: Soma, positioned as a fitness coaching tool without diagnostic claims, is probably not high-risk AI under the Act — but this should be confirmed as the Act's secondary legislation and guidance develops. The Act does impose transparency obligations on all AI systems interacting with humans — users must be informed they are interacting with AI.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="risk-badge rb-amber">Article 13 — required transparency</div>
+    <div class="stm-t">What EU users must be told about AI decision-making</div>
+    <div class="stm-p">GDPR Article 22 restricts "solely automated decisions" that have "legal or similarly significant effects" on individuals — with a right to human review. Soma's AI recommendations (training programme, nutrition guidance) may technically constitute automated decision-making based on personal data. <strong>The standard EU position: disclose in the privacy policy that AI-generated recommendations are made, describe the logic involved, and confirm users can request human review (or a mechanism to adjust the AI's decisions).</strong> In practice, the coaching recommendations do not have "legal or significant effects" — they are advice, not mandates — but documenting this position is prudent. Explicit disclosure of AI involvement in recommendations is also required by the emerging AI Act.</div>
+  </div></div>
+</div></div>
+</div>
+
+<!-- APAC & GLOBAL -->
+<div class="pane" id="data-other">
+<div class="dark"><div class="w">
+  <div class="dr amber">APAC &amp; other key jurisdictions</div>
+  <div class="body-lg">Outside UK/EU/US, the primary jurisdictions requiring specific attention for a scaling health app are Australia, Canada, and Singapore. Each has a different legal framework but all have explicit health data provisions.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="risk-badge rb-amber">Australia</div>
+    <div class="stm-t">Privacy Act 1988 / Australian Privacy Principles</div>
+    <div class="stm-p">The Australian Privacy Act applies to organisations with annual revenue over AUD $3M (lower threshold is being removed in current reform discussions) and to all health service providers regardless of revenue. <strong>Health information is "sensitive information" under the Australian Privacy Principles and requires explicit consent for collection and use.</strong> The Privacy Act is currently undergoing significant reform (2023-2024) including a right to erasure and increased penalty regime (AUD $50M for serious breaches). For Soma: if significant Australian user acquisition is anticipated, a GDPR-aligned privacy framework will generally satisfy Australian obligations with minor additions (specific APPs compliance statement). Australian reform will likely align more closely with GDPR over time.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="risk-badge rb-amber">Canada</div>
+    <div class="stm-t">PIPEDA / Bill C-27 (Consumer Privacy Protection Act)</div>
+    <div class="stm-p">Canada's federal privacy law (PIPEDA) applies to commercial organisations collecting personal information in the course of commercial activity. Canada's proposed Bill C-27 (the Consumer Privacy Protection Act) would update PIPEDA with GDPR-like rights and higher penalties — it is not yet in force but signals the direction of Canadian law. <strong>Health data under PIPEDA requires consent and is subject to heightened obligations.</strong> PIPEDA is broadly GDPR-compatible — organisations compliant with GDPR are generally in good shape for Canadian requirements. The key specific requirement: a Privacy Officer designation and a privacy policy accessible to Canadian users.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="risk-badge rb-green">Singapore — friendly jurisdiction</div>
+    <div class="stm-t">PDPA — relatively manageable for wellness apps</div>
+    <div class="stm-p">Singapore's Personal Data Protection Act (PDPA) is less prescriptive than GDPR but requires consent for personal data collection, use, and disclosure. Health data is not specifically classified as "sensitive" in Singapore law (unlike UK GDPR), but requires appropriate protection. <strong>Singapore is a relatively friendly jurisdiction for digital health products</strong> — the Health Sciences Authority has a sandbox approach for digital health tools and does not classify general wellness apps as medical devices as readily as the FDA or MHRA. A standard privacy policy and consent mechanism satisfies PDPA for most wellness app use cases.</div>
+  </div></div>
+  <table class="jd-table">
+    <tr><th>Jurisdiction</th><th>Key law</th><th>Health data classification</th><th>Readiness assessment</th></tr>
+    <tr><td class="jurisdiction">Australia</td><td>Privacy Act 1988 / APPs</td><td class="status-amber">Sensitive — explicit consent required</td><td>GDPR-aligned framework largely satisfies. Add APPs compliance statement.</td></tr>
+    <tr><td class="jurisdiction">Canada</td><td>PIPEDA / Bill C-27</td><td class="status-amber">Requires consent — converging with GDPR</td><td>GDPR-compliant posture satisfies. Designate Privacy Officer.</td></tr>
+    <tr><td class="jurisdiction">Singapore</td><td>PDPA</td><td class="status-green">Not "sensitive" category — standard consent</td><td>Standard privacy policy and consent mechanism sufficient.</td></tr>
+    <tr><td class="jurisdiction">India</td><td>DPDP Act 2023</td><td class="status-amber">Enacted 2023 — rules not yet finalised</td><td>Monitor. Consent-based framework required. B2C apps covered.</td></tr>
+  </table>
+</div></div>
+</div>
+
+<!-- ACTIONS -->
+<div class="pane" id="actions">
+<div class="dark"><div class="w">
+  <div class="dr amber">Action checklist — pre-launch priorities</div>
+  <div class="body-lg">Prioritised by business stage: items required before the auth gate opens versus items required before commercial scale versus items that can be deferred to Series A-equivalent stage.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="stm-t">Before auth gate opens (minimum viable compliance)</div>
+    <div class="stm-p">The auth gate is the point at which Soma begins creating accounts and storing user data server-side. Everything before this point is pre-commercial and local-storage-only — lower regulatory exposure. Once the auth gate opens, these become mandatory.</div>
+  </div></div>
+  <div class="action-box">
+    <div class="ab-label">Pre-auth gate — critical path</div>
+    <ul class="ab-list">
+      <li>Privacy Policy — published, covers health data as special category, explicit consent basis, retention periods, user rights mechanism</li>
+      <li>Cookie Policy and PECR-compliant consent banner (not implied acceptance — active consent for non-essential cookies)</li>
+      <li>ICO registration — confirm status; register if not already done (£40-60/year)</li>
+      <li>Data Processing Agreement with Supabase — their standard DPA, signed before sync goes live</li>
+      <li>Explicit health data consent in onboarding — separate checkbox, not bundled in general T&amp;Cs</li>
+      <li>Medical claims audit — all in-product copy reviewed and "treatment/diagnosis/prevention" language replaced with "coaching/performance/goals" language</li>
+      <li>Prominent, legally adequate disclaimer — "not a medical service" must be more than a dismissible banner; it must appear in T&amp;Cs and privacy policy</li>
+    </ul>
+  </div>
+  <div class="stm" style="margin-top:32px;"><div class="stm-n">2</div><div class="stm-b">
+    <div class="stm-t">Before commercial scale (&gt;1,000 paying users)</div>
+    <div class="stm-p">Items that are lower risk at very small scale but become material compliance obligations as user numbers and revenue grow.</div>
+  </div></div>
+  <div class="action-box">
+    <div class="ab-label">Pre-scale — priority 2</div>
+    <ul class="ab-list">
+      <li>Data Subject Rights mechanism — automated or manual process for access, erasure, and portability requests within statutory timelines (30 days UK GDPR)</li>
+      <li>Data Breach Response Plan — documented procedure for ICO notification within 72h of a notifiable breach</li>
+      <li>Anthropic API data processing confirmation — confirm that sending health data in prompts is covered by your API agreement and Anthropic's DPA</li>
+      <li>Terms of Service — comprehensive, covering age restrictions (13+ minimum, 18+ recommended for health data), liability limitations, governing law</li>
+      <li>US privacy policy addendum — CCPA disclosures, Washington state health data provisions</li>
+      <li>MHRA registration consideration — confirm wellness (not medical device) classification in writing with a regulatory consultant</li>
+    </ul>
+  </div>
+  <div class="stm" style="margin-top:32px;"><div class="stm-n">3</div><div class="stm-b">
+    <div class="stm-t">Pre-Series A / international expansion</div>
+    <div class="stm-p">Items that are not critical at early stage but are standard requirements for institutional investors and international market entry.</div>
+  </div></div>
+  <div class="action-box">
+    <div class="ab-label">Pre-Series A</div>
+    <ul class="ab-list">
+      <li>Data Protection Impact Assessment (DPIA) — required for large-scale processing of sensitive data; demonstrates due diligence to investors and regulators</li>
+      <li>EU representative designation — required if processing EU personal data without an EU establishment</li>
+      <li>EU AI Act compliance assessment — confirm high-risk AI classification position as Act becomes enforceable</li>
+      <li>SOC 2 Type II audit — standard investor / enterprise due diligence requirement for data-handling SaaS</li>
+      <li>FDA SaMD regulatory position — formal opinion from US regulatory consultant before US commercial launch</li>
+      <li>International privacy policy localisation — jurisdiction-specific addenda for Australia, Canada, Singapore</li>
+    </ul>
+  </div>
+</div></div>
+</div>
+
+<div id="site-disclaimer"></div>
+<script src="nav.js"></script>
+<script>
+function showPane(id, btn) {
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.sn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+</script>
+<script src="pwa.js"></script>
+<script src="coach.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(function(reg) {
+        window.__SW_REG = reg;
+        reg.addEventListener('updatefound', function() {
+          var w = reg.installing;
+          w.addEventListener('statechange', function() {
+            if (w.state === 'installed' && navigator.serviceWorker.controller) w.postMessage({ type: 'SKIP_WAITING' });
+          });
+        });
+      }).catch(function(e){ console.warn('[Soma] SW registration failed:', e); });
+  });
+}
+</script>
+</body>
+</html>

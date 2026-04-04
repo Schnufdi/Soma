@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Soma">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="recovery">
+<title>Soma — Recovery Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.hero { padding:64px 0 56px; border-bottom:1px solid var(--bd); position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 900px 500px at 60% 40%, rgba(0,200,160,0.04) 0%, transparent 70%); }
+.hi { max-width:1080px; margin:0 auto; padding:0 48px; position:relative; z-index:1; }
+.h-eye { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+.h-eye::before { content:''; width:24px; height:1px; background:var(--jade); }
+.h-title { font-family:var(--serif); font-size:72px; font-weight:300; line-height:0.9; letter-spacing:-0.03em; color:var(--dk-1); margin-bottom:20px; }
+.h-two { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:540px; margin-bottom:32px; }
+.rec-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--bd); border-radius:6px; overflow:hidden; max-width:900px; }
+.rec-cell { background:var(--ink-2); padding:16px 12px; text-align:center; }
+.rec-icon { font-size:20px; margin-bottom:6px; }
+.rec-name { font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--dk-1); margin-bottom:4px; }
+.rec-note { font-size:10px; font-weight:300; color:var(--dk-3); line-height:1.4; }
+.snav { display:flex; gap:0; border-bottom:1px solid var(--bd); max-width:1080px; margin:0 auto; padding:0 48px; overflow-x:auto; }
+.sn { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:13px 16px; border:none; background:transparent; color:var(--dk-3); cursor:pointer; font-family:var(--sans); white-space:nowrap; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color 0.12s; }
+.sn:hover { color:var(--dk-2); } .sn.active { color:var(--jade); border-bottom-color:var(--jade); }
+.pane { display:none; } .pane.active { display:block; }
+.dark  { background:var(--ink); padding:56px 0; }
+.w { max-width:1080px; margin:0 auto; padding:0 48px; }
+.dr { display:flex; align-items:center; gap:14px; margin:0 0 28px; font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); }
+.dr::after { content:''; flex:1; height:1px; background:var(--bd); }
+.dr.jade{color:var(--jade);} .dr.amber{color:var(--amber);}
+.body-lg { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.85; margin-bottom:20px; max-width:720px; }
+.stm { display:grid; grid-template-columns:56px 1fr; border-top:1px solid var(--bd); }
+.stm-n { font-family:var(--serif); font-size:42px; font-weight:300; color:var(--jade); opacity:0.35; padding:20px 0; line-height:1; }
+.stm-b { padding:20px 0; }
+.stm-t { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:8px; line-height:1.3; }
+.stm-p { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; }
+.stm-p strong { color:var(--dk-1); font-weight:500; }
+.tier { display:inline-flex; align-items:center; gap:5px; font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:2px 8px; border-radius:10px; margin-bottom:8px; }
+.tier-est { background:rgba(0,200,160,.1); color:var(--jade); border:1px solid rgba(0,200,160,.2); }
+.tier-emg { background:rgba(212,168,39,.1); color:var(--amber); border:1px solid rgba(212,168,39,.2); }
+.lever-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--bd); border-radius:6px; overflow:hidden; margin-bottom:24px; }
+.lever-cell { background:var(--ink-2); padding:18px 20px; }
+.lever-title { font-size:12px; font-weight:600; color:var(--dk-1); margin-bottom:8px; }
+.lever-body { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.7; }
+.lever-body strong { color:var(--dk-1); font-weight:500; }
+.dl-table { width:100%; border-collapse:collapse; margin-bottom:24px; }
+.dl-table th { background:var(--ink-2); border:1px solid var(--bd); padding:10px 14px; font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); text-align:left; }
+.dl-table td { border:1px solid var(--bd); padding:10px 14px; font-size:12px; font-weight:300; color:var(--dk-2); vertical-align:top; line-height:1.6; }
+.dl-table td.jade { color:var(--jade); font-weight:500; }
+.dl-table td.amber { color:var(--amber); font-weight:500; }
+.profile-callout { background:rgba(0,200,160,0.05); border:1px solid var(--jade-br); border-left:3px solid var(--jade); border-radius:0 6px 6px 0; padding:14px 18px; margin-top:28px; display:none; }
+.profile-callout.visible { display:block; }
+.pc-label { font-size:9px; font-weight:600; letter-spacing:0.13em; text-transform:uppercase; color:var(--jade); margin-bottom:8px; }
+.pc-text { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.75; }
+.pc-text strong { color:var(--dk-1); font-weight:500; }
+@media(max-width:700px){ .hi,.snav,.w{padding-left:20px;padding-right:20px;} .h-title{font-size:48px;} .rec-strip{grid-template-columns:repeat(2,1fr);} .lever-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<nav class="site-nav"></nav>
+
+<div class="hero">
+<div class="hi">
+  <div class="h-eye">Recovery science · Adaptation biology</div>
+  <div class="h-title">Rest days make<br><em>you stronger.</em></div>
+  <div class="h-two">Training is the stimulus. Recovery is where the adaptation happens. Every physiological improvement — strength, muscle, endurance, bone density — occurs during rest, not during the session. Understanding the biology of recovery changes how you think about the days you are not training.</div>
+  <div class="rec-strip">
+    <div class="rec-cell"><div class="rec-icon">💪</div><div class="rec-name">Supercompensation</div><div class="rec-note">48–72h post-training</div></div>
+    <div class="rec-cell"><div class="rec-icon">📉</div><div class="rec-name">Deload</div><div class="rec-note">Every 4–6 weeks</div></div>
+    <div class="rec-cell"><div class="rec-icon">❤️</div><div class="rec-name">HRV tracking</div><div class="rec-note">Readiness proxy</div></div>
+    <div class="rec-cell"><div class="rec-icon">🌊</div><div class="rec-name">DOMS biology</div><div class="rec-note">Type II fibre repair</div></div>
+  </div>
+</div>
+</div>
+
+<div class="snav">
+  <button class="sn active" onclick="showPane('supercomp',this)">Supercompensation</button>
+  <button class="sn" onclick="showPane('deload',this)">Deload mechanics</button>
+  <button class="sn" onclick="showPane('doms',this)">DOMS &amp; repair</button>
+  <button class="sn" onclick="showPane('active',this)">Active recovery</button>
+  <button class="sn" onclick="showPane('tools',this)">Recovery tools</button>
+  <button class="sn" onclick="showPane('overtraining',this)">Overtraining</button>
+</div>
+
+<!-- SUPERCOMPENSATION -->
+<div class="pane active" id="supercomp">
+<div class="dark"><div class="w">
+  <div class="dr jade">Supercompensation — the mechanism of adaptation</div>
+  <div class="body-lg">Supercompensation is the physiological process by which the body responds to a training stress by rebuilding to a higher level than before. It is not a metaphor — it is a measurable biological process with a specific time course. Training at the wrong point in this cycle produces either nothing or regression.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">The four-phase model</div>
+    <div class="stm-p">The supercompensation model describes adaptation in four phases: (1) Training stimulus — acute fatigue and performance reduction. (2) Recovery — return to baseline as the body repairs the training-induced damage. (3) Supercompensation — the body overshoots baseline, producing higher capacity than pre-training. This is the adaptation. (4) Involution — if the next training stimulus is not applied within the supercompensation window, capacity returns to baseline. <strong>The timing of the next training session determines whether you capture the supercompensation or miss it.</strong> For resistance training, the supercompensation window is approximately 36-72 hours post-session. Training too soon (before recovery is complete) stacks fatigue. Training too late (after involution) starts from baseline rather than a higher point.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">Why rest days are training sessions</div>
+    <div class="stm-p">Rest days are not the absence of training. They are when the training stimulus is processed into adaptation. The specific biological events during rest: muscle protein synthesis (MPS) remains elevated for 24-48 hours post-training, using dietary protein to rebuild muscle fibres to a slightly higher cross-sectional area. Growth hormone secretion peaks during deep sleep the night after training. Mitochondrial biogenesis in response to Zone 2 training occurs over 24-48 hours post-session. Tendon and connective tissue remodelling lags muscle by 48-72 hours. <strong>Training hard without rest does not compress adaptation into a shorter time — it prevents the adaptive response entirely.</strong></div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">The fitness-fatigue model — the modern upgrade</div>
+    <div class="stm-p">The fitness-fatigue model refines the supercompensation concept. Every training session produces two simultaneous effects: a fitness gain (slow to develop, slow to decay — weeks to months) and a fatigue cost (rapid onset, rapid decay — hours to days). Performance at any moment equals fitness minus fatigue. <strong>This explains why performance often temporarily decreases when a deload begins</strong> — fitness is unchanged but fatigue is clearing, revealing fitness that was masked by accumulated fatigue. It also explains why athletes often perform best not at peak training volume, but several weeks after volume reduction. The art of periodisation is managing the fitness-fatigue balance to peak performance at the right time.</div>
+  </div></div>
+  <div class="profile-callout visible" id="pc-supercomp">
+    <div class="pc-label">→ Your recovery context</div>
+    <div class="pc-text" id="pc-supercomp-text">Loading your profile...</div>
+  </div>
+</div></div>
+</div>
+
+<!-- DELOAD -->
+<div class="pane" id="deload">
+<div class="dark"><div class="w">
+  <div class="dr jade">Deload mechanics — the planned recovery block</div>
+  <div class="body-lg">A deload is a planned reduction in training volume and/or intensity to allow accumulated fatigue to clear, supercompensation to be expressed, and the connective tissue and CNS to recover from the demands that muscle adapts to more quickly. It is not weakness or laziness — it is periodisation.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">Why deloads produce strength gains — the fatigue-masking mechanism</div>
+    <div class="stm-p">During periods of high training volume, accumulated fatigue masks fitness. Performance may stagnate or decline despite genuine fitness gains occurring at the cellular level. A deload allows fatigue to clear while fitness is maintained (fitness decays much more slowly than fatigue — 2-3 weeks of reduced training does not meaningfully reduce fitness for trained individuals). <strong>The most common experience of a deload: lifters PR after the week off, having been stuck on a plateau for weeks.</strong> This is not coincidence — the fitness was there, the fatigue was covering it. Deloads reveal existing adaptation. They also allow connective tissue and CNS recovery that prevents the tendinopathy and overuse injuries that accumulate at high training volumes.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">Deload protocols — what actually works</div>
+    <div class="stm-p">The evidence supports several deload approaches. Frequency and intensity should be maintained; volume is the primary reduction variable. <strong>Volume deload: reduce sets by 40-50% while keeping weight and effort the same.</strong> This maintains the neural activation pattern and minimises detraining while allowing fatigue clearance. Complete rest is not superior to volume-reduced training — maintaining movement patterns and some loading preserves skill and prevents the early adaptation regression that occurs with complete cessation. Duration: 5-7 days is sufficient for most individuals. Every 4-6 weeks for high-volume programmes; every 6-8 weeks for moderate volume.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="tier tier-emg">Emerging evidence</div>
+    <div class="stm-t">Auto-regulation vs fixed deload scheduling</div>
+    <div class="stm-p">Fixed deload scheduling (every 4th or 6th week) is the traditional approach. Auto-regulation — deloading when HRV, performance, or subjective readiness signals accumulated fatigue — is emerging as a more individually responsive alternative. The evidence suggests that the optimal deload timing varies significantly between individuals and training phases: some people accumulate fatigue in 3 weeks, others in 7-8 weeks. <strong>HRV suppression across 3+ consecutive days, performance stagnation or regression for 2+ weeks, and persistent joint soreness (not DOMS) are the clearest auto-regulation signals.</strong> Combining HRV tracking with subjective readiness (sleep quality, motivation, soreness) produces more accurate deload timing than fixed schedules alone.</div>
+  </div></div>
+  <table class="dl-table">
+    <tr><th>Deload type</th><th>What changes</th><th>Best for</th></tr>
+    <tr><td class="jade">Volume deload</td><td>Sets reduced 40-50%. Weight and RPE unchanged.</td><td>Most trainees. Maintains neural patterns and skill. Clears peripheral fatigue.</td></tr>
+    <tr><td class="jade">Intensity deload</td><td>Weight reduced to 60-70% 1RM. Sets and reps unchanged.</td><td>CNS-intensive programmes (heavy powerlifting). Reduces neural fatigue while maintaining movement volume.</td></tr>
+    <tr><td class="amber">Complete rest</td><td>All training stopped.</td><td>Injury management only. Not superior to volume deload for fatigue clearance. Risks early skill decay.</td></tr>
+    <tr><td class="jade">Active recovery week</td><td>Replace training with low-intensity movement (walks, swimming, yoga). No structured sessions.</td><td>High-volume periods followed by competition or peak performance requirement. Maximises fatigue clearance.</td></tr>
+  </table>
+  <div class="profile-callout visible" id="pc-deload">
+    <div class="pc-label">→ Your deload prescription</div>
+    <div class="pc-text" id="pc-deload-text">Loading your profile...</div>
+  </div>
+</div></div>
+</div>
+
+<!-- DOMS -->
+<div class="pane" id="doms">
+<div class="dark"><div class="w">
+  <div class="dr jade">DOMS — what it is, what it isn't, and what it means</div>
+  <div class="body-lg">Delayed onset muscle soreness is one of the most misunderstood phenomena in training. It is not a reliable indicator of an effective session. It is not lactic acid. It is not something you can or should train through without understanding. It is a specific inflammatory response with a clear biological basis and specific management implications.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">The actual mechanism of DOMS</div>
+    <div class="stm-p">DOMS is primarily caused by eccentric contractions — the lengthening-under-load phase of movement (the lowering portion of a squat or bicep curl). Eccentric loading produces microscopic disruption to the z-disc lattice within sarcomeres, the structural unit of muscle contraction. This disruption triggers an inflammatory cascade: neutrophils and macrophages migrate to the damage site, producing the cytokines and prostaglandins responsible for the pain sensation 12-72 hours later. <strong>Lactic acid does not cause DOMS — lactic acid clears within 60 minutes of exercise cessation.</strong> The "burn" during training is not the same as DOMS. DOMS is a repair response, not a fatigue response.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">DOMS is not a proxy for training effectiveness</div>
+    <div class="stm-p">The relationship between DOMS and hypertrophy is not dose-dependent — more soreness does not mean more muscle growth. Experienced trainees produce significant hypertrophy with minimal DOMS (the repeated bout effect). Beginners can produce severe DOMS with sessions that would be sub-optimal for an intermediate. <strong>The signal for effective training is progressive overload — weight increased or reps added over time — not soreness.</strong> Training specifically to create soreness (novel exercises, extreme eccentrics, excessive volume) is the wrong target. It increases injury risk, extends recovery time, and does not reliably translate to greater adaptation.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">The repeated bout effect — why DOMS decreases with training age</div>
+    <div class="stm-p">After the first exposure to a novel exercise, the body adapts the extracellular matrix and sarcomere structure to resist the same eccentric damage — producing significantly less DOMS on subsequent exposures, even at higher loads. This is called the repeated bout effect and it develops rapidly — often within 2-3 sessions. <strong>Experienced trainees feeling "they aren't working hard enough" because they no longer get DOMS are experiencing normal, positive adaptation.</strong> The absence of DOMS in a trained individual reflects appropriate progressive exposure, not inadequate stimulus. DOMS in trained individuals typically signals one of three things: a new exercise, significant volume increase, or excessive eccentrics.</div>
+  </div></div>
+  <div class="profile-callout visible" id="pc-doms">
+    <div class="pc-label">→ Your DOMS context</div>
+    <div class="pc-text" id="pc-doms-text">Loading your profile...</div>
+  </div>
+</div></div>
+</div>
+
+<!-- ACTIVE RECOVERY -->
+<div class="pane" id="active">
+<div class="dark"><div class="w">
+  <div class="dr jade">Active recovery — why moving beats resting</div>
+  <div class="body-lg">Complete rest is not the optimal recovery modality for most training contexts. Low-intensity movement — walking, swimming, easy cycling, yoga — enhances recovery via specific physiological mechanisms that complete rest cannot replicate.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">Blood flow and metabolic waste clearance</div>
+    <div class="stm-p">Low-intensity movement enhances muscle blood flow, accelerating the delivery of oxygen and amino acids to repairing tissue and the clearance of metabolic by-products from the inflammatory response. The muscle pump effect of light exercise reduces the localised inflammation that produces soreness. <strong>A 20-30 minute walk the day after a hard training session measurably reduces DOMS severity and accelerates return to full training capacity</strong> compared to complete rest — without producing additional fatigue. The intensity must be genuinely low (Zone 1 — comfortable conversation) to avoid competing with recovery processes.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="tier tier-emg">Emerging evidence</div>
+    <div class="stm-t">Parasympathetic activation — the nervous system recovery mechanism</div>
+    <div class="stm-p">Training shifts the autonomic nervous system toward sympathetic dominance — the fight-or-flight state that drives high-intensity performance. Recovery requires shifting toward parasympathetic dominance — rest-and-digest. <strong>Low-intensity movement, particularly steady-state walking or swimming, is a potent parasympathetic activator via vagal stimulation</strong> — it reduces cortisol, lowers resting heart rate, and improves HRV more effectively than passive rest. NSDR (Non-Sleep Deep Rest — yoga nidra or body scan practice, 10-20 minutes) has emerging evidence for accelerating this autonomic shift and increasing dopamine restoration after depleting training or cognitive work.</div>
+  </div></div>
+  <div class="profile-callout visible" id="pc-active">
+    <div class="pc-label">→ Your active recovery prescription</div>
+    <div class="pc-text" id="pc-active-text">Loading your profile...</div>
+  </div>
+</div></div>
+</div>
+
+<!-- RECOVERY TOOLS -->
+<div class="pane" id="tools">
+<div class="dark"><div class="w">
+  <div class="dr jade">Recovery tools — ranked by evidence</div>
+  <div class="body-lg">The recovery tool market is large and noisy. Most modalities have weak or context-dependent evidence. A small number have robust, replicable evidence for specific recovery outcomes. The ranking below reflects the evidence base, not the hype.</div>
+  <div class="lever-grid">
+    <div class="lever-cell">
+      <div class="lever-title">😴 Sleep — the non-negotiable</div>
+      <div class="lever-body"><strong>Evidence: Strongest available.</strong> Growth hormone secretion, muscle protein synthesis, neural recovery, cortisol clearance, and glycogen resynthesis all depend primarily on sleep quality and duration. All other recovery tools are optimising around a ceiling that sleep sets. No tool compensates for inadequate sleep.</div>
+    </div>
+    <div class="lever-cell">
+      <div class="lever-title">🥩 Post-training protein — 30-40g within 2h</div>
+      <div class="lever-body"><strong>Evidence: Strong.</strong> Leucine threshold (2.5g) triggers mTOR signalling for muscle protein synthesis. The anabolic window is 2-3 hours post-training, not 30 minutes — but don't extend it indefinitely. Protein quality (complete amino acid profile) matters more than exact timing within the window.</div>
+    </div>
+    <div class="lever-cell">
+      <div class="lever-title">🧊 Cold water immersion — post-training</div>
+      <div class="lever-body"><strong>Evidence: Mixed — context-dependent.</strong> CWI (10-15°C, 10-15 min) reduces inflammation and DOMS. <strong>But this same inflammation is the hypertrophy signal.</strong> CWI after strength training blunts long-term hypertrophy gains. CWI after endurance training enhances endurance recovery without the same cost. Use after competition or endurance — not after your primary hypertrophy sessions.</div>
+    </div>
+    <div class="lever-cell">
+      <div class="lever-title">🔥 Sauna — post-training (not cold)</div>
+      <div class="lever-body"><strong>Evidence: Emerging, positive.</strong> 80-100°C, 20 min, 4×/week: Laukkanen data shows 40% reduction in cardiovascular mortality, improvements in growth hormone secretion, and cardiovascular conditioning comparable to moderate exercise. Does not blunt hypertrophy — heat shock proteins may actually support muscle adaptation. Best used separately from cold immersion on the same day.</div>
+    </div>
+    <div class="lever-cell">
+      <div class="lever-title">🧘 NSDR / Yoga nidra — 20 min</div>
+      <div class="lever-body"><strong>Evidence: Emerging.</strong> Huberman lab data: 20 min NSDR raises dopamine levels 65% — greater than sleep. Activates parasympathetic tone strongly. Accelerates neurological recovery from high-intensity cognitive or physical work. Best timed post-training when sleep isn't available.</div>
+    </div>
+    <div class="lever-cell">
+      <div class="lever-title">💊 Creatine — 5g/day, any time</div>
+      <div class="lever-body"><strong>Evidence: Strong.</strong> Creatine accelerates phosphocreatine resynthesis post-exercise — reducing the recovery time between sets and between sessions. It also has emerging evidence for reducing exercise-induced inflammation and accelerating glycogen resynthesis. The timing is irrelevant — consistency is the variable that matters.</div>
+    </div>
+    <div class="lever-cell">
+      <div class="lever-title">🫁 Compression garments</div>
+      <div class="lever-body"><strong>Evidence: Modest positive.</strong> Compression reduces DOMS and perceived fatigue in the 24h post-training period, likely via enhanced blood flow and reduced inflammatory oedema. Effect size is moderate and consistent across multiple meta-analyses. Useful for high-volume or high-DOMS contexts — not a performance tool but a recovery comfort tool with real, if modest, physiological basis.</div>
+    </div>
+    <div class="lever-cell">
+      <div class="lever-title">💆 Massage / foam rolling</div>
+      <div class="lever-body"><strong>Evidence: DOMS relief, not structural repair.</strong> Massage and foam rolling reduce DOMS perception and improve psychological recovery without producing meaningful structural changes in muscle tissue. The mechanism is primarily pain gate modulation and increased blood flow. Useful for feeling better and maintaining training consistency — not a substitute for the biological recovery process.</div>
+    </div>
+  </div>
+  <div class="profile-callout visible" id="pc-tools">
+    <div class="pc-label">→ Your recovery tool stack</div>
+    <div class="pc-text" id="pc-tools-text">Loading your profile...</div>
+  </div>
+</div></div>
+</div>
+
+<!-- OVERTRAINING -->
+<div class="pane" id="overtraining">
+<div class="dark"><div class="w">
+  <div class="dr jade">Overtraining — when volume exceeds the recovery system</div>
+  <div class="body-lg">Overtraining syndrome (OTS) is a clinically recognised condition caused by accumulated training load that chronically exceeds recovery capacity. It is distinct from the day-to-day fatigue of a hard training block — it represents a systemic neuroendocrine disruption that can take months to reverse. Understanding the progression helps avoid it.</div>
+  <div class="stm"><div class="stm-n">1</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">The overreaching-overtraining spectrum</div>
+    <div class="stm-p">Overtraining exists on a continuum: (1) Functional overreaching — short-term performance decline that resolves in days to weeks with rest. A normal component of progressive training blocks. (2) Non-functional overreaching — persistent performance decline over weeks with adequate rest, accompanied by mood disturbance and fatigue. Requires 2-6 weeks of significant volume reduction. (3) Overtraining syndrome — hormonal, immunological, and neurological dysfunction requiring months to fully resolve. <strong>Most cases of "overtraining" that athletes experience are non-functional overreaching, not true OTS.</strong> The distinction matters because OTS is rare but genuinely debilitating and requires medical management — not just reduced training volume.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">2</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">The triad: high volume + caloric deficit + sleep restriction</div>
+    <div class="stm-p">Overtraining syndrome is rarely caused by training alone. It almost always involves a convergence of stressors: high training volume, caloric restriction (particularly protein and carbohydrate restriction), and sleep restriction. <strong>Each stressor individually can be tolerated by most people. The triad together produces testosterone suppression, chronic cortisol elevation, immune dysfunction, and the complete absence of supercompensation.</strong> You are physically breaking down and not rebuilding. The warning signs: performance declining despite training, persistent fatigue unrelieved by rest, loss of motivation for training, increased illness frequency, and mood disturbances (irritability, low mood, anxiety) that appear exercise-correlated.</div>
+  </div></div>
+  <div class="stm"><div class="stm-n">3</div><div class="stm-b">
+    <div class="tier tier-est">Established</div>
+    <div class="stm-t">Recovery from non-functional overreaching</div>
+    <div class="stm-p">The recovery protocol for overreaching is straightforward: reduce training volume to 30-40% of normal for 2-3 weeks. Maintain intensity (weight/effort) to preserve neural activation patterns. Prioritise sleep aggressively — 8-9 hours. Increase caloric intake, particularly carbohydrates (glycogen restoration) and protein. Reduce external stressors where possible. <strong>The common error is returning to full volume the moment symptoms resolve</strong> — return progressively over 2-3 weeks or the overreaching cycle restarts. If symptoms persist beyond 4-6 weeks of genuine volume reduction and sleep improvement, blood testing is warranted — HPA axis dysfunction (ACTH, cortisol) and thyroid function should be assessed.</div>
+  </div></div>
+  <div class="profile-callout visible" id="pc-overtraining">
+    <div class="pc-label">→ Your overtraining risk</div>
+    <div class="pc-text" id="pc-overtraining-text">Loading your profile...</div>
+  </div>
+</div></div>
+</div>
+
+<div id="site-disclaimer"></div>
+<script src="nav.js"></script>
+<script>
+function showPane(id, btn) {
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.sn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+(function(){
+  try {
+    var p = JSON.parse(localStorage.getItem('bl_profile')||'null');
+    if(!p) return;
+    var age = p.age||35;
+    var training = p.trainingDays||4;
+    var sleep = p.sleep||'7-8 hours';
+    var goal = (p.goal||'').toLowerCase();
+    var supps = p.supplements||[];
+    var hasCreatine = supps.some(function(s){return (s.name||'').toLowerCase().includes('creatine');});
+    var recovery = (p.recoveryTools||[]).map(function(r){return r.toLowerCase();});
+    var hasSauna = recovery.some(function(r){return r.includes('sauna');});
+    var hasCold = recovery.some(function(r){return r.includes('cold')||r.includes('ice');});
+    var wantsLoss = goal.includes('fat')||goal.includes('loss')||goal.includes('lean');
+    var wantsBulk = goal.includes('muscle')||goal.includes('mass')||goal.includes('bulk')||goal.includes('hypertrophy');
+    var hasNSleep = parseInt(sleep)<7;
+
+    function inject(id, html) {
+      var el = document.getElementById(id+'-text');
+      if(el){ el.innerHTML = html; el.closest('.profile-callout').classList.add('visible'); }
+    }
+
+    inject('pc-supercomp', p.name+' — your '+training+'-session programme is structured to hit the supercompensation window. '+(age>=40?'At '+age+', CNS recovery extends slightly longer than for younger athletes — ensure at least 48h between sessions targeting the same movement pattern. The supercompensation curve is not shorter, but the consequences of missing it (training into accumulated fatigue) are more significant.':'The supercompensation window at your age is approximately 48-72h after heavy compound sessions — your current training frequency aligns well with this.')+' '+(hasNSleep?'<strong>Sleep duration below 7h is the primary factor compressing your supercompensation amplitude — you are not building as high as you should be on rest days because GH and MPS are running below capacity.</strong>':'Sleep at '+sleep+' is supporting adequate GH secretion and MPS during recovery.'));
+
+    inject('pc-deload', p.name+' — with '+training+' sessions per week at your current training age, a deload every 4-6 weeks is the appropriate protocol. Volume deload: reduce sets by 40-50% while keeping weight and RPE the same. '+(wantsLoss?'During fat loss phases, deloads are more important, not less — caloric restriction stresses the HPA axis independently of training, and combined stress accumulates faster.':'')+'The most reliable signal for an unscheduled deload: performance plateau or regression for 2+ consecutive weeks despite adequate sleep and nutrition.');
+
+    inject('pc-doms', p.name+' — DOMS severity typically indicates how novel or high-volume the training stimulus was, not how effective it was. '+(training>=3?'At '+training+' sessions per week with a consistent programme, you should have minimal DOMS for your established exercises — this is a positive sign of adaptation, not insufficient effort. DOMS from new exercises or volume spikes is normal and resolves within 3-5 days.':'')+'<strong>Progressive overload (weight or reps added over weeks) is the signal for effective training — not soreness.</strong>');
+
+    inject('pc-active', p.name+' — on rest days, 20-30 minute walks are the highest-ROI recovery activity available. They enhance blood flow to repairing tissue, activate parasympathetic tone, and improve mood via endorphin release — all without competing with the recovery process. '+( recovery.length?'Your current recovery tools ('+recovery.slice(0,2).join(', ')+') are supporting parasympathetic recovery alongside active rest.':'A consistent post-training or rest-day walk is the recovery tool with the best evidence-to-effort ratio in your stack.'));
+
+    inject('pc-tools', p.name+' — your current recovery stack: '+(hasCreatine?'Creatine ✓ — accelerating PCr resynthesis between sessions. ':'')+''+(hasSauna?'Sauna ✓ — supporting GH secretion and cardiovascular recovery. ':'')+''+(hasCold?'Cold water: note it blunts hypertrophy adaptation when used after strength training. '+(wantsBulk?'<strong>For your muscle-building goal, move cold exposure to non-training days or after Zone 2 sessions rather than post-strength sessions.</strong>':'Fine for recovery-priority contexts — just not after your primary hypertrophy sessions. '):'')+'Primary gap: '+(!hasCreatine?'<strong>Creatine (5g/day) has the strongest evidence base of any recovery-supporting supplement — missing from your stack.</strong>':hasSauna&&hasCold?'Balance cold and heat exposure timing around training type.':'NSDR (10-20 min yoga nidra) on high-stress days is an underutilised CNS recovery tool worth adding.'));
+
+    inject('pc-overtraining', p.name+' — overtraining risk assessment: training '+training+' days/week, sleep '+sleep+(wantsLoss?' with caloric restriction.':'. ')+' '+(hasNSleep&&wantsLoss&&training>=5?'<strong>⚠ You have the overtraining triad — high training volume + caloric restriction + sleep below 7h. This combination suppresses testosterone, chronically elevates cortisol, and prevents supercompensation. Immediate priority: increase sleep or reduce training frequency by 1 session.</strong>':training>=5&&hasNSleep?'Training frequency is high and sleep is below optimal — monitor for fatigue accumulation. HRV tracking would provide early warning of overreaching.':wantsLoss&&hasNSleep?'Fat loss + reduced sleep — watch for performance plateau as a signal to deload. Ensure protein is high to protect muscle in the deficit.':'Your current training load appears within recovery capacity. Continue monitoring with the progressive overload signal — stalled performance for 2+ weeks indicates deload is needed.'));
+
+  } catch(e) { console.error(e); }
+})();
+</script>
+<script src="pwa.js"></script>
+<script src="coach.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(function(reg) {
+        window.__SW_REG = reg;
+        reg.addEventListener('updatefound', function() {
+          var w = reg.installing;
+          w.addEventListener('statechange', function() {
+            if (w.state === 'installed' && navigator.serviceWorker.controller) w.postMessage({ type: 'SKIP_WAITING' });
+          });
+        });
+      }).catch(function(e){ console.warn('[Soma] SW registration failed:', e); });
+  });
+}
+</script>
+</body>
+</html>
