@@ -28,7 +28,30 @@
     <a class="nav-right" href="/bodylens-ideas.html" style="color:var(--jade)">Ideas</a>
     <a class="nav-right" href="/bodylens-sync.html" style="color:var(--amber)">Data sync</a>
     <div class="nav-meta" id="nav-meta"></div>
-    <a class="nav-link nav-profiles" href="/bodylens-profiles.html" title="Profile Vault" style="margin-left:8px;opacity:0.6;font-size:11px;">⬡ Vault</a>
+    <div class="vault-wrap" id="vault-wrap">
+      <button class="nav-link nav-profiles vault-trigger" onclick="toggleVaultDropdown(event)" title="Vault" style="margin-left:8px;opacity:0.6;font-size:11px;background:none;border:none;cursor:pointer;font-family:var(--sans);">⬡ Vault ▾</button>
+      <div class="vault-drop" id="vault-drop">
+        <div class="vd-section">Strategy</div>
+        <a class="vd-link" href="/bodylens-strategy.html">The Business Case</a>
+        <a class="vd-link" href="/bodylens-story.html">The Story</a>
+        <a class="vd-link" href="/bodylens-nonneg.html">Non-Negotiables</a>
+        <div class="vd-section">Viability</div>
+        <a class="vd-link" href="/bodylens-viability3.html">Viability Analysis <span class="vd-badge">Rev 4</span></a>
+        <a class="vd-link" href="/bodylens-viability2.html" style="opacity:.6">Rev 2</a>
+        <a class="vd-link" href="/bodylens-viability.html" style="opacity:.6">Rev 1</a>
+        <div class="vd-section">Intelligence</div>
+        <a class="vd-link" href="/bodylens-intelligence-full.html">Full Intelligence Doc</a>
+        <a class="vd-link" href="/bodylens-instructions.html">Instructions</a>
+        <div class="vd-divider"></div>
+        <div class="vd-section">App</div>
+        <a class="vd-link" href="/bodylens-profiles.html">⬡ Profile Vault</a>
+        <a class="vd-link" href="/bodylens-coachplan.html">Coaching Plan</a>
+        <a class="vd-link" href="/bodylens-strength.html">Strength Baseline</a>
+        <a class="vd-link" href="/bodylens-mealbuilder.html">Meal Builder</a>
+        <a class="vd-link" href="/bodylens-export.html">Export Data</a>
+        <a class="vd-link" href="/bodylens-reset.html" style="color:rgba(220,80,60,.75)">Reset</a>
+      </div>
+    </div>
     <a class="nav-pro-badge" href="/bodylens-pro.html" id="nav-pro-badge" title="Soma Pro">PRO</a>
     <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu">&#9776;</button>
   </div>
@@ -71,7 +94,18 @@
   <a class="mm-link" href="/bodylens-guide.html">Guide</a>
   <a class="mm-link" href="/bodylens-howitworks.html">How it works</a>
   <a class="mm-link" href="/bodylens-bodyscan.html">Body scan</a>
-  <a class="mm-link" href="/bodylens-profiles.html">⬡ Vault</a>
+  <div class="mm-section-label mm-vault-label">⬡ Vault</div>
+  <a class="mm-link mm-vault" href="/bodylens-strategy.html">The Business Case</a>
+  <a class="mm-link mm-vault" href="/bodylens-story.html">The Story</a>
+  <a class="mm-link mm-vault" href="/bodylens-nonneg.html">Non-Negotiables</a>
+  <a class="mm-link mm-vault" href="/bodylens-viability3.html">Viability Analysis <span class="mm-badge">Rev 4</span></a>
+  <a class="mm-link mm-vault" href="/bodylens-intelligence-full.html">Full Intelligence Doc</a>
+  <a class="mm-link mm-vault" href="/bodylens-instructions.html">Instructions</a>
+  <a class="mm-link mm-vault" href="/bodylens-profiles.html">Profile Vault</a>
+  <a class="mm-link mm-vault" href="/bodylens-coachplan.html">Coaching Plan</a>
+  <a class="mm-link mm-vault" href="/bodylens-strength.html">Strength Baseline</a>
+  <a class="mm-link mm-vault" href="/bodylens-mealbuilder.html">Meal Builder</a>
+  <a class="mm-link mm-vault" href="/bodylens-export.html">Export Data</a>
   <div class="mm-section-label mm-pro-section">Upgrade</div>
   <a class="mm-link mm-pro-link" href="/bodylens-pro.html">
     <span class="mm-pro-badge">PRO</span>
@@ -816,6 +850,28 @@ window.closeMobileMenu = function() {
   if (menu) menu.classList.remove('open');
   if (overlay) overlay.classList.remove('open');
   document.body.style.overflow = '';
+};
+
+// ── VAULT DROPDOWN ──────────────────────────────────────
+window.toggleVaultDropdown = function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var drop = document.getElementById('vault-drop');
+  if (!drop) return false;
+  var isOpen = drop.classList.toggle('open');
+  if (isOpen) {
+    // Close on next outside click
+    setTimeout(function() {
+      document.addEventListener('click', function closeVault(ev) {
+        var wrap = document.getElementById('vault-wrap');
+        if (!wrap || !wrap.contains(ev.target)) {
+          drop.classList.remove('open');
+          document.removeEventListener('click', closeVault);
+        }
+      });
+    }, 0);
+  }
+  return false;
 };
 
 // Swipe down on the bottom sheet to dismiss it
