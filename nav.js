@@ -3,33 +3,57 @@
 // No page can have a different menu — it all comes from here.
 (function injectNav() {
   const NAV_HTML = `<nav class="site-nav">
-  <div class="nav-brand">Soma<span class="sync-dot" id="sync-dot" title="Sync status"></span></div>
-  <div class="nav-links">
-    <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
-    <a class="nav-link" href="/bodylens-programme.html">Programme</a>
-    <a class="nav-link" href="/bodylens-week.html">Week</a>
-    <a class="nav-link" href="/bodylens-history.html">Log</a>
-    <span class="nav-divider"></span>
-    <a class="nav-link" href="/bodylens-food.html">Food</a>
-    <a class="nav-link" href="/bodylens-meals.html">Meals</a>
-    <a class="nav-link" href="/bodylens-supplements.html">Stack</a>
-    <a class="nav-link" href="/bodylens-goals.html">Goals</a>
-    <a class="nav-link" href="/bodylens-decisions.html">Decisions</a>
-    <span class="nav-divider"></span>
-    <a class="nav-link nav-inform" href="/bodylens-science.html">Science</a>
-    <a class="nav-link nav-inform" href="/bodylens-accelerators.html">Accelerators</a>
-    <a class="nav-link nav-inform" href="/bodylens-bodymapper.html">Body Mapper</a>
-    <a class="nav-link nav-inform" href="/bodylens-podcast.html">Podcast</a>
+  <div class="nav-left">
+    <a class="nav-brand" href="/bodylens-dailyplan.html">Soma<span class="sync-dot" id="sync-dot" title="Sync status"></span></a>
   </div>
-  <div class="nav-right-group">
-    <a class="nav-right" href="/bodylens-guide.html">Guide</a>
-    <a class="nav-right" href="/bodylens-howitworks.html">How it works</a>
-    <a class="nav-right" href="/bodylens-bodyscan.html">Body scan</a>
-    <a class="nav-right" href="/bodylens-ideas.html" style="color:var(--jade)">Ideas</a>
-    <a class="nav-right" href="/bodylens-sync.html" style="color:var(--amber)">Data sync</a>
+  <div class="nav-core">
+    <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
+    <a class="nav-link" href="/bodylens-week.html">Week</a>
+    <span class="nav-core-sep"></span>
+    <a class="nav-link" href="/bodylens-meals.html">Meals</a>
+    <span class="nav-core-sep"></span>
+    <a class="nav-link" href="/bodylens-goals.html">Goals</a>
+    <a class="nav-link" href="/bodylens-supplements.html">Stack</a>
+    <div class="nav-more-wrap">
+      <button class="nav-more-btn" id="nav-more-btn" onclick="toggleNavMore(event)" aria-label="More pages">More</button>
+      <div class="nav-more-panel" id="nav-more-panel">
+        <div class="nmp-grid">
+          <div class="nmp-col">
+            <div class="nmp-label">Train</div>
+            <a class="nmp-link" href="/bodylens-programme.html">Programme</a>
+            <a class="nmp-link" href="/bodylens-history.html">Performance log</a>
+            <a class="nmp-link" href="/bodylens-checkin.html">Week review</a>
+            <a class="nmp-link" href="/bodylens-bodyscan.html">Body scan</a>
+          </div>
+          <div class="nmp-col">
+            <div class="nmp-label">Nutrition</div>
+            <a class="nmp-link" href="/bodylens-food.html">Food hub</a>
+            <a class="nmp-link" href="/bodylens-fridge.html">Fridge</a>
+            <a class="nmp-link" href="/bodylens-mealbuilder.html">Meal builder</a>
+            <a class="nmp-link" href="/bodylens-decisions.html">Decisions</a>
+          </div>
+          <div class="nmp-col">
+            <div class="nmp-label">Learn</div>
+            <a class="nmp-link" href="/bodylens-science.html">Science</a>
+            <a class="nmp-link" href="/bodylens-accelerators.html">Accelerators</a>
+            <a class="nmp-link" href="/bodylens-podcast.html">Podcast</a>
+            <a class="nmp-link" href="/bodylens-bodymapper.html">Body Mapper</a>
+          </div>
+          <div class="nmp-col">
+            <div class="nmp-label">Admin</div>
+            <a class="nmp-link" href="/bodylens-sync.html" style="color:var(--amber)">Data sync</a>
+            <a class="nmp-link" href="/bodylens-guide.html">Guide</a>
+            <a class="nmp-link" href="/bodylens-howitworks.html">How it works</a>
+            <a class="nmp-link" href="/bodylens-ideas.html" style="color:var(--jade)">Ideas</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-end">
     <div class="nav-meta" id="nav-meta"></div>
     <div class="vault-wrap" id="vault-wrap">
-      <button class="nav-link nav-profiles vault-trigger" onclick="toggleVaultDropdown(event)" title="Vault" style="margin-left:8px;opacity:0.6;font-size:11px;background:none;border:none;cursor:pointer;font-family:var(--sans);">⬡ Vault ▾</button>
+      <button class="vault-trigger" id="vault-trigger" onclick="toggleVaultDropdown(event)" title="Vault">&#x2B21; Vault</button>
       <div class="vault-drop" id="vault-drop">
         <div class="vd-section">Strategy</div>
         <a class="vd-link" href="/bodylens-strategy.html">The Business Case</a>
@@ -44,7 +68,7 @@
         <a class="vd-link" href="/bodylens-instructions.html">Instructions</a>
         <div class="vd-divider"></div>
         <div class="vd-section">App</div>
-        <a class="vd-link" href="/bodylens-profiles.html">⬡ Profile Vault</a>
+        <a class="vd-link" href="/bodylens-profiles.html">&#x2B21; Profile Vault</a>
         <a class="vd-link" href="/bodylens-coachplan.html">Coaching Plan</a>
         <a class="vd-link" href="/bodylens-strength.html">Strength Baseline</a>
         <a class="vd-link" href="/bodylens-mealbuilder.html">Meal Builder</a>
@@ -52,7 +76,6 @@
         <a class="vd-link" href="/bodylens-reset.html" style="color:rgba(220,80,60,.75)">Reset</a>
       </div>
     </div>
-    <a class="nav-pro-badge" href="/bodylens-pro.html" id="nav-pro-badge" title="Soma Pro">PRO</a>
     <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu">&#9776;</button>
   </div>
 </nav>
@@ -94,7 +117,7 @@
   <a class="mm-link" href="/bodylens-guide.html">Guide</a>
   <a class="mm-link" href="/bodylens-howitworks.html">How it works</a>
   <a class="mm-link" href="/bodylens-bodyscan.html">Body scan</a>
-  <div class="mm-section-label mm-vault-label">⬡ Vault</div>
+  <div class="mm-section-label mm-vault-label">&#x2B21; Vault</div>
   <a class="mm-link mm-vault" href="/bodylens-strategy.html">The Business Case</a>
   <a class="mm-link mm-vault" href="/bodylens-story.html">The Story</a>
   <a class="mm-link mm-vault" href="/bodylens-nonneg.html">Non-Negotiables</a>
@@ -119,20 +142,20 @@
     <div class="mtb-label">Today</div>
   </a>
   <a class="mtb-tab" href="/bodylens-meals.html">
-    <div class="mtb-icon">&#127829;</div>
+    <div class="mtb-icon">&#127860;</div>
     <div class="mtb-label">Meals</div>
   </a>
-  <a class="mtb-tab" href="/bodylens-accelerators.html">
-    <div class="mtb-icon">&#9889;</div>
-    <div class="mtb-label">Boost</div>
+  <a class="mtb-tab" href="/bodylens-goals.html">
+    <div class="mtb-icon">&#9678;</div>
+    <div class="mtb-label">Goals</div>
   </a>
-  <a class="mtb-tab" href="/bodylens-programme.html">
-    <div class="mtb-icon">&#128100;</div>
-    <div class="mtb-label">Programme</div>
+  <a class="mtb-tab" href="/bodylens-supplements.html">
+    <div class="mtb-icon">&#128138;</div>
+    <div class="mtb-label">Stack</div>
   </a>
   <button class="mtb-tab mtb-more" onclick="toggleMobileMenu()">
-    <div class="mtb-icon">&#8942;</div>
-    <div class="mtb-label">More</div>
+    <div class="mtb-icon">&#8801;</div>
+    <div class="mtb-label">Menu</div>
   </button>
 </div>`;
 
@@ -153,7 +176,7 @@
 
     // Mark current page active in both nav and bottom tab bar
     const path = window.location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('.nav-link, .nav-right, .mm-link, .mtb-tab').forEach(a => {
+    document.querySelectorAll('.nav-link, .mm-link, .mtb-tab, .nmp-link').forEach(a => {
       const href = (a.getAttribute('href')||'').split('/').pop();
       if (href === path) a.classList.add('active');
     });
@@ -169,7 +192,7 @@
       const p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
       if (p && p.name) {
         const meta = document.getElementById('nav-meta');
-        if (meta) meta.innerHTML = '<a href="/bodylens-coachplan.html" class="nav-tag nt-jade" style="text-decoration:none;cursor:pointer;" title="Your coaching plan">' + p.name + '</a>';
+        if (meta) meta.innerHTML = '<a href="/bodylens-coachplan.html" class="nav-user-pill" title="Your coaching plan">' + p.name + '</a>';
       }
     } catch(e) {}
 
@@ -707,28 +730,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(sync);
   }
 
-  // Inject sync-dot styles
+  // Inject sync-dot pulse animation (styles live in style.css)
   if (!document.getElementById('sync-dot-styles')) {
     const sd = document.createElement('style');
     sd.id = 'sync-dot-styles';
     sd.textContent = `
-      .sync-dot {
-        display: inline-block;
-        width: 7px; height: 7px;
-        border-radius: 50%;
-        margin-left: 5px;
-        vertical-align: middle;
-        background: var(--dk-3, #4a6058);
-        transition: background 0.3s;
-      }
-      .sync-dot[data-status="idle"]    { background: var(--jade, #00c4a0); }
-      .sync-dot[data-status="syncing"] { background: var(--amber, #f0a500); animation: sync-pulse 1s infinite; }
-      .sync-dot[data-status="offline"] { background: var(--dk-3, #4a6058); }
-      .sync-dot[data-status="error"]   { background: #e74c3c; }
       @keyframes sync-pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.4; }
       }
+      .sync-dot[data-status="syncing"] { animation: sync-pulse 1s infinite; }
     `;
     document.head.appendChild(sd);
   }
@@ -858,6 +869,11 @@ window.toggleVaultDropdown = function(e) {
   e.stopPropagation();
   var drop = document.getElementById('vault-drop');
   if (!drop) return false;
+  // Close More panel if open
+  var morePanel = document.getElementById('nav-more-panel');
+  var moreBtn   = document.getElementById('nav-more-btn');
+  if (morePanel) morePanel.classList.remove('open');
+  if (moreBtn)   moreBtn.classList.remove('open');
   var isOpen = drop.classList.toggle('open');
   if (isOpen) {
     // Close on next outside click
@@ -870,6 +886,41 @@ window.toggleVaultDropdown = function(e) {
         }
       });
     }, 0);
+  }
+  return false;
+};
+
+// ── MORE DROPDOWN ───────────────────────────────────────
+window.toggleNavMore = function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var panel = document.getElementById('nav-more-panel');
+  var btn   = document.getElementById('nav-more-btn');
+  if (!panel) return false;
+  // Close Vault if open
+  var vaultDrop = document.getElementById('vault-drop');
+  if (vaultDrop) vaultDrop.classList.remove('open');
+  var isOpen = panel.classList.toggle('open');
+  if (btn) btn.classList.toggle('open', isOpen);
+  if (isOpen) {
+    // Close on next outside click
+    setTimeout(function() {
+      document.addEventListener('click', function closeMore(ev) {
+        var wrap = document.querySelector('.nav-more-wrap');
+        if (!wrap || !wrap.contains(ev.target)) {
+          panel.classList.remove('open');
+          if (btn) btn.classList.remove('open');
+          document.removeEventListener('click', closeMore);
+        }
+      });
+    }, 0);
+    // Clicking any nmp-link closes the panel
+    panel.querySelectorAll('.nmp-link').forEach(function(link) {
+      link.addEventListener('click', function() {
+        panel.classList.remove('open');
+        if (btn) btn.classList.remove('open');
+      }, { once: true });
+    });
   }
   return false;
 };
