@@ -21,6 +21,7 @@ function buildPlan(profile, today) {
   const coffeeTime  = fmt(wMins + 90);
   const isFemale    = (p.sex||'').toLowerCase() === 'female';
   const injuries    = p.injuryAssessments || p.injuries || [];
+  const hasIBS      = /\b(ibs|irritable bowel|fodmap|crohn|colitis|gut sensitivity)\b/i.test((p.healthConditions||'')+' '+(p.injuries||[]).join(' '));
   const supps       = p.supplements || [];
   const kcal        = (typeof getDayKcal==='function') ? getDayKcal(p, isTraining) : (plan.kcal || p.calories || 2000);
   const prot        = p.protein || 140;
@@ -102,10 +103,12 @@ function buildPlan(profile, today) {
       durationMins: 20,
       title: 'Pre-training meal',
       subtitle: '90-120 min before session',
-      coachNote: 'This meal is timed to be digested before you train — not sitting in your stomach. High carbs because you need glycogen available, not stored. Low fat because fat slows gastric emptying and blunts the glucose delivery your muscles need.',
+      coachNote: 'This meal is timed to be digested before you train — not sitting in your stomach. High carbs because you need glycogen available, not stored. Low fat because fat slows gastric emptying and blunts the glucose delivery your muscles need.'
+        + (hasIBS ? ' IBS note: gut motility increases during exercise — keep this meal small (400-500 kcal max), low-FODMAP, and low-fibre. Avoid onion, garlic, beans, wheat, and lactose before training.' : ''),
       mealSlot: 'pre-training',
       detail: 'High protein, moderate fast carbs, low fat.\nExclude: ' + ((p.foodExclusions||[]).join(', ')||'none') + '.\n' +
-        ((p.cuisinePrefs||[]).length ? (p.cuisinePrefs[0] + ' style.') : '') + '\nKeep fat under 15g — slows gastric emptying and glucose delivery.',
+        ((p.cuisinePrefs||[]).length ? (p.cuisinePrefs[0] + ' style.') : '') + '\nKeep fat under 15g — slows gastric emptying and glucose delivery.'
+        + (hasIBS ? '\nIBS: keep this meal small and low-FODMAP (rice, eggs, chicken, potato — avoid onion/garlic/beans/wheat/lactose). Exercise increases gut motility — a heavy meal will cause problems.' : ''),
       science: 'Glycogen priming + amino acid availability. Fat blunts the performance fuel supply.',
       items: [
         { name:'Protein', meta: Math.round(prot * 0.25) + 'g' },
@@ -116,7 +119,8 @@ function buildPlan(profile, today) {
 
     // TRAINING
     const trainCoachNote = 'Every working set should be 1-3 reps from failure — that\'s where the adaptation lives. The warm-up sets aren\'t optional, they\'re how you avoid injury and prime the pattern. Track every load. Progressive overload is the only mechanism that drives change.'
-      + (injuries.length ? ' ' + injuries.map(i => i.location||i).join(', ') + ' modifications are active — don\'t ignore them, the injury is the constraint you\'re working inside.' : '');
+      + (injuries.length ? ' ' + injuries.map(i => i.location||i).join(', ') + ' modifications are active — don\'t ignore them, the injury is the constraint you\'re working inside.' : '')
+      + (hasIBS ? ' IBS: strength training is well tolerated. If you plan to add cardio, keep it Zone 2 steady-state — high-intensity cardio increases gut motility and can trigger symptoms. Skip HIIT on symptomatic days.' : '');
     const injNote = injuries.length
       ? ' Modifications active: ' + injuries.map(i => i.location||i).join(', ') + '.'
       : '';

@@ -169,6 +169,26 @@ var BL_RISK = (function() {
       redirect: null,
     },
     {
+      category:   'ibs',
+      label:      'IBS / gut sensitivity',
+      severity:   'medium',
+      keywords:   [
+        'ibs', 'irritable bowel', 'irritable bowel syndrome', 'gut sensitivity',
+        'fodmap', 'low fodmap', 'crohn', 'colitis', 'ulcerative colitis',
+        'gut issues', 'gut problems', 'digestive issues', 'bloating chronic',
+        'gut motility', 'gut inflammation',
+      ],
+      not_to_do: [
+        'recommend training within 90 minutes of eating without noting gut risk',
+        'suggest high-intensity cardio (HIIT, sprints) as a default without noting it can worsen IBS symptoms',
+        'recommend high-FODMAP foods (onion, garlic, wheat, beans, legumes, lactose, apple, mango, pear) without alternatives',
+        'suggest large pre-training meals',
+        'recommend intermittent fasting without noting that prolonged fasting can trigger IBS symptoms in some individuals',
+      ],
+      guidance: 'IBS significantly interacts with both training and nutrition. For training: recommend a 2-hour minimum gap between eating and training — gut motility increases during exercise and a full stomach worsens symptoms. High-intensity cardio (HIIT, sprints) can directly worsen IBS symptoms, especially in symptomatic periods — steady-state Zone 2 is safer. Strength training is generally well tolerated. For nutrition: recommend a low-FODMAP approach — avoid onion, garlic (use garlic-infused oil instead), wheat (use oats, rice, potato), beans and legumes in large portions, high-lactose dairy (use lactose-free or hard cheeses), apple, pear, mango, watermelon. Prefer: rice, oats, potato, courgette, spinach, carrots, blueberries, strawberries, firm tofu, eggs, chicken, fish, lactose-free dairy. Coffee can trigger symptoms in sensitive individuals — note this. Keep pre-training meals small, low-fat, and low-fibre.',
+      redirect:  'For persistent or severe gut symptoms, recommend a gastroenterologist or registered dietitian specialising in IBS.',
+    },
+    {
       category:   'osteoporosis',
       label:      'Osteoporosis / osteopenia',
       severity:   'medium',

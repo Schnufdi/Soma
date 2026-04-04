@@ -497,6 +497,14 @@ async function generate(){
   var prots=S.prefs.proteins.length?S.prefs.proteins.join(', '):'chicken breast, eggs, salmon';
   var cuis=S.prefs.cuisines.length?S.prefs.cuisines.join(', '):'flexible';
   var avds=S.prefs.avoids.length?S.prefs.avoids.join(', '):'none';
+
+  // IBS detection: check dietary chip OR profile.healthConditions
+  var _ibsChipActive = getDietary().indexOf('ibs') >= 0;
+  var _ibsInProfile  = /\b(ibs|irritable bowel|fodmap|crohn|colitis|gut sensitivity)\b/i.test(p.healthConditions || '');
+  var ibsConstraint  = (_ibsChipActive || _ibsInProfile)
+    ? 'IBS / GUT SENSITIVITY: Use strictly low-FODMAP ingredients. Avoid: onion, garlic (use garlic-infused oil), wheat (use rice/oats/potato), beans and legumes, high-lactose dairy (use lactose-free or hard cheeses), apple, pear, mango, watermelon. Prefer: rice, oats, potato, courgette, spinach, carrots, blueberries, strawberries, chicken, fish, eggs, firm tofu, lactose-free dairy. Keep meals moderate-fibre — not very high or very low. Small pre-training meals only.\n'
+    : '';
+
   var sched=DNS.map(function(day,i){
     var dp=(p.weekPlan||[])[i]||{type:'Rest',priority:'rest'};
     return day+': '+(dp.priority==='training'?dp.type+' training ('+tK+' kcal, '+prot+'g P, '+carbs+'g C, '+fat+'g F)':'rest day ('+rK+' kcal, '+prot+'g P, '+Math.round(carbs*.8)+'g C, '+fat+'g F)');
@@ -530,6 +538,7 @@ async function generate(){
     +'User: '+p.name+', '+p.age+'yo male, '+p.weight+'kg, goal: '+(p.goal||'body recomposition')+'\n'
     +'Targets: training '+tK+'kcal/'+prot+'g P/'+carbs+'g C/'+fat+'g F | rest '+rK+'kcal/'+prot+'g P/'+Math.round(carbs*.8)+'g C/'+fat+'g F\n'
     +'Proteins: '+prots+' | Cuisine: '+cuis+' | Avoid: '+avds+'\n'
+    +(ibsConstraint ? ibsConstraint : '')
     +'Slots: '+slotDesc+'\n'
     +'Schedule:\n'+sched+'\n\n'
     +(window._fridgeRestockItems && window._fridgeRestockItems.length
