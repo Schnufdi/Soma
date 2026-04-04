@@ -14,47 +14,9 @@
     <span class="nav-core-sep"></span>
     <a class="nav-link" href="/bodylens-goals.html">Goals</a>
     <a class="nav-link" href="/bodylens-supplements.html">Stack</a>
-    <div class="nav-more-wrap">
-      <button class="nav-more-btn" id="nav-more-btn" onclick="toggleNavMore(event)" aria-label="More pages">More</button>
-      <div class="nav-more-panel" id="nav-more-panel">
-        <div class="nmp-grid">
-          <div class="nmp-col">
-            <div class="nmp-label">Train</div>
-            <a class="nmp-link" href="/bodylens-programme.html">Programme</a>
-            <a class="nmp-link" href="/bodylens-history.html">Performance log</a>
-            <a class="nmp-link" href="/bodylens-checkin.html">Week review</a>
-            <a class="nmp-link" href="/bodylens-bodyscan.html">Body scan</a>
-          </div>
-          <div class="nmp-col">
-            <div class="nmp-label">Nutrition</div>
-            <a class="nmp-link" href="/bodylens-food.html">Food hub</a>
-            <a class="nmp-link" href="/bodylens-fridge.html">Fridge</a>
-            <a class="nmp-link" href="/bodylens-mealbuilder.html">Meal builder</a>
-            <a class="nmp-link" href="/bodylens-decisions.html">Decisions</a>
-          </div>
-          <div class="nmp-col">
-            <div class="nmp-label">Learn</div>
-            <a class="nmp-link" href="/bodylens-science.html">Science hub</a>
-            <a class="nmp-link" href="/bodylens-accelerators.html">Accelerators</a>
-            <a class="nmp-link" href="/bodylens-podcast.html">Podcast</a>
-            <a class="nmp-link" href="/bodylens-bodymapper.html">Body Mapper</a>
-            <div class="nmp-label" style="margin-top:10px;">Deep dives</div>
-            <a class="nmp-link" href="/bodylens-sleep.html">Sleep architecture</a>
-            <a class="nmp-link" href="/bodylens-metabolic.html">Metabolic health</a>
-            <a class="nmp-link" href="/bodylens-testosterone.html">Testosterone</a>
-            <a class="nmp-link" href="/bodylens-hormones-female.html">Female hormones</a>
-            <a class="nmp-link" href="/bodylens-recovery.html">Recovery science</a>
-          </div>
-          <div class="nmp-col">
-            <div class="nmp-label">Admin</div>
-            <a class="nmp-link" href="/bodylens-sync.html" style="color:var(--amber)">Data sync</a>
-            <a class="nmp-link" href="/bodylens-guide.html">Guide</a>
-            <a class="nmp-link" href="/bodylens-howitworks.html">How it works</a>
-            <a class="nmp-link" href="/bodylens-ideas.html" style="color:var(--jade)">Ideas</a>
-          </div>
-        </div>
-      </div>
-    </div>
+    <span class="nav-core-sep"></span>
+    <a class="nav-link" href="/bodylens-programme.html">Programme</a>
+    <a class="nav-link" href="/bodylens-science.html">Science</a>
   </div>
   <div class="nav-end">
     <div class="nav-meta" id="nav-meta"></div>
