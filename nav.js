@@ -17,6 +17,7 @@
     <span class="nav-core-sep"></span>
     <a class="nav-link" href="/bodylens-programme.html">Programme</a>
     <a class="nav-link" href="/bodylens-science.html">Science</a>
+    <button class="nav-more-btn" id="nav-more-btn" onclick="toggleNavMore(event)" aria-label="More pages">More ▾</button>
   </div>
   <div class="nav-end">
     <div class="nav-meta" id="nav-meta"></div>
@@ -845,18 +846,21 @@ window.toggleVaultDropdown = function(e) {
   var drop = document.getElementById('vault-drop');
   if (!drop) return false;
   // Close More panel if open
-  var morePanel = document.getElementById('nav-more-panel');
-  var moreBtn   = document.getElementById('nav-more-btn');
-  if (morePanel) morePanel.classList.remove('open');
-  if (moreBtn)   moreBtn.classList.remove('open');
+  _closeNmpPanel();
   var isOpen = drop.classList.toggle('open');
   if (isOpen) {
-    // Close on next outside click
+    // Position the vault drop with fixed coords too
+    var trigger = document.getElementById('vault-trigger');
+    if (trigger) {
+      var r = trigger.getBoundingClientRect();
+      drop.style.cssText = 'position:fixed;top:' + (r.bottom + 6) + 'px;right:' + (window.innerWidth - r.right) + 'px;z-index:9999;';
+    }
     setTimeout(function() {
       document.addEventListener('click', function closeVault(ev) {
         var wrap = document.getElementById('vault-wrap');
-        if (!wrap || !wrap.contains(ev.target)) {
-          drop.classList.remove('open');
+        var d = document.getElementById('vault-drop');
+        if (d && !d.contains(ev.target) && ev.target !== document.getElementById('vault-trigger')) {
+          if (d) d.classList.remove('open');
           document.removeEventListener('click', closeVault);
         }
       });
@@ -866,37 +870,99 @@ window.toggleVaultDropdown = function(e) {
 };
 
 // ── MORE DROPDOWN ───────────────────────────────────────
+// Panel is appended to <body> with position:fixed so it escapes
+// the nav's backdrop-filter stacking context entirely.
+var _nmpPanel = null;
+
+function _buildNmpPanel() {
+  var el = document.createElement('div');
+  el.id = 'nav-more-panel';
+  el.className = 'nav-more-panel';
+  el.innerHTML = '<div class="nmp-grid">'
+    + '<div class="nmp-col">'
+    +   '<div class="nmp-label">Train</div>'
+    +   '<a class="nmp-link" href="/bodylens-programme.html">Programme</a>'
+    +   '<a class="nmp-link" href="/bodylens-history.html">Performance log</a>'
+    +   '<a class="nmp-link" href="/bodylens-checkin.html">Week review</a>'
+    +   '<a class="nmp-link" href="/bodylens-bodyscan.html">Body scan</a>'
+    + '</div>'
+    + '<div class="nmp-col">'
+    +   '<div class="nmp-label">Nutrition</div>'
+    +   '<a class="nmp-link" href="/bodylens-food.html">Food hub</a>'
+    +   '<a class="nmp-link" href="/bodylens-fridge.html">Fridge</a>'
+    +   '<a class="nmp-link" href="/bodylens-mealbuilder.html">Meal builder</a>'
+    +   '<a class="nmp-link" href="/bodylens-decisions.html">Decisions</a>'
+    + '</div>'
+    + '<div class="nmp-col">'
+    +   '<div class="nmp-label">Learn</div>'
+    +   '<a class="nmp-link" href="/bodylens-accelerators.html">Accelerators</a>'
+    +   '<a class="nmp-link" href="/bodylens-podcast.html">Podcast</a>'
+    +   '<a class="nmp-link" href="/bodylens-bodymapper.html">Body Mapper</a>'
+    +   '<div class="nmp-label" style="margin-top:8px;">Deep dives</div>'
+    +   '<a class="nmp-link" href="/bodylens-sleep.html">Sleep</a>'
+    +   '<a class="nmp-link" href="/bodylens-metabolic.html">Metabolic health</a>'
+    +   '<a class="nmp-link" href="/bodylens-testosterone.html">Testosterone</a>'
+    +   '<a class="nmp-link" href="/bodylens-hormones-female.html">Female hormones</a>'
+    +   '<a class="nmp-link" href="/bodylens-recovery.html">Recovery</a>'
+    + '</div>'
+    + '<div class="nmp-col">'
+    +   '<div class="nmp-label">Tools</div>'
+    +   '<a class="nmp-link" href="/bodylens-goals.html">Goals</a>'
+    +   '<a class="nmp-link" href="/bodylens-supplements.html">Stack</a>'
+    +   '<a class="nmp-link" href="/bodylens-nonneg.html">Non-negotiables</a>'
+    +   '<a class="nmp-link" href="/bodylens-coachplan.html">Coaching plan</a>'
+    +   '<div class="nmp-label" style="margin-top:8px;">Admin</div>'
+    +   '<a class="nmp-link" href="/bodylens-sync.html" style="color:var(--amber)">Data sync</a>'
+    +   '<a class="nmp-link" href="/bodylens-guide.html">Guide</a>'
+    +   '<a class="nmp-link" href="/bodylens-howitworks.html">How it works</a>'
+    +   '<a class="nmp-link" href="/bodylens-ideas.html" style="color:var(--jade)">Ideas</a>'
+    + '</div>'
+    + '</div>';
+  document.body.appendChild(el);
+  _nmpPanel = el;
+  return el;
+}
+
+function _closeNmpPanel() {
+  var existing = document.getElementById('nav-more-panel');
+  if (existing) existing.remove();
+  _nmpPanel = null;
+  var btn = document.getElementById('nav-more-btn');
+  if (btn) btn.classList.remove('open');
+}
+
 window.toggleNavMore = function(e) {
   e.preventDefault();
   e.stopPropagation();
-  var panel = document.getElementById('nav-more-panel');
-  var btn   = document.getElementById('nav-more-btn');
-  if (!panel) return false;
   // Close Vault if open
   var vaultDrop = document.getElementById('vault-drop');
   if (vaultDrop) vaultDrop.classList.remove('open');
-  var isOpen = panel.classList.toggle('open');
-  if (btn) btn.classList.toggle('open', isOpen);
-  if (isOpen) {
-    // Close on next outside click
-    setTimeout(function() {
-      document.addEventListener('click', function closeMore(ev) {
-        var wrap = document.querySelector('.nav-more-wrap');
-        if (!wrap || !wrap.contains(ev.target)) {
-          panel.classList.remove('open');
-          if (btn) btn.classList.remove('open');
-          document.removeEventListener('click', closeMore);
-        }
-      });
-    }, 0);
-    // Clicking any nmp-link closes the panel
-    panel.querySelectorAll('.nmp-link').forEach(function(link) {
-      link.addEventListener('click', function() {
-        panel.classList.remove('open');
-        if (btn) btn.classList.remove('open');
-      }, { once: true });
-    });
+  // If panel already open — close it
+  if (document.getElementById('nav-more-panel')) {
+    _closeNmpPanel();
+    return false;
   }
+  // Build and position panel
+  var btn = document.getElementById('nav-more-btn');
+  var panel = _buildNmpPanel();
+  var rect = btn ? btn.getBoundingClientRect() : { left: 200, bottom: 58, width: 60 };
+  var panelW = 520;
+  var left = rect.left + rect.width / 2 - panelW / 2;
+  // Keep inside viewport
+  left = Math.max(12, Math.min(left, window.innerWidth - panelW - 12));
+  panel.style.cssText = 'position:fixed;top:' + (rect.bottom + 8) + 'px;left:' + left + 'px;width:' + panelW + 'px;z-index:9999;display:block;';
+  if (btn) btn.classList.add('open');
+  // Close on outside click
+  setTimeout(function() {
+    document.addEventListener('click', function closeMore(ev) {
+      var p = document.getElementById('nav-more-panel');
+      var b = document.getElementById('nav-more-btn');
+      if (p && !p.contains(ev.target) && ev.target !== b) {
+        _closeNmpPanel();
+        document.removeEventListener('click', closeMore);
+      }
+    });
+  }, 0);
   return false;
 };
 
