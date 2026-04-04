@@ -83,6 +83,16 @@ body{background:var(--ink);color:var(--dk-1);}
 .prep-tip strong{color:var(--jade);}
 .prep-regen{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--bd);border-radius:7px;padding:7px 14px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--dk-3);cursor:pointer;font-family:var(--sans);transition:all .12s;margin-top:4px;}
 .prep-regen:hover{color:var(--dk-1);border-color:rgba(255,255,255,.15);}
+.prep-dietary{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:22px;max-width:460px;margin-left:auto;margin-right:auto;}
+.prep-chip{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.03em;border:1px solid var(--bd);background:var(--ink-1);color:var(--dk-3);cursor:pointer;transition:all .12s;font-family:var(--sans);}
+.prep-chip.active{background:rgba(0,200,160,.1);border-color:rgba(0,200,160,.3);color:var(--jade);}
+.prep-chip:hover{border-color:rgba(255,255,255,.12);color:var(--dk-2);}
+.prep-assembly-list{display:flex;flex-direction:column;gap:7px;}
+.prep-assembly-item{background:var(--ink-1);border:1px solid var(--bd);border-radius:9px;padding:11px 15px;display:flex;align-items:flex-start;gap:12px;}
+.prep-assembly-day{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--jade);flex-shrink:0;min-width:30px;padding-top:2px;}
+.prep-assembly-label{font-size:10px;font-weight:600;color:var(--dk-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.prep-assembly-combo{font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.5;}
+.prep-assembly-mins{font-size:10px;color:var(--dk-3);flex-shrink:0;padding-left:10px;padding-top:2px;}
 
 /* Day table */
 .th{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
@@ -891,7 +901,44 @@ async function cmGen(){
 
 /* ---- PREP DAY TAB ---- */
 var PREP_CACHE_KEY = 'bl_meals_prep_v1';
+var PREP_DIETARY_KEY = 'bl_prep_dietary_v1';
 var _prepBusy = false;
+
+var PREP_DIETARY_OPTS = [
+  {id:'no-fish',   label:'No fish'},
+  {id:'no-meat',   label:'No meat'},
+  {id:'vegan',     label:'Vegan'},
+  {id:'no-gluten', label:'Gluten-free'},
+  {id:'no-dairy',  label:'Dairy-free'},
+  {id:'no-nuts',   label:'No nuts'},
+  {id:'ibs',       label:'IBS-friendly'},
+  {id:'no-eggs',   label:'No eggs'},
+];
+
+function getDietary() {
+  try { return JSON.parse(localStorage.getItem(PREP_DIETARY_KEY) || '[]'); } catch(e) { return []; }
+}
+
+window.toggleDietary = function(cat) {
+  var prefs = getDietary();
+  var idx = prefs.indexOf(cat);
+  if (idx >= 0) prefs.splice(idx, 1); else prefs.push(cat);
+  try { localStorage.setItem(PREP_DIETARY_KEY, JSON.stringify(prefs)); } catch(e) {}
+  document.querySelectorAll('.prep-chip').forEach(function(chip) {
+    chip.classList.toggle('active', prefs.indexOf(chip.dataset.cat) >= 0);
+  });
+};
+
+function _prepDietaryChipsHTML() {
+  var prefs = getDietary();
+  return '<div class="prep-dietary">'
+    + PREP_DIETARY_OPTS.map(function(opt) {
+        return '<button class="prep-chip' + (prefs.indexOf(opt.id) >= 0 ? ' active' : '')
+          + '" data-cat="' + opt.id + '" onclick="toggleDietary(\'' + opt.id + '\')">'
+          + opt.label + '</button>';
+      }).join('')
+    + '</div>';
+}
 
 function renderPrepTab() {
   var root = document.getElementById('pane-prep');
@@ -908,11 +955,12 @@ function renderPrepTab() {
     return;
   }
 
-  // No plan yet — show generate prompt
+  // No plan yet — show generate prompt with dietary filters
   var hasMealPlan = S.plan && S.plan.days && Object.keys(S.plan.days).length > 0;
   root.innerHTML = '<div class="prep-hero">'
     + '<div class="prep-hero-title">Sunday prep plan</div>'
-    + '<div class="prep-hero-sub">Generate a batch-cooking guide for the week. Cook once on Sunday, eat well all week — no daily cooking required.</div>'
+    + '<div class="prep-hero-sub">Generate a batch-cooking guide for the week. Cook once, eat well all week.</div>'
+    + _prepDietaryChipsHTML()
     + (hasMealPlan
         ? '<button class="prep-gen-btn" id="prep-gen-btn" onclick="prepGen()">Generate prep plan</button>'
         : '<div class="prep-no-plan">Generate your <a href="#" onclick="showTab(\'week\');return false;">week meal plan</a> first, then come back to build the prep guide.</div>')
@@ -941,19 +989,29 @@ async function prepGen() {
     }).filter(Boolean).join(' | ');
   }).filter(Boolean).join('\n');
 
+  var dietary = getDietary();
+  var dietaryNote = dietary.length
+    ? 'Dietary restrictions — STRICTLY avoid these: ' + dietary.map(function(d){
+        var map = {'no-fish':'fish and seafood','no-meat':'all meat','vegan':'all animal products (meat, fish, dairy, eggs)','no-gluten':'gluten (wheat, barley, rye)','no-dairy':'dairy products','no-nuts':'nuts and nut products','ibs':'high-FODMAP foods (onion, garlic, wheat, beans, lactose — use low-FODMAP alternatives)','no-eggs':'eggs'};
+        return map[d] || d;
+      }).join('; ') + '.\n'
+    : '';
+
   var prompt = 'You are a meal prep expert. The user wants a practical Sunday batch prep plan for the whole week.\n\n'
     + 'User: ' + p.name + ', ' + p.age + 'yo, ' + p.weight + 'kg, goal: ' + (p.goal || 'body recomposition') + '\n'
-    + 'Weekly targets: ' + (p.protein||180) + 'g protein/day, ' + (p.trainingKcal||p.calories||2600) + ' kcal training days, ' + (p.restKcal||2200) + ' kcal rest days\n\n'
+    + 'Weekly targets: ' + (p.protein||180) + 'g protein/day, ' + (p.trainingKcal||p.calories||2600) + ' kcal training days, ' + (p.restKcal||2200) + ' kcal rest days\n'
+    + dietaryNote + '\n'
     + 'This week\'s meals:\n' + mealSummary + '\n\n'
     + 'Create a practical Sunday prep plan. Be specific with quantities (e.g. "700g raw chicken breast = ~5 portions of 140g cooked").\n'
-    + 'Focus on proteins and carbs that store well. Suggest fresh items to buy day-of (fish, salads).\n'
+    + 'Focus on proteins and carbs that store well. Suggest fresh items to buy day-of.\n'
     + 'Step-by-step order should be practical and time-efficient (overlap oven + hob).\n\n'
+    + 'Also include 5-7 quick assembly ideas — how to combine the prepped ingredients into actual meals each day. Each idea should be a specific combination with day, meal type, and estimated assembly time in minutes.\n\n'
     + 'Return ONLY compact JSON (no markdown):\n'
-    + '{"prepDay":"Sunday","totalPrepTime":"~X hours","proteins":[{"item":"","amount":"","method":"","stores":""}],"carbs":[{"item":"","amount":"","method":"","stores":""}],"veg":[{"item":"","amount":"","method":"","stores":""}],"sauces":[{"item":"","amount":"","method":"","stores":""}],"order":["1. ...","2. ..."],"containers":"","tip":""}';
+    + '{"prepDay":"Sunday","totalPrepTime":"~X hours","proteins":[{"item":"","amount":"","method":"","stores":""}],"carbs":[{"item":"","amount":"","method":"","stores":""}],"veg":[{"item":"","amount":"","method":"","stores":""}],"sauces":[{"item":"","amount":"","method":"","stores":""}],"order":["1. ...","2. ..."],"assembly":[{"day":"Mon","label":"Lunch","combo":"chicken + rice + broccoli + tahini","mins":4}],"containers":"","tip":""}';
 
   try {
     var res = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model: MDL, max_tokens: 1800,
+      body: JSON.stringify({ model: MDL, max_tokens: 2400,
         system: 'Meal prep expert. Return ONLY valid compact JSON. No markdown.',
         messages: [{ role:'user', content: prompt }] }) });
     if (!res.ok) throw new Error('API ' + res.status);
@@ -996,19 +1054,51 @@ function _renderPrepPlan(prep, p) {
     }).join('') + '</ul>';
   }
 
+  var assemblyHTML = '';
+  if (prep.assembly && prep.assembly.length) {
+    assemblyHTML = '<div class="prep-section"><div class="prep-sec-label">Assembly ideas</div>'
+      + '<div class="prep-assembly-list">'
+      + prep.assembly.map(function(a) {
+          return '<div class="prep-assembly-item">'
+            + '<div class="prep-assembly-day">' + (a.day||'') + '</div>'
+            + '<div style="flex:1">'
+            + '<div class="prep-assembly-label">' + (a.label||a.meal||'') + '</div>'
+            + '<div class="prep-assembly-combo">' + (a.combo||'') + '</div>'
+            + '</div>'
+            + (a.mins ? '<div class="prep-assembly-mins">' + a.mins + 'm</div>' : '')
+            + '</div>';
+        }).join('')
+      + '</div></div>';
+  }
+
+  var dietaryPrefs = getDietary();
+  var dietaryBadges = dietaryPrefs.length
+    ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">'
+        + dietaryPrefs.map(function(d){
+            var labels = {'no-fish':'No fish','no-meat':'No meat','vegan':'Vegan','no-gluten':'Gluten-free','no-dairy':'Dairy-free','no-nuts':'No nuts','ibs':'IBS-friendly','no-eggs':'No eggs'};
+            return '<span style="font-size:10px;font-weight:600;color:var(--jade);background:rgba(0,200,160,.08);border:1px solid rgba(0,200,160,.2);border-radius:12px;padding:2px 9px;">' + (labels[d]||d) + '</span>';
+          }).join('')
+      + '</div>'
+    : '';
+
   return '<div style="padding:0 0 32px;">'
+    + dietaryBadges
     + '<div class="prep-meta">'
       + '<div class="prep-meta-item">Prep day <strong>' + (prep.prepDay||'Sunday') + '</strong></div>'
       + (prep.totalPrepTime ? '<div class="prep-meta-item">Total time <strong>' + prep.totalPrepTime + '</strong></div>' : '')
       + (prep.containers ? '<div class="prep-meta-item">Containers <strong>' + prep.containers + '</strong></div>' : '')
     + '</div>'
     + (prep.tip ? '<div class="prep-tip"><strong>Tip</strong> — ' + prep.tip + '</div><br>' : '')
+    + assemblyHTML
     + '<div class="prep-section"><div class="prep-sec-label">Proteins</div>' + cards(prep.proteins) + '</div>'
     + '<div class="prep-section"><div class="prep-sec-label">Carb bases</div>' + cards(prep.carbs) + '</div>'
     + (prep.veg && prep.veg.length ? '<div class="prep-section"><div class="prep-sec-label">Veg & sides</div>' + cards(prep.veg) + '</div>' : '')
     + (prep.sauces && prep.sauces.length ? '<div class="prep-section"><div class="prep-sec-label">Sauces & dressings</div>' + cards(prep.sauces) + '</div>' : '')
     + (orderHTML ? '<div class="prep-section"><div class="prep-sec-label">Prep order</div>' + orderHTML + '</div>' : '')
-    + '<div style="margin-top:16px;"><button class="prep-regen" onclick="localStorage.removeItem(\'' + PREP_CACHE_KEY + '\');renderPrepTab()">↺ Regenerate</button></div>'
+    + '<div style="margin-top:16px;display:flex;align-items:center;gap:12px;">'
+      + '<button class="prep-regen" onclick="localStorage.removeItem(\'' + PREP_CACHE_KEY + '\');renderPrepTab()">↺ Regenerate</button>'
+      + '<button class="prep-regen" onclick="localStorage.removeItem(\'' + PREP_CACHE_KEY + '\');renderPrepTab()" style="border-color:transparent;color:var(--dk-3);font-size:10px;">Change filters</button>'
+    + '</div>'
     + '</div>';
 }
 
