@@ -818,6 +818,28 @@ window.closeMobileMenu = function() {
   document.body.style.overflow = '';
 };
 
+// Swipe down on the bottom sheet to dismiss it
+(function() {
+  var touchStartY = 0;
+  var touchStartScrollTop = 0;
+  document.addEventListener('touchstart', function(e) {
+    var menu = document.getElementById('mobile-menu');
+    if (menu && menu.classList.contains('open')) {
+      touchStartY = e.touches[0].clientY;
+      touchStartScrollTop = menu.scrollTop;
+    }
+  }, { passive: true });
+  document.addEventListener('touchend', function(e) {
+    var menu = document.getElementById('mobile-menu');
+    if (!menu || !menu.classList.contains('open')) return;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    // Only dismiss if swiped down ≥80px AND sheet is scrolled to the top
+    if (dy > 80 && touchStartScrollTop <= 4) {
+      window.closeMobileMenu();
+    }
+  }, { passive: true });
+})();
+
 
 // ── AUTH GATE ────────────────────────────────────────────────────────────────
 // Protects all app pages. Fires after Supabase auth resolves (~600ms after load).

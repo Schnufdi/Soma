@@ -2143,31 +2143,51 @@ body .body-xs { color: var(--dk-2); }
 }
 .mobile-menu-overlay.open { display: block; }
 
-/* Mobile menu slide-in panel */
+/* Mobile menu — bottom sheet */
 .mobile-menu {
   position: fixed;
-  top: 0; right: 0; bottom: 0;
-  width: 280px;
-  max-width: 88vw;
+  bottom: 0; left: 0; right: 0; top: auto;
+  width: 100%;
+  max-height: 72vh;
   background: var(--ink-1);
-  border-left: 1px solid var(--bd);
+  border-top: 1px solid var(--bd);
+  border-radius: 20px 20px 0 0;
   z-index: 999;
-  transform: translateX(100%);
-  transition: transform .25s cubic-bezier(.34,1.2,.64,1);
+  transform: translateY(110%);
+  transition: transform .28s cubic-bezier(.32,0,.67,0);
   overflow-y: auto;
-  padding-bottom: 40px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
 }
-.mobile-menu.open { transform: translateX(0); }
+.mobile-menu.open {
+  transform: translateY(0);
+  transition: transform .36s cubic-bezier(.34,1.1,.64,1);
+}
 
 .mm-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 20px;
+  padding: 28px 20px 16px;
   border-bottom: 1px solid var(--bd);
   position: sticky;
   top: 0;
   background: var(--ink-1);
+  border-radius: 20px 20px 0 0;
+}
+/* Drag handle indicator */
+.mm-header::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.14);
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .mm-brand {
   font-family: var(--serif);
@@ -2247,9 +2267,9 @@ body .body-xs { color: var(--dk-2); }
 .mtb-icon { font-size: 17px; line-height: 1; }
 .mtb-label { font-size: 9px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
 
-/* ── Apply on mobile ≤600px ── */
-@media (max-width: 600px) {
-  /* Show hamburger, hide all nav links and right group */
+/* ── Phone + Tablet ≤900px — bottom tab bar + hamburger ── */
+@media (max-width: 900px) {
+  /* Show hamburger, hide desktop nav links */
   .nav-hamburger { display: flex; }
   .nav-links { display: none; }
   .nav-right-group .nav-right,
@@ -2260,15 +2280,33 @@ body .body-xs { color: var(--dk-2); }
   .mobile-tab-bar { display: flex; }
 
   /* Add bottom padding so content clears the tab bar */
-  body { padding-bottom: 68px; }
+  body { padding-bottom: 72px; }
 
   /* Nav stays slim */
   .site-nav {
-    padding: 0 14px;
-    height: 52px;
+    padding: 0 18px;
+    height: 54px;
     justify-content: space-between;
   }
   .nav-brand { font-size: 18px; }
+}
+
+/* ── Phone ≤600px — tighter padding ── */
+@media (max-width: 600px) {
+  .site-nav { padding: 0 14px; height: 52px; }
+  .nav-brand { font-size: 17px; }
+}
+
+/* ── Tablet 601-900px — larger tap targets ── */
+@media (min-width: 601px) and (max-width: 900px) {
+  .mobile-tab-bar { height: 68px; }
+  .mtb-icon { font-size: 22px; }
+  .mtb-label { font-size: 10px; }
+  body { padding-bottom: 80px; }
+  /* Wider sheet with two-column link grid on tablet */
+  .mobile-menu { max-height: 60vh; }
+  .mm-section-label { padding: 18px 28px 8px; }
+  .mm-link { padding: 13px 28px; font-size: 14px; }
 }
 
 /* ════════════════════════════════════════════════════════
