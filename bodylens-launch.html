@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Soma">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="launch">
+<title>Soma — Launch Strategy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.hero { padding:64px 0 56px; border-bottom:1px solid var(--bd); position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 900px 500px at 60% 40%, rgba(212,168,39,0.04) 0%, transparent 70%); }
+.hi { max-width:1080px; margin:0 auto; padding:0 48px; position:relative; z-index:1; }
+.h-eye { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+.h-eye::before { content:''; width:24px; height:1px; background:var(--amber); }
+.h-title { font-family:var(--serif); font-size:72px; font-weight:300; line-height:0.9; letter-spacing:-0.03em; color:var(--dk-1); margin-bottom:20px; }
+.h-two { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:540px; margin-bottom:32px; }
+.phase-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--bd); border-radius:6px; overflow:hidden; max-width:900px; }
+.phase-cell { background:var(--ink-2); padding:16px; }
+.phase-label { font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--dk-3); margin-bottom:6px; }
+.phase-val { font-size:13px; font-weight:500; color:var(--dk-1); }
+.phase-sub { font-size:11px; font-weight:300; color:var(--dk-3); margin-top:2px; }
+.snav { display:flex; gap:0; border-bottom:1px solid var(--bd); max-width:1080px; margin:0 auto; padding:0 48px; overflow-x:auto; }
+.sn { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:13px 16px; border:none; background:transparent; color:var(--dk-3); cursor:pointer; font-family:var(--sans); white-space:nowrap; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color 0.12s; }
+.sn:hover { color:var(--dk-2); } .sn.active { color:var(--amber); border-bottom-color:var(--amber); }
+.pane { display:none; } .pane.active { display:block; }
+.dark { background:var(--ink); padding:56px 0; }
+.w { max-width:1080px; margin:0 auto; padding:0 48px; }
+.dr { display:flex; align-items:center; gap:14px; margin:0 0 28px; font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); }
+.dr::after { content:''; flex:1; height:1px; background:var(--bd); }
+.dr.jade { color:var(--jade); } .dr.amber { color:var(--amber); } .dr.red { color:#d94e35; }
+.body-lg { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.85; margin-bottom:20px; max-width:720px; }
+.stm { display:grid; grid-template-columns:56px 1fr; border-top:1px solid var(--bd); }
+.stm-n { font-family:var(--serif); font-size:42px; font-weight:300; color:var(--amber); opacity:0.35; padding:20px 0; line-height:1; }
+.stm-b { padding:20px 0; }
+.stm-t { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:8px; line-height:1.3; }
+.stm-p { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; }
+.stm-p strong { color:var(--dk-1); font-weight:500; }
+.action-box { background:rgba(212,168,39,.05); border:1px solid rgba(212,168,39,.2); border-left:3px solid var(--amber); border-radius:0 6px 6px 0; padding:14px 18px; margin-top:20px; }
+.action-box.jade { background:rgba(0,200,160,.04); border-color:rgba(0,200,160,.2); border-left-color:var(--jade); }
+.action-box.red { background:rgba(217,78,53,.04); border-color:rgba(217,78,53,.2); border-left-color:#d94e35; }
+.ab-label { font-size:9px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:var(--amber); margin-bottom:8px; }
+.ab-label.jade { color:var(--jade); } .ab-label.red { color:#d94e35; }
+.ab-list { list-style:none; padding:0; margin:0; }
+.ab-list li { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.7; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.ab-list li:last-child { border-bottom:none; }
+.ab-list li::before { content:'→ '; color:var(--amber); font-weight:600; }
+.ab-list li.jade::before { color:var(--jade); }
+.ab-list li.done::before { content:'✓ '; color:var(--jade); }
+.ab-list li.done { color:var(--dk-3); text-decoration:line-through; }
+.ab-list li.red::before { content:'⚠ '; color:#d94e35; }
+.jd-table { width:100%; border-collapse:collapse; margin-bottom:24px; }
+.jd-table th { background:var(--ink-2); border:1px solid var(--bd); padding:10px 14px; font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); text-align:left; }
+.jd-table td { border:1px solid var(--bd); padding:10px 14px; font-size:12px; font-weight:300; color:var(--dk-2); vertical-align:top; line-height:1.6; }
+.jd-table td.hl { color:var(--dk-1); font-weight:500; }
+.jd-table td.green { color:var(--jade); font-weight:500; }
+.jd-table td.amber-c { color:var(--amber); font-weight:500; }
+.tier-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:28px; }
+.tier-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:24px; }
+.tier-card.featured { border-color:var(--jade); background:rgba(0,200,160,.03); }
+.tier-badge { font-size:9px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; }
+.tier-name { font-family:var(--serif); font-size:26px; font-weight:300; color:var(--dk-1); margin-bottom:4px; }
+.tier-price { font-size:28px; font-weight:600; color:var(--dk-1); font-family:var(--mono); margin-bottom:4px; }
+.tier-price span { font-size:14px; font-weight:300; color:var(--dk-3); }
+.tier-annual { font-size:11px; color:var(--dk-3); margin-bottom:16px; }
+.tier-annual strong { color:var(--jade); }
+.tier-features { list-style:none; padding:0; margin:0; }
+.tier-features li { font-size:12px; font-weight:300; color:var(--dk-2); padding:5px 0; border-bottom:1px solid rgba(255,255,255,.04); display:flex; gap:8px; align-items:flex-start; }
+.tier-features li:last-child { border-bottom:none; }
+.tier-features li::before { content:'✓'; color:var(--jade); font-size:10px; margin-top:2px; flex-shrink:0; }
+.timeline { display:flex; flex-direction:column; gap:0; }
+.tl-item { display:grid; grid-template-columns:100px 1fr; gap:0; }
+.tl-left { display:flex; flex-direction:column; align-items:center; padding:0 24px 0 0; }
+.tl-dot { width:10px; height:10px; border-radius:50%; background:var(--amber); flex-shrink:0; margin-top:4px; }
+.tl-dot.jade { background:var(--jade); }
+.tl-line { width:1px; background:var(--bd); flex:1; margin:4px 0; }
+.tl-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); text-align:right; padding-right:20px; margin-top:2px; }
+.tl-right { padding:0 0 36px; }
+.tl-title { font-size:14px; font-weight:600; color:var(--dk-1); margin-bottom:8px; }
+.tl-body { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.8; }
+.tl-body strong { color:var(--dk-1); font-weight:500; }
+.metrics-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:28px; }
+.metric-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:18px; }
+.metric-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); margin-bottom:8px; }
+.metric-val { font-size:22px; font-weight:600; color:var(--jade); font-family:var(--mono); margin-bottom:4px; }
+.metric-desc { font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.5; }
+.channel-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:28px; }
+.channel-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:20px; }
+.channel-rank { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; }
+.channel-rank.p1 { color:var(--jade); }
+.channel-rank.p2 { color:var(--amber); }
+.channel-rank.p3 { color:var(--dk-3); }
+.channel-name { font-size:15px; font-weight:600; color:var(--dk-1); margin-bottom:6px; }
+.channel-body { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.7; }
+.channel-body strong { color:var(--dk-1); font-weight:500; }
+.warn-box { background:rgba(217,78,53,.05); border:1px solid rgba(217,78,53,.2); border-left:3px solid #d94e35; border-radius:0 6px 6px 0; padding:14px 18px; margin-bottom:20px; font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.7; }
+@media(max-width:700px){
+  .hi,.snav,.w { padding-left:20px; padding-right:20px; }
+  .h-title { font-size:48px; }
+  .phase-strip { grid-template-columns:1fr 1fr; }
+  .tier-grid { grid-template-columns:1fr; }
+  .metrics-grid { grid-template-columns:1fr 1fr; }
+  .channel-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav"></nav>
+
+<div class="hero">
+<div class="hi">
+  <div class="h-eye">Go-to-market · Founder reference</div>
+  <div class="h-title">Ship it.<br><em>Scale it.</em></div>
+  <div class="h-two">A subscription launch playbook for Soma — from first paying user to sustainable recurring revenue. Structured for a solo founder, real constraints, zero fluff.</div>
+  <div class="phase-strip">
+    <div class="phase-cell">
+      <div class="phase-label">Phase 0</div>
+      <div class="phase-val">Build in public</div>
+      <div class="phase-sub">Now → 60 days</div>
+    </div>
+    <div class="phase-cell">
+      <div class="phase-label">Phase 1</div>
+      <div class="phase-val">Closed beta</div>
+      <div class="phase-sub">Days 60–90</div>
+    </div>
+    <div class="phase-cell">
+      <div class="phase-label">Phase 2</div>
+      <div class="phase-val">Soft launch</div>
+      <div class="phase-sub">Days 90–120</div>
+    </div>
+    <div class="phase-cell">
+      <div class="phase-label">Phase 3</div>
+      <div class="phase-val">Public launch</div>
+      <div class="phase-sub">Day 120+</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="snav">
+  <button class="sn active" onclick="showPane('model')">Subscription model</button>
+  <button class="sn" onclick="showPane('prelaunch')">Pre-launch gates</button>
+  <button class="sn" onclick="showPane('acquisition')">Acquisition</button>
+  <button class="sn" onclick="showPane('sequence')">Launch sequence</button>
+  <button class="sn" onclick="showPane('retention')">Retention</button>
+  <button class="sn" onclick="showPane('metrics')">Metrics</button>
+</div>
+
+<!-- ══ PANE 1: SUBSCRIPTION MODEL ══ -->
+<div class="pane active" id="pane-model">
+<div class="dark">
+<div class="w">
+
+  <div class="dr amber">Model design</div>
+  <p class="body-lg">Soma is a premium product. Do not freemium it. Freemium optimises for user count, not revenue — and it attracts the wrong users who inflate your churn rate and support burden. One clear paid offer with a time-limited free trial is the correct structure at this stage.</p>
+
+  <div class="dr amber" style="margin-top:40px;">Recommended tier structure</div>
+  <div class="tier-grid">
+    <div class="tier-card featured">
+      <div class="tier-badge">Launch tier · MVP</div>
+      <div class="tier-name">Soma</div>
+      <div class="tier-price">£14.99 <span>/ month</span></div>
+      <div class="tier-annual">or <strong>£99/year</strong> — saving £81 (45%)</div>
+      <ul class="tier-features">
+        <li>AI health coach — unlimited conversations</li>
+        <li>Personalised daily plan (training + nutrition)</li>
+        <li>Weekly meal plan generation</li>
+        <li>Science library — sleep, metabolic, hormones, recovery</li>
+        <li>Progress tracking + check-ins</li>
+        <li>Programme builder with injury modifications</li>
+        <li>Supplement stack optimisation</li>
+        <li>Full profile — IBS, hormonal context, conditions</li>
+      </ul>
+    </div>
+    <div class="tier-card">
+      <div class="tier-badge" style="color:var(--amber);">Later — post 500 users</div>
+      <div class="tier-name">Soma Pro</div>
+      <div class="tier-price">£29.99 <span>/ month</span></div>
+      <div class="tier-annual">or <strong>£199/year</strong></div>
+      <ul class="tier-features">
+        <li>Everything in Soma</li>
+        <li>Weekly AI synthesis — written review of your week</li>
+        <li>Advanced blood marker interpretation</li>
+        <li>Data export (CSV, JSON)</li>
+        <li>Priority coach response queue</li>
+        <li>Early access to new features</li>
+        <li>Direct founder access channel</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="action-box">
+    <div class="ab-label">Rationale on pricing</div>
+    <ul class="ab-list">
+      <li>£14.99/mo positions Soma between a supplement subscription (£30–50) and a personal trainer session (£60–80) — it feels like a bargain to the right user</li>
+      <li>£99/year drives annual upfront payment — better cash flow, dramatically lower churn, and users who paid annually are far more likely to actually use the product</li>
+      <li>Launch with one tier only. Adding Pro later is a revenue unlock — starting with two tiers adds complexity and splits your focus before you have product-market fit</li>
+      <li>Don't discount at launch. Discounts train users to wait. The 14-day trial is the concession</li>
+    </ul>
+  </div>
+
+  <div class="dr amber" style="margin-top:48px;">Trial structure</div>
+  <div class="stm">
+    <div class="stm-n">01</div>
+    <div class="stm-b">
+      <div class="stm-t">14-day free trial — card required</div>
+      <div class="stm-p">Requiring a card at trial start filters out tyre-kickers. The users who convert on free-trial-without-card are the most likely to churn anyway. Card-required trials convert at 2–3x the rate, and the trial users who stay are more engaged. <strong>14 days is optimal</strong> — long enough for users to complete the onboarding and experience their first full week of daily plans, not so long that they forget they signed up.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">02</div>
+    <div class="stm-b">
+      <div class="stm-t">Day 10 reminder — before trial ends</div>
+      <div class="stm-p">Send an automated email at Day 10 of the trial summarising what the user has done — workouts logged, meals generated, coach conversations. Make it personal and data-driven. This single touchpoint materially improves trial-to-paid conversion.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">03</div>
+    <div class="stm-b">
+      <div class="stm-t">Annual billing incentive at conversion</div>
+      <div class="stm-p">When trial ends, present annual billing first with a clear saving. A significant percentage of first-time subscribers will take annual if the framing is right: lead with "£99/year" not "£14.99/month × 12". The anchor matters.</div>
+    </div>
+  </div>
+
+  <div class="dr amber" style="margin-top:48px;">Payment infrastructure</div>
+  <div class="stm">
+    <div class="stm-n">01</div>
+    <div class="stm-b">
+      <div class="stm-t">Stripe Billing — not Stripe Checkout alone</div>
+      <div class="stm-p"><strong>Stripe Billing</strong> handles recurring subscriptions, dunning (failed payment retries), proration, annual vs monthly switching, and trial management natively. Set up a Stripe Billing product with two prices (monthly + annual). Use Stripe Checkout for the payment flow — it handles SCA/3DS compliance automatically, which is required in the UK/EU.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">02</div>
+    <div class="stm-b">
+      <div class="stm-t">Supabase subscription gate via webhook</div>
+      <div class="stm-p">When Stripe fires <code>customer.subscription.created</code>, <code>customer.subscription.updated</code>, or <code>customer.subscription.deleted</code>, your webhook handler updates a <code>subscriptions</code> table in Supabase. Every protected page checks <code>subscription_status = 'active'</code> via RLS before rendering. No subscription → redirect to paywall. This is the entire auth gate. <strong>Build this before you charge anyone.</strong></div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">03</div>
+    <div class="stm-b">
+      <div class="stm-t">Tax configuration</div>
+      <div class="stm-p">Enable <strong>Stripe Tax</strong> — it automatically calculates and collects VAT for UK (20%) and EU customers. B2C digital services sold to UK/EU consumers require VAT collection from the first sale. Stripe Tax costs 0.5% of transaction volume but eliminates the compliance burden entirely. Configure before taking the first payment.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══ PANE 2: PRE-LAUNCH GATES ══ -->
+<div class="pane" id="pane-prelaunch">
+<div class="dark">
+<div class="w">
+
+  <div class="dr amber">Must be true before you charge anyone</div>
+  <p class="body-lg">Charging users before these gates are closed is how you generate chargebacks, angry support emails, and regulatory exposure. These are not optional polish — they are the minimum viable legal and technical foundation for a subscription product.</p>
+
+  <div class="dr jade" style="margin-top:40px;">Technical gates</div>
+  <div class="action-box jade">
+    <div class="ab-label jade">Build these first</div>
+    <ul class="ab-list">
+      <li class="jade">Stripe Billing integrated — monthly + annual prices live, test mode verified end-to-end</li>
+      <li class="jade">Stripe webhook handler live — updates Supabase on subscription events</li>
+      <li class="jade">Subscription status check on every protected route — unauthenticated or expired users see paywall, not app</li>
+      <li class="jade">Rate limiting on /api/chat — Claude API costs money. A single user spamming the coach can generate a meaningful bill. Set per-user token limits (e.g. 50k tokens/day)</li>
+      <li class="jade">Email confirmation working — Supabase auth email delivered, not landing in spam</li>
+      <li class="jade">Mobile tested end-to-end — onboarding → daily plan → coach on iOS Safari and Chrome Android</li>
+      <li class="jade">Stripe Customer Portal live — users can cancel, update card, switch billing frequency without emailing you</li>
+    </ul>
+  </div>
+
+  <div class="dr amber" style="margin-top:40px;">Legal gates</div>
+  <div class="action-box">
+    <div class="ab-label">Required before public access</div>
+    <ul class="ab-list">
+      <li>Terms of Service live at /terms — must include subscription terms, cancellation policy, no medical advice disclaimer</li>
+      <li>Privacy Policy live at /privacy — UK GDPR compliant, lists Supabase + Anthropic as processors, explains data retention</li>
+      <li>Explicit consent checkbox at signup — "I agree to the Terms of Service and Privacy Policy" — not pre-checked</li>
+      <li>Medical disclaimer in onboarding — already exists, verify it displays before any health content is shown</li>
+      <li>ICO registration — required if you process UK personal data commercially. £40/year. Do this now</li>
+      <li>Stripe account fully verified — ID verification and bank account connected. Takes 2–5 business days. Do not leave this until launch week</li>
+    </ul>
+  </div>
+
+  <div class="dr red" style="margin-top:40px;">Product gates</div>
+  <div class="action-box red">
+    <div class="ab-label red">These will cause refund requests if broken</div>
+    <ul class="ab-list">
+      <li class="red">Onboarding tested cold — a new user can complete onboarding without any background knowledge of the app</li>
+      <li class="red">AI coach tested on edge cases — IBS user, 70-year-old user, female perimenopausal user — verify no hallucinated dangerous advice</li>
+      <li class="red">Programme generation tested — what happens if Claude API returns an error? User should see a graceful fallback, not a blank screen</li>
+      <li class="red">Cancellation tested — user can cancel in Stripe Customer Portal and access stops at period end, not immediately</li>
+      <li class="red">Data deletion tested — if a user asks to delete their data, you can do it. GDPR requires this</li>
+    </ul>
+  </div>
+
+  <div class="dr amber" style="margin-top:40px;">Cost modelling — do this before launch</div>
+  <div class="stm">
+    <div class="stm-n">01</div>
+    <div class="stm-b">
+      <div class="stm-t">Claude API cost per user per month</div>
+      <div class="stm-p">At current pricing, Claude Sonnet costs approximately <strong>$3 per million input tokens / $15 per million output tokens</strong>. A typical active Soma user might generate 10–20 coach conversations/week at ~2,000 tokens each = ~160,000 tokens/month. At those rates: <strong>~$0.80–1.20/user/month in API costs</strong>. At £14.99 revenue, your gross margin on API alone is ~90% — healthy. But heavy users can spike to 5–10x this. The rate limit on /api/chat is your insurance.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">02</div>
+    <div class="stm-b">
+      <div class="stm-t">Vercel + Supabase cost at scale</div>
+      <div class="stm-p">Vercel Pro is ~$20/mo and handles significant traffic. Supabase free tier supports up to 50,000 monthly active users — you won't hit paid Supabase tiers early. At 500 subscribers paying £14.99, your <strong>MRR is ~£7,500</strong> and infrastructure costs remain under £100/month. Margins are strong.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══ PANE 3: ACQUISITION ══ -->
+<div class="pane" id="pane-acquisition">
+<div class="dark">
+<div class="w">
+
+  <div class="dr amber">Ideal customer profile</div>
+  <p class="body-lg">Get this wrong and every acquisition effort is wasted. Soma's ICP is not "anyone interested in health." It is a specific person with a specific frustration.</p>
+
+  <div class="stm">
+    <div class="stm-n">ICP</div>
+    <div class="stm-b">
+      <div class="stm-t">Health-literate professional, 32–55, urban</div>
+      <div class="stm-p"><strong>Who they are:</strong> Has a gym membership and uses it. Has tried tracking before. Reads about longevity, hormones, or metabolic health. Possibly already spending £50–150/month on supplements, a PT, or both. <strong>What frustrates them:</strong> Generic advice that doesn't account for their specific situation — age, sleep, stress, hormonal context. A PT who programmes the same thing for everyone. Apps that are calorie trackers dressed up as health tools. <strong>Why they pay:</strong> They already pay for health. Soma replaces or supplements existing spend. The value proposition is not "save money" — it is "finally, personalised."</div>
+    </div>
+  </div>
+
+  <div class="dr amber" style="margin-top:48px;">Channel strategy — sequenced by stage</div>
+
+  <div class="channel-grid">
+    <div class="channel-card">
+      <div class="channel-rank p1">Priority 1 · Start now</div>
+      <div class="channel-name">Founder-led content</div>
+      <div class="channel-body"><strong>The highest-ROI channel for a solo founder.</strong> Your story — building Soma, using it yourself, what you're learning about your own health — is the product demonstration. LinkedIn posts showing "what my AI coach built for me today" are more persuasive than any ad. Post consistently: 3x/week minimum. Document the journey, not just the destination. People invest in founders before they invest in products.</div>
+    </div>
+    <div class="channel-card">
+      <div class="channel-rank p1">Priority 1 · Start now</div>
+      <div class="channel-name">Waitlist + building in public</div>
+      <div class="channel-body">A waitlist creates scarcity, captures intent before you're ready to charge, and gives you a warm list to email at launch. <strong>Build a dead-simple landing page</strong> (can be index.html) with: one headline, three benefit bullets, email capture. Drive traffic via founder content. Target 200–500 waitlist emails before soft launch. These people already said yes — converting them is far cheaper than cold acquisition.</div>
+    </div>
+    <div class="channel-card">
+      <div class="channel-rank p2">Priority 2 · Beta phase</div>
+      <div class="channel-name">PT / coach partnerships</div>
+      <div class="channel-body">Personal trainers have the clients you want. PTs are also frustrated — they know their clients need more support between sessions than they can provide. <strong>Offer Soma as a tool PTs give clients</strong> at a discounted rate, with a PT referral commission (20–30%). A PT with 20 clients who recommends Soma to 10 of them is worth more than months of content. Target: London-based independent PTs first — they're easier to reach than big gym chains.</div>
+    </div>
+    <div class="channel-card">
+      <div class="channel-rank p2">Priority 2 · Beta phase</div>
+      <div class="channel-name">Community seeding</div>
+      <div class="channel-body">Post genuine, value-first content (not promotion) in: <strong>r/fitness, r/longevity, r/intermittentfasting, r/hormones, r/PCOS, r/Menopause</strong>. Share insights from Soma's science pages. Answer questions. Link to the waitlist only when directly relevant and asked. Reddit punishes blatant promotion but rewards genuine expertise — the distinction is important. Also: Facebook groups for specific conditions (IBS, menopause, PCOS) are underrated channels for health apps.</div>
+    </div>
+    <div class="channel-card">
+      <div class="channel-rank p2">Priority 2 · Beta phase</div>
+      <div class="channel-name">Micro-influencer outreach</div>
+      <div class="channel-body">Not mega influencers — <strong>people with 5,000–50,000 followers</strong> in the longevity, biohacking, women's health, or fitness space. Offer a free annual subscription in exchange for honest content. The key word is honest — pre-agreed puff pieces are worthless. A genuine 60-second video from someone with 10,000 engaged followers is more powerful than an ad campaign. Budget: £0 cash, ~3 subscriptions (£297/year value).</div>
+    </div>
+    <div class="channel-card">
+      <div class="channel-rank p3">Priority 3 · Post 200 subscribers</div>
+      <div class="channel-name">Paid acquisition</div>
+      <div class="channel-body">Do not run paid ads until you have <strong>proof of organic conversion</strong>. Paid ads amplify what's already working — they don't create it. Once you know your organic conversion rate and LTV, you can calculate a viable CAC and run Meta or Google campaigns profitably. Target LTV:CAC ratio of 3:1 minimum before scaling paid. For Soma, that means if LTV is £120 (8 months retention at £14.99), you can afford to spend up to £40 to acquire a customer.</div>
+    </div>
+  </div>
+
+  <div class="dr amber" style="margin-top:48px;">Messaging — what actually converts</div>
+  <div class="stm">
+    <div class="stm-n">01</div>
+    <div class="stm-b">
+      <div class="stm-t">Lead with the problem, not the feature</div>
+      <div class="stm-p">"Finally, health advice that knows your IBS, your hormones, and the fact that you sleep 5.5 hours" converts better than "AI-powered health OS." The feature is the solution — lead with the pain. The pain is: <strong>generic advice, ignored context, one-size programme that doesn't fit your body.</strong></div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">02</div>
+    <div class="stm-b">
+      <div class="stm-t">Show, don't describe</div>
+      <div class="stm-p">Screenshots of a real daily plan — with meal timing, coach note, training block — are more persuasive than any copy. Record a 60-second screen recording of the onboarding-to-first-plan flow. Post it raw, without edits. The product is the pitch.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">03</div>
+    <div class="stm-b">
+      <div class="stm-t">Specificity builds trust</div>
+      <div class="stm-p">"Soma adjusts your training around your menstrual cycle" is more credible than "personalised for women." Specificity signals that you actually understand the problem. Use the language of the people you're building for — the language from Soma's science pages is the right register.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══ PANE 4: LAUNCH SEQUENCE ══ -->
+<div class="pane" id="pane-sequence">
+<div class="dark">
+<div class="w">
+
+  <div class="dr amber">The four phases — in order</div>
+  <p class="body-lg">Do not skip phases. Each one validates something the next phase depends on. Charging users before you have retention data is how you generate churn, refunds, and bad reviews.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-label">Now → +60 days</div>
+        <div class="tl-dot"></div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-right">
+        <div class="tl-title">Phase 0 — Build in public</div>
+        <div class="tl-body">
+          <strong>Goal:</strong> 200–500 waitlist emails. Establish founder credibility. Identify early superfans.<br><br>
+          Post on LinkedIn and Twitter/X about what you're building. Share the product — screenshots, screen recordings, insights from the science pages. Do not hide behind "stealth mode." The people who follow along for 60 days are your first beta users and your first word-of-mouth advocates.<br><br>
+          <strong>Build:</strong> A waitlist landing page. Index.html is fine. Email capture only. No pricing page yet.<br>
+          <strong>Track:</strong> Waitlist growth rate, email open rates, which content drives signups.
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-label">Days 60–90</div>
+        <div class="tl-dot"></div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-right">
+        <div class="tl-title">Phase 1 — Closed beta (free, invite only)</div>
+        <div class="tl-body">
+          <strong>Goal:</strong> Prove 30-day retention with 50–100 real users. Find the bugs, the broken flows, the confusing UX. Not charging yet.<br><br>
+          Invite from waitlist — hand-pick the first 50. Choose people who match the ICP, who are likely to give detailed feedback, and who have influence in their network. Email them personally. This is not a mass invite.<br><br>
+          <strong>What to measure:</strong> Day 7 retention (target >55%), daily plan views, coach conversations per user, which features are used and ignored.<br>
+          <strong>What to ask:</strong> Weekly check-in: "What did Soma do this week that you wouldn't have thought of yourself?" The answers are your testimonials and your product roadmap.<br><br>
+          <strong>Gate to Phase 2:</strong> At least 30 of your 50 beta users still active at Day 30. If you don't hit this, the product is not ready to charge for — fix the retention problem first.
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-label">Days 90–120</div>
+        <div class="tl-dot"></div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-right">
+        <div class="tl-title">Phase 2 — Soft launch (Stripe live, 14-day trial)</div>
+        <div class="tl-body">
+          <strong>Goal:</strong> First paying users. Validate pricing. Identify conversion drop-off points.<br><br>
+          Open signup to the full waitlist. Stripe live. 14-day trial with card required. No press outreach yet — this is a controlled launch to a warm audience only.<br><br>
+          Convert best beta users to paid first — reach out personally, offer to honour their first month free as a thank-you for beta feedback. These become your first testimonials and case studies.<br><br>
+          <strong>Track:</strong> Trial-to-paid conversion rate (target >20%), trial cancellation reasons, first-week engagement.<br>
+          <strong>Gate to Phase 3:</strong> 50+ paying subscribers, trial-to-paid conversion >20%, no critical product bugs outstanding.
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-label">Day 120+</div>
+        <div class="tl-dot"></div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-right">
+        <div class="tl-title">Phase 3 — Public launch</div>
+        <div class="tl-body">
+          <strong>Goal:</strong> Public awareness spike. First 200 paying subscribers. Press coverage.<br><br>
+          <strong>ProductHunt:</strong> Submit on a Tuesday or Wednesday (highest traffic days). Prepare a strong tagline: "Your health OS that actually knows you." Have 20–30 friends and beta users ready to upvote and comment on launch day. A top-5 Product of the Day finish generates meaningful SEO and press pickup.<br><br>
+          <strong>LinkedIn announcement:</strong> Personal story post — why you built it, what it does, direct link. This is the highest-converting single post you'll write. Write it weeks in advance. Edit until the first paragraph is impossible to scroll past.<br><br>
+          <strong>Press:</strong> Target health and tech journalists at: The Times health desk, The Guardian wellness, Wired UK, TechCrunch UK, Stylist (women's audience), Men's Health. Pitch the human story + the AI differentiation. A single piece in a national outlet is worth months of content marketing.<br><br>
+          <strong>Referral programme:</strong> At Phase 3, activate a referral mechanism — existing subscribers get one month free for every friend who subscribes. Referral is the most cost-effective paid acquisition channel once you have an engaged base.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══ PANE 5: RETENTION ══ -->
+<div class="pane" id="pane-retention">
+<div class="dark">
+<div class="w">
+
+  <div class="dr amber">The retention problem</div>
+  <p class="body-lg">Most health app churn happens in the first 14 days — before habit forms. A user who reaches Day 21 with daily use is highly likely to stay for 6+ months. Everything in retention strategy is about getting users to Day 21.</p>
+
+  <div class="stm">
+    <div class="stm-n">01</div>
+    <div class="stm-b">
+      <div class="stm-t">Onboarding sequence — the first 7 days are everything</div>
+      <div class="stm-p">The daily plan is the daily habit trigger. If a user doesn't visit the daily plan by Day 3, they are likely to churn. <strong>Build an email/push notification sequence:</strong><br><br>
+      Day 0: Welcome — link directly to today's plan, not the home page<br>
+      Day 1: "Your first training session" — a prompt to log the workout<br>
+      Day 3: Coach nudge — "Ask me anything about yesterday's session"<br>
+      Day 7: Progress summary — what you've done this week, personalised data<br>
+      Day 10: Trial end reminder — with a summary of what you've achieved
+      </div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">02</div>
+    <div class="stm-b">
+      <div class="stm-t">Identify at-risk users early</div>
+      <div class="stm-p">A user who hasn't logged in for 3+ days in their first 14 is at high churn risk. Build a simple query in Supabase: users whose <code>last_seen</code> is &gt;3 days ago and are within their first 14 days. Email them personally — not a template. One sentence from the founder. "Noticed you haven't had a chance to check in — anything I can help with?" This kind of message has a dramatically higher response rate than automated win-backs and costs you 30 seconds.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">03</div>
+    <div class="stm-b">
+      <div class="stm-t">Weekly synthesis as a retention anchor</div>
+      <div class="stm-p">An automated weekly email: "Your week in Soma" — workouts completed, meals generated, coach insights from the week. This serves two purposes: it re-engages users who drifted (the email is a door back in), and it creates a sense of progress and accountability that makes cancellation psychologically harder. The data already exists in Supabase — it just needs surfacing.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">04</div>
+    <div class="stm-b">
+      <div class="stm-t">Annual billing as a structural retention tool</div>
+      <div class="stm-p">Annual subscribers churn at roughly <strong>one-fifth the rate of monthly subscribers</strong>. The mechanics: they paid upfront, so there's no monthly renewal decision. They're more committed. They've had 12 months to build a habit. Aggressively push annual at every reasonable touchpoint — at trial conversion, at the 3-month mark for monthly subscribers, and in win-back flows. A £99 annual subscriber is worth ~£180 in lifetime value versus £60 for a 4-month monthly subscriber.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">05</div>
+    <div class="stm-b">
+      <div class="stm-t">Pause instead of cancel</div>
+      <div class="stm-p">When a user goes to cancel, offer a <strong>1-month pause</strong> instead. "Life gets in the way — pause your subscription for a month and come back when you're ready." This is a Stripe Billing feature (subscription schedules). Paused users return at a dramatically higher rate than churned users. It's a simple win with zero engineering cost beyond configuration.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">06</div>
+    <div class="stm-b">
+      <div class="stm-t">Churn exit interview</div>
+      <div class="stm-p">When a user cancels, trigger a single-question email: "One thing — what was the main reason for cancelling?" with 4 options + free text. The data is gold. After 20 responses, patterns emerge. The most common churn reasons for health apps are: didn't use it enough, got what I needed, too expensive, found something better. <strong>Each answer is a product decision.</strong></div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══ PANE 6: METRICS ══ -->
+<div class="pane" id="pane-metrics">
+<div class="dark">
+<div class="w">
+
+  <div class="dr amber">North star + supporting metrics</div>
+  <p class="body-lg">Track fewer metrics, act on them faster. The north star for Soma is Monthly Recurring Revenue — but MRR is a lagging indicator. The leading indicators that predict future MRR are daily active rate and trial-to-paid conversion.</p>
+
+  <div class="dr amber" style="margin-top:40px;">Target benchmarks by stage</div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Trial → Paid conversion</div>
+      <div class="metric-val">&gt;20%</div>
+      <div class="metric-desc">Industry average for card-required trials in health apps. Below 15% signals a pricing or positioning problem.</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Day 7 retention</div>
+      <div class="metric-val">&gt;55%</div>
+      <div class="metric-desc">More than half of new users still active at Day 7. Below 40% means onboarding is broken.</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Day 30 retention</div>
+      <div class="metric-val">&gt;35%</div>
+      <div class="metric-desc">Premium health apps. Consumer apps average 10–15%. If you hit 35%, the product has genuine habit.</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Monthly churn</div>
+      <div class="metric-val">&lt;5%</div>
+      <div class="metric-desc">Target for a premium subscription. Below 3% is excellent. Above 8% is a product problem, not a marketing problem.</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">LTV / CAC ratio</div>
+      <div class="metric-val">&gt;3×</div>
+      <div class="metric-desc">For every £1 spent acquiring a customer, generate £3+ in lifetime value. Required before scaling paid acquisition.</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Annual billing mix</div>
+      <div class="metric-val">&gt;40%</div>
+      <div class="metric-desc">Target at least 40% of subscribers on annual plans. Higher annual mix = lower churn = better cash flow.</div>
+    </div>
+  </div>
+
+  <div class="dr amber" style="margin-top:48px;">The metrics dashboard — what to build</div>
+  <table class="jd-table">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Where it lives</th>
+        <th>Check frequency</th>
+        <th>Act if…</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="hl">MRR</td>
+        <td>Stripe dashboard</td>
+        <td>Weekly</td>
+        <td>Growth rate drops below 10%/month in first year</td>
+      </tr>
+      <tr>
+        <td class="hl">Trial-to-paid conversion</td>
+        <td>Stripe (trials → active)</td>
+        <td>Weekly during launch</td>
+        <td>Below 15% for 2 consecutive weeks</td>
+      </tr>
+      <tr>
+        <td class="hl">Monthly churn</td>
+        <td>Stripe (cancelled / total)</td>
+        <td>Monthly</td>
+        <td>Exceeds 7% in any single month</td>
+      </tr>
+      <tr>
+        <td class="hl">DAU / MAU ratio</td>
+        <td>Supabase last_seen</td>
+        <td>Weekly</td>
+        <td>Drops below 20% (good apps hit 30–40%)</td>
+      </tr>
+      <tr>
+        <td class="hl">Coach conversations / user / week</td>
+        <td>Supabase chat logs</td>
+        <td>Weekly</td>
+        <td>Below 2 — users not engaging with core feature</td>
+      </tr>
+      <tr>
+        <td class="hl">API cost / user / month</td>
+        <td>Anthropic usage dashboard</td>
+        <td>Monthly</td>
+        <td>Exceeds £2.50/user — margin erosion risk</td>
+      </tr>
+      <tr>
+        <td class="hl">Support volume</td>
+        <td>Email inbox / triage</td>
+        <td>Weekly</td>
+        <td>Any recurring complaint type appearing &gt;3× in a week</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="dr amber" style="margin-top:48px;">Financial milestones</div>
+  <div class="stm">
+    <div class="stm-n">01</div>
+    <div class="stm-b">
+      <div class="stm-t">First £1,000 MRR — proof of concept</div>
+      <div class="stm-p">~67 paying subscribers at £14.99/mo. This is proof that strangers will pay for the product. At this point: talk to every subscriber. Understand why they bought and why they stay. The answers at 67 users are more valuable than any analytics tool.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">02</div>
+    <div class="stm-b">
+      <div class="stm-t">£3,000 MRR — ramen-profitable signal</div>
+      <div class="stm-p">~200 subscribers. Infrastructure costs remain under £200/month. Claude API costs ~£150–200/month. Net margin above 95% at this scale. This is the point to invest in content and potentially micro-influencer partnerships. Consider Soma Pro tier launch here.</div>
+    </div>
+  </div>
+  <div class="stm">
+    <div class="stm-n">03</div>
+    <div class="stm-b">
+      <div class="stm-t">£10,000 MRR — raise-worthy milestone</div>
+      <div class="stm-p">~667 subscribers. This is a defensible metric for a pre-seed fundraise if you want to bring in capital. Annual run rate of £120k with growing subscriber base, sub-5% churn, and strong retention data makes a compelling case. At this point: decide whether to raise or stay capital-efficient.</div>
+    </div>
+  </div>
+
+  <div class="action-box" style="margin-top:40px;">
+    <div class="ab-label">The single most important thing to track early</div>
+    <ul class="ab-list">
+      <li>In the first 90 days, the only metric that matters is <strong>whether users come back the next day</strong>. MRR is a consequence of retention. Build the daily habit trigger — the daily plan — as the first thing users see. If they're not coming back daily in the first week, fix that before anything else. No acquisition strategy fixes a retention problem.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+</div>
+
+<div id="site-disclaimer"></div>
+
+<script src="nav.js"></script>
+<script src="pwa.js"></script>
+<script>
+function showPane(id) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

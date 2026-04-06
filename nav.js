@@ -28,6 +28,7 @@
         <a class="vd-link" href="/bodylens-strategy.html">The Business Case</a>
         <a class="vd-link" href="/bodylens-story.html">The Story</a>
         <a class="vd-link" href="/bodylens-nonneg.html">Non-Negotiables</a>
+        <a class="vd-link" href="/bodylens-launch.html">Launch Strategy</a>
         <div class="vd-section">Viability</div>
         <a class="vd-link" href="/bodylens-viability3.html">Viability Analysis <span class="vd-badge">Rev 4</span></a>
         <a class="vd-link" href="/bodylens-viability2.html" style="opacity:.6">Rev 2</a>
@@ -97,6 +98,7 @@
   <a class="mm-link mm-vault" href="/bodylens-strategy.html">The Business Case</a>
   <a class="mm-link mm-vault" href="/bodylens-story.html">The Story</a>
   <a class="mm-link mm-vault" href="/bodylens-nonneg.html">Non-Negotiables</a>
+  <a class="mm-link mm-vault" href="/bodylens-launch.html">Launch Strategy</a>
   <a class="mm-link mm-vault" href="/bodylens-viability3.html">Viability Analysis <span class="mm-badge">Rev 4</span></a>
   <a class="mm-link mm-vault" href="/bodylens-intelligence-full.html">Full Intelligence Doc</a>
   <a class="mm-link mm-vault" href="/bodylens-instructions.html">Instructions</a>
