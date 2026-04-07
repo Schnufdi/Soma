@@ -110,6 +110,13 @@ body { background:var(--ink); color:var(--dk-1); }
 }
 .ab-warn::before { content:'⚠'; flex-shrink:0; color:var(--red); font-size:11px; }
 
+.ab-sex-note {
+  display:flex; gap:8px; align-items:baseline; padding:8px 12px; border-radius:4px; margin:10px 0;
+  background:rgba(138,112,200,0.06); border:1px solid rgba(138,112,200,0.2);
+  font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.6;
+}
+.ab-sex-note::before { content:'◆'; flex-shrink:0; color:#8a70c8; font-size:9px; }
+
 /* Add to plan button */
 .ab-add {
   width:100%; margin-top:14px;
@@ -256,6 +263,7 @@ const ACCELERATORS = {
       ],
       readiness:'Start any time — there is no prerequisite. Most people find day 2-3 much easier than day 1.',
       warn:'If you train in the morning, eat something small beforehand until you are adapted to fasted training. Headaches on day 1 are normal — electrolytes help.',
+      sexNote:{f:'For women: start with 14h rather than 16h. Reproductive-age women are more sensitive to extended fasting — LH/FSH pulsatility can be disrupted if you jump straight to 16h. Build up over 2–3 weeks and consider skipping the fast during your luteal phase (days 15–28) when progesterone is high and energy demands are greater.',m:null},
     },
     {
       id:'psmf', evidence:{tier:'emerging', note:'Small RCTs in clinical populations; limited general population data'}, icon:'🧬', name:'Protein-sparing modified fast',
@@ -327,6 +335,7 @@ const ACCELERATORS = {
       ],
       readiness:'Try this after completing a 16-hour fast regularly without difficulty for several weeks.',
       warn:'Not suitable if you have any history of disordered eating or are currently under medical supervision for blood sugar. Do not attempt on a training week that includes heavy sessions.',
+      sexNote:{f:'For women: the 36-hour fast is best avoided for reproductive-age women, or used at most once per quarter. Extended fasting more readily disrupts the HPA-LH axis in women. Post-menopausal women can follow the standard protocol.',m:null},
     },
   ],
 
@@ -487,6 +496,59 @@ const ACCELERATORS = {
       ],
       readiness:'Only if you are not already on a maintenance dose. If you already take 3-5g daily, skip this.',
       warn:'Some people experience mild GI discomfort during loading — take with food and split into smaller doses if needed.',
+      sexNote:{f:'Especially effective for women: creatine produces larger relative cognitive benefits in women than men — particularly relevant around the menstrual cycle. Brain fog in the luteal phase is measurably reduced with consistent creatine use. The strength and recovery benefits are equal to or greater than in men.',m:null},
+    },
+    {
+      id:'cycle-phase-training', sex:'female',
+      evidence:{tier:'emerging', note:'Oestrogen anabolic effects and luteal phase recovery changes well-characterised; cycle-phase periodisation research growing'},
+      icon:'🌸', name:'Cycle-phase training sync',
+      tagline:'High intensity in your follicular phase. Lower intensity in your luteal phase. Train with your hormones.',
+      badge:'easy', color:'blue', goals:['muscle','recomp','fat-loss','longevity'],
+      mechanism:`Oestrogen is anabolic — it enhances muscle protein synthesis, improves insulin sensitivity, and accelerates recovery. In the follicular phase (days 1–14, from menstruation to ovulation), oestrogen rises and your body handles high-intensity training, heavy loads, and new PRs better. In the luteal phase (days 15–28), progesterone dominates — core temperature rises, perceived effort increases, and recovery slows. This is not a performance deficiency; it is a hormonal reality that can be programmed around. Aligning your heaviest weeks with your follicular phase and moderate or deload weeks with your luteal phase improves performance, reduces injury risk, and removes the psychological burden of hard training when your body isn't primed for it.`,
+      protocol:[
+        'Track your cycle — even roughly. Day 1 = first day of menstruation',
+        'Follicular phase (days 1–14): schedule your heaviest sessions, target PRs, push volume',
+        'Luteal phase (days 15–28): maintain intensity but reduce volume by 10–20%, allow more rest days',
+        'During menstruation (days 1–5): movement helps — but hard sessions are optional, not mandatory',
+        'Even rough tracking — just knowing whether you\'re in follicular or luteal — produces a meaningful shift',
+      ],
+      readiness:'Start with your next cycle. Track it in your notes app for one month to establish your pattern.',
+      warn:'Individual variation is significant. Some women feel strong throughout their cycle — follow your actual data, not a generic template.',
+    },
+    {
+      id:'iron-optimisation', sex:'female',
+      evidence:{tier:'established', note:'Iron deficiency in female athletes well-documented; effects on VO₂max, energy, and recovery robust across literature'},
+      icon:'🩸', name:'Iron optimisation',
+      tagline:'Women lose iron every month. Low ferritin is the most common undetected cause of fatigue and poor recovery in female athletes.',
+      badge:'easy', color:'blue', goals:['muscle','fat-loss','recomp','longevity'],
+      mechanism:`Menstruating women lose iron monthly, and training increases demand further through red blood cell turnover and (in runners) foot-strike haemolysis. Iron is central to haemoglobin — the protein that carries oxygen to working muscle. Sub-clinical iron deficiency (ferritin below 30 ng/mL, even with normal haemoglobin) produces measurable performance decline, fatigue, reduced VO₂max, and slower recovery. Critically, this level of deficiency is missed by standard blood tests unless ferritin is specifically requested. Optimising iron status is one of the highest-leverage interventions for female athletes — and one of the most consistently overlooked.`,
+      protocol:[
+        'Request a ferritin test (not just haemoglobin) at your next blood test — ask for it specifically',
+        'Target ferritin: 50–80 ng/mL for optimal athletic performance',
+        'If low: prioritise iron-rich meals daily — red meat, liver, dark leafy greens, legumes',
+        'Vitamin C with every iron-rich meal significantly improves non-haem iron absorption',
+        'Avoid tea, coffee, and calcium within 1 hour of iron-rich meals — they block absorption',
+        'If supplementing: iron bisglycinate is better tolerated and absorbed than ferrous sulphate',
+      ],
+      readiness:'Get your ferritin tested. Without a number, you\'re guessing.',
+      warn:'Do not supplement iron without a confirmed deficiency — iron overload is harmful. Test first.',
+    },
+    {
+      id:'sleep-testosterone', sex:'male',
+      evidence:{tier:'established', note:'Sleep deprivation and testosterone suppression well-documented; University of Chicago RCT replicated across populations'},
+      icon:'💤', name:'Sleep-testosterone protocol',
+      tagline:'95% of daily testosterone is made during sleep. Under 6 hours drops T by 15% within a week.',
+      badge:'easy', color:'blue', goals:['muscle','recomp','longevity'],
+      mechanism:`In men, 95% of daily testosterone is produced during sleep — specifically during slow-wave and REM stages. A University of Chicago study showed that restricting sleep to 5 hours per night for one week reduced testosterone by 10–15% in healthy young men. The decline is equivalent to the testosterone loss of 10–15 years of ageing — in 7 days. Testosterone drives muscle protein synthesis, fat oxidation, libido, and mood. No training programme, supplement, or nutrition strategy overcomes the deficit created by chronic short sleep.`,
+      protocol:[
+        'Target: 7.5–9 hours in bed per night — not 6 hours plus a nap',
+        'Keep a consistent sleep/wake time — the circadian rhythm governs GH and T release timing',
+        'Room temperature 17–19°C — core body temperature must drop for deep sleep to initiate',
+        'No alcohol within 3 hours of sleep — it blocks REM and suppresses overnight GH pulses',
+        'Morning light within 30 minutes of waking calibrates the clock for tonight\'s testosterone release',
+      ],
+      readiness:'Start tonight. The effect is measurable within 7 days.',
+      warn:'If you consistently can\'t reach 7+ hours despite trying, investigate sleep architecture — apnoea, elevated cortisol, or room environment issues are common blocks.',
     },
     {
       id:'morning-protocol', evidence:{tier:'limited', note:'Light entrainment evidence strong; cold shower component largely anecdotal for this use'}, icon:'☀️', name:'Morning light + cold finish',
@@ -615,13 +677,25 @@ function renderCard(acc, profileGoal) {
     `<div class="ab-step"><div class="ab-step-n">${i+1}</div><div class="ab-step-t">${s}</div></div>`
   ).join('');
 
+  // Sex-specific note
+  const _isFem = (_p && (_p.sex||'').toLowerCase() === 'female');
+  const _sexNoteText = acc.sexNote ? (acc.sexNote[_isFem ? 'f' : 'm'] || null) : null;
+  const sexNoteHtml = _sexNoteText ? `<div class="ab-sex-note">${_sexNoteText}</div>` : '';
+
+  // Badge: sex-specific card takes priority, then goal, then difficulty
+  const badgeHtml = acc.sex
+    ? `<div class="acc-badge" style="color:#8a70c8;background:rgba(138,112,200,0.1);border:1px solid rgba(138,112,200,0.3);">${acc.sex === 'female' ? 'For women' : 'For men'}</div>`
+    : (isForGoal && profileGoal !== 'all'
+        ? '<div class="acc-badge yours">For your goal</div>'
+        : `<div class="acc-badge ${acc.badge === 'easy' ? 'easy' : 'mod'}">${acc.badge === 'easy' ? 'Easy win' : 'Moderate'}</div>`);
+
   return `<div class="acc-card ${acc.color} ${acc.badge}"
     data-id="${acc.id}"
     data-goals="${acc.goals.join(' ')}"
     data-badge="${acc.badge}"
     onclick="toggleCard('${acc.id}',this)">
 
-    ${isForGoal && profileGoal !== 'all' ? '<div class="acc-badge yours">For your goal</div>' : `<div class="acc-badge ${acc.badge === 'easy' ? 'easy' : 'mod'}">${acc.badge === 'easy' ? 'Easy win' : 'Moderate'}</div>`}
+    ${badgeHtml}
     ${evidenceHtml}
 
     <div class="acc-head">
@@ -637,6 +711,7 @@ function renderCard(acc, profileGoal) {
       <div class="ab-steps">${stepsHtml}</div>
       <div class="ab-ready">${acc.readiness}</div>
       ${warnHtml}
+      ${sexNoteHtml}
       <button class="ab-add" onclick="saveAcc(event,'${acc.id}','${acc.name}')">+ Add to my programme notes</button>
     </div>
   </div>`;
@@ -651,11 +726,15 @@ function renderAll(goalFilter) {
     'grid-psychology': ACCELERATORS.psychology,
   };
 
+  const _userSex = (_p && (_p.sex||'').toLowerCase()) || null;
+
   Object.entries(sections).forEach(([gridId, accs]) => {
     const grid = document.getElementById(gridId);
     if (!grid) return;
     let html = '';
     accs.forEach(acc => {
+      // Hide sex-specific cards that don't match the user's sex
+      if (acc.sex && _userSex && acc.sex !== _userSex) return;
       if (goalFilter === 'easy') {
         html += acc.badge === 'easy' ? renderCard(acc, profileGoal) : '';
       } else {

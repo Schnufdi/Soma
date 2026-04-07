@@ -349,6 +349,27 @@ if ('serviceWorker' in navigator) {
       badge.style.textOverflow = 'ellipsis';
     }
   });
+
+  // Inject sex-appropriate hormones card into personal grid
+  var isFemale = (p.sex || '').toLowerCase() === 'female';
+  var hormCard = document.createElement('a');
+  hormCard.href = isFemale ? 'bodylens-hormones-female.html' : 'bodylens-testosterone.html';
+  hormCard.className = 'sci-card ' + (isFemale ? 'red' : 'gold');
+  hormCard.innerHTML =
+    '<div class="sci-card-badge personal">' + (isFemale ? 'Your hormones' : 'Your hormones') + '</div>' +
+    '<span class="sci-card-icon">' + (isFemale ? '🌸' : '⚡') + '</span>' +
+    '<div class="sci-card-title">' + (isFemale ? 'Female Hormones' : 'Testosterone') + '</div>' +
+    '<div class="sci-card-desc">' + (isFemale
+      ? 'Oestrogen, progesterone, cycle phases, and how your hormonal environment shapes training, recovery, and mood.'
+      : 'How testosterone is made, how your programme protects and amplifies it, and what measurably raises or crashes it.'
+    ) + '</div>';
+  var personalGrid = document.getElementById('personal-grid');
+  if (personalGrid) {
+    // Insert before the last card (How It Works / reference)
+    var cards = personalGrid.querySelectorAll('.sci-card');
+    var lastCard = cards[cards.length - 1];
+    personalGrid.insertBefore(hormCard, lastCard);
+  }
 })();
 </script>
 
