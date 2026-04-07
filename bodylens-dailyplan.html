@@ -5510,10 +5510,11 @@ function renderPlan(plan, browsing) {
       var mealLog = (log.meals && log.meals[block.mealSlot]) || {};
       var mealPct = Math.round(p.protein / Math.max(1, mealBlocks.length));
       var MEAL_WHY = {
-        'pre-training': 'This meal fuels the session \u2014 not recovery. Carbohydrates here become glucose during the workout. Fat kept low (under 15g): fat slows gastric emptying and delays glucose delivery to working muscle. Protein is present but this is primarily a performance meal, not a recovery one.',
-        'post-training': 'mTOR is elevated. The anabolic window is real and closes within 30\u201360 minutes. Protein consumed here activates muscle protein synthesis directly. Fast protein (whey, egg white) is ideal. Carbohydrates replenish muscle glycogen which is partially depleted from the session.',
-        'midday': 'Second protein anchor. Spacing meals 3\u20134 hours apart maintains consistent amino acid availability \u2014 muscle protein synthesis requires continuous supply, not a single large dose. Build around protein; add complex carbohydrates and vegetables.',
-        'evening': 'Close the protein target. Carbohydrates lower than midday \u2014 glycogen is already replenished from the post-training meal. Higher protein ratio in the evening is associated with improved overnight recovery and fat oxidation during sleep.',
+        'pre-training': 'This meal fuels your session \u2014 not recovery. Carbohydrates here become glucose during the workout. Keep fat under 15g: fat slows gastric emptying and delays glucose delivery to working muscle. Protein is present but this is primarily a performance meal.',
+        'post-training': 'mTOR is elevated after your session. The anabolic window closes within 30\u201360 minutes. Protein here activates muscle protein synthesis directly. Fast protein (whey, egg white) is ideal. Carbohydrates replenish muscle glycogen depleted during training.',
+        'midday': 'Your second protein anchor of the day. Spacing meals 3\u20134 hours apart keeps amino acid availability consistent \u2014 muscle protein synthesis needs a continuous supply, not one large dose. Build around protein; add complex carbohydrates and vegetables.',
+        'afternoon': 'A small protein bridge between midday and evening. Keeps muscle protein synthesis active between larger meals and prevents the energy dip that leads to poor dinner choices.',
+        'evening': 'Close out your protein target for the day. Lower carbohydrates than earlier \u2014 glycogen is already replenished. Higher protein ratio in the evening is linked to improved overnight recovery and fat oxidation during sleep.',
       };
       var mealWhy = MEAL_WHY[block.mealSlot] || block.detail || '';
       if (mealWhy) {
@@ -5582,7 +5583,7 @@ function renderPlan(plan, browsing) {
       +'<div class="dp2-item-bar '+bar+'"></div>'
       +'<div class="dp2-item-main" onclick="dp2ToggleItem('+idx+')">'
         +'<div class="dp2-item-top">'
-          +'<span class="dp2-item-title">'+block.title
+          +'<span class="dp2-item-title"'+(block.mealSlot?' id="meal-title-'+block.mealSlot+'"':'')+'>'+( block.mealSlot ? getMealSlotLabel(block.mealSlot) : block.title)
             +(isFixed?'<span class="dp2-flex-badge fixed">Fixed</span>':isOptional?'<span class="dp2-flex-badge optional">Optional</span>':'<span class="dp2-flex-badge flex">Flex</span>')
           +'</span>'
           +(tag?'<span class="dp2-item-tag '+tag.cls+'">'+tag.label+'</span>':'')
@@ -7266,6 +7267,19 @@ function getEffectiveDayPlan(p, idx) {
   var override = loadWeekOverride();
   if (override[idx]) return override[idx];
   return (p.weekPlan || [])[idx] || { type: 'Rest', priority: 'rest' };
+}
+
+// ── Meal slot display labels ──────────────────────────────────────
+function getMealSlotLabel(slot) {
+  var isTrainingDay = !!(TODAY && TODAY.isTraining);
+  var LABELS = {
+    'pre-training':  isTrainingDay ? 'Before your session'  : 'Morning meal',
+    'post-training': isTrainingDay ? 'After your session'   : 'Midday meal',
+    'midday':        'Midday meal',
+    'afternoon':     'Afternoon snack',
+    'evening':       'Evening meal',
+  };
+  return LABELS[slot] || slot;
 }
 
 // Find missed training days in the current week
