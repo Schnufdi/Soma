@@ -1621,6 +1621,60 @@ body {
 }
 .rm-comp-chip.sel .rm-comp-tick { opacity: 1; }
 
+/* ── Condition chips ("Today I'm…") ─────────────────────────────── */
+.dp2-condition-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.dp2-cond-chip {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--dk-3); background:var(--ink-2);
+  border:1px solid var(--bd); border-radius:20px;
+  padding:4px 10px; cursor:pointer; font-family:var(--sans);
+  transition:all .15s;
+}
+.dp2-cond-chip:hover { border-color:rgba(255,255,255,.18); color:var(--dk-2); }
+.dp2-cond-chip.active.gut   { color:#a8d8a0; background:rgba(168,216,160,.08); border-color:rgba(168,216,160,.3); }
+.dp2-cond-chip.active.sick  { color:var(--amber); background:rgba(245,158,11,.08); border-color:rgba(245,158,11,.25); }
+.dp2-cond-chip.active.sore  { color:#7eb8d4; background:rgba(126,184,212,.08); border-color:rgba(126,184,212,.25); }
+.dp2-cond-chip.active.tired { color:var(--dk-2); background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.2); }
+.dp2-cond-chip.active.deload { color:var(--jade); background:rgba(0,200,160,.08); border-color:rgba(0,200,160,.25); }
+
+/* Condition banner — injected into block detail */
+.dp2-cond-banner {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:10px 12px; border-radius:8px; margin-bottom:10px;
+  font-size:12px; font-weight:300; line-height:1.6;
+}
+.dp2-cond-banner.gut   { background:rgba(168,216,160,.07); border:1px solid rgba(168,216,160,.2); color:#a8d8a0; }
+.dp2-cond-banner.sick  { background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2); color:var(--amber); }
+.dp2-cond-banner.sore  { background:rgba(126,184,212,.07); border:1px solid rgba(126,184,212,.2); color:#7eb8d4; }
+.dp2-cond-banner.tired { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12); color:var(--dk-2); }
+.dp2-cond-banner strong { font-weight:600; display:block; margin-bottom:3px; }
+
+/* Deload banner in mission header */
+.dp2-deload-banner {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px; border-radius:8px; margin-top:10px;
+  background:rgba(0,200,160,.06); border:1px solid rgba(0,200,160,.2);
+  font-size:11px; font-weight:300; color:var(--jade); line-height:1.5;
+}
+.dp2-deload-banner strong { font-weight:600; }
+.dp2-deload-end-btn {
+  margin-left:auto; font-size:9px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--dk-3); background:none; border:1px solid var(--bd);
+  border-radius:12px; padding:3px 9px; cursor:pointer; font-family:var(--sans); white-space:nowrap;
+}
+.dp2-deload-end-btn:hover { color:var(--dk-2); border-color:rgba(255,255,255,.2); }
+
+/* Swap macro chip — shows parsed values under swap input */
+.dp2-swap-macro-chip {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:6px 10px; margin-top:6px; border-radius:6px;
+  background:rgba(0,200,160,.06); border:1px solid rgba(0,200,160,.15);
+  font-size:10px; font-weight:500; color:var(--jade);
+}
+.dp2-swap-macro-chip span { color:var(--dk-2); font-weight:300; }
+.dp2-swap-macro-chip .smv { font-weight:700; color:var(--jade); }
+
 /* ── Travel mode ─────────────────────────────────────────────────── */
 .dp2-travel-chip {
   display: inline-flex; align-items: center; gap: 5px;
@@ -5186,15 +5240,33 @@ function renderPlan(plan, browsing) {
         ? '<strong>Priority:</strong> Hit the posterior chain session, close at <strong>'+p.protein+'g protein</strong>, take your stack at the right times. Everything else is flexible.'
         : '<strong>Priority:</strong> <strong>'+p.protein+'g protein</strong> even without training. Metabolism stays active on rest days — nutrition discipline here matters.')
     +'</div>'
-    +(isTraining && !isBrowsing
-      ? '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">'
-          + '<button class="dp2-travel-chip'+(travelModeActive?' active':'')+'" id="dp2-travel-chip" onclick="openTravelModal()" style="margin-top:0;">'
-              +(travelModeActive ? '&#10003; Travel mode active' : '&#9992; Travelling? Swap to bodyweight &#8594;')
-            +'</button>'
-          + (!sessionDone
-              ? '<button class="dp2-travel-chip" style="margin-top:0;color:var(--jade);background:rgba(0,200,160,.08);border-color:rgba(0,200,160,.2);" onclick="openShortTimeFlow()">&#9201; Short on time?</button>'
-              : '')
-        +'</div>'
+    +(!isBrowsing
+      ? (function(){
+          var todayConds = (log.todayConditions || []);
+          var pAdapt = (p.programmeAdaptations || {});
+          var deloadActive = !!(pAdapt.deloadWeek && pAdapt.deloadUntil && pAdapt.deloadUntil > _rDate);
+          var chips = '';
+          // Training-specific chips
+          if (isTraining) {
+            chips += '<button class="dp2-travel-chip'+(travelModeActive?' active':'')+'" id="dp2-travel-chip" onclick="openTravelModal()" style="margin-top:0;">'+(travelModeActive ? '&#10003; Travel mode active' : '&#9992; Travelling?')+'</button>';
+            if (!sessionDone) chips += '<button class="dp2-travel-chip" style="margin-top:0;color:var(--jade);background:rgba(0,200,160,.08);border-color:rgba(0,200,160,.2);" onclick="openShortTimeFlow()">&#9201; Short on time?</button>';
+          }
+          // Condition chips — all days
+          var conds = [
+            {id:'gut',  icon:'🤢', label:'Gut flare'},
+            {id:'sick', icon:'🤒', label:'Sick'},
+            {id:'sore', icon:'🤕', label:'Sore'},
+            {id:'tired',icon:'😴', label:'Tired'},
+          ];
+          conds.forEach(function(c){
+            var on = todayConds.indexOf(c.id) > -1;
+            chips += '<button class="dp2-cond-chip '+c.id+(on?' active':'')+'" onclick="dpToggleCondition(\''+c.id+'\')">'+c.icon+' '+(on?'✓ ':'')+c.label+'</button>';
+          });
+          // Deload chip — always available when not browsing
+          chips += '<button class="dp2-cond-chip deload'+(deloadActive?' active':'')+'" onclick="'+(deloadActive?'endDeloadWeek()':'openDeloadConfirm()')+'">&#8623; '+(deloadActive?'✓ Deload active':'Deload week')+'</button>';
+          return '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">'+chips+'</div>'
+            + (deloadActive ? '<div class="dp2-deload-banner"><div><strong>Deload week active</strong> RPE ≤ 6 · -2 sets per exercise · Recovery focus. Expires '+pAdapt.deloadUntil+'.</div><button class="dp2-deload-end-btn" onclick="endDeloadWeek()">End deload</button></div>' : '');
+        })()
       : '')
     +'<div class="dp2-signals">'
       // Macro signal moved to unified header
@@ -5317,6 +5389,26 @@ function renderPlan(plan, browsing) {
     // ── Training block ──────────────────────────────────────────
     if (block.type === 'training') {
       var exercises = (block.exercises||[]).filter(function(e){return e!=='Track loads';});
+
+      // Condition banners for training block
+      var _tc = (log.todayConditions || []);
+      var _pAdapt = (p.programmeAdaptations || {});
+      var _deloadOn = !!(_pAdapt.deloadWeek && _pAdapt.deloadUntil && _pAdapt.deloadUntil > _rDate);
+      if (_tc.indexOf('gut') > -1) {
+        html += '<div class="dp2-cond-banner gut"><strong>🤢 Gut flare — RPE capped at 6</strong> No heavy compound loading today. Keep rest periods long (3+ min). If abdominal cramping occurs, stop. Consider swapping to 20 min light cardio + mobility only.</div>';
+      }
+      if (_tc.indexOf('sick') > -1) {
+        html += '<div class="dp2-cond-banner sick"><strong>🤒 Sick day — training not recommended</strong> Prioritise rest and hydration. If mild symptoms only: a 20–30 min walk is fine. Skip all resistance work. Training while sick extends illness duration and doesn\'t produce adaptation.</div>';
+      }
+      if (_tc.indexOf('sore') > -1) {
+        html += '<div class="dp2-cond-banner sore"><strong>🤕 Sore — modified session</strong> Avoid working the same muscle groups as your last session. Reduce load 20–30%. Longer warm-up. Use this as a technique day: lighter weight, perfect form, full ROM. Soreness is information — don\'t mask it.</div>';
+      }
+      if (_tc.indexOf('tired') > -1) {
+        html += '<div class="dp2-cond-banner tired"><strong>😴 Tired — reduce intensity</strong> Drop RPE target by 1–2 points. Shorten session if needed — a 30-min abbreviated session beats skipping. Prioritise the main compound, cut accessory volume.</div>';
+      }
+      if (_deloadOn) {
+        html += '<div class="dp2-cond-banner" style="background:rgba(0,200,160,.06);border-color:rgba(0,200,160,.2);color:var(--jade);"><strong>⟳ Deload week active</strong> 50–60% of normal volume. RPE ≤ 6 — leave 3–4 reps in reserve on every set. Same exercises, same frequency, reduced load. This is physiological — not a choice between training and resting.</div>';
+      }
 
       var EX_LOGIC = {
         'Romanian': 'Opens the session. Heaviest hip-hinge pattern placed first — maximal load requires maximal CNS readiness. Glutes and hamstrings under full stretch, driven to peak recruitment.',
@@ -5511,6 +5603,14 @@ function renderPlan(plan, browsing) {
 
     // ── Meal block ──────────────────────────────────────────────
     else if (block.mealSlot) {
+      // Condition banners for meal blocks
+      var _todayConds = (log.todayConditions || []);
+      if (_todayConds.indexOf('gut') > -1) {
+        html += '<div class="dp2-cond-banner gut"><div><strong>🤢 Low-FODMAP mode</strong> Avoid garlic, onion, wheat, legumes, lactose. Safe swaps: rice, plain grilled protein, cooked carrots/courgette/spinach, olive oil. Small portions, eat slowly.</div></div>';
+      }
+      if (_todayConds.indexOf('sick') > -1) {
+        html += '<div class="dp2-cond-banner sick"><div><strong>🤒 Sick day — easy foods</strong> Bland, easy-to-digest meals. Broth, rice, banana, plain chicken. Stay well-hydrated. Protein still matters — even 60–70% of target is better than skipping.</div></div>';
+      }
       var mealLog = (log.meals && log.meals[block.mealSlot]) || {};
       var mealPct = Math.round(p.protein / Math.max(1, mealBlocks.length));
       var MEAL_WHY = {
@@ -5556,10 +5656,21 @@ function renderPlan(plan, browsing) {
       }
     }
 
-    // Swap row — always available
+    // Swap row — always available; macro chip shown when text contains nutrition values
+    var _swapMacros = _parseSwapMacros(swapVal);
     html += '<div class="dp2-swap-row" id="dp2-swap-'+idx+'" style="display:'+(swapVal?'flex':'none')+'">'
       + '<span class="dp2-swap-label">Swapped for</span>'
-      + '<input class="dp2-swap-inp" type="text" placeholder="What did you do instead?" value="'+(swapVal.replace(/"/g,'&quot;'))+'" onchange="dpSaveSwap('+idx+',this.value)">'
+      + '<input class="dp2-swap-inp" type="text" placeholder="e.g. burrito ~650 kcal, 35g protein" value="'+(swapVal.replace(/"/g,'&quot;'))+'" onchange="dpSaveSwap('+idx+',this.value)">'
+    + '</div>'
+    + '<div class="dp2-swap-macro-chip" id="dp2-swap-macro-'+idx+'" style="display:'+(_swapMacros.found?'flex':'none')+'">'
+      + (_swapMacros.found
+          ? ('<span>Logged: </span>'
+            +(_swapMacros.kcal?'<span class="smv">'+_swapMacros.kcal+'</span><span> kcal </span>':'')
+            +(_swapMacros.prot?'<span class="smv">'+_swapMacros.prot+'g</span><span> P </span>':'')
+            +(_swapMacros.carbs?'<span class="smv">'+_swapMacros.carbs+'g</span><span> C </span>':'')
+            +(_swapMacros.fat?'<span class="smv">'+_swapMacros.fat+'g</span><span> F</span>':'')
+            +'<span style="margin-left:auto;font-size:9px;opacity:.6;">→ macro bar updated</span>')
+          : '')
     + '</div>';
 
     return html;
@@ -6278,11 +6389,189 @@ function dpSaveDay() {
   setTimeout(showDayCloseCard, 300);
 }
 
+// ─── Swap macro parser ──────────────────────────────────────────────────────
+function _parseSwapMacros(text) {
+  if (!text) return { found: false };
+  var t = text.toLowerCase();
+  var kcal = 0, prot = 0, carbs = 0, fat = 0;
+  var kcalM = t.match(/~?\s*(\d+\.?\d*)\s*(?:kcal|cal(?:ories?)?)/);
+  if (kcalM) kcal = Math.round(parseFloat(kcalM[1]));
+  var protM = t.match(/(\d+)\s*g?\s*(?:protein|prot)|(?:protein|prot)\s*[:\-]?\s*(\d+)/);
+  if (protM) prot = Math.round(parseFloat(protM[1] || protM[2]));
+  var carbM = t.match(/(\d+)\s*g?\s*(?:carbs?|carbohydrates?)|(?:carbs?)\s*[:\-]?\s*(\d+)/);
+  if (carbM) carbs = Math.round(parseFloat(carbM[1] || carbM[2]));
+  var fatM  = t.match(/(\d+)\s*g?\s*fat|fat\s*[:\-]?\s*(\d+)/);
+  if (fatM) fat = Math.round(parseFloat(fatM[1] || fatM[2]));
+  // Estimate kcal from macros if not stated
+  if (!kcal && (prot || carbs || fat)) kcal = Math.round(prot*4 + carbs*4 + fat*9);
+  return { kcal: kcal, prot: prot, carbs: carbs, fat: fat, found: !!(kcal || prot) };
+}
+
 function dpSaveSwap(blockIdx, val) {
   var log13 = loadDayLog(_rDate) || initDayLog();
   if (!log13.blockSwaps) log13.blockSwaps = {};
   log13.blockSwaps['swap_'+blockIdx] = val;
   saveDayLog(_rDate, log13);
+
+  // Parse nutrition from swap text and update macro bar if values found
+  var parsed = _parseSwapMacros(val);
+  var chip = document.getElementById('dp2-swap-macro-'+blockIdx);
+  if (chip) {
+    if (parsed.found) {
+      chip.style.display = 'flex';
+      chip.innerHTML = '<span>Logged: </span>'
+        +(parsed.kcal?'<span class="smv">'+parsed.kcal+'</span><span> kcal </span>':'')
+        +(parsed.prot?'<span class="smv">'+parsed.prot+'g</span><span> P </span>':'')
+        +(parsed.carbs?'<span class="smv">'+parsed.carbs+'g</span><span> C </span>':'')
+        +(parsed.fat?'<span class="smv">'+parsed.fat+'g</span><span> F</span>':'')
+        +'<span style="margin-left:auto;font-size:9px;opacity:.6;">→ macro bar updated</span>';
+    } else {
+      chip.style.display = 'none';
+    }
+  }
+  // If the block has a mealSlot, apply parsed macros to that slot
+  if (parsed.found && MACROS) {
+    var blk = window._blocks && window._blocks[blockIdx];
+    var slot = blk && blk.mealSlot;
+    if (slot) {
+      logMealMacros(slot, {
+        prot: parsed.prot, carbs: parsed.carbs, fat: parsed.fat, kcal: parsed.kcal,
+        logged: true, note: val, source: 'swap'
+      });
+    } else {
+      // No specific slot (e.g. training day ad-hoc meal) — add to MACROS as unnamed entry
+      if (!MACROS.meals) MACROS.meals = {};
+      MACROS.meals['swap_'+blockIdx] = {
+        prot: parsed.prot, carbs: parsed.carbs, fat: parsed.fat, kcal: parsed.kcal,
+        logged: true, note: val, source: 'swap'
+      };
+      MACROS.eaten = { kcal:0, prot:0, carbs:0, fat:0 };
+      Object.values(MACROS.meals).forEach(function(x){
+        if (x && x.logged) {
+          MACROS.eaten.kcal += x.kcal||0; MACROS.eaten.prot += x.prot||0;
+          MACROS.eaten.carbs += x.carbs||0; MACROS.eaten.fat += x.fat||0;
+        }
+      });
+      saveMacros(); refreshUnifiedMacros(); adjustRemaining();
+      if (typeof syncMacrosToLog === 'function') setTimeout(syncMacrosToLog, 50);
+    }
+  }
+}
+
+// ─── Today I'm… condition chip toggle ──────────────────────────────────────
+function dpToggleCondition(flag) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  if (!log.todayConditions) log.todayConditions = [];
+  var idx = log.todayConditions.indexOf(flag);
+  if (idx > -1) {
+    log.todayConditions.splice(idx, 1);
+  } else {
+    log.todayConditions.push(flag);
+  }
+  saveDayLog(_rDate, log);
+  // Re-render the daily plan to show/hide condition banners
+  _reRenderFromCache();
+}
+
+// ─── Deload week ────────────────────────────────────────────────────────────
+function _nextMonday() {
+  var d = new Date(); var wd = d.getDay();
+  var mon = new Date(d);
+  mon.setDate(d.getDate() - (wd === 0 ? 6 : wd - 1) + 7);
+  mon.setHours(0,0,0,0);
+  return mon.toISOString().slice(0,10);
+}
+
+function openDeloadConfirm() {
+  var existing = document.getElementById('deload-confirm-overlay');
+  if (existing) { existing.remove(); return; }
+  var ov = document.createElement('div');
+  ov.id = 'deload-confirm-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;';
+  var until = _nextMonday();
+  ov.innerHTML = '<div style="background:var(--ink-1);border-radius:20px 20px 0 0;border:1px solid rgba(255,255,255,.1);width:100%;max-width:560px;padding:28px 24px 40px;">'
+    + '<div style="font-family:var(--serif);font-size:28px;font-weight:300;color:var(--dk-1);margin-bottom:8px;">Deload this week</div>'
+    + '<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.8;margin-bottom:20px;">'
+      + 'All remaining training sessions this week will run at <strong style="color:var(--dk-1);">50–60% of normal volume</strong> with <strong style="color:var(--dk-1);">RPE ≤ 6</strong>. '
+      + 'Same exercises, same frequency — just backed off. The week override resets automatically on <strong style="color:var(--jade);">'+until+'</strong>.'
+    + '</div>'
+    + '<div style="background:rgba(0,200,160,.05);border:1px solid rgba(0,200,160,.15);border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;">'
+      + '<strong style="color:var(--jade);font-weight:600;">What changes:</strong> intensity → Foundation (RPE 6–7) · volume → −2 sets per exercise · session editor defaults updated · coach notes flagged'
+    + '</div>'
+    + '<div style="display:flex;gap:10px;">'
+      + '<button onclick="applyDeloadWeek();document.getElementById(\'deload-confirm-overlay\').remove();" style="flex:1;background:var(--jade);color:#000;border:none;border-radius:10px;padding:14px;font-size:13px;font-weight:700;font-family:var(--sans);cursor:pointer;letter-spacing:.04em;">Apply deload week</button>'
+      + '<button onclick="document.getElementById(\'deload-confirm-overlay\').remove();" style="flex:0 0 80px;background:var(--ink-2);color:var(--dk-2);border:1px solid var(--bd);border-radius:10px;padding:14px;font-size:13px;font-family:var(--sans);cursor:pointer;">Cancel</button>'
+    + '</div>'
+  + '</div>';
+  ov.addEventListener('click', function(e){ if (e.target === ov) ov.remove(); });
+  document.body.appendChild(ov);
+}
+
+function applyDeloadWeek() {
+  var p = P; if (!p) return;
+  if (!p.programmeAdaptations) p.programmeAdaptations = {};
+  p.programmeAdaptations.deloadWeek = true;
+  p.programmeAdaptations.deloadUntil = _nextMonday();
+  p.programmeAdaptations.intensityScheme = 'beginner';
+  p.programmeAdaptations.volumeDelta = -2;
+  p.programmeAdaptations.intensityUpdatedAt = new Date().toISOString();
+  p.programmeAdaptations.volumeUpdatedAt = new Date().toISOString();
+  // Persist
+  var raw = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+  raw.programmeAdaptations = p.programmeAdaptations;
+  localStorage.setItem('bl_profile', JSON.stringify(raw));
+  // Bust cache for all days this week so plans regenerate with deload settings
+  var d = new Date(); var wd = d.getDay();
+  var mon = new Date(d); mon.setDate(d.getDate() - (wd===0?6:wd-1)); mon.setHours(0,0,0,0);
+  for (var i = 0; i < 7; i++) {
+    var dd = new Date(mon); dd.setDate(mon.getDate()+i);
+    var dk = 'bl_day_cache_'+dd.toISOString().slice(0,10);
+    localStorage.removeItem(dk);
+  }
+  // Re-render
+  _reRenderFromCache();
+}
+
+function endDeloadWeek() {
+  var p = P; if (!p) return;
+  if (!p.programmeAdaptations) return;
+  delete p.programmeAdaptations.deloadWeek;
+  delete p.programmeAdaptations.deloadUntil;
+  // Only clear intensity/volume if they were set by deload (not by reconciliation)
+  if (p.programmeAdaptations.intensityScheme === 'beginner') delete p.programmeAdaptations.intensityScheme;
+  if (p.programmeAdaptations.volumeDelta === -2) delete p.programmeAdaptations.volumeDelta;
+  var raw = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+  raw.programmeAdaptations = p.programmeAdaptations;
+  localStorage.setItem('bl_profile', JSON.stringify(raw));
+  _reRenderFromCache();
+}
+
+function _reRenderFromCache() {
+  // Re-renders the daily plan from the cached plan (no API call) — used after condition toggles
+  if (!TODAY) return;
+  try {
+    var cached = JSON.parse(localStorage.getItem(TODAY.cacheKey) || 'null');
+    if (cached && cached.blocks) {
+      renderPlan(cached);
+      refreshUnifiedMacros();
+      return;
+    }
+  } catch(e) {}
+}
+
+function _checkDeloadExpiry() {
+  // Called on init — auto-clears an expired deload flag
+  var p = P; if (!p || !p.programmeAdaptations) return;
+  var until = p.programmeAdaptations.deloadUntil;
+  if (until && until <= _rDate) {
+    delete p.programmeAdaptations.deloadWeek;
+    delete p.programmeAdaptations.deloadUntil;
+    if (p.programmeAdaptations.intensityScheme === 'beginner') delete p.programmeAdaptations.intensityScheme;
+    if (p.programmeAdaptations.volumeDelta === -2) delete p.programmeAdaptations.volumeDelta;
+    var raw = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+    raw.programmeAdaptations = p.programmeAdaptations;
+    localStorage.setItem('bl_profile', JSON.stringify(raw));
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -8887,11 +9176,13 @@ window._blInit = function init(){
   }
   if(cached && cached.blocks && cached.blocks.length >= 3){
     // Plan already built today — show immediately, no interaction needed
+    _checkDeloadExpiry();
     renderPlan(cached);
     refreshUnifiedMacros();
     preloadRecipes(P, TODAY);
     generateCoachNarrative(P, TODAY, cached);
     renderRecentChangeBanner(P);
+    checkSleepIntensityBanner();
     setTimeout(initDayCapture, 100);
     return;
   }
@@ -9725,6 +10016,7 @@ function buildDay(){
   try{
     var plan = buildPlan(P, TODAY);
     try { localStorage.setItem(TODAY.cacheKey, JSON.stringify(plan)); } catch(e){}
+    _checkDeloadExpiry();
     renderPlan(plan);
     renderRecentChangeBanner(P);
     checkSleepIntensityBanner();
