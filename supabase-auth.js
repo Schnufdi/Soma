@@ -27,10 +27,15 @@ window.BL.signInWithGoogle = function() {
 };
 
 window.BL.signOut = function() {
-  // Admin preview sign-out (no Supabase session to clear)
+  // Admin preview sign-out
   try {
     var _adm = JSON.parse(localStorage.getItem('bl_admin_session') || 'null');
     if (_adm && _adm.token === 'preview-admin') {
+      window._blAdminPreview = false;
+      // If there's a real Supabase session alongside preview, sign that out too
+      if (window._blUser && window._blUser.id !== 'admin-preview' && window._sb) {
+        window._sb.auth.signOut();
+      }
       window._blUser = null;
       Object.keys(localStorage).filter(function(k) {
         return k.startsWith('bl_') || k.startsWith('dayplan_');
@@ -171,16 +176,14 @@ window.BL.restoreHistory = function() {
 
 // Init on every page
 loadSupabase(function(sb) {
-  // ── Admin preview bypass ─────────────────────────────────
+  // ── Admin preview mode ───────────────────────────────────
+  // Sets a preview display label but does NOT skip Supabase auth.
+  // If a real Google session exists, data saves to Supabase normally.
+  // If no real session, data is localStorage-only with a visible warning.
   try {
     var _adm = JSON.parse(localStorage.getItem('bl_admin_session') || 'null');
     if (_adm && _adm.token === 'preview-admin') {
-      var _ap = null; try { _ap = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e2) {}
-      window._blUser = { id: 'admin-preview', email: 'preview@bodylens.app',
-        user_metadata: { full_name: (_ap && _ap.name) || 'Demo' } };
-      window._blAuthResolved = true;
-      updateNavUser(window._blUser);
-      return; // Skip Supabase auth for preview session
+      window._blAdminPreview = true;
     }
   } catch(e) {}
   // ────────────────────────────────────────────────────────
@@ -189,10 +192,25 @@ loadSupabase(function(sb) {
     var session = res.data && res.data.session;
     if (session) {
       window._blUser = session.user;
-      updateNavUser(session.user);
-      // Always verify localStorage profile matches the logged-in user
-      // This catches: stale cache, device sharing, account switching
+      window._blAuthResolved = true;
+      if (window._blAdminPreview) {
+        // Real session + preview: show preview label, save to real Supabase account
+        var _previewName = session.user.user_metadata && session.user.user_metadata.full_name
+          ? session.user.user_metadata.full_name.split(' ')[0] + ' (preview)'
+          : 'Preview';
+        updateNavUser({ user_metadata: { full_name: _previewName }, email: session.user.email });
+      } else {
+        updateNavUser(session.user);
+      }
       window.BL.loadProfile(null);
+    } else if (window._blAdminPreview) {
+      // Preview mode but NO real session — localStorage only, show warning
+      var _ap = null; try { _ap = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e2) {}
+      window._blUser = { id: 'admin-preview', email: 'preview@bodylens.app',
+        user_metadata: { full_name: (_ap && _ap.name) || 'Demo' } };
+      window._blAuthResolved = true;
+      updateNavUser(window._blUser);
+      _showPreviewUnsavedWarning();
     } else {
       window._blUser = null;
       updateNavLoggedOut();
@@ -205,7 +223,17 @@ loadSupabase(function(sb) {
     if (event === 'SIGNED_IN' && session) {
       window._blUser = session.user;
       window._blAuthResolved = true;
-      updateNavUser(session.user);
+      // Remove localStorage-only warning if it was showing
+      var _warn = document.getElementById('bl-preview-warning');
+      if (_warn) _warn.remove();
+      if (window._blAdminPreview) {
+        var _pn = session.user.user_metadata && session.user.user_metadata.full_name
+          ? session.user.user_metadata.full_name.split(' ')[0] + ' (preview)'
+          : 'Preview';
+        updateNavUser({ user_metadata: { full_name: _pn }, email: session.user.email });
+      } else {
+        updateNavUser(session.user);
+      }
       // ALWAYS load from Supabase on sign-in to ensure correct user's profile
       // This handles: Shane signs in on Sven's device, or switching accounts
       window.BL.loadProfile(function(serverProfile) {
@@ -330,6 +358,23 @@ window.BL.logProfileChange = function(newProfile) {
     });
   });
 };
+
+function _showPreviewUnsavedWarning() {
+  if (document.getElementById('bl-preview-warning')) return;
+  var banner = document.createElement('div');
+  banner.id = 'bl-preview-warning';
+  banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9998;'
+    + 'background:#1a1508;border-top:2px solid #c8791a;padding:10px 20px;'
+    + 'display:flex;align-items:center;justify-content:space-between;gap:16px;'
+    + 'font-family:sans-serif;font-size:12px;color:#a8a098;';
+  banner.innerHTML = '<span>⚠ <strong style="color:#e8e2d8">Preview mode — data is not saved.</strong> '
+    + 'You\'re not signed in with Google, so everything lives in this browser only. '
+    + '<a href="/bodylens-login.html" style="color:#00c4a0;text-decoration:none;font-weight:600">'
+    + 'Sign in to save permanently →</a></span>'
+    + '<button onclick="this.parentElement.remove()" style="background:none;border:none;'
+    + 'color:#5a5650;cursor:pointer;font-size:18px;line-height:1;padding:0 4px;flex-shrink:0">×</button>';
+  document.body.appendChild(banner);
+}
 
 // Sync is now handled by bl-sync.js which intercepts localStorage.setItem
 // and manages the offline queue, conflict resolution, and Supabase pushes.
