@@ -264,6 +264,12 @@ function render(p) {
       </div>
     </div>
 
+    <!-- Update note -->
+    <div style="background:rgba(200,148,30,0.04);border:1px solid rgba(200,148,30,0.18);border-radius:6px;padding:12px 18px;margin-bottom:28px;display:flex;align-items:baseline;gap:12px;">
+      <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);flex-shrink:0;">Profile data</span>
+      <span style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.6;">All onboarding inputs are shown below — edit any section as things change. Updates save instantly but don't regenerate your programme automatically. Tell your AI coach about significant changes (new injury, goal shift, big lifestyle change) and it will adapt recommendations accordingly.</span>
+    </div>
+
     <!-- Benchmarks -->
     <div class="prof-benchmarks" style="margin-bottom:32px;">
       <div class="prof-bm">
@@ -351,6 +357,37 @@ function render(p) {
         <div class="prof-row"><span class="prof-row-label">Primary goal</span><span class="prof-row-val">${p.goal||'—'}</span></div>
         ${p.target ? `<div class="prof-row"><span class="prof-row-label">Target</span><span class="prof-row-val">${p.target}</span></div>` : ''}
         <div class="prof-row"><span class="prof-row-label">Non-negotiables</span><span class="prof-row-val">${(p.nonNegotiables||[]).join(', ')||'—'}</span></div>
+      </div>
+
+      <!-- Lifestyle & context -->
+      <div class="prof-card gold">
+        <div class="prof-card-head">
+          <div class="prof-card-icon">🧘</div>
+          <div class="prof-card-title gold">Lifestyle &amp; context</div>
+          <button class="prof-edit-btn" onclick="openEdit('lifestyle')">✏ Edit</button>
+        </div>
+        <div class="prof-row"><span class="prof-row-label">Stress level</span><span class="prof-row-val">${p.stressLevel||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Energy pattern</span><span class="prof-row-val">${p.energyPattern||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Activity outside gym</span><span class="prof-row-val">${p.activityLevel||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Caffeine</span><span class="prof-row-val">${p.caffeineHabits||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Sleep quality</span><span class="prof-row-val">${p.sleepQuality||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Bedtime</span><span class="prof-row-val">${p.bedtime||'—'}</span></div>
+        ${p.dietHistory ? `<div class="prof-row"><span class="prof-row-label">Diet history</span><span class="prof-row-val">${p.dietHistory}</span></div>` : ''}
+      </div>
+
+      <!-- Equipment & food -->
+      <div class="prof-card jade">
+        <div class="prof-card-head">
+          <div class="prof-card-icon">⚙️</div>
+          <div class="prof-card-title jade">Equipment &amp; food</div>
+          <button class="prof-edit-btn" onclick="openEdit('equip-food')">✏ Edit</button>
+        </div>
+        <div class="prof-row"><span class="prof-row-label">Equipment used</span><span class="prof-row-val">${(p.equipmentUsed||[]).join(', ')||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Training time</span><span class="prof-row-val">${p.trainingTime||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Free weights</span><span class="prof-row-val">${p.freeWeightComfort||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Cooking approach</span><span class="prof-row-val">${p.cookingApproach||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Cuisines</span><span class="prof-row-val">${(p.cuisinePrefs||[]).join(', ')||'—'}</span></div>
+        ${p.triggerFoods ? `<div class="prof-row"><span class="prof-row-label">Trigger foods</span><span class="prof-row-val">${p.triggerFoods}</span></div>` : ''}
       </div>
 
       <!-- Health & conditions -->
@@ -516,6 +553,90 @@ function openEdit(section) {
         <span class="edit-hint">Be specific — this shapes AI coach responses and meal generation.</span>
       </div>`;
 
+  } else if (section === 'lifestyle') {
+    title.textContent = 'Update lifestyle & context';
+    body.innerHTML = `
+      <div class="edit-field">
+        <label class="edit-label">Stress level</label>
+        <div class="edit-chips">
+          ${['Low — life is pretty calm','Moderate — some pressure but coping well','High — significant ongoing stress','Very high — overwhelmed at times'].map(s=>`<div class="edit-chip${p.stressLevel===s?' sel-solid':''}" data-stress="${s}" onclick="singleChip(this,'stress')">${s.split(' — ')[0]}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Energy pattern through the day</label>
+        <div class="edit-chips">
+          ${['Strong morning energy, drops afternoon','Consistent throughout the day','Low until midday, picks up after','Crashes after lunch — dip is real','Variable — no clear pattern'].map(e=>`<div class="edit-chip${p.energyPattern===e?' sel-solid':''}" data-energy="${e}" onclick="singleChip(this,'energy')">${e}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Activity level outside training</label>
+        <div class="edit-chips">
+          ${['Sedentary — mostly desk/sitting','Lightly active — some walking','Moderately active — on my feet a lot','Very active — physical job or lots of sport'].map(a=>`<div class="edit-chip${p.activityLevel===a?' sel-solid':''}" data-activity="${a}" onclick="singleChip(this,'activity')">${a.split(' — ')[0]}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Caffeine habits</label>
+        <div class="edit-chips">
+          ${['No caffeine','1-2 coffees before noon','3-4 coffees spread through day','Caffeine sensitive — 1 max','Energy drinks or high caffeine'].map(c=>`<div class="edit-chip${p.caffeineHabits===c?' sel-solid':''}" data-caffeine="${c}" onclick="singleChip(this,'caffeine')">${c}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Sleep quality</label>
+        <div class="edit-chips">
+          ${['I sleep well — rarely wake, feel rested','OK — some nights broken','Poor — regularly wake or feel unrested','Very poor — chronic sleep issues'].map(q=>`<div class="edit-chip${p.sleepQuality===q?' sel-solid':''}" data-sleepq="${q}" onclick="singleChip(this,'sleepq')">${q.split(' — ')[0]}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Bedtime</label>
+        <div class="edit-chips">
+          ${['9–10pm','10–11pm','11pm–midnight','After midnight'].map(b=>`<div class="edit-chip${p.bedtime===b?' sel-solid':''}" data-bedtime="${b}" onclick="singleChip(this,'bedtime')">${b}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Diet history (optional)</label>
+        <textarea class="edit-textarea" id="ed-diet-history" rows="2" placeholder="e.g. yo-yo dieter, tracked for years, new to nutrition">${p.dietHistory||''}</textarea>
+      </div>`;
+
+  } else if (section === 'equip-food') {
+    var curEquip = p.equipmentUsed || [];
+    var curCuisines = p.cuisinePrefs || [];
+    title.textContent = 'Update equipment & food preferences';
+    body.innerHTML = `
+      <div class="edit-field">
+        <label class="edit-label">Equipment you actually use</label>
+        <div class="edit-chips" id="ed-equip-chips">
+          ${['Barbells','Dumbbells','Machines & cables','Resistance bands','Bodyweight','Cardio machines','Classes','Pool & swimming','Kettlebells'].map(e=>`<div class="edit-chip${curEquip.includes(e)?' sel':''}" data-equip="${e}" onclick="toggleChip(this,'equip')">${e}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Preferred training time</label>
+        <div class="edit-chips">
+          ${['Early morning — 5 to 8am','Morning — 8 to 11am','Midday — 11am to 2pm','Afternoon — 2 to 6pm','Evening — after 6pm'].map(t=>`<div class="edit-chip${p.trainingTime===t?' sel-solid':''}" data-traintime="${t}" onclick="singleChip(this,'traintime')">${t.split(' — ')[0]}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Free weight comfort</label>
+        <div class="edit-chips">
+          ${['Prefer machines','Comfortable with dumbbells','Comfortable loading my own barbell lifts','Prefer bodyweight'].map(f=>`<div class="edit-chip${p.freeWeightComfort===f?' sel-solid':''}" data-fwc="${f}" onclick="singleChip(this,'fwc')">${f}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Cooking approach</label>
+        <div class="edit-chips">
+          ${['Minimal — I meal prep or keep it simple','Home cooking — I cook most meals and want variety','Convenience-focused — quick and practical'].map(c=>`<div class="edit-chip${p.cookingApproach===c?' sel-solid':''}" data-cooking="${c}" onclick="singleChip(this,'cooking')">${c.split(' — ')[0]}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Cuisine preferences</label>
+        <div class="edit-chips" id="ed-cuisine-chips">
+          ${['Mediterranean','Asian','British/European','Middle Eastern','Mexican/Latin','Indian','No preference'].map(c=>`<div class="edit-chip${curCuisines.includes(c)?' sel':''}" data-cuisine="${c}" onclick="toggleChip(this,'cuisine')">${c}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Trigger foods / known problem foods</label>
+        <input class="edit-input" type="text" id="ed-triggers" value="${p.triggerFoods||''}" placeholder="e.g. chocolate, bread, alcohol">
+      </div>`;
+
   } else if (section === 'health') {
     var currentConds = Array.isArray(p.healthConditions) ? p.healthConditions : (p.healthConditions ? [p.healthConditions] : []);
     var currentInjuries = p.injuries || [];
@@ -605,6 +726,36 @@ function saveEdit(section) {
     var target = document.getElementById('ed-target').value.trim();
     if (goalChip) p.goal = goalChip.dataset.goal;
     if (target) p.target = target;
+
+  } else if (section === 'lifestyle') {
+    var stressChip    = document.querySelector('[data-stress].sel-solid');
+    var energyChip    = document.querySelector('[data-energy].sel-solid');
+    var activityChip  = document.querySelector('[data-activity].sel-solid');
+    var caffeineChip  = document.querySelector('[data-caffeine].sel-solid');
+    var sleepqChip    = document.querySelector('[data-sleepq].sel-solid');
+    var bedtimeChip   = document.querySelector('[data-bedtime].sel-solid');
+    var dietHist      = document.getElementById('ed-diet-history').value.trim();
+    if (stressChip)   p.stressLevel    = stressChip.dataset.stress;
+    if (energyChip)   p.energyPattern  = energyChip.dataset.energy;
+    if (activityChip) p.activityLevel  = activityChip.dataset.activity;
+    if (caffeineChip) p.caffeineHabits = caffeineChip.dataset.caffeine;
+    if (sleepqChip)   p.sleepQuality   = sleepqChip.dataset.sleepq;
+    if (bedtimeChip)  p.bedtime        = bedtimeChip.dataset.bedtime;
+    if (dietHist)     p.dietHistory    = dietHist;
+
+  } else if (section === 'equip-food') {
+    var equipSel    = Array.from(document.querySelectorAll('[data-equip].sel')).map(c => c.dataset.equip);
+    var traintimeChip = document.querySelector('[data-traintime].sel-solid');
+    var fwcChip     = document.querySelector('[data-fwc].sel-solid');
+    var cookingChip = document.querySelector('[data-cooking].sel-solid');
+    var cuisineSel  = Array.from(document.querySelectorAll('[data-cuisine].sel')).map(c => c.dataset.cuisine);
+    var triggers    = document.getElementById('ed-triggers').value.trim();
+    if (equipSel.length)  p.equipmentUsed    = equipSel;
+    if (traintimeChip)    p.trainingTime     = traintimeChip.dataset.traintime;
+    if (fwcChip)          p.freeWeightComfort = fwcChip.dataset.fwc;
+    if (cookingChip)      p.cookingApproach  = cookingChip.dataset.cooking;
+    if (cuisineSel.length) p.cuisinePrefs    = cuisineSel;
+    if (triggers)         p.triggerFoods     = triggers;
 
   } else if (section === 'health') {
     // Conditions
