@@ -20,55 +20,109 @@ body { background:var(--ink); color:var(--dk-1); }
 .page { max-width:960px; margin:0 auto; padding:0 32px 100px; }
 
 /* ── Hero ── */
-.hero { padding:56px 0 44px; border-bottom:1px solid var(--bd); margin-bottom:48px; }
+.hero { padding:52px 0 40px; border-bottom:1px solid var(--bd); margin-bottom:40px; }
 .kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
 .kicker::before { content:''; width:18px; height:1px; background:var(--jade); }
-.hero-title { font-family:var(--serif); font-size:62px; font-weight:300; line-height:0.92; letter-spacing:-0.025em; color:var(--dk-1); margin-bottom:16px; }
+.hero-title { font-family:var(--serif); font-size:60px; font-weight:300; line-height:0.92; letter-spacing:-0.025em; color:var(--dk-1); margin-bottom:16px; }
 .hero-title em { font-style:italic; color:var(--dk-3); }
 .hero-sub { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:520px; }
 
+/* ── Experience input ── */
+.exp-block { background:var(--ink-2); border:1px solid var(--bd); border-top:2px solid var(--jade); border-radius:0 0 8px 8px; padding:24px; margin-bottom:40px; }
+.exp-label { font-size:9px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; }
+.exp-input-wrap { display:flex; gap:10px; align-items:flex-end; }
+.exp-textarea { flex:1; background:var(--ink-3); border:1px solid var(--bd); border-radius:6px; padding:12px 14px; font-size:14px; font-weight:300; font-family:var(--sans); color:var(--dk-1); resize:none; line-height:1.5; min-height:52px; transition:border-color 0.15s; }
+.exp-textarea::placeholder { color:var(--dk-4); }
+.exp-textarea:focus { outline:none; border-color:rgba(0,200,160,0.4); }
+.exp-btn { background:var(--jade); color:#0a1210; border:none; border-radius:6px; padding:0 20px; height:52px; font-size:12px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; font-family:var(--sans); cursor:pointer; white-space:nowrap; flex-shrink:0; transition:opacity 0.15s; }
+.exp-btn:disabled { opacity:0.4; cursor:default; }
+.exp-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.exp-chip { font-size:11px; font-weight:400; color:var(--dk-3); background:var(--ink-3); border:1px solid var(--bd); border-radius:20px; padding:5px 12px; cursor:pointer; transition:all 0.12s; }
+.exp-chip:hover { color:var(--dk-1); border-color:var(--dk-4); }
+
+/* ── Cascade result panel ── */
+.cascade-panel { margin-bottom:40px; display:none; }
+.cascade-panel.visible { display:block; }
+.cascade-trigger { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:20px 24px; margin-bottom:16px; }
+.cascade-trigger-head { display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+.cascade-trigger-icon { font-size:26px; }
+.cascade-trigger-title { font-family:var(--serif); font-size:26px; font-weight:300; line-height:1.1; }
+.cascade-trigger-sub { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.7; }
+.cascade-narrative { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.8; margin-top:12px; padding-top:12px; border-top:1px solid var(--bd); }
+
+/* cascade chain */
+.cascade-chain { display:flex; flex-direction:column; gap:0; }
+.cascade-item { position:relative; }
+.cascade-arrow-line { display:flex; align-items:center; gap:0; padding:6px 0 6px 24px; }
+.cascade-arrow-line::before { content:''; position:absolute; left:32px; top:0; bottom:0; width:1px; background:var(--bd); z-index:0; }
+.cascade-arrow-line-icon { font-size:11px; color:var(--dk-4); position:relative; z-index:1; background:var(--ink); padding:2px 4px; }
+.cascade-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:16px 18px; margin-left:0; position:relative; overflow:hidden; cursor:pointer; transition:border-color 0.15s; }
+.cascade-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
+.cascade-card:hover { border-color:var(--dk-4); }
+.cascade-card-head { display:flex; align-items:center; gap:12px; }
+.cascade-card-node { font-size:18px; flex-shrink:0; }
+.cascade-card-name { font-size:13px; font-weight:600; }
+.cascade-card-sev { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:2px 8px; border-radius:8px; margin-left:auto; flex-shrink:0; }
+.sev-high     { background:rgba(217,78,53,.12); color:#d94e35; border:1px solid rgba(217,78,53,.2); }
+.sev-moderate { background:rgba(212,168,39,.10); color:var(--amber); border:1px solid rgba(212,168,39,.2); }
+.sev-low      { background:rgba(120,120,120,.1); color:var(--dk-3); border:1px solid var(--bd); }
+.cascade-card-mech { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.7; margin-top:8px; }
+.cascade-biomarkers { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.bio-chip { font-size:10px; font-weight:500; padding:2px 9px; border-radius:10px; font-family:var(--mono); }
+
+/* watch-for / actions */
+.cascade-footer { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+.cascade-box { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; padding:16px; }
+.cascade-box-label { font-size:9px; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--dk-4); margin-bottom:10px; }
+.cascade-box-label.amber { color:var(--amber); }
+.cascade-box-label.jade  { color:var(--jade); }
+.cascade-box ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:5px; }
+.cascade-box li { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.6; padding-left:14px; position:relative; }
+.cascade-box li::before { content:'·'; position:absolute; left:0; color:var(--dk-4); }
+
+/* loading state */
+.cascade-loading { padding:40px 24px; text-align:center; }
+.cascade-loading-ring { width:32px; height:32px; border:2px solid var(--bd); border-top-color:var(--jade); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.cascade-loading-text { font-size:12px; font-weight:300; color:var(--dk-3); }
+.cascade-loading-sub  { font-size:11px; color:var(--dk-4); margin-top:4px; }
+
+/* SVG animation */
+@keyframes pulse-edge { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+.edge-cascade { animation:pulse-edge 2s ease-in-out infinite; }
+
 /* ── Profile banner ── */
-.profile-banner { background:var(--ink-2); border:1px solid var(--bd); border-left:3px solid var(--jade); border-radius:0 6px 6px 0; padding:14px 18px; margin-bottom:40px; display:flex; align-items:center; gap:16px; }
-.profile-banner-icon { font-size:20px; flex-shrink:0; }
+.profile-banner { background:var(--ink-2); border:1px solid var(--bd); border-left:3px solid var(--jade); border-radius:0 6px 6px 0; padding:14px 18px; margin-bottom:36px; display:none; }
 .profile-banner-text { font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.6; }
 .profile-banner-text strong { color:var(--dk-1); font-weight:500; }
-.profile-banner-nodes { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.profile-banner-nodes { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
 .pbn { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:3px 10px; border-radius:10px; }
 
 /* ── Section divider ── */
-.sec { display:flex; align-items:center; gap:14px; margin:0 0 28px; font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); }
+.sec { display:flex; align-items:center; gap:14px; margin:0 0 24px; font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); }
 .sec::after { content:''; flex:1; height:1px; background:var(--bd); }
 .sec.jade { color:var(--jade); }
 .sec.amber { color:var(--amber); }
 
-/* ── Map container ── */
-.map-wrap { position:relative; background:var(--ink-2); border:1px solid var(--bd); border-radius:10px; overflow:hidden; margin-bottom:16px; }
+/* ── Map ── */
+.map-wrap { position:relative; background:var(--ink-2); border:1px solid var(--bd); border-radius:10px; overflow:hidden; margin-bottom:12px; }
 .map-svg-wrap { width:100%; }
 .map-svg-wrap svg { display:block; width:100%; height:auto; }
-
-/* SVG node & edge styles */
-.n-ring { transition:opacity 0.2s, r 0.2s; }
-.n-bg { transition:opacity 0.2s; }
+.n-ring { transition:opacity 0.3s, r 0.3s; }
+.n-bg   { transition:opacity 0.3s; }
 .n-icon { font-size:18px; dominant-baseline:central; text-anchor:middle; pointer-events:none; }
-.n-label { font-family:'Space Grotesk', sans-serif; font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; dominant-baseline:central; text-anchor:middle; pointer-events:none; fill:#c8c8c8; transition:fill 0.2s; }
+.n-label { font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; dominant-baseline:central; text-anchor:middle; pointer-events:none; transition:opacity 0.3s; }
 .n-hit { cursor:pointer; }
-.n-hit:hover .n-ring { opacity:1; r:30px; }
+.edge { fill:none; stroke-width:1.5; opacity:0.15; transition:opacity 0.4s, stroke-width 0.3s; }
+.edge.active   { opacity:0.75; stroke-width:2.5; }
+.edge.faded    { opacity:0.03; }
+.edge.cascade-on { opacity:0.8; stroke-width:3; animation:pulse-edge 2s ease-in-out infinite; }
+.node-circle { transition:opacity 0.3s, stroke-width 0.3s; }
+.node-circle.faded { opacity:0.15; }
+.map-hint { text-align:center; font-size:11px; font-weight:300; color:var(--dk-4); padding:10px 16px; }
 
-.edge { fill:none; stroke-width:1.5; opacity:0.18; transition:opacity 0.3s, stroke-width 0.3s; }
-.edge.active { opacity:0.7; stroke-width:2.5; }
-.edge.faded { opacity:0.04; }
-.edge-arrow { transition:opacity 0.3s; }
-
-.node-circle { transition:all 0.2s; }
-.node-circle.active { filter:drop-shadow(0 0 8px currentColor); }
-.node-circle.faded { opacity:0.2; }
-.node-circle.selected { stroke-width:3; }
-
-/* ── Map legend / hint ── */
-.map-hint { text-align:center; font-size:11px; font-weight:300; color:var(--dk-4); padding:12px; }
-
-/* ── Detail panel ── */
-.detail-panel { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:24px; margin-bottom:48px; min-height:120px; }
+/* ── Detail panel (explore mode) ── */
+.detail-panel { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; padding:24px; margin-bottom:40px; }
 .dp-empty { font-size:13px; font-weight:300; color:var(--dk-4); font-style:italic; }
 .dp-node-header { display:flex; align-items:center; gap:14px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--bd); }
 .dp-node-icon { font-size:28px; }
@@ -79,7 +133,7 @@ body { background:var(--ink); color:var(--dk-1); }
 .dp-conn { background:var(--ink-3); border:1px solid var(--bd); border-radius:6px; padding:12px 14px; cursor:pointer; transition:border-color 0.15s; }
 .dp-conn:hover { border-color:var(--dk-4); }
 .dp-conn-head { display:flex; align-items:center; gap:10px; }
-.dp-conn-arrow { font-size:12px; font-weight:600; color:var(--dk-3); flex-shrink:0; }
+.dp-conn-arrow { font-size:14px; font-weight:600; color:var(--dk-3); flex-shrink:0; }
 .dp-conn-title { font-size:13px; font-weight:500; color:var(--dk-1); }
 .dp-conn-mag { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:2px 8px; border-radius:8px; margin-left:auto; flex-shrink:0; }
 .mag-high     { background:rgba(217,78,53,.12); color:#d94e35; border:1px solid rgba(217,78,53,.2); }
@@ -94,23 +148,24 @@ body { background:var(--ink); color:var(--dk-1); }
 .dp-conn-link { font-size:10px; font-weight:600; letter-spacing:0.05em; color:var(--jade); background:rgba(0,200,160,.06); border:1px solid rgba(0,200,160,.15); border-radius:4px; padding:3px 9px; text-decoration:none; }
 .dp-conn-link:hover { background:rgba(0,200,160,.12); }
 
-/* ── All connections table ── */
+/* ── All connections ── */
 .all-conns { display:flex; flex-direction:column; gap:2px; }
 .all-conn-row { display:grid; grid-template-columns:1fr 20px 1fr 80px; gap:0; align-items:center; padding:10px 14px; background:var(--ink-2); border:1px solid var(--bd); border-radius:0; font-size:12px; cursor:pointer; transition:background 0.1s; }
 .all-conn-row:first-child { border-radius:6px 6px 0 0; }
-.all-conn-row:last-child { border-radius:0 0 6px 6px; }
+.all-conn-row:last-child  { border-radius:0 0 6px 6px; }
 .all-conn-row:hover { background:var(--ink-3); }
 .acr-from { font-weight:500; color:var(--dk-1); }
-.acr-arr { text-align:center; color:var(--dk-4); font-size:10px; }
-.acr-to { font-weight:300; color:var(--dk-2); }
-.acr-mag { text-align:right; }
+.acr-arr  { text-align:center; color:var(--dk-4); font-size:10px; }
+.acr-to   { font-weight:300; color:var(--dk-2); }
+.acr-mag  { text-align:right; }
 
-/* ── Mobile ── */
 @media(max-width:700px){
   .hero-title { font-size:40px; }
-  .page { padding:0 20px 80px; }
-  .map-hint { font-size:10px; }
-  .all-conn-row { grid-template-columns:1fr 16px 1fr 60px; padding:8px 10px; font-size:11px; }
+  .page { padding:0 18px 80px; }
+  .cascade-footer { grid-template-columns:1fr; }
+  .exp-input-wrap { flex-direction:column; align-items:stretch; }
+  .exp-btn { height:44px; }
+  .all-conn-row { grid-template-columns:1fr 14px 1fr 56px; padding:8px 10px; font-size:11px; }
 }
 </style>
 </head>
@@ -121,47 +176,64 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="hero">
     <div class="kicker">Systems thinking</div>
     <h1 class="hero-title">Everything<br><em>connects</em></h1>
-    <p class="hero-sub">Stress doesn't just make you tired. It suppresses testosterone, disrupts sleep, changes what you eat, and blunts your training response. Every system feeds every other system. This map shows how.</p>
+    <p class="hero-sub">Stress doesn't just make you tired. It suppresses testosterone, disrupts sleep, changes what you eat, and blunts your training response. Type what you're experiencing — see the full biological cascade.</p>
   </div>
 
-  <!-- Profile banner (filled by JS) -->
-  <div class="profile-banner" id="profile-banner" style="display:none">
-    <div class="profile-banner-icon">🎯</div>
-    <div>
-      <div class="profile-banner-text" id="profile-banner-text"></div>
-      <div class="profile-banner-nodes" id="profile-banner-nodes"></div>
+  <!-- Experience input -->
+  <div class="exp-block">
+    <div class="exp-label">What are you experiencing?</div>
+    <div class="exp-input-wrap">
+      <textarea id="exp-input" class="exp-textarea" rows="2" placeholder="e.g. I've been struggling to sleep this week, work stress is maxed out, my training feels completely flat…"></textarea>
+      <button class="exp-btn" id="exp-btn" onclick="runCascadeAnalysis()">Analyse →</button>
+    </div>
+    <div class="exp-chips" id="exp-chips">
+      <span class="exp-chip" onclick="setExp(this)">😴 Struggling to sleep</span>
+      <span class="exp-chip" onclick="setExp(this)">🧠 High stress / burnout</span>
+      <span class="exp-chip" onclick="setExp(this)">💪 Training feels flat</span>
+      <span class="exp-chip" onclick="setExp(this)">🍕 Constant hunger and cravings</span>
+      <span class="exp-chip" onclick="setExp(this)">😔 Low motivation and mood dips</span>
+      <span class="exp-chip" onclick="setExp(this)">😓 Always sore, can't recover</span>
+      <span class="exp-chip" onclick="setExp(this)">⚖️ Not losing fat despite eating well</span>
+      <span class="exp-chip" onclick="setExp(this)">🌙 Tired but can't fall asleep</span>
     </div>
   </div>
 
+  <!-- Cascade result (hidden until analysis runs) -->
+  <div class="cascade-panel" id="cascade-panel"></div>
+
+  <!-- Profile banner -->
+  <div class="profile-banner" id="profile-banner">
+    <div class="profile-banner-text" id="profile-banner-text"></div>
+    <div class="profile-banner-nodes" id="profile-banner-nodes"></div>
+  </div>
+
   <!-- System Map -->
-  <div class="sec jade">System map</div>
+  <div class="sec jade">System map — tap any node</div>
   <div class="map-wrap">
     <div class="map-svg-wrap">
       <svg id="map-svg" viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L6,3 z" fill="rgba(200,200,200,0.4)"/>
+            <path d="M0,0 L0,6 L6,3 z" fill="rgba(200,200,200,0.35)"/>
           </marker>
-          <marker id="arr-hi" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L6,3 z" fill="rgba(200,200,200,0.8)"/>
+          <marker id="arr-active" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="rgba(255,255,255,0.7)"/>
           </marker>
         </defs>
-        <!-- edges drawn by JS -->
         <g id="edges-layer"></g>
-        <!-- nodes drawn by JS -->
         <g id="nodes-layer"></g>
       </svg>
     </div>
-    <div class="map-hint">Tap any node to explore its connections</div>
+    <div class="map-hint" id="map-hint">Tap a node to explore its connections · or type what you're experiencing above for AI cascade analysis</div>
   </div>
 
-  <!-- Detail panel -->
+  <!-- Detail panel (node explore mode) -->
   <div class="detail-panel" id="detail-panel">
-    <div class="dp-empty">Select a node above to see how it connects to everything else.</div>
+    <div class="dp-empty">Select a node above to see how it connects to everything else — or type what you're experiencing to get a full AI cascade analysis.</div>
   </div>
 
-  <!-- All connections list -->
-  <div class="sec amber">All connections</div>
+  <!-- All connections -->
+  <div class="sec amber" style="margin-top:16px">All 26 connections</div>
   <div class="all-conns" id="all-conns"></div>
 
 </div>
@@ -169,168 +241,138 @@ body { background:var(--ink); color:var(--dk-1); }
 <script src="nav.js"></script>
 <script src="pwa.js"></script>
 <script>
-// ── Data ────────────────────────────────────────────────────────────────────
+var API = '/api/chat';
+var MODEL = 'claude-sonnet-4-20250514';
+
+// ── Node & connection data ────────────────────────────────────────────────────
 
 var NODES = [
-  { id:0, name:'Sleep',       icon:'🌙', color:'#7eb8d4', cx:500, cy:52,  desc:'The master recovery system',      pages:[{l:'Sleep science',u:'bodylens-sleep.html'}] },
-  { id:1, name:'Training',    icon:'💪', color:'#00c8a0', cx:710, cy:145, desc:'The adaptation stimulus',          pages:[{l:'Training',u:'bodylens-training.html'},{l:'Strength',u:'bodylens-strength.html'}] },
-  { id:2, name:'Nutrition',   icon:'🥗', color:'#d4a827', cx:790, cy:310, desc:'Fuel, signals & body composition', pages:[{l:'Food & macros',u:'bodylens-food.html'},{l:'Meal builder',u:'bodylens-meals.html'}] },
+  { id:0, name:'Sleep',       icon:'🌙', color:'#7eb8d4', cx:500, cy:52,  desc:'The master recovery system',       pages:[{l:'Sleep science',u:'bodylens-sleep.html'}] },
+  { id:1, name:'Training',    icon:'💪', color:'#00c8a0', cx:710, cy:145, desc:'The adaptation stimulus',           pages:[{l:'Training',u:'bodylens-training.html'},{l:'Strength',u:'bodylens-strength.html'}] },
+  { id:2, name:'Nutrition',   icon:'🥗', color:'#d4a827', cx:790, cy:310, desc:'Fuel, signals & body composition',  pages:[{l:'Food & macros',u:'bodylens-food.html'},{l:'Meal builder',u:'bodylens-meals.html'}] },
   { id:3, name:'Recovery',    icon:'⚡', color:'#a78bda', cx:710, cy:468, desc:'Where adaptation actually happens', pages:[{l:'Recovery',u:'bodylens-recovery.html'}] },
-  { id:4, name:'Hormones',    icon:'🔬', color:'#e87d7d', cx:500, cy:530, desc:'The regulation network',           pages:[{l:'Testosterone',u:'bodylens-testosterone.html'},{l:'Female hormones',u:'bodylens-hormones-female.html'}] },
-  { id:5, name:'Stress',      icon:'🧠', color:'#d94e35', cx:290, cy:468, desc:'The threat response system',       pages:[{l:'Mental health',u:'bodylens-mentalhealth.html'}] },
-  { id:6, name:'Mind',        icon:'❤️', color:'#9bcfb8', cx:210, cy:310, desc:'Mood, motivation & gut-brain',     pages:[{l:'Mental health',u:'bodylens-mentalhealth.html'},{l:'Alcohol',u:'bodylens-alcohol.html'}] },
-  { id:7, name:'Supplements', icon:'💊', color:'#8ba8c4', cx:290, cy:145, desc:'The leverage amplifiers',          pages:[{l:'Supplements',u:'bodylens-supplements.html'},{l:'Accelerators',u:'bodylens-accelerators.html'}] },
+  { id:4, name:'Hormones',    icon:'🔬', color:'#e87d7d', cx:500, cy:530, desc:'The regulation network',            pages:[{l:'Testosterone',u:'bodylens-testosterone.html'},{l:'Female hormones',u:'bodylens-hormones-female.html'}] },
+  { id:5, name:'Stress',      icon:'🧠', color:'#d94e35', cx:290, cy:468, desc:'The threat response system',        pages:[{l:'Mental health',u:'bodylens-mentalhealth.html'}] },
+  { id:6, name:'Mind',        icon:'❤️', color:'#9bcfb8', cx:210, cy:310, desc:'Mood, motivation & gut-brain',      pages:[{l:'Mental health',u:'bodylens-mentalhealth.html'}] },
+  { id:7, name:'Supplements', icon:'💊', color:'#8ba8c4', cx:290, cy:145, desc:'The leverage amplifiers',           pages:[{l:'Supplements',u:'bodylens-supplements.html'},{l:'Accelerators',u:'bodylens-accelerators.html'}] },
 ];
 
 var CONNECTIONS = [
-  // Sleep connections
   { f:0, t:5, bi:true,  mag:'high',     label:'Sleep ↔ Stress',
-    mech:'Elevated cortisol delays sleep onset and fragments REM. A single poor night raises next-day cortisol 37%. Poor sleep prevents cortisol recovery overnight — creating a self-reinforcing loop that\'s hard to break without addressing both sides.',
-    soma:'Condition chip 😴 Tired modulates training intensity without needing sleep data. Deload week resets accumulated stress load.' },
-
+    mech:'Elevated cortisol delays sleep onset and fragments REM. A single poor night raises next-day cortisol 37%. Poor sleep prevents cortisol recovery overnight — a self-reinforcing loop hard to break without addressing both sides.',
+    soma:'Condition chip 😴 Tired modulates training intensity. Deload week resets accumulated stress load.' },
   { f:0, t:4, bi:false, mag:'high',     label:'Sleep → Hormones',
-    mech:'HGH peaks exclusively in deep sleep (stage 3–4). Testosterone is synthesised overnight — even one night of 5h sleep can drop testosterone 10–15%. Prolactin, leptin and ghrelin are all reset during sleep.',
-    soma:'Low sleep score from your wearable triggers reduced training volume. Sleep data feeds into the daily plan engine.' },
-
+    mech:'HGH peaks exclusively in deep sleep (stage 3–4). Testosterone is synthesised overnight — even one night of 5h sleep drops testosterone 10–15%. Leptin, ghrelin, prolactin and insulin all reset during sleep.',
+    soma:'Low sleep score from wearable triggers reduced training volume. Sleep data feeds the daily plan engine.' },
   { f:0, t:2, bi:false, mag:'high',     label:'Sleep → Nutrition choices',
-    mech:'Sleep deprivation increases ghrelin (hunger hormone) +28% and decreases leptin (satiety) −18%. This isn\'t willpower — it\'s a measurable biological drive toward high-calorie, high-carb food. One poor night can add 300–400 kcal the next day.',
-    soma:'Macro targets stay constant; meal engine maintains protein-first structure to counter ghrelin-driven snacking.' },
-
+    mech:'Sleep deprivation increases ghrelin (hunger hormone) +28% and decreases leptin (satiety) −18%. This is not willpower — it\'s measurable biology. One poor night can add 300–400 kcal the next day driven by cravings for high-carb, high-fat food.',
+    soma:'Protein-first meal structure helps counter ghrelin-driven snacking. Macro targets stay constant.' },
   { f:0, t:1, bi:true,  mag:'moderate', label:'Sleep ↔ Training',
-    mech:'Good sleep improves power output, reaction time and motivation. Morning training improves sleep onset and deep sleep duration. But late evening training (within 2h of bed) delays melatonin onset and reduces sleep quality in ~30% of people.',
-    soma:'Training timing personalised by chronotype setting in your profile.' },
-
+    mech:'Good sleep improves power output, reaction time and motivation. Morning training improves sleep onset and deep sleep duration. Late evening training (within 2h of bed) delays melatonin in ~30% of people.',
+    soma:'Training timing personalised by chronotype in your profile.' },
   { f:0, t:3, bi:false, mag:'high',     label:'Sleep → Recovery',
-    mech:'Muscle protein synthesis peaks during sleep. Glycogen replenishment is optimised by sleep — restricted sleep after training significantly reduces this process. Sleep is not rest; it\'s the biological mechanism of adaptation.',
-    soma:'Rest days and sleep quality work together. HRV data from wearable gates next-day session intensity.' },
-
-  // Stress connections
+    mech:'Muscle protein synthesis peaks during sleep. Glycogen replenishment is impaired by sleep restriction after training. Sleep is not rest — it is the biological mechanism of adaptation.',
+    soma:'HRV and sleep quality gate next-day session intensity. Rest days protected in programme.' },
   { f:5, t:4, bi:false, mag:'high',     label:'Stress → Hormones',
-    mech:'Chronic cortisol elevation directly suppresses testosterone production (cortisol competes with LH signalling at the gonadal level). Also disrupts thyroid function (T4→T3 conversion), insulin sensitivity, and progesterone in women. Sustained stress is one of the most potent hormone disruptors.',
-    soma:'Deload week reduces total training stress load. Condition chips (Tired, Sore) cap RPE to reduce cortisol spike from training.' },
-
+    mech:'Chronic cortisol elevation directly suppresses testosterone production — cortisol competes with LH signalling at the gonadal level. Also disrupts thyroid function (T4→T3 conversion), insulin sensitivity, and progesterone in women.',
+    soma:'Deload week reduces training stress load. Tired/Sore chips cap RPE to reduce cortisol spike.' },
   { f:5, t:2, bi:false, mag:'high',     label:'Stress → Nutrition',
-    mech:'Cortisol increases appetite for high-fat, high-sugar foods via dopamine reward pathway activation. Emotional eating is a measurable biological response, not weakness. Cortisol also increases insulin resistance, meaning calories are more likely to be stored as fat under stress.',
-    soma:'Meal engine maintains protein and calorie targets. Easy-food mode available for sick/stressed days via condition chips.' },
-
+    mech:'Cortisol increases appetite for high-fat, high-sugar foods via dopamine reward pathway. Emotional eating is a measurable biological response. Cortisol also increases insulin resistance — calories are more likely stored as fat under stress.',
+    soma:'Meal engine maintains protein and calorie targets. Easy-food mode available via condition chips.' },
   { f:5, t:6, bi:true,  mag:'high',     label:'Stress ↔ Mind',
-    mech:'Stress activates the HPA axis (hypothalamus-pituitary-adrenal), raising anxiety, reducing prefrontal cortex function (decision-making, impulse control) and increasing amygdala reactivity. Mental practices (meditation, therapy) measurably reduce cortisol and HPA reactivity within 8 weeks.',
-    soma:'Mental health page: HRV breathing protocol, CBT-i basics, stress management toolkit.' },
-
+    mech:'Stress activates the HPA axis — raising anxiety, reducing prefrontal cortex function (decision-making, impulse control) and increasing amygdala reactivity. Mental practices (meditation, therapy) measurably reduce cortisol within 8 weeks.',
+    soma:'Mental health page: HRV breathing protocol, CBT-i basics, stress toolkit.' },
   { f:5, t:1, bi:false, mag:'moderate', label:'Stress → Training capacity',
-    mech:'Psychological stress and training stress share the same recovery systems. High life stress (work, relationships) reduces training capacity — the same total stress budget must accommodate both. Ignoring this leads to overreaching.',
-    soma:'Deload week can be triggered manually at any time. Condition chips allow real-time intensity adjustment.' },
-
-  // Training connections
+    mech:'Psychological stress and training stress share the same recovery systems. High life stress reduces training capacity — the total stress budget must accommodate both. Ignoring this leads to overreaching.',
+    soma:'Deload week can be triggered manually. Condition chips allow real-time intensity adjustment.' },
   { f:1, t:3, bi:true,  mag:'high',     label:'Training ↔ Recovery',
-    mech:'Every session creates micro-damage and glycogen depletion. Supercompensation (the adaptation overshoot) occurs during recovery, not during training. 48–72h per muscle group is the minimum for full recovery. Under-recovery leads to overreaching within 2 weeks — measurable as performance plateau then decline.',
-    soma:'Programme enforces rest days. Deload week auto-triggered every 4–6 weeks. Rest day blocks visible in daily plan.' },
-
+    mech:'Every session creates micro-damage and glycogen depletion. Supercompensation (the adaptation overshoot) occurs during recovery, not training. 48–72h per muscle group minimum. Under-recovery leads to overreaching within 2 weeks.',
+    soma:'Programme enforces rest days. Deload auto-triggered every 4–6 weeks.' },
   { f:1, t:4, bi:true,  mag:'high',     label:'Training ↔ Hormones',
-    mech:'Resistance training triggers acute testosterone, IGF-1 and HGH pulses. Compound, multi-joint movements (deadlift, squat, press) produce larger hormonal responses than isolation exercises. Conversely, hormonal status sets the ceiling of training adaptation — low testosterone reduces hypertrophic response by up to 30%.',
-    soma:'Programme built around compound movements for hormonal stimulus. Training type selectable in profile.' },
-
+    mech:'Resistance training triggers testosterone, IGF-1 and HGH pulses. Compound movements produce larger hormonal responses. Hormonal status sets the ceiling of adaptation — low testosterone reduces hypertrophic response up to 30%.',
+    soma:'Programme built around compound movements. Training type selectable in profile.' },
   { f:1, t:2, bi:false, mag:'moderate', label:'Training → Nutrient partitioning',
-    mech:'Post-exercise insulin sensitivity peaks at 0–2h (the "anabolic window" is real, though wider than thought — up to 4h). Muscle protein synthesis stays elevated 24–48h post-session. Nutrients consumed in this window are more likely to go to muscle than fat.',
+    mech:'Post-exercise insulin sensitivity peaks 0–2h. Muscle protein synthesis elevated 24–48h post-session. Nutrients in this window are more likely to go to muscle than fat.',
     soma:'Meal engine places protein meals close to training windows in your daily plan.' },
-
   { f:1, t:6, bi:false, mag:'moderate', label:'Training → Mind',
-    mech:'Exercise is one of the most effective antidepressants studied — comparable to SSRIs in mild-moderate depression. Mechanism: BDNF (brain-derived neurotrophic factor) increase, endocannabinoid release, serotonin and dopamine upregulation. Effects visible within 2–4 weeks.',
+    mech:'Exercise is one of the most effective antidepressants studied — comparable to SSRIs in mild-moderate depression. Mechanism: BDNF increase, endocannabinoid release, serotonin and dopamine upregulation. Effects visible within 2–4 weeks.',
     soma:'Training consistency tracked in daily plan and week view.' },
-
-  // Nutrition connections
   { f:2, t:4, bi:false, mag:'moderate', label:'Nutrition → Hormones',
-    mech:'Dietary fat (especially saturated and monounsaturated) is the raw material for steroid hormone synthesis. Very low fat diets (< 20% of calories from fat) measurably suppress testosterone. Zinc and magnesium from food directly support testosterone production. Insulin, itself a hormone, is regulated primarily by carbohydrate intake.',
+    mech:'Dietary fat (saturated and monounsaturated) is the raw material for steroid hormone synthesis. Very low fat diets (< 20% of calories) measurably suppress testosterone. Zinc and magnesium from food directly support testosterone production.',
     soma:'Macro targets maintain fat floor based on bodyweight. Meal engine respects minimum fat allocation.' },
-
   { f:2, t:3, bi:false, mag:'high',     label:'Nutrition → Recovery',
-    mech:'Leucine threshold (approx. 3g per meal) is required to trigger mTOR and muscle protein synthesis. Total daily protein (1.6–2.2g/kg) matters more than timing for most. Anti-inflammatory foods — omega-3, polyphenols, curcumin — measurably reduce DOMS duration and inflammatory markers.',
+    mech:'Leucine threshold (~3g per meal) required to trigger mTOR and muscle protein synthesis. Total daily protein (1.6–2.2g/kg) matters most. Anti-inflammatory foods — omega-3, polyphenols, curcumin — reduce DOMS duration.',
     soma:'Protein targets per meal planned by engine. Accelerators page covers anti-inflammatory protocols.' },
-
   { f:2, t:6, bi:true,  mag:'moderate', label:'Nutrition ↔ Mind',
-    mech:'The gut produces ~90% of the body\'s serotonin via the enteroendocrine system. Dietary diversity supports the microbiome, which directly modulates mood via the vagus nerve (gut-brain axis). Ultra-processed food diets are linked to 20–30% higher depression risk in prospective studies. Omega-3 deficiency is associated with depression and cognitive decline.',
+    mech:'Gut produces ~90% of the body\'s serotonin. Dietary diversity supports microbiome, which modulates mood via the vagus nerve. Ultra-processed food diets are linked to 20–30% higher depression risk in prospective studies.',
     soma:'IBS/gut condition chip switches to low-FODMAP meal mode. Meal diversity encouraged by engine.' },
-
   { f:2, t:0, bi:false, mag:'low',      label:'Nutrition → Sleep',
-    mech:'Tryptophan (from protein) is the precursor to serotonin → melatonin. A carbohydrate-containing meal 2–4h before bed may improve tryptophan transport. Magnesium-rich foods support sleep quality. Late heavy meals delay sleep onset and reduce sleep quality.',
-    soma:'Evening meal timing can be adjusted in meal plan settings.' },
-
-  // Recovery connections
+    mech:'Tryptophan (from protein) is the precursor to serotonin → melatonin. Carbohydrates 2–4h before bed may improve tryptophan transport. Magnesium-rich foods support sleep quality. Late heavy meals delay sleep onset.',
+    soma:'Evening meal timing adjustable in meal plan settings.' },
   { f:3, t:1, bi:false, mag:'high',     label:'Recovery → Training capacity',
-    mech:'Incomplete recovery is the primary cause of overreaching and eventual overtraining syndrome. Recovery is not passive — it requires sleep, nutrition and time. Full recovery unlocks the supercompensation effect: you\'re 5–10% stronger than baseline after each properly recovered session.',
-    soma:'HRV and sleep score from wearable gate next-day training intensity. Deload week resets fatigue accumulation.' },
-
+    mech:'Incomplete recovery is the primary cause of overreaching. Full recovery unlocks the supercompensation effect — you\'re 5–10% stronger than baseline after each properly recovered session.',
+    soma:'HRV and sleep score gate next-day training intensity. Deload week resets fatigue accumulation.' },
   { f:3, t:4, bi:false, mag:'high',     label:'Recovery → Hormones',
-    mech:'Testosterone and IGF-1 peak during recovery, not during training. Chronic under-recovery (training too hard, too often) suppresses anabolic hormones and chronically elevates cortisol — mimicking the hormonal profile of overtraining, which can take months to reverse.',
-    soma:'Recovery days protected in programme. Deload week prevents accumulated suppression.' },
-
-  // Hormone connections
+    mech:'Testosterone and IGF-1 peak during recovery, not training. Chronic under-recovery suppresses anabolic hormones and chronically elevates cortisol — a profile that can take months to reverse.',
+    soma:'Recovery days protected in programme. Deload prevents accumulated hormonal suppression.' },
   { f:4, t:1, bi:false, mag:'high',     label:'Hormones → Training adaptations',
-    mech:'Testosterone, IGF-1 and HGH are the primary mediators of muscle protein synthesis and fat oxidation. Without adequate hormonal environment, training stimulus produces a fraction of possible adaptation. This is why two people on identical programmes can have wildly different results.',
-    soma:'Testosterone and female hormones pages cover lifestyle optimisation. Soma\'s programme selects training type based on your goal and hormonal context.' },
-
+    mech:'Testosterone, IGF-1 and HGH are the primary mediators of muscle protein synthesis and fat oxidation. Without adequate hormonal environment, the same training produces a fraction of possible adaptation.',
+    soma:'Testosterone and female hormones pages cover lifestyle optimisation. Programme selects training type by goal and hormonal context.' },
   { f:4, t:6, bi:true,  mag:'moderate', label:'Hormones ↔ Mind',
-    mech:'Testosterone, oestrogen and thyroid hormones directly regulate mood, motivation and cognitive function. Low testosterone presents as depression. Thyroid dysfunction is frequently misdiagnosed as depression. Female hormonal phases (luteal phase) measurably impact perceived exertion, recovery and mood.',
+    mech:'Testosterone, oestrogen and thyroid hormones directly regulate mood, motivation and cognitive function. Low testosterone presents as depression. Female hormonal phases (luteal phase) measurably impact perceived exertion and mood.',
     soma:'Female hormones page covers cycle-based training adjustments. Mental health page cross-links.' },
-
-  // Supplement connections
-  { f:7, t:5, bi:false, mag:'moderate', label:'Supplements → Stress/cortisol',
-    mech:'Ashwagandha (KSM-66, 600mg/day) reduces cortisol 27–30% in randomised controlled trials. Rhodiola rosea (400mg) reduces HPA axis reactivity. B vitamins (B5, B6) support adrenal function. L-theanine (200mg) reduces cortisol response to acute stressors without sedation.',
-    soma:'Accelerators page: adaptogen protocol for high-stress profiles. Supplements page for evidence tiers.',
-    links:[{l:'Accelerators',u:'bodylens-accelerators.html'},{l:'Supplements',u:'bodylens-supplements.html'}] },
-
+  { f:7, t:5, bi:false, mag:'moderate', label:'Supplements → Stress',
+    mech:'Ashwagandha (KSM-66, 600mg/day) reduces cortisol 27–30% in RCTs. Rhodiola rosea reduces HPA axis reactivity. L-theanine (200mg) reduces cortisol response to acute stressors without sedation.',
+    soma:'Accelerators page: adaptogen protocol for high-stress profiles.',
+    links:[{l:'Accelerators',u:'bodylens-accelerators.html'}] },
   { f:7, t:0, bi:false, mag:'moderate', label:'Supplements → Sleep',
-    mech:'Magnesium glycinate (300–400mg before bed) improves sleep quality and duration via GABA receptor modulation. Glycine (3g) reduces core body temperature for faster onset. Ashwagandha reduces sleep onset latency and increases sleep efficiency. Apigenin (from chamomile) is a mild GABA agonist.',
-    soma:'Accelerators page: sleep stack. Supplement protocol cross-linked with sleep science page.',
-    links:[{l:'Sleep science',u:'bodylens-sleep.html'},{l:'Accelerators',u:'bodylens-accelerators.html'}] },
-
+    mech:'Magnesium glycinate (300–400mg before bed) improves sleep quality via GABA receptor modulation. Glycine (3g) lowers core temperature for faster onset. Ashwagandha reduces sleep onset latency by ~15 min.',
+    soma:'Accelerators page: sleep stack with evidence tiers.',
+    links:[{l:'Accelerators',u:'bodylens-accelerators.html'},{l:'Sleep science',u:'bodylens-sleep.html'}] },
   { f:7, t:1, bi:false, mag:'high',     label:'Supplements → Training',
-    mech:'Creatine monohydrate (5g/day) is the highest evidence-base supplement — +8–14% strength over 4 weeks, via phosphocreatine replenishment. Caffeine (3–6mg/kg, 30–60min before) acutely improves performance 10–15%. Beta-alanine buffers lactate for endurance. Collagen + vitamin C pre-workout supports connective tissue.',
-    soma:'Accelerators page: performance stack with evidence tiers and protocols.',
-    links:[{l:'Accelerators',u:'bodylens-accelerators.html'},{l:'Protein bars',u:'bodylens-proteinbars.html'}] },
-
+    mech:'Creatine monohydrate (5g/day): +8–14% strength over 4 weeks — highest evidence base of any supplement. Caffeine (3–6mg/kg): +10–15% performance acutely. Beta-alanine buffers lactate. Collagen + vitamin C supports connective tissue.',
+    soma:'Accelerators page: performance stack with protocols.',
+    links:[{l:'Accelerators',u:'bodylens-accelerators.html'}] },
   { f:7, t:3, bi:false, mag:'moderate', label:'Supplements → Recovery',
-    mech:'Omega-3 (2–3g EPA+DHA/day) reduces muscle soreness markers (CK, IL-6) by 20–30% in RCTs. Curcumin + piperine reduces DOMS duration. Tart cherry extract reduces oxidative stress. Creatine also accelerates glycogen replenishment post-training.',
+    mech:'Omega-3 (2–3g EPA+DHA/day) reduces muscle soreness markers (CK, IL-6) by 20–30% in RCTs. Curcumin + piperine reduces DOMS duration. Tart cherry extract reduces oxidative stress.',
     soma:'Recovery page: anti-inflammatory supplement protocol.',
-    links:[{l:'Recovery',u:'bodylens-recovery.html'},{l:'Supplements',u:'bodylens-supplements.html'}] },
-
-  // Mind connections
+    links:[{l:'Recovery',u:'bodylens-recovery.html'}] },
   { f:6, t:5, bi:false, mag:'moderate', label:'Mind → Stress reduction',
-    mech:'Mindfulness-based stress reduction (MBSR), CBT and social connection measurably lower HPA axis reactivity. 8-week MBSR reduces cortisol by ~15%. HRV biofeedback (5 min/day) shows measurable cortisol reduction after 4 weeks. These are biological interventions, not soft skills.',
-    soma:'Mental health page: HRV breathing protocol, stress tools.',
+    mech:'Mindfulness-based stress reduction (MBSR), CBT and social connection measurably lower HPA axis reactivity. 8-week MBSR reduces cortisol ~15%. HRV biofeedback (5 min/day) shows measurable cortisol reduction after 4 weeks.',
+    soma:'Mental health page: HRV breathing protocol, stress management tools.',
     links:[{l:'Mental health',u:'bodylens-mentalhealth.html'}] },
-
   { f:6, t:0, bi:false, mag:'high',     label:'Mind → Sleep quality',
-    mech:'Anxiety is the primary driver of sleep-onset insomnia. Racing thoughts activate the sympathetic nervous system, preventing the parasympathetic state required for sleep onset. CBT-i (cognitive behavioural therapy for insomnia) outperforms sleep medication in long-term outcomes in every head-to-head study.',
-    soma:'Sleep page: sleep hygiene protocol, CBT-i basics, wind-down routine.',
+    mech:'Anxiety is the primary driver of sleep-onset insomnia. Racing thoughts activate the sympathetic nervous system, preventing the parasympathetic state required for sleep. CBT-i outperforms sleep medication in every long-term head-to-head study.',
+    soma:'Sleep page: sleep hygiene, CBT-i basics, wind-down protocol.',
     links:[{l:'Sleep science',u:'bodylens-sleep.html'}] },
 ];
 
-// ── Goal-based priority highlighting ────────────────────────────────────────
+// ── Goal-based priority highlighting ─────────────────────────────────────────
 
 var GOAL_PRIORITY = {
-  'recomp':       { nodes:[1,2,3,4],   label:'Your goal is body recomposition', note:'The Training → Hormones → Recovery triangle is your primary loop. Nutrition quality determines how much of your training converts to muscle vs fat.' },
-  'lose':         { nodes:[2,5,0,6],   label:'Your goal is fat loss', note:'Nutrition and Stress are your highest-leverage levers. Chronic stress drives cortisol, which increases fat storage and hunger. Sleep quality directly controls appetite hormones.' },
-  'gain':         { nodes:[1,3,7,4],   label:'Your goal is muscle gain', note:'The Training → Recovery → Hormones cycle determines your ceiling. Supplements (creatine + protein) are genuinely high-ROI here. Under-recovery is the most common reason gains stall.' },
-  'performance':  { nodes:[1,3,7,0],   label:'Your goal is performance', note:'Sleep and Recovery are your performance edge — more than any training tweak. Supplements (creatine, caffeine, beta-alanine) are evidence-backed for performance.' },
-  'longevity':    { nodes:[0,4,5,6],   label:'Your goal is longevity', note:'Sleep and Stress management have the largest all-cause mortality effects in the epidemiology. Hormonal health (especially after 35) is the third pillar.' },
-  'maintain':     { nodes:[0,2,5,3],   label:'Your goal is maintenance', note:'Sleep, Nutrition consistency and Stress management are the three pillars. Inconsistency in any one destabilises the others.' },
+  'recomp':      { nodes:[1,2,3,4],   label:'Your goal is body recomposition', note:'The Training → Hormones → Recovery triangle is your primary loop. Nutrition quality determines how much training converts to muscle vs fat.' },
+  'lose':        { nodes:[2,5,0,6],   label:'Your goal is fat loss',           note:'Nutrition and Stress are your highest-leverage levers. Chronic stress drives cortisol which increases fat storage and hunger. Sleep quality directly controls appetite hormones.' },
+  'gain':        { nodes:[1,3,4,7],   label:'Your goal is muscle gain',        note:'The Training → Recovery → Hormones cycle determines your ceiling. Supplements (creatine + protein) are high-ROI here. Under-recovery is the most common reason gains stall.' },
+  'performance': { nodes:[1,3,7,0],   label:'Your goal is performance',        note:'Sleep and Recovery are your performance edge — more than any training tweak. Supplements (creatine, caffeine) are evidence-backed for performance.' },
+  'longevity':   { nodes:[0,4,5,6],   label:'Your goal is longevity',          note:'Sleep and Stress management have the largest all-cause mortality effects in epidemiology. Hormonal health after 35 is the third pillar.' },
+  'maintain':    { nodes:[0,2,5,3],   label:'Your goal is maintenance',        note:'Sleep, Nutrition consistency and Stress management are the three pillars. Inconsistency in any one destabilises the others.' },
 };
 
-// ── Profile read ─────────────────────────────────────────────────────────────
+// ── Profile ───────────────────────────────────────────────────────────────────
 
+var _profile = null;
 (function(){
   try {
     var raw = localStorage.getItem('bl_profile');
-    if (!raw) return;
-    var p = JSON.parse(raw);
-    var goal = p.goal || p.primaryGoal || '';
+    if(!raw) return;
+    _profile = JSON.parse(raw);
+    var goal = _profile.goal || _profile.primaryGoal || '';
     var priority = GOAL_PRIORITY[goal];
-    if (!priority) return;
+    if(!priority) return;
     var banner = document.getElementById('profile-banner');
     var txt = document.getElementById('profile-banner-text');
     var nodesEl = document.getElementById('profile-banner-nodes');
-    banner.style.display = 'flex';
+    banner.style.display = 'block';
     txt.innerHTML = '<strong>' + priority.label + '.</strong> ' + priority.note;
     priority.nodes.forEach(function(nid){
       var n = NODES[nid];
@@ -342,168 +384,141 @@ var GOAL_PRIORITY = {
       chip.textContent = n.icon + ' ' + n.name;
       nodesEl.appendChild(chip);
     });
-    // Store priority nodes for map highlighting
     window._priorityNodes = priority.nodes;
   } catch(e){}
 })();
 
-// ── Draw map ──────────────────────────────────────────────────────────────────
+// ── Draw SVG map ──────────────────────────────────────────────────────────────
 
 var svg = document.getElementById('map-svg');
 var edgesLayer = document.getElementById('edges-layer');
 var nodesLayer = document.getElementById('nodes-layer');
-var activeNode = null;
 
-function getEdgeId(conn_idx){ return 'edge-' + conn_idx; }
-
-// Draw all edges
 CONNECTIONS.forEach(function(conn, ci){
-  var from = NODES[conn.f];
-  var to   = NODES[conn.t];
-  var dx = to.cx - from.cx;
-  var dy = to.cy - from.cy;
+  var from = NODES[conn.f], to = NODES[conn.t];
+  var dx = to.cx - from.cx, dy = to.cy - from.cy;
   var mx = (from.cx + to.cx) / 2 + dy * 0.15;
   var my = (from.cy + to.cy) / 2 - dx * 0.15;
-
-  var path = document.createElementNS('http://www.w3.org/2000/svg','path');
-  var d = 'M'+from.cx+','+from.cy+' Q'+mx+','+my+' '+to.cx+','+to.cy;
-  path.setAttribute('d', d);
-  path.setAttribute('class', 'edge');
-  path.setAttribute('id', getEdgeId(ci));
-  path.setAttribute('stroke', from.color);
-  path.setAttribute('marker-end', 'url(#arr)');
+  function makePath(fNode, tNode){
+    var p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d','M'+fNode.cx+','+fNode.cy+' Q'+mx+','+my+' '+tNode.cx+','+tNode.cy);
+    p.setAttribute('class','edge');
+    p.setAttribute('stroke', fNode.color);
+    p.setAttribute('marker-end','url(#arr)');
+    return p;
+  }
+  var path = makePath(from, to);
+  path.setAttribute('id','edge-'+ci);
   edgesLayer.appendChild(path);
-
   if(conn.bi){
-    var path2 = document.createElementNS('http://www.w3.org/2000/svg','path');
-    var d2 = 'M'+to.cx+','+to.cy+' Q'+mx+','+my+' '+from.cx+','+from.cy;
-    path2.setAttribute('d', d2);
-    path2.setAttribute('class', 'edge');
-    path2.setAttribute('id', getEdgeId(ci)+'-b');
-    path2.setAttribute('stroke', to.color);
-    path2.setAttribute('marker-end', 'url(#arr)');
+    var path2 = makePath(to, from);
+    path2.setAttribute('id','edge-'+ci+'-b');
     edgesLayer.appendChild(path2);
   }
 });
 
-// Draw all nodes
 NODES.forEach(function(node){
   var g = document.createElementNS('http://www.w3.org/2000/svg','g');
-  g.setAttribute('class','n-hit');
-  g.setAttribute('id','node-'+node.id);
-  g.setAttribute('data-id', node.id);
-
-  // Outer glow ring
-  var ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
-  ring.setAttribute('cx', node.cx); ring.setAttribute('cy', node.cy); ring.setAttribute('r', 26);
-  ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', node.color);
-  ring.setAttribute('stroke-width','1'); ring.setAttribute('opacity','0.2');
-  ring.setAttribute('class','n-ring');
-  g.appendChild(ring);
-
-  // Background circle
-  var bg = document.createElementNS('http://www.w3.org/2000/svg','circle');
-  bg.setAttribute('cx', node.cx); bg.setAttribute('cy', node.cy); bg.setAttribute('r', 22);
-  bg.setAttribute('fill', node.color); bg.setAttribute('opacity','0.12');
-  bg.setAttribute('class','n-bg');
-  g.appendChild(bg);
-
-  // Solid border circle
-  var border = document.createElementNS('http://www.w3.org/2000/svg','circle');
-  border.setAttribute('cx', node.cx); border.setAttribute('cy', node.cy); border.setAttribute('r', 22);
-  border.setAttribute('fill', 'none'); border.setAttribute('stroke', node.color);
-  border.setAttribute('stroke-width','1.5'); border.setAttribute('class','node-circle');
-  g.appendChild(border);
-
-  // Icon
+  g.setAttribute('class','n-hit'); g.setAttribute('id','node-'+node.id);
+  function circle(r, fill, stroke, sw, cls){
+    var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',node.cx); c.setAttribute('cy',node.cy); c.setAttribute('r',r);
+    if(fill)   c.setAttribute('fill',fill);
+    if(stroke) c.setAttribute('stroke',stroke);
+    if(sw)     c.setAttribute('stroke-width',sw);
+    if(cls)    c.setAttribute('class',cls);
+    else       c.setAttribute('fill-opacity','1');
+    return c;
+  }
+  var ring = circle(28,'none',node.color,'1','n-ring'); ring.setAttribute('opacity','0.2'); g.appendChild(ring);
+  var bg   = circle(22,node.color+'20','none','0','n-bg'); g.appendChild(bg);
+  var bdr  = circle(22,'none',node.color,'1.5','node-circle'); g.appendChild(bdr);
   var icon = document.createElementNS('http://www.w3.org/2000/svg','text');
-  icon.setAttribute('x', node.cx); icon.setAttribute('y', node.cy - 2);
-  icon.setAttribute('class','n-icon'); icon.textContent = node.icon;
-  g.appendChild(icon);
-
-  // Label
-  var label = document.createElementNS('http://www.w3.org/2000/svg','text');
-  var labelY = (node.cy > 300) ? node.cy + 36 : node.cy - 32;
-  label.setAttribute('x', node.cx); label.setAttribute('y', labelY);
-  label.setAttribute('class','n-label'); label.setAttribute('fill', node.color);
-  label.textContent = node.name;
-  g.appendChild(label);
-
+  icon.setAttribute('x',node.cx); icon.setAttribute('y',node.cy-1); icon.setAttribute('class','n-icon');
+  icon.textContent = node.icon; g.appendChild(icon);
+  var lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+  lbl.setAttribute('x',node.cx); lbl.setAttribute('y',node.cy > 300 ? node.cy+37 : node.cy-33);
+  lbl.setAttribute('class','n-label'); lbl.setAttribute('fill',node.color);
+  lbl.textContent = node.name; g.appendChild(lbl);
   g.addEventListener('click', function(){ selectNode(node.id); });
   nodesLayer.appendChild(g);
 });
 
-// Apply priority node glow if profile loaded
 if(window._priorityNodes){
   window._priorityNodes.forEach(function(nid){
     var ring = document.querySelector('#node-'+nid+' .n-ring');
-    if(ring){ ring.setAttribute('opacity','0.5'); ring.setAttribute('r','30'); }
+    if(ring){ ring.setAttribute('opacity','0.45'); ring.setAttribute('r','30'); }
   });
 }
 
+// ── Node selection (explore mode) ────────────────────────────────────────────
+
+var _activeNode = null;
+
 function selectNode(nid){
-  activeNode = nid;
-  // Update edge visibility
+  _activeNode = nid;
+  // Edges
   CONNECTIONS.forEach(function(conn, ci){
-    var involved = conn.f === nid || conn.t === nid;
-    var el  = document.getElementById(getEdgeId(ci));
-    var el2 = document.getElementById(getEdgeId(ci)+'-b');
-    if(el)  { el.classList.toggle('active', involved);  el.classList.toggle('faded', !involved); }
-    if(el2) { el2.classList.toggle('active', involved); el2.classList.toggle('faded', !involved); }
+    var inv = conn.f===nid || conn.t===nid;
+    var el  = document.getElementById('edge-'+ci);
+    var el2 = document.getElementById('edge-'+ci+'-b');
+    [el,el2].forEach(function(e){
+      if(!e) return;
+      e.classList.remove('active','faded','cascade-on');
+      e.classList.add(inv ? 'active' : 'faded');
+      if(inv) e.setAttribute('marker-end','url(#arr-active)');
+      else    e.setAttribute('marker-end','url(#arr)');
+    });
   });
-  // Update node rings
+  // Nodes
   NODES.forEach(function(n){
-    var ring = document.querySelector('#node-'+n.id+' .n-ring');
+    var ring   = document.querySelector('#node-'+n.id+' .n-ring');
     var border = document.querySelector('#node-'+n.id+' .node-circle');
-    var connected = n.id === nid || CONNECTIONS.some(function(c){ return (c.f===nid&&c.t===n.id)||(c.t===nid&&c.f===n.id); });
+    var lbl    = document.querySelector('#node-'+n.id+' .n-label');
+    var connected = n.id===nid || CONNECTIONS.some(function(c){
+      return (c.f===nid&&c.t===n.id)||(c.t===nid&&c.f===n.id);
+    });
     if(ring){
       ring.setAttribute('opacity', n.id===nid ? '0.9' : connected ? '0.45' : '0.1');
       ring.setAttribute('r', n.id===nid ? '30' : '26');
     }
-    if(border) border.setAttribute('opacity', connected ? '1' : '0.25');
+    if(border) border.setAttribute('opacity', connected ? '1' : '0.2');
+    if(lbl)    lbl.setAttribute('opacity', connected ? '1' : '0.25');
   });
   renderDetailPanel(nid);
+  document.getElementById('detail-panel').scrollIntoView({behavior:'smooth', block:'center'});
 }
-
-// ── Detail panel ──────────────────────────────────────────────────────────────
 
 function renderDetailPanel(nid){
   var node = NODES[nid];
-  var conns = CONNECTIONS.filter(function(c){ return c.f === nid || (c.t === nid); });
-  var panel = document.getElementById('detail-panel');
-
-  var pagesHtml = node.pages.map(function(p){
-    return '<a class="dp-conn-link" href="'+p.u+'">'+p.l+' →</a>';
-  }).join('');
-
-  var connHtml = conns.map(function(c, i){
-    var other = NODES[c.f === nid ? c.t : c.f];
-    var dirIcon = c.f === nid ? '→' : (c.bi ? '↔' : '←');
-    var dirLabel = c.f === nid ? 'affects' : (c.bi ? '↔' : 'affected by');
-    var linkHtml = '';
-    if(c.links){ linkHtml = c.links.map(function(l){ return '<a class="dp-conn-link" href="'+l.u+'">'+l.l+' →</a>'; }).join(''); }
+  var conns = CONNECTIONS.filter(function(c){ return c.f===nid || c.t===nid; });
+  var pagesHtml = node.pages.map(function(p){ return '<a class="dp-conn-link" href="'+p.u+'">'+p.l+' →</a>'; }).join('');
+  var connHtml = conns.map(function(c){
+    var other = NODES[c.f===nid ? c.t : c.f];
+    var dir   = c.f===nid ? '→' : (c.bi ? '↔' : '←');
+    var lkHtml = '';
+    if(c.links) lkHtml = c.links.map(function(l){ return '<a class="dp-conn-link" href="'+l.u+'">'+l.l+' →</a>'; }).join('');
     return '<div class="dp-conn" onclick="toggleConnDetail(this)">'
-      + '<div class="dp-conn-head">'
-      + '<span class="dp-conn-arrow" style="color:'+other.color+'">'+other.icon+'</span>'
-      + '<span class="dp-conn-title">'+node.name+' '+dirIcon+' '+other.name+'</span>'
-      + '<span class="dp-conn-mag mag-'+c.mag+'">'+c.mag+'</span>'
-      + '</div>'
-      + '<div class="dp-conn-body">'
-      + '<div class="dp-conn-mech">'+c.mech+'</div>'
-      + '<div class="dp-conn-soma">'+c.soma+'</div>'
-      + (linkHtml ? '<div class="dp-conn-links">'+linkHtml+'</div>' : '')
-      + '</div>'
-      + '</div>';
+      +'<div class="dp-conn-head">'
+      +'<span class="dp-conn-arrow" style="color:'+other.color+'">'+other.icon+'</span>'
+      +'<span class="dp-conn-title">'+node.name+' '+dir+' '+other.name+'</span>'
+      +'<span class="dp-conn-mag mag-'+c.mag+'">'+c.mag+'</span>'
+      +'</div>'
+      +'<div class="dp-conn-body">'
+      +'<div class="dp-conn-mech">'+c.mech+'</div>'
+      +'<div class="dp-conn-soma">'+c.soma+'</div>'
+      +(lkHtml?'<div class="dp-conn-links">'+lkHtml+'</div>':'')
+      +'</div></div>';
   }).join('');
-
-  panel.innerHTML = '<div class="dp-node-header">'
-    + '<div class="dp-node-icon">'+node.icon+'</div>'
-    + '<div><div class="dp-node-name" style="color:'+node.color+'">'+node.name+'</div>'
-    + '<div class="dp-node-desc">'+node.desc+'</div></div>'
-    + '</div>'
-    + '<div class="dp-conns-label">' + conns.length + ' connections</div>'
-    + '<div class="dp-conn-list">'+connHtml+'</div>'
-    + '<div class="dp-conn-links" style="margin-top:16px">'+pagesHtml+'</div>';
+  document.getElementById('detail-panel').innerHTML =
+    '<div class="dp-node-header">'
+    +'<div class="dp-node-icon">'+node.icon+'</div>'
+    +'<div><div class="dp-node-name" style="color:'+node.color+'">'+node.name+'</div>'
+    +'<div class="dp-node-desc">'+node.desc+'</div></div>'
+    +'</div>'
+    +'<div class="dp-conns-label">'+conns.length+' connections</div>'
+    +'<div class="dp-conn-list">'+connHtml+'</div>'
+    +'<div class="dp-conn-links" style="margin-top:16px">'+pagesHtml+'</div>';
 }
 
 function toggleConnDetail(el){
@@ -511,20 +526,268 @@ function toggleConnDetail(el){
   if(body) body.classList.toggle('open');
 }
 
+// ── Experience input ──────────────────────────────────────────────────────────
+
+function setExp(chip){
+  var text = chip.textContent.replace(/^[^ ]+ /,''); // strip leading emoji
+  document.getElementById('exp-input').value = text;
+  document.getElementById('exp-input').focus();
+}
+
+// Keyword → node mapping for instant local detection
+var NODE_KEYWORDS = {
+  0: ['sleep','sleeping','insomnia','tired','fatigue','exhausted','rest','awake','night','bed','wake'],
+  1: ['training','workout','gym','lift','exercise','session','performance','flat','gains','strength','progress'],
+  2: ['hunger','hungry','cravings','eat','eating','food','calorie','diet','nutrition','weight','fat loss','carb','protein'],
+  3: ['recover','recovery','sore','doms','soreness','muscle','ache','pain','healing','overtraining'],
+  4: ['hormone','testosterone','estrogen','libido','mood','cycle','thyroid','energy','motivation'],
+  5: ['stress','anxiety','burnout','overwhelmed','cortisol','pressure','work','anxious','panic'],
+  6: ['mood','depression','mental','motivation','focus','brain fog','happy','sad','low','cognitive'],
+  7: ['supplement','creatine','magnesium','vitamin','protein shake','caffeine','ashwagandha'],
+};
+
+function detectPrimaryNode(text){
+  var t = text.toLowerCase();
+  var scores = NODES.map(function(n){ return 0; });
+  Object.keys(NODE_KEYWORDS).forEach(function(nid){
+    NODE_KEYWORDS[nid].forEach(function(kw){
+      if(t.indexOf(kw) > -1) scores[parseInt(nid)] += 1;
+    });
+  });
+  var maxScore = Math.max.apply(null, scores);
+  if(maxScore === 0) return 0; // default to Sleep
+  return scores.indexOf(maxScore);
+}
+
+async function runCascadeAnalysis(){
+  var input = document.getElementById('exp-input').value.trim();
+  if(!input) return;
+  var btn = document.getElementById('exp-btn');
+  btn.disabled = true; btn.textContent = '…';
+
+  // Immediately highlight the detected primary node on the map
+  var localNode = detectPrimaryNode(input);
+  highlightCascadeNode(localNode);
+
+  // Show loading state
+  var panel = document.getElementById('cascade-panel');
+  panel.className = 'cascade-panel visible';
+  panel.innerHTML = '<div class="cascade-loading">'
+    +'<div class="cascade-loading-ring"></div>'
+    +'<div class="cascade-loading-text">Analysing your experience…</div>'
+    +'<div class="cascade-loading-sub">Mapping the biological cascade</div>'
+    +'</div>';
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Build profile context
+  var profileCtx = '';
+  if(_profile){
+    profileCtx = 'User profile: ' + (_profile.name||'User') + ', age ' + (_profile.age||'unknown')
+      + ', sex: ' + (_profile.sex||'unknown') + ', goal: ' + (_profile.goal||'body recomposition') + '. ';
+  }
+
+  var systemPrompt = 'You are a sports medicine and human physiology expert inside a fitness app. The user describes something they are experiencing. Your job is to map the exact biological cascade — which systems are affected, in what order, through what mechanisms, with specific biomarkers and numbers where known.\n\nRespond with ONLY valid JSON. No prose outside the JSON.\n\nJSON structure:\n{\n  "primaryNode": "Sleep",\n  "trigger": "short description of what they described",\n  "affectedNodes": ["Stress","Nutrition","Hormones","Recovery","Mind"],\n  "cascade": [\n    {\n      "node": "Stress",\n      "mechanism": "specific mechanism 1-2 sentences",\n      "biomarkers": ["cortisol +37%","CRH elevated","HPA axis sensitised"],\n      "severity": "high"\n    }\n  ],\n  "narrative": "2-3 sentences explaining what is happening in the body overall — accessible but precise",\n  "watchFor": ["4-6 specific things the user will notice or experience"],\n  "actions": ["4-6 concrete, evidence-based actions ranked by impact"]\n}\n\nValid node names: Sleep, Training, Nutrition, Recovery, Hormones, Stress, Mind, Supplements\nSeverity values: high, moderate, low\nBiomarkers: be specific with numbers/percentages where known (e.g. ghrelin +28%, leptin -18%, testosterone -10-15%)';
+
+  var userPrompt = profileCtx + 'The user says: "' + input + '"\n\nMap the full biological cascade from this experience.';
+
+  try {
+    var res = await fetch(API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 1200,
+        system: systemPrompt,
+        messages:[{role:'user', content: userPrompt}]
+      })
+    });
+    var data = await res.json();
+    var text = (data.content||[]).map(function(b){ return b.text||''; }).join('').trim();
+    // Strip markdown code fences if present
+    text = text.replace(/^```json\n?/,'').replace(/\n?```$/,'').trim();
+    var analysis = JSON.parse(text);
+    renderCascade(analysis, input);
+  } catch(e){
+    panel.innerHTML = '<div class="cascade-trigger">'
+      +'<div style="font-size:13px;font-weight:300;color:var(--dk-3);">Could not analyse — check your connection. '
+      +'<button onclick="runCascadeAnalysis()" style="background:none;border:none;color:var(--jade);cursor:pointer;font-size:13px;text-decoration:underline;">Try again →</button>'
+      +'</div></div>';
+  }
+  btn.disabled = false; btn.textContent = 'Analyse →';
+}
+
+// Enter key submits
+document.getElementById('exp-input').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); runCascadeAnalysis(); }
+});
+
+function highlightCascadeNode(nid){
+  NODES.forEach(function(n){
+    var ring   = document.querySelector('#node-'+n.id+' .n-ring');
+    var border = document.querySelector('#node-'+n.id+' .node-circle');
+    var lbl    = document.querySelector('#node-'+n.id+' .n-label');
+    var isPrimary = n.id === nid;
+    if(ring){ ring.setAttribute('opacity', isPrimary ? '1' : '0.08'); ring.setAttribute('r', isPrimary ? '32' : '24'); }
+    if(border) border.setAttribute('opacity', isPrimary ? '1' : '0.15');
+    if(lbl)    lbl.setAttribute('opacity', isPrimary ? '1' : '0.2');
+  });
+  CONNECTIONS.forEach(function(conn, ci){
+    var el  = document.getElementById('edge-'+ci);
+    var el2 = document.getElementById('edge-'+ci+'-b');
+    [el,el2].forEach(function(e){ if(e){ e.classList.remove('active','faded','cascade-on'); e.classList.add('faded'); } });
+  });
+}
+
+function animateCascadeOnMap(primaryName, affectedNames){
+  var primaryId = nodeByName(primaryName);
+  var affectedIds = affectedNames.map(function(n){ return nodeByName(n); }).filter(function(x){ return x !== -1; });
+
+  NODES.forEach(function(n){
+    var ring   = document.querySelector('#node-'+n.id+' .n-ring');
+    var border = document.querySelector('#node-'+n.id+' .node-circle');
+    var lbl    = document.querySelector('#node-'+n.id+' .n-label');
+    var isPrimary  = n.id === primaryId;
+    var isAffected = affectedIds.indexOf(n.id) > -1;
+    var visible = isPrimary || isAffected;
+    if(ring){
+      ring.setAttribute('opacity', isPrimary ? '1' : isAffected ? '0.6' : '0.06');
+      ring.setAttribute('r', isPrimary ? '32' : isAffected ? '28' : '24');
+    }
+    if(border) border.setAttribute('opacity', visible ? '1' : '0.1');
+    if(lbl)    lbl.setAttribute('opacity', visible ? '1' : '0.15');
+  });
+
+  CONNECTIONS.forEach(function(conn, ci){
+    var fromAff = affectedIds.indexOf(conn.f) > -1 || conn.f === primaryId;
+    var toAff   = affectedIds.indexOf(conn.t) > -1 || conn.t === primaryId;
+    var involved = fromAff && (toAff || affectedIds.indexOf(conn.t) > -1);
+    var inCascade = (conn.f === primaryId && affectedIds.indexOf(conn.t) > -1)
+                 || (affectedIds.indexOf(conn.f) > -1 && affectedIds.indexOf(conn.t) > -1);
+    var el  = document.getElementById('edge-'+ci);
+    var el2 = document.getElementById('edge-'+ci+'-b');
+    [el,el2].forEach(function(e){
+      if(!e) return;
+      e.classList.remove('active','faded','cascade-on');
+      if(inCascade){ e.classList.add('cascade-on'); e.setAttribute('marker-end','url(#arr-active)'); }
+      else { e.classList.add('faded'); e.setAttribute('marker-end','url(#arr)'); }
+    });
+  });
+}
+
+function nodeByName(name){
+  var n = NODES.filter(function(n){ return n.name.toLowerCase() === name.toLowerCase(); })[0];
+  return n ? n.id : -1;
+}
+
+function renderCascade(a, originalInput){
+  var panel = document.getElementById('cascade-panel');
+  var primaryNode = NODES.filter(function(n){ return n.name===a.primaryNode; })[0] || NODES[0];
+
+  animateCascadeOnMap(a.primaryNode, a.affectedNodes||[]);
+
+  // Build cascade chain HTML
+  var chainHtml = '';
+  (a.cascade||[]).forEach(function(item, i){
+    var n = NODES.filter(function(n){ return n.name===item.node; })[0];
+    if(!n) return;
+    var bioHtml = (item.biomarkers||[]).map(function(b){
+      return '<span class="bio-chip" style="background:'+n.color+'18;color:'+n.color+';border:1px solid '+n.color+'35">'+b+'</span>';
+    }).join('');
+    var arrowHtml = i > 0 ? '<div class="cascade-arrow-line"><span class="cascade-arrow-line-icon">↓</span></div>' : '';
+    chainHtml += arrowHtml
+      + '<div class="cascade-item">'
+      + '<div class="cascade-card" onclick="this.querySelector(\'.cascade-card-mech\').style.display=this.querySelector(\'.cascade-card-mech\').style.display===\'block\'?\'none\':\'block\'" style="border-left-color:'+n.color+'">'
+      + '<div class="cascade-card-head">'
+      + '<span class="cascade-card-node">'+n.icon+'</span>'
+      + '<span class="cascade-card-name" style="color:'+n.color+'">'+n.name+'</span>'
+      + '<span class="cascade-card-sev sev-'+item.severity+'">'+item.severity+'</span>'
+      + '</div>'
+      + (bioHtml ? '<div class="cascade-biomarkers" style="margin-top:8px">'+bioHtml+'</div>' : '')
+      + '<div class="cascade-card-mech" style="display:none">'+item.mechanism+'</div>'
+      + '</div></div>';
+  });
+
+  // Watch-for and actions
+  var watchHtml = (a.watchFor||[]).map(function(w){ return '<li>'+w+'</li>'; }).join('');
+  var actHtml   = (a.actions||[]).map(function(act){ return '<li>'+act+'</li>'; }).join('');
+
+  panel.innerHTML =
+    // Trigger header
+    '<div class="cascade-trigger">'
+    +'<div class="cascade-trigger-head">'
+    +'<div class="cascade-trigger-icon">'+primaryNode.icon+'</div>'
+    +'<div><div class="cascade-trigger-title" style="color:'+primaryNode.color+'">'+a.trigger+'</div>'
+    +'<div class="cascade-trigger-sub">Primary system affected: <strong style="color:'+primaryNode.color+'">'+a.primaryNode+'</strong></div></div>'
+    +'</div>'
+    +'<div class="cascade-narrative">'+a.narrative+'</div>'
+    +'</div>'
+    // Chain
+    +'<div style="margin-bottom:16px">'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--dk-4);margin-bottom:10px;">Biological cascade — tap any card for the mechanism</div>'
+    +'<div class="cascade-chain">'+chainHtml+'</div>'
+    +'</div>'
+    // Footer boxes
+    +'<div class="cascade-footer">'
+    +'<div class="cascade-box">'
+    +'<div class="cascade-box-label amber">⚠ Watch for</div>'
+    +'<ul>'+watchHtml+'</ul>'
+    +'</div>'
+    +'<div class="cascade-box">'
+    +'<div class="cascade-box-label jade">✓ What to do</div>'
+    +'<ul>'+actHtml+'</ul>'
+    +'</div>'
+    +'</div>'
+    // Clear button
+    +'<div style="text-align:right;margin-top:12px">'
+    +'<button onclick="clearCascade()" style="background:none;border:none;color:var(--dk-4);font-size:11px;cursor:pointer;font-family:var(--sans);">Clear analysis ×</button>'
+    +'</div>';
+
+  document.getElementById('map-hint').textContent = 'Cascade highlighted — tap any node for details';
+}
+
+function clearCascade(){
+  document.getElementById('cascade-panel').className = 'cascade-panel';
+  document.getElementById('cascade-panel').innerHTML = '';
+  document.getElementById('exp-input').value = '';
+  document.getElementById('map-hint').textContent = 'Tap a node to explore its connections · or type what you\'re experiencing above';
+  // Reset map
+  CONNECTIONS.forEach(function(conn, ci){
+    var el  = document.getElementById('edge-'+ci);
+    var el2 = document.getElementById('edge-'+ci+'-b');
+    [el,el2].forEach(function(e){
+      if(e){ e.classList.remove('active','faded','cascade-on'); e.setAttribute('marker-end','url(#arr)'); }
+    });
+  });
+  NODES.forEach(function(n){
+    var ring   = document.querySelector('#node-'+n.id+' .n-ring');
+    var border = document.querySelector('#node-'+n.id+' .node-circle');
+    var lbl    = document.querySelector('#node-'+n.id+' .n-label');
+    if(ring){ ring.setAttribute('opacity','0.2'); ring.setAttribute('r','26'); }
+    if(border) border.setAttribute('opacity','1');
+    if(lbl)    lbl.setAttribute('opacity','1');
+  });
+  if(window._priorityNodes){
+    window._priorityNodes.forEach(function(nid){
+      var ring = document.querySelector('#node-'+nid+' .n-ring');
+      if(ring){ ring.setAttribute('opacity','0.45'); ring.setAttribute('r','30'); }
+    });
+  }
+}
+
 // ── All connections table ─────────────────────────────────────────────────────
 
 (function(){
   var container = document.getElementById('all-conns');
   CONNECTIONS.forEach(function(conn, ci){
-    var from = NODES[conn.f];
-    var to   = NODES[conn.t];
+    var from = NODES[conn.f], to = NODES[conn.t];
     var row = document.createElement('div');
     row.className = 'all-conn-row';
     var arr = conn.bi ? '↔' : '→';
-    row.innerHTML = '<span class="acr-from" style="color:'+from.color+'">'+from.icon+' '+from.name+'</span>'
-      + '<span class="acr-arr">'+arr+'</span>'
-      + '<span class="acr-to" style="color:'+to.color+'">'+to.icon+' '+to.name+'</span>'
-      + '<span class="acr-mag"><span class="dp-conn-mag mag-'+conn.mag+'">'+conn.mag+'</span></span>';
+    row.innerHTML =
+      '<span class="acr-from" style="color:'+from.color+'">'+from.icon+' '+from.name+'</span>'
+      +'<span class="acr-arr">'+arr+'</span>'
+      +'<span class="acr-to" style="color:'+to.color+'">'+to.icon+' '+to.name+'</span>'
+      +'<span class="acr-mag"><span class="dp-conn-mag mag-'+conn.mag+'">'+conn.mag+'</span></span>';
     row.addEventListener('click', function(){
       selectNode(conn.f);
       document.getElementById('detail-panel').scrollIntoView({behavior:'smooth', block:'center'});
@@ -532,7 +795,6 @@ function toggleConnDetail(el){
     container.appendChild(row);
   });
 })();
-
 </script>
 </body>
 </html>
