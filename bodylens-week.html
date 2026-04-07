@@ -69,7 +69,8 @@ body{background:var(--ink);color:var(--dk-1);}
 .dc-cardio:empty{border-top:none;margin-top:0;padding-top:0;}
 /* ── Energy Balance ───────────────────────────────────── */
 .energy-balance{margin-bottom:28px;}
-.eb-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.eb-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+@media(max-width:599px){.eb-summary{grid-template-columns:repeat(2,1fr);}}
 .eb-sum-item{background:var(--ink-1);padding:14px 16px;}
 .eb-sum-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:5px;}
 .eb-sum-val{font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--dk-1);line-height:1;}
@@ -77,6 +78,10 @@ body{background:var(--ink);color:var(--dk-1);}
 .eb-sum-val.amber{color:var(--amber);}
 .eb-sum-val.slate{color:var(--dk-3);}
 .eb-sum-sub{font-size:10px;font-weight:300;color:var(--dk-3);margin-top:3px;}
+.eb-sum-val.red{color:var(--red);}
+.eb-sum-item.net{border-left:2px solid rgba(0,200,160,.25);}
+.eb-sum-item.net.surplus{border-left-color:rgba(196,124,24,.35);}
+.eb-sum-item.net.nodata{border-left-color:rgba(255,255,255,.08);}
 .eb-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px;}
 @media(max-width:599px){.eb-grid{display:flex;overflow-x:auto;gap:6px;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}.eb-grid::-webkit-scrollbar{display:none;}}
 .eb-day{background:var(--ink-1);border:1px solid var(--bd);border-radius:8px;padding:10px 5px 8px;text-align:center;}
@@ -492,26 +497,29 @@ function render(){
     +'</div>';
   }
 
-  var ebBurnSplitHTML=''
-    +'<div class="eb-burn-split">'
-      +'<div class="eb-bsp-item"><div class="eb-bsp-label">Rest day burn</div><div class="eb-bsp-val slate">'+ebRestBurn.toLocaleString()+'</div><div class="eb-bsp-sub">baseline TDEE</div></div>'
-      +'<div class="eb-bsp-div"></div>'
-      +'<div class="eb-bsp-item"><div class="eb-bsp-label">Training day burn</div><div class="eb-bsp-val amber">'+ebAvgTrainBurn.toLocaleString()+'</div><div class="eb-bsp-sub">incl. session expenditure</div></div>'
-      +'<div class="eb-bsp-div"></div>'
-      +'<div class="eb-bsp-item"><div class="eb-bsp-label">Active vs baseline</div><div class="eb-bsp-val jade">+'+ebBurnDelta+'</div><div class="eb-bsp-sub">kcal extra on gym days</div></div>'
-    +'</div>';
+  // Net: weighted avg (training days use trainBurn, rest days use restBurn)
+  var ebTrainCount=(p.weekPlan||[]).filter(function(d){return d.priority==='training';}).length;
+  var ebRestCount=7-ebTrainCount;
+  var ebWeeklyBurn=ebAvgTrainBurn*ebTrainCount+ebRestBurn*ebRestCount;
+  var ebWtdAvgBurn=Math.round(ebWeeklyBurn/7);
+  var ebNetVal=ebAvgIntake>0?ebWtdAvgBurn-ebAvgIntake:null;
+  var ebNetTxt=ebNetVal!==null?(ebNetVal>=0?'−':'+')+(Math.abs(ebNetVal)).toLocaleString():'—';
+  var ebNetLbl=ebNetVal!==null?(ebNetVal>=0?'deficit':'surplus'):'not logged';
+  var ebNetCls=ebNetVal===null?'slate':ebNetVal>=300?'jade':ebNetVal>=0?'amber':'red';
+  var ebNetItemCls=ebNetVal===null?'net nodata':ebNetVal<0?'net surplus':'net';
+
   var energyBalanceHTML='<div class="energy-balance">'
     +'<div class="sec-label" style="margin-top:28px;">Energy balance&nbsp;<span style="font-weight:300;text-transform:none;letter-spacing:.04em;font-size:9px;">est. burn vs intake &middot; daily</span></div>'
     +'<div class="eb-summary">'
-      +'<div class="eb-sum-item"><div class="eb-sum-label">BMR</div><div class="eb-sum-val">'+ebBMR.toLocaleString()+'</div><div class="eb-sum-sub">kcal at rest</div></div>'
-      +'<div class="eb-sum-item"><div class="eb-sum-label">Avg est. burn</div><div class="eb-sum-val amber">'+ebAvgBurn.toLocaleString()+'</div><div class="eb-sum-sub">kcal/day incl. training</div></div>'
+      +'<div class="eb-sum-item"><div class="eb-sum-label">Burnt · training</div><div class="eb-sum-val amber">'+ebAvgTrainBurn.toLocaleString()+'</div><div class="eb-sum-sub">kcal/day · gym sessions</div></div>'
+      +'<div class="eb-sum-item"><div class="eb-sum-label">Burnt · baseline</div><div class="eb-sum-val slate">'+ebRestBurn.toLocaleString()+'</div><div class="eb-sum-sub">kcal/day · rest days</div></div>'
       +(ebAvgIntake>0
-        ?'<div class="eb-sum-item"><div class="eb-sum-label">Avg daily deficit</div><div class="eb-sum-val '+ebDefCls+'">'+ebAvgDef.toLocaleString()+'</div><div class="eb-sum-sub">kcal &middot; '+ebLoggedCount+' day'+(ebLoggedCount===1?'':'s')+' logged</div></div>'
-        :'<div class="eb-sum-item"><div class="eb-sum-label">Avg daily target</div><div class="eb-sum-val slate">'+(ebAvgBurn-(p.trainingKcal||p.calories||2400)).toLocaleString()+'</div><div class="eb-sum-sub">kcal planned deficit</div></div>')
+        ?'<div class="eb-sum-item"><div class="eb-sum-label">Calories in</div><div class="eb-sum-val">'+ebAvgIntake.toLocaleString()+'</div><div class="eb-sum-sub">avg · '+ebLoggedCount+' day'+(ebLoggedCount===1?'':'s')+' logged</div></div>'
+        :'<div class="eb-sum-item"><div class="eb-sum-label">Calories in</div><div class="eb-sum-val slate">—</div><div class="eb-sum-sub">log food to see intake</div></div>')
+      +'<div class="eb-sum-item '+ebNetItemCls+'"><div class="eb-sum-label">= Net avg</div><div class="eb-sum-val '+ebNetCls+'">'+ebNetTxt+'</div><div class="eb-sum-sub">kcal/day · '+ebNetLbl+'</div></div>'
     +'</div>'
-    +ebBurnSplitHTML
     +'<div class="eb-grid">'+ebCols+'</div>'
-    +'<div class="eb-note">BMR via Mifflin-St Jeor &middot; TDEE = BMR &times; 1.375 + training session (~250&ndash;380 kcal)</div>'
+    +'<div class="eb-note">BMR via Mifflin-St Jeor &middot; training burn = baseline + ~240–360 kcal session · baseline = BMR &times; activity</div>'
   +'</div>';
   // ─────────────────────────────────────────────────────────
 
