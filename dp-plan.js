@@ -7,6 +7,11 @@ function buildPlan(profile, today) {
   const p = profile;
   const { name, plan, isTraining } = today;
 
+  // Programme adaptations from weekly reconciliation (applied via "Apply to next week →")
+  const pAdapt        = p.programmeAdaptations || {};
+  const adaptIntensity = pAdapt.intensityScheme  || null;  // 'beginner'|'intermediate'|'advanced'
+  const adaptVolDelta  = pAdapt.volumeDelta       || 0;    // -2 to +2 extra sets
+
   // Time helper
   const wake = p.wakeTime || '07:00';
   const [wHr, wMin] = wake.split(':').map(Number);
@@ -118,9 +123,17 @@ function buildPlan(profile, today) {
     });
 
     // TRAINING
+    // Adaptation notes from weekly reconciliation
+    const adaptNotes = [];
+    if (adaptIntensity === 'beginner')     adaptNotes.push('⚙ Reconciliation set intensity to Foundation (RPE 6-7) this week based on your recent data.');
+    if (adaptIntensity === 'advanced')     adaptNotes.push('⚙ Reconciliation set intensity to Peak (RPE 8-9) this week — data shows you\'re consistently exceeding programme targets.');
+    if (adaptVolDelta > 0)                 adaptNotes.push('⚙ Volume increased +' + adaptVolDelta + ' set(s) this week — programme adaptation based on your compliance data.');
+    if (adaptVolDelta < 0)                 adaptNotes.push('⚙ Volume reduced ' + adaptVolDelta + ' set(s) this week — recovery-focused adaptation based on your data.');
+
     const trainCoachNote = 'Every working set should be 1-3 reps from failure — that\'s where the adaptation lives. The warm-up sets aren\'t optional, they\'re how you avoid injury and prime the pattern. Track every load. Progressive overload is the only mechanism that drives change.'
       + (injuries.length ? ' ' + injuries.map(i => i.location||i).join(', ') + ' modifications are active — don\'t ignore them, the injury is the constraint you\'re working inside.' : '')
-      + (hasIBS ? ' IBS: strength training is well tolerated. If you plan to add cardio, keep it Zone 2 steady-state — high-intensity cardio increases gut motility and can trigger symptoms. Skip HIIT on symptomatic days.' : '');
+      + (hasIBS ? ' IBS: strength training is well tolerated. If you plan to add cardio, keep it Zone 2 steady-state — high-intensity cardio increases gut motility and can trigger symptoms. Skip HIIT on symptomatic days.' : '')
+      + (adaptNotes.length ? '\n\n' + adaptNotes.join('\n') : '');
     const injNote = injuries.length
       ? ' Modifications active: ' + injuries.map(i => i.location||i).join(', ') + '.'
       : '';

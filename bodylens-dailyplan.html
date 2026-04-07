@@ -9841,8 +9841,13 @@ function openSessionEditor(blockIdx, block) {
   // Load existing day log state
   var log = loadDayLog(_rDate) || {};
   var se = log.sessionEditor || {};
-  _seState.volume = se.volume || Math.min(6, Math.max(3, (block.exercises||[]).length));
-  _seState.intensity = se.intensity || (P.fitnessLevelTier || 'intermediate');
+  var pAdapt = (P && P.programmeAdaptations) || {};
+  // Volume: use saved state → programme adaptation delta → exercise count
+  var baseVol = Math.min(6, Math.max(3, (block.exercises||[]).length));
+  var adaptDelta = se.volume ? 0 : (pAdapt.volumeDelta || 0); // only apply delta if user hasn't manually set
+  _seState.volume = se.volume || Math.min(6, Math.max(3, baseVol + adaptDelta));
+  // Intensity: saved state → reconciliation scheme → fitness tier
+  _seState.intensity = se.intensity || pAdapt.intensityScheme || (P.fitnessLevelTier || 'intermediate');
   _seState.cardioName = se.cardioName || null;
   _seState.cardioDurationMins = se.cardioDurationMins || 0;
   _seState.cardioKcal = se.cardioKcal || 0;
