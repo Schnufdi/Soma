@@ -2857,6 +2857,94 @@ body {
 .dp2-notes::placeholder { color: rgba(255,255,255,.2); }
 .dp2-save-btn { width: 100%; padding: 14px; background: var(--jade); border: none; border-radius: 9px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); cursor: pointer; font-family: var(--sans); transition: opacity .15s; }
 .dp2-save-btn:hover { opacity: .88; }
+
+/* ── Sleep logging in EOD ─────────────────────────────────────── */
+.dp2-sleep-btns { display: flex; gap: 5px; margin: 4px 0 8px; }
+.dp2-sleep-btn {
+  flex: 1; padding: 7px 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,.08);
+  background: transparent; color: var(--dk-3); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: var(--sans); transition: all .12s; text-align: center;
+}
+.dp2-sleep-btn:hover { border-color: rgba(0,200,160,.2); color: var(--jade); }
+.dp2-sleep-btn.active { background: rgba(0,200,160,.08); border-color: rgba(0,200,160,.3); color: var(--jade); }
+
+/* ── Evening prompt bar ───────────────────────────────────────── */
+#eod-prompt-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 800;
+  background: var(--ink-1); border-top: 1px solid rgba(255,255,255,.09);
+  padding: 12px 20px max(12px, env(safe-area-inset-bottom)); display: flex;
+  align-items: center; gap: 12px; backdrop-filter: blur(10px);
+}
+.eod-bar-text { flex: 1; font-size: 12px; font-weight: 400; color: var(--dk-2); }
+.eod-bar-text strong { color: var(--dk-1); font-weight: 700; }
+.eod-bar-sleep { display: flex; gap: 5px; }
+.eod-bar-sleep-btn {
+  padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.1);
+  background: transparent; color: var(--dk-3); font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: var(--sans); transition: all .12s;
+}
+.eod-bar-sleep-btn:hover { border-color: var(--jade); color: var(--jade); }
+.eod-bar-dismiss {
+  background: none; border: none; color: var(--dk-3); cursor: pointer;
+  font-size: 18px; padding: 0; line-height: 1; flex-shrink: 0;
+}
+
+/* ── Day close card ───────────────────────────────────────────── */
+#day-close-overlay {
+  position: fixed; inset: 0; z-index: 950;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+#day-close-card {
+  background: var(--ink-1); border-radius: 20px 20px 0 0;
+  border: 1px solid rgba(255,255,255,.1);
+  width: 100%; max-width: 560px; max-height: 90vh;
+  overflow-y: auto; display: flex; flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.dc-hd {
+  padding: 24px 24px 0; text-align: center;
+}
+.dc-score { font-family: var(--serif); font-size: 72px; font-weight: 300; color: var(--jade); line-height: 1; }
+.dc-score-label { font-size: 9px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--dk-3); margin-top: 4px; }
+.dc-body { padding: 20px 24px; flex: 1; }
+.dc-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--dk-3); margin-bottom: 10px; margin-top: 18px;
+}
+.dc-section-label:first-child { margin-top: 0; }
+.dc-rows { display: flex; flex-direction: column; gap: 1px; margin-bottom: 4px; }
+.dc-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px;
+}
+.dc-row:last-child { border-bottom: none; }
+.dc-key { font-weight: 300; color: var(--dk-3); }
+.dc-val { font-weight: 600; color: var(--dk-1); }
+.dc-val.jade { color: var(--jade); }
+.dc-val.amber { color: var(--amber); }
+.dc-tomorrow {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px; padding: 12px 14px;
+}
+.dc-tomorrow-type { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 4px; }
+.dc-tomorrow-name { font-size: 16px; font-weight: 600; color: var(--dk-1); letter-spacing: -.01em; }
+.dc-sleep-row { display: flex; gap: 6px; margin-top: 10px; }
+.dc-sleep-btn {
+  flex: 1; padding: 9px 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,.08);
+  background: transparent; color: var(--dk-3); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: var(--sans); transition: all .12s; text-align: center;
+}
+.dc-sleep-btn:hover { border-color: rgba(0,200,160,.2); color: var(--jade); }
+.dc-sleep-btn.active { background: rgba(0,200,160,.08); border-color: rgba(0,200,160,.3); color: var(--jade); }
+.dc-footer { padding: 14px 24px; border-top: 1px solid rgba(255,255,255,.07); flex-shrink: 0; }
+.dc-done-btn {
+  width: 100%; padding: 14px; background: var(--jade); border: none; border-radius: 12px;
+  font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--ink);
+  cursor: pointer; font-family: var(--sans); transition: opacity .12s;
+}
+.dc-done-btn:hover { opacity: .88; }
+
 .dp2-rebuild-btn {
   font-size: 9px; font-weight: 600; letter-spacing: .08em;
   text-transform: uppercase; color: var(--dk-3); background: none;
@@ -5095,9 +5183,14 @@ function renderPlan(plan, browsing) {
         : '<strong>Priority:</strong> <strong>'+p.protein+'g protein</strong> even without training. Metabolism stays active on rest days — nutrition discipline here matters.')
     +'</div>'
     +(isTraining && !isBrowsing
-      ? '<button class="dp2-travel-chip'+(travelModeActive?' active':'')+'" id="dp2-travel-chip" onclick="openTravelModal()">'
-          +(travelModeActive ? '&#10003; Travel mode active' : '&#9992; Travelling? Swap to bodyweight &#8594;')
-        +'</button>'
+      ? '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">'
+          + '<button class="dp2-travel-chip'+(travelModeActive?' active':'')+'" id="dp2-travel-chip" onclick="openTravelModal()" style="margin-top:0;">'
+              +(travelModeActive ? '&#10003; Travel mode active' : '&#9992; Travelling? Swap to bodyweight &#8594;')
+            +'</button>'
+          + (!sessionDone
+              ? '<button class="dp2-travel-chip" style="margin-top:0;color:var(--jade);background:rgba(0,200,160,.08);border-color:rgba(0,200,160,.2);" onclick="openShortTimeFlow()">&#9201; Short on time?</button>'
+              : '')
+        +'</div>'
       : '')
     +'<div class="dp2-signals">'
       // Macro signal moved to unified header
@@ -5626,6 +5719,18 @@ function renderPlan(plan, browsing) {
       +(isTraining?'<div class="dp2-eod-row"><span class="dp2-eod-key">Training</span><span class="dp2-eod-val '+(trainDone?'jade':trainMod?'amber':'')+'">'+(!isTraining?'Rest day':trainDone?'✓ Done':trainMod?'~ Modified':'Not logged')+'</span></div>':'')
       +'<div class="dp2-eod-row"><span class="dp2-eod-key">Meals</span><span class="dp2-eod-val '+(mealsLogged===mealBlocks.length&&mealBlocks.length?'jade':'')+'">'+mealsLogged+' / '+mealBlocks.length+'</span></div>'
       +'<div class="dp2-eod-row"><span class="dp2-eod-key">Stack</span><span class="dp2-eod-val">'+suppsDone+' / '+(profileSupps.length||0)+'</span></div>'
+      +'<div class="dp2-eod-row" style="flex-direction:column;align-items:flex-start;gap:6px;">'
+        +'<div style="display:flex;justify-content:space-between;width:100%;">'
+          +'<span class="dp2-eod-key">Tonight\'s sleep</span>'
+          +'<span class="dp2-eod-val jade" id="dp2-sleep-val">'+(log.sleepActual ? log.sleepActual+'h logged' : '')+'</span>'
+        +'</div>'
+        +'<div class="dp2-sleep-btns" id="dp2-sleep-btns">'
+          +[5,6,7,8,9].map(function(h){
+            var active = log.sleepActual===h?' active':'';
+            return '<button class="dp2-sleep-btn'+active+'" onclick="dpSaveSleep('+h+')">'+h+'h</button>';
+          }).join('')
+        +'</div>'
+      +'</div>'
     +'</div>'
     +'<textarea class="dp2-notes" rows="2" placeholder="Notes for tomorrow…" onchange="dpSaveNotes(this.value)" onblur="dpSaveNotes(this.value)">'+savedNotes+'</textarea>'
     +'<div class="dp2-eod-score-wrap">'
@@ -6161,6 +6266,11 @@ function dpSaveDay() {
   var btn12 = document.querySelector('.dp2-save-btn');
   if (btn12) { btn12.textContent = '✓ Day logged'; btn12.disabled = true; }
   if (typeof compressAndSaveMemory==='function') setTimeout(compressAndSaveMemory, 500);
+  // Remove evening prompt bar if showing
+  var bar = document.getElementById('eod-prompt-bar');
+  if (bar) bar.remove();
+  // Show day close card
+  setTimeout(showDayCloseCard, 300);
 }
 
 function dpSaveSwap(blockIdx, val) {
@@ -9431,6 +9541,163 @@ function dismissSleepBanner() {
   if (el) el.remove();
 }
 
+// ════════════════════════════════════════════════════════════════
+// SHORT ON TIME — opens session editor focused on time selector
+// ════════════════════════════════════════════════════════════════
+
+function openShortTimeFlow() {
+  var trainIdx = -1;
+  (window._blocks || []).forEach(function(b, i) { if (b.type === 'training') trainIdx = i; });
+  if (trainIdx < 0) return;
+  openSessionEditor(trainIdx, window._blocks[trainIdx]);
+  // Scroll se-body to top so time selector is first thing visible
+  setTimeout(function() {
+    var body = document.getElementById('se-body');
+    if (body) body.scrollTop = 0;
+  }, 120);
+}
+
+// ════════════════════════════════════════════════════════════════
+// SLEEP LOGGING
+// ════════════════════════════════════════════════════════════════
+
+function dpSaveSleep(hours) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.sleepActual = hours;
+  saveDayLog(_rDate, log);
+  // Update EOD display
+  var valEl = document.getElementById('dp2-sleep-val');
+  if (valEl) valEl.textContent = hours + 'h logged';
+  document.querySelectorAll('.dp2-sleep-btn').forEach(function(b, i) {
+    b.classList.toggle('active', [5,6,7,8,9][i] === hours);
+  });
+  // Also update close card if open
+  var dcValEl = document.getElementById('dc-sleep-val');
+  if (dcValEl) dcValEl.textContent = hours + 'h logged';
+  document.querySelectorAll('.dc-sleep-btn').forEach(function(b, i) {
+    b.classList.toggle('active', [5,6,7,8,9][i] === hours);
+  });
+  // Dismiss evening bar if showing
+  var bar = document.getElementById('eod-prompt-bar');
+  if (bar) bar.remove();
+}
+
+// ════════════════════════════════════════════════════════════════
+// EVENING PROMPT BAR — after 8pm, nudges sleep logging
+// ════════════════════════════════════════════════════════════════
+
+function checkEveningPrompt() {
+  var hour = new Date().getHours();
+  if (hour < 20) return; // Only after 8pm
+
+  var log = loadDayLog(_rDate) || {};
+  if (log.sleepActual) return; // Already logged
+
+  var seenKey = 'bl_eve_' + _rDate;
+  if (localStorage.getItem(seenKey)) return;
+
+  if (document.getElementById('eod-prompt-bar')) return;
+
+  var bar = document.createElement('div');
+  bar.id = 'eod-prompt-bar';
+  bar.innerHTML = ''
+    + '<div class="eod-bar-text"><strong>Wrapping up?</strong> Log tonight\'s sleep — it powers tomorrow\'s plan.</div>'
+    + '<div class="eod-bar-sleep">'
+      + [6,7,8,9].map(function(h) {
+          return '<button class="eod-bar-sleep-btn" onclick="dpSaveSleep('+h+');dismissEveningBar()">' + h + 'h</button>';
+        }).join('')
+    + '</div>'
+    + '<button class="eod-bar-dismiss" onclick="dismissEveningBar()">&#215;</button>';
+
+  document.body.appendChild(bar);
+}
+
+function dismissEveningBar() {
+  try { localStorage.setItem('bl_eve_' + _rDate, '1'); } catch(e) {}
+  var bar = document.getElementById('eod-prompt-bar');
+  if (bar) bar.remove();
+}
+
+// ════════════════════════════════════════════════════════════════
+// DAY CLOSE CARD — shown after dpSaveDay()
+// ════════════════════════════════════════════════════════════════
+
+function showDayCloseCard() {
+  var existing = document.getElementById('day-close-overlay');
+  if (existing) existing.remove();
+
+  var p = P || {};
+  var t = TODAY || {};
+  var log = loadDayLog(_rDate) || {};
+  var mealBlocks = (window._blocks || []).filter(function(b) { return !!b.mealSlot; });
+  var allSuppNames = [];
+  (window._blocks || []).forEach(function(b) {
+    (b.suppList || []).forEach(function(s) { allSuppNames.push(s.name || s); });
+  });
+  var score = typeof edCalcScore === 'function' ? edCalcScore(log, mealBlocks, allSuppNames) : 0;
+  var eaten = (MACROS && MACROS.eaten) || { prot: 0 };
+  var protTarget = p.protein || 140;
+  var protPct = Math.round((eaten.prot / Math.max(1, protTarget)) * 100);
+  var trainStatus = log.trainStatus || 'pending';
+  var trainLabel = trainStatus === 'done' ? '✓ Done' : trainStatus === 'skipped' ? 'Skipped' : trainStatus === 'rest' ? 'Rest day' : 'Not logged';
+  var trainCls = trainStatus === 'done' ? 'jade' : trainStatus === 'skipped' ? 'amber' : '';
+
+  // Tomorrow preview
+  var tomorrowIdx = (t.idx + 1) % 7;
+  var tomorrowPlan = typeof getEffectiveDayPlan === 'function' ? getEffectiveDayPlan(p, tomorrowIdx) : {};
+  var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var tomorrowName = DNS[tomorrowIdx] || 'Tomorrow';
+  var tomorrowIsTraining = tomorrowPlan.priority === 'training';
+  var tomorrowLabel = tomorrowIsTraining ? (tomorrowPlan.type || 'Training') : 'Rest & recovery';
+
+  // Sleep
+  var sleepLogged = log.sleepActual || 0;
+  var sleepRow = sleepLogged
+    ? '<div class="dc-row"><span class="dc-key">Sleep target</span><span class="dc-val jade">' + sleepLogged + 'h logged</span></div>'
+    : '';
+  var sleepInput = !sleepLogged
+    ? '<div class="dc-section-label">Log tonight\'s sleep &#8594; powers tomorrow</div>'
+      + '<div class="dc-sleep-row" id="dc-sleep-row">'
+        + [5,6,7,8,9].map(function(h) {
+            return '<button class="dc-sleep-btn" onclick="dpSaveSleep('+h+')">' + h + 'h</button>';
+          }).join('')
+      + '</div>'
+    : '';
+
+  var html = '<div id="day-close-overlay">'
+    + '<div id="day-close-card">'
+      + '<div class="dc-hd">'
+        + '<div class="dc-score">' + score + '</div>'
+        + '<div class="dc-score-label">Day score</div>'
+      + '</div>'
+      + '<div class="dc-body">'
+        + '<div class="dc-section-label">Today\'s summary</div>'
+        + '<div class="dc-rows">'
+          + (t.isTraining ? '<div class="dc-row"><span class="dc-key">Training</span><span class="dc-val ' + trainCls + '">' + trainLabel + '</span></div>' : '')
+          + '<div class="dc-row"><span class="dc-key">Protein</span><span class="dc-val ' + (protPct >= 95 ? 'jade' : protPct >= 75 ? 'amber' : '') + '">' + (eaten.prot || 0) + 'g / ' + protTarget + 'g (' + protPct + '%)</span></div>'
+          + sleepRow
+        + '</div>'
+        + sleepInput
+        + '<div class="dc-section-label" style="margin-top:18px;">' + tomorrowName + '</div>'
+        + '<div class="dc-tomorrow">'
+          + '<div class="dc-tomorrow-type">' + (tomorrowIsTraining ? 'Training day' : 'Rest day') + '</div>'
+          + '<div class="dc-tomorrow-name">' + tomorrowLabel + '</div>'
+        + '</div>'
+      + '</div>'
+      + '<div class="dc-footer">'
+        + '<button class="dc-done-btn" onclick="closeDayCloseCard()">Done &#10003;</button>'
+      + '</div>'
+    + '</div>'
+  + '</div>';
+
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeDayCloseCard() {
+  var el = document.getElementById('day-close-overlay');
+  if (el) el.remove();
+}
+
 function buildDay(){
   var root = document.getElementById('day-root');
   root.innerHTML = '<div style="padding:60px 0;text-align:center;">'
@@ -9443,6 +9710,7 @@ function buildDay(){
     renderPlan(plan);
     renderRecentChangeBanner(P);
     checkSleepIntensityBanner();
+    checkEveningPrompt();
     // ── Risk advisory banner (show once per day) ──────────
     if (typeof BL_RISK !== 'undefined') {
       var _seenKey = 'bl_risk_seen_' + new Date().toDateString();
