@@ -576,6 +576,7 @@ async function generate(){
     });
     S.plan={days:parsed.days,prefs:JSON.parse(JSON.stringify(S.prefs)),generatedAt:new Date().toISOString()};
     sp(S.plan);
+    _bustDayPlanCaches();
     S.busy=false;
     renderTable(gp());
   }catch(err){
@@ -629,6 +630,7 @@ async function swapMeal(day,slot){
     if(!S.plan.days[day])S.plan.days[day]={};
     S.plan.days[day][slot]=meal;
     sp(S.plan);
+    _bustDayPlanCaches();
   }catch(e){console.error(e);}
   S.swapping=null;
   renderTable(gp());
@@ -825,8 +827,23 @@ function renderDetailInto(det,d){
   det.innerHTML=html||'<div style="font-size:10px;font-weight:300;color:var(--dk-3);padding:4px 0;">No detail available.</div>';
 }
 
-function doSave(){if(S.plan)sp(S.plan);
-  try{localStorage.removeItem('dayplan_v6r2_'+new Date().toISOString().slice(0,10));}catch(_e){}var b=document.getElementById('sbt');if(b){b.textContent='Saved';b.style.opacity='.6';setTimeout(function(){if(b){b.textContent='Save week';b.style.opacity='';}},2000);}}
+// Bust all daily plan caches for the current week (version-agnostic)
+function _bustDayPlanCaches(){
+  try{
+    var d=new Date(),wd=d.getDay();
+    var mon=new Date(d);
+    mon.setDate(d.getDate()-(wd===0?6:wd-1));mon.setHours(0,0,0,0);
+    for(var i=0;i<7;i++){
+      var dd=new Date(mon);dd.setDate(mon.getDate()+i);
+      var ds=dd.toISOString().slice(0,10);
+      // Remove any dayplan_v*_YYYY-MM-DD key for this date
+      Object.keys(localStorage).filter(function(k){
+        return k.startsWith('dayplan_')&&k.endsWith('_'+ds);
+      }).forEach(function(k){localStorage.removeItem(k);});
+    }
+  }catch(e){}
+}
+function doSave(){if(S.plan)sp(S.plan);_bustDayPlanCaches();var b=document.getElementById('sbt');if(b){b.textContent='Saved';b.style.opacity='.6';setTimeout(function(){if(b){b.textContent='Save week';b.style.opacity='';}},2000);}}
 function editPrefs(){S.plan=null;cp();renderPrefs(gp());}
 
 /* ---- CUSTOM MEAL BUILDER ---- */
