@@ -148,6 +148,32 @@ body { background:var(--ink); color:var(--dk-1); }
 .dp-conn-link { font-size:10px; font-weight:600; letter-spacing:0.05em; color:var(--jade); background:rgba(0,200,160,.06); border:1px solid rgba(0,200,160,.15); border-radius:4px; padding:3px 9px; text-decoration:none; }
 .dp-conn-link:hover { background:rgba(0,200,160,.12); }
 
+/* ── Follow-up chat ── */
+.followup-block { margin-top:20px; border-top:1px solid var(--bd); padding-top:20px; }
+.followup-label { font-size:9px; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; }
+.followup-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.followup-chip { font-size:11px; font-weight:400; color:var(--dk-3); background:var(--ink-3); border:1px solid var(--bd); border-radius:20px; padding:4px 11px; cursor:pointer; transition:all 0.12s; }
+.followup-chip:hover { color:var(--jade); border-color:rgba(0,200,160,0.3); }
+.followup-input-row { display:flex; gap:8px; align-items:flex-end; }
+.followup-input { flex:1; background:var(--ink-3); border:1px solid var(--bd); border-radius:6px; padding:10px 12px; font-size:13px; font-weight:300; font-family:var(--sans); color:var(--dk-1); }
+.followup-input::placeholder { color:var(--dk-4); }
+.followup-input:focus { outline:none; border-color:rgba(0,200,160,0.35); }
+.followup-send { background:transparent; border:1px solid rgba(0,200,160,0.3); color:var(--jade); border-radius:6px; padding:0 14px; height:40px; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; font-family:var(--sans); cursor:pointer; flex-shrink:0; transition:all 0.12s; }
+.followup-send:hover { background:rgba(0,200,160,0.08); }
+.followup-send:disabled { opacity:0.35; cursor:default; }
+.chat-thread { margin-top:16px; display:flex; flex-direction:column; gap:12px; }
+.chat-q { display:flex; justify-content:flex-end; }
+.chat-q-bubble { background:rgba(0,200,160,0.08); border:1px solid rgba(0,200,160,0.2); border-radius:12px 12px 2px 12px; padding:10px 14px; font-size:13px; font-weight:400; color:var(--dk-1); max-width:80%; line-height:1.5; }
+.chat-a { display:flex; gap:10px; align-items:flex-start; }
+.chat-a-avatar { width:28px; height:28px; border-radius:50%; background:rgba(0,200,160,0.1); border:1px solid rgba(0,200,160,0.2); display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; margin-top:2px; }
+.chat-a-bubble { background:var(--ink-3); border:1px solid var(--bd); border-radius:2px 12px 12px 12px; padding:12px 14px; font-size:13px; font-weight:300; color:var(--dk-2); line-height:1.75; max-width:90%; }
+.chat-a-bubble strong { color:var(--dk-1); font-weight:500; }
+.chat-a-loading { display:flex; gap:4px; align-items:center; padding:4px 0; }
+.chat-dot { width:6px; height:6px; border-radius:50%; background:var(--jade); opacity:0.4; animation:dot-pulse 1.2s ease-in-out infinite; }
+.chat-dot:nth-child(2) { animation-delay:0.2s; }
+.chat-dot:nth-child(3) { animation-delay:0.4s; }
+@keyframes dot-pulse { 0%,80%,100%{opacity:0.2;transform:scale(0.8);} 40%{opacity:1;transform:scale(1);} }
+
 /* ── All connections ── */
 .all-conns { display:flex; flex-direction:column; gap:2px; }
 .all-conn-row { display:grid; grid-template-columns:1fr 20px 1fr 80px; gap:0; align-items:center; padding:10px 14px; background:var(--ink-2); border:1px solid var(--bd); border-radius:0; font-size:12px; cursor:pointer; transition:background 0.1s; }
@@ -681,11 +707,35 @@ function nodeByName(name){
   return n ? n.id : -1;
 }
 
+// ── Conversation state ────────────────────────────────────────────────────────
+var _convHistory = [];   // [{role:'user',content:'...'},{role:'assistant',content:'...'}]
+var _convContext = '';   // system prompt for follow-up Q&A
+
 function renderCascade(a, originalInput){
   var panel = document.getElementById('cascade-panel');
   var primaryNode = NODES.filter(function(n){ return n.name===a.primaryNode; })[0] || NODES[0];
 
   animateCascadeOnMap(a.primaryNode, a.affectedNodes||[]);
+
+  // Reset conversation for this new analysis
+  _convHistory = [];
+
+  // Build rich system context for follow-up Q&A
+  var profileDesc = '';
+  if(_profile){
+    profileDesc = 'User: '+ (_profile.name||'User')
+      +', '+(_profile.age||'adult')+' years old, '+(_profile.sex||'unknown sex')
+      +', goal: '+(_profile.goal||'body recomposition')+'. ';
+  }
+  _convContext = 'You are a sports medicine and human physiology expert inside Soma, a personal fitness AI. '
+    + profileDesc
+    + 'The user described: "'+originalInput+'". '
+    + 'The biological cascade identified was: primary system '+a.primaryNode+', affecting '+(a.affectedNodes||[]).join(', ')+'. '
+    + 'The cascade details: '+(a.cascade||[]).map(function(c){ return c.node+' ('+c.severity+'): '+c.mechanism; }).join(' | ')
+    + '\n\nYou answer follow-up questions about this specific cascade in conversational, precise language. '
+    + 'Reference the user\'s profile when relevant. Be direct, use numbers and mechanisms where known. '
+    + 'Use plain prose — no bullet points unless specifically asked. 2–5 sentences max per answer unless the question warrants more. '
+    + 'Occasionally reference which Soma page covers a topic (e.g. "the Sleep science page goes deeper on this").';
 
   // Build cascade chain HTML
   var chainHtml = '';
@@ -713,13 +763,19 @@ function renderCascade(a, originalInput){
   var watchHtml = (a.watchFor||[]).map(function(w){ return '<li>'+w+'</li>'; }).join('');
   var actHtml   = (a.actions||[]).map(function(act){ return '<li>'+act+'</li>'; }).join('');
 
+  // Suggested follow-up questions (dynamic based on cascade)
+  var followupSuggestions = _buildFollowupSuggestions(a);
+  var suggestHtml = followupSuggestions.map(function(q){
+    return '<span class="followup-chip" onclick="askFollowup(\''+q.replace(/'/g,"\\'")+'\')">'+ q +'</span>';
+  }).join('');
+
   panel.innerHTML =
     // Trigger header
     '<div class="cascade-trigger">'
     +'<div class="cascade-trigger-head">'
     +'<div class="cascade-trigger-icon">'+primaryNode.icon+'</div>'
     +'<div><div class="cascade-trigger-title" style="color:'+primaryNode.color+'">'+a.trigger+'</div>'
-    +'<div class="cascade-trigger-sub">Primary system affected: <strong style="color:'+primaryNode.color+'">'+a.primaryNode+'</strong></div></div>'
+    +'<div class="cascade-trigger-sub">Primary system: <strong style="color:'+primaryNode.color+'">'+a.primaryNode+'</strong> → cascades through '+(a.affectedNodes||[]).join(', ')+'</div></div>'
     +'</div>'
     +'<div class="cascade-narrative">'+a.narrative+'</div>'
     +'</div>'
@@ -739,12 +795,123 @@ function renderCascade(a, originalInput){
     +'<ul>'+actHtml+'</ul>'
     +'</div>'
     +'</div>'
-    // Clear button
-    +'<div style="text-align:right;margin-top:12px">'
+    // Follow-up Q&A block
+    +'<div class="followup-block">'
+    +'<div class="followup-label">Ask anything about how this is affecting you</div>'
+    +'<div class="followup-chips">'+suggestHtml+'</div>'
+    +'<div class="followup-input-row">'
+    +'<input id="followup-input" class="followup-input" type="text" placeholder="e.g. Why am I so hungry? How long until I recover? What if this keeps happening?" onkeydown="if(event.key===\'Enter\')sendFollowup()">'
+    +'<button id="followup-btn" class="followup-send" onclick="sendFollowup()">Ask →</button>'
+    +'</div>'
+    +'<div class="chat-thread" id="chat-thread"></div>'
+    +'</div>'
+    // Clear
+    +'<div style="text-align:right;margin-top:16px">'
     +'<button onclick="clearCascade()" style="background:none;border:none;color:var(--dk-4);font-size:11px;cursor:pointer;font-family:var(--sans);">Clear analysis ×</button>'
     +'</div>';
 
   document.getElementById('map-hint').textContent = 'Cascade highlighted — tap any node for details';
+}
+
+function _buildFollowupSuggestions(a){
+  var questions = [];
+  var nodes = (a.affectedNodes||[]);
+  if(nodes.indexOf('Nutrition')>-1 || nodes.indexOf('Stress')>-1)
+    questions.push('Why am I craving junk food?');
+  if(nodes.indexOf('Hormones')>-1)
+    questions.push('How does this affect my testosterone?');
+  if(nodes.indexOf('Recovery')>-1)
+    questions.push('Will my training suffer?');
+  if(nodes.indexOf('Sleep')>-1 || a.primaryNode==='Sleep')
+    questions.push('How long until sleep normalises?');
+  if(nodes.indexOf('Mind')>-1)
+    questions.push('Why do I feel anxious or flat after this?');
+  if(a.primaryNode==='Stress' || nodes.indexOf('Stress')>-1)
+    questions.push('What\'s the fastest way to lower cortisol?');
+  if(a.primaryNode==='Sleep')
+    questions.push('What supplements actually help sleep?');
+  if(nodes.indexOf('Hormones')>-1 && _profile && _profile.sex==='Female')
+    questions.push('How does this interact with my cycle?');
+  questions.push('What happens if this continues for weeks?');
+  questions.push('What\'s the single most important thing I can do today?');
+  return questions.slice(0, 5);
+}
+
+function askFollowup(q){
+  var input = document.getElementById('followup-input');
+  if(input){ input.value = q; sendFollowup(); }
+}
+
+async function sendFollowup(){
+  var input = document.getElementById('followup-input');
+  var btn   = document.getElementById('followup-btn');
+  if(!input || !btn) return;
+  var q = input.value.trim();
+  if(!q) return;
+  input.value = '';
+  btn.disabled = true;
+
+  var thread = document.getElementById('chat-thread');
+
+  // Add user message
+  thread.innerHTML += '<div class="chat-q"><div class="chat-q-bubble">'+_escHtml(q)+'</div></div>';
+
+  // Loading bubble
+  var loadId = 'chat-load-'+Date.now();
+  thread.innerHTML += '<div class="chat-a" id="'+loadId+'">'
+    +'<div class="chat-a-avatar">⚡</div>'
+    +'<div class="chat-a-bubble"><div class="chat-a-loading">'
+    +'<div class="chat-dot"></div><div class="chat-dot"></div><div class="chat-dot"></div>'
+    +'</div></div></div>';
+  thread.lastElementChild.scrollIntoView({behavior:'smooth', block:'end'});
+
+  // Add to conversation history
+  _convHistory.push({role:'user', content: q});
+
+  try {
+    var messages = _convHistory.slice(); // send full history
+    var res = await fetch(API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 400,
+        system: _convContext,
+        messages: messages
+      })
+    });
+    var data = await res.json();
+    var answer = (data.content||[]).map(function(b){ return b.text||''; }).join('').trim();
+
+    // Add assistant reply to history
+    _convHistory.push({role:'assistant', content: answer});
+
+    // Replace loading bubble
+    var loadEl = document.getElementById(loadId);
+    if(loadEl){
+      loadEl.querySelector('.chat-a-bubble').innerHTML = _formatAnswer(answer);
+    }
+  } catch(e){
+    var loadEl = document.getElementById(loadId);
+    if(loadEl){
+      loadEl.querySelector('.chat-a-bubble').innerHTML = '<span style="color:var(--dk-4)">Couldn\'t get a response — try again.</span>';
+    }
+    _convHistory.pop(); // remove failed user message
+  }
+  btn.disabled = false;
+  if(input) input.focus();
+}
+
+function _escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function _formatAnswer(text){
+  // Bold **text**, convert line breaks to <br>, basic formatting
+  return text
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n\n/g,'<br><br>')
+    .replace(/\n/g,' ');
 }
 
 function clearCascade(){
