@@ -383,6 +383,40 @@ body {
   min-width: 0;
 }
 
+/* ── 3-column daily layout ─────────────────────────────────────────── */
+.dp3-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 300px;
+  grid-template-areas: "left mid right";
+  gap: 0 20px;
+  align-items: start;
+  padding: 24px 24px 120px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+@media(max-width:1099px){
+  .dp3-layout { grid-template-columns: 220px 1fr 260px; gap: 0 14px; }
+}
+@media(max-width:799px){
+  .dp3-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "left" "mid" "right";
+    padding: 16px 16px 100px;
+  }
+}
+.dp3-col { min-width: 0; }
+.dp3-col-left  { grid-area: left;  position: sticky; top: 100px; }
+.dp3-col-mid   { grid-area: mid; }
+.dp3-col-right { grid-area: right; }
+@media(max-width:799px){ .dp3-col-left { position: static; } }
+.dp3-col-hd {
+  font-size: 9px; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--dk-3);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.dp3-col-hd::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+
 /* ── Day hero ──────────────────────────────────────────────────────── */
 .day-hero { padding: 4px 0 24px; }
 .day-kicker {
@@ -5773,31 +5807,19 @@ function renderPlan(plan, browsing) {
         },
       ];
 
-  var actsHtml = '<div class="dp2-acts">';
-  acts.forEach(function(act, ai) {
+  // ── Build a single act's HTML ──────────────────────────────────────
+  function buildOneAct(act, ai, isOpen) {
     var actBlocks = [];
     plan.blocks.forEach(function(b, idx) {
       if (act.filter(b, idx)) actBlocks.push({block:b, idx:idx});
     });
-    if (!actBlocks.length) return;
-
-    var doneCount = actBlocks.filter(function(x){
-      var st = blockStatus(x.block, x.idx);
-      return st==='done';
-    }).length;
-    var skippedCount = actBlocks.filter(function(x){
-      var st = blockStatus(x.block, x.idx);
-      return st==='skipped';
-    }).length;
+    if (!actBlocks.length) return '';
     var total = actBlocks.filter(function(x){ return x.block.type!=='sleep'; }).length;
     var doneReal = actBlocks.filter(function(x){ return blockStatus(x.block,x.idx)==='done' && x.block.type!=='sleep'; }).length;
-
     var statusLabel = doneReal===0 ? 'Not started' : doneReal===total ? 'Complete' : doneReal+'/'+total;
     var statusCls = doneReal===total ? 'done' : doneReal>0 ? 'part' : '';
     var progPct = total > 0 ? Math.round((doneReal/total)*100) : 0;
-    var isOpen = ai === 0; // first act open by default
-
-    actsHtml += '<div class="dp2-act '+(isOpen?'open ':'')+(act.actClass||'')+'" id="dp2-act-'+act.id+'">'
+    return '<div class="dp2-act '+(isOpen?'open ':'')+(act.actClass||'')+'" id="dp2-act-'+act.id+'">'
       +'<div class="dp2-act-hd" onclick="dp2ToggleAct(\''+act.id+'\')">'
         +'<div class="dp2-act-icon">'+act.icon+'</div>'
         +'<div class="dp2-act-meta">'
@@ -5815,8 +5837,19 @@ function renderPlan(plan, browsing) {
         +actBlocks.map(function(x){ return buildItem(x.block, x.idx); }).join('')
       +'</div>'
     +'</div>';
+  }
+
+  // Split acts: all but last → middle column; last → right column
+  var midActsHtml = '<div class="dp2-acts">';
+  var rightActsHtml = '<div class="dp2-acts">';
+  acts.forEach(function(act, ai) {
+    var isOpen = ai === 0;
+    var html = buildOneAct(act, ai, isOpen);
+    if (ai < acts.length - 1) { midActsHtml += html; }
+    else { rightActsHtml += html; }
   });
-  actsHtml += '</div>';
+  midActsHtml  += '</div>';
+  rightActsHtml += '</div>';
 
   // ── EOD card ─────────────────────────────────────────────
   var trainDone = log.trainStatus==='done';
@@ -5898,36 +5931,50 @@ function renderPlan(plan, browsing) {
   + '</div>'
   + '<div id="vlg-toast" class="vlg-toast"></div>';
 
-  // ── Assemble ─────────────────────────────────────────────
-  root.innerHTML = '<div class="dp2-page">'
-      + missionHtml
-      + actsHtml
-      + (isBrowsing
-          ? '<button class="dp2-rebuild-btn" onclick="backToToday()">← Back to today</button>'
-          : '<button class="dp2-rebuild-btn" onclick="regen()" id="dp2-rebuild-btn">↺ Rebuild plan</button>')
-      + eodHtml
+  // ── Assemble — 3-column layout ───────────────────────────
+  var midColLabel = isTraining ? 'Session' : 'Day plan';
+  var rebuildBtn = isBrowsing
+    ? '<button class="dp2-rebuild-btn" onclick="backToToday()">← Back to today</button>'
+    : '<button class="dp2-rebuild-btn" onclick="regen()" id="dp2-rebuild-btn">↺ Rebuild plan</button>';
+
+  root.innerHTML = '<div class="dp3-layout">'
+    // ── Left: context ──────────────────────────────────────
+    +'<div class="dp3-col dp3-col-left">'
+      +'<div class="dp3-col-hd">Today</div>'
+      +missionHtml
     +'</div>'
-    // ── Actual trigger pill ─────────────────────────────────
-    +'<button class="dp2-actual-trigger" id="dp2-actual-trigger" onclick="dpActualOpen()">&#9711; Actual</button>'
-    // ── Dim overlay ─────────────────────────────────────────
-    +'<div class="dp2-actual-overlay" id="dp2-actual-overlay" onclick="dpActualClose()"></div>'
-    // ── Amber bottom sheet ──────────────────────────────────
-    +'<div class="dp2-actual-sheet" id="dp2-actual-sheet">'
-      +'<div class="dp2-actual-sheet-handle"></div>'
-      +'<div class="dp2-actual-sheet-hd">'
-        +'<span class="dp2-actual-sheet-title">Actual</span>'
-        +'<div style="display:flex;align-items:center;gap:8px;">'
-          +'<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="dpDictateBasic()">&#127908; Dictate</button>'
-          +'<button class="dp2-actual-sheet-close" onclick="dpActualClose()">&#215;</button>'
-        +'</div>'
-      +'</div>'
-      +'<div class="dp2-actual-sheet-body">'
-        +'<div id="dp2-actual-entries"></div>'
-        +'<div id="dp2-actual-totals"></div>'
+    // ── Middle: session / main acts ────────────────────────
+    +'<div class="dp3-col dp3-col-mid">'
+      +'<div class="dp3-col-hd">'+midColLabel+'</div>'
+      +midActsHtml
+      +rebuildBtn
+    +'</div>'
+    // ── Right: fuel & recovery ─────────────────────────────
+    +'<div class="dp3-col dp3-col-right">'
+      +'<div class="dp3-col-hd">Fuel &amp; Recovery</div>'
+      +rightActsHtml
+      +eodHtml
+    +'</div>'
+  +'</div>'
+  // ── Overlays (outside columns) ─────────────────────────
+  +'<button class="dp2-actual-trigger" id="dp2-actual-trigger" onclick="dpActualOpen()">&#9711; Actual</button>'
+  +'<div class="dp2-actual-overlay" id="dp2-actual-overlay" onclick="dpActualClose()"></div>'
+  +'<div class="dp2-actual-sheet" id="dp2-actual-sheet">'
+    +'<div class="dp2-actual-sheet-handle"></div>'
+    +'<div class="dp2-actual-sheet-hd">'
+      +'<span class="dp2-actual-sheet-title">Actual</span>'
+      +'<div style="display:flex;align-items:center;gap:8px;">'
+        +'<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="dpDictateBasic()">&#127908; Dictate</button>'
+        +'<button class="dp2-actual-sheet-close" onclick="dpActualClose()">&#215;</button>'
       +'</div>'
     +'</div>'
-    + floatHtml
-    + voiceHtml;
+    +'<div class="dp2-actual-sheet-body">'
+      +'<div id="dp2-actual-entries"></div>'
+      +'<div id="dp2-actual-totals"></div>'
+    +'</div>'
+  +'</div>'
+  + floatHtml
+  + voiceHtml;
 
   // ── Post-render ──────────────────────────────────────────
   var oldBar = document.getElementById('macro-bar');
