@@ -286,7 +286,8 @@ window.BL.showUserMenu = function() {
     avatar ? '<img src="'+avatar+'" class="bl-um-avatar">' : '<div class="bl-um-avatar-text">'+name[0].toUpperCase()+'</div>',
     '<div><div class="bl-um-name">'+name+'</div><div class="bl-um-email">'+user.email+'</div></div>',
     '</div>',
-    '<button onclick="window.BL.buildProfilePanel();document.getElementById(\'bl-user-menu\').remove()">Profile & settings</button>',
+    '<button onclick="window.location.href=\'/bodylens-profile.html\'">✏ Edit profile</button>',
+    '<button onclick="window.BL.buildProfilePanel();document.getElementById(\'bl-user-menu\').remove()">⚙ Settings & backup</button>',
     '<button onclick="window.BL.signOut()">Sign out</button>'
   ].join('');
   document.body.appendChild(menu);

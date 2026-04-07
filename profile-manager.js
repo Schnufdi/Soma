@@ -161,7 +161,9 @@ function buildProfilePanel() {
     '<div class="bpp-section">',
     '<div class="bpp-label">Current profile</div>',
     hasProfile
-      ? '<div class="bpp-profile-name">' + profile.name + '</div><div class="bpp-profile-sub">' + (profile.goal || '') + ' · ' + (profile.age || '') + 'yo · ' + (profile.sex || '') + '</div>'
+      ? '<div class="bpp-profile-name">' + profile.name + '</div>'
+        + '<div class="bpp-profile-sub">' + (profile.goal || '') + ' · ' + (profile.age || '') + 'yo · ' + (profile.sex || '') + '</div>'
+        + '<a href="/bodylens-profile.html" class="bpp-edit-link">✏ Edit profile fields →</a>'
       : '<div class="bpp-no-profile">No profile yet — <a href="/bodylens-onboard.html">complete onboarding</a></div>',
     '</div>',
 
@@ -231,7 +233,9 @@ function buildProfilePanel() {
       '.bpp-section:last-child{border-bottom:none;}',
       '.bpp-label{font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--dk-3,#4a6058);margin-bottom:10px;}',
       '.bpp-profile-name{font-family:var(--serif,serif);font-size:20px;font-weight:700;color:var(--dk-1,#e8e3da);margin-bottom:3px;}',
-      '.bpp-profile-sub{font-size:12px;color:var(--dk-3,#4a6058);}',
+      '.bpp-profile-sub{font-size:12px;color:var(--dk-3,#4a6058);margin-bottom:8px;}',
+      '.bpp-edit-link{display:inline-block;font-size:11px;font-weight:600;color:var(--jade,#00c4a0);text-decoration:none;letter-spacing:0.04em;}',
+      '.bpp-edit-link:hover{opacity:0.8;}',
       '.bpp-no-profile{font-size:13px;color:var(--dk-3,#4a6058);}',
       '.bpp-no-profile a{color:var(--jade,#00c4a0);text-decoration:none;}',
       '.bpp-theme-row{display:flex;gap:8px;}',
