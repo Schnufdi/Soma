@@ -8,8 +8,11 @@
   </div>
   <div class="nav-core">
     <a class="nav-link nav-tab" href="/bodylens-dailyplan.html" data-tab="today">Today</a>
-    <a class="nav-link nav-tab" href="/bodylens-week.html" data-tab="plan">Plan</a>
-    <a class="nav-link nav-tab" href="/bodylens-profile.html" data-tab="me">Me</a>
+    <a class="nav-link nav-tab" href="/bodylens-week.html" data-tab="week">Week</a>
+    <a class="nav-link nav-tab" href="/bodylens-meals.html" data-tab="meals">Meals</a>
+    <a class="nav-link nav-tab" href="/bodylens-programme.html" data-tab="programme">Programme</a>
+    <a class="nav-link nav-tab" href="/bodylens-science.html" data-tab="science">Science</a>
+    <button class="nav-more-btn" id="nav-more-btn" onclick="toggleNavMore(event)" aria-label="More">More</button>
   </div>
   <div class="nav-end">
     <div class="nav-meta" id="nav-meta"></div>
@@ -153,12 +156,12 @@
 
     // Mark the 3-tab nav active — group pages under their parent tab
     const TAB_MAP = {
-      today: ['bodylens-dailyplan.html','index.html'],
-      plan:  ['bodylens-week.html','bodylens-programme.html','bodylens-plan.html',
-              'bodylens-history.html','bodylens-checkin.html','bodylens-training.html'],
-      me:    ['bodylens-profile.html','bodylens-goals.html','bodylens-coachplan.html',
-              'bodylens-onboard.html','bodylens-body.html','bodylens-bodyscan.html',
-              'bodylens-bodymapper.html'],
+      today:      ['bodylens-dailyplan.html','index.html'],
+      week:       ['bodylens-week.html','bodylens-history.html','bodylens-checkin.html'],
+      meals:      ['bodylens-meals.html','bodylens-food.html','bodylens-fridge.html','bodylens-mealbuilder.html'],
+      programme:  ['bodylens-programme.html','bodylens-plan.html','bodylens-training.html','bodylens-strength.html'],
+      science:    ['bodylens-science.html','bodylens-sleep.html','bodylens-metabolic.html',
+                   'bodylens-testosterone.html','bodylens-recovery.html','bodylens-longevity.html'],
     };
     document.querySelectorAll('.nav-tab[data-tab]').forEach(a => {
       const tab = a.getAttribute('data-tab');
