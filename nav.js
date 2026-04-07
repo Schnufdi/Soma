@@ -38,6 +38,7 @@
         <a class="vd-link" href="/bodylens-instructions.html">Instructions</a>
         <a class="vd-link" href="/bodylens-legal.html">Legal &amp; Compliance</a>
         <a class="vd-link" href="/bodylens-backtest.html">UX Backtest</a>
+        <a class="vd-link" href="/bodylens-ux-scenarios.html">UX Scenarios</a>
         <div class="vd-divider"></div>
         <div class="vd-section">App</div>
         <a class="vd-link" href="/bodylens-profiles.html">&#x2B21; Profile Vault</a>
@@ -104,6 +105,7 @@
   <a class="mm-link mm-vault" href="/bodylens-intelligence-full.html">Full Intelligence Doc</a>
   <a class="mm-link mm-vault" href="/bodylens-instructions.html">Instructions</a>
   <a class="mm-link mm-vault" href="/bodylens-backtest.html">UX Backtest</a>
+  <a class="mm-link mm-vault" href="/bodylens-ux-scenarios.html">UX Scenarios</a>
   <a class="mm-link mm-vault" href="/bodylens-profiles.html">Profile Vault</a>
   <a class="mm-link mm-vault" href="/bodylens-coachplan.html">Coaching Plan</a>
   <a class="mm-link mm-vault" href="/bodylens-strength.html">Strength Baseline</a>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Soma">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="ux-scenarios">
+<title>Soma — UX Scenario Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); }
+.hero { padding:64px 0 56px; border-bottom:1px solid var(--bd); position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 800px 500px at 55% 40%, rgba(212,168,39,0.04) 0%, transparent 65%); }
+.hi { max-width:1080px; margin:0 auto; padding:0 48px; position:relative; z-index:1; }
+.h-eye { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+.h-eye::before { content:''; width:24px; height:1px; background:var(--amber); }
+.h-title { font-family:var(--serif); font-size:72px; font-weight:300; line-height:0.9; letter-spacing:-0.03em; color:var(--dk-1); margin-bottom:20px; }
+.h-sub { font-size:15px; font-weight:300; color:var(--dk-2); line-height:1.7; max-width:560px; margin-bottom:32px; }
+.score-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--bd); border-radius:6px; overflow:hidden; max-width:900px; }
+.sc { background:var(--ink-2); padding:16px 14px; text-align:center; }
+.sc-val { font-size:28px; font-weight:600; font-family:var(--mono); line-height:1; margin-bottom:4px; }
+.sc-val.green { color:var(--jade); }
+.sc-val.amber { color:var(--amber); }
+.sc-val.red   { color:#d94e35; }
+.sc-label { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+.snav { display:flex; gap:0; border-bottom:1px solid var(--bd); max-width:1080px; margin:0 auto; padding:0 48px; overflow-x:auto; }
+.sn { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:13px 16px; border:none; background:transparent; color:var(--dk-3); cursor:pointer; font-family:var(--sans); white-space:nowrap; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color 0.12s; }
+.sn:hover { color:var(--dk-2); }
+.sn.active { color:var(--amber); border-bottom-color:var(--amber); }
+.pane { display:none; }
+.pane.active { display:block; }
+.dark { background:var(--ink); padding:48px 0 64px; }
+.w { max-width:1080px; margin:0 auto; padding:0 48px; }
+.dr { display:flex; align-items:center; gap:14px; margin:0 0 24px; font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--dk-3); }
+.dr::after { content:''; flex:1; height:1px; background:var(--bd); }
+.dr.amber { color:var(--amber); }
+.dr.jade  { color:var(--jade); }
+.dr.red   { color:#d94e35; }
+.scenarios { display:flex; flex-direction:column; gap:16px; }
+
+/* ── SCENARIO CARD ── */
+.sc-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; overflow:hidden; }
+.sc-card.pass { border-left:3px solid var(--jade); }
+.sc-card.partial { border-left:3px solid var(--amber); }
+.sc-card.fail { border-left:3px solid #d94e35; }
+.sc-head { display:grid; grid-template-columns:40px 1fr auto; gap:16px; align-items:center; padding:18px 20px; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; }
+.sc-num { font-family:var(--serif); font-size:28px; font-weight:300; line-height:1; }
+.sc-card.pass .sc-num { color:var(--jade); opacity:0.6; }
+.sc-card.partial .sc-num { color:var(--amber); opacity:0.6; }
+.sc-card.fail .sc-num { color:#d94e35; opacity:0.6; }
+.sc-title { font-size:14px; font-weight:600; color:var(--dk-1); line-height:1.3; }
+.sc-title-sub { font-size:12px; font-weight:300; color:var(--dk-3); margin-top:2px; }
+.sc-badge { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:3px 10px; border-radius:10px; white-space:nowrap; flex-shrink:0; }
+.badge-pass    { background:rgba(0,200,160,.12); color:var(--jade); border:1px solid rgba(0,200,160,.25); }
+.badge-partial { background:rgba(212,168,39,.12); color:var(--amber); border:1px solid rgba(212,168,39,.25); }
+.badge-fail    { background:rgba(217,78,53,.1); color:#d94e35; border:1px solid rgba(217,78,53,.2); }
+.sc-body { display:none; border-top:1px solid var(--bd); padding:20px; }
+.sc-body.open { display:block; }
+.sc-row { display:grid; grid-template-columns:120px 1fr; gap:0; border-top:1px solid rgba(255,255,255,.04); padding:12px 0; font-size:13px; }
+.sc-row:first-child { border-top:none; padding-top:0; }
+.sc-row-label { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); padding-top:2px; flex-shrink:0; }
+.sc-row-val { font-weight:300; color:var(--dk-2); line-height:1.75; }
+.sc-row-val strong { color:var(--dk-1); font-weight:500; }
+.sc-row-val code { font-family:var(--mono); font-size:11px; background:var(--ink-3); padding:1px 5px; border-radius:3px; color:var(--jade); }
+.sc-row-val.pass    { color:var(--jade); }
+.sc-row-val.partial { color:var(--amber); }
+.sc-row-val.fail    { color:#d94e35; }
+.gap-box { background:rgba(217,78,53,.04); border:1px solid rgba(217,78,53,.15); border-left:2px solid #d94e35; border-radius:0 6px 6px 0; padding:10px 14px; margin-top:12px; font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.7; }
+.gap-box.amber { background:rgba(212,168,39,.04); border-color:rgba(212,168,39,.15); border-left-color:var(--amber); }
+.gap-box.jade { background:rgba(0,200,160,.04); border-color:rgba(0,200,160,.15); border-left-color:var(--jade); }
+.gap-label { font-size:9px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; margin-bottom:5px; }
+.gap-label.red { color:#d94e35; }
+.gap-label.amber { color:var(--amber); }
+.gap-label.jade { color:var(--jade); }
+.step-list { list-style:none; padding:0; margin:0; }
+.step-list li { font-size:12px; font-weight:300; color:var(--dk-2); padding:4px 0; display:flex; gap:8px; line-height:1.6; }
+.step-list li::before { content:counter(steps); counter-increment:steps; font-family:var(--mono); font-size:10px; font-weight:700; color:var(--dk-3); flex-shrink:0; min-width:16px; margin-top:2px; }
+.step-list { counter-reset:steps; }
+.step-list li.ok::before { content:'✓'; color:var(--jade); }
+.step-list li.warn::before { content:'⚠'; color:var(--amber); }
+.step-list li.bad::before { content:'✗'; color:#d94e35; }
+
+/* summary table */
+.sum-table { width:100%; border-collapse:collapse; }
+.sum-table th { background:var(--ink-2); border:1px solid var(--bd); padding:10px 14px; font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); text-align:left; }
+.sum-table td { border:1px solid var(--bd); padding:10px 14px; font-size:12px; font-weight:300; color:var(--dk-2); vertical-align:top; line-height:1.6; }
+.sum-table td.hl { color:var(--dk-1); font-weight:500; }
+.sum-table td.g  { color:var(--jade); font-weight:500; }
+.sum-table td.a  { color:var(--amber); font-weight:500; }
+.sum-table td.r  { color:#d94e35; font-weight:500; }
+
+@media(max-width:700px){
+  .hi,.snav,.w { padding-left:20px; padding-right:20px; }
+  .h-title { font-size:48px; }
+  .score-strip { grid-template-columns:1fr 1fr 1fr; }
+  .sc-row { grid-template-columns:90px 1fr; }
+}
+</style>
+</head>
+<body>
+<nav class="site-nav"></nav>
+
+<div class="hero">
+<div class="hi">
+  <div class="h-eye">UX simulation · System audit · Founder reference</div>
+  <div class="h-title">Does Soma<br><em>hold up?</em></div>
+  <div class="h-sub">20 real user scenarios traced through the code — what the user does, what the system actually does, what's broken, and what to build next.</div>
+  <div class="score-strip">
+    <div class="sc"><div class="sc-val green">8</div><div class="sc-label">Full pass</div></div>
+    <div class="sc"><div class="sc-val amber">6</div><div class="sc-label">Partial</div></div>
+    <div class="sc"><div class="sc-val red">6</div><div class="sc-label">Not built</div></div>
+    <div class="sc"><div class="sc-val amber">5</div><div class="sc-label">Gaps that cause churn</div></div>
+    <div class="sc"><div class="sc-val red">3</div><div class="sc-label">Zero-click fails</div></div>
+  </div>
+</div>
+</div>
+
+<div class="snav">
+  <button class="sn active" onclick="showPane('session')">Session</button>
+  <button class="sn" onclick="showPane('nutrition')">Nutrition</button>
+  <button class="sn" onclick="showPane('daily')">Daily flow</button>
+  <button class="sn" onclick="showPane('weekly')">Weekly</button>
+  <button class="sn" onclick="showPane('programme')">Programme</button>
+  <button class="sn" onclick="showPane('summary')">Summary</button>
+</div>
+
+<!-- ══ SESSION ══ -->
+<div class="pane active" id="pane-session">
+<div class="dark"><div class="w">
+  <div class="dr amber">Session management — 4 scenarios</div>
+
+  <div class="scenarios">
+
+    <!-- S1 -->
+    <div class="sc-card pass">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">01</div>
+        <div><div class="sc-title">Missed yesterday's session — want to do it today</div><div class="sc-title-sub">The most common use case for any training app</div></div>
+        <span class="sc-badge badge-pass">Full pass</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Missed Monday's push session. It's Tuesday. I want to do it today instead of my planned pull.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Opens daily plan. Sees Monday's chip highlighted red (missed). Clicks it. Recovery modal appears — shows the missed session type, offers available slots, defaults to today.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works fully.</strong> <code>openRecoveryModal()</code> reschedules the session by writing a week override to <code>localStorage</code>. The missed day is marked skipped. The page reloads showing today as a training day with the recovered session. Cache is busted automatically.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val partial">The missed-day chip is 8px, hard to tap on mobile. The entry point is not labelled. A new user wouldn't know to click the red dot.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>The underlying recovery logic is excellent — it correctly detects missed sessions, offers valid slots only, marks the original day, and reloads with the new plan. This is genuinely rare functionality in health apps.</div>
+        <div class="gap-box amber"><div class="gap-label amber">What to fix</div>Make the missed-day chip larger and add a prompt: "You missed Monday — tap to reschedule." Surface it proactively in the daily plan header, not buried in a tiny dot.</div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="sc-card pass">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">02</div>
+        <div><div class="sc-title">Shoulder's sore — want to swap bench for dumbbell press</div><div class="sc-title-sub">Mid-session exercise substitution</div></div>
+        <span class="sc-badge badge-pass">Full pass</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">About to start push day. Left shoulder is flaring. Want to replace barbell bench with dumbbell press and reduce load.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Opens the training block. Taps the Session Editor. Sees intensity controls (beginner/intermediate/advanced) and volume selector (3–6 sets). Changes intensity to lighter scheme. The exercise list updates accordingly.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works for volume and intensity.</strong> <code>lockSessionIn()</code> mutates the exercise list and writes to <code>bl_daylog_[DATE].sessionEditor</code>. Changes persist and affect the day score.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val partial">The session editor doesn't let you pick a specific replacement exercise by name — you change intensity scheme, not individual lifts. If you specifically want "dumbbell press instead of bench", you can't select that. You have to log the swap as a free-text note with the ~ button.</div></div>
+        <div class="gap-box amber"><div class="gap-label amber">Gap</div>"Swap this specific exercise" is not possible. The editor changes the whole session scheme. A true exercise-level swap (bench → dumbbell press) requires the user to manually mark the bench as modified and type what they did instead. The coach won't see this as an explicit swap — it reads as a note.</div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">03</div>
+        <div><div class="sc-title">Travelling — no gym, need a bodyweight session</div><div class="sc-title-sub">Plan needs to adapt to zero equipment</div></div>
+        <span class="sc-badge badge-fail">Not built</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I'm in a hotel in Amsterdam. No gym. I still want to train. Give me a bodyweight session that maps to my programme.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Opens SOS. Selects "Travelling." Reads AI coaching advice. The response suggests a bodyweight circuit. The user reads the text but has to remember and execute it manually — the plan on screen still shows the gym session.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>No plan conversion.</strong> SOS gives read-only advice. Today's plan still shows barbell squats and deadlifts. No bodyweight alternative is generated or injected into the plan.</div></div>
+        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">User reads the advice, closes SOS, and is left staring at a plan they can't follow. They're likely to just skip it and feel like they failed — churn risk.</div></div>
+        <div class="gap-box"><div class="gap-label red">What to build</div>A "Travel mode" toggle: reads the user's training day type (push/pull/legs/full-body) and generates a bodyweight equivalent session via the API. Writes it as a week override for travel days. When travel mode ends, reverts. This is a 2-hour feature that prevents 3+ days of plan abandonment per trip.</div>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="sc-card partial">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">04</div>
+        <div><div class="sc-title">Only have 30 minutes — session is planned for 60</div><div class="sc-title-sub">Time-constrained day, need a condensed session</div></div>
+        <span class="sc-badge badge-partial">Partial</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Unexpected meeting. I can only do 30 minutes. What's the highest-value 30-minute version of today's session?</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Options: (a) Open SOS and describe the situation — Claude responds with a condensed plan. (b) Open the Session Editor, reduce volume to 3 sets, which shortens the session. (c) Ask the coach directly in the chat.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Partially handled.</strong> The session editor can reduce volume and drop cardio, which shortens the workout. The SOS "free text" flow handles this well if the user thinks to use it. But there's no explicit "30-minute mode" — the user has to know which levers to pull.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val">Three different flows can help but none are labelled "short on time." Discovery is the problem.</div></div>
+        <div class="gap-box amber"><div class="gap-label amber">What to add</div>A time selector in the session editor ("How long do you have? 30 / 45 / 60 / 90 min"). Selecting 30min auto-sets volume to 3, removes cardio, and surfaces the top 3 compound lifts. One UI element, covers one of the most common real-world situations.</div>
+      </div>
+    </div>
+
+  </div>
+</div></div>
+</div>
+
+<!-- ══ NUTRITION ══ -->
+<div class="pane" id="pane-nutrition">
+<div class="dark"><div class="w">
+  <div class="dr amber">Nutrition scenarios — 4 scenarios</div>
+
+  <div class="scenarios">
+
+    <!-- N1 -->
+    <div class="sc-card partial">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">05</div>
+        <div><div class="sc-title">Ate something completely different for lunch</div><div class="sc-title-sub">Log actual food vs planned meal</div></div>
+        <span class="sc-badge badge-partial">Partial</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Plan said chicken and rice. I had a burrito at a work lunch. I want to log what I actually ate so macros stay accurate.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Tap the ~ (swap) button on the lunch block. A text field appears. They type "chicken burrito — approx 650 kcal, 35g protein." This is saved to the day log. Alternatively, open the voice guided log and describe the meal by voice.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Logs the swap text, doesn't parse macros.</strong> <code>dpSaveSwap()</code> stores the free-text note. The macro tracker doesn't update — the protein bar still shows the planned value. The coach review at end of day will read the swap note, but the live macro display remains wrong.</div></div>
+        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">They logged something but the numbers don't change. Feels incomplete. The macro bar's inaccuracy makes the whole tracking loop less trustworthy.</div></div>
+        <div class="gap-box"><div class="gap-label red">Critical gap</div>The swap logs text but doesn't update macros. To update macros, the user must go to the manual macro entry (if it exists) separately. These two flows are disconnected. The swap note should trigger a macro re-estimate — even a rough one from Claude ("estimated 35g protein from your note").</div>
+      </div>
+    </div>
+
+    <!-- N2 -->
+    <div class="sc-card partial">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">06</div>
+        <div><div class="sc-title">6pm — 80g protein short. What do I eat tonight?</div><div class="sc-title-sub">Real-time adaptive nutrition guidance</div></div>
+        <span class="sc-badge badge-partial">Partial</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">It's 6pm. I check the macro bar. I'm 80g short on protein. I need Soma to tell me what to eat for the rest of the day to close the gap.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">SOS: the macro shortfall is automatically visible to the SOS system — it reads remaining macros before building the prompt. Opens SOS or asks the coach "I'm 80g short on protein, what should I eat tonight?"</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>SOS is aware of remaining macros.</strong> The prompt includes <code>remaining.prot</code> — Claude knows the shortfall and gives specific meal suggestions. Coach chat also has access. The response is good quality but advisory — the plan doesn't update.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val">User has to actively ask SOS or the coach. There's no proactive alert: "You're 80g short on protein at 6pm — here's what to eat." The data exists, the trigger doesn't.</div></div>
+        <div class="gap-box amber"><div class="gap-label amber">What to add</div>An evening nutrition nudge: if it's after 5pm and the user is >40g short on protein, show a contextual banner: "You're [X]g short on protein — tap for ideas." One check on page load, one banner, one tap to SOS. Uses data already in MACROS global.</div>
+      </div>
+    </div>
+
+    <!-- N3 -->
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">07</div>
+        <div><div class="sc-title">Ran out of creatine — want to pause that supplement</div><div class="sc-title-sub">Stack management mid-programme</div></div>
+        <span class="sc-badge badge-fail">Not built</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I've run out of creatine. I don't want to reorder for 2 weeks. I want to remove it from my daily stack checklist until it arrives.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">There is no "pause supplement" control in the daily plan or supplement page. The creatine remains on the stack list. The user marks it as skipped every day. After 3 days this becomes friction and they stop logging the stack entirely.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>No mechanism.</strong> Supplements are set during onboarding and editable only via the supplement stack editor. There's no per-supplement pause or "out of stock" flag.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Downstream effect</div><div class="sc-row-val">Daily stack completion score drops. Debrief shows low supplement adherence. Coach may flag supplement compliance as an issue. All because of an empty tub.</div></div>
+        <div class="gap-box"><div class="gap-label red">What to build</div>A hold/pause toggle on each supplement in the stack view. "Pause for [1 week / 2 weeks / until I tap again]." During a pause, that supplement is hidden from daily checklist and excluded from adherence score. Two-tap fix, prevents a downstream data quality problem.</div>
+      </div>
+    </div>
+
+    <!-- N4 -->
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">08</div>
+        <div><div class="sc-title">IBS flare-up today — does the meal plan adapt?</div><div class="sc-title-sub">Health condition — acute episode, real-time plan change</div></div>
+        <span class="sc-badge badge-fail">Not built</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I have IBS in my health profile. I'm having a bad gut day. I want today's meals to go low-FODMAP and training to be lower intensity.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">There is no "bad gut day" flag. The user opens SOS — there's no IBS-specific scenario. They could type "IBS flare today" in free text. Claude gives advice. The meal plan doesn't change. Today's training plan doesn't change.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>IBS exists in the risk classifier for general coaching, but there's no acute episode mode.</strong> Health conditions in the profile inform the weekly meal plan and coach system prompt, but don't create day-level overrides.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Gap severity</div><div class="sc-row-val">High. Users with chronic conditions have bad days. If the app ignores those days, the plan becomes actively harmful (eating high-FODMAP on a flare day, doing HIIT when gut motility is elevated).</div></div>
+        <div class="gap-box"><div class="gap-label red">What to build</div>A "Today I'm…" status chip at the top of the daily plan: [Tired] [Sick] [Gut flare] [Sore] [Travelling] [Low energy]. Selecting one triggers a plan overlay that modifies today only — drops intensity, swaps high-FODMAP meals, adjusts timing. One tap, immediate adaptation. Session state, not profile state — resets tomorrow.</div>
+      </div>
+    </div>
+
+  </div>
+</div></div>
+</div>
+
+<!-- ══ DAILY FLOW ══ -->
+<div class="pane" id="pane-daily">
+<div class="dark"><div class="w">
+  <div class="dr amber">Daily flow scenarios — 5 scenarios</div>
+
+  <div class="scenarios">
+
+    <!-- D1 -->
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">09</div>
+        <div><div class="sc-title">Terrible sleep last night — should today's training change?</div><div class="sc-title-sub">Sleep-adaptive programming</div></div>
+        <span class="sc-badge badge-fail">Not built</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Slept 4 hours. Feel terrible. My programme says heavy squats today. Should I still do it or should Soma adapt?</div></div>
+        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">The plan is identical to any other day. Sleep data from the previous night's debrief is stored in <code>bl_daylog_[YESTERDAY]</code>. It is NOT read by the plan builder. Today's session loads at full planned intensity.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>Not implemented.</strong> Sleep quality is logged and the weekly reconciliation reads it for trend analysis, but there is zero logic that reads yesterday's sleep and reduces today's session intensity or volume.</div></div>
+        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">User does heavy squats on 4 hours of sleep. Either they push through (injury risk, poor output), or they skip it (plan vs actual gap grows). The app offered no guidance either way.</div></div>
+        <div class="gap-box"><div class="gap-label red">What to build</div>On page load, check yesterday's debrief for <code>sleepActual</code>. If below 6 hours: show a banner — "You logged [4.5h] sleep last night. Consider reducing today's intensity." One tap: "Reduce session" → drops to beginner intensity scheme automatically. No action needed if sleep was fine. This single feature makes Soma meaningfully adaptive rather than a static plan display.</div>
+      </div>
+    </div>
+
+    <!-- D2 -->
+    <div class="sc-card pass">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">10</div>
+        <div><div class="sc-title">End of day — closing the loop properly</div><div class="sc-title-sub">Day completion flow</div></div>
+        <span class="sc-badge badge-pass">Full pass</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Done for the day. I trained, ate well, hit most of my macros. I want to log everything and get a coach summary of how I did.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Option A: Tap each item ✓ as they complete it through the day. At the end, tap "Save &amp; close the day." Option B: Open the voice/guided debrief — AI asks questions about training, sleep, nutrition via conversation. Auto-extracts structured data. Option C: SOS or coach chat for the review.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works well.</strong> All three paths store data in <code>bl_daylog_[DATE]</code>. The voice debrief is genuinely impressive — Claude extracts exercise weights, protein estimate, energy level, sleep quality from natural conversation and commits structured JSON. Coach review generates a specific plan vs actual analysis.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val partial">The EOD card is buried at the bottom of a long page. Users who don't scroll to the end won't close the day. The debrief is powerful but not obviously discoverable — it requires tapping a non-labelled "Log day" button.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>Three completly different logging paths (tap-by-tap, voice guided, text coach) all converging on the same structured data. This is thoughtful — different users will use different paths.</div>
+        <div class="gap-box amber"><div class="gap-label amber">What to improve</div>Show a sticky "Close today →" bar once it's past 7pm and the user has logged at least one item. Brings the EOD action into view without requiring scroll.</div>
+      </div>
+    </div>
+
+    <!-- D3 -->
+    <div class="sc-card partial">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">11</div>
+        <div><div class="sc-title">Mid-session — exercise is causing sharp pain</div><div class="sc-title-sub">In-session injury response</div></div>
+        <span class="sc-badge badge-partial">Partial</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I'm in the gym. On set 2 of Romanian deadlifts, I feel a sharp pull in my left hamstring. I need to stop this exercise and know what to do.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Tap × (skip) on the exercise. The block is marked skipped. Then open the Gym Coach overlay, which is a live step-by-step session guide. Or open SOS and type "sharp pull in left hamstring during RDLs."</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>SOS handles this well — gives immediate protocol advice.</strong> The Gym Coach is a live guided workout flow (full-screen immersive overlay) but doesn't have injury-response branching. There's no "flag this exercise as injured" flow that persists to the profile's injury list.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Critical gap</div><div class="sc-row-val fail">The injury is not written to the profile. Tomorrow's plan will include Romanian deadlifts again. Next week's plan will include them. The system has no memory of what happened today. The user must manually go to the profile editor and add a hamstring injury — which they won't do when they're in pain at the gym.</div></div>
+        <div class="gap-box"><div class="gap-label red">What to build</div>When a user skips a block with the × button and then opens SOS, offer: "Add this to your injury log?" One tap saves it to profile.injuries. Next day's plan builder sees it. This is the difference between a programme that adapts and one that just displays.</div>
+      </div>
+    </div>
+
+    <!-- D4 -->
+    <div class="sc-card pass">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">12</div>
+        <div><div class="sc-title">Forgot to log yesterday — can I go back?</div><div class="sc-title-sub">Retroactive logging</div></div>
+        <span class="sc-badge badge-pass">Full pass</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">It's Tuesday morning. I forgot to log Monday's workout. Can I go back and log it so the weekly data is accurate?</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Tap Monday's chip in the prog-banner. The plan shows Monday's session. The session editor, debrief, and logging buttons are all still functional on past days. They mark the session done and log their weights.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works.</strong> <code>VIEWING_DAY</code> is set to Monday's index. The plan renders Monday's content. Status buttons write to <code>bl_daylog_[MONDAY DATE]</code>. The weekly data is updated retroactively. Week banner recalculates to show the now-completed session.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val">The day chips are tiny — the main navigation issue. But for users who discover that the chips are tappable, retroactive logging works correctly end-to-end.</div></div>
+      </div>
+    </div>
+
+    <!-- D5 -->
+    <div class="sc-card pass">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">13</div>
+        <div><div class="sc-title">Why am I doing Romanian deadlifts? Explain this to me.</div><div class="sc-title-sub">In-context exercise rationale</div></div>
+        <span class="sc-badge badge-pass">Full pass</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I see RDLs on my plan. I've never done them properly. I want to understand why I'm doing them, how to do them, and what they're working.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Tap to expand the training block. The expanded detail shows the session logic (why this session type today), exercise list with form cues in the detail text, and a "Review with coach →" button that opens the AI coach.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works well.</strong> Expanded block shows session reasoning and exercise context. Coach chat is available with full profile context including the current day's plan — responds specifically about today's exercises in the context of the user's goal, experience level, and injury history.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What's good</div><div class="sc-row-val">The page-level context injection in coach.js means the coach answers about RDLs in the context of this user's fat loss goal, intermediate experience, and existing knee injury — not generically.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div></div>
+</div>
+
+<!-- ══ WEEKLY ══ -->
+<div class="pane" id="pane-weekly">
+<div class="dark"><div class="w">
+  <div class="dr amber">Weekly scenarios — 4 scenarios</div>
+
+  <div class="scenarios">
+
+    <!-- W1 -->
+    <div class="sc-card partial">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">14</div>
+        <div><div class="sc-title">End of week — does Soma review and re-plan?</div><div class="sc-title-sub">Weekly reconciliation and adaptation loop</div></div>
+        <span class="sc-badge badge-partial">Partial</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">It's Sunday. I want to know how my week went, what patterns the system noticed, and how next week should differ.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val"><code>dp-reconcile.js</code> runs <code>checkAndRunReconciliation()</code> once per week (keyed by ISO week number). If 3+ days of logs exist, it sends a 7-day summary to Claude. Claude returns JSON with <code>weekRating</code>, <code>patterns[]</code>, <code>adaptations[]</code>, <code>nextWeekFocus</code>. This is saved to <code>bl_profile.weeklyAdaptation</code> and displayed as a coaching card.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Analysis works, adaptation doesn't auto-apply.</strong> The reconciliation generates genuinely useful insights — "You consistently undertrain on Thursdays", "Energy is low Tuesdays after Monday night alcohol." But the adaptations (e.g., move Thursday to Friday, reduce volume week 3) are <em>advisory text only</em>. The user must manually edit remaining days, which most won't.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Gap severity</div><div class="sc-row-val fail">This is the core intelligent feedback loop of the product. It exists as analysis but not as action. The difference between Soma being a sophisticated plan display and a genuinely adaptive system lives here.</div></div>
+        <div class="gap-box"><div class="gap-label red">What to build</div>"Apply these adaptations to next week?" — a single confirm button that takes the <code>adaptations[]</code> JSON from the reconciliation result and writes them as week overrides. This is the highest-leverage unbuilt feature in the entire product. The AI already produces the right output — it just isn't being applied.</div>
+      </div>
+    </div>
+
+    <!-- W2 -->
+    <div class="sc-card partial">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">15</div>
+        <div><div class="sc-title">3 missed sessions this week — does the system flag?</div><div class="sc-title-sub">Compliance monitoring and intervention</div></div>
+        <span class="sc-badge badge-partial">Partial</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Tough week. Missed 3 of 4 training sessions. I want the app to notice, not judge, and help me figure out what to do.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">The week banner reads log data and shows "behind" status with a fatigue/compliance summary. Individual missed days show red chips. The recovery modal identifies all missed sessions and offers to reschedule the most recent to today.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Detection is good, response is limited.</strong> The week banner correctly flags the situation. The recovery modal handles one missed session at a time. But with 3 missed sessions, the system doesn't say "forget the missed ones, here's how to salvage the rest of the week" — it offers to reschedule all 3, which might not be realistic.</div></div>
+        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">User opens recovery modal, sees 3 missed sessions to reschedule. This feels overwhelming. The right response for 3 missed sessions is different from 1 — probably "let these go and focus on getting Thursday and Saturday right."</div></div>
+        <div class="gap-box amber"><div class="gap-label amber">What to improve</div>When missed sessions ≥ 2, the recovery modal should offer a "Salvage week" mode: acknowledge the missed sessions, pick the 1–2 most important remaining ones, and reschedule those only. "You missed 3 sessions — let's focus on getting 2 strong sessions done before Sunday."</div>
+      </div>
+    </div>
+
+    <!-- W3 -->
+    <div class="sc-card pass">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">16</div>
+        <div><div class="sc-title">Completed a great week — does it build on it next week?</div><div class="sc-title-sub">Progressive overload and programme evolution</div></div>
+        <span class="sc-badge badge-pass">Full pass</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I logged every session, hit all my macros, felt great. I want next week to progress — more volume, more weight.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">The 4-week programme generated at onboarding has a <code>weeklyProgression</code> object — each week has a defined phase (Foundation → Build → Peak → Deload) with volume and intensity notes. Week 2 loads week 2's progression automatically by calculating days since <code>generatedAt</code>. Exercise weights increase based on logged weights from <code>bl_ex_weights</code>.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works.</strong> Progression is built into the 4-week structure. Exercise loads adapt based on logged weights. The system tracks "did this user actually do the planned volume?" via weekly reconciliation and can recalibrate if consistently over/under-performing.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What's good</div><div class="sc-row-val">The <code>bl_ex_weights</code> key — which stores per-exercise logged loads — means that over time, the programme accumulates actual performance data. This is the data model for genuine progressive overload.</div></div>
+      </div>
+    </div>
+
+    <!-- W4 -->
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">17</div>
+        <div><div class="sc-title">6 weeks in, I feel like I need a deload</div><div class="sc-title-sub">User-triggered deload week</div></div>
+        <span class="sc-badge badge-fail">Not built</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I've trained hard for 6 weeks. Everything aches. I want Soma to give me a deload week — reduced volume, same frequency, active recovery focus.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">There's no deload trigger. Week 4 of the generated programme is a deload phase, but once the 4-week block ends there's no continuation logic. The system doesn't auto-detect overtraining from accumulated fatigue scores. The user opens SOS or asks the coach — gets advice — but can't click "give me a deload week" and have it happen.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>Not implemented.</strong> Deload is mentioned in reconciliation advice text, but there's no mechanism to apply it. The user is left reading advice and having to either manually log every session as "lighter" or restart their programme.</div></div>
+        <div class="gap-box"><div class="gap-label red">What to build</div>A "Request deload week" button in the week banner or session editor. When triggered: (1) fetches today's week plan, (2) generates a deload version via API (50–60% volume, same exercise pattern, RPE 6 max), (3) writes as week overrides for the remaining days. Resets automatically the following Monday. The reconciliation already suggests deload when warranted — the missing piece is the one-tap application.</div>
+      </div>
+    </div>
+
+  </div>
+</div></div>
+</div>
+
+<!-- ══ PROGRAMME ══ -->
+<div class="pane" id="pane-programme">
+<div class="dark"><div class="w">
+  <div class="dr amber">Programme lifecycle scenarios — 4 scenarios</div>
+
+  <div class="scenarios">
+
+    <!-- P1 -->
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">18</div>
+        <div><div class="sc-title">End of 4-week block — what happens on Day 29?</div><div class="sc-title-sub">Programme lifecycle and reassessment</div></div>
+        <span class="sc-badge badge-fail">Not built</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I've completed my 4-week programme. I expect Soma to assess my progress, update my numbers, and generate a new 4-week block that's more advanced.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">Day 29 loads. <code>getProgCtx()</code> still returns <code>weekNum: 4, phase: 'Deload'</code> (capped at 4). The prog-banner shows "WK4 · DELOA." The plan generates identically to Day 28. No reassessment prompt. No new block. The user's programme is stale.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>Silent failure.</strong> The 4-week tracking exists in the code (days 1–28), but there's no boundary event at Day 29. The programme never prompts reassessment, never generates a new block, and the progress tracker silently loops at Week 4.</div></div>
+        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">User opens Soma on Day 29 and sees exactly the same plan as yesterday. Nothing acknowledges their 4-week achievement. The app gives no sense that they've completed a block. For a subscription product, this is a churn moment — the user feels forgotten.</div></div>
+        <div class="gap-box"><div class="gap-label red">What to build — highest priority</div>A Day 28 completion screen: acknowledge the block, summarise performance from 28 days of logs, prompt check-in (weight, how you feel, goal update), and generate a new 4-week block using updated data. This is the "graduation moment" that creates long-term subscriber retention. Without it, the programme becomes stale after one block — which for most users is weeks 5–8, exactly the high-risk churn window.</div>
+      </div>
+    </div>
+
+    <!-- P2 -->
+    <div class="sc-card partial">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">19</div>
+        <div><div class="sc-title">New injury mid-programme — knee starts hurting</div><div class="sc-title-sub">Profile update → programme adaptation</div></div>
+        <span class="sc-badge badge-partial">Partial</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Three weeks into my programme, I develop a knee problem. I need to update my injury status and have the remaining programme adapt — no squats, no lunges, safe alternatives.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Go to Profile → Health &amp; conditions → Edit → add Knee to injuries. This now works thanks to the new profile editor. Saves to <code>bl_profile.injuries</code>. Return to the daily plan.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Profile update works (new feature). Plan adaptation is partial.</strong> The coach system prompt now includes the knee injury. The risk classifier will flag knee-risk exercises. But today's cached plan still contains squats — the plan cache isn't busted when the profile is updated.</div></div>
+        <div class="sc-row"><div class="sc-row-label">The gap</div><div class="sc-row-val fail">Profile update ≠ plan update. The daily plan reads from its cache, not live from the profile on every render. A profile change won't reflect in today's plan unless the user manually rebuilds ("↺ Rebuild plan").</div></div>
+        <div class="gap-box amber"><div class="gap-label amber">What to fix</div>When the profile's injury or healthConditions fields change, bust the day plan cache. One line in the profile save function: <code>localStorage.removeItem('dayplan_v6r3_' + TODAY)</code>. The next load auto-regenerates with the updated injury context. This closes the feedback loop between profile edit and plan content.</div>
+      </div>
+    </div>
+
+    <!-- P3 -->
+    <div class="sc-card partial">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">20</div>
+        <div><div class="sc-title">Goal change — shifting from fat loss to muscle building</div><div class="sc-title-sub">Mid-programme goal pivot</div></div>
+        <span class="sc-badge badge-partial">Partial</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I've lost the weight. Now I want to build muscle. I want to tell Soma my goal has changed and have the calorie target, protein target, programme split, and coach framing all update.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Profile editor → Goals → change to "Build muscle." This now saves to <code>bl_profile.goal</code>. The coach immediately knows the new goal (reads from profile). The science pages update their callouts. Meals page generates muscle-building meal plans from next generation.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Coach and content update immediately. Macros and programme do not.</strong> The calorie target, protein target, and weekly training split were generated at onboarding for fat loss. Changing the goal field doesn't recalculate macros or regenerate the programme structure.</div></div>
+        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">The coach is now telling them to build muscle while the daily plan has them in a caloric deficit doing fat-loss volume. The advice and the plan are contradicting each other.</div></div>
+        <div class="gap-box amber"><div class="gap-label amber">What to build</div>When goal changes in the profile editor, trigger a lightweight macro recalculation (calories, protein, carbs, fat) based on the new goal and current weight. Show the user the new targets and confirm. Optionally: prompt to regenerate the programme ("Your goal changed — rebuild your 4-week programme for muscle building?"). This is a 30-minute feature that makes goal changes meaningful rather than cosmetic.</div>
+      </div>
+    </div>
+
+  </div>
+</div></div>
+</div>
+
+<!-- ══ SUMMARY ══ -->
+<div class="pane" id="pane-summary">
+<div class="dark"><div class="w">
+
+  <div class="dr amber">20-scenario verdict</div>
+  <table class="sum-table" style="margin-bottom:40px;">
+    <thead>
+      <tr><th>#</th><th>Scenario</th><th>Status</th><th>Churn risk?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="hl">01</td><td>Missed session — reschedule to today</td><td class="g">Full pass</td><td>Low (works)</td></tr>
+      <tr><td class="hl">02</td><td>Shoulder sore — swap specific exercise</td><td class="a">Partial</td><td>Low (workaround exists)</td></tr>
+      <tr><td class="hl">03</td><td>Travelling — need bodyweight session</td><td class="r">Not built</td><td class="r">High — 2–3 day plan abandonment per trip</td></tr>
+      <tr><td class="hl">04</td><td>Only 30 minutes — condense session</td><td class="a">Partial</td><td>Medium</td></tr>
+      <tr><td class="hl">05</td><td>Ate differently — log actual vs planned</td><td class="a">Partial</td><td>Medium — macro inaccuracy erodes trust</td></tr>
+      <tr><td class="hl">06</td><td>80g short on protein at 6pm</td><td class="a">Partial</td><td>Low (manual workaround exists)</td></tr>
+      <tr><td class="hl">07</td><td>Ran out of supplement — pause it</td><td class="r">Not built</td><td>Medium — daily friction, score corruption</td></tr>
+      <tr><td class="hl">08</td><td>IBS flare today — plan adapt</td><td class="r">Not built</td><td class="r">High — condition-specific users have bad days</td></tr>
+      <tr><td class="hl">09</td><td>Terrible sleep — should training change?</td><td class="r">Not built</td><td class="r">High — core adaptive promise not delivered</td></tr>
+      <tr><td class="hl">10</td><td>End of day — close the loop</td><td class="g">Full pass</td><td>Low (works, discovery issue only)</td></tr>
+      <tr><td class="hl">11</td><td>Sharp pain mid-session — injury response</td><td class="a">Partial</td><td class="r">High — injury not persisted to profile</td></tr>
+      <tr><td class="hl">12</td><td>Forgot to log yesterday</td><td class="g">Full pass</td><td>Low</td></tr>
+      <tr><td class="hl">13</td><td>Why am I doing this exercise?</td><td class="g">Full pass</td><td>Low (works well)</td></tr>
+      <tr><td class="hl">14</td><td>End of week — review and re-plan</td><td class="a">Partial</td><td class="r">High — intelligence exists, action doesn't</td></tr>
+      <tr><td class="hl">15</td><td>3 missed sessions this week</td><td class="a">Partial</td><td>Medium</td></tr>
+      <tr><td class="hl">16</td><td>Great week — build on it next week</td><td class="g">Full pass</td><td>Low</td></tr>
+      <tr><td class="hl">17</td><td>6 weeks in — need a deload</td><td class="r">Not built</td><td>Medium — fatigue accumulation ignored</td></tr>
+      <tr><td class="hl">18</td><td>Day 29 — 4-week block ends</td><td class="r">Not built</td><td class="r">Critical — stale programme, no graduation moment</td></tr>
+      <tr><td class="hl">19</td><td>New injury mid-programme</td><td class="a">Partial</td><td>Medium — profile update doesn't bust plan cache</td></tr>
+      <tr><td class="hl">20</td><td>Goal change mid-programme</td><td class="a">Partial</td><td>Medium — macros don't recalculate</td></tr>
+    </tbody>
+  </table>
+
+  <div class="dr red" style="margin-top:0;">The 5 fixes that matter most</div>
+
+  <div class="scenarios">
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">1</div>
+        <div><div class="sc-title">Day 28 completion + new block generation</div><div class="sc-title-sub">Prevents the highest-risk churn window: weeks 5–8</div></div>
+        <span class="sc-badge badge-fail">Not built</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">Why first</div><div class="sc-row-val">After the initial programme, the product has no lifecycle. On Day 29, Soma becomes a static plan that never changes. This is the moment most subscribers will decide whether to keep paying. Reassessment + new block generation = the feature that turns a one-month trial into a long-term subscriber.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">On <code>generatedAt + 28 days</code>: intercept page load, show achievement screen with 28-day data summary, prompt updated weight/check-in, generate new 4-week block using updated profile. Estimated build: 4–6 hours.</div></div>
+      </div>
+    </div>
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">2</div>
+        <div><div class="sc-title">Apply weekly reconciliation adaptations</div><div class="sc-title-sub">The AI produces the right answer — it just doesn't apply it</div></div>
+        <span class="sc-badge badge-fail">Not wired</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">Why second</div><div class="sc-row-val">The reconciliation already generates structured <code>adaptations[]</code> JSON from Claude. A "Apply to next week?" confirm button is all that's needed to make Soma genuinely adaptive. Without it, the intelligence is invisible — users never see the system respond to their actual behaviour.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">Read <code>profile.weeklyAdaptation.adaptations[]</code>. For each adaptation, generate a week override. Show before/after comparison. One confirm. Estimated build: 2–3 hours.</div></div>
+      </div>
+    </div>
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">3</div>
+        <div><div class="sc-title">Sleep-adaptive intensity on page load</div><div class="sc-title-sub">The single feature that makes the daily plan feel alive</div></div>
+        <span class="sc-badge badge-fail">Not built</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">Why third</div><div class="sc-row-val">No other health app does this. Reading yesterday's logged sleep and offering one-tap intensity reduction — with the reason shown — is the moment the product feels like it actually knows you. It turns an impressive tool into something that feels like a real coach.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">On page load: read <code>bl_daylog_[YESTERDAY].sleepActual</code>. If &lt;6 hours: show banner with one-tap "Reduce intensity" that calls session editor at beginner scheme. Estimated build: 1 hour.</div></div>
+      </div>
+    </div>
+    <div class="sc-card fail">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">4</div>
+        <div><div class="sc-title">Travel mode / Today I'm… status chip</div><div class="sc-title-sub">Covers travelling, IBS flare, sickness, time-short in one feature</div></div>
+        <span class="sc-badge badge-fail">Not built</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">Why fourth</div><div class="sc-row-val">Scenarios 3, 4, and 8 (travel, short session, IBS flare) are all variants of the same need: a way to tell the app "today is different" and have it respond. One "Today I'm…" status chip covers all three. Resets automatically the next day.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">A chip row at top of daily plan: [Travelling] [Short on time] [Gut flare] [Tired / low energy] [Sore / DOMS]. Each triggers a pre-defined plan overlay (bodyweight mode, condensed session, low-FODMAP, reduced intensity). Session state only — clears at midnight. Estimated build: 3–4 hours.</div></div>
+      </div>
+    </div>
+    <div class="sc-card partial">
+      <div class="sc-head" onclick="toggleCard(this)">
+        <div class="sc-num">5</div>
+        <div><div class="sc-title">Profile change → plan cache bust</div><div class="sc-title-sub">1-line fix, closes a confusing inconsistency</div></div>
+        <span class="sc-badge badge-partial">1-line fix</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><div class="sc-row-label">Why fifth</div><div class="sc-row-val">When a user updates their injury or goal in the profile editor, they expect the plan to change. Right now it doesn't — the cached plan ignores the updated profile until manually rebuilt. This is confusing and erodes confidence in the app's responsiveness.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">In <code>saveProfile(p)</code> in bodylens-profile.html, after writing to localStorage, add: <code>localStorage.removeItem('dayplan_v6r3_' + new Date().toISOString().slice(0,10))</code>. That's it. Next time they open the daily plan, it regenerates with the updated profile. Estimated build: 5 minutes.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div></div>
+</div>
+
+<div id="site-disclaimer"></div>
+<script src="nav.js"></script>
+<script src="pwa.js"></script>
+<script>
+function showPane(id) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+function toggleCard(headEl) {
+  var body = headEl.nextElementSibling;
+  body.classList.toggle('open');
+}
+</script>
+</body>
+</html>
