@@ -185,6 +185,31 @@ body { background:var(--ink); color:var(--dk-1); }
 .acr-to   { font-weight:300; color:var(--dk-2); }
 .acr-mag  { text-align:right; }
 
+/* ── Cascade flow path strip ── */
+.cascade-flow { display:flex; align-items:flex-start; gap:0; overflow-x:auto; padding:18px 20px; background:var(--ink-2); border:1px solid var(--bd); border-radius:8px; margin-bottom:20px; scrollbar-width:thin; scrollbar-color:var(--bd) transparent; }
+.cascade-flow::-webkit-scrollbar { height:3px; }
+.cascade-flow::-webkit-scrollbar-thumb { background:var(--bd); }
+.cfp-group { display:flex; flex-direction:column; gap:5px; align-items:center; flex-shrink:0; }
+.cfp-group-time { font-size:8px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--dk-4); margin-top:5px; }
+.cfp-node { display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:20px; border:1.5px solid; cursor:pointer; transition:all 0.2s; background:var(--ink-3); font-size:10px; font-weight:600; white-space:nowrap; letter-spacing:0.03em; opacity:0.75; }
+.cfp-node:hover { opacity:1; transform:translateY(-1px); }
+.cfp-node.cfp-primary { border-width:2px; opacity:1; }
+.cfp-node.cfp-lit { opacity:1; box-shadow:0 0 0 2px currentColor; }
+.cfp-node-icon { font-size:13px; line-height:1; }
+.cfp-connector { display:flex; align-items:center; padding:0 6px; color:var(--dk-4); font-size:16px; flex-shrink:0; padding-bottom:2px; }
+
+/* ── Time band headers ── */
+.time-band { display:inline-flex; align-items:center; gap:7px; padding:5px 12px; border-radius:4px; margin:16px 0 10px; }
+.time-band-icon { font-size:13px; }
+.time-band-label { font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; }
+.time-band.t0 { background:rgba(217,78,53,.08); color:#d94e35; border:1px solid rgba(217,78,53,.15); }
+.time-band.t1 { background:rgba(212,168,39,.08); color:var(--amber); border:1px solid rgba(212,168,39,.15); }
+.time-band.t2 { background:rgba(138,168,196,.08); color:#8ba8c4; border:1px solid rgba(138,168,196,.15); }
+.time-band.t3 { background:rgba(0,196,160,.06); color:var(--jade); border:1px solid rgba(0,196,160,.15); }
+
+/* ── Map-sync highlight on cascade card ── */
+.cascade-card.map-synced { border-color:rgba(255,255,255,0.4) !important; box-shadow:0 0 0 2px rgba(255,255,255,0.1); }
+
 @media(max-width:700px){
   .hero-title { font-size:40px; }
   .page { padding:0 18px 80px; }
@@ -484,6 +509,20 @@ if(window._priorityNodes){
 var _activeNode = null;
 
 function selectNode(nid){
+  // During active cascade: clicking a map node scrolls to its cascade card
+  if(_cascadeActive){
+    var nodeName = NODES[nid] ? NODES[nid].name : null;
+    if(nodeName){
+      var card = document.querySelector('.cascade-card[data-node-name="'+nodeName+'"]');
+      if(card){
+        card.classList.add('map-synced');
+        setTimeout(function(){ card.classList.remove('map-synced'); }, 1200);
+        card.scrollIntoView({behavior:'smooth', block:'center'});
+        _syncFlowPath(nodeName);
+        return;
+      }
+    }
+  }
   _activeNode = nid;
   // Edges
   CONNECTIONS.forEach(function(conn, ci){
@@ -614,7 +653,7 @@ async function runCascadeAnalysis(){
       + ', sex: ' + (_profile.sex||'unknown') + ', goal: ' + (_profile.goal||'body recomposition') + '. ';
   }
 
-  var systemPrompt = 'You are a sports medicine and human physiology expert inside a fitness app. The user describes something they are experiencing. Your job is to map the exact biological cascade — which systems are affected, in what order, through what mechanisms, with specific biomarkers and numbers where known.\n\nRespond with ONLY valid JSON. No prose outside the JSON.\n\nJSON structure:\n{\n  "primaryNode": "Sleep",\n  "trigger": "short description of what they described",\n  "affectedNodes": ["Stress","Nutrition","Hormones","Recovery","Mind"],\n  "cascade": [\n    {\n      "node": "Stress",\n      "mechanism": "specific mechanism 1-2 sentences",\n      "biomarkers": ["cortisol +37%","CRH elevated","HPA axis sensitised"],\n      "severity": "high"\n    }\n  ],\n  "narrative": "2-3 sentences explaining what is happening in the body overall — accessible but precise",\n  "watchFor": ["4-6 specific things the user will notice or experience"],\n  "actions": ["4-6 concrete, evidence-based actions ranked by impact"]\n}\n\nValid node names: Sleep, Training, Nutrition, Recovery, Hormones, Stress, Mind, Supplements\nSeverity values: high, moderate, low\nBiomarkers: be specific with numbers/percentages where known (e.g. ghrelin +28%, leptin -18%, testosterone -10-15%)';
+  var systemPrompt = 'You are a sports medicine and human physiology expert inside a fitness app. The user describes something they are experiencing. Your job is to map the exact biological cascade — which systems are affected, in what order, through what mechanisms, with specific biomarkers and numbers where known.\n\nRespond with ONLY valid JSON. No prose outside the JSON.\n\nJSON structure:\n{\n  "primaryNode": "Sleep",\n  "trigger": "short description of what they described",\n  "affectedNodes": ["Stress","Nutrition","Hormones","Recovery","Mind"],\n  "cascade": [\n    {\n      "node": "Stress",\n      "mechanism": "specific mechanism 1-2 sentences",\n      "biomarkers": ["cortisol +37%","CRH elevated","HPA axis sensitised"],\n      "severity": "high",\n      "timeframe": "0-4h"\n    }\n  ],\n  "narrative": "2-3 sentences explaining what is happening in the body overall — accessible but precise",\n  "watchFor": ["4-6 specific things the user will notice or experience"],\n  "actions": ["4-6 concrete, evidence-based actions ranked by impact"]\n}\n\nValid node names: Sleep, Training, Nutrition, Recovery, Hormones, Stress, Mind, Supplements\nSeverity values: high, moderate, low\nTimeframe values: "0-4h" (within first 4 hours), "4-24h" (within 24 hours), "1-3d" (days 1-3), "4-7d" (days 4-7). Assign the most accurate timeframe for when each system is primarily affected.\nBiomarkers: be specific with numbers/percentages where known (e.g. ghrelin +28%, leptin -18%, testosterone -10-15%)';
 
   var userPrompt = profileCtx + 'The user says: "' + input + '"\n\nMap the full biological cascade from this experience.';
 
@@ -669,6 +708,10 @@ function highlightCascadeNode(nid){
 function animateCascadeOnMap(primaryName, affectedNames){
   var primaryId = nodeByName(primaryName);
   var affectedIds = affectedNames.map(function(n){ return nodeByName(n); }).filter(function(x){ return x !== -1; });
+  // Store for sync
+  _cascadeActive = true;
+  _cascadePrimaryId = primaryId;
+  _cascadeAffectedIds = affectedIds;
 
   NODES.forEach(function(n){
     var ring   = document.querySelector('#node-'+n.id+' .n-ring');
@@ -711,6 +754,12 @@ function nodeByName(name){
 var _convHistory = [];   // [{role:'user',content:'...'},{role:'assistant',content:'...'}]
 var _convContext = '';   // system prompt for follow-up Q&A
 
+// Cascade state (for map ↔ cascade sync)
+var _cascadeActive   = false;
+var _cascadePrimaryId = -1;
+var _cascadeAffectedIds = [];
+var _cascadeObserver  = null;
+
 function renderCascade(a, originalInput){
   var panel = document.getElementById('cascade-panel');
   var primaryNode = NODES.filter(function(n){ return n.name===a.primaryNode; })[0] || NODES[0];
@@ -737,18 +786,30 @@ function renderCascade(a, originalInput){
     + 'Use plain prose — no bullet points unless specifically asked. 2–5 sentences max per answer unless the question warrants more. '
     + 'Occasionally reference which Soma page covers a topic (e.g. "the Sleep science page goes deeper on this").';
 
-  // Build cascade chain HTML
-  var chainHtml = '';
-  (a.cascade||[]).forEach(function(item, i){
+  // Build flow path strip
+  var flowPathHtml = _buildFlowPath(a.primaryNode, a.cascade||[]);
+
+  // Group cascade by timeframe for time-band rendering
+  var hasTimeframes = (a.cascade||[]).some(function(item){ return item.timeframe; });
+  var tfGroups = {};
+  _TF_ORDER.forEach(function(tf){ tfGroups[tf] = []; });
+  (a.cascade||[]).forEach(function(item, idx){
+    var tf = item.timeframe || (hasTimeframes ? '4-24h' : '__all__');
+    if(!tfGroups[tf]) tfGroups[tf] = [];
+    tfGroups[tf].push({item:item, idx:idx});
+  });
+  if(!hasTimeframes){ tfGroups['__all__'] = (a.cascade||[]).map(function(item,idx){return{item:item,idx:idx};}); }
+
+  function _renderCascadeCard(item, idx, showArrow){
     var n = NODES.filter(function(n){ return n.name===item.node; })[0];
-    if(!n) return;
+    if(!n) return '';
     var bioHtml = (item.biomarkers||[]).map(function(b){
       return '<span class="bio-chip" style="background:'+n.color+'18;color:'+n.color+';border:1px solid '+n.color+'35">'+b+'</span>';
     }).join('');
-    var arrowHtml = i > 0 ? '<div class="cascade-arrow-line"><span class="cascade-arrow-line-icon">↓</span></div>' : '';
-    chainHtml += arrowHtml
+    var arrowHtml = showArrow ? '<div class="cascade-arrow-line"><span class="cascade-arrow-line-icon">↓</span></div>' : '';
+    return arrowHtml
       + '<div class="cascade-item">'
-      + '<div class="cascade-card" onclick="this.querySelector(\'.cascade-card-mech\').style.display=this.querySelector(\'.cascade-card-mech\').style.display===\'block\'?\'none\':\'block\'" style="border-left-color:'+n.color+'">'
+      + '<div class="cascade-card" data-node-name="'+n.name+'" onclick="this.querySelector(\'.cascade-card-mech\').style.display=this.querySelector(\'.cascade-card-mech\').style.display===\'block\'?\'none\':\'block\'" style="border-left-color:'+n.color+'">'
       + '<div class="cascade-card-head">'
       + '<span class="cascade-card-node">'+n.icon+'</span>'
       + '<span class="cascade-card-name" style="color:'+n.color+'">'+n.name+'</span>'
@@ -757,7 +818,25 @@ function renderCascade(a, originalInput){
       + (bioHtml ? '<div class="cascade-biomarkers" style="margin-top:8px">'+bioHtml+'</div>' : '')
       + '<div class="cascade-card-mech" style="display:none">'+item.mechanism+'</div>'
       + '</div></div>';
-  });
+  }
+
+  var chainHtml = '';
+  var globalIdx = 0;
+  if(hasTimeframes){
+    _TF_ORDER.forEach(function(tf){
+      if(!tfGroups[tf] || tfGroups[tf].length === 0) return;
+      var cfg = _TF_CONFIG[tf];
+      chainHtml += '<div class="time-band '+cfg.cls+'"><span class="time-band-icon">'+cfg.icon+'</span><span class="time-band-label">'+cfg.label+'</span></div>';
+      tfGroups[tf].forEach(function(entry, i){
+        chainHtml += _renderCascadeCard(entry.item, entry.idx, globalIdx > 0);
+        globalIdx++;
+      });
+    });
+  } else {
+    (a.cascade||[]).forEach(function(item, i){
+      chainHtml += _renderCascadeCard(item, i, i > 0);
+    });
+  }
 
   // Watch-for and actions
   var watchHtml = (a.watchFor||[]).map(function(w){ return '<li>'+w+'</li>'; }).join('');
@@ -779,9 +858,11 @@ function renderCascade(a, originalInput){
     +'</div>'
     +'<div class="cascade-narrative">'+a.narrative+'</div>'
     +'</div>'
+    // Flow path strip
+    + flowPathHtml
     // Chain
     +'<div style="margin-bottom:16px">'
-    +'<div style="font-size:9px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--dk-4);margin-bottom:10px;">Biological cascade — tap any card for the mechanism</div>'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--dk-4);margin-bottom:10px;">Biological cascade — tap any card for mechanism detail</div>'
     +'<div class="cascade-chain">'+chainHtml+'</div>'
     +'</div>'
     // Footer boxes
@@ -811,6 +892,8 @@ function renderCascade(a, originalInput){
     +'</div>';
 
   document.getElementById('map-hint').textContent = 'Cascade highlighted — tap any node for details';
+  // Set up scroll→map sync
+  setTimeout(function(){ _setupCascadeSync(); }, 100);
 }
 
 function _buildFollowupSuggestions(a){
@@ -915,6 +998,10 @@ function _formatAnswer(text){
 }
 
 function clearCascade(){
+  _cascadeActive = false;
+  _cascadePrimaryId = -1;
+  _cascadeAffectedIds = [];
+  if(_cascadeObserver){ _cascadeObserver.disconnect(); _cascadeObserver = null; }
   document.getElementById('cascade-panel').className = 'cascade-panel';
   document.getElementById('cascade-panel').innerHTML = '';
   document.getElementById('exp-input').value = '';
@@ -941,6 +1028,103 @@ function clearCascade(){
       if(ring){ ring.setAttribute('opacity','0.45'); ring.setAttribute('r','30'); }
     });
   }
+}
+
+// ── Cascade flow path & sync helpers ────────────────────────────────────────
+
+function scrollToCascadeCard(nodeName){
+  var card = document.querySelector('.cascade-card[data-node-name="'+nodeName+'"]');
+  if(card){
+    card.classList.add('map-synced');
+    setTimeout(function(){ card.classList.remove('map-synced'); }, 1200);
+    card.scrollIntoView({behavior:'smooth', block:'center'});
+    _syncFlowPath(nodeName);
+  }
+}
+
+function _syncFlowPath(nodeName){
+  document.querySelectorAll('.cfp-node').forEach(function(el){
+    el.classList.toggle('cfp-lit', el.getAttribute('data-node-name') === nodeName);
+  });
+}
+
+function _syncMapNode(nodeName){
+  if(!_cascadeActive) return;
+  var nid = nodeByName(nodeName);
+  if(nid === -1) return;
+  var ring = document.querySelector('#node-'+nid+' .n-ring');
+  if(ring){
+    var prevR = ring.getAttribute('r'), prevOp = ring.getAttribute('opacity');
+    ring.setAttribute('opacity','1');
+    ring.setAttribute('r','34');
+    setTimeout(function(){
+      ring.setAttribute('opacity', prevOp);
+      ring.setAttribute('r', prevR);
+    }, 700);
+  }
+  _syncFlowPath(nodeName);
+}
+
+function _setupCascadeSync(){
+  if(_cascadeObserver){ _cascadeObserver.disconnect(); }
+  if(!('IntersectionObserver' in window)) return;
+  var cards = document.querySelectorAll('.cascade-card[data-node-name]');
+  _cascadeObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting && entry.intersectionRatio >= 0.6){
+        _syncMapNode(entry.target.getAttribute('data-node-name'));
+      }
+    });
+  }, { threshold:0.6 });
+  cards.forEach(function(c){ _cascadeObserver.observe(c); });
+}
+
+var _TF_CONFIG = {
+  '0-4h':  { cls:'t0', icon:'⏱', label:'First 4 hours' },
+  '4-24h': { cls:'t1', icon:'🕐', label:'Within 24 hours' },
+  '1-3d':  { cls:'t2', icon:'📅', label:'Days 1–3' },
+  '4-7d':  { cls:'t3', icon:'📆', label:'Days 4–7' },
+};
+var _TF_ORDER = ['0-4h','4-24h','1-3d','4-7d'];
+
+function _buildFlowPath(primaryNodeName, cascadeItems){
+  // Group by timeframe
+  var groups = {};
+  _TF_ORDER.forEach(function(tf){ groups[tf] = []; });
+  cascadeItems.forEach(function(item){
+    var tf = item.timeframe || '4-24h';
+    if(!groups[tf]) groups[tf] = [];
+    groups[tf].push(item);
+  });
+
+  var pNode = NODES.filter(function(n){ return n.name===primaryNodeName; })[0] || NODES[0];
+  var html = '<div class="cascade-flow">';
+
+  // Primary node
+  html += '<div class="cfp-group">'
+    + '<div class="cfp-node cfp-primary" data-node-name="'+pNode.name+'" style="color:'+pNode.color+';border-color:'+pNode.color+'" onclick="scrollToCascadeCard(\''+pNode.name+'\')">'
+    + '<span class="cfp-node-icon">'+pNode.icon+'</span>'+pNode.name
+    + '</div></div>';
+
+  // Each timeframe group
+  _TF_ORDER.forEach(function(tf){
+    if(!groups[tf] || groups[tf].length === 0) return;
+    var cfg = _TF_CONFIG[tf];
+    html += '<div class="cfp-connector">→</div>'
+      + '<div class="cfp-group">';
+    groups[tf].forEach(function(item){
+      var n = NODES.filter(function(n){ return n.name===item.node; })[0];
+      if(!n) return;
+      html += '<div class="cfp-node" data-node-name="'+n.name+'" style="color:'+n.color+';border-color:'+n.color+'45" onclick="scrollToCascadeCard(\''+n.name+'\')">'
+        + '<span class="cfp-node-icon">'+n.icon+'</span>'+n.name
+        + '</div>';
+    });
+    html += '<div class="cfp-group-time">'+cfg.icon+' '+cfg.label+'</div>'
+      + '</div>';
+  });
+
+  html += '</div>';
+  return html;
 }
 
 // ── All connections table ─────────────────────────────────────────────────────
