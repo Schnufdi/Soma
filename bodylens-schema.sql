@@ -33,6 +33,7 @@ alter table profiles add column if not exists latest_report      jsonb;   -- mos
 alter table profiles add column if not exists podcast_history    jsonb;   -- podcast episode listening history
 alter table profiles add column if not exists fridge_data        jsonb;   -- fridge / restock state
 alter table profiles add column if not exists shop_data          jsonb;   -- shopping checklist state
+alter table profiles add column if not exists decision_log       jsonb;   -- decision log (proposals, manual entries, reversions)
 
 alter table profiles enable row level security;
 

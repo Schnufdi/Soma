@@ -29,6 +29,7 @@ function keyToTable(key) {
   if (key === 'bl_podcast_history') return { table: 'profiles', column: 'podcast_history' };
   if (key === 'bl_fridge_restock') return { table: 'profiles', column: 'fridge_data' };
   if (key === 'bl_shop_checks') return { table: 'profiles', column: 'shop_data' };
+  if (key === 'bl_proposal_log') return { table: 'profiles', column: 'decision_log' };
 
   if (key.startsWith('bl_daylog_')) return { table: 'day_logs', dateKey: 'date', prefix: 'bl_daylog_' };
   if (key.startsWith('bl_macros_')) return { table: 'macros', dateKey: 'date', prefix: 'bl_macros_' };
@@ -365,7 +366,7 @@ function restoreFromSupabase(cb) {
 
   // Profile columns
   sb.from('profiles')
-    .select('scan_history,strength_baseline,latest_report,podcast_history,fridge_data,shop_data')
+    .select('scan_history,strength_baseline,latest_report,podcast_history,fridge_data,shop_data,decision_log')
     .eq('id', userId).single().then(function(r) {
       if (!r.data) { done(); return; }
       var d = r.data;
@@ -385,6 +386,32 @@ function restoreFromSupabase(cb) {
       if (d.podcast_history) resolveConflict('bl_podcast_history', JSON.stringify(d.podcast_history));
       if (d.fridge_data) resolveConflict('bl_fridge_restock', JSON.stringify(d.fridge_data));
       if (d.shop_data) resolveConflict('bl_shop_checks', JSON.stringify(d.shop_data));
+
+      // Decision log — append-only so merge both arrays rather than replace.
+      // All unique entries (by id) from Supabase + local are kept.
+      if (d.decision_log) {
+        var serverEntries = Array.isArray(d.decision_log) ? d.decision_log : [];
+        var localRaw2 = localStorage.getItem('bl_proposal_log');
+        var localEntries = [];
+        try { if (localRaw2) localEntries = JSON.parse(localRaw2); } catch(e2) {}
+        if (localEntries.length === 0) {
+          // Nothing local — Supabase wins directly
+          _origSet('bl_proposal_log', JSON.stringify(serverEntries));
+        } else {
+          // Merge: keep all unique entries by id, sort chronologically
+          var byId = {};
+          serverEntries.forEach(function(e) { if (e.id) byId[e.id] = e; });
+          localEntries.forEach(function(e) { if (e.id && !byId[e.id]) byId[e.id] = e; });
+          var merged = Object.keys(byId).map(function(k) { return byId[k]; });
+          merged.sort(function(a, b) { return (a.ts || '') < (b.ts || '') ? -1 : 1; });
+          _origSet('bl_proposal_log', JSON.stringify(merged));
+          // If local had entries Supabase didn't, push merged version back up
+          if (merged.length > serverEntries.length) {
+            enqueue('bl_proposal_log', JSON.stringify(merged));
+          }
+        }
+      }
+
       done();
     });
 }
