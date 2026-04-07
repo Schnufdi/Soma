@@ -95,6 +95,16 @@ body{background:var(--ink);color:var(--dk-1);}
 .eb-day-net.surplus.planned{opacity:.5;}
 .eb-day-net.empty{color:var(--dk-3);background:none;}
 .eb-note{font-size:9px;font-weight:300;color:var(--dk-3);text-align:center;padding:4px 0 2px;line-height:1.6;}
+/* ── Burn split strip ─────────────────────────────────── */
+.eb-burn-split{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.eb-bsp-div{background:var(--bd);}
+.eb-bsp-item{background:var(--ink-1);padding:13px 16px;}
+.eb-bsp-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dk-3);margin-bottom:4px;}
+.eb-bsp-val{font-size:20px;font-weight:700;letter-spacing:-.03em;line-height:1;}
+.eb-bsp-val.jade{color:var(--jade);}
+.eb-bsp-val.amber{color:var(--amber);}
+.eb-bsp-val.slate{color:var(--dk-3);}
+.eb-bsp-sub{font-size:10px;font-weight:300;color:var(--dk-3);margin-top:3px;}
 .dc-reshuffle-note{font-size:8px;font-weight:600;color:var(--amber);margin-top:4px;letter-spacing:.02em;}
 .reshuffle-trigger{display:none;width:100%;margin-top:6px;background:rgba(196,124,24,.1);border:1px solid rgba(196,124,24,.3);border-radius:5px;color:var(--amber);font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 6px;cursor:pointer;text-align:center;transition:background .12s;flex-shrink:0;}
 .reshuffle-trigger:hover{background:rgba(196,124,24,.18);}
@@ -437,6 +447,11 @@ function render(){
 
   // ── Energy balance section ───────────────────────────────
   var ebBMR = _calcBMR(p);
+  // Burn split: baseline (rest day TDEE) vs active (training day TDEE)
+  var ebRestBurn = _calcDayBurn(p, {priority:'rest'});
+  var ebTrainBurns = (p.weekPlan||[]).filter(function(d){return d.priority==='training';}).map(function(d){return _calcDayBurn(p,d);});
+  var ebAvgTrainBurn = ebTrainBurns.length ? Math.round(ebTrainBurns.reduce(function(a,b){return a+b;},0)/ebTrainBurns.length) : ebRestBurn + 270;
+  var ebBurnDelta = ebAvgTrainBurn - ebRestBurn;
   var ebTotalBurn=0, ebTotalIntake=0, ebLoggedCount=0;
   for(var ei=0;ei<7;ei++){
     ebTotalBurn += _calcDayBurn(p, getEffDay(p,ei));
@@ -477,6 +492,14 @@ function render(){
     +'</div>';
   }
 
+  var ebBurnSplitHTML=''
+    +'<div class="eb-burn-split">'
+      +'<div class="eb-bsp-item"><div class="eb-bsp-label">Rest day burn</div><div class="eb-bsp-val slate">'+ebRestBurn.toLocaleString()+'</div><div class="eb-bsp-sub">baseline TDEE</div></div>'
+      +'<div class="eb-bsp-div"></div>'
+      +'<div class="eb-bsp-item"><div class="eb-bsp-label">Training day burn</div><div class="eb-bsp-val amber">'+ebAvgTrainBurn.toLocaleString()+'</div><div class="eb-bsp-sub">incl. session expenditure</div></div>'
+      +'<div class="eb-bsp-div"></div>'
+      +'<div class="eb-bsp-item"><div class="eb-bsp-label">Active vs baseline</div><div class="eb-bsp-val jade">+'+ebBurnDelta+'</div><div class="eb-bsp-sub">kcal extra on gym days</div></div>'
+    +'</div>';
   var energyBalanceHTML='<div class="energy-balance">'
     +'<div class="sec-label" style="margin-top:28px;">Energy balance&nbsp;<span style="font-weight:300;text-transform:none;letter-spacing:.04em;font-size:9px;">est. burn vs intake &middot; daily</span></div>'
     +'<div class="eb-summary">'
@@ -486,6 +509,7 @@ function render(){
         ?'<div class="eb-sum-item"><div class="eb-sum-label">Avg daily deficit</div><div class="eb-sum-val '+ebDefCls+'">'+ebAvgDef.toLocaleString()+'</div><div class="eb-sum-sub">kcal &middot; '+ebLoggedCount+' day'+(ebLoggedCount===1?'':'s')+' logged</div></div>'
         :'<div class="eb-sum-item"><div class="eb-sum-label">Avg daily target</div><div class="eb-sum-val slate">'+(ebAvgBurn-(p.trainingKcal||p.calories||2400)).toLocaleString()+'</div><div class="eb-sum-sub">kcal planned deficit</div></div>')
     +'</div>'
+    +ebBurnSplitHTML
     +'<div class="eb-grid">'+ebCols+'</div>'
     +'<div class="eb-note">BMR via Mifflin-St Jeor &middot; TDEE = BMR &times; 1.375 + training session (~250&ndash;380 kcal)</div>'
   +'</div>';
