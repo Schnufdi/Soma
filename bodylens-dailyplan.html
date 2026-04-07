@@ -383,39 +383,126 @@ body {
   min-width: 0;
 }
 
-/* ── 3-column daily layout ─────────────────────────────────────────── */
-.dp3-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr 300px;
-  grid-template-areas: "left mid right";
-  gap: 0 20px;
-  align-items: start;
-  padding: 24px 24px 120px;
-  max-width: 1280px;
-  margin: 0 auto;
-}
-@media(max-width:1099px){
-  .dp3-layout { grid-template-columns: 220px 1fr 260px; gap: 0 14px; }
-}
-@media(max-width:799px){
-  .dp3-layout {
-    grid-template-columns: 1fr;
-    grid-template-areas: "left" "mid" "right";
-    padding: 16px 16px 100px;
-  }
-}
-.dp3-col { min-width: 0; }
-.dp3-col-left  { grid-area: left;  position: sticky; top: 100px; }
-.dp3-col-mid   { grid-area: mid; }
-.dp3-col-right { grid-area: right; }
-@media(max-width:799px){ .dp3-col-left { position: static; } }
-.dp3-col-hd {
-  font-size: 9px; font-weight: 700; letter-spacing: .18em;
-  text-transform: uppercase; color: var(--dk-3);
-  margin-bottom: 14px;
-  display: flex; align-items: center; gap: 8px;
-}
-.dp3-col-hd::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+/* ════════════════════════════════════════════════════════════════════
+   TIMELINE — Progressive disclosure daily view
+   ════════════════════════════════════════════════════════════════════ */
+.tl-page { padding:24px 32px 120px; max-width:780px; margin:0 auto; }
+@media(max-width:599px){ .tl-page { padding:16px 16px 100px; } }
+
+/* ── Hero ──────────────────────────────────────────────────────────── */
+.tl-hero { display:flex; align-items:center; gap:20px; padding:0 0 22px; border-bottom:1px solid var(--bd); margin-bottom:28px; }
+.tl-hero-date { flex:1; min-width:0; }
+.tl-hero-kicker { font-size:9px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--dk-3); margin-bottom:5px; }
+.tl-hero-title { font-family:var(--serif); font-size:26px; font-weight:400; line-height:1.1; color:var(--dk-1); }
+.tl-hero-title em { font-style:italic; color:var(--dk-3); font-size:22px; }
+.tl-hero-rings { display:flex; gap:16px; align-items:center; flex-shrink:0; }
+.tl-ring-item { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.tl-ring-wrap { position:relative; display:flex; align-items:center; justify-content:center; }
+.tl-ring-num { position:absolute; font-size:10px; font-weight:700; color:var(--dk-1); letter-spacing:-.02em; }
+.tl-ring-lbl { font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--dk-3); }
+.tl-cond-chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.tl-cond-chip { font-size:10px; font-weight:600; padding:4px 12px; border-radius:20px; border:1px solid var(--bd); background:rgba(255,255,255,.04); color:var(--dk-3); cursor:pointer; font-family:var(--sans); white-space:nowrap; transition:all .12s; }
+.tl-cond-chip.active { background:rgba(196,124,24,.1); border-color:rgba(196,124,24,.3); color:var(--amber); }
+
+/* ── Timeline feed ─────────────────────────────────────────────────── */
+.tl-feed { position:relative; padding-left:60px; }
+.tl-feed::before { content:''; position:absolute; left:47px; top:14px; bottom:14px; width:1px; background:linear-gradient(to bottom, transparent, var(--bd) 6%, var(--bd) 94%, transparent); }
+
+/* ── Item ──────────────────────────────────────────────────────────── */
+.tl-item { position:relative; margin-bottom:5px; }
+.tl-item-time { position:absolute; left:-60px; top:17px; font-size:10px; font-weight:400; color:var(--dk-3); letter-spacing:-.01em; width:42px; text-align:right; line-height:1; }
+.tl-item-dot { position:absolute; left:-13px; top:20px; width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.15); border:1.5px solid var(--ink-1); z-index:1; transition:all .2s; }
+.tl-item.is-current .tl-item-dot { background:var(--jade); width:7px; height:7px; left:-14px; top:19px; box-shadow:0 0 0 3px rgba(0,200,160,.12); }
+.tl-item.is-done .tl-item-dot { background:rgba(0,200,160,.45); }
+.tl-item.is-skipped .tl-item-dot { background:rgba(220,80,60,.35); }
+
+/* ── Card ──────────────────────────────────────────────────────────── */
+.tl-card { background:var(--ink-1); border:1px solid var(--bd); border-radius:10px; overflow:hidden; transition:border-color .15s, box-shadow .15s; }
+.tl-card:hover { border-color:rgba(255,255,255,.1); }
+.tl-item.is-current .tl-card { border-color:rgba(0,200,160,.22); background:rgba(0,200,160,.018); }
+.tl-item.is-done .tl-card { opacity:.72; }
+
+/* ── Card row (collapsed) ──────────────────────────────────────────── */
+.tl-card-row { display:flex; align-items:center; padding:0 14px; height:52px; gap:10px; cursor:pointer; user-select:none; }
+.tl-cat { font-size:7.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:2px 8px; border-radius:20px; flex-shrink:0; }
+.tl-cat.train  { background:rgba(0,200,160,.1);   color:var(--jade); }
+.tl-cat.eat    { background:rgba(196,124,24,.1);  color:var(--amber); }
+.tl-cat.stack  { background:rgba(255,255,255,.06); color:rgba(255,255,255,.4); }
+.tl-cat.prep   { background:rgba(255,255,255,.04); color:rgba(255,255,255,.28); }
+.tl-cat.boost  { background:rgba(138,112,200,.12); color:rgba(178,152,240,.9); }
+.tl-card-title { font-size:13px; font-weight:500; color:var(--dk-1); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:-.01em; }
+.tl-card-metric { font-size:11px; font-weight:300; color:var(--dk-3); flex-shrink:0; white-space:nowrap; }
+.tl-card-status { flex-shrink:0; width:18px; height:18px; border-radius:50%; border:1.5px solid rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; transition:all .15s; }
+.tl-card-status.done  { background:rgba(0,200,160,.12); border-color:var(--jade); color:var(--jade); }
+.tl-card-status.skip  { background:rgba(220,80,60,.08);  border-color:rgba(220,80,60,.35); color:var(--red); }
+.tl-chevron { font-size:11px; color:rgba(255,255,255,.2); transition:transform .2s; flex-shrink:0; margin-left:2px; }
+.tl-item.open .tl-chevron { transform:rotate(90deg); color:var(--dk-3); }
+
+/* ── Card detail (expanded) ────────────────────────────────────────── */
+.tl-card-detail { display:none; border-top:1px solid rgba(255,255,255,.05); padding:16px 14px 14px; animation:fadeUp .15s ease; }
+.tl-item.open .tl-card-detail { display:block; }
+.tl-why { font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.7; margin-bottom:14px; padding-left:10px; border-left:2px solid rgba(255,255,255,.07); }
+
+/* ── Exercise rows ─────────────────────────────────────────────────── */
+.tl-ex-list { margin-bottom:12px; }
+.tl-ex-row { display:flex; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.04); cursor:pointer; gap:10px; transition:background .1s; border-radius:4px; }
+.tl-ex-row:last-child { border-bottom:none; }
+.tl-ex-num { font-size:9px; font-weight:700; color:var(--dk-3); width:16px; flex-shrink:0; text-align:center; }
+.tl-ex-name { font-size:13px; font-weight:400; color:var(--dk-1); flex:1; letter-spacing:-.01em; }
+.tl-ex-sets { font-size:11px; font-weight:300; color:var(--dk-3); flex-shrink:0; }
+.tl-ex-logged { font-size:11px; font-weight:600; color:var(--jade); flex-shrink:0; min-width:64px; text-align:right; }
+.tl-ex-inputs { display:none; padding:8px 0 8px 26px; gap:8px; border-bottom:1px solid rgba(255,255,255,.04); }
+.tl-ex-row.open + .tl-ex-inputs { display:flex; }
+.tl-ex-inp { background:rgba(255,255,255,.05); border:1px solid var(--bd); border-radius:6px; color:var(--dk-1); font-family:var(--sans); font-size:13px; padding:8px 10px; width:88px; }
+.tl-ex-inp:focus { outline:none; border-color:rgba(0,200,160,.4); }
+.tl-ex-inp::placeholder { color:var(--dk-3); }
+
+/* ── Supplement rows ───────────────────────────────────────────────── */
+.tl-supp-list { margin-bottom:12px; }
+.tl-supp-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.tl-supp-row:last-child { border-bottom:none; }
+.tl-supp-name { font-size:13px; font-weight:400; color:var(--dk-1); flex:1; }
+.tl-supp-dose { font-size:11px; font-weight:300; color:var(--dk-3); }
+.tl-supp-btn { width:24px; height:24px; border-radius:6px; border:1.5px solid var(--bd); background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:transparent; transition:all .15s; flex-shrink:0; font-family:var(--sans); }
+.tl-supp-btn.taken { background:rgba(0,200,160,.1); border-color:rgba(0,200,160,.4); color:var(--jade); }
+
+/* ── Meal inputs ───────────────────────────────────────────────────── */
+.tl-meal-target { font-size:11px; font-weight:300; color:var(--dk-3); margin-bottom:10px; }
+.tl-meal-row { display:flex; gap:8px; margin-bottom:10px; }
+.tl-inp { background:rgba(255,255,255,.05); border:1px solid var(--bd); border-radius:6px; color:var(--dk-1); font-family:var(--sans); font-size:13px; padding:8px 10px; }
+.tl-inp:focus { outline:none; border-color:rgba(196,124,24,.4); }
+.tl-inp::placeholder { color:var(--dk-3); }
+.tl-inp.sm { width:80px; flex-shrink:0; }
+.tl-inp.lg { flex:1; }
+
+/* ── Actions ───────────────────────────────────────────────────────── */
+.tl-actions { display:flex; gap:7px; flex-wrap:wrap; margin-top:12px; }
+.tl-btn { font-size:11px; font-weight:700; letter-spacing:.03em; padding:8px 14px; border-radius:7px; cursor:pointer; font-family:var(--sans); transition:opacity .12s; text-decoration:none; display:inline-flex; align-items:center; }
+.tl-btn:hover { opacity:.82; }
+.tl-btn.jade  { background:rgba(0,200,160,.1);  color:var(--jade);  border:1px solid rgba(0,200,160,.22); }
+.tl-btn.slate { background:rgba(255,255,255,.05); color:var(--dk-3); border:1px solid var(--bd); }
+.tl-btn.red   { background:rgba(220,80,60,.07);  color:var(--red);   border:1px solid rgba(220,80,60,.2); }
+.tl-btn.solid { background:var(--jade); color:var(--ink); border:none; }
+
+/* ── EOD ───────────────────────────────────────────────────────────── */
+.tl-eod { margin-top:8px; background:var(--ink-1); border:1px solid var(--bd); border-radius:10px; padding:18px 16px; }
+.tl-eod-hdr { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--dk-3); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
+.tl-eod-date { font-weight:300; font-size:10px; letter-spacing:.02em; }
+.tl-eod-rows { margin-bottom:12px; }
+.tl-eod-row { display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:12px; }
+.tl-eod-row:last-child { border-bottom:none; }
+.tl-eod-key { font-weight:300; color:var(--dk-3); }
+.tl-eod-val { font-weight:600; color:var(--dk-2); }
+.tl-eod-val.jade { color:var(--jade); }
+.tl-sleep-row { display:flex; gap:5px; margin-top:5px; }
+.tl-sleep-btn { font-size:10px; font-weight:600; padding:5px 10px; border-radius:5px; border:1px solid var(--bd); background:rgba(255,255,255,.04); color:var(--dk-3); cursor:pointer; font-family:var(--sans); transition:all .12s; }
+.tl-sleep-btn.active { background:rgba(0,200,160,.1); border-color:rgba(0,200,160,.3); color:var(--jade); }
+.tl-notes { width:100%; background:rgba(255,255,255,.03); border:1px solid var(--bd); border-radius:7px; color:var(--dk-2); font-family:var(--sans); font-size:12px; padding:10px 12px; resize:none; margin:10px 0 12px; font-weight:300; line-height:1.6; }
+.tl-notes:focus { outline:none; border-color:rgba(255,255,255,.13); }
+.tl-score-big { text-align:center; padding:8px 0 4px; }
+.tl-score-num { font-size:40px; font-weight:700; letter-spacing:-.04em; color:var(--dk-1); line-height:1; }
+.tl-score-sub { font-size:9px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--dk-3); margin:4px 0 8px; }
+.tl-score-breakdown { font-size:12px; font-weight:300; color:var(--dk-3); line-height:1.6; }
 
 /* ── Day hero ──────────────────────────────────────────────────────── */
 .day-hero { padding: 4px 0 24px; }
@@ -5326,12 +5413,234 @@ function renderPlan(plan, browsing) {
     + completionRingsHtml
   +'</div>';
 
-  // ── Act builder ──────────────────────────────────────────
-  // Divide blocks into three acts
-  // Morning: wake through training
-  // Recovery: post-train through afternoon
-  // Close: evening through sleep
+  // ════════════════════════════════════════════════════════
+  //  TIMELINE BUILDER
+  // ════════════════════════════════════════════════════════
 
+  // ── Auto-expand: find current/next block by time ────────
+  function tlAutoExpand(blocks) {
+    var now = new Date();
+    var nowM = now.getHours()*60 + now.getMinutes();
+    var best = 0;
+    blocks.forEach(function(b,i){
+      if(b.type==='sleep') return;
+      if(!b.time) return;
+      var p2 = b.time.split(':');
+      var bm = parseInt(p2[0])*60 + parseInt(p2[1]||0);
+      if(bm <= nowM) best = i;
+    });
+    return best;
+  }
+  var tlExpandIdx = tlAutoExpand(plan.blocks);
+
+  // ── Category helpers ────────────────────────────────────
+  function tlCat(block) {
+    if(block.type==='training') return {cls:'train', lbl:'Train'};
+    if(block.mealSlot) return {cls:'eat', lbl:'Eat'};
+    if(block.type==='supp'||(block.type==='recovery'&&block.suppList&&block.suppList.length)) return {cls:'stack', lbl:'Stack'};
+    if(block.type==='recovery') return {cls:'prep', lbl:'Recover'};
+    return {cls:'prep', lbl:'Prep'};
+  }
+  function tlMetric(block) {
+    if(block.type==='training'){
+      var exs=(block.exercises||[]).filter(function(e){return e!=='Track loads';});
+      return (block.durationMins?'~'+block.durationMins+'min · ':'')+exs.length+' exercises';
+    }
+    if(block.mealSlot){
+      var ml=(log.meals&&log.meals[block.mealSlot])||{};
+      var pp=Math.round((p.protein||140)/Math.max(1,mealBlocks.length));
+      return ml.prot>0 ? ml.prot+'g P logged' : '~'+pp+'g P target';
+    }
+    if(block.suppList&&block.suppList.length){
+      var tk=(block.suppList||[]).filter(function(s){return suppLog&&suppLog[s.name||s];}).length;
+      return tk+' / '+block.suppList.length+' taken';
+    }
+    return block.durationMins ? block.durationMins+'min' : '';
+  }
+
+  // ── Detail content per block type ───────────────────────
+  function tlDetailTraining(block, idx) {
+    var exercises=(block.exercises||[]).filter(function(e){return e!=='Track loads';});
+    var exLogD=log.exercises||{};
+    var rows=exercises.map(function(exStr,i){
+      var key='ex_'+idx+'_'+i;
+      var ed=exLogD[key]||{};
+      var px=parseEx(exStr);
+      var logged=ed.weight?(ed.weight+'kg'+(ed.actual?' × '+ed.actual:'')):'';
+      return '<div class="tl-ex-row" id="tl-ex-'+key+'" onclick="event.stopPropagation();tlToggleEx(\''+key+'\')">'
+        +'<span class="tl-ex-num">'+(i+1)+'</span>'
+        +'<span class="tl-ex-name">'+px.name+'</span>'
+        +'<span class="tl-ex-sets">'+px.sets+' × '+px.reps+'</span>'
+        +(logged?'<span class="tl-ex-logged">'+logged+'</span>':'')
+      +'</div>'
+      +'<div class="tl-ex-inputs" id="tl-ex-inp-'+key+'">'
+        +'<input class="tl-ex-inp" type="number" placeholder="kg" value="'+(ed.weight||'')+'" onchange="dpSaveExField(\''+idx+'\',\''+i+'\',\'weight\',this.value)" onclick="event.stopPropagation()">'
+        +'<input class="tl-ex-inp" type="text" placeholder="reps / notes" value="'+(ed.actual||'')+'" onchange="dpSaveExField(\''+idx+'\',\''+i+'\',\'actual\',this.value)" onclick="event.stopPropagation()">'
+      +'</div>';
+    }).join('');
+    return '<div class="tl-ex-list">'+rows+'</div>'
+      +'<div class="tl-actions">'
+        +'<button class="tl-btn solid" onclick="event.stopPropagation();gcOpen()">▶ Start session</button>'
+        +'<button class="tl-btn jade" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')">✓ Done</button>'
+        +'<button class="tl-btn slate" onclick="event.stopPropagation();dp2ShowSwap('+idx+')">~ Modified</button>'
+        +'<button class="tl-btn red"   onclick="event.stopPropagation();dpSetStatus('+idx+',\'skipped\')">× Skip</button>'
+      +'</div>';
+  }
+  function tlDetailMeal(block, idx) {
+    var ml=(log.meals&&log.meals[block.mealSlot])||{};
+    var pp=Math.round((p.protein||140)/Math.max(1,mealBlocks.length));
+    return '<div class="tl-meal-target">Target ~'+pp+'g protein this meal</div>'
+      +'<div class="tl-meal-row">'
+        +'<input class="tl-inp sm" type="number" placeholder="0g P" value="'+(ml.prot||'')+'" onchange="dpLogMealProt(\''+block.mealSlot+'\',this.value)" onclick="event.stopPropagation()">'
+        +'<input class="tl-inp lg" type="text" placeholder="What did you eat?" value="'+(ml.note||'').replace(/"/g,'&quot;')+'" onchange="dpLogMealNote(\''+block.mealSlot+'\',this.value)" onclick="event.stopPropagation()">'
+      +'</div>'
+      +'<div class="tl-actions">'
+        +'<button class="tl-btn jade" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')">✓ Logged</button>'
+        +'<a href="bodylens-meals.html" class="tl-btn slate" onclick="event.stopPropagation()">Meal plan →</a>'
+      +'</div>';
+  }
+  function tlDetailSupp(block, idx) {
+    var supps=block.suppList||[];
+    var rows=supps.map(function(s){
+      var nm=s.name||s; var dose=s.dose||s.amount||'';
+      var taken=!!(suppLog&&suppLog[nm]);
+      var eid='tl-supp-'+nm.replace(/[\s()]/g,'-');
+      return '<div class="tl-supp-row">'
+        +'<span class="tl-supp-name">'+nm+'</span>'
+        +(dose?'<span class="tl-supp-dose">'+dose+'</span>':'')
+        +'<button class="tl-supp-btn'+(taken?' taken':'')+'" id="'+eid+'" onclick="event.stopPropagation();tlToggleSupp(\''+nm+'\',\''+eid+'\')">'+( taken?'✓':'')+'</button>'
+      +'</div>';
+    }).join('');
+    return '<div class="tl-supp-list">'+rows+'</div>'
+      +'<div class="tl-actions">'
+        +'<button class="tl-btn jade" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')">✓ All taken</button>'
+      +'</div>';
+  }
+  function tlDetailGeneral(block, idx) {
+    var why=block.detail||block.subtitle||'';
+    return (why?'<div class="tl-why">'+why+'</div>':'')
+      +'<div class="tl-actions">'
+        +'<button class="tl-btn jade" onclick="event.stopPropagation();dpSetStatus('+idx+',\'done\')">✓ Done</button>'
+        +'<button class="tl-btn slate" onclick="event.stopPropagation();dpSetStatus('+idx+',\'skipped\')">× Skip</button>'
+      +'</div>';
+  }
+  function tlDetail(block, idx) {
+    if(block.type==='training') return tlDetailTraining(block,idx);
+    if(block.mealSlot) return tlDetailMeal(block,idx);
+    if(block.type==='supp'||(block.type==='recovery'&&block.suppList&&block.suppList.length)) return tlDetailSupp(block,idx);
+    return tlDetailGeneral(block,idx);
+  }
+
+  // ── Build one timeline card ──────────────────────────────
+  function buildTlCard(block, idx) {
+    if(block.type==='sleep') return '';
+    var st=blockStatus(block,idx);
+    var isDone=st==='done', isSkip=st==='skipped';
+    var cat=tlCat(block);
+    var metric=tlMetric(block);
+    var title=block.mealSlot?getMealSlotLabel(block.mealSlot):(block.title||'');
+    var isExpanded=idx===tlExpandIdx;
+    var itemCls='tl-item'+(isDone?' is-done':isSkip?' is-skipped':(idx===tlExpandIdx?' is-current':''))+(isExpanded?' open':'');
+    var statusCls=isDone?'done':isSkip?'skip':'';
+    var statusIcon=isDone?'✓':isSkip?'×':'';
+    return '<div class="'+itemCls+'" id="tl-item-'+idx+'">'
+      +'<div class="tl-item-time">'+(block.time||'')+'</div>'
+      +'<div class="tl-item-dot"></div>'
+      +'<div class="tl-card">'
+        +'<div class="tl-card-row" onclick="tlToggle('+idx+')">'
+          +'<span class="tl-cat '+cat.cls+'">'+cat.lbl+'</span>'
+          +'<span class="tl-card-title">'+title+'</span>'
+          +(metric?'<span class="tl-card-metric">'+metric+'</span>':'')
+          +'<span class="tl-card-status '+statusCls+'">'+statusIcon+'</span>'
+          +'<span class="tl-chevron">›</span>'
+        +'</div>'
+        +'<div class="tl-card-detail" onclick="event.stopPropagation()">'
+          +tlDetail(block,idx)
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }
+
+  // ── Hero ────────────────────────────────────────────────
+  var condChipsHtml2=(function(){
+    if(isBrowsing) return '';
+    var todayConds=(log.todayConditions||[]);
+    var conds=[{id:'gut',icon:'🤢',label:'Gut flare'},{id:'sick',icon:'🤒',label:'Sick'},{id:'sore',icon:'🤕',label:'Sore'},{id:'tired',icon:'😴',label:'Tired'}];
+    var chips=conds.map(function(c){
+      var on=todayConds.indexOf(c.id)>-1;
+      return '<button class="tl-cond-chip'+(on?' active':'')+'" onclick="dpToggleCondition(\''+c.id+'\')">'+c.icon+' '+c.label+'</button>';
+    }).join('');
+    if(isTraining) chips='<button class="tl-cond-chip'+(log.trainStatus==='done'?' active':'')+'" onclick="location.href=\'bodylens-dailyplan.html\'">▶ Session</button>'+chips;
+    return '<div class="tl-cond-chips">'+chips+'</div>';
+  })();
+
+  var tlHeroHtml='<div class="tl-hero">'
+    +'<div class="tl-hero-date">'
+      +'<div class="tl-hero-kicker">'+(isBrowsing?'Browsing':new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}))+'</div>'
+      +'<div class="tl-hero-title">'+dayType+'<em>'+(isTraining?' · ~'+( trainBlock?trainBlock.durationMins||90:90)+'min':' · Rest')+'</em></div>'
+      +condChipsHtml2
+    +'</div>'
+    +'<div class="tl-hero-rings">'
+      +(isTraining?'<div class="tl-ring-item"><div class="tl-ring-wrap">'+miniRing(crTrainPct,18,3,'tl-cr-train','var(--day-jade)')+'</div><div class="tl-ring-lbl">Train</div></div>':'')
+      +'<div class="tl-ring-item"><div class="tl-ring-wrap">'+miniRing(crMealPct,18,3,'tl-cr-meals','var(--amber)')+'</div><div class="tl-ring-lbl">Meals</div></div>'
+      +'<div class="tl-ring-item"><div class="tl-ring-wrap">'+miniRing(crStackPct,18,3,'tl-cr-stack','rgba(255,255,255,.4)')+'</div><div class="tl-ring-lbl">Stack</div></div>'
+      +'<div class="tl-ring-item"><div class="tl-ring-wrap">'+scoreRing(score,20,3,'tl-score-ring')+'<div class="tl-ring-num" id="tl-score-top">'+score+'</div></div><div class="tl-ring-lbl">Score</div></div>'
+    +'</div>'
+  +'</div>';
+
+  // ── Timeline HTML ────────────────────────────────────────
+  var tlFeedHtml='<div class="tl-feed">';
+  plan.blocks.forEach(function(block,idx){ tlFeedHtml+=buildTlCard(block,idx); });
+  tlFeedHtml+='</div>';
+
+  // ── EOD ─────────────────────────────────────────────────
+  var tlEodHtml='<div class="tl-eod" id="dp2-eod">'
+    +'<div class="tl-eod-hdr"><span>End of day</span><span class="tl-eod-date">'+new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</span></div>'
+    +'<div class="tl-eod-rows">'
+      +(isTraining?'<div class="tl-eod-row"><span class="tl-eod-key">Training</span><span class="tl-eod-val '+(trainDone?'jade':'')+'">'+( trainDone?'✓ Done':trainMod?'~ Modified':'Not logged')+'</span></div>':'')
+      +'<div class="tl-eod-row"><span class="tl-eod-key">Meals</span><span class="tl-eod-val '+(mealsLogged===mealBlocks.length&&mealBlocks.length?'jade':'')+'">'+mealsLogged+' / '+mealBlocks.length+'</span></div>'
+      +'<div class="tl-eod-row"><span class="tl-eod-key">Stack</span><span class="tl-eod-val">'+suppsDone+' / '+(profileSupps.length||0)+'</span></div>'
+      +'<div class="tl-eod-row" style="flex-direction:column;align-items:flex-start;gap:5px;">'
+        +'<div style="display:flex;justify-content:space-between;width:100%;"><span class="tl-eod-key">Tonight\'s sleep</span><span class="tl-eod-val jade" id="tl-sleep-val">'+(log.sleepActual?log.sleepActual+'h':'')+'</span></div>'
+        +'<div class="tl-sleep-row">'+[5,6,7,8,9].map(function(h){return '<button class="tl-sleep-btn'+(log.sleepActual===h?' active':'')+'" onclick="dpSaveSleep('+h+')">'+h+'h</button>';}).join('')+'</div>'
+      +'</div>'
+    +'</div>'
+    +'<textarea class="tl-notes" rows="2" placeholder="Notes for tomorrow…" onchange="dpSaveNotes(this.value)" onblur="dpSaveNotes(this.value)">'+savedNotes+'</textarea>'
+    +'<div class="tl-score-big">'
+      +'<div class="tl-score-num" id="dp2-eod-score">'+score+'</div>'
+      +'<div class="tl-score-sub">Day score / 100</div>'
+      +'<div class="tl-score-breakdown" id="dp2-eod-breakdown">'+(breakdown||'Log your day to build your score')+'</div>'
+    +'</div>'
+    +'<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.04);padding-top:12px;">'
+      +'<button id="dp2-coach-review-btn" class="dp2-eod-review-btn" onclick="dpCoachReview()">Review with coach →</button>'
+      +'<div id="dp2-coach-review-out" class="dp2-coach-review-out"></div>'
+    +'</div>'
+    +'<button class="dp2-save-btn" onclick="dpSaveDay()" style="margin-top:10px;">Save & close the day →</button>'
+  +'</div>';
+
+  // ── Assemble ─────────────────────────────────────────────
+  root.innerHTML='<div class="tl-page">'
+    +tlHeroHtml
+    +tlFeedHtml
+    +(isBrowsing?'<button class="dp2-rebuild-btn" onclick="backToToday()">← Back to today</button>':'<button class="dp2-rebuild-btn" onclick="regen()" id="dp2-rebuild-btn">↺ Rebuild plan</button>')
+    +tlEodHtml
+  +'</div>'
+  +'<button class="dp2-actual-trigger" id="dp2-actual-trigger" onclick="dpActualOpen()">&#9711; Actual</button>'
+  +'<div class="dp2-actual-overlay" id="dp2-actual-overlay" onclick="dpActualClose()"></div>'
+  +'<div class="dp2-actual-sheet" id="dp2-actual-sheet">'
+    +'<div class="dp2-actual-sheet-handle"></div>'
+    +'<div class="dp2-actual-sheet-hd"><span class="dp2-actual-sheet-title">Actual</span>'
+      +'<div style="display:flex;align-items:center;gap:8px;">'
+        +'<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="dpDictateBasic()">&#127908; Dictate</button>'
+        +'<button class="dp2-actual-sheet-close" onclick="dpActualClose()">&#215;</button>'
+      +'</div>'
+    +'</div>'
+    +'<div class="dp2-actual-sheet-body"><div id="dp2-actual-entries"></div><div id="dp2-actual-totals"></div></div>'
+  +'</div>'
+  +floatHtml
+  +voiceHtml;
+
+  // ── Legacy stubs (kept so old act builder CSS doesn't error) ─
   function blockBarColor(block) {
     if (block.type==='training') return 'jade';
     if (block.mealSlot) return 'amber';
@@ -5931,50 +6240,7 @@ function renderPlan(plan, browsing) {
   + '</div>'
   + '<div id="vlg-toast" class="vlg-toast"></div>';
 
-  // ── Assemble — 3-column layout ───────────────────────────
-  var midColLabel = isTraining ? 'Session' : 'Day plan';
-  var rebuildBtn = isBrowsing
-    ? '<button class="dp2-rebuild-btn" onclick="backToToday()">← Back to today</button>'
-    : '<button class="dp2-rebuild-btn" onclick="regen()" id="dp2-rebuild-btn">↺ Rebuild plan</button>';
-
-  root.innerHTML = '<div class="dp3-layout">'
-    // ── Left: context ──────────────────────────────────────
-    +'<div class="dp3-col dp3-col-left">'
-      +'<div class="dp3-col-hd">Today</div>'
-      +missionHtml
-    +'</div>'
-    // ── Middle: session / main acts ────────────────────────
-    +'<div class="dp3-col dp3-col-mid">'
-      +'<div class="dp3-col-hd">'+midColLabel+'</div>'
-      +midActsHtml
-      +rebuildBtn
-    +'</div>'
-    // ── Right: fuel & recovery ─────────────────────────────
-    +'<div class="dp3-col dp3-col-right">'
-      +'<div class="dp3-col-hd">Fuel &amp; Recovery</div>'
-      +rightActsHtml
-      +eodHtml
-    +'</div>'
-  +'</div>'
-  // ── Overlays (outside columns) ─────────────────────────
-  +'<button class="dp2-actual-trigger" id="dp2-actual-trigger" onclick="dpActualOpen()">&#9711; Actual</button>'
-  +'<div class="dp2-actual-overlay" id="dp2-actual-overlay" onclick="dpActualClose()"></div>'
-  +'<div class="dp2-actual-sheet" id="dp2-actual-sheet">'
-    +'<div class="dp2-actual-sheet-handle"></div>'
-    +'<div class="dp2-actual-sheet-hd">'
-      +'<span class="dp2-actual-sheet-title">Actual</span>'
-      +'<div style="display:flex;align-items:center;gap:8px;">'
-        +'<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="dpDictateBasic()">&#127908; Dictate</button>'
-        +'<button class="dp2-actual-sheet-close" onclick="dpActualClose()">&#215;</button>'
-      +'</div>'
-    +'</div>'
-    +'<div class="dp2-actual-sheet-body">'
-      +'<div id="dp2-actual-entries"></div>'
-      +'<div id="dp2-actual-totals"></div>'
-    +'</div>'
-  +'</div>'
-  + floatHtml
-  + voiceHtml;
+  // (assembly moved to timeline section above)
 
   // ── Post-render ──────────────────────────────────────────
   var oldBar = document.getElementById('macro-bar');
@@ -5993,6 +6259,30 @@ function renderPlan(plan, browsing) {
 function dp2ToggleAct(actId) {
   var el = document.getElementById('dp2-act-'+actId);
   if (el) el.classList.toggle('open');
+}
+
+// ── Timeline toggle functions ────────────────────────────────────────
+function tlToggle(idx) {
+  var item = document.getElementById('tl-item-'+idx);
+  if (!item) return;
+  var wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.tl-item.open').forEach(function(el){ el.classList.remove('open'); });
+  if (!wasOpen) item.classList.add('open');
+}
+function tlToggleEx(key) {
+  var row = document.getElementById('tl-ex-'+key);
+  if (!row) return;
+  var wasOpen = row.classList.contains('open');
+  document.querySelectorAll('.tl-ex-row.open').forEach(function(el){ el.classList.remove('open'); });
+  if (!wasOpen) row.classList.add('open');
+}
+function tlToggleSupp(name, elId) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  var taken = el.classList.contains('taken');
+  dpToggleSupp(name, el);
+  el.classList.toggle('taken', !taken);
+  el.textContent = !taken ? '✓' : '';
 }
 
 // ── Item toggle ──────────────────────────────────────────────
