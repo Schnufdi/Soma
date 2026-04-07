@@ -81,6 +81,34 @@ window.BL.loadProfile = function(cb) {
             localProfile.name && serverProfile.name &&
             localProfile.name !== serverProfile.name;
 
+          // ── Preserve locally-generated fields if server copy is stale ──────
+          // Happens when: user just completed onboarding (local is fresh, Supabase
+          // still has the old profile), or Supabase was never synced with the
+          // full programme output. Server is authoritative except when it is
+          // missing critical generated data that local already has.
+          var _mergedFromLocal = false;
+          if (!isDifferentUser && localProfile) {
+            // supplements: baseline stack from onboarding AI generation
+            if (localProfile.supplements && localProfile.supplements.length > 0 &&
+                (!serverProfile.supplements || serverProfile.supplements.length === 0)) {
+              serverProfile.supplements = localProfile.supplements;
+              _mergedFromLocal = true;
+            }
+            // deepStack: user additions from supplements page
+            if (localProfile.deepStack && localProfile.deepStack.length > 0 &&
+                (!serverProfile.deepStack || serverProfile.deepStack.length === 0)) {
+              serverProfile.deepStack = localProfile.deepStack;
+              _mergedFromLocal = true;
+            }
+            // weekPlan: core programme — server must never be empty if local has it
+            if (localProfile.weekPlan && localProfile.weekPlan.length > 0 &&
+                (!serverProfile.weekPlan || serverProfile.weekPlan.length === 0)) {
+              serverProfile.weekPlan = localProfile.weekPlan;
+              _mergedFromLocal = true;
+            }
+          }
+          // ────────────────────────────────────────────────────────────────────
+
           // Set the correct profile in localStorage
           // Ensure calories alias exists for backward compatibility
           if (serverProfile.trainingKcal && !serverProfile.calories) {
@@ -91,6 +119,12 @@ window.BL.loadProfile = function(cb) {
           }
           if (!serverProfile.wakeTime) serverProfile.wakeTime = '07:00';
           localStorage.setItem('bl_profile', JSON.stringify(serverProfile));
+
+          // If we merged missing fields from local into the server profile, resync
+          // back to Supabase so the gap is permanently closed for this user.
+          if (_mergedFromLocal && !isDifferentUser) {
+            setTimeout(function() { window.BL.saveProfile && window.BL.saveProfile(serverProfile); }, 1500);
+          }
 
           // If the daily plan is open and showed "Profile incomplete",
           // re-run init() now that we have the full profile from Supabase
