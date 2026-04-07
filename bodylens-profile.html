@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Soma">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="profile">
 <title>Soma — Profile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -12,40 +20,16 @@ body { background:var(--ink); color:var(--dk-1); }
 .page { max-width:900px; margin:0 auto; padding:0 24px 80px; }
 
 /* Hero */
-.prof-hero {
-  padding:48px 0 36px;
-  border-bottom:1px solid var(--bd);
-  margin-bottom:36px;
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:32px;
-  align-items:end;
-}
+.prof-hero { padding:48px 0 36px; border-bottom:1px solid var(--bd); margin-bottom:36px; display:grid; grid-template-columns:1fr auto; gap:32px; align-items:end; }
 .prof-kicker { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--jade); margin-bottom:10px; display:flex; align-items:center; gap:10px; }
 .prof-kicker::before { content:''; width:18px; height:1px; background:var(--jade); }
 .prof-name { font-family:var(--serif); font-size:64px; font-weight:300; line-height:0.92; letter-spacing:-0.03em; color:var(--dk-1); }
 .prof-goal { font-size:14px; font-weight:300; color:var(--dk-2); line-height:1.6; margin-top:12px; max-width:440px; }
 
-/* Benchmark grid */
-.prof-benchmarks {
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:1px;
-  background:var(--bd);
-  border:1px solid var(--bd);
-  border-radius:6px;
-  overflow:hidden;
-}
-.prof-bm {
-  background:var(--ink-2);
-  padding:16px 12px;
-  text-align:center;
-}
-.prof-bm-val {
-  font-family:var(--mono);
-  font-size:24px; font-weight:500;
-  color:var(--jade); line-height:1; margin-bottom:5px;
-}
+/* Benchmarks */
+.prof-benchmarks { display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--bd); border:1px solid var(--bd); border-radius:6px; overflow:hidden; }
+.prof-bm { background:var(--ink-2); padding:16px 12px; text-align:center; }
+.prof-bm-val { font-family:var(--mono); font-size:24px; font-weight:500; color:var(--jade); line-height:1; margin-bottom:5px; }
 .prof-bm-val.amber { color:var(--amber); }
 .prof-bm-val.slate { color:var(--dk-2); }
 .prof-bm-val.red   { color:var(--red); }
@@ -53,38 +37,21 @@ body { background:var(--ink); color:var(--dk-1); }
 
 /* Sections */
 .prof-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
-
-.prof-card {
-  background:var(--ink-2);
-  border:1px solid var(--bd);
-  border-radius:6px;
-  overflow:hidden;
-}
+.prof-card { background:var(--ink-2); border:1px solid var(--bd); border-radius:6px; overflow:hidden; }
 .prof-card.full { grid-column:1/-1; }
 .prof-card.jade  { border-top:3px solid var(--jade); }
 .prof-card.amber { border-top:3px solid var(--amber); }
 .prof-card.gold  { border-top:3px solid var(--gold); }
 .prof-card.red   { border-top:3px solid var(--red); }
 .prof-card.slate { border-top:3px solid var(--slate); }
-
-.prof-card-head {
-  padding:14px 18px;
-  background:var(--ink-1);
-  border-bottom:1px solid var(--bd);
-  display:flex; align-items:center; gap:8px;
-}
+.prof-card-head { padding:14px 18px; background:var(--ink-1); border-bottom:1px solid var(--bd); display:flex; align-items:center; gap:8px; }
 .prof-card-icon { font-size:14px; }
-.prof-card-title { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
+.prof-card-title { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); flex:1; }
 .prof-card.jade  .prof-card-title { color:var(--jade); }
 .prof-card.amber .prof-card-title { color:var(--amber); }
 .prof-card.gold  .prof-card-title { color:var(--gold); }
 .prof-card.red   .prof-card-title { color:var(--red); }
-
-.prof-row {
-  display:flex; justify-content:space-between; align-items:baseline;
-  padding:10px 18px; border-bottom:1px solid var(--bd);
-  font-size:12px; gap:12px;
-}
+.prof-row { display:flex; justify-content:space-between; align-items:baseline; padding:10px 18px; border-bottom:1px solid var(--bd); font-size:12px; gap:12px; }
 .prof-row:last-child { border-bottom:none; }
 .prof-row-label { font-weight:400; color:var(--dk-3); flex-shrink:0; }
 .prof-row-val   { font-weight:500; color:var(--dk-1); text-align:right; line-height:1.4; }
@@ -92,42 +59,33 @@ body { background:var(--ink); color:var(--dk-1); }
 .prof-row-val.amber { color:var(--amber); }
 .prof-row-val.red   { color:var(--red); }
 
-/* Injury card */
-.prof-injury {
-  padding:14px 18px;
-  border-bottom:1px solid var(--bd);
-  border-left:3px solid var(--gold);
-  margin-left:-1px;
+/* Edit button in card header */
+.prof-edit-btn {
+  font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--dk-3); border:1px solid var(--bd-2); background:transparent;
+  padding:4px 10px; border-radius:4px; cursor:pointer; font-family:var(--sans);
+  transition:all 0.12s; white-space:nowrap;
 }
+.prof-edit-btn:hover { border-color:var(--jade-br); color:var(--jade); }
+
+/* Injury card */
+.prof-injury { padding:14px 18px; border-bottom:1px solid var(--bd); border-left:3px solid var(--gold); margin-left:-1px; }
 .prof-injury:last-child { border-bottom:none; }
 .prof-injury-loc { font-size:12px; font-weight:600; color:var(--gold); margin-bottom:4px; }
 .prof-injury-text { font-size:12px; font-weight:300; color:var(--dk-2); line-height:1.65; }
 .prof-injury-rules { margin-top:8px; font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.65; }
 
 /* Supplement table */
-.supp-row {
-  display:grid;
-  grid-template-columns:1fr 80px 120px;
-  padding:10px 18px;
-  border-bottom:1px solid var(--bd);
-  font-size:12px; gap:12px; align-items:baseline;
-}
+.supp-row { display:grid; grid-template-columns:1fr 80px 120px; padding:10px 18px; border-bottom:1px solid var(--bd); font-size:12px; gap:12px; align-items:baseline; }
 .supp-row:last-child { border-bottom:none; }
 .supp-row.head { background:var(--ink-1); }
 .supp-row.head div { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--dk-3); }
-.supp-name  { font-weight:500; color:var(--dk-1); }
-.supp-dose  { font-family:var(--mono); font-weight:300; color:var(--amber); }
-.supp-time  { font-weight:300; color:var(--dk-3); }
+.supp-name { font-weight:500; color:var(--dk-1); }
+.supp-dose { font-family:var(--mono); font-weight:300; color:var(--amber); }
+.supp-time { font-weight:300; color:var(--dk-3); }
 
 /* Coach summary */
-.prof-coach-summary {
-  padding:20px 18px;
-  font-family:var(--serif);
-  font-size:16px; font-weight:300; font-style:italic;
-  line-height:1.82; color:var(--dk-2);
-  border-left:2px solid var(--jade-br);
-  margin:4px 0;
-}
+.prof-coach-summary { padding:20px 18px; font-family:var(--serif); font-size:16px; font-weight:300; font-style:italic; line-height:1.82; color:var(--dk-2); border-left:2px solid var(--jade-br); margin:4px 0; }
 
 /* Laws */
 .prof-law { padding:16px 18px; border-bottom:1px solid var(--bd); }
@@ -141,6 +99,80 @@ body { background:var(--ink); color:var(--dk-1); }
 .no-profile h2 { font-family:var(--serif); font-size:30px; font-weight:300; color:var(--dk-1); }
 .no-profile p  { font-size:14px; font-weight:300; color:var(--dk-2); max-width:360px; line-height:1.7; }
 .no-profile a  { display:inline-block; padding:12px 28px; background:var(--jade); border-radius:6px; font-size:13px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink); text-decoration:none; }
+
+/* ── EDIT MODAL ── */
+.edit-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9000;
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.edit-overlay.open { opacity: 1; pointer-events: all; }
+.edit-drawer {
+  background: var(--ink-2); border: 1px solid var(--bd-2);
+  border-radius: 16px 16px 0 0; width: 100%; max-width: 640px;
+  max-height: 90vh; overflow-y: auto;
+  transform: translateY(40px); transition: transform 0.25s ease;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.edit-overlay.open .edit-drawer { transform: translateY(0); }
+.edit-drawer-handle { width: 36px; height: 4px; background: var(--bd-2); border-radius: 2px; margin: 14px auto 0; }
+.edit-drawer-head { padding: 18px 24px 14px; border-bottom: 1px solid var(--bd); display: flex; align-items: center; gap: 10px; }
+.edit-drawer-title { font-size: 13px; font-weight: 600; color: var(--dk-1); flex: 1; }
+.edit-drawer-close { background: transparent; border: none; color: var(--dk-3); font-size: 20px; cursor: pointer; padding: 0; line-height: 1; }
+.edit-drawer-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.edit-field { display: flex; flex-direction: column; gap: 6px; }
+.edit-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dk-3); }
+.edit-input {
+  background: var(--ink-1); border: 1px solid var(--bd-2); border-radius: 6px;
+  padding: 11px 14px; font-size: 15px; font-weight: 300; color: var(--dk-1);
+  font-family: var(--sans); outline: none; width: 100%;
+  transition: border-color 0.15s; box-sizing: border-box;
+  -moz-appearance: textfield;
+}
+.edit-input::-webkit-inner-spin-button,
+.edit-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.edit-input:focus { border-color: var(--jade-br); }
+.edit-input::placeholder { color: var(--dk-3); font-size: 13px; }
+.edit-textarea {
+  background: var(--ink-1); border: 1px solid var(--bd-2); border-radius: 6px;
+  padding: 11px 14px; font-size: 13px; font-weight: 300; color: var(--dk-1);
+  font-family: var(--sans); outline: none; width: 100%; resize: none;
+  transition: border-color 0.15s; box-sizing: border-box; line-height: 1.6;
+}
+.edit-textarea:focus { border-color: var(--jade-br); }
+.edit-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.edit-chip {
+  padding: 8px 14px; background: var(--ink-1); border: 1px solid var(--bd-2);
+  border-radius: 20px; font-size: 12px; font-weight: 400; color: var(--dk-2);
+  cursor: pointer; transition: all 0.1s; font-family: var(--sans); user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.edit-chip:hover { border-color: var(--jade-br); color: var(--jade); }
+.edit-chip.sel { background: var(--jade-dim); border-color: var(--jade-br); color: var(--jade); font-weight: 500; }
+.edit-chip.sel-solid { background: var(--jade); border-color: var(--jade); color: var(--ink); font-weight: 600; }
+.edit-hint { font-size: 11px; font-weight: 300; color: var(--dk-3); line-height: 1.5; }
+.edit-footer { padding: 0 24px 28px; display: flex; gap: 10px; }
+.edit-save-btn {
+  flex: 1; background: var(--jade); color: var(--ink); border: none;
+  padding: 14px; border-radius: 6px; font-size: 13px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer;
+  font-family: var(--sans); transition: background 0.15s;
+}
+.edit-save-btn:hover { background: var(--jade-hi); }
+.edit-cancel-btn {
+  background: transparent; color: var(--dk-3); border: 1px solid var(--bd-2);
+  padding: 14px 20px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: var(--sans); transition: border-color 0.15s;
+}
+.edit-cancel-btn:hover { border-color: var(--dk-3); }
+.edit-saved-flash {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--jade); color: var(--ink); padding: 10px 22px;
+  border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; z-index: 9999; opacity: 0;
+  transition: opacity 0.2s; pointer-events: none;
+}
+.edit-saved-flash.show { opacity: 1; }
 
 @media(max-width:860px) {
   .prof-hero { grid-template-columns:1fr; gap:20px; }
@@ -159,31 +191,41 @@ body { background:var(--ink); color:var(--dk-1); }
 </head>
 <body>
 
-<nav class="site-nav">
-  <div class="nav-brand">Body<em>Lens</em></div>
-  <div class="nav-links">
-    <a class="nav-link nav-daily" href="bodylens-day.html">Today</a>
-    <a class="nav-link nav-food" href="bodylens-food.html">Food</a>
-    <a class="nav-link" href="bodylens-programme.html">Programme</a>
-    <a class="nav-link" href="bodylens-science.html">Science</a>
-  </div>
-
-  <div class="nav-breadcrumb">
-    <a href="bodylens-programme.html" class="nav-bc-parent">Programme</a>
-    <span class="nav-bc-sep">›</span>
-    <span class="nav-bc-current">Profile</span>
-  </div>
-  <div class="nav-right-group">
-    <a class="nav-link nav-right" href="bodylens-howitworks.html">How it works</a>
-    <div class="nav-meta" id="nav-meta"></div>
-  </div>
-</nav>
+<nav class="site-nav"></nav>
 
 <div class="page" id="main"></div>
 
+<!-- Edit modal -->
+<div class="edit-overlay" id="edit-overlay" onclick="handleOverlayClick(event)">
+  <div class="edit-drawer" id="edit-drawer">
+    <div class="edit-drawer-handle"></div>
+    <div class="edit-drawer-head">
+      <div class="edit-drawer-title" id="edit-drawer-title">Edit</div>
+      <button class="edit-drawer-close" onclick="closeEdit()">×</button>
+    </div>
+    <div class="edit-drawer-body" id="edit-drawer-body"></div>
+    <div class="edit-footer">
+      <button class="edit-cancel-btn" onclick="closeEdit()">Cancel</button>
+      <button class="edit-save-btn" id="edit-save-btn">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="edit-saved-flash" id="edit-saved-flash">Saved</div>
+
 <script src="nav.js"></script>
 <script>
-const profile = getProfile();
+// ── PROFILE ──────────────────────────────────────────────
+function loadProfile() {
+  try { return JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) { return null; }
+}
+function saveProfile(p) {
+  localStorage.setItem('bl_profile', JSON.stringify(p));
+}
+
+var currentSection = null;
+
+const profile = loadProfile();
 
 if (!profile) {
   document.getElementById('main').innerHTML = `
@@ -194,19 +236,21 @@ if (!profile) {
       <a href="bodylens-onboard.html">Get started →</a>
     </div>`;
 } else {
-  document.getElementById('nav-meta').innerHTML = `<span class="nav-tag nt-jade">${profile.name}</span>`;
-  render(profile);
+  render(loadProfile());
 }
 
+// ── RENDER ────────────────────────────────────────────────
 function render(p) {
-  const injuries    = p.injuryAssessments || [];
-  const supps       = p.supplements || [];
-  const weekPlan    = p.weekPlan || [];
+  const injuries     = p.injuryAssessments || [];
+  const supps        = p.supplements || [];
+  const weekPlan     = p.weekPlan || [];
   const trainingDays = weekPlan.filter(d=>d.priority==='training').map(d=>d.day).join(', ');
-  const genDate     = p.generatedAt ? new Date(p.generatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '—';
+  const genDate      = p.generatedAt ? new Date(p.generatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '—';
+  const healthConds  = Array.isArray(p.healthConditions)
+    ? p.healthConditions.join(', ')
+    : (p.healthConditions || '');
 
   document.getElementById('main').innerHTML = `
-
     <!-- Hero -->
     <div class="prof-hero">
       <div>
@@ -216,7 +260,7 @@ function render(p) {
       </div>
       <div style="text-align:right;">
         <div style="font-size:10px;font-weight:300;color:var(--dk-3);">Generated ${genDate}</div>
-        <a href="bodylens-reset.html" style="display:inline-block;margin-top:8px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--dk-3);border:1px solid var(--bd-2);padding:6px 14px;border-radius:4px;text-decoration:none;">Reset</a>
+        <a href="bodylens-reset.html" style="display:inline-block;margin-top:8px;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--dk-3);border:1px solid var(--bd-2);padding:6px 14px;border-radius:4px;text-decoration:none;">Reset profile</a>
       </div>
     </div>
 
@@ -244,10 +288,9 @@ function render(p) {
       </div>
     </div>
 
-    <!-- Coach summary -->
     ${p.coachSummary ? `
     <div class="prof-card full jade" style="margin-bottom:16px;">
-      <div class="prof-card-head"><div class="prof-card-icon">🎯</div><div class="prof-card-title jade">Coach's read</div></div>
+      <div class="prof-card-head"><div class="prof-card-icon">🎯</div><div class="prof-card-title">Coach's read</div></div>
       <div class="prof-coach-summary">${p.coachSummary}</div>
     </div>` : ''}
 
@@ -255,32 +298,41 @@ function render(p) {
 
       <!-- Baseline -->
       <div class="prof-card slate">
-        <div class="prof-card-head"><div class="prof-card-icon">👤</div><div class="prof-card-title">Baseline</div></div>
+        <div class="prof-card-head">
+          <div class="prof-card-icon">👤</div>
+          <div class="prof-card-title">Baseline</div>
+          <button class="prof-edit-btn" onclick="openEdit('baseline')">✏ Edit</button>
+        </div>
         <div class="prof-row"><span class="prof-row-label">Age / Sex</span><span class="prof-row-val">${p.age||'—'} · ${p.sex||'—'}</span></div>
         <div class="prof-row"><span class="prof-row-label">Height</span><span class="prof-row-val">${p.height||'—'} cm</span></div>
         <div class="prof-row"><span class="prof-row-label">Weight</span><span class="prof-row-val">${p.weight||'—'} kg</span></div>
         <div class="prof-row"><span class="prof-row-label">Body fat</span><span class="prof-row-val jade">${p.bodyFat||'—'}%</span></div>
-        <div class="prof-row"><span class="prof-row-label">Fat storage</span><span class="prof-row-val">${p.fatStorage||'—'}</span></div>
-        <div class="prof-row"><span class="prof-row-label">Experience</span><span class="prof-row-val">${p.experience||'—'}</span></div>
+        <div class="prof-row"><span class="prof-row-label">Experience</span><span class="prof-row-val">${p.experience||p.exp||'—'}</span></div>
         <div class="prof-row"><span class="prof-row-label">Wake time</span><span class="prof-row-val">${p.wakeTime||'—'}</span></div>
       </div>
 
       <!-- Nutrition -->
       <div class="prof-card amber">
-        <div class="prof-card-head"><div class="prof-card-icon">🥗</div><div class="prof-card-title amber">Nutrition</div></div>
+        <div class="prof-card-head">
+          <div class="prof-card-icon">🥗</div>
+          <div class="prof-card-title amber">Nutrition</div>
+          <button class="prof-edit-btn" onclick="openEdit('nutrition')">✏ Edit</button>
+        </div>
         <div class="prof-row"><span class="prof-row-label">Calories</span><span class="prof-row-val amber">${p.calories||'—'} kcal</span></div>
         <div class="prof-row"><span class="prof-row-label">Protein</span><span class="prof-row-val jade">${p.protein||'—'}g</span></div>
         <div class="prof-row"><span class="prof-row-label">Carbs</span><span class="prof-row-val amber">${p.carbs||'—'}g</span></div>
         <div class="prof-row"><span class="prof-row-label">Fat</span><span class="prof-row-val">${p.fat||'—'}g</span></div>
         <div class="prof-row"><span class="prof-row-label">Eating window</span><span class="prof-row-val">${p.fastingWindow||p.eatingWindow||'—'}</span></div>
         <div class="prof-row"><span class="prof-row-label">Diet</span><span class="prof-row-val">${p.dietType||'—'}</span></div>
-        ${(p.foodExclusions||[]).length ? `<div class="prof-row"><span class="prof-row-label">Avoid</span><span class="prof-row-val red">${p.foodExclusions.join(', ')}</span></div>` : ''}
-        ${p.triggerFoods&&p.triggerFoods!=='Nothing — good discipline' ? `<div class="prof-row"><span class="prof-row-label">Triggers</span><span class="prof-row-val red">${p.triggerFoods}</span></div>` : ''}
       </div>
 
       <!-- Training -->
       <div class="prof-card jade">
-        <div class="prof-card-head"><div class="prof-card-icon">🏋️</div><div class="prof-card-title jade">Training</div></div>
+        <div class="prof-card-head">
+          <div class="prof-card-icon">🏋️</div>
+          <div class="prof-card-title jade">Training</div>
+          <button class="prof-edit-btn" onclick="openEdit('training')">✏ Edit</button>
+        </div>
         <div class="prof-row"><span class="prof-row-label">Days/week</span><span class="prof-row-val jade">${p.trainingDays||'—'}</span></div>
         <div class="prof-row"><span class="prof-row-label">Training days</span><span class="prof-row-val">${trainingDays||'—'}</span></div>
         <div class="prof-row"><span class="prof-row-label">Gym</span><span class="prof-row-val">${p.gymAccess||'—'}</span></div>
@@ -289,19 +341,41 @@ function render(p) {
         <div class="prof-row"><span class="prof-row-label">Alcohol</span><span class="prof-row-val">${p.alcoholHabit||'—'}</span></div>
       </div>
 
-      <!-- Non-negotiables -->
+      <!-- Goals -->
       <div class="prof-card slate">
-        <div class="prof-card-head"><div class="prof-card-icon">✓</div><div class="prof-card-title">Non-negotiables</div></div>
-        ${(p.nonNegotiables||[]).length
-          ? (p.nonNegotiables||[]).map(n => `<div class="prof-row"><span class="prof-row-label">·</span><span class="prof-row-val">${n}</span></div>`).join('')
-          : '<div class="prof-row"><span class="prof-row-val" style="color:var(--dk-3);">None specified — fully flexible</span></div>'}
+        <div class="prof-card-head">
+          <div class="prof-card-icon">🎯</div>
+          <div class="prof-card-title">Goals</div>
+          <button class="prof-edit-btn" onclick="openEdit('goals')">✏ Edit</button>
+        </div>
+        <div class="prof-row"><span class="prof-row-label">Primary goal</span><span class="prof-row-val">${p.goal||'—'}</span></div>
+        ${p.target ? `<div class="prof-row"><span class="prof-row-label">Target</span><span class="prof-row-val">${p.target}</span></div>` : ''}
+        <div class="prof-row"><span class="prof-row-label">Non-negotiables</span><span class="prof-row-val">${(p.nonNegotiables||[]).join(', ')||'—'}</span></div>
       </div>
 
-      <!-- Injuries -->
-      ${injuries.length || (p.injuries&&p.injuries.length) ? `
+      <!-- Health & conditions -->
+      <div class="prof-card red full">
+        <div class="prof-card-head">
+          <div class="prof-card-icon">🩺</div>
+          <div class="prof-card-title red">Health &amp; conditions</div>
+          <button class="prof-edit-btn" onclick="openEdit('health')">✏ Edit</button>
+        </div>
+        ${healthConds
+          ? `<div class="prof-row"><span class="prof-row-label">Conditions</span><span class="prof-row-val red">${healthConds}</span></div>`
+          : `<div class="prof-row"><span class="prof-row-val" style="color:var(--dk-3);">None specified</span></div>`}
+        ${(p.injuries||[]).length
+          ? `<div class="prof-row"><span class="prof-row-label">Injuries</span><span class="prof-row-val amber">${p.injuries.join(', ')}</span></div>`
+          : `<div class="prof-row"><span class="prof-row-label">Injuries</span><span class="prof-row-val" style="color:var(--dk-3);">None</span></div>`}
+        ${p.injuryDetail ? `<div class="prof-row"><span class="prof-row-label">Detail</span><span class="prof-row-val">${p.injuryDetail}</span></div>` : ''}
+        ${p.menstrualCycle ? `<div class="prof-row"><span class="prof-row-label">Hormonal status</span><span class="prof-row-val">${p.menstrualCycle}</span></div>` : ''}
+        ${p.hormonalStatus ? `<div class="prof-row"><span class="prof-row-label">Hormonal status</span><span class="prof-row-val">${p.hormonalStatus}</span></div>` : ''}
+      </div>
+
+      <!-- Injuries (detailed) -->
+      ${injuries.length ? `
       <div class="prof-card gold full">
-        <div class="prof-card-head"><div class="prof-card-icon">🩹</div><div class="prof-card-title gold">Injuries &amp; modifications</div></div>
-        ${injuries.length ? injuries.map(inj=>`
+        <div class="prof-card-head"><div class="prof-card-icon">🩹</div><div class="prof-card-title gold">Injury modifications</div></div>
+        ${injuries.map(inj=>`
           <div class="prof-injury">
             <div class="prof-injury-loc">${inj.location}</div>
             <div class="prof-injury-text">${inj.assessment||inj.detail||''}</div>
@@ -311,11 +385,6 @@ function render(p) {
               <strong style="color:var(--jade);">Instead:</strong> ${(inj.safeAlternatives||[]).join(', ')}<br>
               ${inj.rehabilitationNotes?`<strong style="color:var(--gold);">Long term:</strong> ${inj.rehabilitationNotes}`:''}
             </div>` : ''}
-          </div>`).join('')
-          : (p.injuries||[]).map(loc=>`
-          <div class="prof-injury">
-            <div class="prof-injury-loc">${loc}</div>
-            <div class="prof-injury-text">${p.injuryDetail||'See Instructions for detail'}</div>
           </div>`).join('')}
       </div>` : ''}
 
@@ -323,11 +392,7 @@ function render(p) {
       ${supps.length ? `
       <div class="prof-card gold full">
         <div class="prof-card-head"><div class="prof-card-icon">💊</div><div class="prof-card-title gold">Supplement stack</div></div>
-        <div class="supp-row head">
-          <div>Supplement</div>
-          <div>Dose</div>
-          <div>Timing</div>
-        </div>
+        <div class="supp-row head"><div>Supplement</div><div>Dose</div><div>Timing</div></div>
         ${supps.map(s=>`
         <div class="supp-row">
           <div class="supp-name">${s.name}</div>
@@ -359,18 +424,216 @@ function render(p) {
     </div>
   `;
 }
-</script>
-<script>
-(function(){
-  try {
-    const p = localStorage.getItem('bl_profile');
-    if (p) {
-      const profile = JSON.parse(p);
-      const el = document.getElementById('nav-meta');
-      if (el && profile.name) el.innerHTML = '<span class="nav-tag nt-jade">' + profile.name + '</span>';
+
+// ── EDIT SECTIONS ─────────────────────────────────────────
+var INJURY_AREAS = ['Knee','Lower back','Shoulder','Hip','Neck','Elbow / wrist','Ankle / foot'];
+var GOALS = ['Lose body fat','Build muscle','Body recomposition','Athletic performance','Health and longevity'];
+var WAKE_TIMES = ['05:30','06:00','06:30','07:00','07:30','08:00'];
+var COND_OPTIONS = ['IBS / gut sensitivity','Type 2 or pre-diabetes','Cardiovascular condition','Osteoporosis / low bone density','Anxiety or depression','Chronic fatigue / ME','Hypertension','PCOS','Thyroid condition'];
+
+function openEdit(section) {
+  currentSection = section;
+  var p = loadProfile();
+  var body = document.getElementById('edit-drawer-body');
+  var title = document.getElementById('edit-drawer-title');
+
+  if (section === 'baseline') {
+    title.textContent = 'Update body metrics';
+    body.innerHTML = `
+      <div class="edit-field">
+        <label class="edit-label">Weight (kg)</label>
+        <input class="edit-input" type="number" id="ed-weight" value="${p.weight||''}" placeholder="e.g. 82" min="40" max="200">
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Body fat %</label>
+        <input class="edit-input" type="number" id="ed-bf" value="${p.bodyFat||''}" placeholder="e.g. 18" min="4" max="50">
+        <span class="edit-hint">Rough estimate is fine — affects macro calculations.</span>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Wake time</label>
+        <div class="edit-chips" id="ed-wake-chips">
+          ${WAKE_TIMES.map(t=>`<div class="edit-chip${p.wakeTime===t?' sel-solid':''}" data-wake="${t}" onclick="singleChip(this,'wake')">${t}</div>`).join('')}
+        </div>
+      </div>`;
+
+  } else if (section === 'nutrition') {
+    title.textContent = 'Update nutrition targets';
+    body.innerHTML = `
+      <div class="edit-hint" style="margin-bottom:4px;">Update your daily macro targets. These are used by the meal plan and daily plan.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="edit-field">
+          <label class="edit-label">Calories</label>
+          <input class="edit-input" type="number" id="ed-calories" value="${p.calories||''}" placeholder="e.g. 2200">
+        </div>
+        <div class="edit-field">
+          <label class="edit-label">Protein (g)</label>
+          <input class="edit-input" type="number" id="ed-protein" value="${p.protein||''}" placeholder="e.g. 185">
+        </div>
+        <div class="edit-field">
+          <label class="edit-label">Carbs (g)</label>
+          <input class="edit-input" type="number" id="ed-carbs" value="${p.carbs||''}" placeholder="e.g. 220">
+        </div>
+        <div class="edit-field">
+          <label class="edit-label">Fat (g)</label>
+          <input class="edit-input" type="number" id="ed-fat" value="${p.fat||''}" placeholder="e.g. 70">
+        </div>
+      </div>`;
+
+  } else if (section === 'training') {
+    title.textContent = 'Update training setup';
+    body.innerHTML = `
+      <div class="edit-field">
+        <label class="edit-label">Training days per week</label>
+        <div class="edit-chips">
+          ${[3,4,5,6].map(n=>`<div class="edit-chip${p.trainingDays==n?' sel-solid':''}" data-days="${n}" onclick="singleChip(this,'days')">${n} days</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Sleep per night</label>
+        <div class="edit-chips">
+          ${['Under 6 hours','6-7 hours','7-8 hours','8+ hours'].map(s=>`<div class="edit-chip${p.sleep===s?' sel-solid':''}" data-sleep="${s}" onclick="singleChip(this,'sleep')">${s.replace(' hours','h')}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Alcohol</label>
+        <div class="edit-chips">
+          ${["I don't drink","Rarely — a few times a year","Social weekends — 1 to 4 units","A few nights a week — moderate","Several nights a week"].map(a=>`<div class="edit-chip${p.alcoholHabit===a?' sel-solid':''}" data-alcohol="${a}" onclick="singleChip(this,'alcohol')">${a.split(' — ')[0] || a}</div>`).join('')}
+        </div>
+      </div>`;
+
+  } else if (section === 'goals') {
+    title.textContent = 'Update your goal';
+    body.innerHTML = `
+      <div class="edit-field">
+        <label class="edit-label">Primary goal</label>
+        <div class="edit-chips">
+          ${GOALS.map(g=>`<div class="edit-chip${p.goal===g?' sel-solid':''}" data-goal="${g}" onclick="singleChip(this,'goal')">${g}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Target physique / outcome</label>
+        <input class="edit-input" type="text" id="ed-target" value="${p.target||''}" placeholder="e.g. Lean with visible abs, athletic but not bulky">
+        <span class="edit-hint">Be specific — this shapes AI coach responses and meal generation.</span>
+      </div>`;
+
+  } else if (section === 'health') {
+    var currentConds = Array.isArray(p.healthConditions) ? p.healthConditions : (p.healthConditions ? [p.healthConditions] : []);
+    var currentInjuries = p.injuries || [];
+    title.textContent = 'Update health conditions';
+    body.innerHTML = `
+      <div class="edit-field">
+        <label class="edit-label">Health conditions</label>
+        <div class="edit-hint" style="margin-bottom:10px;">Select all that apply. This updates what the AI coach knows about you — affects training, meal, and nutrition recommendations.</div>
+        <div class="edit-chips" id="ed-conds-chips">
+          ${COND_OPTIONS.map(c=>`<div class="edit-chip${currentConds.some(x=>x.toLowerCase().includes(c.split('/')[0].trim().toLowerCase()))?' sel':''}" data-cond="${c}" onclick="toggleChip(this,'cond')">${c}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Injuries / physical constraints</label>
+        <div class="edit-chips" id="ed-inj-chips">
+          ${INJURY_AREAS.map(a=>`<div class="edit-chip${currentInjuries.includes(a)?' sel':''}" data-inj="${a}" onclick="toggleChip(this,'inj')">${a}</div>`).join('')}
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Injury detail</label>
+        <textarea class="edit-textarea" id="ed-inj-detail" rows="3" placeholder="Any context helps — e.g. left knee, assessed by physio, avoid deep squats">${p.injuryDetail||''}</textarea>
+      </div>
+      ${p.sex === 'Female' || p.sex === 'female' ? `
+      <div class="edit-field">
+        <label class="edit-label">Hormonal status</label>
+        <div class="edit-chips">
+          ${['Actively cycling','Perimenopausal','Postmenopausal','Pregnant or postpartum'].map(h=>`<div class="edit-chip${(p.menstrualCycle||p.hormonalStatus)===h?' sel-solid':''}" data-hormonal="${h}" onclick="singleChip(this,'hormonal')">${h}</div>`).join('')}
+        </div>
+      </div>` : ''}`;
+  }
+
+  document.getElementById('edit-overlay').classList.add('open');
+  document.getElementById('edit-save-btn').onclick = function() { saveEdit(section); };
+}
+
+function closeEdit() {
+  document.getElementById('edit-overlay').classList.remove('open');
+  currentSection = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('edit-overlay')) closeEdit();
+}
+
+function singleChip(el, group) {
+  el.closest('.edit-chips').querySelectorAll('.edit-chip').forEach(c => {
+    c.classList.remove('sel','sel-solid');
+  });
+  el.classList.add('sel-solid');
+}
+
+function toggleChip(el) {
+  el.classList.toggle('sel');
+}
+
+function saveEdit(section) {
+  var p = loadProfile();
+
+  if (section === 'baseline') {
+    var w = parseFloat(document.getElementById('ed-weight').value);
+    var bf = parseFloat(document.getElementById('ed-bf').value);
+    var wakeChip = document.querySelector('[data-wake].sel-solid');
+    if (w && w > 0) p.weight = w;
+    if (bf && bf > 0) p.bodyFat = bf;
+    if (wakeChip) p.wakeTime = wakeChip.dataset.wake;
+
+  } else if (section === 'nutrition') {
+    var cal = parseInt(document.getElementById('ed-calories').value);
+    var pro = parseInt(document.getElementById('ed-protein').value);
+    var carb = parseInt(document.getElementById('ed-carbs').value);
+    var fat = parseInt(document.getElementById('ed-fat').value);
+    if (cal > 0) p.calories = cal;
+    if (pro > 0) p.protein = pro;
+    if (carb > 0) p.carbs = carb;
+    if (fat > 0) p.fat = fat;
+
+  } else if (section === 'training') {
+    var daysChip = document.querySelector('[data-days].sel-solid');
+    var sleepChip = document.querySelector('[data-sleep].sel-solid');
+    var alcChip = document.querySelector('[data-alcohol].sel-solid');
+    if (daysChip) p.trainingDays = parseInt(daysChip.dataset.days);
+    if (sleepChip) p.sleep = sleepChip.dataset.sleep;
+    if (alcChip) p.alcoholHabit = alcChip.dataset.alcohol;
+
+  } else if (section === 'goals') {
+    var goalChip = document.querySelector('[data-goal].sel-solid');
+    var target = document.getElementById('ed-target').value.trim();
+    if (goalChip) p.goal = goalChip.dataset.goal;
+    if (target) p.target = target;
+
+  } else if (section === 'health') {
+    // Conditions
+    var selConds = Array.from(document.querySelectorAll('[data-cond].sel')).map(c => c.dataset.cond);
+    p.healthConditions = selConds;
+    // Injuries
+    var selInj = Array.from(document.querySelectorAll('[data-inj].sel')).map(c => c.dataset.inj);
+    p.injuries = selInj;
+    var injDetail = document.getElementById('ed-inj-detail').value.trim();
+    if (injDetail) p.injuryDetail = injDetail;
+    // Hormonal
+    var horChip = document.querySelector('[data-hormonal].sel-solid');
+    if (horChip) {
+      p.menstrualCycle = horChip.dataset.hormonal;
+      p.hormonalStatus = horChip.dataset.hormonal;
     }
-  } catch(e){}
-})();
+  }
+
+  saveProfile(p);
+  closeEdit();
+  render(loadProfile());
+  flashSaved();
+}
+
+function flashSaved() {
+  var el = document.getElementById('edit-saved-flash');
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 1800);
+}
 </script>
 </body>
 </html>
