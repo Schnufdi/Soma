@@ -118,6 +118,43 @@ body { background: var(--ink); color: var(--dk-1); }
 .dl-filter-btn { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 6px 12px; border-radius: 16px; border: 1px solid var(--bd); background: transparent; color: var(--dk-3); cursor: pointer; font-family: var(--sans); transition: all .12s; }
 .dl-filter-btn.active { border-color: var(--jade); color: var(--jade); background: rgba(0,200,160,.06); }
 .dl-filter-btn:hover { border-color: rgba(255,255,255,.2); color: var(--dk-2); }
+
+/* Manual log form */
+.ml-toggle { display: flex; align-items: center; gap: 8px; background: none; border: 1px solid var(--bd); color: var(--dk-3); font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-bottom: 28px; transition: all .12s; }
+.ml-toggle:hover { border-color: rgba(0,200,160,.4); color: var(--jade); }
+.ml-toggle .ml-toggle-icon { font-size: 14px; font-weight: 300; line-height: 1; }
+.ml-form { background: var(--ink-2); border: 1px solid var(--bd); border-top: 2px solid rgba(255,255,255,.12); border-radius: 10px; padding: 24px; margin-bottom: 28px; display: none; }
+.ml-form.open { display: block; }
+.ml-form-title { font-family: var(--serif); font-size: 18px; font-weight: 300; color: var(--dk-1); margin-bottom: 20px; }
+.ml-field { margin-bottom: 14px; }
+.ml-label { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--dk-3); margin-bottom: 6px; }
+.ml-input, .ml-textarea, .ml-select {
+  width: 100%; background: var(--ink-3); border: 1px solid var(--bd); border-radius: 6px;
+  padding: 10px 13px; font-size: 13px; font-weight: 300; font-family: var(--sans);
+  color: var(--dk-1); transition: border-color .12s;
+}
+.ml-input::placeholder, .ml-textarea::placeholder { color: var(--dk-4); }
+.ml-input:focus, .ml-textarea:focus, .ml-select:focus { outline: none; border-color: rgba(0,200,160,.4); }
+.ml-textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
+.ml-select { cursor: pointer; }
+.ml-select option { background: #141c1a; }
+.ml-fields-section { margin-bottom: 14px; }
+.ml-fields-label { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--dk-4); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.ml-fields-label::after { content: 'optional'; font-size: 8px; font-weight: 400; letter-spacing: .06em; text-transform: none; color: var(--dk-4); opacity: .6; }
+.ml-field-rows { display: flex; flex-direction: column; gap: 6px; }
+.ml-field-row { display: grid; grid-template-columns: 1fr 1fr 1fr 28px; gap: 6px; align-items: center; }
+.ml-field-row input { background: var(--ink-3); border: 1px solid var(--bd); border-radius: 5px; padding: 7px 10px; font-size: 12px; font-weight: 300; font-family: var(--sans); color: var(--dk-1); }
+.ml-field-row input:focus { outline: none; border-color: rgba(0,200,160,.3); }
+.ml-field-row input::placeholder { color: var(--dk-4); }
+.ml-remove-row { background: none; border: 1px solid var(--bd); border-radius: 4px; color: var(--dk-4); font-size: 14px; cursor: pointer; width: 28px; height: 32px; display: flex; align-items: center; justify-content: center; transition: all .12s; }
+.ml-remove-row:hover { border-color: rgba(220,80,60,.4); color: rgba(220,80,60,.7); }
+.ml-add-field { background: none; border: 1px dashed var(--bd); border-radius: 5px; color: var(--dk-3); font-size: 11px; font-weight: 500; font-family: var(--sans); padding: 7px 14px; cursor: pointer; margin-top: 6px; transition: all .12s; width: 100%; text-align: left; }
+.ml-add-field:hover { border-color: rgba(0,200,160,.3); color: var(--jade); }
+.ml-actions { display: flex; gap: 10px; margin-top: 20px; }
+.ml-submit { flex: 1; background: var(--jade); color: #0c1010; font-family: var(--sans); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 13px 20px; border: none; border-radius: 7px; cursor: pointer; transition: opacity .12s; }
+.ml-submit:hover { opacity: .88; }
+.ml-cancel { background: none; border: 1px solid var(--bd); color: var(--dk-3); font-family: var(--sans); font-size: 11px; font-weight: 600; padding: 13px 18px; border-radius: 7px; cursor: pointer; transition: all .12s; }
+.ml-cancel:hover { border-color: rgba(255,255,255,.2); color: var(--dk-2); }
 </style>
 </head>
 <body>
@@ -128,6 +165,41 @@ body { background: var(--ink); color: var(--dk-1); }
     <div class="dl-title">Decision<br><em>log.</em></div>
     <div class="dl-sub">Every change proposed, applied, or dismissed. Full before/after record. Nothing hidden.</div>
   </div>
+  <!-- Manual log entry -->
+  <button class="ml-toggle" onclick="toggleManualForm()">
+    <span class="ml-toggle-icon">+</span> Log a decision manually
+  </button>
+  <div class="ml-form" id="ml-form">
+    <div class="ml-form-title">Log a decision</div>
+    <div class="ml-field">
+      <div class="ml-label">What was decided? *</div>
+      <input id="ml-title" class="ml-input" type="text" placeholder="e.g. Added magnesium glycinate 400mg before bed · Moved leg day to Thursday · Cut alcohol for 30 days">
+    </div>
+    <div class="ml-field">
+      <div class="ml-label">Why? (context / rationale)</div>
+      <textarea id="ml-context" class="ml-textarea" placeholder="e.g. Sleep has been poor for 2 weeks. Trying magnesium before addressing other variables first."></textarea>
+    </div>
+    <div class="ml-field">
+      <div class="ml-label">Category</div>
+      <select id="ml-source" class="ml-select">
+        <option value="manual">Manual</option>
+        <option value="programme">Programme</option>
+        <option value="coach">Coach</option>
+        <option value="goals">Goals</option>
+        <option value="reconciliation">Reconciliation</option>
+      </select>
+    </div>
+    <div class="ml-fields-section">
+      <div class="ml-fields-label">Before / After fields</div>
+      <div class="ml-field-rows" id="ml-field-rows"></div>
+      <button class="ml-add-field" onclick="addFieldRow()">+ Add a before / after field</button>
+    </div>
+    <div class="ml-actions">
+      <button class="ml-submit" onclick="submitManualLog()">Log it →</button>
+      <button class="ml-cancel" onclick="toggleManualForm()">Cancel</button>
+    </div>
+  </div>
+
   <div id="main-content">
     <div style="text-align:center;padding:60px 0;color:var(--dk-3);">Loading…</div>
   </div>
@@ -308,6 +380,97 @@ function renderPage() {
 function setFilter(f) {
   _activeFilter = f;
   renderPage();
+}
+
+// ── Manual log entry ─────────────────────────────────────────────────────────
+
+function toggleManualForm() {
+  var form = document.getElementById('ml-form');
+  var isOpen = form.classList.toggle('open');
+  if (isOpen) {
+    document.getElementById('ml-title').focus();
+  } else {
+    resetManualForm();
+  }
+}
+
+function resetManualForm() {
+  document.getElementById('ml-title').value = '';
+  document.getElementById('ml-context').value = '';
+  document.getElementById('ml-source').value = 'manual';
+  document.getElementById('ml-field-rows').innerHTML = '';
+}
+
+function addFieldRow() {
+  var container = document.getElementById('ml-field-rows');
+  var idx = container.children.length;
+  var row = document.createElement('div');
+  row.className = 'ml-field-row';
+  row.innerHTML =
+    '<input type="text" placeholder="Field name" data-role="field">'
+    + '<input type="text" placeholder="Before" data-role="before">'
+    + '<input type="text" placeholder="After" data-role="after">'
+    + '<button class="ml-remove-row" onclick="this.parentElement.remove()">×</button>';
+  container.appendChild(row);
+  row.querySelector('[data-role="field"]').focus();
+}
+
+function submitManualLog() {
+  var title = (document.getElementById('ml-title').value || '').trim();
+  if (!title) {
+    document.getElementById('ml-title').focus();
+    document.getElementById('ml-title').style.borderColor = 'rgba(220,80,60,.6)';
+    setTimeout(function(){ document.getElementById('ml-title').style.borderColor = ''; }, 1500);
+    return;
+  }
+
+  var context = (document.getElementById('ml-context').value || '').trim();
+  var source  = document.getElementById('ml-source').value || 'manual';
+
+  // Collect before/after field rows
+  var changes = [];
+  document.querySelectorAll('#ml-field-rows .ml-field-row').forEach(function(row) {
+    var field  = (row.querySelector('[data-role="field"]').value  || '').trim();
+    var before = (row.querySelector('[data-role="before"]').value || '').trim();
+    var after  = (row.querySelector('[data-role="after"]').value  || '').trim();
+    if (field || before || after) {
+      changes.push({ field: field || 'note', label: field || 'Note', before: before || null, after: after || null });
+    }
+  });
+
+  // Write directly to log as a committed entry
+  var now = new Date();
+  var entry = {
+    id:      'prop_' + now.getTime() + '_' + Math.random().toString(36).slice(2, 5),
+    ts:      now.toISOString(),
+    date:    now.toISOString().slice(0, 10),
+    source:  source,
+    title:   title,
+    changes: changes,
+    context: context,
+    status:  'committed',
+  };
+
+  var log = blGetProposalLog();
+  log.push(entry);
+  blSaveProposalLog(log);
+
+  // Close form, refresh, flash confirmation
+  toggleManualForm();
+  renderPage();
+
+  // Brief flash on the first log entry that matches
+  setTimeout(function() {
+    var entries = document.querySelectorAll('.log-entry-title');
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].textContent.trim() === title) {
+        entries[i].closest('.log-entry').style.transition = 'background .3s';
+        entries[i].closest('.log-entry').style.background = 'rgba(0,200,160,.06)';
+        setTimeout(function(el){ el.style.background = ''; }, 1200, entries[i].closest('.log-entry'));
+        break;
+      }
+    }
+  }, 80);
 }
 
 // Boot
