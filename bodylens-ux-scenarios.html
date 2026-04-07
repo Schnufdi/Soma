@@ -114,10 +114,10 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="h-title">Does Soma<br><em>hold up?</em></div>
   <div class="h-sub">20 real user scenarios traced through the code — what the user does, what the system actually does, what's broken, and what to build next.</div>
   <div class="score-strip">
-    <div class="sc"><div class="sc-val green">12</div><div class="sc-label">Full pass</div></div>
+    <div class="sc"><div class="sc-val green">14</div><div class="sc-label">Full pass</div></div>
     <div class="sc"><div class="sc-val amber">4</div><div class="sc-label">Partial</div></div>
-    <div class="sc"><div class="sc-val red">4</div><div class="sc-label">Not built</div></div>
-    <div class="sc"><div class="sc-val amber">3</div><div class="sc-label">Gaps that cause churn</div></div>
+    <div class="sc"><div class="sc-val red">2</div><div class="sc-label">Not built</div></div>
+    <div class="sc"><div class="sc-val amber">2</div><div class="sc-label">Gaps that cause churn</div></div>
     <div class="sc"><div class="sc-val red">1</div><div class="sc-label">Zero-click fails</div></div>
   </div>
 </div>
@@ -217,18 +217,18 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="scenarios">
 
     <!-- N1 -->
-    <div class="sc-card partial">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">05</div>
         <div><div class="sc-title">Ate something completely different for lunch</div><div class="sc-title-sub">Log actual food vs planned meal</div></div>
-        <span class="sc-badge badge-partial">Partial</span>
+        <span class="sc-badge badge-pass">Full pass</span>
       </div>
       <div class="sc-body">
         <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Plan said chicken and rice. I had a burrito at a work lunch. I want to log what I actually ate so macros stay accurate.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Tap the ~ (swap) button on the lunch block. A text field appears. They type "chicken burrito — approx 650 kcal, 35g protein." This is saved to the day log. Alternatively, open the voice guided log and describe the meal by voice.</div></div>
-        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Logs the swap text, doesn't parse macros.</strong> <code>dpSaveSwap()</code> stores the free-text note. The macro tracker doesn't update — the protein bar still shows the planned value. The coach review at end of day will read the swap note, but the live macro display remains wrong.</div></div>
-        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">They logged something but the numbers don't change. Feels incomplete. The macro bar's inaccuracy makes the whole tracking loop less trustworthy.</div></div>
-        <div class="gap-box"><div class="gap-label red">Critical gap</div>The swap logs text but doesn't update macros. To update macros, the user must go to the manual macro entry (if it exists) separately. These two flows are disconnected. The swap note should trigger a macro re-estimate — even a rough one from Claude ("estimated 35g protein from your note").</div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Tap the ~ (swap) button on the lunch block. A text field appears. They type "chicken burrito — approx 650 kcal, 35g protein." As they type, the system parses the nutrition values in real time. A jade chip appears below the input confirming what was extracted. The macro bar updates immediately.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works fully.</strong> <code>_parseSwapMacros()</code> extracts kcal, protein, carbs, and fat from natural-language text ("650 kcal", "35g protein", "20g fat", etc.). If the block has a <code>mealSlot</code>, <code>logMealMacros(slot, {...})</code> is called directly — the protein bar and calorie display update live. A parsed macro chip below the input confirms what was extracted and says "→ macro bar updated". Ad-hoc food (no slot) writes to <code>MACROS.meals['swap_N']</code> and recalculates <code>MACROS.eaten</code>. The day log and Supabase sync both reflect the actual consumed values.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val partial">Voice-guided log still has a separate flow — the voice debrief extracts nutrition from conversation and commits structured data, but it doesn't automatically trigger the same macro bar update mid-day (it's a day-close action). Minor disconnect.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>The placeholder text on the swap input now reads "e.g. burrito ~650 kcal, 35g protein" — making the expected format explicit. Any reasonable nutrition phrasing works: "approx 35g protein", "protein: 40g", "35 grams protein". Estimated kcal is calculated from macros if not explicitly stated.</div>
       </div>
     </div>
 
@@ -265,18 +265,18 @@ body { background:var(--ink); color:var(--dk-1); }
     </div>
 
     <!-- N4 -->
-    <div class="sc-card fail">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">08</div>
         <div><div class="sc-title">IBS flare-up today — does the meal plan adapt?</div><div class="sc-title-sub">Health condition — acute episode, real-time plan change</div></div>
-        <span class="sc-badge badge-fail">Not built</span>
+        <span class="sc-badge badge-pass">Full pass</span>
       </div>
       <div class="sc-body">
         <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I have IBS in my health profile. I'm having a bad gut day. I want today's meals to go low-FODMAP and training to be lower intensity.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">There is no "bad gut day" flag. The user opens SOS — there's no IBS-specific scenario. They could type "IBS flare today" in free text. Claude gives advice. The meal plan doesn't change. Today's training plan doesn't change.</div></div>
-        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>IBS exists in the risk classifier for general coaching, but there's no acute episode mode.</strong> Health conditions in the profile inform the weekly meal plan and coach system prompt, but don't create day-level overrides.</div></div>
-        <div class="sc-row"><div class="sc-row-label">Gap severity</div><div class="sc-row-val">High. Users with chronic conditions have bad days. If the app ignores those days, the plan becomes actively harmful (eating high-FODMAP on a flare day, doing HIIT when gut motility is elevated).</div></div>
-        <div class="gap-box"><div class="gap-label red">What to build</div>A "Today I'm…" status chip at the top of the daily plan: [Tired] [Sick] [Gut flare] [Sore] [Travelling] [Low energy]. Selecting one triggers a plan overlay that modifies today only — drops intensity, swaps high-FODMAP meals, adjusts timing. One tap, immediate adaptation. Session state, not profile state — resets tomorrow.</div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Opens the daily plan. In the mission header chip row, sees 🤢 Gut flare alongside Sick / Sore / Tired chips. Taps it. The chip activates immediately.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works fully.</strong> <code>dpToggleCondition('gut')</code> adds <code>'gut'</code> to <code>log.todayConditions[]</code> in the day log and calls <code>_reRenderFromCache()</code>. The plan re-renders from cache immediately — no API call. Every meal block gets a low-FODMAP banner listing what to avoid (garlic, onion, wheat, legumes, lactose) with specific safe-swap suggestions (rice, plain grilled protein, cooked carrots/courgette/spinach). The training block gets an RPE ≤ 6 banner recommending no heavy compound loading; if gut cramping occurs, 20 min light cardio + mobility only. The state is stored in the day log — resets tomorrow automatically with the new day log.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Also built</div><div class="sc-row-val">The same chip row provides: 🤒 Sick (no resistance work, 20-min walk only, bland food guidance), 🤕 Sore (load -20–30%, technique day framing, avoid same muscle groups), 😴 Tired (RPE -1–2, abbreviated session, main compound only). All chips are available on both training and rest days.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>Session state means no profile pollution — the flag lives in the day log only, clears tomorrow, and doesn't affect the profile's health conditions. The overlay is immediate (re-renders from cache, no API call) and reversible (tapping the chip again deactivates it). The sick and sore banners on training blocks give specific protocol guidance, not generic wellness advice.</div>
       </div>
     </div>
 
@@ -384,18 +384,18 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="scenarios">
 
     <!-- W1 -->
-    <div class="sc-card partial">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">14</div>
         <div><div class="sc-title">End of week — does Soma review and re-plan?</div><div class="sc-title-sub">Weekly reconciliation and adaptation loop</div></div>
-        <span class="sc-badge badge-partial">Partial</span>
+        <span class="sc-badge badge-pass">Full pass</span>
       </div>
       <div class="sc-body">
         <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">It's Sunday. I want to know how my week went, what patterns the system noticed, and how next week should differ.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val"><code>dp-reconcile.js</code> runs <code>checkAndRunReconciliation()</code> once per week (keyed by ISO week number). If 3+ days of logs exist, it sends a 7-day summary to Claude. Claude returns JSON with <code>weekRating</code>, <code>patterns[]</code>, <code>adaptations[]</code>, <code>nextWeekFocus</code>. This is saved to <code>bl_profile.weeklyAdaptation</code> and displayed as a coaching card.</div></div>
-        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Analysis works, adaptation doesn't auto-apply.</strong> The reconciliation generates genuinely useful insights — "You consistently undertrain on Thursdays", "Energy is low Tuesdays after Monday night alcohol." But the adaptations (e.g., move Thursday to Friday, reduce volume week 3) are <em>advisory text only</em>. The user must manually edit remaining days, which most won't.</div></div>
-        <div class="sc-row"><div class="sc-row-label">Gap severity</div><div class="sc-row-val fail">This is the core intelligent feedback loop of the product. It exists as analysis but not as action. The difference between Soma being a sophisticated plan display and a genuinely adaptive system lives here.</div></div>
-        <div class="gap-box"><div class="gap-label red">What to build</div>"Apply these adaptations to next week?" — a single confirm button that takes the <code>adaptations[]</code> JSON from the reconciliation result and writes them as week overrides. This is the highest-leverage unbuilt feature in the entire product. The AI already produces the right output — it just isn't being applied.</div>
+        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val"><code>dp-reconcile.js</code> v2 runs <code>checkAndRunReconciliation()</code> once per week. Reads last 7 day logs with RPE, energy, sleep, and completion + 4 weeks of compressed history from <code>behaviourMemory.weekSummaries</code> + full strength record from <code>bl_ex_weights</code>. Claude returns JSON with <code>weekRating</code>, <code>patterns[]</code>, <code>adaptations[]</code> with typed structured actions, <code>nextWeekFocus</code>, <code>coachNote</code>.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Analysis and application both work.</strong> Each adaptation carries a typed action schema: <code>swap_days</code>, <code>add_rest</code>, <code>set_intensity</code>, <code>set_volume</code>, <code>set_protein</code>, <code>set_calories</code>, or <code>note_only</code>. The reconciliation card shows an <strong>"Apply N adaptations to next week →"</strong> jade button for auto-applicable actions. Tapping opens a confirmation modal with a before/after diff. <code>applyWeeklyAdaptations()</code> executes typed operations against the week override system — writing to next week's override key specifically so the current week is never affected. Profile changes (intensity, volume, macros) persist to Supabase via the profile sync interceptor.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What's good</div><div class="sc-row-val">Cost: ~$0.03/week per user. The multi-week context (4 weeks of compressed history) enables genuine pattern detection across training blocks — not just last week. The force-run button bypasses the ISO-week gate for testing. Adaptations applied are recorded in <code>programmeAdaptations.appliedChanges</code> for auditability.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>The structured action schema means the AI output is machine-executable, not advisory text. The "note_only" action type allows Claude to communicate observations that don't map to a code change — these still surface in the coaching card. The confirmation modal prevents accidental application and shows exactly what will change.</div>
       </div>
     </div>
 
@@ -432,17 +432,18 @@ body { background:var(--ink); color:var(--dk-1); }
     </div>
 
     <!-- W4 -->
-    <div class="sc-card fail">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">17</div>
         <div><div class="sc-title">6 weeks in, I feel like I need a deload</div><div class="sc-title-sub">User-triggered deload week</div></div>
-        <span class="sc-badge badge-fail">Not built</span>
+        <span class="sc-badge badge-pass">Full pass</span>
       </div>
       <div class="sc-body">
         <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I've trained hard for 6 weeks. Everything aches. I want Soma to give me a deload week — reduced volume, same frequency, active recovery focus.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">There's no deload trigger. Week 4 of the generated programme is a deload phase, but once the 4-week block ends there's no continuation logic. The system doesn't auto-detect overtraining from accumulated fatigue scores. The user opens SOS or asks the coach — gets advice — but can't click "give me a deload week" and have it happen.</div></div>
-        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>Not implemented.</strong> Deload is mentioned in reconciliation advice text, but there's no mechanism to apply it. The user is left reading advice and having to either manually log every session as "lighter" or restart their programme.</div></div>
-        <div class="gap-box"><div class="gap-label red">What to build</div>A "Request deload week" button in the week banner or session editor. When triggered: (1) fetches today's week plan, (2) generates a deload version via API (50–60% volume, same exercise pattern, RPE 6 max), (3) writes as week overrides for the remaining days. Resets automatically the following Monday. The reconciliation already suggests deload when warranted — the missing piece is the one-tap application.</div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Opens the daily plan. In the mission header chip row, sees ⟳ Deload week chip. Taps it. A bottom-sheet confirmation modal appears explaining what will change and when it expires.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works fully.</strong> Confirmation modal shows: "50–60% of normal volume · RPE ≤ 6 — leave 3–4 reps in reserve · session editor defaults updated · expires [next Monday date]." On confirm, <code>applyDeloadWeek()</code> sets <code>programmeAdaptations.{deloadWeek: true, deloadUntil: [next Monday], intensityScheme: 'beginner', volumeDelta: -2}</code>, writes to the profile (Supabase sync fires), and busts the plan cache for all 7 days of the week. Plans regenerate with reduced intensity and volume already wired into the session editor defaults. A deload banner appears in the mission header and inside the training block detail. The chip shows "✓ Deload active" with an End button.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Auto-expiry</div><div class="sc-row-val"><code>_checkDeloadExpiry()</code> runs on every page load. When <code>deloadUntil ≤ today</code>, all deload flags are cleared from the profile automatically. No manual cleanup needed Monday morning — the user just opens the app and they're back on full training.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>No API call needed — the deload settings flow through the existing <code>programmeAdaptations</code> infrastructure already wired into <code>openSessionEditor()</code> and <code>dp-plan.js</code> coach notes. The End button lets users cancel early if they feel recovered. The expiry date is shown explicitly in both the confirmation modal and the active banner — no ambiguity about when full training resumes.</div>
       </div>
     </div>
 
@@ -523,19 +524,19 @@ body { background:var(--ink); color:var(--dk-1); }
       <tr><td class="hl">02</td><td>Shoulder sore — swap specific exercise</td><td class="a">Partial</td><td>Low (workaround exists)</td></tr>
       <tr><td class="hl">03</td><td>Travelling — need bodyweight session</td><td class="g">Full pass</td><td>Low — travel mode built, bodyweight session injected into plan</td></tr>
       <tr><td class="hl">04</td><td>Only 30 minutes — condense session</td><td class="g">Full pass</td><td>Low — time selector + contextual chip built</td></tr>
-      <tr><td class="hl">05</td><td>Ate differently — log actual vs planned</td><td class="a">Partial</td><td>Medium — macro inaccuracy erodes trust</td></tr>
+      <tr><td class="hl">05</td><td>Ate differently — log actual vs planned</td><td class="g">Full pass</td><td>Low — swap macro parsing updates bar live</td></tr>
       <tr><td class="hl">06</td><td>80g short on protein at 6pm</td><td class="a">Partial</td><td>Low (manual workaround exists)</td></tr>
       <tr><td class="hl">07</td><td>Ran out of supplement — pause it</td><td class="r">Not built</td><td>Medium — daily friction, score corruption</td></tr>
-      <tr><td class="hl">08</td><td>IBS flare today — plan adapt</td><td class="r">Not built</td><td class="r">High — condition-specific users have bad days</td></tr>
+      <tr><td class="hl">08</td><td>IBS flare today — plan adapt</td><td class="g">Full pass</td><td>Low — Gut flare chip + low-FODMAP banners built</td></tr>
       <tr><td class="hl">09</td><td>Terrible sleep — should training change?</td><td class="g">Full pass</td><td>Low — sleep banner + one-tap intensity reduction built</td></tr>
       <tr><td class="hl">10</td><td>End of day — close the loop</td><td class="g">Full pass</td><td>Low (works, discovery issue only)</td></tr>
       <tr><td class="hl">11</td><td>Sharp pain mid-session — injury response</td><td class="a">Partial</td><td class="r">High — injury not persisted to profile</td></tr>
       <tr><td class="hl">12</td><td>Forgot to log yesterday</td><td class="g">Full pass</td><td>Low</td></tr>
       <tr><td class="hl">13</td><td>Why am I doing this exercise?</td><td class="g">Full pass</td><td>Low (works well)</td></tr>
-      <tr><td class="hl">14</td><td>End of week — review and re-plan</td><td class="a">Partial</td><td class="r">High — intelligence exists, action doesn't</td></tr>
+      <tr><td class="hl">14</td><td>End of week — review and re-plan</td><td class="g">Full pass</td><td>Low — reconciliation v2 with apply button built</td></tr>
       <tr><td class="hl">15</td><td>3 missed sessions this week</td><td class="g">Full pass</td><td>Low — salvage week mode built</td></tr>
       <tr><td class="hl">16</td><td>Great week — build on it next week</td><td class="g">Full pass</td><td>Low</td></tr>
-      <tr><td class="hl">17</td><td>6 weeks in — need a deload</td><td class="r">Not built</td><td>Medium — fatigue accumulation ignored</td></tr>
+      <tr><td class="hl">17</td><td>6 weeks in — need a deload</td><td class="g">Full pass</td><td>Low — deload week chip + auto-expiry built</td></tr>
       <tr><td class="hl">18</td><td>Day 29 — 4-week block ends</td><td class="r">Not built</td><td class="r">Critical — stale programme, no graduation moment</td></tr>
       <tr><td class="hl">19</td><td>New injury mid-programme</td><td class="a">Partial</td><td>Medium — profile update doesn't bust plan cache</td></tr>
       <tr><td class="hl">20</td><td>Goal change mid-programme</td><td class="a">Partial</td><td>Medium — macros don't recalculate</td></tr>
@@ -556,15 +557,15 @@ body { background:var(--ink); color:var(--dk-1); }
         <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">On <code>generatedAt + 28 days</code>: intercept page load, show achievement screen with 28-day data summary, prompt updated weight/check-in, generate new 4-week block using updated profile. Estimated build: 4–6 hours.</div></div>
       </div>
     </div>
-    <div class="sc-card fail">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">2</div>
-        <div><div class="sc-title">Apply weekly reconciliation adaptations</div><div class="sc-title-sub">The AI produces the right answer — it just doesn't apply it</div></div>
-        <span class="sc-badge badge-fail">Not wired</span>
+        <div><div class="sc-title">Apply weekly reconciliation adaptations</div><div class="sc-title-sub">The AI produces the right answer — and now applies it</div></div>
+        <span class="sc-badge badge-pass">Built ✓</span>
       </div>
       <div class="sc-body">
-        <div class="sc-row"><div class="sc-row-label">Why second</div><div class="sc-row-val">The reconciliation already generates structured <code>adaptations[]</code> JSON from Claude. A "Apply to next week?" confirm button is all that's needed to make Soma genuinely adaptive. Without it, the intelligence is invisible — users never see the system respond to their actual behaviour.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">Read <code>profile.weeklyAdaptation.adaptations[]</code>. For each adaptation, generate a week override. Show before/after comparison. One confirm. Estimated build: 2–3 hours.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Status</div><div class="sc-row-val pass"><strong>Shipped.</strong> <code>dp-reconcile.js</code> v2 returns structured typed actions from Claude. <code>applyWeeklyAdaptations()</code> executes: <code>swap_days</code> (reorders training days in next week's override), <code>add_rest</code> (injects a rest day), <code>set_intensity</code> (writes <code>programmeAdaptations.intensityScheme</code>), <code>set_volume</code> (writes <code>volumeDelta</code>), <code>set_protein</code>/<code>set_calories</code> (updates profile macros). Confirmation modal with before/after diff. "Apply N adaptations" jade button. Applied changes recorded in <code>programmeAdaptations.appliedChanges</code>.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What this closes</div><div class="sc-row-val">The core gap between Soma as analysis tool and Soma as adaptive system. The weekly reconciliation now closes the full loop: data captured → patterns detected → adaptations generated → adaptations applied → next week changes.</div></div>
       </div>
     </div>
     <div class="sc-card pass">
@@ -578,16 +579,16 @@ body { background:var(--ink); color:var(--dk-1); }
         <div class="sc-row"><div class="sc-row-label">What it enables</div><div class="sc-row-val">Sleep is now logged in 3 places (EOD section, 8pm evening prompt bar, day-close card) to maximise data availability for the next morning's check.</div></div>
       </div>
     </div>
-    <div class="sc-card partial">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">4</div>
-        <div><div class="sc-title">Travel mode / Today I'm… status chips</div><div class="sc-title-sub">Covers travelling and time-short — IBS, sick, sore still outstanding</div></div>
-        <span class="sc-badge badge-partial">Partial — 2 of 5 chips built</span>
+        <div><div class="sc-title">Travel mode / Today I'm… status chips</div><div class="sc-title-sub">All 6 chips live — Travel, Short on time, Gut flare, Sick, Sore, Tired + Deload week</div></div>
+        <span class="sc-badge badge-pass">Built ✓</span>
       </div>
       <div class="sc-body">
-        <div class="sc-row"><div class="sc-row-label">Built</div><div class="sc-row-val pass"><strong>Travelling</strong> — full travel mode with bodyweight session swap (S3 above). <strong>Short on time</strong> — time selector (30/45/60/90 min) + contextual "⏱ Short on time?" chip (S4 above).</div></div>
-        <div class="sc-row"><div class="sc-row-label">Not yet built</div><div class="sc-row-val fail"><strong>Gut flare</strong> (low-FODMAP meal swap), <strong>Tired / low energy</strong> (reduce intensity without requiring sleep data), <strong>Sore / DOMS</strong> (active recovery overlay). These three cover scenarios N4, and the edge cases where sleep data wasn't logged the night before.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What to build next</div><div class="sc-row-val">Add [Tired] [Gut flare] [Sore] chips to the mission header chip row. Each triggers a day-scoped override — clears at midnight. The travel and short-on-time architecture (day-scoped, chip-triggered, plan-mutating) is the right pattern — extend it to these 3 remaining states.</div></div>
+        <div class="sc-row"><div class="sc-row-label">All chips built</div><div class="sc-row-val pass"><strong>Travelling</strong> — bodyweight session swap. <strong>Short on time</strong> — time selector (30/45/60/90 min). <strong>🤢 Gut flare</strong> — low-FODMAP banner on meal blocks + RPE ≤ 6 on training block. <strong>🤒 Sick</strong> — no resistance work advisory. <strong>💙 Sore</strong> — load −20–30% advisory. <strong>😴 Tired</strong> — RPE −1–2 advisory. <strong>⟳ Deload week</strong> — week-scoped intensity drop with auto-expiry next Monday.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Architecture</div><div class="sc-row-val">Condition chips stored in <code>log.todayConditions[]</code> — day-scoped, resets at midnight. Deload stored in <code>p.programmeAdaptations.deloadWeek / deloadUntil</code> — week-scoped with auto-expiry check on every page load. All chip toggles call <code>_reRenderFromCache()</code> for instant re-render without API call.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Remaining gap</div><div class="sc-row-val amber">Profile change cache bust (Priority 5 below) still pending — profile edits don't currently invalidate cached plans.</div></div>
       </div>
     </div>
     <div class="sc-card partial">
