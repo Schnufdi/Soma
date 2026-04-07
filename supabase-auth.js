@@ -261,9 +261,10 @@ function updateNavUser(user) {
   var name = (user.user_metadata && user.user_metadata.full_name)
     ? user.user_metadata.full_name.split(' ')[0]
     : user.email.split('@')[0];
-  meta.innerHTML = '<span class="nav-user-btn" onclick="window.BL.showUserMenu()">'
+  meta.innerHTML = '<a class="nav-user-btn" href="/bodylens-profile.html">'
     + '<span class="nav-user-avatar">' + name[0].toUpperCase() + '</span>'
-    + name + '</span>';
+    + name + '</a>'
+    + '<button class="nav-user-chevron" onclick="window.BL.showUserMenu()" title="Account options">▾</button>';
 }
 
 function updateNavLoggedOut() {
@@ -384,10 +385,13 @@ function _showPreviewUnsavedWarning() {
 // Styles
 var style = document.createElement('style');
 style.textContent = [
-  '.nav-user-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;',
-  'border:1px solid var(--jade-br,rgba(0,196,160,0.2));border-radius:20px;',
-  'background:var(--jade-dim,rgba(0,196,160,0.06));cursor:pointer;',
+  '.nav-user-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 8px 4px 4px;',
+  'border:1px solid var(--jade-br,rgba(0,196,160,0.2));border-radius:20px 0 0 20px;',
+  'background:var(--jade-dim,rgba(0,196,160,0.06));text-decoration:none;',
   'font-size:12px;font-weight:600;color:var(--jade,#00c4a0);}',
+  '.nav-user-chevron{border:1px solid var(--jade-br,rgba(0,196,160,0.2));border-left:none;',
+  'border-radius:0 20px 20px 0;background:var(--jade-dim,rgba(0,196,160,0.06));',
+  'color:var(--jade,#00c4a0);font-size:10px;padding:4px 8px;cursor:pointer;line-height:1;}',
   '.nav-user-avatar{width:20px;height:20px;border-radius:50%;',
   'background:var(--jade,#00c4a0);color:#0c1010;display:flex;',
   'align-items:center;justify-content:center;font-size:10px;font-weight:700;}',

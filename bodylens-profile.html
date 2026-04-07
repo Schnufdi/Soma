@@ -223,6 +223,44 @@ function saveProfile(p) {
   localStorage.setItem('bl_profile', JSON.stringify(p));
 }
 
+// ── CHANGE TRACKING ───────────────────────────────────────
+var CHANGE_LABELS = {
+  weight:'Weight', bodyFat:'Body fat %', wakeTime:'Wake time',
+  calories:'Calories', protein:'Protein (g)', carbs:'Carbs (g)', fat:'Fat (g)',
+  trainingDays:'Training days/week', sleep:'Sleep', alcoholHabit:'Alcohol habit',
+  goal:'Goal', target:'Target',
+  stressLevel:'Stress level', energyPattern:'Energy pattern',
+  activityLevel:'Activity level', caffeineHabits:'Caffeine habits',
+  sleepQuality:'Sleep quality', bedtime:'Bedtime', dietHistory:'Diet history',
+  gymAccess:'Gym access', freeWeightComfort:'Free weight comfort',
+  trainingTime:'Training time', cookingApproach:'Cooking approach', triggerFoods:'Trigger foods',
+};
+var CHANGE_ARRAY_LABELS = {
+  equipmentUsed:'Equipment used', cuisinePrefs:'Cuisine preferences',
+  healthConditions:'Health conditions', injuries:'Injuries', nonNegotiables:'Non-negotiables',
+};
+function recordChanges(oldP, newP) {
+  var changes = [];
+  var ts = new Date().toISOString();
+  Object.keys(CHANGE_LABELS).forEach(function(field) {
+    var o = oldP[field] != null ? String(oldP[field]) : '';
+    var n = newP[field] != null ? String(newP[field]) : '';
+    if (o !== n && n) changes.push({ field:field, label:CHANGE_LABELS[field], old:o||'—', 'new':n, ts:ts });
+  });
+  Object.keys(CHANGE_ARRAY_LABELS).forEach(function(field) {
+    var o = (oldP[field]||[]).join(', ') || '—';
+    var n = (newP[field]||[]).join(', ') || '—';
+    if (o !== n) changes.push({ field:field, label:CHANGE_ARRAY_LABELS[field], old:o, 'new':n, ts:ts });
+  });
+  if (!changes.length) return;
+  var existing = [];
+  try { existing = JSON.parse(localStorage.getItem('bl_profile_changes')||'[]'); } catch(e) {}
+  var byField = {};
+  existing.forEach(function(c) { byField[c.field] = c; });
+  changes.forEach(function(c) { byField[c.field] = c; });
+  localStorage.setItem('bl_profile_changes', JSON.stringify(Object.values(byField)));
+}
+
 var currentSection = null;
 
 const profile = loadProfile();
@@ -264,11 +302,32 @@ function render(p) {
       </div>
     </div>
 
-    <!-- Update note -->
-    <div style="background:rgba(200,148,30,0.04);border:1px solid rgba(200,148,30,0.18);border-radius:6px;padding:12px 18px;margin-bottom:28px;display:flex;align-items:baseline;gap:12px;">
-      <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);flex-shrink:0;">Profile data</span>
-      <span style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.6;">All onboarding inputs are shown below — edit any section as things change. Updates save instantly but don't regenerate your programme automatically. Tell your AI coach about significant changes (new injury, goal shift, big lifestyle change) and it will adapt recommendations accordingly.</span>
-    </div>
+    <!-- Update note / pending changes -->
+    ${(function(){
+      var _pc = [];
+      try { _pc = JSON.parse(localStorage.getItem('bl_profile_changes')||'[]'); } catch(e) {}
+      if (_pc.length) {
+        var rows = _pc.map(function(c){
+          return '<div style="display:flex;gap:12px;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(0,200,160,0.08);">'
+            +'<span style="font-size:11px;font-weight:600;color:var(--dk-2);min-width:140px;flex-shrink:0;">'+c.label+'</span>'
+            +'<span style="font-size:11px;color:var(--dk-3);text-decoration:line-through;flex-shrink:0;">'+c.old+'</span>'
+            +'<span style="font-size:11px;color:var(--dk-3);">→</span>'
+            +'<span style="font-size:11px;font-weight:500;color:var(--jade);">'+c['new']+'</span>'
+            +'</div>';
+        }).join('');
+        return '<div style="background:rgba(0,200,160,0.03);border:1px solid var(--jade-br);border-radius:6px;padding:14px 18px;margin-bottom:20px;">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+          +'<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--jade);">⚡ '+_pc.length+' update'+ (_pc.length>1?'s':'')+' since last programme</span>'
+          +'<a href="/bodylens-regen.html" style="font-size:11px;font-weight:600;color:var(--jade);text-decoration:none;border:1px solid var(--jade-br);padding:4px 12px;border-radius:4px;">Review & regenerate →</a>'
+          +'</div>'
+          +rows
+          +'</div>';
+      }
+      return '<div style="background:rgba(200,148,30,0.04);border:1px solid rgba(200,148,30,0.18);border-radius:6px;padding:12px 18px;margin-bottom:28px;display:flex;align-items:baseline;gap:12px;">'
+        +'<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);flex-shrink:0;">Profile data</span>'
+        +'<span style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.6;">All onboarding inputs are shown below. Edit any section as things change — updates save instantly. To apply changes to your programme use <a href="/bodylens-regen.html" style="color:var(--jade);">Regenerate programme</a>.</span>'
+        +'</div>';
+    })()}
 
     <!-- Benchmarks -->
     <div class="prof-benchmarks" style="margin-bottom:32px;">
@@ -694,6 +753,7 @@ function toggleChip(el) {
 
 function saveEdit(section) {
   var p = loadProfile();
+  var _snap = JSON.parse(JSON.stringify(p)); // snapshot before edits
 
   if (section === 'baseline') {
     var w = parseFloat(document.getElementById('ed-weight').value);
@@ -774,6 +834,7 @@ function saveEdit(section) {
     }
   }
 
+  recordChanges(_snap, p);
   saveProfile(p);
   closeEdit();
   render(loadProfile());
