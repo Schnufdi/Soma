@@ -9369,6 +9369,74 @@ function renderSosResult(result, situation) {
   panel.innerHTML = '<div style="font-size:13px;font-weight:300;color:var(--dk-2);line-height:1.75;">' + (result.response || result) + '</div>';
 }
 
+// ════════════════════════════════════════════════════════════════
+// SLEEP-ADAPTIVE INTENSITY — reads yesterday's sleep, offers one-tap reduction
+// ════════════════════════════════════════════════════════════════
+
+function checkSleepIntensityBanner() {
+  if (!TODAY || !TODAY.isTraining) return;
+
+  // Only show once per day
+  var seenKey = 'bl_sleep_banner_' + _rDate;
+  if (localStorage.getItem(seenKey)) return;
+
+  // Don't show if intensity already reduced today
+  var todayLog = loadDayLog(_rDate) || {};
+  if (todayLog.sessionEditor && todayLog.sessionEditor.intensity === 'beginner') return;
+
+  // Read yesterday's sleep log
+  var yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  var yDate = yesterday.toISOString().slice(0, 10);
+  var yLog = {};
+  try { yLog = JSON.parse(localStorage.getItem('bl_daylog_' + yDate) || '{}'); } catch(e) {}
+
+  var sleep = parseFloat(yLog.sleepActual) || 0;
+  if (!sleep || sleep >= 6) return;
+
+  var sleepLabel = sleep % 1 === 0 ? sleep + 'h' : sleep.toFixed(1) + 'h';
+
+  var root = document.getElementById('day-root');
+  if (!root) return;
+
+  var wrap = document.createElement('div');
+  wrap.id = 'bl-sleep-banner';
+  wrap.style.cssText = 'max-width:640px;margin:0 auto 0;padding:0 16px 16px;';
+  wrap.innerHTML = ''
+    + '<div style="background:var(--ink-1);border:1px solid rgba(245,158,11,.22);border-left:3px solid var(--amber);border-radius:10px;padding:14px 16px;">'
+      + '<div style="display:flex;align-items:flex-start;gap:12px;">'
+        + '<div style="flex:1;">'
+          + '<div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;">&#128164; ' + sleepLabel + ' sleep logged last night</div>'
+          + '<div style="font-size:12px;font-weight:300;color:var(--dk-2);line-height:1.7;margin-bottom:12px;">'
+            + 'Training at full intensity on ' + sleepLabel + ' sleep elevates cortisol and blunts muscle protein synthesis. '
+            + 'A Foundation session today protects your adaptation — you\'ll still make progress, and you\'ll recover faster.'
+          + '</div>'
+          + '<button onclick="applySleepIntensityReduction()" style="background:var(--amber);border:none;color:var(--ink);border-radius:8px;padding:9px 16px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);">Reduce to Foundation intensity &#8594;</button>'
+        + '</div>'
+        + '<button onclick="dismissSleepBanner()" style="background:none;border:none;color:var(--dk-3);cursor:pointer;font-size:20px;padding:0;flex-shrink:0;line-height:1;margin-top:-2px;">&#215;</button>'
+      + '</div>'
+    + '</div>';
+
+  root.insertBefore(wrap, root.firstChild);
+}
+
+function applySleepIntensityReduction() {
+  var trainIdx = -1;
+  (window._blocks || []).forEach(function(b, i) { if (b.type === 'training') trainIdx = i; });
+  if (trainIdx < 0) { dismissSleepBanner(); return; }
+
+  // Pre-set intensity to beginner then open editor so user can see and lock in
+  _seState.intensity = 'beginner';
+  openSessionEditor(trainIdx, window._blocks[trainIdx]);
+  dismissSleepBanner();
+}
+
+function dismissSleepBanner() {
+  try { localStorage.setItem('bl_sleep_banner_' + _rDate, '1'); } catch(e) {}
+  var el = document.getElementById('bl-sleep-banner');
+  if (el) el.remove();
+}
+
 function buildDay(){
   var root = document.getElementById('day-root');
   root.innerHTML = '<div style="padding:60px 0;text-align:center;">'
@@ -9380,6 +9448,7 @@ function buildDay(){
     try { localStorage.setItem(TODAY.cacheKey, JSON.stringify(plan)); } catch(e){}
     renderPlan(plan);
     renderRecentChangeBanner(P);
+    checkSleepIntensityBanner();
     // ── Risk advisory banner (show once per day) ──────────
     if (typeof BL_RISK !== 'undefined') {
       var _seenKey = 'bl_risk_seen_' + new Date().toDateString();
