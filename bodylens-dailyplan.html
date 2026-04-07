@@ -1586,6 +1586,37 @@ body {
   font-size: 11px; font-weight: 300; color: var(--dk-3);
   line-height: 1.55; margin-top: 10px; opacity: .75;
 }
+.rm-comp-section { margin-top: 20px; }
+.rm-comp-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--dk-3); margin-bottom: 10px;
+}
+.rm-comp-chips { display: flex; flex-direction: column; gap: 7px; }
+.rm-comp-chip {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 11px 13px; border-radius: 11px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  cursor: pointer; transition: all .12s; text-align: left;
+}
+.rm-comp-chip:hover { border-color: rgba(255,255,255,.15); background: rgba(255,255,255,.06); }
+.rm-comp-chip.sel {
+  border-color: var(--jade); background: rgba(0,200,160,.08);
+}
+.rm-comp-chip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.rm-comp-chip-body { flex: 1; }
+.rm-comp-chip-name {
+  font-size: 13px; font-weight: 600; color: var(--dk-1);
+  letter-spacing: -.01em; line-height: 1.2; margin-bottom: 2px;
+}
+.rm-comp-chip.sel .rm-comp-chip-name { color: var(--jade); }
+.rm-comp-chip-desc {
+  font-size: 11px; font-weight: 300; color: var(--dk-3); line-height: 1.5;
+}
+.rm-comp-tick {
+  font-size: 12px; color: var(--jade); flex-shrink: 0;
+  opacity: 0; transition: opacity .12s; margin-top: 2px;
+}
+.rm-comp-chip.sel .rm-comp-tick { opacity: 1; }
 
 /* ── Travel mode ─────────────────────────────────────────────────── */
 .dp2-travel-chip {
@@ -7289,6 +7320,33 @@ function openRecoveryModal(missedSessions) {
       + '</div>'
     : '';
 
+  var SALVAGE_HACKS = [
+    { id: 'no-alcohol',   icon: '&#128683;', name: 'No alcohol this week',       desc: 'Alcohol suppresses muscle protein synthesis by up to 37%. Cutting it protects whatever adaptation you have left.' },
+    { id: 'protein-plus', icon: '&#129385;', name: '+20g protein per day',        desc: 'Extra protein buffers muscle loss on missed sessions. Target ' + ((p.protein||140) + 20) + 'g today and tomorrow.' },
+    { id: 'neat-walk',    icon: '&#127938;', name: '30-min walk on missed days',  desc: 'NEAT compensation. Replaces a chunk of the calorie burn and keeps your metabolism from dropping.' },
+    { id: 'sleep-8',      icon: '&#128164;', name: '8+ hours sleep tonight',      desc: 'Recovery happens during sleep — more sleep means more growth hormone and less muscle breakdown.' },
+    { id: 'cut-carbs',    icon: '&#128997;', name: 'Drop carbs on missed days',   desc: 'Without training, glycogen demand is low. Cutting carbs reduces the calorie surplus and limits fat gain.' },
+    { id: 'no-junk',      icon: '&#9989;',   name: 'Zero processed food today',   desc: 'Keeps inflammation low and insulin sensitivity high — so your next session gets a cleaner fuel environment.' },
+  ];
+
+  var compensationHtml = isSalvageMode
+    ? '<div class="rm-comp-section">'
+        + '<div class="rm-comp-label">Compensate with — pick what you\'ll actually do</div>'
+        + '<div class="rm-comp-chips">'
+          + SALVAGE_HACKS.map(function(h) {
+            return '<button class="rm-comp-chip" data-comp="' + h.id + '" onclick="rmToggleComp(this)">'
+              + '<div class="rm-comp-chip-icon">' + h.icon + '</div>'
+              + '<div class="rm-comp-chip-body">'
+                + '<div class="rm-comp-chip-name">' + h.name + '</div>'
+                + '<div class="rm-comp-chip-desc">' + h.desc + '</div>'
+              + '</div>'
+              + '<div class="rm-comp-tick">&#10003;</div>'
+            + '</button>';
+          }).join('')
+        + '</div>'
+      + '</div>'
+    : '';
+
   var salvageBannerHtml = isSalvageMode
     ? '<div class="rm-salvage-banner">'
         + '<div class="rm-salvage-banner-title">&#9889; Salvage mode</div>'
@@ -7314,6 +7372,7 @@ function openRecoveryModal(missedSessions) {
         + salvageBannerHtml
         + itemsHtml
         + writeOffHtml
+        + compensationHtml
         + '<div class="rm-skip-opt">'
           + '<button onclick="markAllSkippedAndClose()" class="rm-skip-btn">Mark all as missed and continue without rescheduling</button>'
         + '</div>'
@@ -7362,6 +7421,10 @@ function rmCheckConfirm() {
   if (btn) btn.disabled = !allSelected;
 }
 
+function rmToggleComp(btn) {
+  btn.classList.toggle('sel');
+}
+
 function quickRecoverToToday() {
   var p = P;
   if (!p) return;
@@ -7402,6 +7465,22 @@ function confirmRecovery() {
     log.trainNote = 'Missed — written off in salvage mode';
     try { localStorage.setItem('bl_daylog_' + dateStr, JSON.stringify(log)); } catch(e) {}
   });
+
+  // Save any selected compensation commitments to today's daylog
+  var selectedComps = [];
+  document.querySelectorAll('.rm-comp-chip.sel').forEach(function(el) {
+    var id = el.getAttribute('data-comp');
+    if (id) selectedComps.push(id);
+  });
+  if (selectedComps.length > 0) {
+    var todayLog = loadDayLog(_rDate) || initDayLog();
+    todayLog.salvageCommitments = {
+      selected: selectedComps,
+      missedCount: (window._rmMissedList || []).length + (window._rmWriteOffList || []).length,
+      lockedAt: new Date().toISOString(),
+    };
+    saveDayLog(_rDate, todayLog);
+  }
 
   closeRecoveryModal();
   location.reload();
