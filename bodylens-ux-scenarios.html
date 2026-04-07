@@ -114,11 +114,11 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="h-title">Does Soma<br><em>hold up?</em></div>
   <div class="h-sub">20 real user scenarios traced through the code — what the user does, what the system actually does, what's broken, and what to build next.</div>
   <div class="score-strip">
-    <div class="sc"><div class="sc-val green">8</div><div class="sc-label">Full pass</div></div>
-    <div class="sc"><div class="sc-val amber">6</div><div class="sc-label">Partial</div></div>
-    <div class="sc"><div class="sc-val red">6</div><div class="sc-label">Not built</div></div>
-    <div class="sc"><div class="sc-val amber">5</div><div class="sc-label">Gaps that cause churn</div></div>
-    <div class="sc"><div class="sc-val red">3</div><div class="sc-label">Zero-click fails</div></div>
+    <div class="sc"><div class="sc-val green">12</div><div class="sc-label">Full pass</div></div>
+    <div class="sc"><div class="sc-val amber">4</div><div class="sc-label">Partial</div></div>
+    <div class="sc"><div class="sc-val red">4</div><div class="sc-label">Not built</div></div>
+    <div class="sc"><div class="sc-val amber">3</div><div class="sc-label">Gaps that cause churn</div></div>
+    <div class="sc"><div class="sc-val red">1</div><div class="sc-label">Zero-click fails</div></div>
   </div>
 </div>
 </div>
@@ -173,34 +173,35 @@ body { background:var(--ink); color:var(--dk-1); }
     </div>
 
     <!-- S3 -->
-    <div class="sc-card fail">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">03</div>
         <div><div class="sc-title">Travelling — no gym, need a bodyweight session</div><div class="sc-title-sub">Plan needs to adapt to zero equipment</div></div>
-        <span class="sc-badge badge-fail">Not built</span>
+        <span class="sc-badge badge-pass">Full pass</span>
       </div>
       <div class="sc-body">
         <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">I'm in a hotel in Amsterdam. No gym. I still want to train. Give me a bodyweight session that maps to my programme.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Opens SOS. Selects "Travelling." Reads AI coaching advice. The response suggests a bodyweight circuit. The user reads the text but has to remember and execute it manually — the plan on screen still shows the gym session.</div></div>
-        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>No plan conversion.</strong> SOS gives read-only advice. Today's plan still shows barbell squats and deadlifts. No bodyweight alternative is generated or injected into the plan.</div></div>
-        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">User reads the advice, closes SOS, and is left staring at a plan they can't follow. They're likely to just skip it and feel like they failed — churn risk.</div></div>
-        <div class="gap-box"><div class="gap-label red">What to build</div>A "Travel mode" toggle: reads the user's training day type (push/pull/legs/full-body) and generates a bodyweight equivalent session via the API. Writes it as a week override for travel days. When travel mode ends, reverts. This is a 2-hour feature that prevents 3+ days of plan abandonment per trip.</div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Opens the daily plan on a training day. Sees the <strong>✈ Travelling? Swap to bodyweight →</strong> chip in the mission header. Taps it. A modal slides up showing the current session type and the bodyweight alternative. Taps "Confirm travel mode."</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works fully.</strong> <code>openTravelModal()</code> detects the session type (push/pull/posterior chain/upper/full body) and maps it to a curated bodyweight exercise set via <code>_travelBWWorkout()</code>. The training block is mutated in place — exercises, subtitle, coach note all replaced. The swap is persisted to <code>bl_daylog.travelMode</code> and to the plan cache. Original session is stored for restoration. Cancel mode fully reverts.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val partial">Travel mode is session-scoped: it modifies today's block but doesn't write a multi-day override (so tomorrow still shows the gym session). User must re-activate each day. Acceptable for a first pass.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>The chip is visible directly in the mission header on every training day — no hunt through settings. Cancel mode correctly restores the original exercises from the saved log data. The bodyweight alternatives are programme-type-aware (push day → press/dip/pike push-up, posterior chain → glute bridge/Nordic curl/back extension).</div>
+        <div class="gap-box amber"><div class="gap-label amber">What to improve next</div>Multi-day travel mode: a toggle that persists across days without needing to re-activate. And post-session: "Rate this bodyweight session" to build data on bodyweight tolerance for the reconciliation pass.</div>
       </div>
     </div>
 
     <!-- S4 -->
-    <div class="sc-card partial">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">04</div>
         <div><div class="sc-title">Only have 30 minutes — session is planned for 60</div><div class="sc-title-sub">Time-constrained day, need a condensed session</div></div>
-        <span class="sc-badge badge-partial">Partial</span>
+        <span class="sc-badge badge-pass">Full pass</span>
       </div>
       <div class="sc-body">
         <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Unexpected meeting. I can only do 30 minutes. What's the highest-value 30-minute version of today's session?</div></div>
-        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Options: (a) Open SOS and describe the situation — Claude responds with a condensed plan. (b) Open the Session Editor, reduce volume to 3 sets, which shortens the session. (c) Ask the coach directly in the chat.</div></div>
-        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Partially handled.</strong> The session editor can reduce volume and drop cardio, which shortens the workout. The SOS "free text" flow handles this well if the user thinks to use it. But there's no explicit "30-minute mode" — the user has to know which levers to pull.</div></div>
-        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val">Three different flows can help but none are labelled "short on time." Discovery is the problem.</div></div>
-        <div class="gap-box amber"><div class="gap-label amber">What to add</div>A time selector in the session editor ("How long do you have? 30 / 45 / 60 / 90 min"). Selecting 30min auto-sets volume to 3, removes cardio, and surfaces the top 3 compound lifts. One UI element, covers one of the most common real-world situations.</div>
+        <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Two paths: (a) Tap the <strong>⏱ Short on time?</strong> chip in the mission header — opens the session editor with the time selector scrolled to the top. (b) Open the session editor directly. At the top: time selector chips <strong>30 / 45 / 60 / 90 min</strong>.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works fully.</strong> Selecting 30 min auto-sets volume to 3, strips cardio, clears cardioDuration/kcal. 45 min sets volume 4 + no cardio. 60 min sets volume 5. 90 min sets volume 6. The contextual entry point (<code>openShortTimeFlow()</code>) is surfaced in the mission header only when the session isn't done — shows at the right moment, disappears once it's irrelevant.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val partial">Manual volume override still clears <code>timeBudget</code> — so if you pick 30 min then manually bump volume, the time-budget chip deselects (expected behaviour but slightly surprising). Minor edge case.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>The "Short on time?" chip is contextual — only appears when the session isn't yet done, so it's visible exactly when needed and gone when not. The time selector is the first element in the session editor body, so the user lands on it immediately via <code>openShortTimeFlow()</code>. No hunting.</div>
       </div>
     </div>
 
@@ -291,18 +292,19 @@ body { background:var(--ink); color:var(--dk-1); }
   <div class="scenarios">
 
     <!-- D1 -->
-    <div class="sc-card fail">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">09</div>
         <div><div class="sc-title">Terrible sleep last night — should today's training change?</div><div class="sc-title-sub">Sleep-adaptive programming</div></div>
-        <span class="sc-badge badge-fail">Not built</span>
+        <span class="sc-badge badge-pass">Full pass</span>
       </div>
       <div class="sc-body">
         <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Slept 4 hours. Feel terrible. My programme says heavy squats today. Should I still do it or should Soma adapt?</div></div>
-        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">The plan is identical to any other day. Sleep data from the previous night's debrief is stored in <code>bl_daylog_[YESTERDAY]</code>. It is NOT read by the plan builder. Today's session loads at full planned intensity.</div></div>
-        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val fail"><strong>Not implemented.</strong> Sleep quality is logged and the weekly reconciliation reads it for trend analysis, but there is zero logic that reads yesterday's sleep and reduces today's session intensity or volume.</div></div>
-        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">User does heavy squats on 4 hours of sleep. Either they push through (injury risk, poor output), or they skip it (plan vs actual gap grows). The app offered no guidance either way.</div></div>
-        <div class="gap-box"><div class="gap-label red">What to build</div>On page load, check yesterday's debrief for <code>sleepActual</code>. If below 6 hours: show a banner — "You logged [4.5h] sleep last night. Consider reducing today's intensity." One tap: "Reduce session" → drops to beginner intensity scheme automatically. No action needed if sleep was fine. This single feature makes Soma meaningfully adaptive rather than a static plan display.</div>
+        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">On page load, <code>checkSleepIntensityBanner()</code> reads <code>bl_daylog_[YESTERDAY].sleepActual</code>. If it's below 6 hours and today is a training day: an amber banner injects above the plan — <strong>"You logged [X]h sleep last night. Consider reducing today's intensity."</strong> One tap: <strong>"Reduce to Foundation intensity →"</strong></div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works fully.</strong> <code>applySleepIntensityReduction()</code> sets <code>_seState.intensity = 'beginner'</code> and opens the session editor pre-loaded with reduced intensity. Seen-key <code>bl_sleep_banner_[DATE]</code> ensures the banner only shows once per day. Skipped if intensity already reduced today. Sleep must be actively logged the previous day to trigger.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What's good</div><div class="sc-row-val">No other consumer health app does this — reads yesterday's logged sleep and surfaces an actionable offer the next morning. One tap delivers the adaptation. The banner is non-blocking: if the user ignores it, the rest of the plan loads normally.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>The data loop is coherent: sleep is logged in EOD card → read next morning → adaptation offered. Three sleep logging paths (EOD card, 8pm evening bar, day-close card) increase the likelihood that sleep data is actually captured.</div>
+        <div class="gap-box amber"><div class="gap-label amber">What to improve next</div>Trigger also on energy score ≤ 2 from the previous day's log, not just sleep hours. Sleep is the primary signal, but logged energy rounds it out for cases where sleep was 6h but quality was poor.</div>
       </div>
     </div>
 
@@ -349,8 +351,9 @@ body { background:var(--ink); color:var(--dk-1); }
       <div class="sc-body">
         <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">It's Tuesday morning. I forgot to log Monday's workout. Can I go back and log it so the weekly data is accurate?</div></div>
         <div class="sc-row"><div class="sc-row-label">What they do</div><div class="sc-row-val">Tap Monday's chip in the prog-banner. The plan shows Monday's session. The session editor, debrief, and logging buttons are all still functional on past days. They mark the session done and log their weights.</div></div>
-        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works.</strong> <code>VIEWING_DAY</code> is set to Monday's index. The plan renders Monday's content. Status buttons write to <code>bl_daylog_[MONDAY DATE]</code>. The weekly data is updated retroactively. Week banner recalculates to show the now-completed session.</div></div>
-        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val">The day chips are tiny — the main navigation issue. But for users who discover that the chips are tappable, retroactive logging works correctly end-to-end.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Works.</strong> <code>jumpDay(i)</code> calls <code>getDayCtx(p, i)</code> → <code>buildPlan(p, dayCtx)</code> → <code>renderPlan(plan, true)</code>. The browsed day's correct block structure renders (training vs rest, correct exercises). Status buttons write to <code>bl_daylog_[MONDAY DATE]</code>. The weekly data is updated retroactively.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Friction</div><div class="sc-row-val">The day chips are small — the main navigation discovery issue. But once tapped, browsing is reliable. A <strong>"← Back to today"</strong> button renders at the bottom of every browsed day for clear return navigation.</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">Fix applied</div>A silent regression had caused <code>renderPlan</code> to always use <code>TODAY.isTraining</code> instead of the browsed day's training flag — so browsing a training day from a rest day rendered the wrong act structure and the training blocks simply didn't appear. Fixed: <code>isTraining</code> is now derived from <code>!!trainBlock</code> (the actual plan content) when browsing. Log is also cleared to <code>{}</code> on browse so today's completion state doesn't bleed in.</div>
       </div>
     </div>
 
@@ -397,18 +400,19 @@ body { background:var(--ink); color:var(--dk-1); }
     </div>
 
     <!-- W2 -->
-    <div class="sc-card partial">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">15</div>
         <div><div class="sc-title">3 missed sessions this week — does the system flag?</div><div class="sc-title-sub">Compliance monitoring and intervention</div></div>
-        <span class="sc-badge badge-partial">Partial</span>
+        <span class="sc-badge badge-pass">Full pass</span>
       </div>
       <div class="sc-body">
         <div class="sc-row"><div class="sc-row-label">User intent</div><div class="sc-row-val">Tough week. Missed 3 of 4 training sessions. I want the app to notice, not judge, and help me figure out what to do.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">The week banner reads log data and shows "behind" status with a fatigue/compliance summary. Individual missed days show red chips. The recovery modal identifies all missed sessions and offers to reschedule the most recent to today.</div></div>
-        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val partial"><strong>Detection is good, response is limited.</strong> The week banner correctly flags the situation. The recovery modal handles one missed session at a time. But with 3 missed sessions, the system doesn't say "forget the missed ones, here's how to salvage the rest of the week" — it offers to reschedule all 3, which might not be realistic.</div></div>
-        <div class="sc-row"><div class="sc-row-label">User experience</div><div class="sc-row-val">User opens recovery modal, sees 3 missed sessions to reschedule. This feels overwhelming. The right response for 3 missed sessions is different from 1 — probably "let these go and focus on getting Thursday and Saturday right."</div></div>
-        <div class="gap-box amber"><div class="gap-label amber">What to improve</div>When missed sessions ≥ 2, the recovery modal should offer a "Salvage week" mode: acknowledge the missed sessions, pick the 1–2 most important remaining ones, and reschedule those only. "You missed 3 sessions — let's focus on getting 2 strong sessions done before Sunday."</div>
+        <div class="sc-row"><div class="sc-row-label">What happens</div><div class="sc-row-val">The week banner flags "behind" status. Missed day chips turn red. Opening the recovery modal when ≥ 2 sessions are missed activates <strong>Salvage Week mode</strong>.</div></div>
+        <div class="sc-row"><div class="sc-row-label">System response</div><div class="sc-row-val pass"><strong>Salvage week mode works.</strong> When <code>missedSessions.length ≥ 2</code>, the modal sorts sessions by recency, schedules only the 2 most recent (the highest-value remaining), and silently writes off the rest. A "Compensation hacks" section appears: no alcohol, extra protein, cold shower, walk, sleep, deload next session — simple recovery actions the user can commit to. Written-off sessions don't add to the reschedule burden.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What's good</div><div class="sc-row-val">The UX correctly distinguishes "1 missed session" (full recovery modal, pick any slot) from "2+ missed sessions" (salvage mode, don't overwhelm — pick the 2 best, let the rest go). This matches how a real coach would respond: not "reschedule everything" but "here's what's salvageable."</div></div>
+        <div class="gap-box jade"><div class="gap-label jade">What's good</div>Compensation hacks are contextual and actionable — not generic wellness advice. They're framed as commitments the user can tap to select, and saved to <code>daylog.salvageCommitments</code> for reference in the weekly reconciliation.</div>
+        <div class="gap-box amber"><div class="gap-label amber">What to improve next</div>Surface salvage commitments in the following day's plan (e.g. "You committed to extra protein today — your morning meal target is highlighted"). Closes the loop from commitment to action.</div>
       </div>
     </div>
 
@@ -517,19 +521,19 @@ body { background:var(--ink); color:var(--dk-1); }
     <tbody>
       <tr><td class="hl">01</td><td>Missed session — reschedule to today</td><td class="g">Full pass</td><td>Low (works)</td></tr>
       <tr><td class="hl">02</td><td>Shoulder sore — swap specific exercise</td><td class="a">Partial</td><td>Low (workaround exists)</td></tr>
-      <tr><td class="hl">03</td><td>Travelling — need bodyweight session</td><td class="r">Not built</td><td class="r">High — 2–3 day plan abandonment per trip</td></tr>
-      <tr><td class="hl">04</td><td>Only 30 minutes — condense session</td><td class="a">Partial</td><td>Medium</td></tr>
+      <tr><td class="hl">03</td><td>Travelling — need bodyweight session</td><td class="g">Full pass</td><td>Low — travel mode built, bodyweight session injected into plan</td></tr>
+      <tr><td class="hl">04</td><td>Only 30 minutes — condense session</td><td class="g">Full pass</td><td>Low — time selector + contextual chip built</td></tr>
       <tr><td class="hl">05</td><td>Ate differently — log actual vs planned</td><td class="a">Partial</td><td>Medium — macro inaccuracy erodes trust</td></tr>
       <tr><td class="hl">06</td><td>80g short on protein at 6pm</td><td class="a">Partial</td><td>Low (manual workaround exists)</td></tr>
       <tr><td class="hl">07</td><td>Ran out of supplement — pause it</td><td class="r">Not built</td><td>Medium — daily friction, score corruption</td></tr>
       <tr><td class="hl">08</td><td>IBS flare today — plan adapt</td><td class="r">Not built</td><td class="r">High — condition-specific users have bad days</td></tr>
-      <tr><td class="hl">09</td><td>Terrible sleep — should training change?</td><td class="r">Not built</td><td class="r">High — core adaptive promise not delivered</td></tr>
+      <tr><td class="hl">09</td><td>Terrible sleep — should training change?</td><td class="g">Full pass</td><td>Low — sleep banner + one-tap intensity reduction built</td></tr>
       <tr><td class="hl">10</td><td>End of day — close the loop</td><td class="g">Full pass</td><td>Low (works, discovery issue only)</td></tr>
       <tr><td class="hl">11</td><td>Sharp pain mid-session — injury response</td><td class="a">Partial</td><td class="r">High — injury not persisted to profile</td></tr>
       <tr><td class="hl">12</td><td>Forgot to log yesterday</td><td class="g">Full pass</td><td>Low</td></tr>
       <tr><td class="hl">13</td><td>Why am I doing this exercise?</td><td class="g">Full pass</td><td>Low (works well)</td></tr>
       <tr><td class="hl">14</td><td>End of week — review and re-plan</td><td class="a">Partial</td><td class="r">High — intelligence exists, action doesn't</td></tr>
-      <tr><td class="hl">15</td><td>3 missed sessions this week</td><td class="a">Partial</td><td>Medium</td></tr>
+      <tr><td class="hl">15</td><td>3 missed sessions this week</td><td class="g">Full pass</td><td>Low — salvage week mode built</td></tr>
       <tr><td class="hl">16</td><td>Great week — build on it next week</td><td class="g">Full pass</td><td>Low</td></tr>
       <tr><td class="hl">17</td><td>6 weeks in — need a deload</td><td class="r">Not built</td><td>Medium — fatigue accumulation ignored</td></tr>
       <tr><td class="hl">18</td><td>Day 29 — 4-week block ends</td><td class="r">Not built</td><td class="r">Critical — stale programme, no graduation moment</td></tr>
@@ -563,26 +567,27 @@ body { background:var(--ink); color:var(--dk-1); }
         <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">Read <code>profile.weeklyAdaptation.adaptations[]</code>. For each adaptation, generate a week override. Show before/after comparison. One confirm. Estimated build: 2–3 hours.</div></div>
       </div>
     </div>
-    <div class="sc-card fail">
+    <div class="sc-card pass">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">3</div>
         <div><div class="sc-title">Sleep-adaptive intensity on page load</div><div class="sc-title-sub">The single feature that makes the daily plan feel alive</div></div>
-        <span class="sc-badge badge-fail">Not built</span>
+        <span class="sc-badge badge-pass">Built ✓</span>
       </div>
       <div class="sc-body">
-        <div class="sc-row"><div class="sc-row-label">Why third</div><div class="sc-row-val">No other health app does this. Reading yesterday's logged sleep and offering one-tap intensity reduction — with the reason shown — is the moment the product feels like it actually knows you. It turns an impressive tool into something that feels like a real coach.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">On page load: read <code>bl_daylog_[YESTERDAY].sleepActual</code>. If &lt;6 hours: show banner with one-tap "Reduce intensity" that calls session editor at beginner scheme. Estimated build: 1 hour.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Status</div><div class="sc-row-val pass"><strong>Shipped.</strong> <code>checkSleepIntensityBanner()</code> runs on every training day load. Reads <code>bl_daylog_[YESTERDAY].sleepActual</code>. If &lt;6h and intensity not already reduced: amber banner appears with one-tap "Reduce to Foundation intensity →". <code>applySleepIntensityReduction()</code> opens the session editor at beginner scheme. Seen-once per day via <code>bl_sleep_banner_[DATE]</code> key.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What it enables</div><div class="sc-row-val">Sleep is now logged in 3 places (EOD section, 8pm evening prompt bar, day-close card) to maximise data availability for the next morning's check.</div></div>
       </div>
     </div>
-    <div class="sc-card fail">
+    <div class="sc-card partial">
       <div class="sc-head" onclick="toggleCard(this)">
         <div class="sc-num">4</div>
-        <div><div class="sc-title">Travel mode / Today I'm… status chip</div><div class="sc-title-sub">Covers travelling, IBS flare, sickness, time-short in one feature</div></div>
-        <span class="sc-badge badge-fail">Not built</span>
+        <div><div class="sc-title">Travel mode / Today I'm… status chips</div><div class="sc-title-sub">Covers travelling and time-short — IBS, sick, sore still outstanding</div></div>
+        <span class="sc-badge badge-partial">Partial — 2 of 5 chips built</span>
       </div>
       <div class="sc-body">
-        <div class="sc-row"><div class="sc-row-label">Why fourth</div><div class="sc-row-val">Scenarios 3, 4, and 8 (travel, short session, IBS flare) are all variants of the same need: a way to tell the app "today is different" and have it respond. One "Today I'm…" status chip covers all three. Resets automatically the next day.</div></div>
-        <div class="sc-row"><div class="sc-row-label">What to build</div><div class="sc-row-val">A chip row at top of daily plan: [Travelling] [Short on time] [Gut flare] [Tired / low energy] [Sore / DOMS]. Each triggers a pre-defined plan overlay (bodyweight mode, condensed session, low-FODMAP, reduced intensity). Session state only — clears at midnight. Estimated build: 3–4 hours.</div></div>
+        <div class="sc-row"><div class="sc-row-label">Built</div><div class="sc-row-val pass"><strong>Travelling</strong> — full travel mode with bodyweight session swap (S3 above). <strong>Short on time</strong> — time selector (30/45/60/90 min) + contextual "⏱ Short on time?" chip (S4 above).</div></div>
+        <div class="sc-row"><div class="sc-row-label">Not yet built</div><div class="sc-row-val fail"><strong>Gut flare</strong> (low-FODMAP meal swap), <strong>Tired / low energy</strong> (reduce intensity without requiring sleep data), <strong>Sore / DOMS</strong> (active recovery overlay). These three cover scenarios N4, and the edge cases where sleep data wasn't logged the night before.</div></div>
+        <div class="sc-row"><div class="sc-row-label">What to build next</div><div class="sc-row-val">Add [Tired] [Gut flare] [Sore] chips to the mission header chip row. Each triggers a day-scoped override — clears at midnight. The travel and short-on-time architecture (day-scoped, chip-triggered, plan-mutating) is the right pattern — extend it to these 3 remaining states.</div></div>
       </div>
     </div>
     <div class="sc-card partial">
