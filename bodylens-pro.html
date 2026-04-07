@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Soma">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="bl-page" content="pro">
+<title>Soma — Upgrade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:var(--ink); color:var(--dk-1); min-height:100vh; }
+
+/* ── HERO ── */
+.pro-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+.pro-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 800px 600px at 50% 30%, rgba(0,200,160,0.06) 0%, transparent 65%),
+    radial-gradient(ellipse 400px 300px at 80% 70%, rgba(0,200,160,0.03) 0%, transparent 60%);
+}
+.pro-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--bd);
+}
+
+/* ── EYEBROW ── */
+.pro-eye {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jade);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+.pro-eye::before, .pro-eye::after {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--jade);
+  opacity: 0.5;
+}
+
+/* ── HEADING ── */
+.pro-title {
+  font-family: var(--serif);
+  font-size: clamp(52px, 8vw, 96px);
+  font-weight: 300;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  color: var(--dk-1);
+  margin-bottom: 28px;
+  position: relative;
+}
+.pro-title em { font-style: italic; color: var(--jade); }
+
+.pro-sub {
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.7;
+  max-width: 500px;
+  margin: 0 auto 48px;
+  position: relative;
+}
+
+/* ── PRICING CARD ── */
+.pro-card-wrap {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  margin-bottom: 40px;
+}
+.pro-card {
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 12px;
+  padding: 28px 28px 24px;
+  width: 220px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+.pro-card:hover { border-color: var(--jade-br); }
+.pro-card.selected {
+  border-color: var(--jade);
+  background: rgba(0,200,160,0.04);
+}
+.pro-card-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--jade);
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.pro-card-period {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dk-3);
+  margin-bottom: 10px;
+}
+.pro-card-price {
+  font-family: var(--mono);
+  font-size: 38px;
+  font-weight: 600;
+  color: var(--dk-1);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.pro-card-price sup {
+  font-size: 18px;
+  vertical-align: super;
+  font-weight: 400;
+}
+.pro-card-unit {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--dk-3);
+  margin-bottom: 12px;
+}
+.pro-card-saving {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--jade);
+  min-height: 16px;
+}
+
+/* ── CTA ── */
+.pro-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--jade);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 16px 36px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.1s;
+  position: relative;
+}
+.pro-cta-btn:hover { background: var(--jade-hi); transform: translateY(-1px); }
+.pro-cta-btn:active { transform: translateY(0); }
+
+.pro-trial-note {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-3);
+  margin-top: 14px;
+  position: relative;
+}
+
+/* ── FEATURES ── */
+.pro-features {
+  padding: 80px 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.pro-features-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jade);
+  text-align: center;
+  margin-bottom: 16px;
+}
+.pro-features-title {
+  font-family: var(--serif);
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--dk-1);
+  text-align: center;
+  margin-bottom: 56px;
+  line-height: 1.05;
+}
+.pro-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--bd);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pro-feat {
+  background: var(--ink-2);
+  padding: 28px 24px;
+}
+.pro-feat-icon {
+  font-size: 20px;
+  margin-bottom: 12px;
+  display: block;
+}
+.pro-feat-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dk-1);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.pro-feat-body {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.7;
+}
+
+/* ── WHAT'S INCLUDED ── */
+.pro-includes {
+  padding: 0 24px 80px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.pro-inc-title {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--dk-1);
+  text-align: center;
+  margin-bottom: 32px;
+  letter-spacing: -0.02em;
+}
+.pro-inc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: var(--bd);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pro-inc-item {
+  background: var(--ink-2);
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--dk-2);
+  line-height: 1.5;
+  border-bottom: 1px solid var(--bd);
+}
+.pro-inc-item:nth-last-child(-n+2) { border-bottom: none; }
+.pro-inc-check {
+  color: var(--jade);
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── BOTTOM CTA ── */
+.pro-bottom {
+  padding: 64px 24px 80px;
+  text-align: center;
+  border-top: 1px solid var(--bd);
+}
+.pro-bottom-title {
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 300;
+  color: var(--dk-1);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.pro-bottom-sub {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--dk-3);
+  margin-bottom: 32px;
+}
+
+/* ── BILLING TOGGLE ── */
+.billing-toggle {
+  display: inline-flex;
+  background: var(--ink-2);
+  border: 1px solid var(--bd-2);
+  border-radius: 8px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 32px;
+  position: relative;
+}
+.billing-opt {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dk-3);
+  padding: 8px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--sans);
+  border: none;
+  background: transparent;
+  white-space: nowrap;
+}
+.billing-opt.active {
+  background: var(--jade);
+  color: var(--ink);
+  font-weight: 600;
+}
+.billing-save-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--jade);
+  background: rgba(0,200,160,0.1);
+  border: 1px solid rgba(0,200,160,0.2);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+@media(max-width:640px){
+  .pro-grid { grid-template-columns: 1fr; }
+  .pro-inc-list { grid-template-columns: 1fr; }
+  .pro-inc-item:nth-last-child(-n+2) { border-bottom: 1px solid var(--bd); }
+  .pro-inc-item:last-child { border-bottom: none; }
+  .pro-card-wrap { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav"></nav>
+
+<!-- ── HERO ── -->
+<section class="pro-hero">
+  <div class="pro-eye">Soma · Full access</div>
+  <h1 class="pro-title">Your health OS.<br><em>Fully unlocked.</em></h1>
+  <p class="pro-sub">Personalised daily plans, an AI coach that knows your body, weekly meal generation, and a science library built around your goals. Everything, always.</p>
+
+  <div class="billing-toggle">
+    <button class="billing-opt active" id="btn-annual" onclick="setBilling('annual')">Annual <span class="billing-save-tag">Save 45%</span></button>
+    <button class="billing-opt" id="btn-monthly" onclick="setBilling('monthly')">Monthly</button>
+  </div>
+
+  <div class="pro-card-wrap">
+    <div class="pro-card selected" id="card-annual">
+      <div class="pro-card-badge">Best value</div>
+      <div class="pro-card-period">Per year</div>
+      <div class="pro-card-price"><sup>£</sup>99</div>
+      <div class="pro-card-unit">billed annually</div>
+      <div class="pro-card-saving">£8.25 / month</div>
+    </div>
+    <div class="pro-card" id="card-monthly" style="display:none;">
+      <div class="pro-card-period">Per month</div>
+      <div class="pro-card-price"><sup>£</sup>14.99</div>
+      <div class="pro-card-unit">billed monthly</div>
+      <div class="pro-card-saving">&nbsp;</div>
+    </div>
+  </div>
+
+  <a href="#" class="pro-cta-btn" id="cta-btn">
+    Start 14-day free trial
+    <span style="font-size:16px;">→</span>
+  </a>
+  <p class="pro-trial-note">No charge for 14 days. Cancel any time before trial ends.</p>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="pro-features">
+  <div class="pro-features-label">What you get</div>
+  <h2 class="pro-features-title">Built around you,<br>not around averages.</h2>
+  <div class="pro-grid">
+    <div class="pro-feat">
+      <span class="pro-feat-icon">🧬</span>
+      <div class="pro-feat-title">AI coach that knows your body</div>
+      <div class="pro-feat-body">Unlimited conversations with a coach that holds your full health context — age, sex, injuries, conditions, hormonal status, goals. Not generic. Yours.</div>
+    </div>
+    <div class="pro-feat">
+      <span class="pro-feat-icon">📋</span>
+      <div class="pro-feat-title">Personalised daily plan</div>
+      <div class="pro-feat-body">Every day: training session with sets, reps and load guidance, meal timing, macro targets, supplement stack, and recovery protocol — all adapted to your schedule.</div>
+    </div>
+    <div class="pro-feat">
+      <span class="pro-feat-icon">🥗</span>
+      <div class="pro-feat-title">Weekly meal generation</div>
+      <div class="pro-feat-body">A full week of meals generated from your macro targets, dietary preferences, cuisine tastes, and cooking style. Low-FODMAP, vegan, halal, 5-ingredient — it adapts.</div>
+    </div>
+    <div class="pro-feat">
+      <span class="pro-feat-icon">📊</span>
+      <div class="pro-feat-title">Programme that evolves</div>
+      <div class="pro-feat-body">Weekly check-ins feed back into your programme. Missed sessions, high stress, poor sleep — Soma accounts for real life, not just your intentions.</div>
+    </div>
+    <div class="pro-feat">
+      <span class="pro-feat-icon">🔬</span>
+      <div class="pro-feat-title">Science library</div>
+      <div class="pro-feat-body">20+ deep-dive pages on sleep architecture, metabolic health, testosterone, female hormones, recovery, longevity and more — with callouts personalised to your profile.</div>
+    </div>
+    <div class="pro-feat">
+      <span class="pro-feat-icon">💊</span>
+      <div class="pro-feat-title">Supplement stack</div>
+      <div class="pro-feat-body">Evidence-based stack built for your specific goal, age, sex, and health context — with precise timing, dosing rationale, and interaction flags.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INCLUDES ── -->
+<section class="pro-includes">
+  <h2 class="pro-inc-title">Everything included</h2>
+  <ul class="pro-inc-list">
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>AI health coach — unlimited</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Daily plan — training + nutrition</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Weekly meal plan generation</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Supplement stack + timing</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Programme builder + progressions</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Injury modification system</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Body composition tracking</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Weekly check-in + adaptation</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Full science library</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Fridge + meal prep tracking</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Risk-aware coaching (IBS, PCOS, etc.)</li>
+    <li class="pro-inc-item"><span class="pro-inc-check">✓</span>Hormonal cycle training</li>
+  </ul>
+
+  <div style="text-align:center;">
+    <a href="#" class="pro-cta-btn" id="cta-btn-2">
+      Start 14-day free trial →
+    </a>
+    <p class="pro-trial-note" style="position:relative;">No charge for 14 days. Cancel any time.</p>
+  </div>
+</section>
+
+<!-- ── BOTTOM CTA ── -->
+<div class="pro-bottom">
+  <div class="pro-bottom-title">Ready to start?</div>
+  <div class="pro-bottom-sub">14 days free. Then £99/year or £14.99/month. Cancel any time.</div>
+  <a href="#" class="pro-cta-btn" id="cta-btn-3">Start free trial →</a>
+</div>
+
+<div id="site-disclaimer"></div>
+<script src="nav.js"></script>
+<script src="pwa.js"></script>
+<script>
+var billing = 'annual';
+
+function setBilling(type) {
+  billing = type;
+  document.getElementById('btn-annual').classList.toggle('active', type === 'annual');
+  document.getElementById('btn-monthly').classList.toggle('active', type === 'monthly');
+  document.getElementById('card-annual').style.display  = type === 'annual'  ? 'block' : 'none';
+  document.getElementById('card-monthly').style.display = type === 'monthly' ? 'block' : 'none';
+}
+
+// Wire CTA buttons — swap href for Stripe Checkout when ready
+['cta-btn','cta-btn-2','cta-btn-3'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', function(e) {
+    e.preventDefault();
+    // TODO: replace with Stripe Checkout URL
+    // window.location.href = billing === 'annual' ? STRIPE_ANNUAL_URL : STRIPE_MONTHLY_URL;
+    alert('Payments coming soon — we\'ll notify you when subscriptions open.');
+  });
+});
+</script>
+</body>
+</html>
