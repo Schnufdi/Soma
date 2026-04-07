@@ -5027,8 +5027,9 @@ function renderPlan(plan, browsing) {
   var root = document.getElementById('day-root');
   window._blocks = plan.blocks;
   var p = P, t = TODAY;
-  var log = loadDayLog(_rDate) || {};
   var isBrowsing = !!browsing;
+  // When browsing another day, use empty log so no today-state bleeds in
+  var log = isBrowsing ? {} : (loadDayLog(_rDate) || {});
   var travelModeActive = !!(log.travelMode && log.travelMode.active);
 
   // ── Helpers ──────────────────────────────────────────────
@@ -5056,8 +5057,10 @@ function renderPlan(plan, browsing) {
   var allSuppNames = [];
   suppBlocks.forEach(function(b){ (b.suppList||[]).forEach(function(s){ allSuppNames.push(s.name||s); }); });
   var trainBlock = plan.blocks.find(function(b){ return b.type==='training'; });
+  // isTraining must be derived from the browsed day's plan, not from TODAY
+  var isTraining = isBrowsing ? !!trainBlock : t.isTraining;
   var eaten = (MACROS && MACROS.eaten) || {prot:0,carbs:0,fat:0,kcal:0};
-  var dayKcal = typeof getDayKcal==='function' ? getDayKcal(p, t.isTraining) : (p.trainingKcal||p.calories||2000);
+  var dayKcal = typeof getDayKcal==='function' ? getDayKcal(p, isTraining) : (p.trainingKcal||p.calories||2000);
   var score = edCalcScore(log, mealBlocks, allSuppNames);
 
   // ── Score ring ───────────────────────────────────────────
@@ -5116,7 +5119,7 @@ function renderPlan(plan, browsing) {
   +'</div>';
 
   // ── Mission brief ────────────────────────────────────────
-  var isTraining = t.isTraining;
+  // isTraining already set above from browsed plan (or TODAY for current day)
   var dayType = isTraining
     ? (trainBlock ? trainBlock.title : 'Training day')
     : 'Rest & recovery';
@@ -5173,8 +5176,9 @@ function renderPlan(plan, browsing) {
   var missionHtml = '<div class="dp2-mission">'
     +calorieReasonHtml
     +'<div class="dp2-mission-kicker">'
-      + new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})
-      + (isBrowsing ? ' &nbsp;·&nbsp; Browsing' : '')
+      + (isBrowsing && typeof VIEWING_DAY === 'number'
+          ? (['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][VIEWING_DAY] || 'Browsing') + ' &nbsp;·&nbsp; Browsing'
+          : new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}))
     +'</div>'
     +'<div class="dp2-mission-headline">'+dayType+'.<br><em>'+(isTraining?'Signal. Feed. Recover.':'Recover. Repair. Reset.')+'</em></div>'
     +'<div class="dp2-mission-objective">'

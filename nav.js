@@ -44,7 +44,7 @@
         <a class="vd-link" href="/bodylens-profiles.html">&#x2B21; Profile Vault</a>
         <a class="vd-link" href="/bodylens-coachplan.html">Coaching Plan</a>
         <a class="vd-link" href="/bodylens-strength.html">Strength Baseline</a>
-        <a class="vd-link" href="/bodylens-mealbuilder.html">Meal Builder</a>
+        <a class="vd-link" href="/bodylens-meals.html">Meal Builder</a>
         <a class="vd-link" href="/bodylens-export.html">Export Data</a>
         <a class="vd-link" href="/bodylens-reset.html" style="color:rgba(220,80,60,.75)">Reset</a>
       </div>
@@ -109,7 +109,7 @@
   <a class="mm-link mm-vault" href="/bodylens-profiles.html">Profile Vault</a>
   <a class="mm-link mm-vault" href="/bodylens-coachplan.html">Coaching Plan</a>
   <a class="mm-link mm-vault" href="/bodylens-strength.html">Strength Baseline</a>
-  <a class="mm-link mm-vault" href="/bodylens-mealbuilder.html">Meal Builder</a>
+  <a class="mm-link mm-vault" href="/bodylens-meals.html">Meal Builder</a>
   <a class="mm-link mm-vault" href="/bodylens-export.html">Export Data</a>
   <div class="mm-section-label mm-pro-section">Upgrade</div>
   <a class="mm-link mm-pro-link" href="/bodylens-pro.html">
@@ -896,7 +896,7 @@ function _buildNmpPanel() {
     +   '<div class="nmp-label">Nutrition</div>'
     +   '<a class="nmp-link" href="/bodylens-food.html">Food hub</a>'
     +   '<a class="nmp-link" href="/bodylens-fridge.html">Fridge</a>'
-    +   '<a class="nmp-link" href="/bodylens-mealbuilder.html">Meal builder</a>'
+    +   '<a class="nmp-link" href="/bodylens-meals.html">Meal builder</a>'
     +   '<a class="nmp-link" href="/bodylens-decisions.html">Decisions</a>'
     + '</div>'
     + '<div class="nmp-col">'
