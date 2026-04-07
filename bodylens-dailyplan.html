@@ -1901,6 +1901,24 @@ body {
 .se-section-label.jade { color:var(--jade); }
 .se-section-label.amber { color:var(--amber); }
 
+/* Time selector */
+.se-time-section { margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,.06); padding-bottom:18px; }
+.se-time-label {
+  font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--dk-3); margin-bottom:10px;
+}
+.se-time-row { display:flex; gap:6px; }
+.se-time-btn {
+  flex:1; padding:10px 6px; border-radius:8px; border:1px solid rgba(255,255,255,.08);
+  background:transparent; cursor:pointer; font-family:var(--sans); transition:all .12s; text-align:center;
+}
+.se-time-btn .se-time-val { font-size:18px; font-weight:300; font-family:var(--serif); color:var(--dk-2); display:block; line-height:1.2; }
+.se-time-btn .se-time-unit { font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--dk-3); display:block; margin-top:2px; }
+.se-time-btn.active { border-color:rgba(0,200,160,.3); background:rgba(0,200,160,.07); }
+.se-time-btn.active .se-time-val { color:var(--jade); }
+.se-time-btn.active .se-time-unit { color:var(--jade); }
+.se-time-note { margin-top:8px; font-size:11px; font-weight:300; color:var(--dk-3); line-height:1.55; min-height:16px; }
+
 /* Volume dial */
 .se-vol-row { display:flex; gap:6px; }
 .se-vol-btn {
@@ -9452,6 +9470,7 @@ var _seState = {
   cardioDurationMins: 0,
   cardioKcal: 0,
   suppChecked: {},  // suppName -> bool
+  timeBudget: 0,   // 0 = no preset, 30/45/60/90 = time-based preset
 };
 
 var CARDIO_METS = {
@@ -9479,6 +9498,7 @@ function openSessionEditor(blockIdx, block) {
   _seState.cardioDurationMins = se.cardioDurationMins || 0;
   _seState.cardioKcal = se.cardioKcal || 0;
   _seState.suppChecked = se.suppChecked || {};
+  _seState.timeBudget = se.timeBudget || 0;
 
   // Title
   document.getElementById('se-drawer-title').textContent = (block.title||'').split(':')[0] || 'Edit session';
@@ -9501,6 +9521,27 @@ function seRenderBody() {
   var block = _seState.block;
   var allExercises = (block.exercises || []).filter(function(e){ return e !== 'Track loads'; });
   var weight = p.weight || 80;
+
+  // ── Time selector ──────────────────────────────────────────
+  var TIME_NOTES = {
+    30: 'Top 3 compound lifts · Cardio removed · Get in, get out.',
+    45: 'Core 4 exercises · No cardio · Enough for a quality stimulus.',
+    60: 'Full session · Add cardio below if you want it.',
+    90: 'Max volume · All cardio options open.',
+  };
+  var timeSelectorHtml = '<div class="se-time-section">'
+    + '<div class="se-time-label">How long do you have?</div>'
+    + '<div class="se-time-row">';
+  [{v:30,label:'min'},{v:45,label:'min'},{v:60,label:'min'},{v:90,label:'min+'}].forEach(function(t) {
+    var active = _seState.timeBudget === t.v ? 'active' : '';
+    timeSelectorHtml += '<button class="se-time-btn '+active+'" onclick="seSetTime('+t.v+')">'
+      + '<span class="se-time-val">'+t.v+'</span>'
+      + '<span class="se-time-unit">'+t.label+'</span>'
+      + '</button>';
+  });
+  timeSelectorHtml += '</div>'
+    + '<div class="se-time-note">' + (TIME_NOTES[_seState.timeBudget] || '') + '</div>'
+    + '</div>';
 
   // ── Volume section ─────────────────────────────────────────
   var volHtml = '<div class="se-section">'
@@ -9612,7 +9653,7 @@ function seRenderBody() {
     + (_seState.cardioDurationMins ? ' (incl. '+_seState.cardioDurationMins+' min cardio)' : '')
     + '</div>';
 
-  document.getElementById('se-body').innerHTML = volHtml + intHtml + cardioHtml + suppHtml + timeHtml;
+  document.getElementById('se-body').innerHTML = timeSelectorHtml + volHtml + intHtml + cardioHtml + suppHtml + timeHtml;
 }
 
 function seExPreview(exercises, count) {
@@ -9625,7 +9666,31 @@ function seExPreview(exercises, count) {
   }).join('');
 }
 
+function seSetTime(mins) {
+  _seState.timeBudget = mins;
+  // Auto-configure volume and cardio for the time budget
+  if (mins === 30) {
+    _seState.volume = 3;
+    _seState.cardioName = null;
+    _seState.cardioDurationMins = 0;
+    _seState.cardioKcal = 0;
+  } else if (mins === 45) {
+    _seState.volume = 4;
+    _seState.cardioName = null;
+    _seState.cardioDurationMins = 0;
+    _seState.cardioKcal = 0;
+  } else if (mins === 60) {
+    _seState.volume = 5;
+    // Leave cardio as-is — user can add if they want
+  } else if (mins >= 90) {
+    _seState.volume = 6;
+  }
+  seRenderBody();
+  seBurnPreview();
+}
+
 function seSetVolume(n) {
+  _seState.timeBudget = 0; // Manual volume override clears time preset
   _seState.volume = n;
   document.querySelectorAll('.se-vol-btn').forEach(function(b, i) {
     b.classList.toggle('active', [3,4,5,6][i] === n);
@@ -9792,6 +9857,7 @@ function lockSessionIn() {
     cardioDurationMins: _seState.cardioDurationMins,
     cardioKcal: _seState.cardioKcal,
     suppChecked: _seState.suppChecked,
+    timeBudget: _seState.timeBudget,
     lockedAt: new Date().toISOString(),
   };
   log.cardioLogged = _seState.cardioName ? {
