@@ -1559,6 +1559,98 @@ body {
 .rm-confirm:hover:not(:disabled) { opacity: .88; }
 .rm-confirm:disabled { opacity: .35; cursor: not-allowed; }
 
+/* ── Salvage week mode ────────────────────────────────────────────── */
+.rm-salvage-banner {
+  background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.15);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 20px;
+}
+.rm-salvage-banner-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 5px;
+}
+.rm-salvage-banner-text { font-size: 12px; font-weight: 300; color: var(--dk-2); line-height: 1.65; }
+.rm-writeoff {
+  margin-top: 20px; padding: 14px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 10px;
+}
+.rm-writeoff-label {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(220,80,60,.55); margin-bottom: 8px;
+}
+.rm-writeoff-item {
+  font-size: 14px; font-weight: 400; color: var(--dk-3);
+  margin-bottom: 4px; text-decoration: line-through;
+}
+.rm-writeoff-item span { font-size: 12px; font-weight: 300; }
+.rm-writeoff-note {
+  font-size: 11px; font-weight: 300; color: var(--dk-3);
+  line-height: 1.55; margin-top: 10px; opacity: .75;
+}
+
+/* ── Travel mode ─────────────────────────────────────────────────── */
+.dp2-travel-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--amber); background: rgba(245,158,11,.08);
+  border: 1px solid rgba(245,158,11,.2); border-radius: 20px;
+  padding: 4px 10px; cursor: pointer; margin-top: 12px;
+  transition: background .15s; font-family: var(--sans);
+}
+.dp2-travel-chip:hover { background: rgba(245,158,11,.16); }
+.dp2-travel-chip.active { color: var(--jade); background: rgba(0,200,160,.08); border-color: rgba(0,200,160,.25); }
+#travel-modal-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+#travel-modal {
+  background: var(--ink-1); border-radius: 20px 20px 0 0;
+  border: 1px solid rgba(255,255,255,.1);
+  width: 100%; max-width: 560px; max-height: 88vh;
+  overflow-y: auto; display: flex; flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.tm-hd {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 22px 24px 16px; border-bottom: 1px solid rgba(255,255,255,.07);
+  position: sticky; top: 0; background: var(--ink-1); z-index: 1; flex-shrink: 0;
+}
+.tm-title { font-family: var(--serif); font-size: 26px; font-weight: 300; color: var(--dk-1); flex: 1; line-height: 1.1; }
+.tm-sub { font-size: 12px; font-weight: 300; color: var(--dk-3); margin-top: 4px; }
+.tm-body { padding: 20px 24px; flex: 1; }
+.tm-session-type {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 5px;
+}
+.tm-session-name { font-size: 20px; font-weight: 600; color: var(--dk-1); margin-bottom: 16px; letter-spacing: -.01em; }
+.tm-ex-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+.tm-ex {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: 13px; font-weight: 400; color: var(--dk-2); letter-spacing: -.01em;
+}
+.tm-note {
+  font-size: 12px; font-weight: 300; color: var(--dk-3); line-height: 1.65;
+  padding: 12px 14px; background: rgba(0,200,160,.05);
+  border-left: 2px solid rgba(0,200,160,.3); border-radius: 0 8px 8px 0; margin-bottom: 4px;
+}
+.tm-footer {
+  padding: 14px 24px; border-top: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0; display: flex; flex-direction: column; gap: 8px;
+}
+.tm-confirm {
+  width: 100%; background: var(--jade); border: none; color: var(--ink);
+  padding: 14px; border-radius: 12px; font-size: 13px; font-weight: 700;
+  letter-spacing: .04em; cursor: pointer; font-family: var(--sans); transition: opacity .12s;
+}
+.tm-confirm:hover { opacity: .88; }
+.tm-cancel-link {
+  background: none; border: none; color: var(--dk-3);
+  font-size: 11px; font-weight: 400; cursor: pointer; font-family: var(--sans);
+  text-decoration: underline; padding: 4px; text-align: center; transition: color .12s;
+}
+.tm-cancel-link:hover { color: var(--dk-2); }
+
 /* ── Week strip missed/recovered states ─────────────────────────── */
 .ws-day.missed .ws-day-num  { color: rgba(220,80,60,.8); }
 .ws-day.missed .ws-day-type { color: rgba(220,80,60,.6); }
@@ -4806,6 +4898,7 @@ function renderPlan(plan, browsing) {
   var p = P, t = TODAY;
   var log = loadDayLog(_rDate) || {};
   var isBrowsing = !!browsing;
+  var travelModeActive = !!(log.travelMode && log.travelMode.active);
 
   // ── Helpers ──────────────────────────────────────────────
   function blockStatus(block, idx) {
@@ -4958,6 +5051,11 @@ function renderPlan(plan, browsing) {
         ? '<strong>Priority:</strong> Hit the posterior chain session, close at <strong>'+p.protein+'g protein</strong>, take your stack at the right times. Everything else is flexible.'
         : '<strong>Priority:</strong> <strong>'+p.protein+'g protein</strong> even without training. Metabolism stays active on rest days — nutrition discipline here matters.')
     +'</div>'
+    +(isTraining && !isBrowsing
+      ? '<button class="dp2-travel-chip'+(travelModeActive?' active':'')+'" id="dp2-travel-chip" onclick="openTravelModal()">'
+          +(travelModeActive ? '&#10003; Travel mode active' : '&#9992; Travelling? Swap to bodyweight &#8594;')
+        +'</button>'
+      : '')
     +'<div class="dp2-signals">'
       // Macro signal moved to unified header
       // Session signal
@@ -6029,6 +6127,225 @@ function dpSaveSwap(blockIdx, val) {
   saveDayLog(_rDate, log13);
 }
 
+// ════════════════════════════════════════════════════════════════
+// TRAVEL MODE — swap gym session to equivalent bodyweight workout
+// ════════════════════════════════════════════════════════════════
+
+function _travelBWWorkout(sessionTitle) {
+  var t = (sessionTitle || '').toLowerCase();
+  var exercises, focus, coachNote;
+
+  if (/posterior|hamstring|glute|rdl|hip hinge|lower|leg/i.test(t)) {
+    exercises = [
+      '3 x 15 Glute bridge — pause 2s at top, squeeze hard',
+      '3 x 12/side Single-leg hip thrust (use bed or chair)',
+      '3 x 10/side Bulgarian split squat — 3s slow descent',
+      '3 x 12/side Single-leg RDL — reach to opposite ankle',
+      '3 x 20 Donkey kick — slow and controlled, full extension',
+      '2 x 45s Wall sit — isometric hold',
+    ];
+    focus = 'Posterior chain — bodyweight';
+    coachNote = 'No gym needed. Focus on slow eccentrics and a hard squeeze at peak contraction. A chair or bed works for split squats. Same muscles as your scheduled session — different tool.';
+  } else if (/push|chest|press|tricep|shoulder|incline|decline/i.test(t)) {
+    exercises = [
+      '4 x max-reps Push-up — full ROM, chest to floor',
+      '3 x 12 Pike push-up — shoulder dominant, feet elevated',
+      '3 x 15 Tricep dip — hands on chair behind you',
+      '3 x 10 Decline push-up — feet on bed or chair',
+      '3 x 12 Diamond push-up — close grip, tricep focus',
+      '2 x 45s Plank hold',
+    ];
+    focus = 'Push — bodyweight';
+    coachNote = 'Push to technical failure on each set. Elevate feet for more anterior delt load. Diamond grip shifts tension to triceps. Same pushing stimulus — no bar required.';
+  } else if (/pull|back|row|bicep|lat|deadlift/i.test(t)) {
+    exercises = [
+      '4 x 12 Inverted row — grip table edge, pull chest to surface',
+      '3 x 15 Superman hold — lift chest and legs, hold 2s',
+      '3 x 12 Doorframe row — lean back, pull yourself to frame',
+      '3 x 15 Scapula retraction isometric — 5s squeeze per rep',
+      '3 x 15 Floor Y/T/W raises — rear delt and mid-back',
+    ];
+    focus = 'Pull — bodyweight';
+    coachNote = 'Inverted rows under a sturdy desk are the best hotel back exercise. Keep your body straight, pull your chest to the surface. Every hotel has a desk. Same pull pattern as your programme.';
+  } else if (/upper/i.test(t)) {
+    exercises = [
+      '3 x max Push-up (standard)',
+      '3 x 12 Pike push-up',
+      '3 x 12 Inverted row (under desk)',
+      '3 x 10 Diamond push-up',
+      '3 x 12/side Doorframe row',
+      '2 x 45s Plank',
+    ];
+    focus = 'Upper body — bodyweight';
+    coachNote = 'Push/pull balance with no equipment. Alternate pushing and pulling sets to manage fatigue and keep rest short.';
+  } else {
+    exercises = [
+      '3 x 15 Bodyweight squat — 3s slow descent',
+      '3 x 12/side Reverse lunge — touch knee to floor',
+      '3 x max Push-up',
+      '3 x 15 Glute bridge',
+      '3 x 12 Mountain climber per side — controlled pace',
+      '3 x 8 Burpee — full extension at top',
+    ];
+    focus = 'Full body — bodyweight';
+    coachNote = 'Hotel room circuit. Covers every major muscle group with minimal space. 35–40 minutes. Same training stimulus — just different equipment.';
+  }
+
+  var subtitle = exercises.slice(0, 3)
+    .map(function(e) {
+      return e.replace(/^\d+\s*(x|\/side)\s*[\d\-]+[\/\s]*/i, '')
+              .replace(/\s*—.*$/, '').trim().split(' ').slice(0, 2).join(' ');
+    }).join(' · ');
+
+  return { exercises: exercises, focus: focus, coachNote: coachNote, subtitle: subtitle };
+}
+
+function openTravelModal() {
+  var existing = document.getElementById('travel-modal-overlay');
+  if (existing) existing.remove();
+
+  var log = loadDayLog(_rDate) || {};
+  var travelActive = !!(log.travelMode && log.travelMode.active);
+
+  var trainIdx = -1;
+  (window._blocks || []).forEach(function(b, i) { if (b.type === 'training') trainIdx = i; });
+  if (trainIdx < 0) return;
+  var trainBlock = window._blocks[trainIdx];
+
+  if (travelActive) {
+    var html = '<div id="travel-modal-overlay" onclick="if(event.target===this)closeTravelModal()">'
+      + '<div id="travel-modal">'
+        + '<div class="tm-hd">'
+          + '<div><div class="tm-title">Travel mode active</div>'
+            + '<div class="tm-sub">Your session has been swapped to a bodyweight equivalent</div></div>'
+          + '<button class="rm-close" onclick="closeTravelModal()">&#10005;</button>'
+        + '</div>'
+        + '<div class="tm-body">'
+          + '<div class="tm-session-type">Current session</div>'
+          + '<div class="tm-session-name">' + (trainBlock.title || 'Bodyweight session') + '</div>'
+          + '<div class="tm-note">Travel mode keeps your training stimulus intact without gym access. Same muscles, different tools.</div>'
+        + '</div>'
+        + '<div class="tm-footer">'
+          + '<button class="tm-confirm" style="background:rgba(220,80,60,.75);" onclick="cancelTravelMode()">Restore original gym session</button>'
+          + '<button class="tm-cancel-link" onclick="closeTravelModal()">Keep bodyweight session</button>'
+        + '</div>'
+      + '</div>'
+    + '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+    return;
+  }
+
+  var bw = _travelBWWorkout(trainBlock.title || '');
+  var exHtml = bw.exercises.map(function(e) {
+    return '<div class="tm-ex">' + e + '</div>';
+  }).join('');
+
+  var html = '<div id="travel-modal-overlay" onclick="if(event.target===this)closeTravelModal()">'
+    + '<div id="travel-modal">'
+      + '<div class="tm-hd">'
+        + '<div><div class="tm-title">Swap to bodyweight</div>'
+          + '<div class="tm-sub">Same muscles, zero equipment — works anywhere</div></div>'
+        + '<button class="rm-close" onclick="closeTravelModal()">&#10005;</button>'
+      + '</div>'
+      + '<div class="tm-body">'
+        + '<div class="tm-session-type">Replacing</div>'
+        + '<div class="tm-session-name">' + (trainBlock.title || 'Training') + '</div>'
+        + '<div class="tm-session-type" style="margin-top:2px;color:var(--jade);">Bodyweight alternative</div>'
+        + '<div class="tm-session-name" style="font-size:16px;color:var(--jade);margin-bottom:14px;">' + bw.focus + '</div>'
+        + '<div class="tm-ex-list">' + exHtml + '</div>'
+        + '<div class="tm-note">' + bw.coachNote + '</div>'
+      + '</div>'
+      + '<div class="tm-footer">'
+        + '<button class="tm-confirm" onclick="confirmTravelMode()">&#9992; Swap to bodyweight session</button>'
+        + '<button class="tm-cancel-link" onclick="closeTravelModal()">Cancel — keep gym session</button>'
+      + '</div>'
+    + '</div>'
+  + '</div>';
+
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function confirmTravelMode() {
+  var trainIdx = -1;
+  (window._blocks || []).forEach(function(b, i) { if (b.type === 'training') trainIdx = i; });
+  if (trainIdx < 0) { closeTravelModal(); return; }
+
+  var trainBlock = window._blocks[trainIdx];
+  var bw = _travelBWWorkout(trainBlock.title || '');
+
+  // Persist original block data so we can restore it
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.travelMode = {
+    active: true,
+    lockedAt: new Date().toISOString(),
+    originalTitle: trainBlock.title,
+    originalSubtitle: trainBlock.subtitle,
+    originalExercises: (trainBlock.exercises || []).slice(),
+    originalDetail: trainBlock.detail,
+    originalCoachNote: trainBlock.coachNote,
+  };
+  saveDayLog(_rDate, log);
+
+  // Swap the block in memory
+  window._blocks[trainIdx] = Object.assign({}, trainBlock, {
+    title: bw.focus,
+    subtitle: bw.subtitle,
+    exercises: bw.exercises,
+    detail: bw.coachNote,
+    coachNote: 'Travel mode active. No gym required — equivalent training stimulus from bodyweight movements.',
+    science: 'Progressive overload is achievable through bodyweight training. Controlled eccentrics and peak contraction focus maintain neuromuscular adaptations when equipment is unavailable.',
+  });
+
+  // Write mutated blocks to plan cache so they survive page reload
+  try {
+    var cached = JSON.parse(localStorage.getItem(TODAY.cacheKey) || 'null');
+    if (cached) {
+      cached.blocks = window._blocks;
+      localStorage.setItem(TODAY.cacheKey, JSON.stringify(cached));
+    }
+  } catch(e) {}
+
+  closeTravelModal();
+  buildDay();
+}
+
+function cancelTravelMode() {
+  var log = loadDayLog(_rDate) || {};
+  var orig = log.travelMode;
+
+  if (orig && orig.active && orig.originalExercises) {
+    var trainIdx = -1;
+    (window._blocks || []).forEach(function(b, i) { if (b.type === 'training') trainIdx = i; });
+    if (trainIdx >= 0) {
+      window._blocks[trainIdx] = Object.assign({}, window._blocks[trainIdx], {
+        title: orig.originalTitle,
+        subtitle: orig.originalSubtitle,
+        exercises: orig.originalExercises,
+        detail: orig.originalDetail,
+        coachNote: orig.originalCoachNote,
+      });
+    }
+    log.travelMode = { active: false };
+    saveDayLog(_rDate, log);
+
+    try {
+      var cached = JSON.parse(localStorage.getItem(TODAY.cacheKey) || 'null');
+      if (cached) {
+        cached.blocks = window._blocks;
+        localStorage.setItem(TODAY.cacheKey, JSON.stringify(cached));
+      }
+    } catch(e) {}
+  }
+
+  closeTravelModal();
+  buildDay();
+}
+
+function closeTravelModal() {
+  var el = document.getElementById('travel-modal-overlay');
+  if (el) el.remove();
+}
+
 // ── Coach delta review: plan vs actual analysis ─────────────────────────
 async function dpCoachReview() {
   var btn = document.getElementById('dp2-coach-review-btn');
@@ -6921,14 +7238,26 @@ function openRecoveryModal(missedSessions) {
   if (!p || !missedSessions || !missedSessions.length) return;
   
   var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  
+
   // Build modal HTML
-  var missedList = missedSessions.map(function(m) {
+  var allMissedList = missedSessions.map(function(m) {
     var rec = getRecoveryOptions(p, m.idx);
     var best = rec.best;
     return { missed: m, best: best, options: rec.options };
   });
-  
+
+  // Salvage mode: 2+ missed — reschedule only the most recent 2, write off the rest
+  var isSalvageMode = missedSessions.length >= 2;
+  var missedList, writeOffList;
+  if (isSalvageMode) {
+    var sortedByRecency = allMissedList.slice().sort(function(a, b) { return b.missed.idx - a.missed.idx; });
+    missedList = sortedByRecency.slice(0, 2);
+    writeOffList = sortedByRecency.slice(2);
+  } else {
+    missedList = allMissedList;
+    writeOffList = [];
+  }
+
   var itemsHtml = missedList.map(function(item, i) {
     var m = item.missed;
     var best = item.best;
@@ -6941,38 +7270,65 @@ function openRecoveryModal(missedSessions) {
         + '<div class="rm-opt-sub">' + subLabel + '</div>'
         + '</button>';
     }).join('');
-    
+
     return '<div class="rm-item" id="rm-item-'+i+'">'
-      + '<div class="rm-missed-label">Missed session</div>'
+      + '<div class="rm-missed-label">Reschedule session</div>'
       + '<div class="rm-missed-session">' + m.sessionType + ' <span class="rm-missed-day">(' + m.day + ')</span></div>'
-      + '<div class="rm-opts-label">Reschedule to:</div>'
+      + '<div class="rm-opts-label">Move to:</div>'
       + '<div class="rm-opts">' + optHtml + '</div>'
     + '</div>';
   }).join('');
-  
+
+  var writeOffHtml = writeOffList.length > 0
+    ? '<div class="rm-writeoff">'
+        + '<div class="rm-writeoff-label">Writing off</div>'
+        + writeOffList.map(function(item) {
+          return '<div class="rm-writeoff-item">' + item.missed.sessionType + ' <span>(' + item.missed.day + ')</span></div>';
+        }).join('')
+        + '<div class="rm-writeoff-note">Too far back to recover without disrupting your programme. We\'ll mark these as missed and keep your week moving forward.</div>'
+      + '</div>'
+    : '';
+
+  var salvageBannerHtml = isSalvageMode
+    ? '<div class="rm-salvage-banner">'
+        + '<div class="rm-salvage-banner-title">&#9889; Salvage mode</div>'
+        + '<div class="rm-salvage-banner-text">You missed ' + missedSessions.length + ' sessions this week. Rather than chasing all of them, '
+          + 'let\'s lock in ' + missedList.length + ' strong session' + (missedList.length > 1 ? 's' : '') + ' before Sunday and write off the rest. Progress, not perfection.</div>'
+      + '</div>'
+    : '';
+
+  var modalTitle = isSalvageMode ? 'Salvage your week' : 'Recover your week';
+  var modalSub = isSalvageMode
+    ? missedSessions.length + ' sessions missed — rescheduling the most recent ' + missedList.length
+    : missedSessions.length + ' session' + (missedSessions.length>1?'s':'') + ' missed — choose where to slot ' + (missedSessions.length>1?'them':'it') + ' in';
+  var confirmLabel = isSalvageMode ? 'Salvage my week &#8594;' : 'Reschedule &#8594;';
+
   var html = '<div id="recovery-modal-overlay" onclick="if(event.target===this)closeRecoveryModal()">'
     + '<div id="recovery-modal">'
       + '<div class="rm-hd">'
-        + '<div class="rm-title">Recover your week</div>'
-        + '<div class="rm-sub">' + missedSessions.length + ' session' + (missedSessions.length>1?'s':'') + ' missed — choose where to slot ' + (missedSessions.length>1?'them':'it') + ' in</div>'
+        + '<div class="rm-title">' + modalTitle + '</div>'
+        + '<div class="rm-sub">' + modalSub + '</div>'
         + '<button class="rm-close" onclick="closeRecoveryModal()">&#10005;</button>'
       + '</div>'
       + '<div class="rm-body">'
+        + salvageBannerHtml
         + itemsHtml
+        + writeOffHtml
         + '<div class="rm-skip-opt">'
-          + '<button onclick="markAllSkippedAndClose()" class="rm-skip-btn">Skip recovery — mark as missed and continue</button>'
+          + '<button onclick="markAllSkippedAndClose()" class="rm-skip-btn">Mark all as missed and continue without rescheduling</button>'
         + '</div>'
       + '</div>'
       + '<div class="rm-footer">'
-        + '<button id="rm-confirm-btn" class="rm-confirm" onclick="confirmRecovery()" disabled>Reschedule &#8594;</button>'
+        + '<button id="rm-confirm-btn" class="rm-confirm" onclick="confirmRecovery()" disabled>' + confirmLabel + '</button>'
       + '</div>'
     + '</div>'
   + '</div>';
   
   document.body.insertAdjacentHTML('beforeend', html);
-  
+
   // Store state
   window._rmMissedList = missedList;
+  window._rmWriteOffList = writeOffList;
   window._rmSelections = {}; // missedIdx -> targetDayIdx
   
   // Auto-select best options
@@ -7023,14 +7379,31 @@ function quickRecoverToToday() {
 function confirmRecovery() {
   var p = P;
   var ml = window._rmMissedList || [];
+  var wo = window._rmWriteOffList || [];
   var sel = window._rmSelections || {};
+
+  // Reschedule selected sessions
   ml.forEach(function(item, i) {
     if (sel[i] !== undefined) {
       applyRecovery(p, item.missed, sel[i]);
     }
   });
+
+  // Mark write-off sessions as skipped (salvage mode)
+  wo.forEach(function(item) {
+    var mon = new Date(), wd = mon.getDay();
+    mon.setDate(mon.getDate() - (wd === 0 ? 6 : wd - 1));
+    mon.setHours(0, 0, 0, 0);
+    var d = new Date(mon); d.setDate(mon.getDate() + item.missed.idx);
+    var dateStr = d.toISOString().slice(0, 10);
+    var log = {};
+    try { log = JSON.parse(localStorage.getItem('bl_daylog_' + dateStr) || '{}'); } catch(e) {}
+    log.trainStatus = 'skipped';
+    log.trainNote = 'Missed — written off in salvage mode';
+    try { localStorage.setItem('bl_daylog_' + dateStr, JSON.stringify(log)); } catch(e) {}
+  });
+
   closeRecoveryModal();
-  // Reload today's plan with updated override
   location.reload();
 }
 
