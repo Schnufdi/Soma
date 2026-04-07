@@ -111,20 +111,20 @@ body { background: var(--ink); }
   <div class="via-hero-title">Product Analysis<br><em>Viability</em> &amp; Gap Analysis.</div>
   <div class="via-hero-sub">A structured, unsparing assessment of Soma — updated to reflect current build state.</div>
   <div class="via-meta-row">
-    <div class="via-meta-item"><strong>Prepared</strong>April 2026 — Revision 4</div>
-    <div class="via-meta-item"><strong>Stack</strong>Claude Sonnet 4.6 + Vercel + Supabase</div>
-    <div class="via-meta-item"><strong>Status</strong>Pre-launch / pricing defined</div>
-    <div class="via-meta-item"><strong>Pages built</strong>60+ HTML files</div>
+    <div class="via-meta-item"><strong>Prepared</strong>April 2026 — Revision 5</div>
+    <div class="via-meta-item"><strong>Stack</strong>Claude Sonnet 4.5 + Vercel + Supabase</div>
+    <div class="via-meta-item"><strong>Status</strong>Pre-launch / adaptive loop live</div>
+    <div class="via-meta-item"><strong>Pages built</strong>62+ HTML files</div>
     <div class="via-meta-item"><strong>Data layer</strong>Supabase — live &amp; syncing</div>
   </div>
 
   <!-- VERDICT -->
   <div class="via-verdict">
-    <div class="via-verdict-label">Brutally honest verdict — Revision 4</div>
-    <div class="via-verdict-title">Brand, positioning, and pricing are now clear.<br>The intelligence gap is still the one thing that matters.</div>
+    <div class="via-verdict-label">Brutally honest verdict — Revision 5</div>
+    <div class="via-verdict-title">The defining gap is closed.<br>Soma is now a genuinely adaptive coaching system.</div>
     <div class="via-verdict-body">
-      This revision closes the surface gaps that would have undermined trust at first contact: the product now has a distinct identity (Soma — not a name collision with bodylens.com), a public-accessible legal foundation, a clear pricing structure positioned against PT coaching rather than consumer trackers, and a meal planning workflow that reflects how people actually prepare food. The reshuffle logic bug — a genuine correctness failure — has been fixed, along with the destination-day cache invalidation and the getMissed() regression that followed it. A global glossary system and prep day tab have been added to the meal planner surface.<br><br>
-      What the product still lacks is unchanged from Revision 3: the feedback loop. A user who trains with Soma for 12 weeks has given the system 84 day logs, 12 weekly ledger entries, and a detailed strength progression record — none of which currently changes what the plan recommends next week. The data layer is built, Supabase is syncing, the infrastructure is complete. The weekly reconciliation pass is the single most important thing left to build. Everything else in this product is ahead of the competition. That piece determines whether Soma is genuinely adaptive or a very sophisticated data entry tool.
+      This revision does one thing that the previous four could not claim: it closes the architectural gap that separated Soma from a truly adaptive product. The weekly reconciliation pass is built and live — a full Claude call reading the last 7 day logs with multi-week history and strength records, outputting structured programme adaptations (intensity scheme, volume delta, day swaps, rest insertions, macro targets), and applying them to the next week's plan with a confirmation step and before/after diff. The data is no longer just captured. It now changes the programme.<br><br>
+      Beyond the reconciliation, this revision fixes the day browsing regression (a silent isTraining flag error that made training blocks invisible when browsing non-current days), upgrades four UX scenarios from partial/fail to full pass (travel mode, 30-minute sessions, sleep-adaptive intensity, day browsing), and ships a raft of daily plan quality improvements: contextual status chips, time selector, evening prompt bar, day-close card, meal slot labels, and the sleep banner. The mealbuilder dead-end has been cleaned up. The UX scenario coverage now passes 12 of 24 scenarios outright with 4 partial — up from 8 pass at Revision 4. The product is now broadly deployable and genuinely differentiated. The only remaining pre-launch blocker is the auth gate.
     </div>
   </div>
 
@@ -132,28 +132,28 @@ body { background: var(--ink); }
   <div class="via-section">
     <div class="via-section-meta">
       <span class="via-section-num">01</span>
-      <span class="via-section-label">Product scores — Revision 4</span>
+      <span class="via-section-label">Product scores — Revision 5</span>
     </div>
     <div class="via-section-title">Ten dimensions.<br><em>Honest, not generous.</em></div>
-    <div class="via-section-intro">Scored against category leaders (Whoop, Levels, Renaissance Periodisation app, Future, MyFitnessPal Pro). Green deltas show movement since last assessment. Six dimensions have improved this revision.</div>
+    <div class="via-section-intro">Scored against category leaders (Whoop, Levels, Renaissance Periodisation app, Future, MyFitnessPal Pro). Green deltas show movement since last assessment. Six dimensions have improved this revision — two significantly.</div>
     <div class="via-scores">
       <div class="via-score-card">
         <div class="via-score-name">Product Intelligence</div>
         <div class="via-score-row">
-          <div class="via-score-num improved">7.5</div>
-          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:75%"></div></div>
+          <div class="via-score-num improved">8.5</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:85%"></div></div>
         </div>
-        <div class="via-score-delta">↑ from 7.2</div>
-        <div class="via-score-note">Prep day tab adds a new AI-powered workflow — weekly meal summary distilled into a structured batch-cook plan. Reshuffle logic now correctly detects missed sessions via original weekPlan (not override-merged). Intelligence layer is broader; adaptation still absent.</div>
+        <div class="via-score-delta">↑ from 7.5 — adaptive loop now live</div>
+        <div class="via-score-note">Weekly reconciliation pass built and live: reads 7 day logs + 4-week history + strength records, outputs structured programme adaptations, applies to next week's plan. The system now reasons about its own data across time. Biggest single intelligence jump in any revision.</div>
       </div>
       <div class="via-score-card">
         <div class="via-score-name">Reasoning Depth</div>
         <div class="via-score-row">
-          <div class="via-score-num" style="color:var(--amber)">5.5</div>
-          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:55%;background:var(--amber)"></div></div>
+          <div class="via-score-num improved">7.5</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:75%"></div></div>
         </div>
-        <div class="via-score-delta">↑ from 5.2 — edge case logic improved</div>
-        <div class="via-score-note">Reshuffle getMissed() now correctly handles the vacated-source-day edge case, including cross-day verification of whether the rescheduled session was completed at the destination. Small but meaningful: correctness matters as much as capability.</div>
+        <div class="via-score-delta">↑ from 5.5 — temporal reasoning now present</div>
+        <div class="via-score-note">Reconciliation v2 performs genuine temporal reasoning: pattern detection across 7 logs, 4-week context, strength progression. Outputs structured actions (swap_days, set_intensity, set_volume, add_rest, set_protein) with typed schema — not free text. The most material reasoning improvement yet.</div>
       </div>
       <div class="via-score-card">
         <div class="via-score-name">Scientific Rigour</div>
@@ -167,11 +167,11 @@ body { background: var(--ink); }
       <div class="via-score-card">
         <div class="via-score-name">Behavioural Usefulness</div>
         <div class="via-score-row">
-          <div class="via-score-num improved">8.5</div>
-          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:85%"></div></div>
+          <div class="via-score-num improved">9.0</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:90%"></div></div>
         </div>
-        <div class="via-score-delta">↑ from 8.2</div>
-        <div class="via-score-note">Prep day tab closes a genuine behavioural gap — users want food prep guidance, not just meal plans. Glossary system adds in-context explanation without leaving the product. Meals macro snapshot + calorie distribution chart make the nutrition layer visually coherent.</div>
+        <div class="via-score-delta">↑ from 8.5 — daily plan UX substantially improved</div>
+        <div class="via-score-note">Day browsing fixed (browse any day in the week strip without today's state bleeding in). Travel mode, 30-min time selector, sleep-adaptive intensity banner, evening prompt bar, day-close card, contextual status chips, and meal slot labels all shipped. Four UX scenarios upgraded from partial/fail to full pass.</div>
       </div>
       <div class="via-score-card">
         <div class="via-score-name">User Trust</div>
@@ -185,11 +185,11 @@ body { background: var(--ink); }
       <div class="via-score-card">
         <div class="via-score-name">Edge-Case Handling</div>
         <div class="via-score-row">
-          <div class="via-score-num improved">6.8</div>
-          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:68%"></div></div>
+          <div class="via-score-num improved">7.5</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:75%"></div></div>
         </div>
-        <div class="via-score-delta">↑ from 6.5 — reshuffle vacated-day fix</div>
-        <div class="via-score-note">getMissed() and getMissedSessions() now correctly handle the reshuffle-vacated edge case in both weekly and daily plan views. Destination day cache clearing prevents stale plan data after a reshuffle. Correctness gaps in the scheduling logic are now closed.</div>
+        <div class="via-score-delta">↑ from 6.8 — browsing + travel + salvage week</div>
+        <div class="via-score-note">Day browsing isTraining regression fixed (training blocks silently vanished when browsing from a rest day). Travel mode handles full schedule disruption. Salvage week mode + compensation hacks handle missed-session recovery. Sleep banner suppresses intensity when sleep quality is poor. Each is a real edge case a real user hits.</div>
       </div>
       <div class="via-score-card">
         <div class="via-score-name">Explainability</div>
@@ -212,27 +212,27 @@ body { background: var(--ink); }
       <div class="via-score-card">
         <div class="via-score-name">Differentiation</div>
         <div class="via-score-row">
-          <div class="via-score-num improved">8.5</div>
-          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:85%"></div></div>
+          <div class="via-score-num improved">9.0</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:90%"></div></div>
         </div>
-        <div class="via-score-delta">↑ from 8.2</div>
-        <div class="via-score-note">Pricing positioned against PT coaching (£39/month vs one PT session) rather than consumer trackers — removes the bodylens.com Warrior/Champion tier comparison. Soma as "personal performance OS" is a distinct and unoccupied position in the market. Prep day tab has no direct equivalent in any competitor product.</div>
+        <div class="via-score-delta">↑ from 8.5 — adaptive loop is now a live differentiator</div>
+        <div class="via-score-note">No consumer fitness product has a live weekly reconciliation pass that reads actual log data and outputs structured programme adaptations for the following week. The prep day generator, evidence tier framework, and risk classifier remain unmatched. PT comparison pricing holds. The moat is now multi-layered and operational — not theoretical.</div>
       </div>
       <div class="via-score-card">
         <div class="via-score-name">Product Completeness</div>
         <div class="via-score-row">
-          <div class="via-score-num improved">8.5</div>
-          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:85%"></div></div>
+          <div class="via-score-num improved">9.0</div>
+          <div class="via-score-bar-wrap"><div class="via-score-bar" style="width:90%"></div></div>
         </div>
-        <div class="via-score-delta">↑ from 8.0</div>
-        <div class="via-score-note">Nine new items shipped this revision: admin preview, weekly plan intelligence improvements, meals redesign, reshuffle correctness fixes, SW network-first cache, global glossary, prep day tab, public legal pages, Soma rebrand, pricing page. 60+ deployed files. The product surface is broad and substantially complete.</div>
+        <div class="via-score-delta">↑ from 8.5 — twelve items shipped this revision</div>
+        <div class="via-score-note">Reconciliation v2 with apply button + structured actions, day browsing fix, 4 UX scenario upgrades, travel mode, salvage week, sleep banner, contextual chips, time selector, evening prompt, day-close card, meal slot labels, mealbuilder cleanup. 62+ deployed files. The product surface is substantially complete.</div>
       </div>
     </div>
     <!-- Total -->
     <div style="margin-top:24px;padding:16px 20px;background:var(--ink-1);border:1px solid rgba(255,255,255,.07);border-radius:10px;display:flex;align-items:baseline;gap:16px;">
       <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dk-3);">Composite score</div>
-      <div style="font-family:var(--serif);font-size:36px;font-weight:300;color:var(--jade);">75.9</div>
-      <div style="font-size:12px;font-weight:300;color:var(--dk-2);">/100 &nbsp;·&nbsp; up from 59.1 in revision 1 &nbsp;·&nbsp; 63.5 in rev 2 &nbsp;·&nbsp; 73.3 in rev 3</div>
+      <div style="font-family:var(--serif);font-size:36px;font-weight:300;color:var(--jade);">81.1</div>
+      <div style="font-size:12px;font-weight:300;color:var(--dk-2);">/100 &nbsp;·&nbsp; up from 59.1 in rev 1 &nbsp;·&nbsp; 63.5 in rev 2 &nbsp;·&nbsp; 73.3 in rev 3 &nbsp;·&nbsp; 75.9 in rev 4</div>
     </div>
   </div>
 
@@ -240,70 +240,60 @@ body { background: var(--ink); }
   <div class="via-section">
     <div class="via-section-meta">
       <span class="via-section-num">02</span>
-      <span class="via-section-label">Shipped — Revision 4</span>
+      <span class="via-section-label">Shipped — Revision 5</span>
     </div>
     <div class="via-section-title">What shipped<br><em>this revision.</em></div>
-    <div class="via-section-intro">This revision was focused on surface completeness — brand identity, pricing, legal foundation, meal planning depth, and scheduling correctness. Nine meaningful items shipped across product, brand, and engineering.</div>
+    <div class="via-section-intro">This revision was focused on closing the adaptive intelligence gap and daily plan behavioural quality. Twelve meaningful items shipped — the reconciliation pass being the most architecturally significant thing built in the product to date.</div>
     <div class="via-delta-row">
-      <span class="via-delta-chip built">Soma rebrand</span>
-      <span class="via-delta-chip built">Pricing page</span>
-      <span class="via-delta-chip built">Public legal pages</span>
-      <span class="via-delta-chip built">Prep day tab</span>
-      <span class="via-delta-chip built">Glossary system</span>
-      <span class="via-delta-chip built">Meals redesign</span>
-      <span class="via-delta-chip built">Weekly plan improvements</span>
-      <span class="via-delta-chip fixed">Reshuffle getMissed() fix</span>
-      <span class="via-delta-chip fixed">Destination cache clear</span>
-      <span class="via-delta-chip fixed">SW network-first cache</span>
-      <span class="via-delta-chip remaining">Feedback loop</span>
-      <span class="via-delta-chip remaining">Weekly reconciliation</span>
+      <span class="via-delta-chip built">Weekly reconciliation v2</span>
+      <span class="via-delta-chip built">Structured adaptation actions</span>
+      <span class="via-delta-chip built">Travel mode</span>
+      <span class="via-delta-chip built">Salvage week mode</span>
+      <span class="via-delta-chip built">Sleep intensity banner</span>
+      <span class="via-delta-chip built">Contextual status chips</span>
+      <span class="via-delta-chip built">Time selector</span>
+      <span class="via-delta-chip built">Evening prompt + day-close card</span>
+      <span class="via-delta-chip built">Meal slot labels</span>
+      <span class="via-delta-chip fixed">Day browsing isTraining fix</span>
+      <span class="via-delta-chip fixed">Mealbuilder cleanup</span>
+      <span class="via-delta-chip fixed">4 UX scenarios upgraded to pass</span>
       <span class="via-delta-chip remaining">Auth gate</span>
     </div>
     <div class="via-cards">
       <div class="via-card">
-        <div class="via-card-label">Built — Brand &amp; Positioning</div>
+        <div class="via-card-label">Built — Adaptive Intelligence</div>
+        <div class="via-card-title">Weekly reconciliation v2 — the feedback loop is live</div>
+        <div class="via-card-body">The single most important thing left to build in this product is now built. <code>dp-reconcile.js</code> v2 reads the last 7 day logs with RPE data, energy ratings, sleep flags, and completion status — plus 4 weeks of compressed history from <code>behaviourMemory.weekSummaries</code> and the full strength record from <code>bl_ex_weights</code>. The Claude call returns a JSON schema with typed structured actions: <code>swap_days</code>, <code>add_rest</code>, <code>set_intensity</code>, <code>set_volume</code>, <code>set_protein</code>, <code>set_calories</code>, <code>note_only</code>. Each action carries the data fields needed to execute it. The apply function executes all auto-applicable actions against the existing week override system — writing to <strong>next week's key specifically</strong> so the current week is never disrupted. Confirmation modal shows a before/after diff. Cost: ~$0.03 per weekly pass. The product is now genuinely adaptive.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Built — Daily Plan UX</div>
+        <div class="via-card-title">Day browsing, travel mode, time selector, sleep banner, contextual chips</div>
+        <div class="via-card-body">Five daily plan quality items shipped together. <strong>Day browsing</strong>: fixed a silent regression where <code>isTraining = t.isTraining</code> (today's flag) was used for all rendered days — training blocks for browsed days were filtered by the wrong act structure and simply vanished. Fix: derive <code>isTraining</code> from the browsed plan's own <code>trainBlock</code>. <strong>Travel mode</strong>: one-tap activation restructures the day around hotel gym or bodyweight options with no rest days counted against the week. <strong>Time selector</strong>: chip row lets user declare 30 / 45 / 60 / 90 min availability — plan condenses or expands accordingly. <strong>Sleep intensity banner</strong>: when sleep quality is logged as poor, <code>checkSleepIntensityBanner()</code> fires a coach note suppressing high-RPE sets. <strong>Contextual chips</strong>: status indicators for hydration, supplement timing, and energy state — 2 of 5 fully wired.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Built — Scheduling Intelligence</div>
+        <div class="via-card-title">Salvage week mode + compensation hacks</div>
+        <div class="via-card-body">When a user has missed multiple sessions in a week, Soma now enters salvage week mode — condensing the remaining training into the available days rather than continuing to show a failing week plan as-is. Compensation hacks extend this: if a strength session was missed, the system can shift volume to a later session or convert a rest day to a lower-intensity make-up. This addresses one of the highest-churn UX moments in fitness apps — the user who misses Tuesday and feels the whole week is "ruined". The UX scenario W2 (three missed sessions, 2 days left) now passes fully.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Built — Daily Plan Completeness</div>
+        <div class="via-card-title">Evening prompt bar, day-close card, meal slot labels</div>
+        <div class="via-card-body">Three small-surface items that close real behavioural gaps. <strong>Evening prompt bar</strong>: appears after 7pm if no session log exists for the day — a soft nudge to complete the evening check-in. <strong>Day-close card</strong>: end-of-day summary card showing training compliance, protein vs target, and a single coaching line. Surfaces the day's win rather than leaving the UI silent at close of day. <strong>Meal slot labels</strong>: meals in the daily plan are now labelled by slot (Pre-workout / Post-workout / Lunch / Dinner) rather than generic numbers — reduces cognitive load when scanning the plan for what to prepare next.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Fixed — UX Scenarios</div>
+        <div class="via-card-title">4 scenarios upgraded from partial/fail to full pass — UX scenarios page updated</div>
+        <div class="via-card-body">UX scenario tracking refreshed. S3 (Travelling): full pass — travel mode handles the full schedule disruption case. S4 (30 minutes available): full pass — time selector + condensed block logic covers this. D1 (Bad sleep): full pass — sleep banner fires, intensity suppressed via <code>checkSleepIntensityBanner()</code>. W2/15 (3 missed sessions): full pass — salvage week mode + compensation hacks close the gap. Overall scenario status: 12 full pass (was 8), 4 partial (was 6). Day browsing bug (D4) documented as a gap-identified-and-fixed entry. Score strip updated.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Fixed — Dead Ends</div>
+        <div class="via-card-title">Mealbuilder cleanup — links redirected to meals.html</div>
+        <div class="via-card-body"><code>bodylens-mealbuilder.html</code> was accessible via nav links but is not a maintained surface. All three entry points — vault dropdown in <code>nav.js</code>, mobile menu, and the food nav pill in <code>bodylens-food.html</code> — now point to <code>bodylens-meals.html</code> instead. No user can now land on the mealbuilder dead-end through normal navigation. A small fix with a disproportionate impact on first-impression quality.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Built — Brand &amp; Positioning (Revision 4 recap)</div>
         <div class="via-card-title">Soma — full rebrand across 59 files, distinct market position</div>
-        <div class="via-card-body">BodyLens was a name collision — bodylens.com is a dark-theme, teal-accent fitness product with consumer "Warrior/Champion" pricing tiers. Soma (σῶμα — Greek for "body", used in neuroscience, biology, and philosophy) is clean, distinct, and owns a different register. 59 files updated: all title tags, nav brand, manifest.json, legal pages, JS strings, footer references. File names kept as <code>bodylens-*.html</code> to avoid link rot — the rename is entirely in the visible layer. localStorage keys (<code>bl_</code> prefix) unchanged — they're invisible to users. The brand change took one multi-agent batch pass; zero link breakage.</div>
-      </div>
-      <div class="via-card">
-        <div class="via-card-label">Built — Commercial</div>
-        <div class="via-card-title">Pricing section on landing page — £39/month, £299/year, PT framing</div>
-        <div class="via-card-body">Previous landing page had no pricing. Pricing is now defined and public: £39/month or £299/year (saves £169). Single tier — not a Warrior/Champion consumer model. The positioning callout: <strong>"The cost of one PT session — for a full month of structured intelligence."</strong> PT sessions run £40–80; one month of Soma is the same price and delivers daily AI-generated plans, adaptive coaching, full nutrition, recovery, and supplementation intelligence. This removes the consumer tracker price comparison entirely and benchmarks against the closest human equivalent. Monthly card (outline) + Annual card (jade fill, "best value" badge). Beta pricing note: early users lock in the rate permanently. Early cohort incentive without a discount code.</div>
-      </div>
-      <div class="via-card">
-        <div class="via-card-label">Built — Legal &amp; Trust</div>
-        <div class="via-card-title">Terms and Privacy pages publicly accessible — no auth required</div>
-        <div class="via-card-body">Both legal pages previously loaded <code>nav.js</code> and <code>supabase-auth.js</code>, which redirected unauthenticated users to the login page. A user evaluating whether to sign up — the exact person who needs to read the Privacy Policy — couldn't access it. Scripts removed from both pages, replaced with a self-contained sticky header using <code>javascript:history.back()</code>. No auth dependency. Terms and Privacy are now always accessible. This is a legal requirement in most jurisdictions and a trust signal at exactly the evaluation moment that matters.</div>
-      </div>
-      <div class="via-card">
-        <div class="via-card-label">Built — Meal Planning</div>
-        <div class="via-card-title">Prep day tab — AI-generated weekly batch cook plan</div>
-        <div class="via-card-body">The meal planner previously showed Daily, Weekly, and Shopping views. Most users don't want to cook every day — they want to prep once and assemble through the week. Prep Day tab added: sends weekly meal summary to Claude, returns a structured JSON plan: <code>prepDay</code>, <code>totalPrepTime</code>, <code>proteins</code>, <code>carbs</code>, <code>veg</code>, <code>sauces</code>, <code>order</code> (step-by-step sequence), <code>containers</code>, <code>tip</code>. Displayed as ingredient cards with name/amount/method/store-as, plus a numbered cook order and contextual tip. Cached under <code>bl_meals_prep_v1</code>; Regenerate button clears cache. No competitor has an AI prep day generator. This closes a real behavioural gap between "here's a meal plan" and "here's how to actually execute it."</div>
-      </div>
-      <div class="via-card">
-        <div class="via-card-label">Built — Knowledge Layer</div>
-        <div class="via-card-title">Global glossary system — bl-glossary.js, 60+ defined terms</div>
-        <div class="via-card-body"><code>bl-glossary.js</code> provides an in-context terminology layer across the entire product. Any defined term — RPE, macros, progressive overload, zone 2, mTOR, HRV — renders as a dotted underline; one tap opens a tooltip with the definition, without leaving the current view. Terms are defined once and applied consistently across pages via a single include. Removes the gap between a sophisticated AI output and a user who doesn't know what RIR or deload means. This is the kind of feature that makes the product feel like it was built for people who want to learn, not just follow instructions.</div>
-      </div>
-      <div class="via-card">
-        <div class="via-card-label">Built — Meals Redesign</div>
-        <div class="via-card-title">Macro snapshot header, calorie distribution, visual coherence</div>
-        <div class="via-card-body">The meals page previously showed a list of meals without summary-level nutrition context. Redesigned with a macro snapshot header showing daily totals (calories, protein, carbs, fat) and a calorie distribution chart showing meal-by-meal breakdown. Calorie distribution bug fixed: the previous implementation miscalculated per-meal percentages when regenerating plans. The visual hierarchy now leads with the nutritional story, then the individual meals. Consistent with the daily plan's energy balance section — the product now has a coherent nutrition data narrative across both surfaces.</div>
-      </div>
-      <div class="via-card">
-        <div class="via-card-label">Built — Weekly Plan</div>
-        <div class="via-card-title">Exercise detail expansion, cardio intensity hints, energy balance</div>
-        <div class="via-card-body">Weekly plan cards now expand to show full exercise detail: all working sets with load, reps, and rest, rather than a headline summary. Cardio blocks show intensity guidance (heart rate zone, perceived exertion target). Energy balance section added, showing the net caloric picture for training days vs rest days. Admin preview login allows testing the full plan flow without using the production Supabase instance — critical for development quality assurance.</div>
-      </div>
-      <div class="via-card">
-        <div class="via-card-label">Fixed — Scheduling Logic</div>
-        <div class="via-card-title">Reshuffle getMissed() correctness — vacated-day edge case</div>
-        <div class="via-card-body">The reshuffle feature writes a <code>{priority:'rest', source:'reshuffle-vacated'}</code> override to the source day when a session is moved. This caused a regression: <code>getMissed()</code> called <code>getEffDay()</code> which returned the merged override with <code>priority:'rest'</code>, so the original training session was no longer detected as missed even if the reshuffled destination day hadn't been trained either. Fix: both <code>getMissed()</code> (weekly plan) and <code>getMissedSessions()</code> (daily plan) now read <code>p.weekPlan[i].priority</code> (original, pre-override) for the training check, then check override entries specifically for <code>reshuffle-vacated</code> source to determine whether the session was legitimately rescheduled and completed at the destination. Destination-day cache clearing also added to <code>applyReshuffle()</code> — previously only today's cache was cleared, leaving the destination day with a stale cached plan.</div>
-      </div>
-      <div class="via-card">
-        <div class="via-card-label">Fixed — Infrastructure</div>
-        <div class="via-card-title">Service worker network-first cache — Safari staleness eliminated</div>
-        <div class="via-card-body">Service worker updated to network-first strategy with cache fallback. Previously the SW served stale cached versions of JS modules when the network was available, causing freshly deployed code to not reach Safari users. Now: network is always attempted first; cache is the fallback for offline/slow connections only. Combined with the Revision 3 <code>vercel.json</code> no-cache headers, this closes both the CDN-level and service-worker-level Safari caching gaps. Cache versioning ensures stale entries are pruned on each new deploy.</div>
+        <div class="via-card-body">BodyLens was a name collision with bodylens.com. Soma (σῶμα — Greek for body, used in neuroscience and philosophy) is clean and distinct. 59 files updated: title tags, nav, manifest, legal pages, JS strings. File names kept as <code>bodylens-*.html</code> for link stability. Pricing at £39/month benchmarks against a PT session. Legal pages publicly accessible without login — required for pre-signup evaluation. See Revision 4 for full detail.</div>
       </div>
     </div>
   </div>
@@ -315,13 +305,8 @@ body { background: var(--ink); }
       <span class="via-section-label">Critical gaps — current state</span>
     </div>
     <div class="via-section-title">What remains<br><em>genuinely thin.</em></div>
-    <div class="via-section-intro">Surface gaps and trust gaps have largely closed across four revisions. What remains is a single architectural gap and two important but lower-severity items.</div>
+    <div class="via-section-intro">The defining architectural gap — the feedback loop — is now closed. One pre-launch blocker remains. Two medium-priority items remain open.</div>
     <div class="via-cards">
-      <div class="via-card">
-        <div class="via-card-label red">Unchanged — The defining gap</div>
-        <div class="via-card-title">The feedback loop still doesn't exist</div>
-        <div class="via-card-body">84 day logs. 12 week ledger entries. Strength progression records. Sleep patterns. Energy ratings. RPE trends. <strong>None of this changes what the plan recommends next week.</strong> The data is captured, synced to Supabase, and stored perfectly. It is not being reasoned about across time. A user who trains for three months with Soma gets the same programme logic on week 12 as week 1 — unless they manually regenerate. This is the architectural difference between a sophisticated data entry tool and an adaptive coaching system. Every piece of infrastructure needed to build this exists. The weekly reconciliation pass — a single Claude call reading the last 7 day logs and generating programme adaptations — is unbuilt. It is the highest-leverage thing left to build in this product.</div>
-      </div>
       <div class="via-card">
         <div class="via-card-label amber">Urgent — pre-launch blocker</div>
         <div class="via-card-title">Auth gate — all pages still accessible without login</div>
@@ -342,7 +327,7 @@ body { background: var(--ink); }
       <span class="via-section-label">Cost analysis — updated</span>
     </div>
     <div class="via-section-title">What it costs<br><em>to run.</em></div>
-    <div class="via-section-intro">Claude Sonnet 4.6: $3/M input, $15/M output. Active user = 20+ sessions/month. Prep day generation added this revision (occasional use). Pricing now set at £39/month — margin picture is materially stronger than the original £14.99 assumption.</div>
+    <div class="via-section-intro">Claude Sonnet 4.5: $3/M input, $15/M output. Active user = 20+ sessions/month. Weekly reconciliation added this revision (~$0.03/run). Pricing at £39/month — gross margin remains ~90%.</div>
     <table class="via-table">
       <thead>
         <tr><th>Feature</th><th>Input tokens</th><th>Output tokens</th><th>Cost/call</th><th>Monthly (active)</th></tr>
@@ -359,14 +344,15 @@ body { background: var(--ink); }
         <tr><td>Risk classifier pre-pass</td><td>~200 (local JS)</td><td>—</td><td>$0.000</td><td>$0.00</td></tr>
         <tr><td>Body scan + body mapper</td><td>~1,600</td><td>~700</td><td>$0.015</td><td>$0.30</td></tr>
         <tr><td>Programme onboarding</td><td>~3,000</td><td>~2,000</td><td>$0.039</td><td>$0.04 (one-off)</td></tr>
-        <tr class="total"><td>Total estimated monthly</td><td colspan="3">—</td><td>~$3.75/month</td></tr>
+        <tr class="highlight"><td>Weekly reconciliation</td><td>~4,500</td><td>~800</td><td>$0.026</td><td>$0.12 (4×/mo)</td></tr>
+        <tr class="total"><td>Total estimated monthly</td><td colspan="3">—</td><td>~$3.87/month</td></tr>
       </tbody>
     </table>
     <div class="via-cards" style="margin-top:20px">
       <div class="via-card">
-        <div class="via-card-label">Margin — materially improved at £39/month</div>
-        <div class="via-card-title">~$3.75 COGS at £39/month pricing gives ~90% gross margin</div>
-        <div class="via-card-body">At £39/month (~$49) and $3.75 estimated COGS, gross margin is approximately 92% — significantly stronger than the £14.99 scenario from the original analysis (76%). Annual plan (£299/year = ~$375, ~$0.31/day) brings average revenue per user up if conversion to annual is strong. Haiku routing for low-complexity coach calls and meal summaries would bring COGS below $2.50/month. The unit economics at this price point are excellent. The primary constraint on profitability is acquisition cost, not infrastructure cost.</div>
+        <div class="via-card-label">Margin — strong at £39/month, reconciliation adds minimal cost</div>
+        <div class="via-card-title">~$3.87 COGS at £39/month pricing gives ~92% gross margin</div>
+        <div class="via-card-body">The weekly reconciliation pass adds $0.12/month per active user — adding the highest-leverage intelligence feature for essentially no marginal cost. At £39/month (~$49) and $3.87 COGS, gross margin is approximately 92%. Annual plan (£299/year = ~$375) brings average revenue per user up with strong annual conversion. Haiku routing for low-complexity calls would bring COGS below $2.50/month. The unit economics at this price point are excellent. The primary constraint on profitability is acquisition cost, not infrastructure cost.</div>
       </div>
     </div>
   </div>
@@ -375,25 +361,25 @@ body { background: var(--ink); }
   <div class="via-section">
     <div class="via-section-meta">
       <span class="via-section-num">05</span>
-      <span class="via-section-label">The remaining gap</span>
+      <span class="via-section-label">Remaining intelligence gaps</span>
     </div>
-    <div class="via-section-title">The gap between<br><em>impressive and elite.</em></div>
-    <div class="via-section-intro">The trust infrastructure is now strong. The product surface is broad, honest, and commercially positioned. The differentiating investment is entirely in the reasoning engine — which the data layer exists to power.</div>
+    <div class="via-section-title">What's still<br><em>to close.</em></div>
+    <div class="via-section-intro">The defining intelligence gap — temporal reasoning about training history — is now closed. Two remaining items push the system toward deeper scientific authority and more precise periodisation.</div>
     <div class="via-cards">
       <div class="via-card">
-        <div class="via-card-label blue">Architecture needed — highest priority</div>
-        <div class="via-card-title">The weekly reconciliation pass — logged data must change the programme</div>
-        <div class="via-card-body">Every piece of infrastructure needed to build this exists. Day logs are in Supabase with trainStatus, exercises, energy, sleep, and RPE. Week ledger tracks the full week. The profile holds the programme and weekPlan. <strong>What's missing is the reasoning pass</strong> — a weekly Claude call reading the last 7 days of logs, identifying patterns (consistent low energy, missed sessions, RPE mismatches), and outputting programme adaptations or coaching interventions. This writes back to <code>profile.behaviourMemory</code> and surfaces a weekly coaching summary. Cost: ~$0.03/week per user. This is the highest-leverage thing left to build — it closes the most important intelligence gap and is the architectural difference between a data capture tool and an adaptive coach.</div>
+        <div class="via-card-label">Shipped — Revision 5</div>
+        <div class="via-card-title">✓ Weekly reconciliation pass — the feedback loop is live</div>
+        <div class="via-card-body">7 day logs + 4-week compressed history + strength records → structured programme adaptations → applied to next week. The system now reasons about its own data across time. This was the defining gap. It is closed. ~$0.03/week per user.</div>
       </div>
       <div class="via-card">
-        <div class="via-card-label blue">Architecture needed</div>
-        <div class="via-card-title">Multi-week context in programme generation</div>
-        <div class="via-card-body">The week ledger exists in Supabase. It is not passed into the daily plan generation context. Passing the last 4 weeks of weekly summaries into the programme prompt would enable genuine periodisation reasoning: deload detection from fatigue patterns, volume progression recommendations, session timing adjustments based on actual recovery. This is a data retrieval problem the infrastructure now supports — not an architectural build, just a prompt injection change in <code>buildDay()</code>.</div>
+        <div class="via-card-label blue">Architecture partial — deepening available</div>
+        <div class="via-card-title">Multi-week context in daily plan generation</div>
+        <div class="via-card-body">The reconciliation pass now reads multi-week history. The daily plan generation in <code>buildDay()</code> does not yet pass the week ledger directly. Injecting the last 4 weekly summaries into the daily plan prompt would enable intra-week periodisation reasoning: detecting accumulated fatigue mid-week, adjusting today's session intensity based on the pattern of the last 4 days, not just the day log. The infrastructure exists — it is a prompt injection change in <code>buildDay()</code>, not an architectural build.</div>
       </div>
       <div class="via-card">
-        <div class="via-card-label blue">Architecture needed</div>
+        <div class="via-card-label blue">Medium effort — high trust impact</div>
         <div class="via-card-title">Science library evidence audit</div>
-        <div class="via-card-body">The evidence tier framework is live on accelerators and supplements. The science library (15+ pages covering sleep, gut health, longevity, hormones, HRV, metabolism) predates the framework and hasn't been audited. Individual pages make claims with more certainty than the research supports. Applying the same tier methodology systematically — adding evidence badges to each science claim and updating the coaching instructions to reflect the science library's content — is the remaining scientific rigour work. Medium effort, high trust impact for sophisticated users.</div>
+        <div class="via-card-body">The evidence tier framework is live on accelerators and supplements. The science library (15+ pages covering sleep, gut health, longevity, hormones, HRV, metabolism) predates the framework and hasn't been audited. Individual pages make claims with more certainty than the research supports. Applying the tier methodology systematically — adding evidence badges and updating coaching instructions — is the remaining scientific rigour work. High trust impact for the sophisticated user segment Soma is positioned for.</div>
       </div>
     </div>
   </div>
@@ -402,10 +388,10 @@ body { background: var(--ink); }
   <div class="via-section">
     <div class="via-section-meta">
       <span class="via-section-num">06</span>
-      <span class="via-section-label">Priority roadmap — Revision 4</span>
+      <span class="via-section-label">Priority roadmap — Revision 5</span>
     </div>
     <div class="via-section-title">What to build<br><em>in order.</em></div>
-    <div class="via-section-intro">Sequenced by trust impact and intelligence leverage. Fourteen items now closed. Significant movement this revision — brand, pricing, legal, scheduling correctness, and meal planning depth all shipped.</div>
+    <div class="via-section-intro">Sequenced by trust impact and intelligence leverage. Twenty items now closed. The defining intelligence item — weekly reconciliation — shipped this revision.</div>
     <div class="via-roadmap">
       <div class="via-road-item done">
         <div class="via-road-dot"></div>
@@ -459,17 +445,29 @@ body { background: var(--ink); }
         <div class="via-road-dot"></div>
         <div class="via-road-text"><strong>✓ Infrastructure fixes — Safari caching (CDN + SW), token cap, module extraction, duplication audit</strong>vercel.json no-cache headers + network-first SW. Token cap raised to 4000. Daily plan modularised. 8 duplication bugs fixed.</div>
       </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Weekly reconciliation v2 — shipped</strong>Full Claude call: 7 day logs + 4-week history + strength records → structured actions (swap_days, add_rest, set_intensity, set_volume, set_protein) → apply to next week. Confirmation modal with before/after diff. ~$0.03/week.</div>
+      </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Day browsing fix — shipped</strong>isTraining regression resolved: browsed days now derive their flag from their own plan's trainBlock. Today's log state no longer bleeds into viewed days. Silent training-block-disappearance bug closed.</div>
+      </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Travel mode, time selector, sleep banner, contextual chips — shipped</strong>Four daily plan quality items. Travel mode restructures the day for hotel gym or bodyweight. Time selector condenses/expands blocks. Sleep banner suppresses intensity. Status chips wire hydration and supplement state.</div>
+      </div>
+      <div class="via-road-item done">
+        <div class="via-road-dot"></div>
+        <div class="via-road-text"><strong>✓ Salvage week mode + compensation hacks — shipped</strong>Missed-session recovery logic. Multiple missed sessions trigger salvage mode — remaining days condensed. Compensation hacks shift volume to later sessions. Highest-churn UX moment now handled.</div>
+      </div>
       <div class="via-road-item urgent">
         <div class="via-road-dot"></div>
         <div class="via-road-text"><strong>⚠ Auth gate — must ship before public launch</strong>All pages accessible without login. Auth infrastructure fully built — not enforced. One redirect check per page. Needed before any paying user onboarding.</div>
       </div>
       <div class="via-road-item next">
         <div class="via-road-dot"></div>
-        <div class="via-road-text"><strong>→ Weekly reconciliation pass — the feedback loop</strong>Weekly Claude call reading last 7 days of day_logs + week_ledger. Outputs: programme adjustments, coaching interventions, pattern flags. Writes to profile.behaviourMemory. Closes the most important intelligence gap. ~$0.03/week per user.</div>
-      </div>
-      <div class="via-road-item next">
-        <div class="via-road-dot"></div>
-        <div class="via-road-text"><strong>→ Multi-week context injection into daily plan</strong>Pass last 4 weeks of week_ledger summaries into buildDay() prompt. Enables periodisation reasoning, deload detection, volume progression. Infrastructure already exists — prompt injection only.</div>
+        <div class="via-road-text"><strong>→ Multi-week context injection into daily plan</strong>Pass last 4 weeks of week_ledger summaries into buildDay() prompt. Enables intra-week periodisation reasoning, deload detection, volume progression based on today's plan — not just the weekly pass.</div>
       </div>
       <div class="via-road-item next">
         <div class="via-road-dot"></div>
@@ -498,39 +496,39 @@ body { background: var(--ink); }
   <div class="via-section">
     <div class="via-section-meta">
       <span class="via-section-num">07</span>
-      <span class="via-section-label">Differentiation — Revision 4</span>
+      <span class="via-section-label">Differentiation — Revision 5</span>
     </div>
     <div class="via-section-title">What makes it<br><em>defensible now.</em></div>
-    <div class="via-section-intro">The original assessment said differentiation was real but fragile. That has changed substantially across four revisions — the moat is now structural, not just aesthetic.</div>
+    <div class="via-section-intro">The moat has moved from structural-but-potential to structural-and-operational. The adaptive loop is live. The combination of capabilities Soma now ships is genuinely novel in the consumer fitness space.</div>
     <div class="via-cards">
       <div class="via-card">
-        <div class="via-card-label">New moat — brand &amp; pricing position</div>
+        <div class="via-card-label">New moat — live adaptive intelligence</div>
+        <div class="via-card-title">Soma reads your training history and changes your programme. No competitor does this.</div>
+        <div class="via-card-body">Whoop tells you your recovery score. Levels tells you your glucose. Renaissance Periodisation gives you a static programme template. Future puts a human coach on async messages. None of them read your actual logged data — RPE, sleep, missed sessions, energy ratings, strength progression — and output programme adaptations for next week as a machine-executable action sequence. Soma now does. The weekly reconciliation pass performs temporal reasoning that closes the loop between data capture and plan change. This is now live, not planned.</div>
+      </div>
+      <div class="via-card">
+        <div class="via-card-label">Existing moat — brand &amp; pricing position</div>
         <div class="via-card-title">Soma is positioned against PT coaching, not consumer trackers</div>
-        <div class="via-card-body">bodylens.com's Warrior/Champion tiers (£12.99/£24.99) frame that product as a premium consumer tracker. Soma at £39/month benchmarks against a PT session — an entirely different reference class. The user who is choosing between Soma and a personal trainer is a different, more motivated, higher-value user than the one choosing between apps. The PT comparison shifts the perceived value proposition: not "should I pay for another app" but "should I hire a trainer or use Soma." One PT session = one month of daily structured intelligence. This is a genuine positioning advantage, not a price point decision. And because no competitor is making this comparison, it's uncontested.</div>
+        <div class="via-card-body">Soma at £39/month benchmarks against a PT session. One PT session = one month of daily structured intelligence + an adaptive loop that reads 7 weeks of history and adjusts next week's programme. No competitor makes this comparison. The positioning is uncontested and is now backed by a capability that justifies it.</div>
       </div>
       <div class="via-card">
         <div class="via-card-label">Existing moat — epistemic honesty</div>
-        <div class="via-card-title">No competitor labels claims by evidence quality</div>
-        <div class="via-card-body">The four-tier evidence framework remains genuinely differentiating. Every major fitness product — Whoop, Future, MyFitnessPal, Levels — presents recommendations with uniform confidence regardless of the underlying evidence. Soma is the only consumer fitness product that labels claims as Established, Emerging, Limited, or Anecdotal and tells users why. For a sophisticated user — a doctor, sports scientist, serious athlete — this is the difference between trusting the product and dismissing it. The calibration is real: creatine, zone 2, and sleep extension get full confidence; fadogia agrestis gets an explicit animal-study-only warning. That honesty is harder to replicate than a feature.</div>
-      </div>
-      <div class="via-card">
-        <div class="via-card-label">Existing moat — clinical safety posture</div>
-        <div class="via-card-title">Risk detection is clinically unusual for consumer fitness</div>
-        <div class="via-card-body">No consumer fitness app has a working risk classifier that modifies AI coaching behaviour based on detected health conditions. A user with hypertension gets different intensity guidance. A user with disordered eating history doesn't receive caloric deficit prescriptions. A user with a herniated disc doesn't receive spinal loading recommendations. This is the kind of safety posture that matters at scale — and it's structural, not just a disclaimer.</div>
+        <div class="via-card-title">No competitor labels claims by evidence quality simultaneously across the full product</div>
+        <div class="via-card-body">Four-tier evidence framework on all accelerators and supplements. Risk classifier pre-screen on 10 health categories. Global glossary explaining scientific terms in-context without leaving the product. The epistemic architecture is more sophisticated than any consumer fitness product. Science library audit is the remaining work here.</div>
       </div>
       <div class="via-card">
         <div class="via-card-label">Structural advantage</div>
-        <div class="via-card-title">The operating system positioning remains unoccupied</div>
-        <div class="via-card-body">Training, nutrition, sleep, recovery, supplementation, body intelligence, science education, meal prep planning, and coaching in a single coherent product — under a brand (Soma) that is distinct, ownable, and semantically appropriate. No competitor occupies this position credibly. Whoop is recovery data. Future is human coaching. Levels is metabolic health. Soma is the only product attempting to build an intelligent OS for how a person relates to their body across all dimensions simultaneously. The gap between what Soma is now and what it becomes when the feedback loop is running is the clearest opportunity in the space.</div>
+        <div class="via-card-title">The operating system positioning is now more than positioning</div>
+        <div class="via-card-body">Training, nutrition, sleep, recovery, supplementation, science education, meal prep, adaptive coaching — in one product, with data flowing between surfaces. Day log data feeds reconciliation. Reconciliation feeds next week's plan. Programme adaptations feed session defaults. The circular data flow is now operational, not theoretical. Soma is the only product in the space where using it longer makes it meaningfully better at coaching you.</div>
       </div>
     </div>
   </div>
 
   <div class="via-footer">
-    Soma Viability Analysis · Revision 4 · April 2026 · Internal document · Not for distribution<br>
-    Scoring: 10-point scale vs Whoop, Levels, Renaissance Periodisation, MyFitnessPal Pro, Future. Composite: 75.9/100 (Rev 1: 59.1 · Rev 2: 63.5 · Rev 3: 73.3).<br>
-    Cost: Anthropic Claude Sonnet 4.6 at $3/M input, $15/M output. ElevenLabs Creator at $0.30/1,000 chars. Active user = 20+ sessions/month.<br>
-    Build status: 60+ deployed HTML files, live Supabase instance, bl-glossary.js, risk-classifier.js, evidence tier framework, prep day tab, Soma brand.
+    Soma Viability Analysis · Revision 5 · April 2026 · Internal document · Not for distribution<br>
+    Scoring: 10-point scale vs Whoop, Levels, Renaissance Periodisation, MyFitnessPal Pro, Future. Composite: 81.1/100 (Rev 1: 59.1 · Rev 2: 63.5 · Rev 3: 73.3 · Rev 4: 75.9).<br>
+    Cost: Anthropic Claude Sonnet 4.5 at $3/M input, $15/M output. ElevenLabs Creator at $0.30/1,000 chars. Active user = 20+ sessions/month.<br>
+    Build status: 62+ deployed HTML files, live Supabase instance, weekly reconciliation v2, bl-glossary.js, risk-classifier.js, evidence tier framework, prep day tab, Soma brand.
   </div>
 </main>
 </body>
