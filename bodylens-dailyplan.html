@@ -272,6 +272,9 @@ body {
 .pb-chip.done  .pb-chip-label { color: var(--jade); }
 .pb-chip.missed .pb-chip-dot  { background: rgba(220,80,60,.4); }
 .pb-chip.missed .pb-chip-label{ color: rgba(220,100,80,.6); }
+.pb-chip.viewing { background: rgba(255,255,255,.07); border-radius: 6px; }
+.pb-chip.viewing .pb-chip-label { color: var(--amber); }
+.pb-chip.viewing .pb-chip-dot { background: var(--amber); }
 
 /* Macro row — right */
 .pb-macros {
@@ -4197,25 +4200,7 @@ function qlSetEnergy(n) {
 }
 
 function wsDayClick(i) {
-  var p = P, t = TODAY;
-  if (!p || !t) return;
-  // Past missed training day? Offer recovery
-  var dp = typeof getEffectiveDayPlan==='function' ? getEffectiveDayPlan(p,i) : ((p.weekPlan||[])[i]||{});
-  if (dp.priority === 'training' && i < t.idx) {
-    var mon = new Date(), wd = mon.getDay();
-    mon.setDate(mon.getDate() - (wd === 0 ? 6 : wd - 1));
-    mon.setHours(0,0,0,0);
-    var d = new Date(mon); d.setDate(mon.getDate() + i);
-    var logKey = 'bl_daylog_' + d.toISOString().slice(0,10);
-    var log = null;
-    try { log = JSON.parse(localStorage.getItem(logKey)||'null'); } catch(e) {}
-    if (!log || log.trainStatus !== 'done') {
-      // Show recovery modal for this specific missed day
-      var DNS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-      openRecoveryModal([{ idx: i, day: DNS[i], date: d.toISOString().slice(0,10), sessionType: dp.type }]);
-      return;
-    }
-  }
+  // Always browse the tapped day — recovery is triggered from missed session banners, not here
   jumpDay(i);
 }
 
@@ -4231,7 +4216,12 @@ function jumpDay(i) {
 
   VIEWING_DAY = i;
 
-  // Update week strip active state
+  // Update day chip active state (unified header uses .pb-chip)
+  document.querySelectorAll('.pb-chip').forEach(function(el, j) {
+    el.classList.toggle('viewing', j === i);
+    el.classList.toggle('today', j === t.idx);
+  });
+  // Also update legacy ws-day if visible
   document.querySelectorAll('.ws-day').forEach(function(el, j) {
     el.classList.toggle('viewing', j === i);
     el.classList.toggle('today', j === t.idx);
@@ -4253,7 +4243,11 @@ function backToToday() {
   VIEWING_DAY = null;
   var t = TODAY;
 
-  // Reset week strip
+  // Reset day chips (unified header)
+  document.querySelectorAll('.pb-chip').forEach(function(el, j) {
+    el.classList.remove('viewing');
+    el.classList.toggle('today', j === t.idx);
+  });
   document.querySelectorAll('.ws-day').forEach(function(el, j) {
     el.classList.remove('viewing');
     el.classList.toggle('today', j === t.idx);
