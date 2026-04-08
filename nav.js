@@ -7,12 +7,17 @@
     <a class="nav-brand" href="/bodylens-dailyplan.html">Soma<span class="sync-dot" id="sync-dot" title="Sync status"></span></a>
   </div>
   <div class="nav-core">
-    <a class="nav-link nav-tab" href="/bodylens-dailyplan.html" data-tab="today">Today</a>
-    <a class="nav-link nav-tab" href="/bodylens-week.html" data-tab="week">Week</a>
-    <a class="nav-link nav-tab" href="/bodylens-meals.html" data-tab="meals">Meals</a>
-    <a class="nav-link nav-tab" href="/bodylens-programme.html" data-tab="programme">Programme</a>
-    <a class="nav-link nav-tab" href="/bodylens-science.html" data-tab="science">Science</a>
-    <button class="nav-more-btn" id="nav-more-btn" onclick="toggleNavMore(event)" aria-label="More">More</button>
+    <a class="nav-link" href="/bodylens-dailyplan.html">Today</a>
+    <a class="nav-link" href="/bodylens-week.html">Week</a>
+    <span class="nav-core-sep"></span>
+    <a class="nav-link" href="/bodylens-meals.html">Meals</a>
+    <span class="nav-core-sep"></span>
+    <a class="nav-link" href="/bodylens-goals.html">Goals</a>
+    <a class="nav-link" href="/bodylens-supplements.html">Stack</a>
+    <span class="nav-core-sep"></span>
+    <a class="nav-link" href="/bodylens-programme.html">Programme</a>
+    <a class="nav-link" href="/bodylens-science.html">Science</a>
+    <button class="nav-more-btn" id="nav-more-btn" onclick="toggleNavMore(event)" aria-label="More pages">More ▾</button>
   </div>
   <div class="nav-end">
     <div class="nav-meta" id="nav-meta"></div>
@@ -118,17 +123,21 @@
     <div class="mtb-icon">&#128197;</div>
     <div class="mtb-label">Today</div>
   </a>
-  <a class="mtb-tab" href="/bodylens-week.html">
-    <div class="mtb-icon">&#9783;</div>
-    <div class="mtb-label">Plan</div>
+  <a class="mtb-tab" href="/bodylens-meals.html">
+    <div class="mtb-icon">&#127860;</div>
+    <div class="mtb-label">Meals</div>
   </a>
-  <a class="mtb-tab" href="/bodylens-profile.html">
-    <div class="mtb-icon">&#9711;</div>
-    <div class="mtb-label">Me</div>
+  <a class="mtb-tab" href="/bodylens-goals.html">
+    <div class="mtb-icon">&#9678;</div>
+    <div class="mtb-label">Goals</div>
+  </a>
+  <a class="mtb-tab" href="/bodylens-supplements.html">
+    <div class="mtb-icon">&#128138;</div>
+    <div class="mtb-label">Stack</div>
   </a>
   <button class="mtb-tab mtb-more" onclick="toggleMobileMenu()">
     <div class="mtb-icon">&#8801;</div>
-    <div class="mtb-label">More</div>
+    <div class="mtb-label">Menu</div>
   </button>
 </div>`;
 
@@ -147,25 +156,17 @@
       document.body.insertAdjacentHTML('beforeend', BOTTOM_TAB_HTML);
     }
 
-    // Mark current page active — exact match for mm-links and mtb-tabs
+    // Mark current page active in both nav and bottom tab bar
     const path = window.location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('.mm-link, .mtb-tab, .nmp-link').forEach(a => {
+    document.querySelectorAll('.nav-link, .mm-link, .mtb-tab, .nmp-link').forEach(a => {
       const href = (a.getAttribute('href')||'').split('/').pop();
       if (href === path) a.classList.add('active');
     });
 
-    // Mark the 3-tab nav active — group pages under their parent tab
-    const TAB_MAP = {
-      today:      ['bodylens-dailyplan.html','index.html'],
-      week:       ['bodylens-week.html','bodylens-history.html','bodylens-checkin.html'],
-      meals:      ['bodylens-meals.html','bodylens-food.html','bodylens-fridge.html','bodylens-mealbuilder.html'],
-      programme:  ['bodylens-programme.html','bodylens-plan.html','bodylens-training.html','bodylens-strength.html'],
-      science:    ['bodylens-science.html','bodylens-sleep.html','bodylens-metabolic.html',
-                   'bodylens-testosterone.html','bodylens-recovery.html','bodylens-longevity.html'],
-    };
-    document.querySelectorAll('.nav-tab[data-tab]').forEach(a => {
-      const tab = a.getAttribute('data-tab');
-      if (TAB_MAP[tab] && TAB_MAP[tab].indexOf(path) > -1) a.classList.add('active');
+    // Mark active tab in mobile menu
+    document.querySelectorAll('.mm-link').forEach(a => {
+      const href = (a.getAttribute('href')||'').split('/').pop();
+      if (href === path) a.classList.add('active');
     });
 
     // Show profile name
@@ -214,13 +215,11 @@ function renderJourneyStrip() {
   var p = null;
   try { p = JSON.parse(localStorage.getItem('bl_profile') || 'null'); } catch(e) {}
   if (!p) return; // No profile — don't render the strip
-  // Hide the strip entirely once the user has a generated programme — it's only useful during setup
-  if (p.generatedAt) return;
 
   if (!_blJourneyStylesInjected) {
     _blJourneyStylesInjected = true;
     var css = '<style id="bl-journey-styles">'
-      + '.bl-journey{display:flex;align-items:center;gap:0;padding:0 20px;background:var(--ink-1,#141B26);border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--sans,"Space Grotesk",sans-serif);overflow-x:auto;scrollbar-width:none;white-space:nowrap;}'
+      + '.bl-journey{display:flex;align-items:center;gap:0;padding:0 20px;background:var(--ink-1,#111917);border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--sans,"Space Grotesk",sans-serif);overflow-x:auto;scrollbar-width:none;white-space:nowrap;}'
       + '.bl-journey::-webkit-scrollbar{display:none;}'
       + '.blj-step{display:inline-flex;align-items:center;gap:5px;padding:9px 10px;font-size:11px;font-weight:500;color:var(--dk-3,#3e504a);cursor:default;transition:color .15s;flex-shrink:0;}'
       + '.blj-step.done{color:var(--jade,#00c8a0);}'
