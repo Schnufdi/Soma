@@ -3827,6 +3827,355 @@ body {
   margin-right: auto;
   align-self: center;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SOMA DAILY PLAN v3 — 3-Column Intelligent Layout
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Warm amber palette scoped to day-root */
+#day-root {
+  --dp-bg:    #17100A;
+  --dp-card:  #211608;
+  --dp-card2: #2B1E0E;
+  --dp-text1: #EDE5D8;
+  --dp-text2: #BFB09E;
+  --dp-text3: #7E6E5A;
+  --dp-bd:    rgba(255,210,140,.07);
+  --dp-jade:  #00C8A0;
+  --dp-amber: #C47C18;
+}
+body:has(#day-root .dp3-page) { background: #17100A; }
+
+/* 3-column grid */
+.dp3-page {
+  display: grid;
+  grid-template-columns: 264px 1fr 296px;
+  min-height: calc(100vh - 58px);
+  background: var(--dp-bg);
+}
+
+/* ── Left Sidebar ───────────────────────────────────────────── */
+.dp3-sidebar {
+  position: sticky; top: 58px;
+  height: calc(100vh - 58px); overflow-y: auto;
+  padding: 28px 20px 60px;
+  border-right: 1px solid var(--dp-bd);
+  background: var(--dp-bg);
+  scrollbar-width: none;
+}
+.dp3-sidebar::-webkit-scrollbar { display: none; }
+
+.dp3-date-kicker {
+  font-size: 9px; font-weight: 700; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--dp-text3); margin-bottom: 8px;
+}
+.dp3-headline {
+  font-family: var(--serif); font-size: 20px; font-weight: 400;
+  line-height: 1.2; color: var(--dp-text1); margin-bottom: 6px;
+}
+.dp3-headline em { font-style: italic; color: var(--dp-text3); font-size: 18px; }
+.dp3-mantra {
+  font-family: var(--serif); font-size: 12px; font-style: italic;
+  color: var(--dp-jade); margin-bottom: 22px; font-weight: 300;
+  line-height: 1.6; border-left: 2px solid rgba(0,200,160,.2);
+  padding-left: 10px;
+}
+.dp3-divider { height: 1px; background: var(--dp-bd); margin: 0 0 20px; }
+
+.dp3-section { margin-bottom: 20px; }
+.dp3-section-label {
+  font-size: 8px; font-weight: 800; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--dp-text3);
+  margin-bottom: 10px; display: block;
+}
+
+/* Targets */
+.dp3-target-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 5px 0; border-bottom: 1px solid var(--dp-bd);
+}
+.dp3-target-row:last-child { border-bottom: none; }
+.dp3-target-key { font-size: 11px; font-weight: 300; color: var(--dp-text3); }
+.dp3-target-val {
+  font-size: 12px; font-weight: 600; color: var(--dp-text1);
+  font-variant-numeric: tabular-nums;
+}
+.dp3-target-val.jade { color: var(--dp-jade); }
+.dp3-target-val.amber { color: var(--dp-amber); }
+
+/* Macro progress bars */
+.dp3-macro-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.dp3-macro-key { font-size: 9px; font-weight: 800; color: var(--dp-text3); width: 12px; flex-shrink: 0; }
+.dp3-macro-track {
+  flex: 1; height: 4px; background: rgba(255,255,255,.06);
+  border-radius: 2px; overflow: hidden;
+}
+.dp3-macro-fill { height: 100%; border-radius: 2px; transition: width .4s ease; }
+.dp3-macro-val {
+  font-size: 9px; font-weight: 500; color: var(--dp-text3);
+  min-width: 44px; text-align: right; font-variant-numeric: tabular-nums;
+}
+
+/* Completion rings */
+.dp3-rings { display: flex; gap: 8px; }
+.dp3-ring-item { text-align: center; flex: 1; }
+.dp3-ring-wrap {
+  width: 44px; height: 44px; margin: 0 auto 5px;
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.dp3-ring-pct {
+  position: absolute; font-size: 9px; font-weight: 700;
+  color: var(--dp-text1); letter-spacing: -.01em;
+}
+.dp3-ring-lbl {
+  font-size: 8px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--dp-text3);
+}
+
+/* Condition chips */
+.dp3-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.dp3-chip {
+  padding: 4px 9px; border-radius: 20px;
+  border: 1px solid var(--dp-bd);
+  background: transparent; color: var(--dp-text3);
+  font-size: 10px; font-weight: 500; cursor: pointer;
+  font-family: var(--sans); transition: all .12s; white-space: nowrap;
+}
+.dp3-chip:hover { border-color: rgba(0,200,160,.3); color: var(--dp-jade); }
+.dp3-chip.active { border-color: var(--dp-jade); background: rgba(0,200,160,.08); color: var(--dp-jade); }
+.dp3-chip.amber-chip.active { border-color: var(--dp-amber); background: rgba(196,124,24,.08); color: var(--dp-amber); }
+
+/* Calorie note */
+.dp3-cal-note {
+  font-size: 10px; font-weight: 300; color: var(--dp-text3);
+  line-height: 1.65; padding: 10px 12px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--dp-bd); border-radius: 8px;
+}
+.dp3-cal-note strong { color: var(--dp-text2); font-weight: 600; }
+
+/* ── Centre Column ──────────────────────────────────────────── */
+.dp3-centre {
+  padding: 28px 28px 100px; min-width: 0;
+  background: var(--dp-bg);
+}
+
+/* Time groups */
+.dp3-group { margin-bottom: 36px; }
+.dp3-group-hdr {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--dp-bd);
+}
+.dp3-group-icon { font-size: 15px; line-height: 1; }
+.dp3-group-label {
+  font-size: 9px; font-weight: 800; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--dp-text3); flex: 1;
+}
+.dp3-group-tally { font-size: 10px; font-weight: 600; color: var(--dp-jade); }
+
+/* Cards */
+.dp3-card {
+  background: var(--dp-card);
+  border: 1px solid var(--dp-bd);
+  border-radius: 12px; margin-bottom: 8px;
+  transition: border-color .15s, background .15s; overflow: hidden;
+}
+.dp3-card:last-child { margin-bottom: 0; }
+.dp3-card:hover { border-color: rgba(255,210,140,.12); }
+.dp3-card.is-done { opacity: .45; }
+.dp3-card.is-skipped { opacity: .28; }
+.dp3-card.is-current {
+  border-color: rgba(0,200,160,.28);
+  background: var(--dp-card2);
+  box-shadow: 0 0 0 1px rgba(0,200,160,.06) inset;
+}
+.dp3-card.open { border-color: rgba(255,210,140,.14); }
+
+.dp3-card-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px; cursor: pointer; user-select: none;
+}
+.dp3-card-time {
+  font-size: 10px; font-weight: 600; color: var(--dp-text3);
+  min-width: 38px; flex-shrink: 0;
+  font-variant-numeric: tabular-nums; letter-spacing: .02em;
+}
+.dp3-card-cat {
+  font-size: 8px; font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 4px; flex-shrink: 0;
+}
+.dp3-card-cat.train { color: var(--dp-jade); background: rgba(0,200,160,.1); }
+.dp3-card-cat.eat   { color: var(--dp-amber); background: rgba(196,124,24,.1); }
+.dp3-card-cat.stack { color: rgba(255,255,255,.4); background: rgba(255,255,255,.05); }
+.dp3-card-cat.prep  { color: rgba(255,255,255,.28); background: rgba(255,255,255,.03); }
+
+.dp3-card-title {
+  flex: 1; font-size: 13px; font-weight: 500; color: var(--dp-text1);
+  min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dp3-card-metric { font-size: 11px; font-weight: 300; color: var(--dp-text3); flex-shrink: 0; }
+.dp3-card-done-quick {
+  padding: 4px 10px; border-radius: 6px; flex-shrink: 0;
+  border: 1px solid rgba(0,200,160,.3); background: rgba(0,200,160,.06);
+  color: var(--dp-jade); font-size: 10px; font-weight: 700;
+  cursor: pointer; font-family: var(--sans); transition: all .12s; display: none;
+}
+.dp3-card:hover:not(.is-done):not(.is-skipped) .dp3-card-done-quick { display: block; }
+.dp3-card-status { font-size: 12px; font-weight: 700; flex-shrink: 0; width: 16px; text-align: center; }
+.dp3-card-status.done { color: var(--dp-jade); }
+.dp3-card-status.skip { color: rgba(220,80,60,.6); }
+.dp3-card-chevron {
+  font-size: 18px; color: var(--dp-text3); transition: transform .22s;
+  flex-shrink: 0; line-height: 1;
+}
+.dp3-card.open .dp3-card-chevron { transform: rotate(90deg); }
+
+/* Expand detail */
+.dp3-card-detail { max-height: 0; overflow: hidden; transition: max-height .3s cubic-bezier(.4,0,.2,1); }
+.dp3-card.open .dp3-card-detail { max-height: 800px; }
+.dp3-card-detail-inner { padding: 16px; border-top: 1px solid var(--dp-bd); }
+
+/* Bottom of centre */
+.dp3-rebuild-row {
+  margin-top: 32px; padding-top: 20px;
+  border-top: 1px solid var(--dp-bd); display: flex; gap: 8px;
+}
+.dp3-rebuild-btn {
+  padding: 9px 16px; border-radius: 9px;
+  border: 1px solid var(--dp-bd); background: transparent;
+  color: var(--dp-text3); font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: var(--sans);
+  transition: all .12s; letter-spacing: .02em;
+}
+.dp3-rebuild-btn:hover { border-color: rgba(255,210,140,.2); color: var(--dp-text2); }
+
+/* ── Right Panel ────────────────────────────────────────────── */
+.dp3-panel {
+  position: sticky; top: 58px;
+  height: calc(100vh - 58px); overflow-y: auto;
+  padding: 28px 20px 60px;
+  border-left: 1px solid var(--dp-bd);
+  background: var(--dp-bg);
+  scrollbar-width: none;
+}
+.dp3-panel::-webkit-scrollbar { display: none; }
+
+/* Score */
+.dp3-score-block {
+  text-align: center; padding: 16px 0 18px;
+  border-bottom: 1px solid var(--dp-bd); margin-bottom: 22px;
+}
+.dp3-score-ring-wrap {
+  position: relative; display: inline-flex;
+  align-items: center; justify-content: center; margin-bottom: 6px;
+}
+.dp3-score-inner { position: absolute; text-align: center; }
+.dp3-score-num {
+  font-family: var(--serif); font-size: 54px; font-weight: 300;
+  color: var(--dp-text1); line-height: 1; letter-spacing: -.04em; display: block;
+}
+.dp3-score-den { font-size: 11px; font-weight: 300; color: var(--dp-text3); display: block; margin-top: 1px; }
+.dp3-score-label {
+  font-size: 8px; font-weight: 800; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--dp-text3); margin-top: 4px;
+}
+.dp3-score-bar { height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; margin: 10px 0 0; overflow: hidden; }
+.dp3-score-bar-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--dp-jade), rgba(0,200,160,.3));
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+
+.dp3-panel-section { margin-bottom: 18px; }
+.dp3-panel-label {
+  font-size: 8px; font-weight: 800; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--dp-text3); margin-bottom: 8px; display: block;
+}
+
+/* EOD summary rows */
+.dp3-eod-rows { margin-bottom: 16px; }
+.dp3-eod-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; border-bottom: 1px solid var(--dp-bd); font-size: 11px;
+}
+.dp3-eod-row:last-child { border-bottom: none; }
+.dp3-eod-key { font-weight: 300; color: var(--dp-text3); }
+.dp3-eod-val { font-weight: 600; color: var(--dp-text2); }
+.dp3-eod-val.jade { color: var(--dp-jade); }
+.dp3-eod-val.amber { color: var(--dp-amber); }
+
+/* Sleep log */
+.dp3-sleep-row { display: flex; gap: 4px; }
+.dp3-sleep-btn {
+  flex: 1; padding: 7px 2px; border-radius: 8px;
+  border: 1px solid var(--dp-bd); background: transparent;
+  color: var(--dp-text3); font-size: 10px; font-weight: 600;
+  cursor: pointer; font-family: var(--sans); transition: all .12s;
+}
+.dp3-sleep-btn:hover { border-color: rgba(0,200,160,.3); color: var(--dp-jade); }
+.dp3-sleep-btn.active { border-color: var(--dp-jade); background: rgba(0,200,160,.1); color: var(--dp-jade); }
+
+/* Energy dots */
+.dp3-energy-row { display: flex; gap: 6px; align-items: center; }
+.dp3-energy-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid var(--dp-bd); background: transparent;
+  cursor: pointer; transition: all .15s; flex-shrink: 0;
+}
+.dp3-energy-dot.on { border-color: var(--dp-jade); background: rgba(0,200,160,.18); }
+.dp3-energy-label { font-size: 9px; color: var(--dp-text3); font-weight: 500; margin-left: 4px; }
+
+/* Notes */
+.dp3-notes {
+  width: 100%; background: rgba(255,255,255,.02);
+  border: 1px solid var(--dp-bd); border-radius: 10px;
+  padding: 10px 12px; font-size: 12px; font-weight: 300;
+  color: var(--dp-text1); font-family: var(--sans);
+  resize: none; outline: none; line-height: 1.65;
+  transition: border-color .12s; box-sizing: border-box; min-height: 72px;
+}
+.dp3-notes:focus { border-color: rgba(0,200,160,.25); }
+.dp3-notes::placeholder { color: var(--dp-text3); }
+
+/* Buttons */
+.dp3-save-btn {
+  width: 100%; padding: 13px; border-radius: 10px;
+  background: var(--dp-jade); border: none;
+  color: #071211; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: var(--sans); transition: opacity .12s;
+  letter-spacing: .02em; margin-bottom: 8px; display: block;
+}
+.dp3-save-btn:hover { opacity: .88; }
+.dp3-save-btn:disabled { opacity: .4; cursor: not-allowed; }
+.dp3-review-btn {
+  width: 100%; padding: 10px; border-radius: 10px;
+  background: transparent; border: 1px solid var(--dp-bd);
+  color: var(--dp-text3); font-size: 12px; font-weight: 500;
+  cursor: pointer; font-family: var(--sans);
+  transition: all .12s; margin-bottom: 16px;
+}
+.dp3-review-btn:hover { border-color: rgba(255,210,140,.2); color: var(--dp-text2); }
+.dp3-breakdown { font-size: 11px; font-weight: 300; color: var(--dp-text3); line-height: 1.7; margin-top: 4px; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .dp3-page { grid-template-columns: 220px 1fr 260px; }
+}
+@media (max-width: 860px) {
+  .dp3-page { display: block; }
+  .dp3-sidebar {
+    position: static; height: auto;
+    border-right: none; border-bottom: 1px solid var(--dp-bd);
+    padding: 20px 20px 16px;
+  }
+  .dp3-centre { padding: 20px 16px 60px; }
+  .dp3-panel {
+    position: static; height: auto;
+    border-left: none; border-top: 1px solid var(--dp-bd);
+    padding: 20px 20px 40px;
+  }
+}
 </style>
 
 <script src="activitylog.js"></script>
@@ -5588,6 +5937,65 @@ function renderPlan(plan, browsing) {
     +'</div>';
   }
 
+  // ── Time-group blocks ────────────────────────────────────
+  function dpGroup(blocks) {
+    var gs = [
+      { id:'morning',     label:'Morning',     icon:'☀',  min:0,    max:719  },
+      { id:'midday',      label:'Midday',      icon:'⚡', min:720,  max:899  },
+      { id:'afternoon',   label:'Afternoon',   icon:'🌤', min:900,  max:1079 },
+      { id:'evening',     label:'Evening',     icon:'🌙', min:1080, max:1439 },
+      { id:'unscheduled', label:'Unscheduled', icon:'·',  min:-1,   max:-1   },
+    ];
+    gs.forEach(function(g){ g.cards = []; });
+    blocks.forEach(function(block, idx) {
+      if (block.type === 'sleep') return;
+      if (!block.time) { gs[4].cards.push({block:block, idx:idx}); return; }
+      var pts = block.time.split(':');
+      var mins = parseInt(pts[0]) * 60 + parseInt(pts[1] || 0);
+      var placed = false;
+      for (var gi = 0; gi < 4; gi++) {
+        if (mins >= gs[gi].min && mins <= gs[gi].max) {
+          gs[gi].cards.push({block:block, idx:idx}); placed = true; break;
+        }
+      }
+      if (!placed) gs[4].cards.push({block:block, idx:idx});
+    });
+    return gs.filter(function(g){ return g.cards.length > 0; });
+  }
+
+  // ── Build one dp3 card ───────────────────────────────────
+  function buildDpCard(block, idx) {
+    var st     = blockStatus(block, idx);
+    var isDone = st === 'done', isSkip = st === 'skipped';
+    var cat    = tlCat(block);
+    var metric = tlMetric(block);
+    var title  = block.mealSlot ? getMealSlotLabel(block.mealSlot) : (block.title || '');
+    var isCurr = idx === tlExpandIdx;
+    var cls    = 'dp3-card'
+      + (isDone ? ' is-done' : isSkip ? ' is-skipped' : isCurr ? ' is-current' : '')
+      + (isCurr ? ' open' : '');
+    var stCls  = isDone ? 'done' : isSkip ? 'skip' : '';
+    var stIcon = isDone ? '✓'   : isSkip ? '×'   : '';
+    return '<div class="' + cls + '" id="dp3-card-' + idx + '" data-cat="' + cat.cls + '">'
+      + '<div class="dp3-card-row" onclick="dp3Toggle(' + idx + ')">'
+        + '<span class="dp3-card-time">' + (block.time || '') + '</span>'
+        + '<span class="dp3-card-cat ' + cat.cls + '">' + cat.lbl + '</span>'
+        + '<span class="dp3-card-title">' + title + '</span>'
+        + (metric ? '<span class="dp3-card-metric">' + metric + '</span>' : '')
+        + (!isDone && !isSkip
+            ? '<button class="dp3-card-done-quick" onclick="event.stopPropagation();dpSetStatus(' + idx + ',\'done\')">✓ Done</button>'
+            : '')
+        + '<span class="dp3-card-status ' + stCls + '">' + stIcon + '</span>'
+        + '<span class="dp3-card-chevron">›</span>'
+      + '</div>'
+      + '<div class="dp3-card-detail">'
+        + '<div class="dp3-card-detail-inner" onclick="event.stopPropagation()">'
+          + tlDetail(block, idx)
+        + '</div>'
+      + '</div>'
+    + '</div>';
+  }
+
   // ── Hero ────────────────────────────────────────────────
   var condChipsHtml2=(function(){
     if(isBrowsing) return '';
@@ -5647,27 +6055,202 @@ function renderPlan(plan, browsing) {
     +'<button class="dp2-save-btn" onclick="dpSaveDay()" style="margin-top:10px;">Save & close the day →</button>'
   +'</div>';
 
-  // ── Assemble ─────────────────────────────────────────────
-  root.innerHTML='<div class="tl-page">'
-    +tlHeroHtml
-    +tlFeedHtml
-    +(isBrowsing?'<button class="dp2-rebuild-btn" onclick="backToToday()">← Back to today</button>':'<button class="dp2-rebuild-btn" onclick="regen()" id="dp2-rebuild-btn">↺ Rebuild plan</button>')
-    +tlEodHtml
-  +'</div>'
-  +'<button class="dp2-actual-trigger" id="dp2-actual-trigger" onclick="dpActualOpen()">&#9711; Actual</button>'
-  +'<div class="dp2-actual-overlay" id="dp2-actual-overlay" onclick="dpActualClose()"></div>'
-  +'<div class="dp2-actual-sheet" id="dp2-actual-sheet">'
-    +'<div class="dp2-actual-sheet-handle"></div>'
-    +'<div class="dp2-actual-sheet-hd"><span class="dp2-actual-sheet-title">Actual</span>'
-      +'<div style="display:flex;align-items:center;gap:8px;">'
-        +'<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="dpDictateBasic()">&#127908; Dictate</button>'
-        +'<button class="dp2-actual-sheet-close" onclick="dpActualClose()">&#215;</button>'
-      +'</div>'
-    +'</div>'
-    +'<div class="dp2-actual-sheet-body"><div id="dp2-actual-entries"></div><div id="dp2-actual-totals"></div></div>'
-  +'</div>'
-  +floatHtml
-  +voiceHtml;
+  // ── EOD vars (needed for panel + rings) ─────────────────
+  var trainDone   = log.trainStatus === 'done';
+  var trainMod    = log.trainStatus === 'modified';
+  var mealsLogged = mealBlocks.filter(function(b){ return log.meals && log.meals[b.mealSlot] && log.meals[b.mealSlot].logged; }).length;
+  var suppsDone   = Object.keys(suppLog).filter(function(k){ return suppLog[k]; }).length;
+  var savedNotes  = log.tomorrowNotes || '';
+  var breakdown   = edScoreBreakdown(log, mealBlocks, allSuppNames);
+
+  // ── LEFT SIDEBAR ─────────────────────────────────────────
+  var sidebarMacroHtml = [
+    { key:'P', eaten:eaten.prot||0,  target:p.protein||174, color:'var(--dp-jade)' },
+    { key:'C', eaten:eaten.carbs||0, target:p.carbs||323,   color:'var(--dp-amber)' },
+    { key:'F', eaten:eaten.fat||0,   target:p.fat||87,      color:'rgba(255,255,255,.35)' },
+  ].map(function(m){
+    var pct = Math.min(100, Math.round((m.eaten / Math.max(1, m.target)) * 100));
+    return '<div class="dp3-macro-row">'
+      + '<span class="dp3-macro-key">' + m.key + '</span>'
+      + '<div class="dp3-macro-track"><div class="dp3-macro-fill" id="dp2f-' + m.key + '" style="width:' + pct + '%;background:' + m.color + ';"></div></div>'
+      + '<span class="dp3-macro-val" style="color:' + m.color + ';">' + (m.eaten||0) + '/' + m.target + 'g</span>'
+    + '</div>';
+  }).join('');
+
+  var sidebarRingsHtml = '<div class="dp3-rings">'
+    + (isTraining ? '<div class="dp3-ring-item"><div class="dp3-ring-wrap">' + miniRing(crTrainPct,19,3,'cr-train','var(--dp-jade)') + '<div class="dp3-ring-pct" id="cr-train-pct">' + crTrainPct + '%</div></div><div class="dp3-ring-lbl">Train</div></div>' : '')
+    + '<div class="dp3-ring-item"><div class="dp3-ring-wrap">' + miniRing(crMealPct,19,3,'cr-meals','var(--dp-amber)') + '<div class="dp3-ring-pct" id="cr-meals-pct">' + crMealPct + '%</div></div><div class="dp3-ring-lbl">Meals</div></div>'
+    + '<div class="dp3-ring-item"><div class="dp3-ring-wrap">' + miniRing(crStackPct,19,3,'cr-stack','rgba(255,255,255,.4)') + '<div class="dp3-ring-pct" id="cr-stack-pct">' + crStackPct + '%</div></div><div class="dp3-ring-lbl">Stack</div></div>'
+  + '</div>';
+
+  var sidebarChipsHtml = (function(){
+    if (isBrowsing) return '';
+    var todayConds = (log.todayConditions || []);
+    var conds = [{id:'gut',icon:'🤢',label:'Gut'},{id:'sick',icon:'🤒',label:'Sick'},{id:'sore',icon:'🤕',label:'Sore'},{id:'tired',icon:'😴',label:'Tired'}];
+    var chips = '';
+    if (isTraining) {
+      chips += '<button class="dp3-chip'+(travelModeActive?' active amber-chip':'')+'" onclick="openTravelModal()">'+(travelModeActive?'✓ Travel':'✈ Travel')+'</button>';
+      if (!sessionDone) chips += '<button class="dp3-chip" onclick="openShortTimeFlow()">⏱ Short time?</button>';
+    }
+    conds.forEach(function(c){
+      var on = todayConds.indexOf(c.id) > -1;
+      chips += '<button class="dp3-chip'+(on?' active':'')+'" onclick="dpToggleCondition(\''+c.id+'\')">'+c.icon+' '+c.label+'</button>';
+    });
+    return chips;
+  })();
+
+  var sidebarHtml = ''
+    + '<div class="dp3-date-kicker">'
+      + (isBrowsing ? 'Browsing' : new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}))
+    + '</div>'
+    + '<div class="dp3-headline">' + dayType + '.<em>' + (isTraining ? ' Signal. Feed. Recover.' : ' Recover. Repair. Reset.') + '</em></div>'
+    + '<div class="dp3-mantra">'
+      + (isTraining
+          ? 'Hit the session. Close protein. Take your stack.'
+          : 'Rest is part of the programme. Adaptation happens here.')
+    + '</div>'
+    + '<div class="dp3-divider"></div>'
+    + '<div class="dp3-section">'
+      + '<span class="dp3-section-label">Today\'s targets</span>'
+      + '<div class="dp3-target-row"><span class="dp3-target-key">Calories in</span><span class="dp3-target-val jade">' + dayKcal + ' kcal</span></div>'
+      + (isTraining ? '<div class="dp3-target-row"><span class="dp3-target-key">Active burn</span><span class="dp3-target-val">' + (trainBlock ? '~'+Math.round((trainBlock.durationMins||90)*8)+' kcal' : '—') + '</span></div>' : '')
+      + '<div class="dp3-target-row"><span class="dp3-target-key">Baseline TDEE</span><span class="dp3-target-val">' + (p.tdee||2769) + ' kcal</span></div>'
+      + '<div class="dp3-target-row"><span class="dp3-target-key">Protein</span><span class="dp3-target-val jade">' + (p.protein||174) + 'g</span></div>'
+      + '<div class="dp3-target-row"><span class="dp3-target-key">Carbs</span><span class="dp3-target-val amber">' + (isTraining ? (p.carbs||323) : Math.round((p.carbs||323)*.75)) + 'g</span></div>'
+      + '<div class="dp3-target-row"><span class="dp3-target-key">Fat</span><span class="dp3-target-val">' + (p.fat||87) + 'g</span></div>'
+    + '</div>'
+    + '<div class="dp3-section">'
+      + '<span class="dp3-section-label">Logged so far</span>'
+      + sidebarMacroHtml
+    + '</div>'
+    + '<div class="dp3-section">'
+      + '<span class="dp3-section-label">Completion</span>'
+      + sidebarRingsHtml
+    + '</div>'
+    + (sidebarChipsHtml ? '<div class="dp3-section"><span class="dp3-section-label">Conditions</span><div class="dp3-chips">' + sidebarChipsHtml + '</div></div>' : '')
+    + '<div class="dp3-section">'
+      + '<div class="dp3-cal-note">'
+        + (deficit > 100
+            ? '<strong>' + deficit + ' kcal</strong> below TDEE — controlled deficit.'
+            : deficit < -100
+            ? '<strong>' + Math.abs(deficit) + ' kcal</strong> above TDEE — mild surplus.'
+            : 'At TDEE maintenance — performance focus.')
+        + ' <strong>' + (p.protein||174) + 'g protein</strong> non-negotiable at '+(p.weight||87)+'kg.'
+      + '</div>'
+    + '</div>';
+
+  // ── CENTRE (time-grouped cards) ──────────────────────────
+  var dpGroups = dpGroup(plan.blocks);
+  var centreHtml = '';
+  dpGroups.forEach(function(g) {
+    var doneCnt = g.cards.filter(function(c){ return blockStatus(c.block, c.idx) === 'done'; }).length;
+    centreHtml += '<div class="dp3-group" id="dp3-group-' + g.id + '">'
+      + '<div class="dp3-group-hdr">'
+        + '<span class="dp3-group-icon">' + g.icon + '</span>'
+        + '<span class="dp3-group-label">' + g.label + '</span>'
+        + (doneCnt > 0 ? '<span class="dp3-group-tally">' + doneCnt + '\u202f/\u202f' + g.cards.length + ' done</span>' : '')
+      + '</div>';
+    g.cards.forEach(function(c){ centreHtml += buildDpCard(c.block, c.idx); });
+    centreHtml += '</div>';
+  });
+  centreHtml += '<div class="dp3-rebuild-row">'
+    + (isBrowsing
+        ? '<button class="dp3-rebuild-btn" onclick="backToToday()">← Back to today</button>'
+        : '<button class="dp3-rebuild-btn" onclick="regen()" id="dp2-rebuild-btn">↺ Rebuild plan</button>')
+  + '</div>';
+
+  // ── RIGHT PANEL ──────────────────────────────────────────
+  var bigR = 52, bigStroke = 4, bigCirc = 2*Math.PI*bigR;
+  var bigOffset = bigCirc * (1 - score/100);
+  var scoreBigRing = '<svg viewBox="0 0 '+(bigR*2+bigStroke)+' '+(bigR*2+bigStroke)+'" width="'+(bigR*2+bigStroke)+'" height="'+(bigR*2+bigStroke)+'" style="transform:rotate(-90deg)">'
+    + '<circle cx="'+(bigR+bigStroke/2)+'" cy="'+(bigR+bigStroke/2)+'" r="'+bigR+'" stroke="rgba(255,255,255,.06)" stroke-width="'+bigStroke+'" fill="none"/>'
+    + '<circle id="dp2-ring-fill" cx="'+(bigR+bigStroke/2)+'" cy="'+(bigR+bigStroke/2)+'" r="'+bigR+'" stroke="var(--dp-jade,var(--jade))" stroke-width="'+bigStroke+'" fill="none" stroke-linecap="round"'
+    + ' stroke-dasharray="'+bigCirc.toFixed(1)+'" stroke-dashoffset="'+bigOffset.toFixed(1)+'"/>'
+    + '</svg>';
+
+  var panelHtml = ''
+    + '<div class="dp3-score-block">'
+      + '<div class="dp3-score-ring-wrap">'
+        + scoreBigRing
+        + '<div class="dp3-score-inner">'
+          + '<span class="dp3-score-num" id="dp2-eod-score">' + score + '</span>'
+          + '<span class="dp3-score-den">/100</span>'
+        + '</div>'
+      + '</div>'
+      + '<div class="dp3-score-label">Day score · updates live</div>'
+      + '<div class="dp3-score-bar"><div class="dp3-score-bar-fill" style="width:' + score + '%;"></div></div>'
+    + '</div>'
+    + '<div class="dp3-eod-rows">'
+      + (isTraining ? '<div class="dp3-eod-row"><span class="dp3-eod-key">Training</span><span class="dp3-eod-val '+(trainDone?'jade':trainMod?'amber':'')+'">'+(trainDone?'✓ Done':trainMod?'~ Modified':'Not logged')+'</span></div>' : '')
+      + '<div class="dp3-eod-row"><span class="dp3-eod-key">Meals</span><span class="dp3-eod-val '+(mealsLogged===mealBlocks.length&&mealBlocks.length?'jade':'')+'">'+mealsLogged+' / '+mealBlocks.length+'</span></div>'
+      + '<div class="dp3-eod-row"><span class="dp3-eod-key">Stack</span><span class="dp3-eod-val">'+suppsDone+' / '+(profileSupps.length||0)+'</span></div>'
+    + '</div>'
+    + '<div class="dp3-panel-section">'
+      + '<span class="dp3-panel-label">Tonight\'s sleep</span>'
+      + '<div class="dp3-sleep-row">'
+        + [5,6,7,8,9].map(function(h){
+            return '<button class="dp3-sleep-btn dp2-sleep-btn'+(log.sleepActual===h?' active':'')+'" onclick="dpSaveSleep('+h+')">'+h+'h</button>';
+          }).join('')
+      + '</div>'
+      + '<div style="font-size:10px;color:var(--dp-jade);margin-top:5px;min-height:14px;" id="dp2-sleep-val">'+(log.sleepActual ? log.sleepActual+'h ✓' : '')+'</div>'
+    + '</div>'
+    + '<div class="dp3-panel-section">'
+      + '<span class="dp3-panel-label">Energy today</span>'
+      + '<div class="dp3-energy-row">'
+        + [1,2,3,4,5].map(function(n){
+            var on = (log.energyLevel||0) >= n;
+            return '<div class="dp3-energy-dot'+(on?' on':'')+'" onclick="dpSaveEnergy('+n+')" data-val="'+n+'"></div>';
+          }).join('')
+        + '<span class="dp3-energy-label" id="dp3-energy-lbl">'+(log.energyLevel ? log.energyLevel+'/5' : '')+'</span>'
+      + '</div>'
+    + '</div>'
+    + '<div class="dp3-panel-section">'
+      + '<span class="dp3-panel-label">Notes for tomorrow</span>'
+      + '<textarea class="dp3-notes" rows="3" placeholder="How did today go? Anything to carry forward?" onchange="dpSaveNotes(this.value)" onblur="dpSaveNotes(this.value)">'+savedNotes+'</textarea>'
+    + '</div>'
+    + '<button class="dp2-save-btn dp3-save-btn" onclick="dpSaveDay()">Save &amp; close the day →</button>'
+    + '<button class="dp3-review-btn" id="dp2-coach-review-btn" onclick="dpCoachReview()">Review with coach →</button>'
+    + '<div id="dp2-coach-review-out" class="dp2-coach-review-out"></div>'
+    + '<div class="dp3-breakdown" id="dp2-eod-breakdown">'+(breakdown||'Log your day to build your score')+'</div>'
+    + '<span id="dp2-score-top" style="display:none">'+score+'</span>';
+
+  // ── FLOAT + VOICE ────────────────────────────────────────
+  var floatHtml3 = '<div class="dp2-float-score" id="dp2-float">'
+    + '<div class="dp2-float-num" id="dp2-float-num">'+score+'</div>'
+    + '<div class="dp2-float-label">/ 100</div>'
+    + '</div>';
+  var voiceHtml3 = '<div id="vlg-mic-btn" class="vlg-mic-btn" title="Voice log" onclick="vlgToggle()">'
+    + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--dk-2)"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>'
+    + '</div>'
+    + '<div id="vlg-guided-btn" class="vlg-guided-trigger" onclick="vlgGuidedStart()" title="Guided daily log">Log day</div>'
+    + '<div class="vlg-modal" id="vlg-modal"><div class="vlg-panel" id="vlg-panel">'
+      + '<div class="vlg-panel-hd"><span class="vlg-panel-title">Voice log</span><div class="vlg-panel-status" id="vlg-status"><div class="vlg-status-dot"></div>Listening</div></div>'
+      + '<div class="vlg-transcript-box" id="vlg-transcript-box"><span class="vlg-transcript-placeholder" id="vlg-placeholder">Speak now…</span></div>'
+      + '<div class="vlg-result-box" id="vlg-result-box"><div class="vlg-result-label">Logged</div><div class="vlg-result-actions" id="vlg-result-actions"></div></div>'
+      + '<div class="vlg-panel-btns"><button class="vlg-btn-ok" id="vlg-btn-ok" onclick="vlgCommit()" disabled>Process</button><button class="vlg-btn-cancel" onclick="vlgCancel()">Cancel</button></div>'
+    + '</div></div>'
+    + '<div id="vlg-toast" class="vlg-toast"></div>';
+
+  // ── FINAL ASSEMBLY ───────────────────────────────────────
+  root.innerHTML = '<div class="dp3-page">'
+    + '<aside class="dp3-sidebar">' + sidebarHtml + '</aside>'
+    + '<main class="dp3-centre">' + centreHtml + '</main>'
+    + '<aside class="dp3-panel">' + panelHtml + '</aside>'
+  + '</div>'
+  + '<button class="dp2-actual-trigger" id="dp2-actual-trigger" onclick="dpActualOpen()">&#9711; Actual</button>'
+  + '<div class="dp2-actual-overlay" id="dp2-actual-overlay" onclick="dpActualClose()"></div>'
+  + '<div class="dp2-actual-sheet" id="dp2-actual-sheet">'
+    + '<div class="dp2-actual-sheet-handle"></div>'
+    + '<div class="dp2-actual-sheet-hd"><span class="dp2-actual-sheet-title">Actual</span>'
+      + '<div style="display:flex;align-items:center;gap:8px;">'
+        + '<button class="dp2-actual-voice-btn" id="dp2-actual-voice-btn" onclick="dpDictateBasic()">&#127908; Dictate</button>'
+        + '<button class="dp2-actual-sheet-close" onclick="dpActualClose()">&#215;</button>'
+      + '</div>'
+    + '</div>'
+    + '<div class="dp2-actual-sheet-body"><div id="dp2-actual-entries"></div><div id="dp2-actual-totals"></div></div>'
+  + '</div>'
+  + floatHtml3
+  + voiceHtml3;
 
   // ── Legacy stubs (kept so old act builder CSS doesn't error) ─
   function blockBarColor(block) {
@@ -6290,6 +6873,27 @@ function dp2ToggleAct(actId) {
   if (el) el.classList.toggle('open');
 }
 
+// ── dp3 card toggle ──────────────────────────────────────────────────
+function dp3Toggle(idx) {
+  var card = document.getElementById('dp3-card-'+idx);
+  if (!card) return;
+  var wasOpen = card.classList.contains('open');
+  document.querySelectorAll('.dp3-card.open').forEach(function(el){ el.classList.remove('open'); });
+  if (!wasOpen) card.classList.add('open');
+}
+
+// ── Energy level save ────────────────────────────────────────────────
+function dpSaveEnergy(level) {
+  var log = loadDayLog(_rDate) || initDayLog();
+  log.energyLevel = level;
+  saveDayLog(_rDate, log);
+  document.querySelectorAll('.dp3-energy-dot').forEach(function(dot) {
+    dot.classList.toggle('on', parseInt(dot.dataset.val) <= level);
+  });
+  var lbl = document.getElementById('dp3-energy-lbl');
+  if (lbl) lbl.textContent = level + '/5';
+}
+
 // ── Timeline toggle functions ────────────────────────────────────────
 function tlToggle(idx) {
   var item = document.getElementById('tl-item-'+idx);
@@ -6356,12 +6960,22 @@ function dpRefreshScore() {
     var el = document.getElementById(id); if(el) el.textContent = score2;
   });
   var bd = document.getElementById('dp2-eod-breakdown');
-  if (bd) bd.textContent = breakdown2;
+  if (bd) bd.innerHTML = breakdown2;
 
-  // Update main score ring
+  // Update dp3 score bar
+  var dp3Bar = document.querySelector('.dp3-score-bar-fill');
+  if (dp3Bar) dp3Bar.style.width = score2 + '%';
+
+  // Update main score ring (dp3 uses r=52)
+  var ringFill = document.getElementById('dp2-ring-fill');
+  if (ringFill) {
+    var rVal = 52, circVal = 2*Math.PI*rVal;
+    ringFill.style.strokeDashoffset = (circVal*(1-score2/100)).toFixed(1);
+  }
+  // Also try legacy r=17 ring if present
   var r = 17, circ = 2*Math.PI*r;
   var fill = document.getElementById('dp2-ring-fill');
-  if (fill) fill.style.strokeDashoffset = (circ*(1-score2/100)).toFixed(1);
+  if (fill && !document.querySelector('.dp3-page')) fill.style.strokeDashoffset = (circ*(1-score2/100)).toFixed(1);
 
   // Update completion rings
   dpRefreshCompletionRings();
@@ -6436,6 +7050,37 @@ function dpSetStatus(blockIdx, status) {
     if (btns[0]) btns[0].className='dp2-qbtn'+(st3==='done'?' done-active':'');
     if (btns[1]) btns[1].className='dp2-qbtn'+(st3==='modified'?' swap-active':'');
     if (btns[2]) btns[2].className='dp2-qbtn'+(st3==='skipped'?' skip-active':'');
+  }
+  // Update dp3 card visual state
+  var dp3El = document.getElementById('dp3-card-' + blockIdx);
+  if (dp3El) {
+    dp3El.classList.remove('is-done','is-skipped','is-current');
+    if (st3 === 'done')    dp3El.classList.add('is-done');
+    if (st3 === 'skipped') dp3El.classList.add('is-skipped');
+    var dp3Status = dp3El.querySelector('.dp3-card-status');
+    if (dp3Status) {
+      dp3Status.className = 'dp3-card-status' + (st3==='done'?' done':st3==='skipped'?' skip':'');
+      dp3Status.textContent = st3==='done'?'✓':st3==='skipped'?'×':'';
+    }
+    var dp3DoneBtn = dp3El.querySelector('.dp3-card-done-quick');
+    if (dp3DoneBtn && (st3==='done'||st3==='skipped')) dp3DoneBtn.style.display='none';
+    // Collapse after marking done/skipped
+    if (st3==='done'||st3==='skipped') dp3El.classList.remove('open');
+    // Update group tally
+    var groupEl = dp3El.closest('.dp3-group');
+    if (groupEl) {
+      var allCards = groupEl.querySelectorAll('.dp3-card');
+      var doneCount = groupEl.querySelectorAll('.dp3-card.is-done').length;
+      var tally = groupEl.querySelector('.dp3-group-tally');
+      if (doneCount > 0) {
+        if (!tally) {
+          tally = document.createElement('span');
+          tally.className = 'dp3-group-tally';
+          groupEl.querySelector('.dp3-group-hdr').appendChild(tally);
+        }
+        tally.textContent = doneCount + '\u202f/\u202f' + allCards.length + ' done';
+      }
+    }
   }
   // Update act progress bars
   dp2RefreshActProgress();
