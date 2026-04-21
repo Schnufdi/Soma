@@ -721,6 +721,7 @@ function saveGoalPlan() {
   if (!_phases || !P) return;
   try {
     P.goalPlan = { savedAt: new Date().toISOString(), phases: _phases };
+    P.lastModified = new Date().toISOString();
     localStorage.setItem('bl_profile', JSON.stringify(P));
     var btn = document.querySelector('.gl-bridge-save');
     if (btn) { btn.textContent = 'Saved ✓'; }
@@ -921,6 +922,7 @@ function glApplyProgrammeChanges() {
       p.gapBridge.applied = true;
       p.gapBridge.appliedAt = new Date().toISOString();
       p.trainingEmphasis = (gb.training||[]).map(function(t){return t.change;});
+      p.lastModified = new Date().toISOString();
       localStorage.setItem('bl_profile', JSON.stringify(p));
       if (btn) { btn.textContent = '\u2713 Applied'; btn.disabled = true; }
     }

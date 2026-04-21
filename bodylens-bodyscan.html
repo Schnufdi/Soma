@@ -517,6 +517,7 @@ function saveScan() {
     try { localStorage.removeItem(pfx + today); } catch(e) {}
   });
   _profile = p;
+  p.lastModified = new Date().toISOString();
   try { localStorage.setItem('bl_profile', JSON.stringify(p)); } catch(e) {}
 
   // Log to proposal bus — body scan changes are applied immediately (user confirmed via Save button)

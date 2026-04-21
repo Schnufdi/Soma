@@ -4090,6 +4090,53 @@ body:has(#day-root .dp3-page) { background: #0F0F0F; }
   transition: width .6s cubic-bezier(.4,0,.2,1);
 }
 
+/* Stale plan banner */
+.dp3-stale-banner {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 9px 14px; margin-bottom: 14px;
+  background: rgba(196,124,24,.07); border: 1px solid rgba(196,124,24,.2);
+  border-radius: 8px;
+}
+.dp3-stale-msg {
+  flex: 1; font-size: 11px; font-weight: 500;
+  color: var(--dp-amber); min-width: 160px;
+}
+.dp3-stale-rebuild {
+  background: var(--dp-amber); border: none; color: #0F0F0F;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  padding: 5px 11px; border-radius: 5px; cursor: pointer;
+  font-family: var(--sans);
+}
+.dp3-stale-keep {
+  background: none; border: none; color: var(--dp-text3);
+  font-size: 10px; cursor: pointer; font-family: var(--sans);
+  padding: 5px 4px;
+}
+.dp3-stale-keep:hover { color: var(--dp-text2); }
+
+/* Intelligence / adapt indicator */
+.dp3-adapt-indicator {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 12px; margin-bottom: 14px;
+  background: rgba(0,200,160,.05); border: 1px solid rgba(0,200,160,.15);
+  border-radius: 8px; cursor: pointer;
+  transition: background .15s;
+}
+.dp3-adapt-indicator:hover { background: rgba(0,200,160,.09); }
+.dp3-adapt-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--dp-jade); flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(0,200,160,.6);
+}
+.dp3-adapt-text {
+  flex: 1; font-size: 10px; font-weight: 600;
+  letter-spacing: .05em; color: var(--dp-jade);
+  text-transform: uppercase;
+}
+.dp3-adapt-arrow {
+  font-size: 11px; color: var(--dp-jade); opacity: .7;
+}
+
 .dp3-panel-section { margin-bottom: 18px; }
 .dp3-panel-label {
   font-size: 8px; font-weight: 800; letter-spacing: .2em;
@@ -6142,9 +6189,25 @@ function renderPlan(plan, browsing) {
       + '</div>'
     + '</div>';
 
+  // ── STALE PLAN BANNER ────────────────────────────────────
+  var staleBannerHtml = '';
+  if (!browsing) {
+    try {
+      var _builtAt = plan.builtAt || null;
+      var _lastMod = profile.lastModified || null;
+      if (_builtAt && _lastMod && new Date(_lastMod) > new Date(_builtAt)) {
+        staleBannerHtml = '<div class="dp3-stale-banner">'
+          + '<span class="dp3-stale-msg">Your targets changed since this plan was built</span>'
+          + '<button class="dp3-stale-rebuild" onclick="try{localStorage.removeItem(TODAY.cacheKey);}catch(e){}buildDay()">Rebuild now →</button>'
+          + '<button class="dp3-stale-keep" onclick="this.closest(\'.dp3-stale-banner\').remove()">Keep today\'s plan</button>'
+          + '</div>';
+      }
+    } catch(e) {}
+  }
+
   // ── CENTRE (time-grouped cards) ──────────────────────────
   var dpGroups = dpGroup(plan.blocks);
-  var centreHtml = '';
+  var centreHtml = staleBannerHtml;
   dpGroups.forEach(function(g) {
     var doneCnt = g.cards.filter(function(c){ return blockStatus(c.block, c.idx) === 'done'; }).length;
     centreHtml += '<div class="dp3-group" id="dp3-group-' + g.id + '">'
@@ -6171,7 +6234,27 @@ function renderPlan(plan, browsing) {
     + ' stroke-dasharray="'+bigCirc.toFixed(1)+'" stroke-dashoffset="'+bigOffset.toFixed(1)+'"/>'
     + '</svg>';
 
-  var panelHtml = ''
+  // ── ADAPT INDICATOR ─────────────────────────────────────
+  var adaptIndicatorHtml = '';
+  try {
+    var _adaptProfile = JSON.parse(localStorage.getItem('bl_profile') || '{}');
+    var _adapt = _adaptProfile.weeklyAdaptation;
+    var _snoozed = JSON.parse(localStorage.getItem('bl_recon_snoozed') || 'null');
+    var _isSnoozed = _snoozed && _snoozed.until && new Date(_snoozed.until) > new Date();
+    if (_adapt && !_isSnoozed) {
+      var _adaptCount = (_adapt.adaptations || []).filter(function(a){ return a.action && a.action.op && a.action.op !== 'note_only'; }).length;
+      var _adaptApplied = !!_adapt.appliedAt;
+      if (!_adaptApplied) {
+        adaptIndicatorHtml = '<div class="dp3-adapt-indicator" id="dp3-adapt-indicator" onclick="showExistingReconciliation()">'
+          + '<span class="dp3-adapt-dot"></span>'
+          + '<span class="dp3-adapt-text">Intelligence: ' + (_adaptCount > 0 ? _adaptCount + ' adaptation' + (_adaptCount > 1 ? 's' : '') + ' pending' : 'Weekly review ready') + '</span>'
+          + '<span class="dp3-adapt-arrow">→</span>'
+          + '</div>';
+      }
+    }
+  } catch(e) {}
+
+  var panelHtml = adaptIndicatorHtml
     + '<div class="dp3-score-block">'
       + '<div class="dp3-score-ring-wrap">'
         + scoreBigRing
@@ -6240,7 +6323,7 @@ function renderPlan(plan, browsing) {
     + '<main class="dp3-centre">' + centreHtml + '</main>'
     + '<aside class="dp3-panel">' + panelHtml + '</aside>'
   + '</div>'
-  + '<button class="dp2-actual-trigger" id="dp2-actual-trigger" onclick="dpActualOpen()">&#9711; Actual</button>'
+  + '<div id="dp2-actual-trigger" style="display:none"></div>'
   + '<div class="dp2-actual-overlay" id="dp2-actual-overlay" onclick="dpActualClose()"></div>'
   + '<div class="dp2-actual-sheet" id="dp2-actual-sheet">'
     + '<div class="dp2-actual-sheet-handle"></div>'
@@ -11029,6 +11112,7 @@ function buildDay(){
     +'</div>';
   try{
     var plan = buildPlan(P, TODAY);
+    plan.builtAt = new Date().toISOString();
     try { localStorage.setItem(TODAY.cacheKey, JSON.stringify(plan)); } catch(e){}
     _checkDeloadExpiry();
     renderPlan(plan);

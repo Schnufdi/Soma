@@ -599,6 +599,7 @@ function addToStack(id) {
   var supp = SUPPS.find(function(s){ return s.id === id; });
   var suppName = supp ? supp.name : id;
   p.deepStack.push(id);
+  p.lastModified = new Date().toISOString();
   localStorage.setItem('bl_profile', JSON.stringify(p));
   // ── Log to decision log ──────────────────────────────────
   if (typeof blPropose === 'function') {
@@ -619,6 +620,7 @@ function removeFromStack(id) {
   var supp = SUPPS.find(function(s){ return s.id === id; });
   var suppName = supp ? supp.name : id;
   p.deepStack = (p.deepStack||[]).filter(function(x){ return x !== id; });
+  p.lastModified = new Date().toISOString();
   localStorage.setItem('bl_profile', JSON.stringify(p));
   // ── Log to decision log ──────────────────────────────────
   if (typeof blPropose === 'function') {

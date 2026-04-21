@@ -1019,6 +1019,7 @@ function _savePrefField(field, value) {
     var p = JSON.parse(localStorage.getItem('bl_profile') || 'null');
     if (!p) return;
     p[field] = value;
+    p.lastModified = new Date().toISOString();
     localStorage.setItem('bl_profile', JSON.stringify(p));
   } catch(e) {}
 }
@@ -1059,6 +1060,7 @@ function removeOpt(id) {
     if (!p) return;
     p.accelerators = (p.accelerators || []).filter(a => a !== id);
     p.optimisations = (p.optimisations || []).filter(o => (typeof o === 'string' ? o : o.id) !== id);
+    p.lastModified = new Date().toISOString();
     localStorage.setItem('bl_profile', JSON.stringify(p));
     const row = document.getElementById('note-' + id);
     if (row) { row.style.opacity = '0'; row.style.transition = 'opacity .2s'; setTimeout(() => { row.remove(); }, 200); }

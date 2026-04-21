@@ -446,6 +446,7 @@ Example for "gym later than expected": ["Does this change when I should eat?", "
         injuries: p.injuries || [],
       };
 
+      p.lastModified = new Date().toISOString();
       localStorage.setItem('bl_profile', JSON.stringify(p));
 
       // Log to proposal bus so it appears in the decision log

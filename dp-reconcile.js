@@ -429,7 +429,10 @@ function _renderReconciliationCard() {
     var adapt = p.weeklyAdaptation;
     if (!adapt) return;
     if (adapt.weekStart !== _getWeekStart()) return;
-    if (localStorage.getItem('bl_recon_dismissed_' + new Date().toDateString())) return;
+    try {
+      var snoozed = JSON.parse(localStorage.getItem('bl_recon_snoozed') || 'null');
+      if (snoozed && snoozed.until && new Date(snoozed.until) > new Date()) return;
+    } catch(e) {}
 
     var card = document.createElement('div');
     card.id = 'recon-card';
@@ -513,7 +516,7 @@ function buildReconciliationCardHTML(adapt) {
     + applyBtn
 
     // Dismiss
-    + '<div style="margin-top:10px;text-align:right;"><button onclick="dismissReconciliationCard()" style="background:none;border:none;font-size:10px;font-weight:600;color:var(--dk-3);cursor:pointer;font-family:var(--sans);letter-spacing:.06em;text-transform:uppercase;">Dismiss &#215;</button></div>'
+    + '<div style="margin-top:10px;text-align:right;"><button onclick="dismissReconciliationCard()" style="background:none;border:none;font-size:10px;font-weight:500;color:var(--dk-3);cursor:pointer;font-family:var(--sans);letter-spacing:.04em;">Not now &middot; remind tomorrow</button></div>'
 
     + '</div>';
 }
@@ -521,7 +524,15 @@ function buildReconciliationCardHTML(adapt) {
 function dismissReconciliationCard() {
   var card = document.getElementById('recon-card');
   if (card) card.style.display = 'none';
-  try { localStorage.setItem('bl_recon_dismissed_' + new Date().toDateString(), '1'); } catch(e) {}
+  // "Not now" — snooze for 20 hours, resurfaces tomorrow
+  try {
+    localStorage.setItem('bl_recon_snoozed', JSON.stringify({
+      until: new Date(Date.now() + 20 * 60 * 60 * 1000).toISOString()
+    }));
+  } catch(e) {}
+  // Update the panel indicator
+  var ind = document.getElementById('dp3-adapt-indicator');
+  if (ind) ind.style.display = 'none';
 }
 
 function showExistingReconciliation() {
@@ -530,7 +541,10 @@ function showExistingReconciliation() {
     var adapt = p.weeklyAdaptation;
     if (!adapt) return;
     if (adapt.weekStart !== _getWeekStart()) return;
-    if (localStorage.getItem('bl_recon_dismissed_' + new Date().toDateString())) return;
+    try {
+      var snoozed = JSON.parse(localStorage.getItem('bl_recon_snoozed') || 'null');
+      if (snoozed && snoozed.until && new Date(snoozed.until) > new Date()) return;
+    } catch(e) {}
     _renderReconciliationCard();
   } catch(e) {}
 }

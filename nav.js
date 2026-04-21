@@ -789,6 +789,7 @@ window.saveOpt = function(id, name, icon, btn) {
     if (isNew) {
       p.optimisations.push(id);
       if (!p.accelerators.includes(id)) p.accelerators.push(id);
+      p.lastModified = new Date().toISOString();
       localStorage.setItem('bl_profile', JSON.stringify(p));
       // Bust the daily plan cache so new optimisation fires on next load
       var _today = new Date().toISOString().slice(0,10);
@@ -823,6 +824,7 @@ window.removeOpt = function(id) {
     if (!p) return;
     p.accelerators = (p.accelerators || []).filter(function(a){ return a !== id; });
     p.optimisations = (p.optimisations || []).filter(function(o){ return (typeof o === 'string' ? o : o.id) !== id; });
+    p.lastModified = new Date().toISOString();
     localStorage.setItem('bl_profile', JSON.stringify(p));
   } catch(e) {}
 };
