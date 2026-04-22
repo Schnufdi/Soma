@@ -5048,6 +5048,529 @@ body:has(#day-root .dp3-page) {
   }
   .dp3-panel::before { display: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   FEATURE A — Default-complete block states
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Pending-now: block window is currently active — jade dot pulses,
+   subtle outline invites attention without shouting. */
+.dp3-card.is-pending-now {
+  border-color: rgba(45,212,160,.22);
+}
+.dp3-card.is-pending-now::before {
+  opacity: .85;
+  background: linear-gradient(90deg,
+    rgba(45,212,160,.14) 0%,
+    rgba(255,255,255,.16) 50%,
+    rgba(45,212,160,.10) 100%);
+}
+.dp3-pending-dot {
+  position: absolute;
+  top: 14px; left: 14px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--dp-jade);
+  box-shadow: 0 0 8px rgba(45,212,160,.7);
+  z-index: 3;
+  animation: dp3-pending-breathe 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes dp3-pending-breathe {
+  0%, 100% { opacity: .55; transform: scale(.9); }
+  50%      { opacity: 1;   transform: scale(1.15); }
+}
+
+/* Done-by-trust: time window has passed, no explicit log —
+   the plan is assumed done. Quieter than explicit done,
+   distinct from it via a hairline tick instead of filled status. */
+.dp3-card.is-done-by-trust {
+  opacity: .72;
+  background-image: none;
+}
+.dp3-card.is-done-by-trust::before { opacity: .18; }
+.dp3-card.is-done-by-trust:hover { opacity: .9; transform: none; box-shadow: var(--dp-shadow-sm); }
+.dp3-trust-tick {
+  position: absolute;
+  top: 12px; right: 14px;
+  font-size: 11px;
+  color: rgba(45,212,160,.55);
+  font-weight: 500;
+  z-index: 3;
+  pointer-events: none;
+  letter-spacing: 0;
+  opacity: .75;
+}
+
+/* Swipe-drag visual state (Feature C) */
+.dp3-card.is-dragging {
+  transition: none !important;
+  z-index: 4;
+}
+.dp3-card .dp3-swipe-wake {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity .14s var(--dp-ease-out);
+  z-index: 0;
+  mix-blend-mode: screen;
+}
+.dp3-card.swipe-right .dp3-swipe-wake {
+  background: linear-gradient(90deg,
+    rgba(45,212,160,0) 0%,
+    rgba(45,212,160,.18) 60%,
+    rgba(45,212,160,.32) 100%);
+  opacity: 1;
+}
+.dp3-card.swipe-left .dp3-swipe-wake {
+  background: linear-gradient(90deg,
+    rgba(232,155,44,.32) 0%,
+    rgba(232,155,44,.18) 40%,
+    rgba(232,155,44,0) 100%);
+  opacity: 1;
+}
+.dp3-card.swipe-flash {
+  animation: dp3-swipe-flash .55s var(--dp-ease-out) 1;
+}
+@keyframes dp3-swipe-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(45,212,160,0),        var(--dp-shadow-sm); }
+  40%  { box-shadow: 0 0 0 2px rgba(45,212,160,.55),    0 10px 26px -8px rgba(45,212,160,.5); }
+  100% { box-shadow: 0 0 0 0 rgba(45,212,160,0),        var(--dp-shadow-sm); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FEATURE B — View toggle + Now view
+   ═══════════════════════════════════════════════════════════════ */
+
+.dp3-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  height: 28px;
+  padding: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.03);
+  border: 0.5px solid var(--dp-bd);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  font-family: var(--dp-ui);
+}
+.dp3-view-seg {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--dp-text3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  padding: 0 14px;
+  height: 24px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .18s, background .22s var(--dp-ease-out);
+  font-family: inherit;
+}
+.dp3-view-seg:focus-visible {
+  outline: 2px solid rgba(45,212,160,.5);
+  outline-offset: 2px;
+}
+.dp3-view-seg.active {
+  background: linear-gradient(180deg,
+    rgba(255,255,255,.08) 0%,
+    rgba(255,255,255,.03) 100%);
+  color: var(--dp-text1);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 1px 2px rgba(0,0,0,.3);
+}
+
+/* Desktop: sit the toggle inline with the centre column top */
+.dp3-view-toggle-wrap {
+  position: absolute;
+  top: 20px; right: 24px;
+  z-index: 10;
+}
+@media (max-width: 960px) {
+  .dp3-view-toggle-wrap {
+    position: static;
+    display: flex; justify-content: center;
+    padding: 14px 16px 4px;
+  }
+}
+
+/* ── Now view root ─────────────────────────────────────── */
+.dp3-now {
+  min-height: calc(100vh - 58px);
+  padding: 24px 16px 96px;
+  display: flex; flex-direction: column;
+  align-items: center;
+  font-family: var(--dp-ui);
+  color: var(--dp-text1);
+  background-color: var(--dp-bg);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 10%, rgba(72,46,120,.22) 0%, rgba(72,46,120,0) 60%),
+    radial-gradient(ellipse 60% 42% at 50% 100%, rgba(26,85,92,.18) 0%, rgba(26,85,92,0) 65%);
+  background-repeat: no-repeat;
+  animation: dp3-breathe 22s ease-in-out infinite;
+}
+.dp3-now-inner {
+  width: 100%;
+  max-width: 640px;
+  display: flex; flex-direction: column;
+  gap: 20px;
+}
+.dp3-now-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.dp3-now-kicker {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dp-text3);
+}
+
+/* ── Now: Ribbon (past / current / next chips) ──────── */
+.dp3-now-ribbon {
+  display: flex; align-items: center; gap: 8px;
+  overflow-x: auto;
+  padding: 6px 4px 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
+}
+.dp3-now-ribbon::-webkit-scrollbar { display: none; }
+.dp3-ribbon-chip {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  display: inline-flex; flex-direction: column; align-items: flex-start;
+  gap: 2px;
+  min-width: 96px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+  border: 0.5px solid var(--dp-bd);
+  color: var(--dp-text2);
+  cursor: pointer;
+  transition:
+    transform .22s var(--dp-ease-out),
+    background .22s,
+    border-color .22s,
+    box-shadow .22s;
+  font: inherit;
+  text-align: left;
+}
+.dp3-ribbon-chip:hover {
+  border-color: var(--dp-bd2);
+  background: rgba(255,255,255,.05);
+}
+.dp3-ribbon-chip .rc-time {
+  font-family: var(--dp-num);
+  font-size: 10px;
+  color: var(--dp-text3);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.003em;
+}
+.dp3-ribbon-chip .rc-title {
+  font-size: 12px; font-weight: 500;
+  color: var(--dp-text2);
+  max-width: 120px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dp3-ribbon-chip.past {
+  opacity: .62;
+}
+.dp3-ribbon-chip.past .rc-title { color: var(--dp-text3); }
+.dp3-ribbon-chip.current {
+  background: linear-gradient(180deg,
+    rgba(45,212,160,.10) 0%,
+    rgba(45,212,160,.04) 100%);
+  border-color: rgba(45,212,160,.35);
+  min-width: 140px;
+  padding: 10px 14px;
+  box-shadow:
+    0 0 0 0.5px rgba(45,212,160,.18),
+    0 10px 24px -10px rgba(45,212,160,.3);
+  transform: translateY(-1px);
+}
+.dp3-ribbon-chip.current .rc-title { color: var(--dp-text1); font-weight: 600; font-size: 13px; }
+.dp3-ribbon-chip.current .rc-time { color: var(--dp-jade); }
+.dp3-ribbon-chip.future .rc-title { color: var(--dp-text2); }
+
+/* ── Now: Hero card ─────────────────────────────────── */
+.dp3-now-hero {
+  position: relative;
+  padding: 28px 24px 26px;
+  border-radius: 22px;
+  background-color: var(--dp-card2);
+  background-image: linear-gradient(180deg,
+    rgba(255,255,255,.055) 0%,
+    rgba(255,255,255,.01) 8%,
+    rgba(45,212,160,.025) 60%,
+    rgba(90,60,140,.05) 100%);
+  border: 0.5px solid rgba(45,212,160,.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 0 0 0.5px rgba(45,212,160,.08),
+    0 22px 52px -18px rgba(45,212,160,.24),
+    0 10px 24px -10px rgba(0,0,0,.55);
+  overflow: hidden;
+  transition: opacity .2s var(--dp-ease-out), transform .2s var(--dp-ease-out);
+}
+.dp3-now-hero.fade-out { opacity: 0; transform: translateY(8px); }
+.dp3-now-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    rgba(45,212,160,0) 0%,
+    rgba(45,212,160,.22) 30%,
+    rgba(255,255,255,.26) 55%,
+    rgba(140,100,200,.22) 100%);
+  opacity: .9;
+  pointer-events: none;
+}
+.dp3-now-hero-ico {
+  width: 44px; height: 44px;
+  border-radius: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,.06) 0%,
+    rgba(255,255,255,.02) 100%);
+  border: 0.5px solid var(--dp-bd);
+  margin-bottom: 14px;
+}
+.dp3-now-hero-time {
+  font-family: var(--dp-num);
+  font-size: 12px; font-weight: 500;
+  color: var(--dp-jade);
+  letter-spacing: .02em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 10px;
+}
+.dp3-now-hero-title {
+  font-size: 26px; font-weight: 600;
+  color: var(--dp-text1);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0 0 10px;
+  font-family: var(--dp-serif, var(--dp-ui));
+}
+.dp3-now-hero-why {
+  font-size: 14px; font-weight: 400;
+  color: var(--dp-text2);
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  margin-bottom: 4px;
+}
+.dp3-now-countdown {
+  display: inline-flex;
+  align-items: center; gap: 6px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.04);
+  border: 0.5px solid var(--dp-bd);
+  font-size: 12px; font-weight: 500;
+  color: var(--dp-text2);
+  font-family: var(--dp-num);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Now: Primary action ─────────────────────────────── */
+.dp3-now-primary {
+  width: 100%;
+  height: 56px;
+  border-radius: 16px;
+  border: 0;
+  background: linear-gradient(180deg, #2DD4A0 0%, #1EA67D 100%);
+  color: #031a13;
+  font-family: var(--dp-ui);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.28),
+    inset 0 -1px 0 rgba(0,0,0,.14),
+    0 10px 28px -10px rgba(45,212,160,.55),
+    0 4px 14px -6px rgba(0,0,0,.45);
+  transition:
+    transform .12s var(--dp-ease-out),
+    box-shadow .18s,
+    filter .18s;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px;
+}
+.dp3-now-primary:hover { filter: brightness(1.04); }
+.dp3-now-primary:active {
+  transform: scale(.975);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 4px 14px -6px rgba(45,212,160,.55);
+}
+.dp3-now-primary:focus-visible {
+  outline: 2px solid rgba(45,212,160,.8);
+  outline-offset: 3px;
+}
+.dp3-now-primary.disabled,
+.dp3-now-primary:disabled {
+  background: rgba(255,255,255,.05);
+  color: var(--dp-text3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+  cursor: not-allowed;
+  filter: none;
+}
+
+/* ── Now: Secondary action row ───────────────────────── */
+.dp3-now-secondary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.dp3-now-sec-btn {
+  appearance: none;
+  border: 0.5px solid var(--dp-bd);
+  background: linear-gradient(180deg,
+    rgba(255,255,255,.035) 0%,
+    rgba(255,255,255,.008) 100%);
+  color: var(--dp-text2);
+  height: 48px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px;
+  font-family: var(--dp-ui);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  transition:
+    transform .14s var(--dp-ease-out),
+    background .18s,
+    color .18s,
+    border-color .18s;
+}
+.dp3-now-sec-btn:hover {
+  border-color: var(--dp-bd2);
+  color: var(--dp-text1);
+  background: linear-gradient(180deg,
+    rgba(255,255,255,.06) 0%,
+    rgba(255,255,255,.02) 100%);
+}
+.dp3-now-sec-btn:active { transform: scale(.97); }
+.dp3-now-sec-btn svg {
+  width: 18px; height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+}
+
+/* ── Now: Up-next card ───────────────────────────────── */
+.dp3-now-upnext {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.022);
+  border: 0.5px solid var(--dp-bd);
+  cursor: pointer;
+  transition:
+    transform .2s var(--dp-ease-out),
+    background .18s,
+    border-color .18s;
+}
+.dp3-now-upnext:hover {
+  border-color: var(--dp-bd2);
+  background: rgba(255,255,255,.04);
+  transform: translateY(-1px);
+}
+.dp3-now-upnext-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dp-text3);
+}
+.dp3-now-upnext-time {
+  font-family: var(--dp-num);
+  font-size: 12px;
+  color: var(--dp-text3);
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+}
+.dp3-now-upnext-title {
+  font-size: 14px; font-weight: 500;
+  color: var(--dp-text1);
+  letter-spacing: -0.005em;
+}
+
+/* ── Now: Swap sheet ────────────────────────────────── */
+.dp3-now-sheet-overlay {
+  position: fixed; inset: 0;
+  background: rgba(6,5,11,.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 200;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s;
+}
+.dp3-now-sheet-overlay.open { opacity: 1; pointer-events: auto; }
+.dp3-now-sheet {
+  position: fixed;
+  left: 50%; bottom: 0;
+  transform: translate(-50%, 100%);
+  width: min(480px, 100%);
+  background: var(--dp-bg2);
+  border-top: 0.5px solid var(--dp-bd);
+  border-radius: 22px 22px 0 0;
+  padding: 24px 22px 34px;
+  z-index: 201;
+  box-shadow: 0 -22px 52px rgba(0,0,0,.6);
+  transition: transform .28s var(--dp-ease-out);
+}
+.dp3-now-sheet.open { transform: translate(-50%, 0); }
+.dp3-now-sheet-handle {
+  width: 36px; height: 4px;
+  margin: -8px auto 14px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.14);
+}
+.dp3-now-sheet-title {
+  font-size: 16px; font-weight: 600;
+  color: var(--dp-text1);
+  margin-bottom: 10px;
+  letter-spacing: -0.008em;
+}
+.dp3-now-sheet-body {
+  font-size: 14px; color: var(--dp-text2);
+  line-height: 1.5;
+}
+.dp3-now-sheet-close {
+  margin-top: 16px;
+  width: 100%;
+  height: 44px;
+  border-radius: 12px;
+  border: 0.5px solid var(--dp-bd);
+  background: rgba(255,255,255,.035);
+  color: var(--dp-text1);
+  font-family: var(--dp-ui);
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+}
+.dp3-now-sheet-close:hover { background: rgba(255,255,255,.06); }
+
+@media (min-width: 961px) {
+  .dp3-now { padding: 48px 24px 120px; }
+  .dp3-now-inner { gap: 24px; }
+  .dp3-now-hero { padding: 34px 30px 30px; }
+  .dp3-now-hero-title { font-size: 30px; }
+}
 </style>
 
 <script src="activitylog.js"></script>
@@ -6449,6 +6972,8 @@ window.OVERLAY_LIBRARY = {
 function renderPlan(plan, browsing) {
   var root = document.getElementById('day-root');
   window._blocks = plan.blocks;
+  window._currentPlan = plan;
+  window._currentBrowsing = !!browsing;
   var p = P, t = TODAY;
   var isBrowsing = !!browsing;
   // When browsing another day, use empty log so no today-state bleeds in
@@ -6464,6 +6989,47 @@ function renderPlan(plan, browsing) {
     }
     return (log.blockStatus && log.blockStatus['block_'+idx]) || '';
   }
+
+  // ── Time-window helpers (used by Feature A + Now view) ──
+  // Returns {startMin, endMin} in minutes-since-midnight, or null.
+  function blockWindow(block) {
+    if (!block || !block.time) return null;
+    var p2 = block.time.split(':');
+    var start = parseInt(p2[0],10)*60 + parseInt(p2[1]||0,10);
+    if (isNaN(start)) return null;
+    var dur = parseInt(block.durationMins, 10);
+    if (!dur || isNaN(dur)) {
+      // Sensible defaults by type — meals/supps don't have explicit durations.
+      if (block.mealSlot) dur = 30;
+      else if (block.type === 'supp' || block.type === 'recovery') dur = 10;
+      else dur = 20;
+    }
+    return { startMin: start, endMin: start + dur };
+  }
+
+  // Returns { explicit, derived, effective } for a block at "now".
+  // explicit: 'done' | 'skipped' | 'modified' | null
+  // derived:  'upcoming' | 'pending-now' | 'done-by-trust' | null
+  // effective: explicit if set, else derived
+  function computeBlockState(block, idx) {
+    var exp = blockStatus(block, idx) || null;
+    if (exp) return { explicit: exp, derived: null, effective: exp };
+    // No derived state when browsing another day — only "today" has a clock.
+    if (isBrowsing) return { explicit: null, derived: null, effective: null };
+    if (block.type === 'sleep') return { explicit: null, derived: null, effective: null };
+    var win = blockWindow(block);
+    if (!win) return { explicit: null, derived: null, effective: null };
+    var now = new Date();
+    var nowMin = now.getHours()*60 + now.getMinutes();
+    var derived = null;
+    if (nowMin < win.startMin) derived = 'upcoming';
+    else if (nowMin < win.endMin) derived = 'pending-now';
+    else derived = 'done-by-trust';
+    return { explicit: null, derived: derived, effective: derived };
+  }
+  // Expose for post-render wiring and for dpSetStatus advances.
+  window._computeBlockState = computeBlockState;
+  window._blockWindow = blockWindow;
 
   function parseEx(str) {
     var clean = (str||'').replace(/\s*\(RPE[^)]+\)/i,'').trim();
@@ -6837,18 +7403,27 @@ function renderPlan(plan, browsing) {
 
   // ── Build one dp3 card ───────────────────────────────────
   function buildDpCard(block, idx) {
-    var st     = blockStatus(block, idx);
-    var isDone = st === 'done', isSkip = st === 'skipped';
+    var state  = computeBlockState(block, idx);
+    var isDone = state.explicit === 'done';
+    var isSkip = state.explicit === 'skipped';
+    var isMod  = state.explicit === 'modified';
+    var isPendingNow = state.derived === 'pending-now';
+    var isTrustDone  = state.derived === 'done-by-trust';
     var cat    = tlCat(block);
     var metric = tlMetric(block);
     var title  = block.mealSlot ? getMealSlotLabel(block.mealSlot) : (block.title || '');
     var isCurr = idx === tlExpandIdx;
     var cls    = 'dp3-card'
       + (isDone ? ' is-done' : isSkip ? ' is-skipped' : isCurr ? ' is-current' : '')
-      + (isCurr ? ' open' : '');
+      + (isCurr ? ' open' : '')
+      + (isPendingNow && !isDone && !isSkip ? ' is-pending-now' : '')
+      + (isTrustDone ? ' is-done-by-trust' : '');
     var stCls  = isDone ? 'done' : isSkip ? 'skip' : '';
     var stIcon = isDone ? '✓'   : isSkip ? '×'   : '';
-    return '<div class="' + cls + '" id="dp3-card-' + idx + '" data-cat="' + cat.cls + '">'
+    return '<div class="' + cls + '" id="dp3-card-' + idx + '" data-cat="' + cat.cls + '" data-block-idx="' + idx + '">'
+      + (isPendingNow && !isDone && !isSkip ? '<span class="dp3-pending-dot" aria-hidden="true"></span>' : '')
+      + (isTrustDone ? '<span class="dp3-trust-tick" aria-hidden="true">✓</span>' : '')
+      + '<span class="dp3-swipe-wake" aria-hidden="true"></span>'
       + '<div class="dp3-card-row" onclick="dp3Toggle(' + idx + ')">'
         + '<span class="dp3-card-time">' + (block.time || '') + '</span>'
         + '<span class="dp3-card-cat ' + cat.cls + '">' + cat.lbl + '</span>'
@@ -7031,7 +7606,12 @@ function renderPlan(plan, browsing) {
   var dpGroups = dpGroup(plan.blocks);
   var centreHtml = staleBannerHtml;
   dpGroups.forEach(function(g) {
-    var doneCnt = g.cards.filter(function(c){ return blockStatus(c.block, c.idx) === 'done'; }).length;
+    // Count explicit 'done' AND 'done-by-trust' so the ribbon reflects
+    // a fully-adherent user's progress without needing taps.
+    var doneCnt = g.cards.filter(function(c){
+      var s = computeBlockState(c.block, c.idx);
+      return s.effective === 'done' || s.effective === 'done-by-trust';
+    }).length;
     centreHtml += '<div class="dp3-group" id="dp3-group-' + g.id + '">'
       + '<div class="dp3-group-hdr">'
         + '<span class="dp3-group-icon">' + g.icon + '</span>'
@@ -7159,12 +7739,239 @@ function renderPlan(plan, browsing) {
     + '</div></div>'
     + '<div id="vlg-toast" class="vlg-toast"></div>';
 
+  // ════════════════════════════════════════════════════════
+  //  NOW VIEW (Feature B)
+  //  A focused single-column layout. Renders alongside day view
+  //  — we swap which root is visible via the view toggle.
+  // ════════════════════════════════════════════════════════
+  function nowViewPick(blocks) {
+    // Walk the day's blocks and bucket by relative position to "now".
+    var now = new Date();
+    var nowMin = now.getHours()*60 + now.getMinutes();
+    var indexed = blocks.map(function(b, i){ return {b:b, i:i, win:blockWindow(b)}; })
+      .filter(function(x){ return x.b.type !== 'sleep' && x.win; })
+      .sort(function(a,b){ return a.win.startMin - b.win.startMin; });
+    var pendingNow = null, nextUp = null, pastList = [], futureList = [];
+    indexed.forEach(function(x){
+      if (nowMin >= x.win.startMin && nowMin < x.win.endMin) {
+        if (!pendingNow) pendingNow = x;
+      } else if (nowMin >= x.win.endMin) {
+        pastList.push(x);
+      } else {
+        futureList.push(x);
+      }
+    });
+    nextUp = futureList[0] || null;
+    return { pending: pendingNow, past: pastList, future: futureList, next: nextUp, nowMin: nowMin };
+  }
+
+  function nowWhyLine(block) {
+    // Reuse existing block data — never invent fields.
+    if (block.type === 'training') {
+      var exs = (block.exercises||[]).filter(function(e){ return e!=='Track loads'; });
+      return (block.subtitle || block.detail || '')
+        || (exs.length ? exs.length + ' exercises · ' + (block.durationMins||90) + ' min' : 'Training session');
+    }
+    if (block.mealSlot) {
+      var pp = Math.round((p.protein||140)/Math.max(1,mealBlocks.length));
+      return '~' + pp + 'g protein target — ' + (block.subtitle || getMealSlotLabel(block.mealSlot).toLowerCase());
+    }
+    if (block.suppList && block.suppList.length) {
+      return block.suppList.length + ' supplement' + (block.suppList.length>1?'s':'') + ' — ' + (block.subtitle || 'stack window');
+    }
+    return block.subtitle || block.detail || (block.title || '');
+  }
+
+  function nowIcon(block) {
+    if (block.type === 'training') return '🏋';
+    if (block.mealSlot) return '🍽';
+    if (block.type === 'supp') return '💊';
+    if (block.type === 'recovery') return '🌿';
+    if (block.type === 'wake') return '🌅';
+    return '·';
+  }
+
+  function fmtHm(mins) {
+    var h = Math.floor(mins/60), m = mins % 60;
+    if (h <= 0) return m + 'm';
+    if (m === 0) return h + 'h';
+    return h + 'h ' + m + 'm';
+  }
+
+  function ribbonChipHtml(entry, pos) {
+    if (!entry) return '';
+    var title = entry.b.mealSlot ? getMealSlotLabel(entry.b.mealSlot) : (entry.b.title || '');
+    return '<button class="dp3-ribbon-chip ' + pos + '" data-block-idx="' + entry.i + '" onclick="dp3NowChipTap(' + entry.i + ',\'' + pos + '\')">'
+      + '<span class="rc-time">' + (entry.b.time||'') + '</span>'
+      + '<span class="rc-title">' + title + '</span>'
+    + '</button>';
+  }
+
+  function buildNowHtml() {
+    var pick = nowViewPick(plan.blocks);
+    var hero = pick.pending || pick.next;
+    var preview = pick.pending ? (pick.future[0] || null) : (pick.future[1] || null);
+
+    // Ribbon: last 2 past, current (or next as placeholder), next 2.
+    var pastTwo = pick.past.slice(-2);
+    var nextTwo = (pick.pending ? pick.future.slice(0,2) : pick.future.slice(1,3));
+    var centreEntry = pick.pending || pick.next;
+
+    var ribbonInner = '';
+    pastTwo.forEach(function(e){ ribbonInner += ribbonChipHtml(e,'past'); });
+    ribbonInner += ribbonChipHtml(centreEntry, pick.pending ? 'current' : 'future');
+    nextTwo.forEach(function(e){ ribbonInner += ribbonChipHtml(e,'future'); });
+
+    // Hero
+    var heroHtml = '';
+    if (hero) {
+      var block = hero.b;
+      var title = block.mealSlot ? getMealSlotLabel(block.mealSlot) : (block.title || '');
+      var win = hero.win;
+      var timeLabel = block.time || '';
+      if (win && block.durationMins) {
+        var endH = Math.floor(win.endMin/60), endM = win.endMin%60;
+        var endStr = (endH<10?'0':'')+endH+':'+(endM<10?'0':'')+endM;
+        timeLabel = block.time + ' – ' + endStr;
+      }
+      var countdownHtml = '';
+      var isPending = !!pick.pending;
+      if (!isPending && pick.next) {
+        var delta = pick.next.win.startMin - pick.nowMin;
+        countdownHtml = '<div class="dp3-now-countdown">Next: ' + title + ' in ' + fmtHm(delta) + '</div>';
+      }
+      heroHtml = '<div class="dp3-now-hero" id="dp3-now-hero">'
+        + '<div class="dp3-now-hero-ico">' + nowIcon(block) + '</div>'
+        + '<div class="dp3-now-hero-time">' + timeLabel + (isPending ? ' <span style="color:var(--dp-text3);font-weight:400;">· now</span>' : '') + '</div>'
+        + '<h1 class="dp3-now-hero-title">' + title + '</h1>'
+        + '<div class="dp3-now-hero-why">' + nowWhyLine(block) + '</div>'
+        + countdownHtml
+      + '</div>';
+    } else {
+      heroHtml = '<div class="dp3-now-hero" id="dp3-now-hero">'
+        + '<div class="dp3-now-hero-ico">✓</div>'
+        + '<div class="dp3-now-hero-time">Day complete</div>'
+        + '<h1 class="dp3-now-hero-title">Nothing left on the plan.</h1>'
+        + '<div class="dp3-now-hero-why">Rest. Reflect. Tomorrow starts fresh.</div>'
+      + '</div>';
+    }
+
+    // Primary action
+    var primaryHtml = '';
+    if (pick.pending) {
+      primaryHtml = '<button class="dp3-now-primary" id="dp3-now-primary" onclick="dp3NowMarkDone(' + pick.pending.i + ')">'
+        + '<span>✓</span><span>Done as planned</span>'
+      + '</button>';
+    } else if (pick.next) {
+      primaryHtml = '<button class="dp3-now-primary disabled" disabled aria-disabled="true">'
+        + '<span>Not yet</span>'
+      + '</button>';
+    } else {
+      primaryHtml = '<button class="dp3-now-primary disabled" disabled aria-disabled="true">'
+        + '<span>All set</span>'
+      + '</button>';
+    }
+
+    // Secondary actions
+    var activeIdx = (pick.pending || pick.next);
+    var secActive = !!activeIdx;
+    var actIdxNum = activeIdx ? activeIdx.i : -1;
+    var secondaryHtml = '<div class="dp3-now-secondary">'
+      + '<button class="dp3-now-sec-btn" ' + (secActive?'':'disabled ') + 'onclick="vlgToggle && vlgToggle()" title="Voice log">'
+        + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>'
+        + '<span>Voice</span>'
+      + '</button>'
+      + '<button class="dp3-now-sec-btn" ' + (secActive?'':'disabled ') + 'onclick="dp3NowModify(' + actIdxNum + ')" title="Modify">'
+        + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>'
+        + '<span>Modify</span>'
+      + '</button>'
+      + '<button class="dp3-now-sec-btn" ' + (secActive?'':'disabled ') + 'onclick="dp3NowSkip(' + actIdxNum + ')" title="Skip">'
+        + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>'
+        + '<span>Skip</span>'
+      + '</button>'
+      + '<button class="dp3-now-sec-btn" ' + (secActive?'':'disabled ') + 'onclick="dp3NowSwapOpen(' + actIdxNum + ')" title="Swap">'
+        + '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h11l-3-3"/><path d="M17 17H6l3 3"/></svg>'
+        + '<span>Swap</span>'
+      + '</button>'
+    + '</div>';
+
+    // Up next preview
+    var upNextHtml = '';
+    if (preview) {
+      var pvTitle = preview.b.mealSlot ? getMealSlotLabel(preview.b.mealSlot) : (preview.b.title || '');
+      upNextHtml = '<div class="dp3-now-upnext" onclick="dp3NowChipTap(' + preview.i + ',\'future\')">'
+        + '<span class="dp3-now-upnext-label">Up next</span>'
+        + '<span class="dp3-now-upnext-title">' + pvTitle + '</span>'
+        + '<span class="dp3-now-upnext-time">' + (preview.b.time||'') + '</span>'
+      + '</div>';
+    }
+
+    // Head: kicker + toggle
+    var dateStr = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+    var headHtml = '<div class="dp3-now-head">'
+      + '<div class="dp3-now-kicker">' + (pick.pending ? 'Right now' : pick.next ? 'Up next' : dateStr) + '</div>'
+      + viewToggleHtml
+    + '</div>';
+
+    // Swap sheet stub
+    var sheetHtml = '<div class="dp3-now-sheet-overlay" id="dp3-now-sheet-ov" onclick="dp3NowSwapClose()"></div>'
+      + '<div class="dp3-now-sheet" id="dp3-now-sheet" role="dialog" aria-modal="true">'
+        + '<div class="dp3-now-sheet-handle"></div>'
+        + '<div class="dp3-now-sheet-title">Swap</div>'
+        + '<div class="dp3-now-sheet-body">Alternate meals and exercises coming soon. For now, use <em>Modify</em> to edit this block.</div>'
+        + '<button class="dp3-now-sheet-close" onclick="dp3NowSwapClose()">Close</button>'
+      + '</div>';
+
+    return '<div class="dp3-now" id="dp3-now-root">'
+      + '<div class="dp3-now-inner">'
+        + headHtml
+        + '<div class="dp3-now-ribbon" id="dp3-now-ribbon">' + ribbonInner + '</div>'
+        + heroHtml
+        + primaryHtml
+        + secondaryHtml
+        + upNextHtml
+      + '</div>'
+      + sheetHtml
+    + '</div>';
+  }
+
+  // View toggle markup — reused by both roots
+  var viewToggleHtml = '<div class="dp3-view-toggle-wrap">'
+    + '<div class="dp3-view-toggle" role="tablist" aria-label="Plan view">'
+      + '<button class="dp3-view-seg" data-view="now"  role="tab" onclick="dp3SetView(\'now\')">Now</button>'
+      + '<button class="dp3-view-seg" data-view="day"  role="tab" onclick="dp3SetView(\'day\')">Day</button>'
+    + '</div>'
+  + '</div>';
+
+  // Decide the initial view
+  var _dp3ViewSaved = null;
+  try { _dp3ViewSaved = localStorage.getItem('bl_dp3_view'); } catch(e){}
+  var dp3View = (_dp3ViewSaved === 'now' || _dp3ViewSaved === 'day') ? _dp3ViewSaved : null;
+  if (!dp3View) {
+    // Auto-choose: Now if there's a pending-now or upcoming-within-90min, else Day.
+    if (isBrowsing) {
+      dp3View = 'day';
+    } else {
+      var _pick = nowViewPick(plan.blocks);
+      var _autoNow = !!_pick.pending
+        || (_pick.next && (_pick.next.win.startMin - _pick.nowMin) <= 90);
+      dp3View = _autoNow ? 'now' : 'day';
+    }
+  }
+  // When browsing another day, always force day view — Now view has no meaning.
+  if (isBrowsing) dp3View = 'day';
+  window._dp3View = dp3View;
+
+  var nowHtml = buildNowHtml();
+
   // ── FINAL ASSEMBLY ───────────────────────────────────────
-  root.innerHTML = '<div class="dp3-page">'
+  root.innerHTML = '<div class="dp3-page" id="dp3-page-root" ' + (dp3View === 'now' ? 'style="display:none;"' : '') + '>'
+    + viewToggleHtml
     + '<aside class="dp3-sidebar">' + sidebarHtml + '</aside>'
     + '<main class="dp3-centre">' + centreHtml + '</main>'
     + '<aside class="dp3-panel">' + panelHtml + '</aside>'
   + '</div>'
+  + (dp3View === 'now' ? nowHtml : '<div id="dp3-now-root-holder" style="display:none;">' + nowHtml + '</div>')
   + '<div id="dp2-actual-trigger" style="display:none"></div>'
   + '<div class="dp2-actual-overlay" id="dp2-actual-overlay" onclick="dpActualClose()"></div>'
   + '<div class="dp2-actual-sheet" id="dp2-actual-sheet">'
@@ -7793,6 +8600,27 @@ function renderPlan(plan, browsing) {
     setTimeout(function(){ renderActualPane && renderActualPane(); }, 120);
     generateCoachNarrative(p, t, plan);
   }
+
+  // ── Sync view toggle active state ─────────────────────
+  (function syncViewToggle() {
+    document.querySelectorAll('.dp3-view-seg').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-view') === window._dp3View);
+      btn.setAttribute('aria-selected', btn.getAttribute('data-view') === window._dp3View ? 'true' : 'false');
+    });
+  })();
+
+  // ── Wire swipe gestures (Feature C) ───────────────────
+  if (typeof dp3WireSwipe === 'function') dp3WireSwipe();
+
+  // ── Derived-state tick: refresh every 60s so pending-now
+  //    transitions to done-by-trust, and ribbon advances. ──
+  if (!window._dp3TickTimer) {
+    window._dp3TickTimer = setInterval(function(){
+      try {
+        if (typeof dp3RefreshDerived === 'function') dp3RefreshDerived();
+      } catch(e){}
+    }, 60000);
+  }
 }
 
 // ── Act toggle ───────────────────────────────────────────────
@@ -7808,6 +8636,271 @@ function dp3Toggle(idx) {
   var wasOpen = card.classList.contains('open');
   document.querySelectorAll('.dp3-card.open').forEach(function(el){ el.classList.remove('open'); });
   if (!wasOpen) card.classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FEATURE B — Now view controller
+// ═══════════════════════════════════════════════════════════════════════
+
+// Flip between 'now' and 'day'. Persists choice in localStorage.
+function dp3SetView(mode) {
+  if (mode !== 'now' && mode !== 'day') return;
+  window._dp3View = mode;
+  try { localStorage.setItem('bl_dp3_view', mode); } catch(e){}
+  var page = document.getElementById('dp3-page-root');
+  var nowRoot = document.getElementById('dp3-now-root');
+  // If the alt root is stashed in a holder, promote it.
+  if (!nowRoot) {
+    var holder = document.getElementById('dp3-now-root-holder');
+    if (holder) {
+      nowRoot = holder.querySelector('.dp3-now');
+      if (nowRoot) {
+        holder.parentNode.insertBefore(nowRoot, holder);
+        holder.parentNode.removeChild(holder);
+      }
+    }
+  }
+  if (mode === 'now') {
+    if (page) page.style.display = 'none';
+    if (nowRoot) nowRoot.style.display = '';
+  } else {
+    if (page) page.style.display = '';
+    if (nowRoot) nowRoot.style.display = 'none';
+  }
+  document.querySelectorAll('.dp3-view-seg').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-view') === mode);
+    btn.setAttribute('aria-selected', btn.getAttribute('data-view') === mode ? 'true' : 'false');
+  });
+  // When entering Now view, rebuild so ribbon/hero reflect current time.
+  if (mode === 'now' && typeof dp3RebuildNowView === 'function' && window._currentPlan) {
+    dp3RebuildNowView();
+  }
+}
+
+// Primary "Done as planned" from Now view.
+// Flip status, fade the hero, then re-render so the ribbon advances.
+function dp3NowMarkDone(idx) {
+  if (navigator.vibrate) navigator.vibrate([4,14,4]);
+  var hero = document.getElementById('dp3-now-hero');
+  if (hero) hero.classList.add('fade-out');
+  setTimeout(function(){
+    try { dpSetStatus(idx, 'done'); } catch(e){}
+    if (typeof dp3RebuildNowView === 'function') dp3RebuildNowView();
+  }, 200);
+}
+
+function dp3NowSkip(idx) {
+  if (idx == null || idx < 0) return;
+  if (navigator.vibrate) navigator.vibrate(6);
+  try { dpSetStatus(idx, 'skipped'); } catch(e){}
+  if (typeof dp3RebuildNowView === 'function') dp3RebuildNowView();
+}
+
+function dp3NowModify(idx) {
+  if (idx == null || idx < 0) return;
+  if (typeof dpActualOpen === 'function') dpActualOpen(idx);
+  else { try { dpSetStatus(idx, 'modified'); } catch(e){} }
+}
+
+function dp3NowSwapOpen(idx) {
+  var sheet = document.getElementById('dp3-now-sheet');
+  var ov    = document.getElementById('dp3-now-sheet-ov');
+  if (sheet) sheet.classList.add('open');
+  if (ov)    ov.classList.add('open');
+}
+function dp3NowSwapClose() {
+  var sheet = document.getElementById('dp3-now-sheet');
+  var ov    = document.getElementById('dp3-now-sheet-ov');
+  if (sheet) sheet.classList.remove('open');
+  if (ov)    ov.classList.remove('open');
+}
+
+// Tap a ribbon chip — for past/future, scroll day view to that card.
+function dp3NowChipTap(idx, pos) {
+  if (pos === 'current') return; // already in hero
+  // Either scroll inline in day view or preview as a sheet.
+  // Simplest: flip to Day view and scroll to the card, so the user sees context.
+  dp3SetView('day');
+  setTimeout(function(){
+    var el = document.getElementById('dp3-card-'+idx);
+    if (el) {
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      el.classList.add('open');
+    }
+  }, 40);
+}
+
+// Rebuild only the Now view (so we don't lose day-view scroll/state).
+function dp3RebuildNowView() {
+  if (!window._currentPlan) return;
+  // Easiest correct approach: re-run renderPlan. It is fast enough.
+  try { renderPlan(window._currentPlan, !!window._currentBrowsing); } catch(e){}
+}
+
+// Light refresh: re-apply derived classes to existing cards and update
+// ribbon/hero on the next minute tick. Currently delegates to full rebuild
+// (cheap enough given single-page app scale).
+function dp3RefreshDerived() {
+  if (!window._blocks || !window._computeBlockState) return;
+  var changed = false;
+  window._blocks.forEach(function(block, idx){
+    var el = document.getElementById('dp3-card-'+idx);
+    if (!el) return;
+    var s = window._computeBlockState(block, idx);
+    var wantsPending = !s.explicit && s.derived === 'pending-now';
+    var wantsTrust   = !s.explicit && s.derived === 'done-by-trust';
+    var hasPending = el.classList.contains('is-pending-now');
+    var hasTrust   = el.classList.contains('is-done-by-trust');
+    if (wantsPending !== hasPending || wantsTrust !== hasTrust) {
+      changed = true;
+      el.classList.toggle('is-pending-now', wantsPending);
+      el.classList.toggle('is-done-by-trust', wantsTrust);
+      var dot = el.querySelector('.dp3-pending-dot');
+      if (wantsPending && !dot) {
+        var d = document.createElement('span');
+        d.className = 'dp3-pending-dot';
+        d.setAttribute('aria-hidden','true');
+        el.insertBefore(d, el.firstChild);
+      } else if (!wantsPending && dot) dot.remove();
+      var tick = el.querySelector('.dp3-trust-tick');
+      if (wantsTrust && !tick) {
+        var t = document.createElement('span');
+        t.className = 'dp3-trust-tick';
+        t.setAttribute('aria-hidden','true');
+        t.textContent = '✓';
+        el.insertBefore(t, el.firstChild);
+      } else if (!wantsTrust && tick) tick.remove();
+    }
+  });
+  // Update group tallies (now counts include done-by-trust).
+  document.querySelectorAll('.dp3-group').forEach(function(g){
+    var all = g.querySelectorAll('.dp3-card').length;
+    var doneish = g.querySelectorAll('.dp3-card.is-done, .dp3-card.is-done-by-trust').length;
+    var tally = g.querySelector('.dp3-group-tally');
+    if (doneish > 0) {
+      if (!tally) {
+        tally = document.createElement('span');
+        tally.className = 'dp3-group-tally';
+        var hdr = g.querySelector('.dp3-group-hdr');
+        if (hdr) hdr.appendChild(tally);
+      }
+      tally.textContent = doneish + '\u202f/\u202f' + all + ' done';
+    }
+  });
+  if (changed && window._dp3View === 'now') {
+    // If a block just flipped pending→trust, rebuild Now so hero advances.
+    dp3RebuildNowView();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FEATURE C — Swipe gestures for day-view cards
+// ═══════════════════════════════════════════════════════════════════════
+function dp3WireSwipe() {
+  var cards = document.querySelectorAll('.dp3-card');
+  cards.forEach(function(card){
+    if (card._swipeWired) return;
+    card._swipeWired = true;
+    var startX = 0, startY = 0, curDx = 0, dragging = false, moved = false, longPressTimer = null, longPressed = false;
+    var THRESH = 60;
+    var ANGLE_GUARD = 16; // px vertical slack before we bail
+
+    function idxOf() {
+      var i = parseInt(card.getAttribute('data-block-idx'), 10);
+      return isNaN(i) ? -1 : i;
+    }
+
+    function onDown(e) {
+      // Ignore if the down target is an input/button that owns the tap
+      var tgt = e.target;
+      if (tgt.closest('button, input, textarea, select, a')) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      startX = e.clientX; startY = e.clientY;
+      curDx = 0; moved = false; dragging = true; longPressed = false;
+      card.classList.remove('swipe-right','swipe-left');
+      longPressTimer = setTimeout(function(){
+        longPressed = true;
+        dragging = false;
+        card.classList.remove('is-dragging');
+        card.style.transform = '';
+        if (navigator.vibrate) navigator.vibrate(10);
+        if (typeof vlgToggle === 'function') vlgToggle();
+      }, 500);
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      if (!moved) {
+        if (Math.abs(dy) > ANGLE_GUARD && Math.abs(dy) > Math.abs(dx)) {
+          // Vertical scroll — bail out cleanly.
+          cancel();
+          return;
+        }
+        if (Math.abs(dx) > 6) {
+          moved = true;
+          card.classList.add('is-dragging');
+          if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+        }
+      }
+      if (moved) {
+        curDx = dx;
+        // Rubber-band past 120px so it never feels runaway.
+        var shown = Math.abs(dx) > 120 ? Math.sign(dx) * (120 + (Math.abs(dx) - 120) * .3) : dx;
+        card.style.transform = 'translateX(' + shown.toFixed(1) + 'px)';
+        card.classList.toggle('swipe-right', dx > 14);
+        card.classList.toggle('swipe-left',  dx < -14);
+      }
+    }
+    function onUp() {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+      if (!dragging) return;
+      dragging = false;
+      card.classList.remove('is-dragging');
+      if (!moved || longPressed) {
+        card.style.transform = '';
+        card.classList.remove('swipe-right','swipe-left');
+        return;
+      }
+      var dx = curDx;
+      // Snap back with easing.
+      card.style.transition = 'transform .26s var(--dp-ease-out)';
+      card.style.transform = '';
+      setTimeout(function(){ card.style.transition = ''; }, 280);
+      card.classList.remove('swipe-right','swipe-left');
+      var idx = idxOf();
+      if (idx < 0) return;
+      if (dx >= THRESH) {
+        // Swipe right → done
+        if (navigator.vibrate) navigator.vibrate([4,14,4]);
+        card.classList.add('swipe-flash');
+        setTimeout(function(){ card.classList.remove('swipe-flash'); }, 600);
+        try { dpSetStatus(idx, 'done'); } catch(e){}
+      } else if (dx <= -THRESH) {
+        // Swipe left → open modify/actual sheet, or fall back to modified status.
+        if (navigator.vibrate) navigator.vibrate(8);
+        if (typeof dpActualOpen === 'function') {
+          try { dpActualOpen(idx); } catch(e){ try { dpSetStatus(idx,'modified'); } catch(e2){} }
+        } else {
+          try { dpSetStatus(idx, 'modified'); } catch(e){}
+        }
+      }
+    }
+    function cancel() {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+      dragging = false; moved = false;
+      card.classList.remove('is-dragging','swipe-right','swipe-left');
+      card.style.transform = '';
+    }
+
+    card.addEventListener('pointerdown', onDown);
+    card.addEventListener('pointermove', onMove);
+    card.addEventListener('pointerup',   onUp);
+    card.addEventListener('pointercancel', cancel);
+    card.addEventListener('pointerleave', function(e){
+      if (dragging && moved) onUp(e);
+    });
+  });
 }
 
 // ── Energy level save ────────────────────────────────────────────────
