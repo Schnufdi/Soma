@@ -3960,6 +3960,19 @@ html:has(#day-root .dp3-now) {
 }
 .dp3-page * { box-sizing: border-box; }
 
+/* Hide site chrome (PRO banner + sub-nav / plan bar) when dp3-page is active.
+   Reference design shows no salmon-pink PRO banner, no Setup/Strategy/Programme pill row. */
+body:has(#day-root .dp3-page) .pro-page-banner,
+body:has(#day-root .dp3-page) #pro-page-banner,
+body:has(#day-root .dp3-page) .prog-banner,
+body:has(#day-root .dp3-page) #prog-banner,
+body:has(#day-root .dp3-page) .week-strip,
+body:has(#day-root .dp3-page) #week-strip,
+body:has(#day-root .dp3-page) .macro-bar,
+body:has(#day-root .dp3-page) #macro-bar {
+  display: none !important;
+}
+
 /* SVG ring tracks — hairline on light */
 .dp3-page svg circle:first-child { stroke: rgba(0,0,0,.06) !important; }
 
@@ -3978,6 +3991,7 @@ html:has(#day-root .dp3-now) {
   border-right: 1px solid var(--dp-bd);
   scrollbar-width: none;
   animation: dp3-fade .35s var(--dp-ease-out) both;
+  display: flex; flex-direction: column;
 }
 .dp3-sidebar::-webkit-scrollbar { display: none; }
 
@@ -5273,17 +5287,9 @@ html:has(#day-root .dp3-now) {
 }
 .dp3-page svg circle:first-child { stroke: rgba(26,22,18,.06) !important; }
 
-/* Position Now/Day toggle above the centre column, not over the dark panel */
-.dp3-view-toggle-wrap {
-  position: absolute;
-  top: 24px;
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-  z-index: 10;
-}
-@media (max-width: 1180px) { .dp3-view-toggle-wrap { top: 20px; } }
-@media (max-width: 1020px) { .dp3-view-toggle-wrap { position: static; transform: none; display:flex; justify-content:center; padding: 10px 0; } }
+/* Now/Day toggle — hidden by default (Day is the permanent default view).
+   Kept in DOM so dp3SetView('now') still works programmatically. */
+.dp3-view-toggle-wrap { display: none !important; }
 
 /* ── LEFT SIDEBAR (dark) ─────────────────────────────────── */
 .dp3-sidebar {
@@ -5295,8 +5301,11 @@ html:has(#day-root .dp3-now) {
   color: var(--dp-dark-text1);
   border-right: 1px solid var(--dp-dark-bd);
   scrollbar-width: none;
+  display: flex; flex-direction: column;
 }
 .dp3-sidebar::-webkit-scrollbar { display: none; }
+/* Push the bottom nav to the base of the sidebar regardless of content height */
+.dp3-sidebar .dp-sb-nav { margin-top: auto; }
 
 .dp-sb-logo { display:flex; align-items:flex-start; gap:10px; margin-bottom: 22px; }
 .dp-sb-logo-mark {
@@ -5782,7 +5791,7 @@ html:has(#day-root .dp3-now) {
 /* MOVE */
 .dp-moves { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .dp-move {
-  display: flex; align-items: center; gap: 14px;
+  display: flex; align-items: stretch; gap: 14px;
   padding: 12px;
   border-radius: 12px;
   background: var(--dp-card2);
@@ -5792,18 +5801,28 @@ html:has(#day-root .dp3-now) {
 }
 .dp-move:hover { border-color: var(--dp-bd2); transform: translateY(-1px); }
 .dp-move-thumb {
-  width: 72px; height: 72px;
+  width: 140px; height: 140px;
   border-radius: 10px;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #A8B89A, #687864);
+  background: linear-gradient(135deg, #A8B89A, #687864) center/cover no-repeat;
   display: inline-flex; align-items: flex-end; justify-content: flex-start;
-  padding: 6px 8px;
-  color: rgba(255,255,255,.85);
+  padding: 8px 10px;
+  color: rgba(255,255,255,.92);
   font-size: 10px; font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
+  overflow: hidden;
+  position: relative;
 }
-.dp-move.is-mobility .dp-move-thumb { background: linear-gradient(135deg, #C8B89C, #88786A); }
+.dp-move-thumb::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.35), rgba(0,0,0,0) 55%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.dp-move-thumb > * { position: relative; z-index: 1; }
+.dp-move.is-mobility .dp-move-thumb { background: linear-gradient(135deg, #C8B89C, #88786A) center/cover no-repeat; }
 .dp-move-body { min-width: 0; }
 .dp-move-kicker { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--dp-text2); margin-bottom: 4px; }
 .dp-move-title { font-size: 14px; font-weight: 500; color: var(--dp-text1); letter-spacing: -0.005em; margin-bottom: 2px; }
@@ -5993,6 +6012,11 @@ html:has(#day-root .dp3-now) {
   font-size: 11px; color: var(--dp-dark-text2);
   font-variant-numeric: tabular-nums;
 }
+
+/* Empty / zero-state — faint the big numerator and donut so the card still reads as intentional */
+.dp-r-card.is-empty .dp-r-big-num { color: var(--dp-dark-text3); opacity: .55; }
+.dp-r-card.is-empty .dp-r-bar-fill { background: var(--dp-dark-bd2); }
+.dp-r-card.is-empty .dp-donut { opacity: .28; filter: saturate(.15); }
 
 /* Macros donut */
 .dp-r-macros-grid {
@@ -8349,6 +8373,61 @@ function renderPlan(plan, browsing) {
     if (s.indexOf('snack') >= 0) return '\ud83c\udf4e';
     return '\ud83c\udf7d\ufe0f';
   }
+  // Minutes-since-midnight from block.time ("HH:MM")
+  function _blockStartMin(block) {
+    if (block && typeof block.startMin === 'number') return block.startMin;
+    if (!block || !block.time) return 0;
+    var parts = String(block.time).split(':');
+    var h = parseInt(parts[0],10) || 0;
+    var m = parseInt(parts[1],10) || 0;
+    return h * 60 + m;
+  }
+  // Real food photos from Unsplash CDN based on meal type / timing
+  function getMealPhoto(block) {
+    var t = block.title ? String(block.title).toLowerCase() : '';
+    var timing = block.timing ? String(block.timing).toLowerCase() : '';
+    var slot = block.mealSlot ? String(block.mealSlot).toLowerCase() : '';
+    var combined = t + ' ' + timing + ' ' + slot;
+
+    if (combined.match(/breakfast|morning|pre.train|yogurt|oat|egg/))
+      return 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=200&h=200&fit=crop&q=80';
+    if (combined.match(/lunch|midday|salad|chicken|quinoa/))
+      return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop&q=80';
+    if (combined.match(/dinner|evening|salmon|fish|veg/))
+      return 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=200&h=200&fit=crop&q=80';
+    if (combined.match(/post.train|recovery|shake|protein/))
+      return 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=200&h=200&fit=crop&q=80';
+    if (combined.match(/snack/))
+      return 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=200&h=200&fit=crop&q=80';
+
+    var photos = [
+      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=200&h=200&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop&q=80'
+    ];
+    return photos[(block._idx || 0) % photos.length];
+  }
+  // Readable meal label — BREAKFAST / LUNCH / DINNER / SNACK / etc.
+  function getMealLabel(block) {
+    var t = String(block.title || '').toLowerCase();
+    var slot = String(block.mealSlot || '').toLowerCase();
+    // Keyword overrides first (title or slot)
+    if (slot.match(/breakfast/) || t.match(/breakfast|morning/)) return 'BREAKFAST';
+    if (slot.match(/lunch/)     || t.match(/lunch|midday|mid.day/)) return 'LUNCH';
+    if (slot.match(/dinner/)    || t.match(/dinner|evening/)) return 'DINNER';
+    if (slot.match(/snack/)     || t.match(/snack/)) return 'SNACK';
+    if (t.match(/pre.train/))  return 'PRE-WORKOUT';
+    if (t.match(/post.train|post.workout|recovery shake/)) return 'POST-WORKOUT';
+    // Time-based fallback
+    var startMin = _blockStartMin(block);
+    if (!startMin) return String(block.mealSlot || 'MEAL').toUpperCase().replace(/[_-]+/g,' ');
+    if (startMin < 540)  return 'BREAKFAST';       // before 9am
+    if (startMin < 720)  return 'MID-MORNING';     // 9am–noon
+    if (startMin < 840)  return 'LUNCH';           // noon–2pm
+    if (startMin < 1020) return 'AFTERNOON';       // 2pm–5pm
+    if (startMin < 1200) return 'DINNER';          // 5pm–8pm
+    return 'EVENING';
+  }
   function _mealTimeLabel(block) {
     if (!block.time) return '';
     var parts = block.time.split(':');
@@ -8386,14 +8465,12 @@ function renderPlan(plan, browsing) {
     mealRow.forEach(function(b){
       var logged = !!(log.meals && log.meals[b.mealSlot] && log.meals[b.mealSlot].logged);
       var m = _mealMacrosStr(b);
-      var slotLbl = (function(s){
-        var up = String(s||'').toUpperCase().replace(/[_-]+/g,' ');
-        return up;
-      })(b.mealSlot);
+      var slotLbl = getMealLabel(b);
       var name = b.title || getMealSlotLabel(b.mealSlot) || '';
       var ingr = b.subtitle || b.detail || (b.ingredients ? b.ingredients.slice(0,3).join(', ') : '');
+      var photoUrl = getMealPhoto(b);
       html += '<button type="button" class="dp-meal' + (logged?' is-logged':'') + '" data-food-stub="true" data-block-idx="' + (b._idx!=null?b._idx:-1) + '" onclick="dpActualOpen(' + (b._idx!=null?b._idx:-1) + ')">'
-        + '<div class="dp-meal-thumb" aria-hidden="true">' + _mealEmoji(b.mealSlot) + '</div>'
+        + '<div class="dp-meal-thumb" aria-hidden="true" style="background:url(' + photoUrl + ') center/cover no-repeat, var(--dp-bg2);"></div>'
         + '<div class="dp-meal-meta"><span>' + slotLbl + '</span>' + (b.time ? '<span class="sep"></span><span class="time">' + _mealTimeLabel(b) + '</span>' : '') + '</div>'
         + '<div class="dp-meal-name">' + name + '</div>'
         + (ingr ? '<div class="dp-meal-ingr">' + ingr + '</div>' : '')
@@ -8467,15 +8544,51 @@ function renderPlan(plan, browsing) {
   }
 
   function _buildMoveBody(cat) {
-    if (!cat.blocks.length) return '<div style="font-size:12.5px;color:var(--dp-text2);">No additional movement scheduled.</div>';
     var html = '<div class="dp-moves">';
+    if (!cat.blocks.length) {
+      // Fallback: always show two sensible cards so MOVE never reads as empty
+      var fallbackMove = [
+        {
+          photo: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=200&fit=crop&q=80',
+          label: 'WALK',
+          sublabel: 'Afternoon',
+          title: 'Zone 2',
+          meta: '30\u201345 min \u00b7 Easy pace',
+          isMob: false
+        },
+        {
+          photo: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=200&fit=crop&q=80',
+          label: 'MOBILITY',
+          sublabel: 'Post-workout',
+          title: 'Full Body Flow',
+          meta: '10\u201315 min',
+          isMob: true
+        }
+      ];
+      fallbackMove.forEach(function(f){
+        html += '<div class="dp-move' + (f.isMob?' is-mobility':'') + '">'
+          + '<div class="dp-move-thumb" style="background:url(' + f.photo + ') center/cover no-repeat;">' + f.label + '</div>'
+          + '<div class="dp-move-body">'
+            + '<div class="dp-move-kicker">' + f.sublabel + '</div>'
+            + '<div class="dp-move-title">' + f.title + '</div>'
+            + '<div class="dp-move-meta">' + f.meta + '</div>'
+          + '</div>'
+        + '</div>';
+      });
+      html += '</div>';
+      return html;
+    }
     cat.blocks.slice(0, 4).forEach(function(b){
       var isMob = /mobility|stretch|flow|yoga/i.test((b.title||'') + ' ' + (b.subtitle||''));
       var kicker = b.mealSlot ? '' : ((b.time ? _mealTimeLabel(b).split(' ')[1] : '') || (isMob ? 'Flow' : 'Walk'));
       var durLbl = b.durationMins ? (b.durationMins + ' min') : (b.duration || '');
       var paceLbl = b.pace || (isMob ? 'Full Body' : 'Zone 2');
+      var photo = isMob
+        ? 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=200&fit=crop&q=80'
+        : 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=200&fit=crop&q=80';
+      var label = isMob ? 'MOBILITY' : 'WALK';
       html += '<div class="dp-move' + (isMob?' is-mobility':'') + '" onclick="dp3Toggle(' + (b._idx!=null?b._idx:0) + ')">'
-        + '<div class="dp-move-thumb">' + (isMob ? 'Mobility' : 'Walk') + '</div>'
+        + '<div class="dp-move-thumb" style="background:url(' + photo + ') center/cover no-repeat;">' + label + '</div>'
         + '<div class="dp-move-body">'
           + (kicker ? '<div class="dp-move-kicker">' + kicker + '</div>' : '')
           + '<div class="dp-move-title">' + (b.title || (isMob ? 'Mobility' : 'Movement')) + '</div>'
@@ -8765,11 +8878,12 @@ function renderPlan(plan, browsing) {
   var _kcalEaten = (eaten && eaten.kcal) || 0;
   var _kcalPct = Math.min(100, Math.round(_kcalEaten / Math.max(1, _kcalTarget) * 100));
   var _kcalLeft = Math.max(0, _kcalTarget - _kcalEaten);
-  panelHtml += '<div class="dp-r-card">'
+  var _kcalZero = !_kcalEaten;
+  panelHtml += '<div class="dp-r-card' + (_kcalZero ? ' is-empty' : '') + '">'
     + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Calorie target</span><span class="dp-r-card-info">i</span></div>'
-    + '<div class="dp-r-big"><span class="dp-r-big-num">' + _kcalEaten.toLocaleString() + '</span><span class="dp-r-big-den">/ ' + _kcalTarget.toLocaleString() + ' kcal</span></div>'
+    + '<div class="dp-r-big"><span class="dp-r-big-num">' + (_kcalZero ? '\u2014' : _kcalEaten.toLocaleString()) + '</span><span class="dp-r-big-den">/ ' + _kcalTarget.toLocaleString() + ' kcal</span></div>'
     + '<div class="dp-r-bar"><div class="dp-r-bar-fill" style="width:' + _kcalPct + '%;"></div></div>'
-    + '<div class="dp-r-foot">' + (_kcalLeft > 0 ? _kcalLeft.toLocaleString() + ' kcal remaining' : 'Target reached') + '</div>'
+    + '<div class="dp-r-foot">' + (_kcalZero ? 'Start logging to track' : (_kcalLeft > 0 ? _kcalLeft.toLocaleString() + ' kcal remaining' : 'Target reached')) + '</div>'
   + '</div>';
 
   // MACROS
@@ -8784,8 +8898,9 @@ function renderPlan(plan, browsing) {
   var _pctP = Math.round(_mP / _totGram * 100);
   var _pctC = Math.round(_mC / _totGram * 100);
   var _pctF = 100 - _pctP - _pctC;
-  if (_mP + _mC + _mF === 0) { _pctP = 33; _pctC = 33; _pctF = 34; }
-  panelHtml += '<div class="dp-r-card">'
+  var _macrosZero = (_mP + _mC + _mF === 0);
+  if (_macrosZero) { _pctP = 33; _pctC = 33; _pctF = 34; }
+  panelHtml += '<div class="dp-r-card' + (_macrosZero ? ' is-empty' : '') + '">'
     + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Macros</span><span class="dp-r-card-info">i</span></div>'
     + '<div class="dp-r-macros-grid">'
       + '<div class="dp-donut" style="--m-prot:' + _pctP + '%;--m-carb:' + _pctC + '%;"></div>'
@@ -8795,6 +8910,7 @@ function renderPlan(plan, browsing) {
         + '<div class="dp-macro-line"><span class="dot" style="background:#C49A6B;"></span><span class="nm">Fat</span><span class="vals">' + _mF + 'g / ' + _mF_t + 'g</span><span class="pct">' + Math.round(_mF/Math.max(1,_mF_t)*100) + '%</span></div>'
       + '</div>'
     + '</div>'
+    + (_macrosZero ? '<div class="dp-r-foot">Log meals to track</div>' : '')
     + '<a class="dp-macros-link" href="bodylens-meals.html">View details \u2192</a>'
   + '</div>';
 
@@ -8806,29 +8922,34 @@ function renderPlan(plan, browsing) {
     var on = (i <= _today.getHours() && v > 50);
     return '<div class="b' + (on?' on':'') + '" style="height:' + h + 'px;" aria-hidden="true"></div>';
   }).join('');
-  panelHtml += '<div class="dp-r-card">'
+  var _stepsZero = !_stepsCur;
+  panelHtml += '<div class="dp-r-card' + (_stepsZero ? ' is-empty' : '') + '">'
     + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Steps</span><span class="dp-r-card-info">i</span></div>'
     + '<div class="dp-r-big"><span class="dp-r-big-num">' + (_stepsCur||0).toLocaleString() + '</span><span class="dp-r-big-den">/ ' + _stepsTarget.toLocaleString() + '</span></div>'
-    + '<div class="dp-r-sub">' + _stepsPct + '% of daily goal</div>'
+    + '<div class="dp-r-sub">' + (_stepsZero ? 'Sync your watch to track' : _stepsPct + '% of daily goal') + '</div>'
     + '<div class="dp-steps-chart">' + _stepsBarsHtml + '</div>'
     + '<div class="dp-steps-labels"><span>6AM</span><span>12PM</span><span>6PM</span><span>12AM</span></div>'
   + '</div>';
 
   // HYDRATION
   var _glassCount = 8;
+  var _hydrZero = !_hydrCur;
   var _glassesFilled = Math.round((_hydrCur / Math.max(0.1, _hydrTarget)) * _glassCount);
   var _glassHtml = '';
   for (var gi = 0; gi < _glassCount; gi++) {
     _glassHtml += '<span class="dp-glass' + (gi < _glassesFilled ? ' on' : '') + '" aria-hidden="true"></span>';
   }
-  panelHtml += '<div class="dp-r-card">'
+  panelHtml += '<div class="dp-r-card' + (_hydrZero ? ' is-empty' : '') + '">'
     + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Hydration</span><span class="dp-r-card-info">i</span></div>'
-    + '<div class="dp-r-big"><span class="dp-r-big-num">' + (_hydrCur.toFixed ? _hydrCur.toFixed(1) : _hydrCur) + '</span><span class="dp-r-big-den">/ ' + _hydrTarget + ' L \u00b7 ' + _hydrPct + '%</span></div>'
+    + '<div class="dp-r-big"><span class="dp-r-big-num">' + (_hydrZero ? '0.0' : (_hydrCur.toFixed ? _hydrCur.toFixed(1) : _hydrCur)) + '</span><span class="dp-r-big-den">/ ' + _hydrTarget + ' L' + (_hydrZero ? '' : ' \u00b7 ' + _hydrPct + '%') + '</span></div>'
     + '<div class="dp-hydr">' + _glassHtml + '<button type="button" class="dp-hydr-add" aria-label="Log water" onclick="dpHydrAdd()">+</button></div>'
+    + (_hydrZero ? '<div class="dp-r-foot">Tap + to log</div>' : '')
   + '</div>';
 
   // SLEEP
-  var _sleepDisplay = (log.sleepActual != null) ? (log.sleepActual + 'h') : (_sleepAvg != null ? (_sleepAvg.toFixed(1) + 'h') : '7h 32m');
+  var _sleepDisplay = (log.sleepActual != null)
+    ? (log.sleepActual + 'h')
+    : (_sleepAvg != null ? (_sleepAvg.toFixed(1) + 'h') : '\u2014');
   panelHtml += '<div class="dp-r-card">'
     + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Sleep</span><span class="dp-r-card-info">i</span></div>'
     + '<div class="dp-r-big"><span class="dp-r-big-num">' + sleepScore + '</span><span class="dp-r-big-den">/ 100</span></div>'
@@ -9105,21 +9226,11 @@ function renderPlan(plan, browsing) {
     + '</div>'
   + '</div>';
 
-  // Decide the initial view
+  // Decide the initial view — Day is the permanent default.
+  // Now view still works if someone calls dp3SetView('now') programmatically.
   var _dp3ViewSaved = null;
   try { _dp3ViewSaved = localStorage.getItem('bl_dp3_view'); } catch(e){}
-  var dp3View = (_dp3ViewSaved === 'now' || _dp3ViewSaved === 'day') ? _dp3ViewSaved : null;
-  if (!dp3View) {
-    // Auto-choose: Now if there's a pending-now or upcoming-within-90min, else Day.
-    if (isBrowsing) {
-      dp3View = 'day';
-    } else {
-      var _pick = nowViewPick(plan.blocks);
-      var _autoNow = !!_pick.pending
-        || (_pick.next && (_pick.next.win.startMin - _pick.nowMin) <= 90);
-      dp3View = _autoNow ? 'now' : 'day';
-    }
-  }
+  var dp3View = (_dp3ViewSaved === 'now') ? 'now' : 'day';
   // When browsing another day, always force day view — Now view has no meaning.
   if (isBrowsing) dp3View = 'day';
   window._dp3View = dp3View;
