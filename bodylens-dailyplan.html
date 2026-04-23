@@ -5847,6 +5847,7 @@ body:has(#day-root .dp3-page) #macro-bar {
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 15px;
 }
+.dp-recover-time  { font-size: 10.5px; font-weight: 500; color: var(--dp-sage); letter-spacing: .02em; margin-bottom: 2px; }
 .dp-recover-title { font-size: 13px; font-weight: 500; color: var(--dp-text1); line-height: 1.25; }
 .dp-recover-meta  { font-size: 11.5px; color: var(--dp-text2); }
 
@@ -7994,31 +7995,68 @@ function renderPlan(plan, browsing) {
       // Default unmapped → RECOVER
       cats[3].blocks.push(block);
     });
-    // Compute meta strings
+    // Compute meta strings + first-block times for chronological ordering
     var p2 = window.P || {};
-    var totalK = 0;
-    cats[0].blocks.forEach(function(b){
-      if (b.macros && b.macros.kcal) totalK += b.macros.kcal;
+
+    // Inline time formatter (can't call _mealTimeLabel — defined later in scope)
+    function _fmtMins(m) {
+      if (m == null || m >= 9999) return '';
+      var hh = Math.floor(m/60), mm = m%60;
+      var ap = hh >= 12 ? 'PM' : 'AM';
+      var h12 = hh % 12; if (!h12) h12 = 12;
+      return h12 + ':' + (mm < 10 ? '0' : '') + mm + ' ' + ap;
+    }
+    function _blockMins(b) {
+      if (typeof b.startMin === 'number') return b.startMin;
+      if (!b.time) return Infinity;
+      var pts = b.time.split(':');
+      return parseInt(pts[0],10)*60 + parseInt(pts[1]||0,10);
+    }
+    // Stamp firstMin on each category
+    cats.forEach(function(cat) {
+      var earliest = Infinity;
+      cat.blocks.forEach(function(b){ var m = _blockMins(b); if (m < earliest) earliest = m; });
+      cat.firstMin = (earliest === Infinity) ? 9999 : earliest;
     });
+
+    // FUEL meta
+    var totalK = 0;
+    cats[0].blocks.forEach(function(b){ if (b.macros && b.macros.kcal) totalK += b.macros.kcal; });
     if (!totalK) {
-      // fallback to day kcal target
       try { totalK = (typeof getDayKcal === 'function') ? getDayKcal(p2, !!(window._currentPlan && window._currentPlan.blocks && window._currentPlan.blocks.find(function(b){return b.type==='training';}))) : (p2.calories || 2000); } catch(e) { totalK = p2.calories || 2000; }
     }
-    cats[0].meta = totalK.toLocaleString() + ' kcal target';
+    var _ft = _fmtMins(cats[0].firstMin);
+    cats[0].meta = (_ft ? _ft + ' \u00b7 ' : '') + totalK.toLocaleString() + ' kcal target';
+
+    // TRAIN meta
     if (cats[1].blocks.length) {
       var tb = cats[1].blocks[0];
-      var mins = tb.durationMins || 60;
-      var h = Math.floor(mins/60), m = mins%60;
-      cats[1].meta = (h>0? h+'h ':'') + (m>0? (m<10?'0':'')+m+'m' : (h>0?'00m':'0m'));
+      var _dm = tb.durationMins || 60;
+      var _th = Math.floor(_dm/60), _tm = _dm%60;
+      var _tt = _fmtMins(cats[1].firstMin);
+      cats[1].meta = (_tt ? _tt + ' \u00b7 ' : '') + (_th>0? _th+'h ':'')+(_tm>0?((_tm<10?'0':'')+_tm+'m'):(_th>0?'00m':'0m'));
     } else {
       cats[1].meta = 'Rest day';
     }
+
+    // MOVE meta
     var moveMin = 0;
     cats[2].blocks.forEach(function(b){ if (b.durationMins) moveMin += b.durationMins; });
-    cats[2].meta = moveMin > 0 ? moveMin + ' min' : '30\u201360 min';
-    cats[3].meta = 'Evening';
-    cats[4].meta = (p2.sleepTargetHours || '7.5\u20138.5') + ' h target';
-    return cats;
+    var _mt = _fmtMins(cats[2].firstMin);
+    cats[2].meta = (_mt ? _mt + ' \u00b7 ' : '') + (moveMin > 0 ? moveMin + ' min' : '30\u201360 min');
+
+    // RECOVER meta
+    var _rt = _fmtMins(cats[3].firstMin);
+    cats[3].meta = _rt || 'Evening';
+
+    // SLEEP meta
+    var _st = _fmtMins(cats[4].firstMin);
+    cats[4].meta = _st ? _st : (p2.sleepTargetHours || '7.5\u20138.5') + ' h target';
+
+    // Sort main categories chronologically so the day reads top → bottom;
+    // SLEEP is always anchored last
+    var mainCats = cats.slice(0, 4).sort(function(a, b) { return a.firstMin - b.firstMin; });
+    return mainCats.concat([cats[4]]);
   }
 
   // ── Time-group blocks (legacy — kept for Now view & other paths) ──
@@ -8580,7 +8618,7 @@ function renderPlan(plan, browsing) {
     }
     cat.blocks.slice(0, 4).forEach(function(b){
       var isMob = /mobility|stretch|flow|yoga/i.test((b.title||'') + ' ' + (b.subtitle||''));
-      var kicker = b.mealSlot ? '' : ((b.time ? _mealTimeLabel(b).split(' ')[1] : '') || (isMob ? 'Flow' : 'Walk'));
+      var kicker = b.mealSlot ? '' : (b.time ? _mealTimeLabel(b) : (isMob ? 'Flow' : 'Walk'));
       var durLbl = b.durationMins ? (b.durationMins + ' min') : (b.duration || '');
       var paceLbl = b.pace || (isMob ? 'Full Body' : 'Zone 2');
       var photo = isMob
@@ -8606,14 +8644,14 @@ function renderPlan(plan, browsing) {
     cat.blocks.forEach(function(b){
       if (b.suppList && b.suppList.length) {
         // Render stack as a single tile titled 'Supplements'
-        items.push({ icon: '\ud83d\udc8a', title: 'Stack', meta: b.suppList.length + ' items', idx: b._idx });
+        items.push({ icon: '\ud83d\udc8a', title: 'Stack', meta: b.suppList.length + ' items', time: b.time ? _mealTimeLabel(b) : '', idx: b._idx });
       } else {
         var ico = /shower|cold|heat|sauna/i.test(b.title||'') ? '\ud83d\udebf'
               : /breath/i.test(b.title||'') ? '\ud83c\udf2c\ufe0f'
               : /journal|write/i.test(b.title||'') ? '\u270f\ufe0f'
               : /walk|step/i.test(b.title||'') ? '\ud83d\udeb6'
               : '\ud83c\udf3f';
-        items.push({ icon: ico, title: b.title || 'Recover', meta: (b.durationMins ? b.durationMins+' min' : (b.subtitle||'')), idx: b._idx });
+        items.push({ icon: ico, title: b.title || 'Recover', meta: (b.durationMins ? b.durationMins+' min' : (b.subtitle||'')), time: b.time ? _mealTimeLabel(b) : '', idx: b._idx });
       }
     });
     // If fewer than 4 items, pad with the standard rituals
@@ -8628,6 +8666,7 @@ function renderPlan(plan, browsing) {
     items.slice(0,4).forEach(function(r){
       html += '<div class="dp-recover-tile"' + (r.idx!=null?' onclick="dp3Toggle('+r.idx+')"':'') + '>'
         + '<span class="dp-recover-ico">' + r.icon + '</span>'
+        + (r.time ? '<div class="dp-recover-time">' + r.time + '</div>' : '')
         + '<div class="dp-recover-title">' + r.title + '</div>'
         + '<div class="dp-recover-meta">' + (r.meta||'') + '</div>'
       + '</div>';
