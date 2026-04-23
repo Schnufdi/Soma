@@ -250,7 +250,7 @@ function renderJourneyStrip() {
   steps.forEach(function(step, i) {
     var cls = step.done ? 'done' : (i === activeIdx ? 'active' : '');
     var inner = (step.done ? '<span class="blj-tick">&#10003;</span>' : '<span class="blj-num">' + (i + 1) + '</span>')
-      + (i === activeIdx ? '<a href="' + step.href + '">' + step.label + '</a>' : '<span>' + step.label + '</span>');
+      + '<a href="' + step.href + '">' + step.label + '</a>';
     html += (i > 0 ? '<div class="blj-sep">&rsaquo;</div>' : '');
     html += '<div class="blj-step ' + cls + '">' + inner + '</div>';
   });
