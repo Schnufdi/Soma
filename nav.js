@@ -53,13 +53,6 @@
   </div>
 </nav>
 
-<!-- Beta / security disclaimer -->
-<div class="site-disclaimer" id="site-disclaimer">
-  <span class="sd-icon">🔬</span>
-  <span class="sd-text">Beta &mdash; data stored locally in this browser. Not a medical service.</span>
-  <button class="sd-close" onclick="dismissDisclaimer()" aria-label="Dismiss">&#10005;</button>
-</div>
-
 <!-- MOBILE MENU OVERLAY -->
 <div class="mobile-menu-overlay" id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
 <div class="mobile-menu" id="mobile-menu">
@@ -192,17 +185,6 @@
   document.addEventListener('DOMContentLoaded', function() {
     setTimeout(doInject, 50);
     setTimeout(doInject, 300);
-    // Show disclaimer unless dismissed
-    setTimeout(function() {
-      var el = document.getElementById('site-disclaimer');
-      if (!el) return;
-      var dismissed = localStorage.getItem('bl_disclaimer_dismissed');
-      if (dismissed) {
-        el.style.display = 'none';
-      } else {
-        el.classList.add('visible');
-      }
-    }, 400);
   });
 })();
 
@@ -283,11 +265,6 @@ function renderJourneyStrip() {
   }
 }
 
-function dismissDisclaimer() {
-  var el = document.getElementById('site-disclaimer');
-  if (el) { el.classList.remove('visible'); el.classList.add('hiding'); setTimeout(function(){ el.style.display='none'; }, 300); }
-  try { localStorage.setItem('bl_disclaimer_dismissed', '1'); } catch(e) {}
-}
 
 function updateSyncDot(status) {
   var dot = document.getElementById('sync-dot');
