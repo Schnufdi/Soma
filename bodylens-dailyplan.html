@@ -8771,7 +8771,7 @@ function renderPlan(plan, browsing) {
     var src = (log.stepsHourly && log.stepsHourly.length === 24) ? log.stepsHourly : null;
     var max = 0; var arr = [];
     for (var h = 0; h < 24; h++) {
-      var v = src ? src[h] : Math.max(0, Math.round(Math.sin((h-6)/24 * Math.PI) * 680 + (h>=6&&h<=21?80:0)));
+      var v = src ? src[h] : 0; // No data = real zero, not a fake sine
       arr.push(v); if (v > max) max = v;
     }
     return { bars: arr, max: Math.max(1, max) };
@@ -8858,18 +8858,23 @@ function renderPlan(plan, browsing) {
 
   // READINESS
   var _readLabel = readinessVal >= 80 ? 'Optimal' : readinessVal >= 60 ? 'Steady' : 'Low';
-  var hrv = (p.hrv != null) ? p.hrv : ((log.hrv != null) ? log.hrv : 72);
-  var rhr = (p.rhr != null) ? p.rhr : ((log.rhr != null) ? log.rhr : 52);
-  var sleepScore = (log.sleepScore != null) ? log.sleepScore : 86;
+  // HRV / RHR: only from real device data — no invented defaults
+  var hrv = (p.hrv != null) ? p.hrv : ((log.hrv != null) ? log.hrv : null);
+  var rhr = (p.rhr != null) ? p.rhr : ((log.rhr != null) ? log.rhr : null);
+  // Sleep score: derive from last night's logged sleep duration (9h = 100)
+  var _yLog = (_last7[5] && _last7[5].log) ? _last7[5].log : {};
+  var _sleepHrsForScore = (log.sleepActual != null) ? log.sleepActual : (_yLog.sleepActual != null ? _yLog.sleepActual : null);
+  var sleepScore = (log.sleepScore != null) ? log.sleepScore
+    : (_sleepHrsForScore != null ? Math.min(100, Math.round(_sleepHrsForScore / 9 * 100)) : null);
   panelHtml += '<div class="dp-r-card">'
     + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Readiness</span><span class="dp-r-card-info" title="Composite of HRV, RHR, sleep">i</span></div>'
     + '<div class="dp-r-big"><span class="dp-r-big-num" id="dp-r-readiness-num">' + readinessVal + '</span><span class="dp-r-big-den">/ 100</span></div>'
     + '<div class="dp-r-sub sage">' + _readLabel + '</div>'
     + '<div class="dp-r-spark">' + _spark(_readSeries, 320, 32, 'var(--dp-sage-dark)') + '</div>'
     + '<div class="dp-r-microstats">'
-      + '<div><span class="k">HRV</span><span class="v">' + hrv + 'ms</span></div>'
-      + '<div><span class="k">RHR</span><span class="v">' + rhr + 'bpm</span></div>'
-      + '<div><span class="k">Sleep</span><span class="v">' + sleepScore + '</span></div>'
+      + '<div><span class="k">HRV</span><span class="v">' + (hrv != null ? hrv + 'ms' : '\u2014') + '</span></div>'
+      + '<div><span class="k">RHR</span><span class="v">' + (rhr != null ? rhr + 'bpm' : '\u2014') + '</span></div>'
+      + '<div><span class="k">Sleep</span><span class="v">' + (sleepScore != null ? sleepScore : '\u2014') + '</span></div>'
     + '</div>'
   + '</div>';
 
@@ -8886,10 +8891,12 @@ function renderPlan(plan, browsing) {
     + '<div class="dp-r-foot">' + (_kcalZero ? 'Start logging to track' : (_kcalLeft > 0 ? _kcalLeft.toLocaleString() + ' kcal remaining' : 'Target reached')) + '</div>'
   + '</div>';
 
-  // MACROS
-  var _mP_t = p.protein || 180;
-  var _mC_t = p.carbs || 220;
-  var _mF_t = p.fat || 70;
+  // MACROS — targets derived from calorie & protein goals (profile has no carbs/fat fields)
+  var _mP_t = p.protein || 160;
+  var _macroKcal = _kcalTarget || p.calories || 2000;
+  var _remainKcal = Math.max(0, _macroKcal - (_mP_t * 4));
+  var _mC_t = Math.round(_remainKcal * 0.55 / 4);   // 55% of remaining kcal as carbs
+  var _mF_t = Math.round(_remainKcal * 0.45 / 9);   // 45% of remaining kcal as fat
   var _mP = (eaten && eaten.prot) || 0;
   var _mC = (eaten && eaten.carbs) || 0;
   var _mF = (eaten && eaten.fat) || 0;
@@ -8950,15 +8957,16 @@ function renderPlan(plan, browsing) {
   var _sleepDisplay = (log.sleepActual != null)
     ? (log.sleepActual + 'h')
     : (_sleepAvg != null ? (_sleepAvg.toFixed(1) + 'h') : '\u2014');
-  panelHtml += '<div class="dp-r-card">'
+  var _sleepCardEmpty = (sleepScore == null);
+  panelHtml += '<div class="dp-r-card' + (_sleepCardEmpty ? ' is-empty' : '') + '">'
     + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Sleep</span><span class="dp-r-card-info">i</span></div>'
-    + '<div class="dp-r-big"><span class="dp-r-big-num">' + sleepScore + '</span><span class="dp-r-big-den">/ 100</span></div>'
-    + '<div class="dp-r-sub sage">' + (sleepScore >= 80 ? 'Good' : sleepScore >= 60 ? 'Okay' : 'Poor') + '</div>'
+    + '<div class="dp-r-big"><span class="dp-r-big-num">' + (sleepScore != null ? sleepScore : '\u2014') + '</span><span class="dp-r-big-den">/ 100</span></div>'
+    + '<div class="dp-r-sub sage">' + (sleepScore != null ? (sleepScore >= 80 ? 'Good' : sleepScore >= 60 ? 'Okay' : 'Poor') : 'Log sleep to score') + '</div>'
     + '<div class="dp-r-spark">' + _spark(_sleepSeries, 320, 32, 'var(--dp-sage-dark)') + '</div>'
     + '<div class="dp-r-microstats">'
       + '<div><span class="k">Duration</span><span class="v">' + _sleepDisplay + '</span></div>'
-      + '<div><span class="k">Avg HRV</span><span class="v">' + hrv + 'ms</span></div>'
-      + '<div><span class="k">Deep</span><span class="v">' + (log.deepSleepPct || 14) + '%</span></div>'
+      + '<div><span class="k">Avg HRV</span><span class="v">' + (hrv != null ? hrv + 'ms' : '\u2014') + '</span></div>'
+      + '<div><span class="k">Deep</span><span class="v">' + (log.deepSleepPct != null ? log.deepSleepPct + '%' : '\u2014') + '</span></div>'
     + '</div>'
   + '</div>';
 
