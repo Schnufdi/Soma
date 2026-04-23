@@ -3835,74 +3835,93 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SOMA DAILY PLAN — Option E soft-studio light palette
-   Paper background, Apple-grade two-layer shadows, no atmosphere.
-   Think Things 3 · Notion · Craft · Oura light.
+   SOMA DAILY PLAN — Reference-match: dark warm rails + cream centre
+   Left & right rails are deep warm near-black, centre is warm cream.
+   Signature accent is muted sage. Gold hero orb on the sidebar.
    ═══════════════════════════════════════════════════════════════ */
-
-/* Palette + tokens scoped to day-root
-   ─────────────────────────────────────────────────────────────
-   Warm paper (#FBFBFA), white cards, hairline borders.
-   Jade #0E8C6A primary, amber #C97515 warnings. */
 #day-root {
-  /* Surfaces */
-  --dp-bg:       #FBFBFA;
-  --dp-bg2:      #FFFFFF;
-  --dp-card:     #FFFFFF;
-  --dp-card2:    #F8F7F5;
-  --dp-divider:  #EEEBE8;
-  /* Text */
-  --dp-text1:    #212121;
-  --dp-text2:    #6E6E73;
-  --dp-text3:    #C5C5C8;
-  --dp-text4:    #D8D8DC;
-  /* Strokes */
-  --dp-bd:       rgba(0,0,0,.05);
-  --dp-bd2:      rgba(0,0,0,.08);
-  --dp-track:    rgba(0,0,0,.04);
-  /* Accents */
-  --dp-jade:     #0E8C6A;
-  --dp-jade-soft:rgba(14,140,106,.08);
-  --dp-amber:    #C97515;
-  --dp-amber-soft:rgba(201,117,21,.08);
-  --dp-red:      #B8352A;
-  /* Legacy aliases kept for dp3 rules that reference dp-jade2 / dp-amber2.
-     On light, these resolve to the same solid jade / amber. */
-  --dp-jade2:    #0E8C6A;
-  --dp-amber2:   #C97515;
-  --dp-jade-glow:rgba(14,140,106,.18);
-  /* Override site-wide tokens for any dp2-* class inside day-root
-     so they render on light without requiring per-class rewrites. */
-  --jade:        #0E8C6A;
-  --amber:       #C97515;
-  --ink:         #FFFFFF;
-  --ink-1:       #FFFFFF;
-  --ink-2:       #F8F7F5;
-  --dk-1:        #212121;
-  --dk-2:        #6E6E73;
-  --dk-3:        #8E8E93;
-  --bd:          rgba(0,0,0,.05);
-  --lt-1:        #212121;
-  /* SF type stack */
-  --dp-ui:  -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
-  --dp-num: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
-  --dp-serif: ui-serif, "New York", "Iowan Old Style", "Apple Garamond", Georgia, serif;
+  /* LIGHT CENTRE */
+  --dp-bg:          #F4EEE3;
+  --dp-bg2:         #EEE6D7;
+  --dp-card:        #FFFFFF;
+  --dp-card2:       #FDFAF4;
+  --dp-divider:     #E8DFCE;
+  --dp-text1:       #1A1612;
+  --dp-text2:       #7B6F62;
+  --dp-text3:       #B5AC9E;
+  --dp-text4:       #D6CFC0;
+  --dp-bd:          rgba(26,22,18,.07);
+  --dp-bd2:         rgba(26,22,18,.14);
+  --dp-track:       rgba(26,22,18,.05);
+
+  /* DARK RAILS */
+  --dp-dark:        #0E1214;
+  --dp-dark2:       #141A1D;
+  --dp-dark3:       #1B2124;
+  --dp-dark-bd:     rgba(255,248,230,.06);
+  --dp-dark-bd2:    rgba(255,248,230,.12);
+  --dp-dark-text1:  #EDE4D2;
+  --dp-dark-text2:  #9A9185;
+  --dp-dark-text3:  #5A544C;
+
+  /* SIGNATURE — MUTED SAGE */
+  --dp-sage:        #7A9B85;
+  --dp-sage-hover:  #688A72;
+  --dp-sage-soft:   rgba(122,155,133,.10);
+  --dp-sage-line:   rgba(122,155,133,.25);
+  --dp-sage-dark:   #92B8A0;
+
+  /* ACCENTS ON DARK RAIL */
+  --dp-gold:        #C9B079;
+  --dp-gold-soft:   rgba(201,176,121,.10);
+
+  /* STATES */
+  --dp-amber:       #C97515;
+  --dp-amber-soft:  rgba(201,117,21,.08);
+  --dp-red:         #B8352A;
+
+  /* Legacy aliases — dp-jade maps to sage so existing dp3 rules keep working */
+  --dp-jade:        #7A9B85;
+  --dp-jade2:       #7A9B85;
+  --dp-jade-soft:   rgba(122,155,133,.10);
+  --dp-jade-glow:   rgba(122,155,133,.18);
+  --dp-amber2:      #C97515;
+
+  /* BACKWARD COMPAT for dp2-* rules */
+  --jade:           var(--dp-sage);
+  --jade2:          var(--dp-sage);
+  --jade-soft:      var(--dp-sage-soft);
+  --amber:          var(--dp-amber);
+  --ink:            var(--dp-bg);
+  --ink-1:          var(--dp-card);
+  --ink-2:          var(--dp-card2);
+  --dk-1:           var(--dp-text1);
+  --dk-2:           var(--dp-text2);
+  --dk-3:           var(--dp-text3);
+  --bd:             var(--dp-bd);
+  --lt-1:           var(--dp-text1);
+  /* Type stacks */
+  --dp-ui:    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  --dp-num:   -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  --dp-serif: 'Canela','Tiempos Headline','Recoleta', ui-serif, 'New York', 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
+  --serif:    var(--dp-serif);
   /* Motion */
   --dp-ease: cubic-bezier(.22,.61,.36,1);
   --dp-ease-out: cubic-bezier(.16,1,.3,1);
   --dp-spring: cubic-bezier(.4,0,.2,1);
-  /* Apple-style two-layer shadows */
-  --dp-shadow-sm: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.04);
-  --dp-shadow-md: 0 2px 4px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.06);
-  --dp-shadow-lg: 0 4px 10px rgba(0,0,0,.06), 0 16px 36px rgba(0,0,0,.08);
+  /* Shadows */
+  --dp-shadow-sm: 0 1px 2px rgba(0,0,0,.03), 0 4px 12px rgba(0,0,0,.04);
+  --dp-shadow-md: 0 2px 4px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+  --dp-shadow-lg: 0 4px 10px rgba(0,0,0,.05), 0 16px 36px rgba(0,0,0,.07);
 }
+html, body { background: var(--dp-bg); }
 body:has(#day-root .dp3-page),
 body:has(#day-root .dp3-now) {
-  background: #FBFBFA;
+  background: var(--dp-bg);
 }
 html:has(#day-root .dp3-page),
 html:has(#day-root .dp3-now) {
-  background: #FBFBFA;
+  background: var(--dp-bg);
 }
 
 /* Mount animation — gentle entrance */
@@ -5240,6 +5259,866 @@ html:has(#day-root .dp3-now) {
   .dp3-now-inner { gap: 24px; }
   .dp3-now-hero { padding: 34px 30px 30px; }
   .dp3-now-hero-title { font-size: 30px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REFERENCE-MATCH REDESIGN (v2)
+   Dark warm rails · cream centre · sage accent · gold hero orb
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Grid — three columns, sidebar | centre | rail */
+.dp3-page {
+  grid-template-columns: 340px 1fr 360px;
+  background: var(--dp-bg);
+}
+.dp3-page svg circle:first-child { stroke: rgba(26,22,18,.06) !important; }
+
+/* Position Now/Day toggle above the centre column, not over the dark panel */
+.dp3-view-toggle-wrap {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+@media (max-width: 1180px) { .dp3-view-toggle-wrap { top: 20px; } }
+@media (max-width: 1020px) { .dp3-view-toggle-wrap { position: static; transform: none; display:flex; justify-content:center; padding: 10px 0; } }
+
+/* ── LEFT SIDEBAR (dark) ─────────────────────────────────── */
+.dp3-sidebar {
+  position: sticky; top: 58px;
+  height: calc(100vh - 58px);
+  overflow-y: auto;
+  padding: 28px 26px 36px;
+  background: var(--dp-dark);
+  color: var(--dp-dark-text1);
+  border-right: 1px solid var(--dp-dark-bd);
+  scrollbar-width: none;
+}
+.dp3-sidebar::-webkit-scrollbar { display: none; }
+
+.dp-sb-logo { display:flex; align-items:flex-start; gap:10px; margin-bottom: 22px; }
+.dp-sb-logo-mark {
+  width: 22px; height: 22px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--dp-gold);
+}
+.dp-sb-logo-brand { font-family: var(--dp-ui); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--dp-dark-text1); line-height: 1.1; }
+.dp-sb-logo-sub   { font-family: var(--dp-serif); font-style: italic; font-size: 12.5px; color: var(--dp-dark-text2); margin-top: 2px; letter-spacing: .01em; }
+
+.dp-sb-orb {
+  width: 180px; height: 180px;
+  margin: 14px auto 18px;
+  border-radius: 50%;
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,232,180,.55), rgba(255,215,150,0) 42%),
+    radial-gradient(circle at 50% 55%, var(--dp-gold) 0%, rgba(201,176,121,.45) 38%, rgba(201,176,121,.10) 62%, transparent 78%);
+  filter: blur(.2px);
+  animation: dp-orb-breathe 8s ease-in-out infinite;
+}
+.dp-sb-orb::before {
+  content: '';
+  position: absolute; inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 55%, rgba(201,176,121,.20), transparent 60%);
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes dp-orb-breathe {
+  0%,100% { transform: scale(1);    filter: brightness(1); }
+  50%     { transform: scale(1.02); filter: brightness(1.06); }
+}
+
+.dp-sb-greet {
+  font-family: var(--dp-serif);
+  font-style: italic;
+  font-size: 26px; font-weight: 300;
+  letter-spacing: -0.01em;
+  color: var(--dp-dark-text1);
+  margin: 4px 0 10px;
+  line-height: 1.15;
+}
+.dp-sb-narrative {
+  font-family: var(--dp-ui);
+  font-size: 13px; font-weight: 300;
+  line-height: 1.6;
+  color: var(--dp-dark-text2);
+  margin-bottom: 26px;
+}
+
+.dp-sb-label {
+  font-family: var(--dp-ui);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--dp-dark-text2);
+  margin: 18px 0 10px;
+  display: block;
+}
+
+.dp-sb-card {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--dp-dark2);
+  border: 1px solid var(--dp-dark-bd);
+  border-radius: 11px;
+  padding: 13px 14px;
+  margin-bottom: 8px;
+  transition: background .16s, border-color .16s, transform .18s var(--dp-ease-out);
+  cursor: pointer;
+}
+.dp-sb-card:hover { background: var(--dp-dark3); border-color: var(--dp-dark-bd2); transform: translateY(-1px); }
+.dp-sb-card-icon {
+  width: 28px; height: 28px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--dp-gold-soft);
+  color: var(--dp-gold);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.dp-sb-card-body { flex: 1; min-width: 0; }
+.dp-sb-card-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--dp-dark-text1);
+  letter-spacing: -0.004em;
+  margin-bottom: 2px;
+  line-height: 1.25;
+}
+.dp-sb-card-sub {
+  font-size: 11.5px; font-weight: 400;
+  color: var(--dp-dark-text2);
+  line-height: 1.4;
+}
+.dp-sb-card-chev {
+  flex-shrink: 0;
+  color: var(--dp-dark-text3);
+  font-size: 14px;
+  margin-left: 4px;
+  align-self: center;
+}
+
+.dp-sb-ask {
+  margin-top: 22px;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--dp-dark2);
+  border: 1px solid var(--dp-dark-bd);
+  border-radius: 999px;
+  padding: 6px 6px 6px 14px;
+}
+.dp-sb-ask input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--dp-dark-text1);
+  font-family: var(--dp-ui);
+  font-size: 13px;
+  padding: 8px 0;
+  min-width: 0;
+}
+.dp-sb-ask input::placeholder { color: var(--dp-dark-text3); }
+.dp-sb-ask button {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 0;
+  background: var(--dp-sage);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .16s, transform .18s var(--dp-ease-out);
+}
+.dp-sb-ask button:hover { background: var(--dp-sage-hover); transform: scale(1.04); }
+
+.dp-sb-nav {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--dp-dark-bd);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.dp-sb-nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 10px 6px;
+  border-radius: 10px;
+  color: var(--dp-dark-text2);
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  font-family: var(--dp-ui);
+  transition: color .16s, background .16s;
+  text-decoration: none;
+}
+.dp-sb-nav-item:hover { color: var(--dp-dark-text1); background: var(--dp-dark2); }
+.dp-sb-nav-item.active { color: var(--dp-sage-dark); }
+.dp-sb-nav-item svg { width: 18px; height: 18px; }
+
+/* ── CENTRE (cream) ─────────────────────────────────────── */
+.dp3-centre {
+  padding: 28px 44px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+  background: transparent;
+  animation: dp3-rise .5s var(--dp-ease-out) both;
+}
+
+.dp-c-top {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 32px;
+  padding-top: 4px;
+}
+.dp-c-top-left { display: flex; align-items: center; gap: 8px; }
+.dp-c-ghost-btn {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--dp-bd);
+  background: var(--dp-card);
+  color: var(--dp-text2);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .16s, border-color .16s, color .16s, transform .18s var(--dp-ease-out);
+}
+.dp-c-ghost-btn:hover { background: var(--dp-card2); border-color: var(--dp-bd2); color: var(--dp-text1); transform: translateY(-1px); }
+.dp-c-ghost-btn svg { width: 16px; height: 16px; }
+
+.dp-c-title-wrap { flex: 1; text-align: left; }
+.dp-c-title {
+  font-family: var(--dp-serif);
+  font-size: 36px; font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.018em;
+  color: var(--dp-text1);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.dp-c-kicker {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--dp-ui);
+  font-size: 12.5px; font-weight: 400;
+  color: var(--dp-text2);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.003em;
+}
+.dp-c-kicker-chev { opacity: .5; font-size: 11px; }
+
+.dp-c-top-right { display: flex; align-items: center; gap: 12px; }
+.dp-c-weather {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--dp-card);
+  border: 1px solid var(--dp-bd);
+  font-size: 12px; color: var(--dp-text2);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.003em;
+}
+.dp-c-weather svg { width: 14px; height: 14px; color: var(--dp-gold); }
+.dp-c-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--dp-serif);
+  font-size: 16px; font-weight: 500;
+  color: var(--dp-text1);
+  background: linear-gradient(135deg, #E8DFCE, #C9B079 120%);
+  border: 1px solid var(--dp-bd2);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+/* Section card */
+.dp-sec {
+  background: var(--dp-card);
+  border: 1px solid var(--dp-bd);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+  transition: box-shadow .2s, border-color .16s;
+}
+.dp-sec.is-current { background: var(--dp-card2); border-color: var(--dp-sage-line); }
+.dp-sec-hdr {
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.dp-sec-circle {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--dp-bd2);
+  background: transparent;
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .16s, border-color .16s;
+}
+.dp-sec-circle.done { background: var(--dp-sage); border-color: var(--dp-sage); color: #fff; font-size: 11px; }
+.dp-sec-circle.done::before { content: '✓'; color: #fff; font-weight: 700; line-height: 1; }
+.dp-sec-icon {
+  width: 22px; height: 22px;
+  flex-shrink: 0;
+  color: var(--dp-sage);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.dp-sec-icon svg { width: 20px; height: 20px; }
+.dp-sec-titles { flex: 1; min-width: 0; }
+.dp-sec-title {
+  font-family: var(--dp-ui);
+  font-size: 13px; font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--dp-text1);
+  line-height: 1;
+}
+.dp-sec-sub {
+  font-family: var(--dp-serif);
+  font-style: italic;
+  font-size: 13px; font-weight: 400;
+  color: var(--dp-text2);
+  margin-top: 5px;
+  letter-spacing: 0;
+}
+.dp-sec-meta {
+  font-family: var(--dp-ui);
+  font-size: 13px; font-weight: 400;
+  color: var(--dp-text2);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.003em;
+  flex-shrink: 0;
+}
+.dp-sec-chev {
+  width: 28px; height: 28px;
+  border: 0;
+  background: transparent;
+  color: var(--dp-text3);
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: transform .22s var(--dp-ease-out), color .16s;
+  flex-shrink: 0;
+}
+.dp-sec-chev:hover { color: var(--dp-text1); }
+.dp-sec.collapsed .dp-sec-chev { transform: rotate(-90deg); }
+.dp-sec.collapsed .dp-sec-body { display: none; }
+.dp-sec-body { margin-top: 18px; }
+
+/* FUEL — meal cards row */
+.dp-meals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.dp-meal {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: transform .18s var(--dp-ease-out);
+}
+.dp-meal:hover { transform: translateY(-1px); }
+.dp-meal-thumb {
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #FBF5E8, #E8DFCE 55%, #D6C9AD 100%);
+  border: 1px solid var(--dp-bd);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 -8px 16px rgba(26,22,18,.05);
+}
+.dp-meal-meta {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--dp-ui);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--dp-text2);
+  margin-bottom: 4px;
+}
+.dp-meal-meta .sep { width: 2px; height: 2px; border-radius: 50%; background: var(--dp-text3); }
+.dp-meal-meta .time { font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--dp-text2); font-variant-numeric: tabular-nums; }
+.dp-meal-name {
+  font-family: var(--dp-ui);
+  font-size: 14px; font-weight: 500;
+  color: var(--dp-text1);
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  margin-bottom: 4px;
+}
+.dp-meal-ingr {
+  font-size: 11.5px; font-weight: 400;
+  color: var(--dp-text2);
+  line-height: 1.4;
+  margin-bottom: 8px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.dp-meal-macros {
+  font-family: var(--dp-num);
+  font-size: 11px;
+  color: var(--dp-text2);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+  display: flex; flex-wrap: wrap; gap: 6px 10px;
+}
+.dp-meal-macros .kcal { color: var(--dp-text1); font-weight: 600; margin-left: auto; }
+.dp-meal.is-logged .dp-meal-thumb { box-shadow: inset 0 -8px 16px rgba(122,155,133,.2), 0 0 0 2px var(--dp-sage-line); }
+
+/* Snacks row */
+.dp-snacks {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--dp-divider);
+}
+.dp-snacks-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--dp-text2);
+}
+.dp-snack-chip {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--dp-bg);
+  border: 1px solid var(--dp-bd);
+  font-size: 12px;
+  color: var(--dp-text1);
+}
+.dp-snacks-total {
+  margin-left: auto;
+  font-family: var(--dp-num);
+  font-size: 12px;
+  color: var(--dp-text2);
+  font-variant-numeric: tabular-nums;
+}
+.dp-snacks-add {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px dashed var(--dp-bd2);
+  background: transparent;
+  color: var(--dp-text2);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.dp-snacks-add:hover { background: var(--dp-card2); color: var(--dp-sage); border-style: solid; border-color: var(--dp-sage-line); }
+
+/* TRAIN */
+.dp-train { display: grid; grid-template-columns: 1fr 240px; gap: 22px; align-items: start; }
+@media (max-width: 1100px) { .dp-train { grid-template-columns: 1fr; } }
+.dp-train-hdr {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--dp-text2);
+}
+.dp-train-hdr .title { color: var(--dp-text1); }
+.dp-train-rpe {
+  font-family: var(--dp-num);
+  font-size: 10.5px; font-weight: 600;
+  padding: 3px 8px;
+  background: var(--dp-sage-soft);
+  color: var(--dp-sage-hover);
+  border-radius: 999px;
+  letter-spacing: .06em;
+}
+.dp-ex-table { width: 100%; border-collapse: collapse; }
+.dp-ex-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--dp-divider);
+  font-size: 13.5px;
+}
+.dp-ex-row:last-child { border-bottom: 0; }
+.dp-ex-name { color: var(--dp-text1); font-weight: 500; letter-spacing: -0.005em; }
+.dp-ex-setrep { font-family: var(--dp-num); color: var(--dp-text2); font-variant-numeric: tabular-nums; letter-spacing: -0.003em; }
+
+.dp-readiness {
+  background: var(--dp-card2);
+  border: 1px solid var(--dp-bd);
+  border-radius: 12px;
+  padding: 18px 16px;
+  text-align: center;
+}
+.dp-readiness-lbl {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--dp-text2);
+  margin-bottom: 14px;
+}
+.dp-readiness-ring { position: relative; width: 100px; height: 100px; margin: 0 auto 10px; }
+.dp-readiness-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.dp-readiness-pct {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--dp-serif);
+  font-size: 26px; font-weight: 400;
+  color: var(--dp-text1);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.dp-readiness-note { font-size: 12px; color: var(--dp-text2); line-height: 1.45; margin-bottom: 10px; padding: 0 6px; }
+.dp-readiness-link {
+  display: inline-block;
+  font-size: 11.5px; font-weight: 500;
+  color: var(--dp-sage-hover);
+  text-decoration: none;
+  letter-spacing: 0;
+}
+.dp-readiness-link:hover { text-decoration: underline; }
+
+/* MOVE */
+.dp-moves { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.dp-move {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--dp-card2);
+  border: 1px solid var(--dp-bd);
+  transition: border-color .16s, transform .18s var(--dp-ease-out);
+  cursor: pointer;
+}
+.dp-move:hover { border-color: var(--dp-bd2); transform: translateY(-1px); }
+.dp-move-thumb {
+  width: 72px; height: 72px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #A8B89A, #687864);
+  display: inline-flex; align-items: flex-end; justify-content: flex-start;
+  padding: 6px 8px;
+  color: rgba(255,255,255,.85);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.dp-move.is-mobility .dp-move-thumb { background: linear-gradient(135deg, #C8B89C, #88786A); }
+.dp-move-body { min-width: 0; }
+.dp-move-kicker { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--dp-text2); margin-bottom: 4px; }
+.dp-move-title { font-size: 14px; font-weight: 500; color: var(--dp-text1); letter-spacing: -0.005em; margin-bottom: 2px; }
+.dp-move-meta { font-size: 12px; color: var(--dp-text2); font-variant-numeric: tabular-nums; }
+
+/* RECOVER */
+.dp-recover { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 780px) { .dp-recover { grid-template-columns: repeat(2, 1fr); } }
+.dp-recover-tile {
+  background: var(--dp-card2);
+  border: 1px solid var(--dp-bd);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+  cursor: pointer;
+  transition: border-color .16s, transform .18s var(--dp-ease-out);
+}
+.dp-recover-tile:hover { border-color: var(--dp-bd2); transform: translateY(-1px); }
+.dp-recover-ico {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--dp-sage-soft); color: var(--dp-sage);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.dp-recover-title { font-size: 13px; font-weight: 500; color: var(--dp-text1); line-height: 1.25; }
+.dp-recover-meta  { font-size: 11.5px; color: var(--dp-text2); }
+
+/* SLEEP timeline */
+.dp-sleep-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.dp-sleep-lead {
+  font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--dp-text2);
+}
+.dp-sleep-lead strong { color: var(--dp-text1); font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 12px; margin-left: 6px; font-variant-numeric: tabular-nums; }
+.dp-sleep-chips { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: 10px; width: 100%; }
+.dp-sleep-chip {
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--dp-bg);
+  border: 1px solid var(--dp-bd);
+  font-size: 11.5px; color: var(--dp-text1); font-weight: 500;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.dp-sleep-chip .t { font-family: var(--dp-num); color: var(--dp-text2); margin-left: 4px; font-variant-numeric: tabular-nums; font-size: 10.5px; }
+.dp-sleep-arrow { color: var(--dp-text3); font-size: 12px; }
+
+/* Status bar bottom */
+.dp-status-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: transparent;
+}
+.dp-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dp-sage); }
+.dp-status-msg { font-size: 12.5px; color: var(--dp-text2); }
+.dp-status-btn {
+  margin-left: auto;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--dp-text1);
+  color: var(--dp-bg);
+  font-family: var(--dp-ui);
+  font-size: 12.5px; font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: transform .18s var(--dp-ease-out), background .16s;
+}
+.dp-status-btn:hover { transform: translateY(-1px); background: #000; }
+
+/* ── RIGHT RAIL (dark) ──────────────────────────────────── */
+.dp3-panel {
+  position: sticky; top: 58px;
+  height: calc(100vh - 58px);
+  overflow-y: auto;
+  padding: 22px 20px 72px;
+  background: var(--dp-dark);
+  color: var(--dp-dark-text1);
+  border-left: 1px solid var(--dp-dark-bd);
+  scrollbar-width: none;
+}
+.dp3-panel::-webkit-scrollbar { display: none; }
+
+.dp-r-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.dp-r-top-lbl {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--dp-dark-text2);
+}
+.dp-r-drop {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--dp-dark2);
+  border: 1px solid var(--dp-dark-bd);
+  color: var(--dp-dark-text1);
+  font-family: var(--dp-ui);
+  font-size: 11.5px; font-weight: 500;
+  cursor: pointer;
+  letter-spacing: -0.003em;
+}
+.dp-r-drop:hover { background: var(--dp-dark3); }
+
+.dp-r-card {
+  background: var(--dp-dark2);
+  border: 1px solid var(--dp-dark-bd);
+  border-radius: 11px;
+  padding: 14px 14px 14px 14px;
+  margin-bottom: 10px;
+  color: var(--dp-dark-text1);
+}
+.dp-r-card-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.dp-r-card-lbl {
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--dp-dark-text2);
+}
+.dp-r-card-info {
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--dp-dark-bd2);
+  color: var(--dp-dark-text3);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px;
+  font-family: var(--dp-serif); font-style: italic;
+  cursor: help;
+  background: transparent;
+}
+
+/* Big numerator (used by Readiness, Calorie target etc.) */
+.dp-r-big {
+  display: flex; align-items: baseline; gap: 6px;
+  font-family: var(--dp-serif);
+  color: var(--dp-dark-text1);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.dp-r-big-num { font-size: 32px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.dp-r-big-den { font-family: var(--dp-ui); font-size: 12px; color: var(--dp-dark-text2); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.dp-r-sub {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11.5px; color: var(--dp-dark-text2);
+  margin-top: 6px;
+}
+.dp-r-sub.sage { color: var(--dp-sage-dark); font-weight: 500; }
+
+.dp-r-spark { margin-top: 12px; }
+.dp-r-spark svg { width: 100%; height: 32px; display: block; }
+
+.dp-r-microstats {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--dp-dark-bd);
+  font-size: 10.5px;
+  color: var(--dp-dark-text2);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+}
+.dp-r-microstats .k { display: block; color: var(--dp-dark-text3); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 2px; }
+.dp-r-microstats .v { color: var(--dp-dark-text1); font-weight: 500; font-size: 12px; }
+
+/* Progress bar */
+.dp-r-bar {
+  height: 5px;
+  background: rgba(255,248,230,.06);
+  border-radius: 999px;
+  margin: 10px 0 6px;
+  overflow: hidden;
+}
+.dp-r-bar-fill {
+  height: 100%;
+  background: var(--dp-sage);
+  border-radius: 999px;
+  transition: width .8s var(--dp-spring);
+}
+.dp-r-foot {
+  font-size: 11px; color: var(--dp-dark-text2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Macros donut */
+.dp-r-macros-grid {
+  display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: center;
+}
+.dp-donut {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  position: relative;
+  background: conic-gradient(
+    var(--m-prot-col, #6B8AC4) 0 var(--m-prot, 33%),
+    var(--m-carb-col, #A89854) var(--m-prot, 33%) calc(var(--m-prot, 33%) + var(--m-carb, 33%)),
+    var(--m-fat-col,  #C49A6B) calc(var(--m-prot, 33%) + var(--m-carb, 33%)) 100%);
+}
+.dp-donut::after {
+  content: '';
+  position: absolute; inset: 10px;
+  border-radius: 50%;
+  background: var(--dp-dark2);
+}
+.dp-macros-list { display: flex; flex-direction: column; gap: 6px; }
+.dp-macro-line {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px;
+  color: var(--dp-dark-text1);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.003em;
+}
+.dp-macro-line .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dp-macro-line .nm  { font-weight: 500; color: var(--dp-dark-text1); }
+.dp-macro-line .vals { margin-left: auto; color: var(--dp-dark-text2); }
+.dp-macro-line .pct  { color: var(--dp-dark-text3); font-size: 10px; margin-left: 6px; }
+.dp-macros-link { font-size: 11px; color: var(--dp-sage-dark); text-decoration: none; margin-top: 10px; display: inline-block; }
+.dp-macros-link:hover { text-decoration: underline; }
+
+/* Step chart */
+.dp-steps-chart {
+  display: flex; align-items: flex-end; gap: 2px;
+  margin-top: 10px;
+  height: 34px;
+}
+.dp-steps-chart .b {
+  flex: 1;
+  background: rgba(255,248,230,.12);
+  border-radius: 1px;
+  min-height: 2px;
+}
+.dp-steps-chart .b.on { background: var(--dp-sage-dark); }
+.dp-steps-labels {
+  display: flex; justify-content: space-between;
+  font-size: 9.5px; color: var(--dp-dark-text3);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hydration glasses */
+.dp-hydr {
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 10px;
+}
+.dp-glass {
+  width: 18px; height: 22px;
+  border: 1.4px solid var(--dp-dark-bd2);
+  border-radius: 3px 3px 6px 6px;
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+.dp-glass.on {
+  border-color: var(--dp-sage-dark);
+  background: linear-gradient(to top, var(--dp-sage) 0%, var(--dp-sage) 70%, transparent 72%);
+}
+.dp-hydr-add {
+  margin-left: auto;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 1px dashed var(--dp-dark-bd2);
+  background: transparent;
+  color: var(--dp-dark-text2);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.dp-hydr-add:hover { border-color: var(--dp-sage-dark); color: var(--dp-sage-dark); }
+
+/* 7-bar week (adherence) */
+.dp-week {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  margin-top: 10px; height: 40px;
+  align-items: end;
+}
+.dp-week-bar {
+  background: rgba(255,248,230,.08);
+  border-radius: 2px;
+  min-height: 3px;
+  align-self: end;
+}
+.dp-week-bar.on { background: var(--dp-sage); }
+.dp-week-bar.today { outline: 1px solid var(--dp-sage-dark); outline-offset: 1px; }
+.dp-week-labels {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  font-size: 9.5px; color: var(--dp-dark-text3);
+  margin-top: 6px;
+  text-align: center;
+  letter-spacing: .04em;
+}
+
+/* Hide legacy EOD controls that still need to live in DOM for dpSaveDay etc. */
+.dp-legacy-offscreen {
+  position: absolute; left: -9999px; top: auto; width: 1px; height: 1px;
+  overflow: hidden; opacity: 0; pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 1180px) {
+  .dp3-page { grid-template-columns: 300px 1fr 320px; }
+  .dp3-centre { padding: 24px 28px 60px; }
+}
+@media (max-width: 1020px) {
+  .dp3-page { grid-template-columns: 1fr; }
+  .dp3-sidebar, .dp3-panel { position: static; height: auto; border: 0; }
+  .dp3-sidebar { border-bottom: 1px solid var(--dp-dark-bd); }
+  .dp3-panel { border-top: 1px solid var(--dp-dark-bd); }
+  .dp3-centre { padding: 24px 20px 60px; }
+  .dp-meals { grid-template-columns: 1fr; }
+  .dp-train { grid-template-columns: 1fr; }
+  .dp-moves { grid-template-columns: 1fr; }
 }
 </style>
 
@@ -7045,7 +7924,80 @@ function renderPlan(plan, browsing) {
     +'</div>';
   }
 
-  // ── Time-group blocks ────────────────────────────────────
+  // ── Category-group blocks (FUEL / TRAIN / MOVE / RECOVER / SLEEP) ──
+  function dpGroupByCategory(blocks) {
+    var cats = [
+      {
+        id: 'fuel', label: 'FUEL', sub: 'Nourish your engine',
+        iconSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20c3-2 7-2 10 0"/><path d="M11 4C7 6 4 10 4 14a8 8 0 0 0 16 0c0-4-3-8-7-10-1 2-4 2-4 4 0 2 2 2 2 4 0 1-1 2-2 2-1 0-2-1-2-2"/></svg>',
+        meta: '', blocks: []
+      },
+      {
+        id: 'train', label: 'TRAIN', sub: 'Build strength & performance',
+        iconSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6v12M18 6v12M3 9v6M21 9v6M6 12h12"/></svg>',
+        meta: '', blocks: []
+      },
+      {
+        id: 'move', label: 'MOVE', sub: 'Keep your body in motion',
+        iconSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M10 11l2.5-4 3 4 3 2M10 11l-3 3 2 5M13 13l3 4v4"/></svg>',
+        meta: '', blocks: []
+      },
+      {
+        id: 'recover', label: 'RECOVER', sub: 'Replenish & reset',
+        iconSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+        meta: '', blocks: []
+      },
+      {
+        id: 'sleep', label: 'SLEEP', sub: 'Optimize your sleep',
+        iconSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+        meta: '', blocks: []
+      }
+    ];
+    blocks.forEach(function(block) {
+      if (block.type === 'sleep') { cats[4].blocks.push(block); return; }
+      if (block.mealSlot) { cats[0].blocks.push(block); return; }
+      if (block.type === 'training') { cats[1].blocks.push(block); return; }
+      // MOVE: cardio/walk/mobility — match common titles + flags
+      var title = ((block.title||'') + ' ' + (block.subtitle||'') + ' ' + (block.type||'')).toLowerCase();
+      if (block.isEditorCardio || /walk|cardio|mobility|flow|yoga|stretch|zone ?2|run|bike|swim/.test(title)) {
+        cats[2].blocks.push(block); return;
+      }
+      // RECOVER: supps, recovery types, contrast / shower / breath / journal
+      if (block.type === 'supp' || block.type === 'recovery' || block.suppList ||
+          /shower|cold|heat|sauna|breath|journal|magnesium|contrast/.test(title)) {
+        cats[3].blocks.push(block); return;
+      }
+      // Default unmapped → RECOVER
+      cats[3].blocks.push(block);
+    });
+    // Compute meta strings
+    var p2 = window.P || {};
+    var totalK = 0;
+    cats[0].blocks.forEach(function(b){
+      if (b.macros && b.macros.kcal) totalK += b.macros.kcal;
+    });
+    if (!totalK) {
+      // fallback to day kcal target
+      try { totalK = (typeof getDayKcal === 'function') ? getDayKcal(p2, !!(window._currentPlan && window._currentPlan.blocks && window._currentPlan.blocks.find(function(b){return b.type==='training';}))) : (p2.calories || 2000); } catch(e) { totalK = p2.calories || 2000; }
+    }
+    cats[0].meta = totalK.toLocaleString() + ' kcal target';
+    if (cats[1].blocks.length) {
+      var tb = cats[1].blocks[0];
+      var mins = tb.durationMins || 60;
+      var h = Math.floor(mins/60), m = mins%60;
+      cats[1].meta = (h>0? h+'h ':'') + (m>0? (m<10?'0':'')+m+'m' : (h>0?'00m':'0m'));
+    } else {
+      cats[1].meta = 'Rest day';
+    }
+    var moveMin = 0;
+    cats[2].blocks.forEach(function(b){ if (b.durationMins) moveMin += b.durationMins; });
+    cats[2].meta = moveMin > 0 ? moveMin + ' min' : '30\u201360 min';
+    cats[3].meta = 'Evening';
+    cats[4].meta = (p2.sleepTargetHours || '7.5\u20138.5') + ' h target';
+    return cats;
+  }
+
+  // ── Time-group blocks (legacy — kept for Now view & other paths) ──
   function dpGroup(blocks) {
     var gs = [
       { id:'morning',     label:'Morning',     icon:'☀',  min:0,    max:719  },
@@ -7216,44 +8168,114 @@ function renderPlan(plan, browsing) {
     return chips;
   })();
 
-  var sidebarHtml = ''
-    + '<div class="dp3-date-kicker">'
-      + (isBrowsing ? 'Browsing' : new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}))
-    + '</div>'
-    + '<div class="dp3-headline">' + dayType + '<em>' + (isTraining ? 'Signal. Feed. Recover.' : 'Recover. Repair. Reset.') + '</em></div>'
-    + '<div class="dp3-mantra">'
-      + (isTraining
-          ? 'Hit the session. Close protein. Take your stack.'
-          : 'Rest is part of the programme. Adaptation happens here.')
-    + '</div>'
-    + '<div class="dp3-divider"></div>'
-    + '<div class="dp3-section">'
-      + '<span class="dp3-section-label">Today\'s targets</span>'
-      + '<div class="dp3-target-row"><span class="dp3-target-key">Calories in</span><span class="dp3-target-val jade">' + dayKcal + ' kcal</span></div>'
-      + (isTraining ? '<div class="dp3-target-row"><span class="dp3-target-key">Active burn</span><span class="dp3-target-val">' + (trainBlock ? '~'+Math.round((trainBlock.durationMins||90)*8)+' kcal' : '—') + '</span></div>' : '')
-      + '<div class="dp3-target-row"><span class="dp3-target-key">Baseline TDEE</span><span class="dp3-target-val">' + (p.tdee||2769) + ' kcal</span></div>'
-      + '<div class="dp3-target-row"><span class="dp3-target-key">Protein</span><span class="dp3-target-val jade">' + (p.protein||174) + 'g</span></div>'
-      + '<div class="dp3-target-row"><span class="dp3-target-key">Carbs</span><span class="dp3-target-val amber">' + (isTraining ? (p.carbs||323) : Math.round((p.carbs||323)*.75)) + 'g</span></div>'
-      + '<div class="dp3-target-row"><span class="dp3-target-key">Fat</span><span class="dp3-target-val">' + (p.fat||87) + 'g</span></div>'
-    + '</div>'
-    + '<div class="dp3-section">'
-      + '<span class="dp3-section-label">Logged so far</span>'
-      + sidebarMacroHtml
-    + '</div>'
-    + '<div class="dp3-section">'
-      + '<span class="dp3-section-label">Completion</span>'
-      + sidebarRingsHtml
-    + '</div>'
-    + (sidebarChipsHtml ? '<div class="dp3-section"><span class="dp3-section-label">Conditions</span><div class="dp3-chips">' + sidebarChipsHtml + '</div></div>' : '')
-    + '<div class="dp3-section">'
-      + '<div class="dp3-cal-note">'
-        + (deficit > 100
-            ? '<strong>' + deficit + ' kcal</strong> below TDEE — controlled deficit.'
-            : deficit < -100
-            ? '<strong>' + Math.abs(deficit) + ' kcal</strong> above TDEE — mild surplus.'
-            : 'At TDEE maintenance — performance focus.')
-        + ' <strong>' + (p.protein||174) + 'g protein</strong> non-negotiable at '+(p.weight||87)+'kg.'
+  // ── Sidebar: reference-match (dark rail with hero orb) ──
+  var _firstName = (function(){
+    var n = (p && p.name) || '';
+    if (!n) return 'Alex';
+    return String(n).trim().split(/\s+/)[0];
+  })();
+  var _hourNow = new Date().getHours();
+  var _greet = (_hourNow < 5) ? 'Sleep well'
+             : (_hourNow < 12) ? 'Good morning'
+             : (_hourNow < 17) ? 'Good afternoon'
+             : 'Good evening';
+
+  // Narrative — pull from existing coach fields if available
+  var _narrative = '';
+  try {
+    if (plan.coachNarrative) _narrative = String(plan.coachNarrative);
+    else if (p.coachIntro)   _narrative = String(p.coachIntro);
+  } catch(e) {}
+  if (!_narrative) {
+    _narrative = (isTraining
+      ? 'You\u2019re primed for a strong session today. Hit the session, close your protein window, and let recovery do its work tonight.'
+      : 'Recovery is where adaptation happens. Prioritise sleep, hydration, and gentle movement — you\u2019ll train sharper tomorrow.');
+  }
+
+  // Focus card — training if training day, else recovery-first
+  var _focusTitle = isTraining
+    ? (trainBlock ? (trainBlock.title || 'Training session') : 'Training session')
+    : 'Active recovery';
+  var _focusSub = isTraining
+    ? ((trainBlock && trainBlock.durationMins) ? (trainBlock.durationMins + ' min · ' + (trainBlock.time||'today')) : 'Pre-fuel and hit it')
+    : 'Walk, mobility, breath work';
+  var _focusIcon = isTraining ? '\u2b22' : '\u25d0';
+
+  // Coach recommendations — pull accelerators from profile
+  var _recs = [];
+  try {
+    var _accs = (p && p.accelerators) || [];
+    _accs.slice(0,3).forEach(function(a){
+      _recs.push({
+        title: a.title || a.name || 'Recommendation',
+        sub:   a.rationale || a.why || a.sub || '',
+        icon:  a.icon || '\u2728'
+      });
+    });
+  } catch(e) {}
+  while (_recs.length < 3) {
+    var _defaults = [
+      { title: 'Walk 20 min after lunch', sub: 'Lowers postprandial glucose spike; improves Zone 2 base.', icon: '\u25d0' },
+      { title: 'Hit protein target by 7pm', sub: 'Front-load protein to drive muscle protein synthesis all day.', icon: '\u2b55' },
+      { title: 'Wind down by 9:45pm', sub: 'Dim lights and screens an hour before target bedtime.', icon: '\u263d' }
+    ];
+    _recs.push(_defaults[_recs.length]);
+  }
+
+  function _recCard(r) {
+    return '<div class="dp-sb-card" onclick="void(0)">'
+      + '<span class="dp-sb-card-icon">' + r.icon + '</span>'
+      + '<div class="dp-sb-card-body">'
+        + '<div class="dp-sb-card-title">' + r.title + '</div>'
+        + (r.sub ? '<div class="dp-sb-card-sub">' + r.sub + '</div>' : '')
       + '</div>'
+      + '<span class="dp-sb-card-chev">\u203a</span>'
+    + '</div>';
+  }
+
+  var sidebarHtml = ''
+    + '<div class="dp-sb-logo">'
+      + '<svg class="dp-sb-logo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+        + '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'
+      + '</svg>'
+      + '<div>'
+        + '<div class="dp-sb-logo-brand">BodyLens</div>'
+        + '<div class="dp-sb-logo-sub">Soma</div>'
+      + '</div>'
+    + '</div>'
+    + '<div class="dp-sb-orb" aria-hidden="true"></div>'
+    + '<div class="dp-sb-greet">' + _greet + ', ' + _firstName + '.</div>'
+    + '<div class="dp-sb-narrative">' + _narrative + '</div>'
+    + '<div class="dp-sb-label">Today\u2019s focus</div>'
+    + '<div class="dp-sb-card">'
+      + '<span class="dp-sb-card-icon">' + _focusIcon + '</span>'
+      + '<div class="dp-sb-card-body">'
+        + '<div class="dp-sb-card-title">' + _focusTitle + '</div>'
+        + '<div class="dp-sb-card-sub">' + _focusSub + '</div>'
+      + '</div>'
+      + '<span class="dp-sb-card-chev">\u203a</span>'
+    + '</div>'
+    + '<div class="dp-sb-label">Coach recommendations</div>'
+    + _recs.map(_recCard).join('')
+    + '<div class="dp-sb-ask">'
+      + '<input type="text" id="dp-sb-ask-inp" placeholder="Ask Soma anything\u2026" onkeydown="if(event.key===\'Enter\')dpSbAskSend()"/>'
+      + '<button type="button" onclick="dpSbAskSend()" aria-label="Send">'
+        + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
+      + '</button>'
+    + '</div>'
+    + '<div class="dp-sb-nav">'
+      + '<button type="button" class="dp-sb-nav-item active" onclick="void(0)">'
+        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+        + '<span>Coach</span>'
+      + '</button>'
+      + '<a class="dp-sb-nav-item" href="bodylens-intelligence-full.html">'
+        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l3-8 4 16 3-8h5"/></svg>'
+        + '<span>Insights</span>'
+      + '</a>'
+      + '<a class="dp-sb-nav-item" href="bodylens-meals.html">'
+        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>'
+        + '<span>Library</span>'
+      + '</a>'
     + '</div>';
 
   // ── STALE PLAN BANNER ────────────────────────────────────
@@ -7272,29 +8294,307 @@ function renderPlan(plan, browsing) {
     } catch(e) {}
   }
 
-  // ── CENTRE (time-grouped cards) ──────────────────────────
-  var dpGroups = dpGroup(plan.blocks);
-  var centreHtml = staleBannerHtml;
-  dpGroups.forEach(function(g) {
-    // Count explicit 'done' AND 'done-by-trust' so the ribbon reflects
-    // a fully-adherent user's progress without needing taps.
-    var doneCnt = g.cards.filter(function(c){
-      var s = computeBlockState(c.block, c.idx);
-      return s.effective === 'done' || s.effective === 'done-by-trust';
-    }).length;
-    centreHtml += '<div class="dp3-group" id="dp3-group-' + g.id + '">'
-      + '<div class="dp3-group-hdr">'
-        + '<span class="dp3-group-icon">' + g.icon + '</span>'
-        + '<span class="dp3-group-label">' + g.label + '</span>'
-        + (doneCnt > 0 ? '<span class="dp3-group-tally">' + doneCnt + '\u202f/\u202f' + g.cards.length + ' done</span>' : '')
+  // ── CENTRE: reference-match (5 category sections) ───────
+  var dpCats = dpGroupByCategory(plan.blocks);
+  var _today = new Date();
+  var _dateStr = _today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  var _weekDay = _today.toLocaleDateString('en-US', { weekday: 'long' });
+
+  // Top row
+  var _avatarContent = _firstName.charAt(0).toUpperCase();
+  var _avatarStyle = '';
+  if (p && p.photo) {
+    _avatarStyle = ' style="background-image:url(' + p.photo.replace(/"/g,'') + ');background-size:cover;background-position:center;"';
+    _avatarContent = '';
+  }
+  var _weatherHtml = '';
+  try {
+    var _weatherData = p.weather || p.city ? { temp: (p.weather && p.weather.temp)||'72\u00b0F', city: p.city||p.location||'Austin, TX' } : null;
+    if (_weatherData) {
+      _weatherHtml = '<div class="dp-c-weather">'
+        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>'
+        + '<span>' + _weatherData.temp + ' / ' + _weatherData.city + '</span>'
       + '</div>';
-    g.cards.forEach(function(c){ centreHtml += buildDpCard(c.block, c.idx); });
-    centreHtml += '</div>';
+    }
+  } catch(e) {}
+
+  var topRowHtml = '<div class="dp-c-top">'
+    + '<div class="dp-c-top-left">'
+      + '<button type="button" class="dp-c-ghost-btn" onclick="history.back()" aria-label="Back">'
+        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>'
+      + '</button>'
+      + '<button type="button" class="dp-c-ghost-btn" onclick="location.href=\'bodylens-week.html\'" aria-label="Calendar">'
+        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+      + '</button>'
+    + '</div>'
+    + '<div class="dp-c-title-wrap">'
+      + '<div class="dp-c-title">Daily Plan</div>'
+      + '<span class="dp-c-kicker">' + _dateStr + ' \u00b7 ' + _weekDay + ' <span class="dp-c-kicker-chev">\u25be</span></span>'
+    + '</div>'
+    + '<div class="dp-c-top-right">'
+      + _weatherHtml
+      + '<div class="dp-c-avatar"' + _avatarStyle + '>' + _avatarContent + '</div>'
+    + '</div>'
+  + '</div>';
+
+  var centreHtml = staleBannerHtml + topRowHtml;
+
+  // Helpers — build the inside of each section from the category's blocks
+  function _mealEmoji(slot) {
+    if (!slot) return '\ud83c\udf7d\ufe0f';
+    var s = String(slot).toLowerCase();
+    if (s.indexOf('break') >= 0) return '\ud83e\udd63';
+    if (s.indexOf('lunch') >= 0) return '\ud83e\udd57';
+    if (s.indexOf('din') >= 0)   return '\ud83d\udc1f';
+    if (s.indexOf('snack') >= 0) return '\ud83c\udf4e';
+    return '\ud83c\udf7d\ufe0f';
+  }
+  function _mealTimeLabel(block) {
+    if (!block.time) return '';
+    var parts = block.time.split(':');
+    var h = parseInt(parts[0],10); var m = parts[1]||'00';
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12; if (h12 === 0) h12 = 12;
+    return h12 + ':' + m + ' ' + ampm;
+  }
+  function _mealMacrosStr(block) {
+    // Pull targets from plan's per-meal expectation if present; else approximate from day macros / meal count
+    var perP = Math.round((p.protein||174) / Math.max(1, mealBlocks.length));
+    var perC = Math.round((p.carbs||323) / Math.max(1, mealBlocks.length));
+    var perF = Math.round((p.fat||87) / Math.max(1, mealBlocks.length));
+    var perK = Math.round((dayKcal || 2000) / Math.max(1, mealBlocks.length));
+    if (block.macros) {
+      return {
+        p: block.macros.protein || block.macros.prot || perP,
+        c: block.macros.carbs || perC,
+        f: block.macros.fat || perF,
+        k: block.macros.kcal || perK
+      };
+    }
+    return { p: perP, c: perC, f: perF, k: perK };
+  }
+
+  function _buildFuelBody(cat) {
+    // Split into meals vs snacks
+    var meals = cat.blocks.filter(function(b){ return b.mealSlot && !/snack/i.test(b.mealSlot); });
+    var snacks = cat.blocks.filter(function(b){ return b.mealSlot && /snack/i.test(b.mealSlot); });
+    // If we got all meals, keep them. Otherwise fall back to all meal blocks.
+    if (!meals.length && !snacks.length) meals = cat.blocks.filter(function(b){ return b.mealSlot; });
+    // Cap at 3 for the row
+    var mealRow = meals.slice(0, 3);
+    var html = '<div class="dp-meals">';
+    mealRow.forEach(function(b){
+      var logged = !!(log.meals && log.meals[b.mealSlot] && log.meals[b.mealSlot].logged);
+      var m = _mealMacrosStr(b);
+      var slotLbl = (function(s){
+        var up = String(s||'').toUpperCase().replace(/[_-]+/g,' ');
+        return up;
+      })(b.mealSlot);
+      var name = b.title || getMealSlotLabel(b.mealSlot) || '';
+      var ingr = b.subtitle || b.detail || (b.ingredients ? b.ingredients.slice(0,3).join(', ') : '');
+      html += '<button type="button" class="dp-meal' + (logged?' is-logged':'') + '" data-food-stub="true" data-block-idx="' + (b._idx!=null?b._idx:-1) + '" onclick="dpActualOpen(' + (b._idx!=null?b._idx:-1) + ')">'
+        + '<div class="dp-meal-thumb" aria-hidden="true">' + _mealEmoji(b.mealSlot) + '</div>'
+        + '<div class="dp-meal-meta"><span>' + slotLbl + '</span>' + (b.time ? '<span class="sep"></span><span class="time">' + _mealTimeLabel(b) + '</span>' : '') + '</div>'
+        + '<div class="dp-meal-name">' + name + '</div>'
+        + (ingr ? '<div class="dp-meal-ingr">' + ingr + '</div>' : '')
+        + '<div class="dp-meal-macros">'
+          + '<span>P ' + m.p + 'g</span><span>C ' + m.c + 'g</span><span>F ' + m.f + 'g</span>'
+          + '<span class="kcal">' + m.k + ' kcal</span>'
+        + '</div>'
+      + '</button>';
+    });
+    html += '</div>';
+    // Snacks row
+    if (snacks.length) {
+      var totalK = snacks.reduce(function(acc, b){ var m2=_mealMacrosStr(b); return acc + (m2.k||0); }, 0);
+      html += '<div class="dp-snacks">'
+        + '<span class="dp-snacks-label">Snacks</span>';
+      snacks.forEach(function(s){
+        html += '<span class="dp-snack-chip">' + (s.title || getMealSlotLabel(s.mealSlot) || 'Snack') + '</span>';
+      });
+      html += '<span class="dp-snacks-total">' + totalK + ' kcal</span>'
+        + '<button type="button" class="dp-snacks-add" aria-label="Add snack">+</button>'
+      + '</div>';
+    }
+    return html;
+  }
+
+  function _buildTrainBody(cat) {
+    var b = cat.blocks[0];
+    if (!b) return '<div style="font-size:12.5px;color:var(--dp-text2);">Rest day \u2014 no session scheduled.</div>';
+    var ex = (b.exercises || []).filter(function(e){ return e!=='Track loads'; });
+    var headerTitle = (b.title || 'Session');
+    var timeLbl = b.time ? _mealTimeLabel(b) : '';
+    var rpe = b.rpe || ((b.exercises||[]).join(' ').match(/RPE\s*([0-9]+(?:\.5)?)/i)||[])[1];
+    var rows = ex.slice(0, 7).map(function(e){
+      var px = parseEx(e);
+      return '<div class="dp-ex-row"><span class="dp-ex-name">' + px.name + '</span><span class="dp-ex-setrep">' + px.sets + ' \u00d7 ' + px.reps + '</span></div>';
+    }).join('');
+    var extra = ex.length > 7 ? '<div class="dp-ex-row"><span class="dp-ex-name" style="color:var(--dp-text2);font-style:italic;">+' + (ex.length-7) + ' more</span><span class="dp-ex-setrep"></span></div>' : '';
+
+    // Readiness match — use day score as proxy if no explicit readiness value
+    var readVal = Math.min(100, Math.max(0, parseInt(p.readiness || score || 85, 10)));
+    var readNote = readVal >= 80
+      ? 'Great readiness for strength. You\u2019re primed to perform.'
+      : readVal >= 60
+      ? 'Moderate readiness. Stick to RPE targets — don\u2019t chase PRs.'
+      : 'Lower readiness. Reduce load 10\u201320% or shorten the session.';
+    var readColor = readVal >= 80 ? 'var(--dp-sage)' : readVal >= 60 ? 'var(--dp-amber)' : 'var(--dp-red)';
+    var readR = 38, readStroke = 5, readC = 2*Math.PI*readR;
+    var readOffset = readC * (1 - readVal/100);
+
+    return '<div class="dp-train">'
+      + '<div>'
+        + '<div class="dp-train-hdr">'
+          + '<span class="title">' + headerTitle.toUpperCase() + (timeLbl ? ' \u00b7 ' + timeLbl : '') + '</span>'
+          + (rpe ? '<span class="dp-train-rpe">RPE ' + rpe + '</span>' : '')
+        + '</div>'
+        + '<div class="dp-ex-table">' + rows + extra + '</div>'
+      + '</div>'
+      + '<div class="dp-readiness">'
+        + '<div class="dp-readiness-lbl">Readiness match</div>'
+        + '<div class="dp-readiness-ring">'
+          + '<svg viewBox="0 0 ' + (readR*2+readStroke+4) + ' ' + (readR*2+readStroke+4) + '">'
+            + '<circle cx="' + (readR+readStroke/2+2) + '" cy="' + (readR+readStroke/2+2) + '" r="' + readR + '" stroke="rgba(26,22,18,.08)" stroke-width="' + readStroke + '" fill="none"/>'
+            + '<circle cx="' + (readR+readStroke/2+2) + '" cy="' + (readR+readStroke/2+2) + '" r="' + readR + '" stroke="' + readColor + '" stroke-width="' + readStroke + '" fill="none" stroke-linecap="round" stroke-dasharray="' + readC.toFixed(1) + '" stroke-dashoffset="' + readOffset.toFixed(1) + '"/>'
+          + '</svg>'
+          + '<div class="dp-readiness-pct">' + readVal + '%</div>'
+        + '</div>'
+        + '<div class="dp-readiness-note">' + readNote + '</div>'
+        + '<a class="dp-readiness-link" href="#" onclick="event.preventDefault();dp3Toggle(' + (b._idx!=null?b._idx:0) + ');return false;">View exercise notes \u2192</a>'
+      + '</div>'
+    + '</div>';
+  }
+
+  function _buildMoveBody(cat) {
+    if (!cat.blocks.length) return '<div style="font-size:12.5px;color:var(--dp-text2);">No additional movement scheduled.</div>';
+    var html = '<div class="dp-moves">';
+    cat.blocks.slice(0, 4).forEach(function(b){
+      var isMob = /mobility|stretch|flow|yoga/i.test((b.title||'') + ' ' + (b.subtitle||''));
+      var kicker = b.mealSlot ? '' : ((b.time ? _mealTimeLabel(b).split(' ')[1] : '') || (isMob ? 'Flow' : 'Walk'));
+      var durLbl = b.durationMins ? (b.durationMins + ' min') : (b.duration || '');
+      var paceLbl = b.pace || (isMob ? 'Full Body' : 'Zone 2');
+      html += '<div class="dp-move' + (isMob?' is-mobility':'') + '" onclick="dp3Toggle(' + (b._idx!=null?b._idx:0) + ')">'
+        + '<div class="dp-move-thumb">' + (isMob ? 'Mobility' : 'Walk') + '</div>'
+        + '<div class="dp-move-body">'
+          + (kicker ? '<div class="dp-move-kicker">' + kicker + '</div>' : '')
+          + '<div class="dp-move-title">' + (b.title || (isMob ? 'Mobility' : 'Movement')) + '</div>'
+          + '<div class="dp-move-meta">' + paceLbl + (durLbl ? ' \u00b7 ' + durLbl : '') + '</div>'
+        + '</div>'
+      + '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function _buildRecoverBody(cat) {
+    if (!cat.blocks.length) return '<div style="font-size:12.5px;color:var(--dp-text2);">No recovery practices scheduled.</div>';
+    var items = [];
+    cat.blocks.forEach(function(b){
+      if (b.suppList && b.suppList.length) {
+        // Render stack as a single tile titled 'Supplements'
+        items.push({ icon: '\ud83d\udc8a', title: 'Stack', meta: b.suppList.length + ' items', idx: b._idx });
+      } else {
+        var ico = /shower|cold|heat|sauna/i.test(b.title||'') ? '\ud83d\udebf'
+              : /breath/i.test(b.title||'') ? '\ud83c\udf2c\ufe0f'
+              : /journal|write/i.test(b.title||'') ? '\u270f\ufe0f'
+              : /walk|step/i.test(b.title||'') ? '\ud83d\udeb6'
+              : '\ud83c\udf3f';
+        items.push({ icon: ico, title: b.title || 'Recover', meta: (b.durationMins ? b.durationMins+' min' : (b.subtitle||'')), idx: b._idx });
+      }
+    });
+    // If fewer than 4 items, pad with the standard rituals
+    var _padded = [
+      { icon: '\ud83d\udebf', title: 'Contrast shower', meta: '5 min' },
+      { icon: '\ud83c\udf2c\ufe0f', title: 'Breathwork', meta: '5 min' },
+      { icon: '\ud83d\udc8a', title: 'Magnesium', meta: '200\u2013400mg' },
+      { icon: '\u270f\ufe0f', title: 'Journal', meta: '5 min' }
+    ];
+    while (items.length < 4) items.push(_padded[items.length]);
+    var html = '<div class="dp-recover">';
+    items.slice(0,4).forEach(function(r){
+      html += '<div class="dp-recover-tile"' + (r.idx!=null?' onclick="dp3Toggle('+r.idx+')"':'') + '>'
+        + '<span class="dp-recover-ico">' + r.icon + '</span>'
+        + '<div class="dp-recover-title">' + r.title + '</div>'
+        + '<div class="dp-recover-meta">' + (r.meta||'') + '</div>'
+      + '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function _buildSleepBody(cat) {
+    var b = cat.blocks[0] || {};
+    var bedtime = b.time || (p.bedtime || '10:15 PM');
+    var bedStr = b.time ? _mealTimeLabel(b) : bedtime;
+    // Compute wind-down as bedtime - 30min
+    function _computeStart() {
+      if (!b.time) return 'Start by 9:45 PM';
+      var parts = b.time.split(':');
+      var total = parseInt(parts[0],10)*60 + parseInt(parts[1]||0,10) - 30;
+      var h = Math.floor(total/60), m = total%60;
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      var h12 = h % 12; if (h12 === 0) h12 = 12;
+      return 'Start by ' + h12 + ':' + (m<10?'0':'') + m + ' ' + ampm;
+    }
+    return '<div class="dp-sleep-row">'
+      + '<span class="dp-sleep-lead">Wind-down routine <strong>' + _computeStart() + '</strong></span>'
+      + '<div class="dp-sleep-chips">'
+        + '<span class="dp-sleep-chip">Dim lights <span class="t">9:30 PM</span></span>'
+        + '<span class="dp-sleep-arrow">\u2192</span>'
+        + '<span class="dp-sleep-chip">No screens <span class="t">9:45 PM</span></span>'
+        + '<span class="dp-sleep-arrow">\u2192</span>'
+        + '<span class="dp-sleep-chip">Read <span class="t">9:50 PM</span></span>'
+        + '<span class="dp-sleep-arrow">\u2192</span>'
+        + '<span class="dp-sleep-chip">Sleep <span class="t">' + bedStr + '</span></span>'
+      + '</div>'
+    + '</div>';
+  }
+
+  // Attach _idx to blocks for the category-grouped pass
+  plan.blocks.forEach(function(b, i){ b._idx = i; });
+  dpCats = dpGroupByCategory(plan.blocks);
+
+  dpCats.forEach(function(cat) {
+    var allDone = cat.blocks.length > 0 && cat.blocks.every(function(b){
+      var s = computeBlockState(b, b._idx);
+      return s.effective === 'done' || s.effective === 'done-by-trust';
+    });
+    var anyPending = cat.blocks.some(function(b){
+      var s = computeBlockState(b, b._idx);
+      return s.derived === 'pending-now';
+    });
+    var body = '';
+    if (cat.id === 'fuel')     body = _buildFuelBody(cat);
+    else if (cat.id === 'train')   body = _buildTrainBody(cat);
+    else if (cat.id === 'move')    body = _buildMoveBody(cat);
+    else if (cat.id === 'recover') body = _buildRecoverBody(cat);
+    else if (cat.id === 'sleep')   body = _buildSleepBody(cat);
+
+    if (cat.id === 'train' && !cat.blocks.length) return; // skip TRAIN on rest days
+
+    centreHtml += '<section class="dp-sec' + (anyPending ? ' is-current' : '') + '" id="dp-sec-' + cat.id + '">'
+      + '<div class="dp-sec-hdr" onclick="dpSecToggle(\'' + cat.id + '\')">'
+        + '<span class="dp-sec-circle' + (allDone ? ' done' : '') + '" aria-hidden="true"></span>'
+        + '<span class="dp-sec-icon" aria-hidden="true">' + cat.iconSvg + '</span>'
+        + '<div class="dp-sec-titles">'
+          + '<div class="dp-sec-title">' + cat.label + '</div>'
+          + '<div class="dp-sec-sub">' + cat.sub + '</div>'
+        + '</div>'
+        + '<div class="dp-sec-meta">' + cat.meta + '</div>'
+        + '<button class="dp-sec-chev" type="button" aria-label="Toggle section">\u25be</button>'
+      + '</div>'
+      + '<div class="dp-sec-body">' + body + '</div>'
+    + '</section>';
   });
-  centreHtml += '<div class="dp3-rebuild-row">'
+
+  // Bottom status bar
+  centreHtml += '<div class="dp-status-bar">'
+    + '<span class="dp-status-dot"></span>'
+    + '<span class="dp-status-msg">Plan synced to your devices</span>'
     + (isBrowsing
-        ? '<button class="dp3-rebuild-btn" onclick="backToToday()">← Back to today</button>'
-        : '<button class="dp3-rebuild-btn" onclick="regen()" id="dp2-rebuild-btn">↺ Rebuild plan</button>')
+        ? '<button class="dp-status-btn" onclick="backToToday()">Back to today</button>'
+        : '<button class="dp-status-btn" onclick="regen()" id="dp2-rebuild-btn">Adjust plan</button>')
   + '</div>';
 
   // ── RIGHT PANEL ──────────────────────────────────────────
@@ -7346,51 +8646,243 @@ function renderPlan(plan, browsing) {
     }
   } catch(e) {}
 
-  var panelHtml = adaptIndicatorHtml
-    + '<div class="dp3-score-block">'
-      + '<div class="dp3-score-ring-wrap">'
-        + scoreBigRing
-        + '<div class="dp3-score-inner">'
-          + '<span class="dp3-score-num" id="dp2-eod-score">' + score + '</span>'
-          + '<span class="dp3-score-den">/100</span>'
-        + '</div>'
-      + '</div>'
-      + '<div class="dp3-score-label">Day score · updates live</div>'
-      + '<div class="dp3-score-bar"><div class="dp3-score-bar-fill" style="width:' + score + '%;"></div></div>'
+  // ── RIGHT RAIL: Performance rail (reference match) ──
+  // Data gathering for metric cards
+  var _hydrTarget = p.hydrationTarget || 3.0;
+  var _hydrCur = (log.hydration != null) ? log.hydration : 0;
+  var _hydrPct = Math.round((_hydrCur / Math.max(0.1, _hydrTarget)) * 100);
+  var _stepsTarget = p.stepsTarget || 10000;
+  var _stepsCur = (log.steps != null) ? log.steps : 0;
+  // Hourly steps — stub sine if no per-hour breakdown
+  var _stepsBars = (function(){
+    var src = (log.stepsHourly && log.stepsHourly.length === 24) ? log.stepsHourly : null;
+    var max = 0; var arr = [];
+    for (var h = 0; h < 24; h++) {
+      var v = src ? src[h] : Math.max(0, Math.round(Math.sin((h-6)/24 * Math.PI) * 680 + (h>=6&&h<=21?80:0)));
+      arr.push(v); if (v > max) max = v;
+    }
+    return { bars: arr, max: Math.max(1, max) };
+  })();
+  // Last 7 days of logs for sparklines + adherence
+  var _last7 = (function(){
+    var out = [];
+    for (var di = 6; di >= 0; di--) {
+      var d = new Date(_today.getTime() - di*86400000);
+      var key = 'bl_daylog_' + d.toISOString().slice(0,10);
+      var l = null;
+      try { l = JSON.parse(localStorage.getItem(key)||'null'); } catch(e) {}
+      out.push({ date: d, log: l });
+    }
+    return out;
+  })();
+  // Adherence: completion % per day from logs
+  var _adherenceBars = _last7.map(function(x){
+    var l = x.log || {};
+    // Count: train done + each meal logged + supps taken / possible items
+    var possible = 0, got = 0;
+    // Meals
+    var ms = l.meals || {};
+    Object.keys(ms).forEach(function(k){ possible++; if (ms[k] && ms[k].logged) got++; });
+    if (!possible) possible = 3;
+    // Training (only counted if it was scheduled)
+    if (l.trainStatus != null) { possible++; if (l.trainStatus === 'done') got++; }
+    // Supps
+    var sl = l.supplementsTaken || l.supps || l.supLog || {};
+    if (typeof sl === 'object' && sl) {
+      Object.keys(sl).forEach(function(k){ possible++; if (sl[k]) got++; });
+    }
+    return { pct: Math.round(got / Math.max(1, possible) * 100), isToday: x.date.toDateString() === _today.toDateString() };
+  });
+  var _adherenceAvg = Math.round(_adherenceBars.reduce(function(a,b){ return a+b.pct; },0) / _adherenceBars.length);
+
+  // Sleep sparkline from logs (last 7 days)
+  var _sleepSeries = _last7.map(function(x){ return (x.log && x.log.sleepActual) || null; });
+  var _sleepAvg = (function(){
+    var vals = _sleepSeries.filter(function(v){ return v != null; });
+    if (!vals.length) return null;
+    return (vals.reduce(function(a,b){ return a+b; },0) / vals.length);
+  })();
+
+  // Readiness sparkline — use a per-day score if available, else flat
+  var _readSeries = _last7.map(function(x){
+    var l = x.log || {};
+    if (l.dayScore != null) return l.dayScore;
+    if (l.readiness != null) return l.readiness;
+    return null;
+  });
+  var readinessVal = p.readiness || score || 85;
+
+  function _spark(data, width, height, col) {
+    width = width || 120; height = height || 32;
+    var clean = data.map(function(v){ return (v==null?null:+v); });
+    var filled = clean.filter(function(v){ return v!=null; });
+    if (!filled.length) {
+      // flat placeholder line
+      return '<svg viewBox="0 0 '+width+' '+height+'" width="100%" height="'+height+'" preserveAspectRatio="none"><path d="M0 '+(height/2)+' L'+width+' '+(height/2)+'" stroke="'+(col||'var(--dp-sage-dark)')+'" stroke-width="1.25" fill="none" opacity=".35"/></svg>';
+    }
+    var min = Math.min.apply(null, filled), max = Math.max.apply(null, filled);
+    if (max === min) { max = min + 1; }
+    var step = width / Math.max(1, (clean.length-1));
+    var d = '';
+    clean.forEach(function(v, i){
+      if (v == null) return;
+      var x = (i * step).toFixed(1);
+      var y = (height - 2 - ((v - min) / (max - min)) * (height - 4)).toFixed(1);
+      d += (d === '' ? 'M' : ' L') + x + ' ' + y;
+    });
+    return '<svg viewBox="0 0 '+width+' '+height+'" width="100%" height="'+height+'" preserveAspectRatio="none">'
+      + '<path d="' + d + '" stroke="' + (col||'var(--dp-sage-dark)') + '" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+    + '</svg>';
+  }
+
+  // Adaptation indicator sits above the Readiness card when active
+  var panelHtml = ''
+    + '<div class="dp-r-top">'
+      + '<span class="dp-r-top-lbl">Performance rail</span>'
+      + '<button type="button" class="dp-r-drop">Today \u25be</button>'
     + '</div>'
+    + (adaptIndicatorHtml || '');
+
+  // READINESS
+  var _readLabel = readinessVal >= 80 ? 'Optimal' : readinessVal >= 60 ? 'Steady' : 'Low';
+  var hrv = (p.hrv != null) ? p.hrv : ((log.hrv != null) ? log.hrv : 72);
+  var rhr = (p.rhr != null) ? p.rhr : ((log.rhr != null) ? log.rhr : 52);
+  var sleepScore = (log.sleepScore != null) ? log.sleepScore : 86;
+  panelHtml += '<div class="dp-r-card">'
+    + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Readiness</span><span class="dp-r-card-info" title="Composite of HRV, RHR, sleep">i</span></div>'
+    + '<div class="dp-r-big"><span class="dp-r-big-num" id="dp-r-readiness-num">' + readinessVal + '</span><span class="dp-r-big-den">/ 100</span></div>'
+    + '<div class="dp-r-sub sage">' + _readLabel + '</div>'
+    + '<div class="dp-r-spark">' + _spark(_readSeries, 320, 32, 'var(--dp-sage-dark)') + '</div>'
+    + '<div class="dp-r-microstats">'
+      + '<div><span class="k">HRV</span><span class="v">' + hrv + 'ms</span></div>'
+      + '<div><span class="k">RHR</span><span class="v">' + rhr + 'bpm</span></div>'
+      + '<div><span class="k">Sleep</span><span class="v">' + sleepScore + '</span></div>'
+    + '</div>'
+  + '</div>';
+
+  // CALORIE TARGET
+  var _kcalTarget = dayKcal || 2000;
+  var _kcalEaten = (eaten && eaten.kcal) || 0;
+  var _kcalPct = Math.min(100, Math.round(_kcalEaten / Math.max(1, _kcalTarget) * 100));
+  var _kcalLeft = Math.max(0, _kcalTarget - _kcalEaten);
+  panelHtml += '<div class="dp-r-card">'
+    + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Calorie target</span><span class="dp-r-card-info">i</span></div>'
+    + '<div class="dp-r-big"><span class="dp-r-big-num">' + _kcalEaten.toLocaleString() + '</span><span class="dp-r-big-den">/ ' + _kcalTarget.toLocaleString() + ' kcal</span></div>'
+    + '<div class="dp-r-bar"><div class="dp-r-bar-fill" style="width:' + _kcalPct + '%;"></div></div>'
+    + '<div class="dp-r-foot">' + (_kcalLeft > 0 ? _kcalLeft.toLocaleString() + ' kcal remaining' : 'Target reached') + '</div>'
+  + '</div>';
+
+  // MACROS
+  var _mP_t = p.protein || 180;
+  var _mC_t = p.carbs || 220;
+  var _mF_t = p.fat || 70;
+  var _mP = (eaten && eaten.prot) || 0;
+  var _mC = (eaten && eaten.carbs) || 0;
+  var _mF = (eaten && eaten.fat) || 0;
+  // Use grams share for visual donut (so it tracks intake)
+  var _totGram = Math.max(1, _mP + _mC + _mF);
+  var _pctP = Math.round(_mP / _totGram * 100);
+  var _pctC = Math.round(_mC / _totGram * 100);
+  var _pctF = 100 - _pctP - _pctC;
+  if (_mP + _mC + _mF === 0) { _pctP = 33; _pctC = 33; _pctF = 34; }
+  panelHtml += '<div class="dp-r-card">'
+    + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Macros</span><span class="dp-r-card-info">i</span></div>'
+    + '<div class="dp-r-macros-grid">'
+      + '<div class="dp-donut" style="--m-prot:' + _pctP + '%;--m-carb:' + _pctC + '%;"></div>'
+      + '<div class="dp-macros-list">'
+        + '<div class="dp-macro-line"><span class="dot" style="background:#6B8AC4;"></span><span class="nm">Protein</span><span class="vals">' + _mP + 'g / ' + _mP_t + 'g</span><span class="pct">' + Math.round(_mP/Math.max(1,_mP_t)*100) + '%</span></div>'
+        + '<div class="dp-macro-line"><span class="dot" style="background:#A89854;"></span><span class="nm">Carbs</span><span class="vals">' + _mC + 'g / ' + _mC_t + 'g</span><span class="pct">' + Math.round(_mC/Math.max(1,_mC_t)*100) + '%</span></div>'
+        + '<div class="dp-macro-line"><span class="dot" style="background:#C49A6B;"></span><span class="nm">Fat</span><span class="vals">' + _mF + 'g / ' + _mF_t + 'g</span><span class="pct">' + Math.round(_mF/Math.max(1,_mF_t)*100) + '%</span></div>'
+      + '</div>'
+    + '</div>'
+    + '<a class="dp-macros-link" href="bodylens-meals.html">View details \u2192</a>'
+  + '</div>';
+
+  // STEPS
+  var _stepsPct = Math.round(_stepsCur / Math.max(1, _stepsTarget) * 100);
+  var _stepsBarsHtml = _stepsBars.bars.map(function(v, i){
+    var h = Math.max(6, Math.round(v / _stepsBars.max * 34));
+    // Mark "completed" hours up to current hour with 'on' class
+    var on = (i <= _today.getHours() && v > 50);
+    return '<div class="b' + (on?' on':'') + '" style="height:' + h + 'px;" aria-hidden="true"></div>';
+  }).join('');
+  panelHtml += '<div class="dp-r-card">'
+    + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Steps</span><span class="dp-r-card-info">i</span></div>'
+    + '<div class="dp-r-big"><span class="dp-r-big-num">' + (_stepsCur||0).toLocaleString() + '</span><span class="dp-r-big-den">/ ' + _stepsTarget.toLocaleString() + '</span></div>'
+    + '<div class="dp-r-sub">' + _stepsPct + '% of daily goal</div>'
+    + '<div class="dp-steps-chart">' + _stepsBarsHtml + '</div>'
+    + '<div class="dp-steps-labels"><span>6AM</span><span>12PM</span><span>6PM</span><span>12AM</span></div>'
+  + '</div>';
+
+  // HYDRATION
+  var _glassCount = 8;
+  var _glassesFilled = Math.round((_hydrCur / Math.max(0.1, _hydrTarget)) * _glassCount);
+  var _glassHtml = '';
+  for (var gi = 0; gi < _glassCount; gi++) {
+    _glassHtml += '<span class="dp-glass' + (gi < _glassesFilled ? ' on' : '') + '" aria-hidden="true"></span>';
+  }
+  panelHtml += '<div class="dp-r-card">'
+    + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Hydration</span><span class="dp-r-card-info">i</span></div>'
+    + '<div class="dp-r-big"><span class="dp-r-big-num">' + (_hydrCur.toFixed ? _hydrCur.toFixed(1) : _hydrCur) + '</span><span class="dp-r-big-den">/ ' + _hydrTarget + ' L \u00b7 ' + _hydrPct + '%</span></div>'
+    + '<div class="dp-hydr">' + _glassHtml + '<button type="button" class="dp-hydr-add" aria-label="Log water" onclick="dpHydrAdd()">+</button></div>'
+  + '</div>';
+
+  // SLEEP
+  var _sleepDisplay = (log.sleepActual != null) ? (log.sleepActual + 'h') : (_sleepAvg != null ? (_sleepAvg.toFixed(1) + 'h') : '7h 32m');
+  panelHtml += '<div class="dp-r-card">'
+    + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Sleep</span><span class="dp-r-card-info">i</span></div>'
+    + '<div class="dp-r-big"><span class="dp-r-big-num">' + sleepScore + '</span><span class="dp-r-big-den">/ 100</span></div>'
+    + '<div class="dp-r-sub sage">' + (sleepScore >= 80 ? 'Good' : sleepScore >= 60 ? 'Okay' : 'Poor') + '</div>'
+    + '<div class="dp-r-spark">' + _spark(_sleepSeries, 320, 32, 'var(--dp-sage-dark)') + '</div>'
+    + '<div class="dp-r-microstats">'
+      + '<div><span class="k">Duration</span><span class="v">' + _sleepDisplay + '</span></div>'
+      + '<div><span class="k">Avg HRV</span><span class="v">' + hrv + 'ms</span></div>'
+      + '<div><span class="k">Deep</span><span class="v">' + (log.deepSleepPct || 14) + '%</span></div>'
+    + '</div>'
+  + '</div>';
+
+  // ADHERENCE
+  var _weekBarsMax = Math.max(1, _adherenceBars.reduce(function(m,b){ return Math.max(m, b.pct); }, 0));
+  var _weekBarsHtml = _adherenceBars.map(function(b){
+    var h = Math.max(4, Math.round(b.pct / 100 * 40));
+    return '<div class="dp-week-bar' + (b.pct >= 50 ? ' on' : '') + (b.isToday ? ' today' : '') + '" style="height:' + h + 'px;" aria-hidden="true"></div>';
+  }).join('');
+  panelHtml += '<div class="dp-r-card">'
+    + '<div class="dp-r-card-hdr"><span class="dp-r-card-lbl">Adherence</span><span class="dp-r-card-info">i</span></div>'
+    + '<div class="dp-r-big"><span class="dp-r-big-num">' + _adherenceAvg + '%</span><span class="dp-r-big-den">On track</span></div>'
+    + '<div class="dp-week">' + _weekBarsHtml + '</div>'
+    + '<div class="dp-week-labels"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>'
+  + '</div>';
+
+  // Legacy EOD controls offscreen — keep dpSaveDay / dpSaveSleep / dpSaveEnergy / dpCoachReview functional.
+  panelHtml += '<div class="dp-legacy-offscreen" aria-hidden="true">'
     + '<div class="dp3-eod-rows">'
-      + (isTraining ? '<div class="dp3-eod-row"><span class="dp3-eod-key">Training</span><span class="dp3-eod-val '+(trainDone?'jade':trainMod?'amber':'')+'">'+(trainDone?'✓ Done':trainMod?'~ Modified':'Not logged')+'</span></div>' : '')
-      + '<div class="dp3-eod-row"><span class="dp3-eod-key">Meals</span><span class="dp3-eod-val '+(mealsLogged===mealBlocks.length&&mealBlocks.length?'jade':'')+'">'+mealsLogged+' / '+mealBlocks.length+'</span></div>'
-      + '<div class="dp3-eod-row"><span class="dp3-eod-key">Stack</span><span class="dp3-eod-val">'+suppsDone+' / '+(profileSupps.length||0)+'</span></div>'
+      + (isTraining ? '<div class="dp3-eod-row"><span class="dp3-eod-key">Training</span><span class="dp3-eod-val '+(trainDone?'jade':trainMod?'amber':'')+'">'+(trainDone?'Done':trainMod?'Modified':'Not logged')+'</span></div>' : '')
+      + '<div class="dp3-eod-row"><span class="dp3-eod-key">Meals</span><span class="dp3-eod-val">' + mealsLogged + ' / ' + mealBlocks.length + '</span></div>'
+      + '<div class="dp3-eod-row"><span class="dp3-eod-key">Stack</span><span class="dp3-eod-val">' + suppsDone + ' / ' + (profileSupps.length||0) + '</span></div>'
     + '</div>'
-    + '<div class="dp3-panel-section">'
-      + '<span class="dp3-panel-label">Tonight\'s sleep</span>'
-      + '<div class="dp3-sleep-row">'
-        + [5,6,7,8,9].map(function(h){
-            return '<button class="dp3-sleep-btn dp2-sleep-btn'+(log.sleepActual===h?' active':'')+'" onclick="dpSaveSleep('+h+')">'+h+'h</button>';
-          }).join('')
-      + '</div>'
-      + '<div style="font-size:10px;color:var(--dp-jade);margin-top:5px;min-height:14px;" id="dp2-sleep-val">'+(log.sleepActual ? log.sleepActual+'h ✓' : '')+'</div>'
+    + '<div class="dp3-sleep-row">'
+      + [5,6,7,8,9].map(function(h){
+          return '<button class="dp3-sleep-btn dp2-sleep-btn'+(log.sleepActual===h?' active':'')+'" onclick="dpSaveSleep('+h+')">'+h+'h</button>';
+        }).join('')
     + '</div>'
-    + '<div class="dp3-panel-section">'
-      + '<span class="dp3-panel-label">Energy today</span>'
-      + '<div class="dp3-energy-row">'
-        + [1,2,3,4,5].map(function(n){
-            var on = (log.energyLevel||0) >= n;
-            return '<div class="dp3-energy-dot'+(on?' on':'')+'" onclick="dpSaveEnergy('+n+')" data-val="'+n+'"></div>';
-          }).join('')
-        + '<span class="dp3-energy-label" id="dp3-energy-lbl">'+(log.energyLevel ? log.energyLevel+'/5' : '')+'</span>'
-      + '</div>'
+    + '<span id="dp2-sleep-val">' + (log.sleepActual ? log.sleepActual+'h \u2713' : '') + '</span>'
+    + '<div class="dp3-energy-row">'
+      + [1,2,3,4,5].map(function(n){
+          var on = (log.energyLevel||0) >= n;
+          return '<div class="dp3-energy-dot'+(on?' on':'')+'" onclick="dpSaveEnergy('+n+')" data-val="'+n+'"></div>';
+        }).join('')
+      + '<span class="dp3-energy-label" id="dp3-energy-lbl">' + (log.energyLevel ? log.energyLevel+'/5' : '') + '</span>'
     + '</div>'
-    + '<div class="dp3-panel-section">'
-      + '<span class="dp3-panel-label">Notes for tomorrow</span>'
-      + '<textarea class="dp3-notes" rows="3" placeholder="How did today go? Anything to carry forward?" onchange="dpSaveNotes(this.value)" onblur="dpSaveNotes(this.value)">'+savedNotes+'</textarea>'
-    + '</div>'
-    + '<button class="dp2-save-btn dp3-save-btn" onclick="dpSaveDay()">Save &amp; close the day →</button>'
-    + '<button class="dp3-review-btn" id="dp2-coach-review-btn" onclick="dpCoachReview()">Review with coach →</button>'
+    + '<textarea class="dp3-notes" rows="3" placeholder="Notes" onchange="dpSaveNotes(this.value)" onblur="dpSaveNotes(this.value)">' + savedNotes + '</textarea>'
+    + '<button class="dp2-save-btn dp3-save-btn" onclick="dpSaveDay()">Save &amp; close the day</button>'
+    + '<button class="dp3-review-btn" id="dp2-coach-review-btn" onclick="dpCoachReview()">Review with coach</button>'
     + '<div id="dp2-coach-review-out" class="dp2-coach-review-out"></div>'
-    + '<div class="dp3-breakdown" id="dp2-eod-breakdown">'+(breakdown||'Log your day to build your score')+'</div>'
-    + '<span id="dp2-score-top" style="display:none">'+score+'</span>';
+    + '<div class="dp3-breakdown" id="dp2-eod-breakdown">' + (breakdown||'') + '</div>'
+    + '<span id="dp2-score-top">' + score + '</span>'
+    // Keep a stub for ring-fill id so dpRefreshScore doesn't throw
+    + '<svg><circle id="dp2-ring-fill" stroke-dasharray="100" stroke-dashoffset="0"></circle></svg>'
+  + '</div>';
 
   // ── FLOAT + VOICE ────────────────────────────────────────
   var floatHtml3 = '<div class="dp2-float-score" id="dp2-float">'
@@ -8306,6 +9798,44 @@ function dp3Toggle(idx) {
   var wasOpen = card.classList.contains('open');
   document.querySelectorAll('.dp3-card.open').forEach(function(el){ el.classList.remove('open'); });
   if (!wasOpen) card.classList.add('open');
+}
+
+// ── Section collapse toggle (reference-match centre) ─────────────────
+function dpSecToggle(id) {
+  var sec = document.getElementById('dp-sec-' + id);
+  if (!sec) return;
+  sec.classList.toggle('collapsed');
+}
+
+// ── Ask-Soma input (stub) ────────────────────────────────────────────
+function dpSbAskSend() {
+  var inp = document.getElementById('dp-sb-ask-inp');
+  var val = inp ? inp.value.trim() : '';
+  if (!val) return;
+  try {
+    if (typeof showToast === 'function') showToast('Soma replies coming soon');
+    else {
+      var t = document.createElement('div');
+      t.textContent = 'Soma replies coming soon';
+      t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1A1612;color:#EDE4D2;padding:10px 16px;border-radius:999px;font-size:13px;z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.3);';
+      document.body.appendChild(t);
+      setTimeout(function(){ t.remove(); }, 1800);
+    }
+  } catch(e) {}
+  if (inp) inp.value = '';
+}
+
+// ── Hydration quick-log (+0.25 L) ───────────────────────────────────
+function dpHydrAdd() {
+  try {
+    var key = 'bl_daylog_' + new Date().toISOString().slice(0,10);
+    var log = JSON.parse(localStorage.getItem(key) || '{}');
+    log.hydration = (log.hydration || 0) + 0.25;
+    localStorage.setItem(key, JSON.stringify(log));
+    if (window._currentPlan && typeof renderPlan === 'function') {
+      renderPlan(window._currentPlan, !!window._currentBrowsing);
+    }
+  } catch(e) {}
 }
 
 // ═══════════════════════════════════════════════════════════════════════
